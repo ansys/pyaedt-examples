@@ -63,7 +63,6 @@ dist
 *.err
 *.err.*
 dev_env
-venv
 *.egg-info
 conan_imports_manifest.txt
 conanbuildinfo.txt
@@ -97,3 +96,16 @@ test_results-*.xml
 .coverage.*
 .DS_Store
 .DS_Store
+
+# Ipython notebook checkpoints
+.ipynb_checkpoints
+
+# Environments
+.env
+.venv
+env/
+venv/
+/venv/
+ENV/
+env.bak/
+venv.bak/
