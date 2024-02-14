@@ -1,0 +1,6 @@
+[flake8]
+select = W191, W291, W293, W391, E115, E117, E122, E124, E125, E225, E231, E301, E303, E501, F401, F403, N801, N802, N803, N804, N805, N806, N807, N815, N816
+max-line-length = 120
+per-file-ignores = 
+    __init__.py:F401 
+    ansys/rep/orchestration/interfaces/command_option_models.py:N805

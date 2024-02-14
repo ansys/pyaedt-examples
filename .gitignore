@@ -1,0 +1,99 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# C extensions
+*.so
+
+# Distribution / packaging
+bin/
+build/
+develop-eggs/
+dist/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+
+# Translations
+*.mo
+
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
+
+# Rope
+.ropeproject
+
+# Django stuff:
+*.log
+*.pot
+
+# Sphinx documentation
+docs/_build/
+log.txt
+
+python/dcp.egg-info/
+build/
+bin/
+dist
+.vs/
+/*.bat
+*.whl
+*.tar.gz
+*.log
+*.log.*
+*.err
+*.err.*
+dev_env
+venv
+*.egg-info
+conan_imports_manifest.txt
+conanbuildinfo.txt
+conaninfo.txt
+graph_info.json
+*.exp
+*.lib
+*_env/
+test_run/
+
+.pytest_cache/
+test_results.xml
+freeze/freeze_log.txt
+docs/schema/*
+*.pdb
+core.*
+content.txt
+replaced_content.txt
+[Oo]bj/
+
+# REP specific
+*.tmp
+*.csproj.orig
+csharp/NuGet.Config
+csharp/Directory.*.props
+.idea
+one_build_project.txt
+*.orig
+.DS_Store
+test_results-*.xml
+.coverage.*
+.DS_Store
+.DS_Store

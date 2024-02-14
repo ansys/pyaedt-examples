@@ -1,0 +1,9 @@
+pytest==7.4.2
+pytest-cov==4.1.0
+pytest-xdist==3.3.1
+pytest-timeout==2.1.0
+pytest-mock-resources[redis]==2.9.2
+python-on-whales==0.65.0
+tox==4.11.3
+
+

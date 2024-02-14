@@ -1,0 +1,49 @@
+name: Bug
+description: File a bug report with a form.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before opening a bug report, please search for the behaviour in the existing issues. 
+        
+        ---
+        
+        Thank you for taking the time to file a bug report. To address this bug as fast as possible, we need some information.
+  - type: dropdown
+    id: deployment_template
+    attributes:
+      label: deployment template
+      description: which deployment template are you using
+      options:
+        - rep-core
+        - rep-gateway-parallel-cluster
+        - rep-kubernetes
+        - other (please specify in the description)
+    validations:
+      required: true
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: Bug description
+      description: A clear and concise description of what the bug is.  Screenshots can be used here to aid in the description.
+    validations:
+      required: true
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: A clear and concise description of what you expected to happen.   Screenshots can be used here to aid in the description.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Which steps do we need to take to reproduce this error?  Ideally a script to reproduce the error (pyrep or cpp-client) would be provided
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Logs or tracebacks coming from the service(s) should be attached.  Please attach the full log and not a partial.  
+      render: shell

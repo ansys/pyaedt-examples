@@ -1,0 +1,19 @@
+version: 2
+updates:
+  - package-ecosystem: "pip" # See documentation for possible values
+    directory: "/" # Location of package manifests
+    insecure-external-code-execution: allow
+    schedule:
+      interval: "daily"
+    labels:
+      - "maintenance"
+      - "dependencies"
+    groups:
+      opentelemetry:
+        patterns:
+          - "opentelemetry*"
+      dependencies:
+        patterns:
+          - "*" # Update all packages together
+        exclude-patterns:
+          - "opentelemetry*"

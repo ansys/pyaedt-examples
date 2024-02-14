@@ -1,0 +1,81 @@
+# syntax=docker/dockerfile:1
+
+################################################################
+# Dependencies
+FROM python:3.10-buster as deps
+
+RUN apt-get update && apt-get install -y vim \
+    gcc \
+    g++ \
+    libcurl4 \
+    libcurl4-openssl-dev \
+    libc6-dev \
+    libffi-dev \
+    libssl-dev
+
+# Install Rust and cargo
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+
+# Parts needed by nuitka
+RUN apt-get install -y \
+    patchelf \
+    libfuse2 \
+    ccache 
+
+################################################################
+# Venv preparation & freezing
+FROM deps as venv
+
+ARG branch
+ARG revision
+ARG short_revision
+
+WORKDIR /usr/src/repo-template
+
+# Setup Python virtual env
+ENV VIRTUAL_ENV=/opt/venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+# Copy source code
+COPY . .
+
+# Create dev environment
+RUN --mount=type=secret,id=netrc,dst=/root/.netrc \
+    --mount=type=cache,target=/root/.ccache \
+    --mount=type=cache,target=/root/.cache/pip \
+    python3 build.py --branch=$branch --short-revision=$short_revision --revision=$revision dev
+
+################################################################
+# Freezing
+FROM venv as build
+
+ARG branch
+ARG revision
+ARG short_revision
+
+# Copy python icon (needed by nuitka)
+COPY docker/python3.xpm /usr/share/pixmaps/python3.xpm
+
+# Create distributables
+RUN --mount=type=secret,id=netrc,dst=/root/.netrc \
+    --mount=type=cache,target=/root/.ccache \
+    --mount=type=cache,target=/root/.cache/pip \
+    python3 build.py --branch=$branch --short-revision=$short_revision --revision=$revision dist
+
+# ################################################################
+# Runtime
+#FROM python:3.10-slim-buster as runtime
+FROM build as runtime
+
+WORKDIR /app
+
+# for rest tests
+#RUN python3 -m pip install requests
+
+COPY --from=build /usr/src/repo-template/freeze/build/rep-* /app/
+COPY --from=build /usr/src/repo-template/tests /app/tests
+RUN ls -lrt /app/
+
+# this allows container to run even though not a service
+CMD sleep infinity

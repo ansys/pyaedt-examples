@@ -1,0 +1,301 @@
+name: CI-CD
+
+on:
+  workflow_dispatch:
+    inputs:
+      freeze_linux:
+        type: boolean
+        default: true
+        description: Freeze linux
+      freeze_windows:
+        type: boolean
+        default: false
+        description: Freeze windows
+      force_release:
+          type: boolean
+          default: false
+          description: Force to push a release now
+  push:
+    branches:
+      - "main"
+  pull_request:
+    branches:
+      - "main"
+  schedule:
+    - cron: "0 1 * * 1-5"
+
+env:
+  MAIN_PYTHON_VERSION: '3.10'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  
+  style:
+    name: Code style
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools tox
+      - name: Test with tox
+        run: tox -e style
+
+  tests:
+    name: Tests and coverage
+    needs: [freeze]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      # max-parallel: 1
+      matrix:
+        os: [ubuntu-latest]
+        cfg:
+          - {python-version: "3.10", toxenv: "py310"}
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.cfg.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.cfg.python-version }}
+
+      - uses: extractions/netrc@v1
+        with:
+          machine: github.com
+          username: pyansys-ci-bot
+          password: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools tox tox-gh-actions
+      - name: Test with tox
+        run: tox -e ${{ matrix.cfg.toxenv }}-coverage 
+        # env:
+
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v3
+        if: always()
+        with:
+          report_paths: '**/test*.xml'
+          check_name: Test Report ${{ matrix.os }}:${{ matrix.cfg.python-version }} 
+
+  wheels: 
+    name: Wheels
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.wheels.outputs.version }}
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up python
+      uses: actions/setup-python@v3
+      with:
+        python-version:  ${{ env.MAIN_PYTHON_VERSION }}
+
+    - uses: extractions/netrc@v1
+      with:
+        machine: github.com
+        username: pyansys-ci-bot
+        password: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
+
+    - name: Install dependencies and build the library
+      id: wheels      
+      run: |
+        python -m pip install --upgrade pip setuptools
+        python -m pip install -r requirements/requirements_build.txt
+        python build.py dev
+        python build.py wheels
+        python -m twine check dist/*
+        version=$(ls dist/ | grep template | grep -E -o "[0-9]+.[0-9]+.[0-9]+")
+        echo "version=$version" >> $GITHUB_OUTPUT
+        echo "Version: $version"
+
+    # - name: Version
+    #   run: |
+    #     ver=$(dev_env/bin/pip show ansys-rep-common | grep Version | awk '{print $2}')
+    #     echo "version=$ver" >> $GITHUB_OUTPUT
+    #   id: version
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ansys-rep-repo-template-package
+        path: |
+          dist/*.whl
+        retention-days: 5
+
+  freeze:
+    name: Freeze
+    runs-on:
+      group: "Default Larger Runners"
+      labels: ubuntu-latest-16-cores
+    if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.freeze_linux == 'true' }}
+    needs: [wheels, style]
+    strategy:
+      matrix: 
+        image: [default]  
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io/ansys
+          username: pyansys-ci-bot
+          password: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
+
+      - name: Create .netrc
+        run: |
+          printf "machine github.com\n\
+                  login pyansys-ci-bot\n\
+                  password ${{ secrets.PYANSYS_CI_BOT_TOKEN }}\n"\ >> ./.netrc
+          chmod 600 ./.netrc
+
+      - name: Image and docker properties
+        id: props
+        run: |
+          echo "image=rep-repo-template-${{ matrix.image }}:${{github.run_id}}" >> $GITHUB_OUTPUT
+          echo "container=rep-repo-template-${{ matrix.image }}-${{github.run_id}}" >> $GITHUB_OUTPUT
+          echo "revision=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+          echo "short_revision=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Build image
+        uses: docker/build-push-action@v3
+        with:
+          push: false
+          context: .
+          tags: ${{ steps.props.outputs.image }}
+          file: docker/Dockerfile.${{ matrix.image }}
+          secret-files: |
+            "netrc=./.netrc"
+          outputs: type=docker,dest=/tmp/rep-repo-template-${{ matrix.image }}-image.tar
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          secrets: |
+            GIT_AUTH_TOKEN=${{ secrets.PYANSYS_CI_BOT_TOKEN }}
+          build-args: |
+            branch=${{github.ref_name}}
+            revision=${{steps.props.outputs.revision}}
+            short_revision=${{steps.props.outputs.short_revision}}
+      
+      - name: Load images
+        run: |
+          docker load --input /tmp/rep-repo-template-${{ matrix.image }}-image.tar
+          
+      - name: Get binary
+        id: get-binary
+        run: |
+          docker image ls
+          docker run -d --name ${{ steps.props.outputs.container }} ${{ steps.props.outputs.image }}
+          docker cp ${{ steps.props.outputs.container }}:/app/rep-repo-template ./rep-repo-template-${{ matrix.image }}
+          chmod +x ./rep-repo-template-${{ matrix.image }}
+
+      - name: Test binary
+        run: |
+          version=$(docker exec ${{ steps.props.outputs.container }} /app/rep-repo-template)
+          echo "$version" 
+          echo "$version" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Stop container
+        if: ${{ always() }}
+        run: |
+          docker container stop ${{steps.props.outputs.container}}
+
+      # - name: Upload image
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: rep-repo-template-${{ matrix.image }}-image
+      #     path: /tmp/rep-repo-template-${{ matrix.image }}-image.tar
+      #     retention-days: 1
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: rep-repo-template-${{matrix.image}}
+          path: rep-repo-template-${{matrix.image}}
+
+  freeze-windows:
+    name: Freeze (windows)
+    runs-on:
+      group: "Default Larger Runners"
+      labels: windows-latest-8-cores
+    if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.freeze_windows == 'true' }}
+    needs: [wheels, style]
+    steps:
+      - uses: actions/checkout@v3
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+
+      - name: Set up python
+        uses: actions/setup-python@v4
+        with:
+          python-version:  ${{ env.MAIN_PYTHON_VERSION  }}
+          cache: 'pip'
+          cache-dependency-path: |
+            requirements/requirements_*.txt
+            **/setup.py
+
+      - uses: extractions/netrc@v1
+        with:
+          machine: github.com
+          username: pyansys-ci-bot
+          password: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
+
+      - name: Prepare venv
+        run: |
+          python -m venv dev_env
+          dev_env\Scripts\python build.py dev
+
+      - name: Freeze
+        run: |
+          dev_env\Scripts\python build.py dist
+
+      # - name: Test binary
+      #   run: |
+      #     ./freeze/build/rep-repo-template.exe --version
+      #     $version = (./freeze/build/rep-repo-template.exe --version) | Out-String
+      #     echo "$version"
+      #     echo "$version" >> $env:GITHUB_STEP_SUMMARY
+
+      # - name: Setup tmate session
+      #   if: ${{ failure() && github.event_name == 'workflow_dispatch' && inputs.ssh_enabled }}
+      #   uses: mxschmitt/action-tmate@v3
+      #   with:
+      #     ## limits ssh access and adds the ssh public key for the user which triggered the workflow
+      #     limit-access-to-actor: true
+      #     ## limits ssh access and adds the ssh public keys of the listed GitHub users
+      #     # limit-access-to-users: [username]
+          
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: rep-repo-template-windows
+          path: freeze/build/rep-repo-template.exe
+
+  release:
+    name: Create release
+    uses: ansys-internal/rep-job-management/.github/workflows/release.yml@main
+    needs: ['freeze','wheels','tests']
+    secrets: inherit
+    with:
+        tag: v${{ needs.wheels.outputs.version }}
+        force_release: ${{ github.event.inputs.force_release == 'true' }}
+        artifact: .*rep-launcher-service.*
+        files: |
+            /tmp/bin/*/*.whl
+            /tmp/bin/*/rep-launcher-service-*
