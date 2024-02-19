@@ -12,7 +12,7 @@
 import os
 import tempfile
 
-from example.constants import EDB_VERSION
+from examples.constants import EDB_VERSION
 import pyaedt
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
