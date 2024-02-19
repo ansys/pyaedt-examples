@@ -78,7 +78,7 @@ edb.close_edb()
 
 hfss = pyaedt.Hfss3dLayout(
     projectname=target_aedb,
-    specified_version=aedt_version,
+    specified_version=edb_version,
     non_graphical=False,
     new_desktop_session=True,
 )
