@@ -40,7 +40,7 @@ jobs:
 
   doc-build:
     name: Build documentation
-    runs-on: [windows-latest, pyaedt]
+    runs-on: [pyaedt, Windows]
     steps:
       - uses: actions/checkout@v4
 
