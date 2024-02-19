@@ -6,9 +6,10 @@
 
 
 import os
+import tempfile
+
 import numpy as np
 import pyaedt
-import tempfile
 
 # Create the EDB project.
 
@@ -22,14 +23,17 @@ aedb_path = os.path.join(temp_dir.name, "parametric_via.aedb")
 #
 # Define a function to create the ground conductor.
 
+
 def create_ground_planes(edb, layers):
     plane = edb.modeler.Shape("rectangle", pointA=["-3mm", "-3mm"], pointB=["3mm", "3mm"])
     for i in layers:
         edb.modeler.create_polygon(plane, i, net_name="GND")
 
+
 # ## Create the EDB
 #
-# Create the EDB instance. If the path doesn't exist, PyAEDT automatically generates a new AEDB folder.
+# Create the EDB instance.
+# If the path doesn't exist, PyAEDT automatically generates a new AEDB folder.
 
 edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2023.2")
 
@@ -45,14 +49,18 @@ trace_in_layer = "TOP"
 trace_out_layer = "L10"
 gvia_num = 10
 gvia_angle = 30
-edb.stackup.create_symmetric_stackup(layer_count=layout_count, inner_layer_thickness=cond_thickness_inner,
-                                     outer_layer_thickness=cond_thickness_outer,
-                                     soldermask_thickness=soldermask_thickness, dielectric_thickness=diel_thickness,
-                                     dielectric_material=diel_material_name)
+edb.stackup.create_symmetric_stackup(
+    layer_count=layout_count,
+    inner_layer_thickness=cond_thickness_inner,
+    outer_layer_thickness=cond_thickness_outer,
+    soldermask_thickness=soldermask_thickness,
+    dielectric_thickness=diel_thickness,
+    dielectric_material=diel_material_name,
+)
 
 # ## Define parameters
 #
-# Define parameters to allow changes in the model dimesons. Parameters preceeded by 
+# Define parameters to allow changes in the model dimesons. Parameters preceded by
 # the ``$`` character have project-wide scope.
 # Without the ``$`` prefix, the parameter scope is limited to the design.
 
@@ -71,12 +79,13 @@ edb.add_design_variable("trace_out_width", "0.1mm", is_parameter=True)
 #
 # Create two padstck definitions, one for the ground via and one for the signal via.
 
-edb.padstacks.create(padstackname="SVIA",
-                     holediam="$via_hole_size",
-                     antipaddiam="$antipaddiam",
-                     paddiam="$paddiam",
-                     start_layer=trace_in_layer,
-                     stop_layer=trace_out_layer
+edb.padstacks.create(
+    padstackname="SVIA",
+    holediam="$via_hole_size",
+    antipaddiam="$antipaddiam",
+    paddiam="$paddiam",
+    start_layer=trace_in_layer,
+    stop_layer=trace_out_layer,
 )
 edb.padstacks.create(padstackname="GVIA", holediam="0.3mm", antipaddiam="0.7mm", paddiam="0.5mm")
 
@@ -119,7 +128,12 @@ else:
 
 # +
 edb.modeler.create_trace(
-    [[0, 0], [0, "-3mm"]], layer_name=trace_in_layer, net_name="RF", width="trace_in_width", start_cap_style="Flat", end_cap_style="Flat"
+    [[0, 0], [0, "-3mm"]],
+    layer_name=trace_in_layer,
+    net_name="RF",
+    width="trace_in_width",
+    start_cap_style="Flat",
+    end_cap_style="Flat",
 )
 
 edb.modeler.create_trace(

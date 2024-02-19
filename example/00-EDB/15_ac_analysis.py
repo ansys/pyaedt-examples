@@ -1,6 +1,6 @@
 # # EDB: Network Analysis in SIwave
 #
-# This example shows how to use PyAEDT to set up SYZ analysis on a 
+# This example shows how to use PyAEDT to set up SYZ analysis on a
 # [serdes](https://en.wikipedia.org/wiki/SerDes) channel.
 # The signal input is applied differetially. The positive net is _"PCIe_Gen4_TX3_CAP_P"_.
 # The negative net is _"PCIe_Gen4_TX3_CAP_N"_. In this example, ports are placed on the
@@ -11,9 +11,10 @@
 #
 # Perform required imports, which includes importing a section.
 
-import time
-import pyaedt
 import tempfile
+import time
+
+import pyaedt
 
 # ### Download file
 #
@@ -21,7 +22,7 @@ import tempfile
 
 # +
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-edb_full_path = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb', destination=temp_dir.name)
+edb_full_path = pyaedt.downloads.download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
 time.sleep(5)
 
 print(edb_full_path)
@@ -38,9 +39,9 @@ edbapp = pyaedt.Edb(edbpath=edb_full_path, edbversion="2023.2")
 # An extended net consists of two nets that are connected
 # through a passive component such as a resistor or capacitor.
 
-all_nets = edbapp.extended_nets.auto_identify_signal(resistor_below=10, 
-                                          inductor_below=1, 
-                                          capacitor_above=1e-9)
+all_nets = edbapp.extended_nets.auto_identify_signal(
+    resistor_below=10, inductor_below=1, capacitor_above=1e-9
+)
 
 # Review the properties of extended nets.
 
@@ -67,16 +68,24 @@ ports = []
 for net_name, net_obj in diff_p.extended_net.nets.items():
     for comp_name, comp_obj in net_obj.components.items():
         if comp_obj.type not in ["Resistor", "Capacitor", "Inductor"]:
-            ports.append({"port_name": "{}_{}".format(comp_name, net_name),
-                          "comp_name":comp_name,
-                          "net_name":net_name})
+            ports.append(
+                {
+                    "port_name": "{}_{}".format(comp_name, net_name),
+                    "comp_name": comp_name,
+                    "net_name": net_name,
+                }
+            )
 
 for net_name, net_obj in diff_n.extended_net.nets.items():
     for comp_name, comp_obj in net_obj.components.items():
         if comp_obj.type not in ["Resistor", "Capacitor", "Inductor"]:
-            ports.append({"port_name": "{}_{}".format(comp_name, net_name),
-                          "comp_name":comp_name,
-                          "net_name":net_name})
+            ports.append(
+                {
+                    "port_name": "{}_{}".format(comp_name, net_name),
+                    "comp_name": comp_name,
+                    "net_name": net_name,
+                }
+            )
 
 print(*ports, sep="\n")
 # -
@@ -89,10 +98,9 @@ for d in ports:
     port_name = d["port_name"]
     comp_name = d["comp_name"]
     net_name = d["net_name"]
-    edbapp.components.create_port_on_component(component=comp_name,
-                                               net_list=net_name,
-                                               port_name=port_name
-                                               )
+    edbapp.components.create_port_on_component(
+        component=comp_name, net_list=net_name, port_name=port_name
+    )
 
 # ### Cutout
 #
@@ -106,11 +114,13 @@ edbapp.cutout(signal_list=nets, reference_list=["GND"], extent_type="Bounding")
 # Set up the model for network analysis in SIwave.
 
 setup = edbapp.create_siwave_syz_setup("setup1")
-setup.add_frequency_sweep(frequency_sweep=[
-                               ["linear count", "0", "1kHz", 1],
-                               ["log scale", "1kHz", "0.1GHz", 10],
-                               ["linear scale", "0.1GHz", "10GHz", "0.1GHz"],
-                               ])
+setup.add_frequency_sweep(
+    frequency_sweep=[
+        ["linear count", "0", "1kHz", 1],
+        ["log scale", "1kHz", "0.1GHz", 10],
+        ["linear scale", "0.1GHz", "10GHz", "0.1GHz"],
+    ]
+)
 
 # Save and close the EDB.
 
@@ -119,23 +129,29 @@ edbapp.close_edb()
 
 # ### Launch Hfss3dLayout
 #
-# The HFSS 3D Layout user inteface in AEDT is used to import the EDB and
-# run the analysis. AEDT 3D Layout can be used to view the model 
+# The HFSS 3D Layout user interface in AEDT is used to import the EDB and
+# run the analysis. AEDT 3D Layout can be used to view the model
 # if it is launched in graphical mode.
 
-h3d = pyaedt.Hfss3dLayout(edb_full_path, 
-                          specified_version="2023.2",
-                          non_graphical=False,  # Set to true for non-graphical mode.
-                          new_desktop_session=True)
+h3d = pyaedt.Hfss3dLayout(
+    edb_full_path,
+    specified_version="2023.2",
+    non_graphical=False,  # Set to true for non-graphical mode.
+    new_desktop_session=True,
+)
 
 # Define the differential pair.
 
-h3d.set_differential_pair(positive_terminal="U1_PCIe_Gen4_TX3_CAP_P", 
-                          negative_terminal="U1_PCIe_Gen4_TX3_CAP_N", 
-                          diff_name="PAIR_U1")
-h3d.set_differential_pair(positive_terminal="X1_PCIe_Gen4_TX3_P", 
-                          negative_terminal="X1_PCIe_Gen4_TX3_N", 
-                          diff_name="PAIR_X1")
+h3d.set_differential_pair(
+    positive_terminal="U1_PCIe_Gen4_TX3_CAP_P",
+    negative_terminal="U1_PCIe_Gen4_TX3_CAP_N",
+    diff_name="PAIR_U1",
+)
+h3d.set_differential_pair(
+    positive_terminal="X1_PCIe_Gen4_TX3_P",
+    negative_terminal="X1_PCIe_Gen4_TX3_N",
+    diff_name="PAIR_X1",
+)
 
 # Solve and plot the results.
 

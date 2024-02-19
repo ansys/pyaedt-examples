@@ -1,42 +1,41 @@
-# rep-python-repo-template
-Template for REP python repos
+# PyAEDT Examples
 
-### Prerequisites
+This repository holds examples for PyAEDT.
 
-Install pre-commit in your `global` python using
-
-```
-python -m pip install pre-commit
-```
-### Build process
-
-#### On linux:
+# ## Code Style
+#
+# Code style can be checked by running:
 
 ```
-python3 -m venv dev_env
-source dev_env/bin/activate
-python build.py dev
-```
-#### On windows:
-```    
-python3 -m venv dev_env
-dev_env/Scripts/activate
-python build.py dev
-```
-### Building docker image (does a freeze)
-
-```
-docker build -f docker\Dockerfile.default --secret id=netrc,src=c:/Users/USER/.netrc -t rep-mock-solver:latest .
-
-also useful for debugging
-
-docker build --no-cache -f docker\Dockerfile.default --progress=plain --secret id=netrc,src=c:/Users/USER/.netrc -t rep-mock-solver:latest .
-
-or use docker-compose
-
-docker-compose -f docker-compose.yaml
+    tox -e style
 ```
 
-### github build:
+Previous command will run `pre-commit`_ for checking code quality.
 
-ci_cd.yml github workflow will post the frozen executable and wheel as artifacts
+
+# ## Documentation
+#
+# Documentation can be rendered by running:
+
+Windows
+
+```
+    tox -e doc-win
+```
+
+MacOS/Linux (requires make)
+
+```
+    tox -e doc-linux
+```
+
+The resultant HTML files can be inspected using your favorite web browser:
+
+```
+    <browser> .tox/doc_out_html/index.html
+```
+
+Previous will open the rendered documentation in the desired browser.
+
+.. LINKS AND REFERENCES
+.. _pre-commit: https://pre-commit.com/

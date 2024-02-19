@@ -8,11 +8,11 @@
 # ## Import EDB layout object
 # Import the EDB layout object and initialize it on version 2023 R2.
 
-# +
-import time
 import os
-import pyaedt
 import tempfile
+
+# +
+import pyaedt
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 aedb_path = os.path.join(temp_dir.name, "create_via.aedb")
@@ -25,7 +25,9 @@ edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2023.2")
 # A stackup can be created layer by layer or imported from a CSV file or XML file.
 
 edb.stackup.add_layer("GND")
-edb.stackup.add_layer("Diel", "GND", layer_type="dielectric", thickness="0.1mm", material="FR4_epoxy")
+edb.stackup.add_layer(
+    "Diel", "GND", layer_type="dielectric", thickness="0.1mm", material="FR4_epoxy"
+)
 edb.stackup.add_layer("TOP", "Diel", thickness="0.05mm")
 
 # ## Create signal net and ground planes
@@ -71,6 +73,8 @@ print("EDB saved correctly to {}. You can import in AEDT.".format(aedb_path))
 
 # ### Clean up temporary directory
 #
-# The following command removes the project and the temporary directory. If you'd like to save this project, save it to a folder of your choice prior to running the following cell.
+# The following command removes the project and the temporary directory.
+# If you'd like to save this project, save it to a folder of your choice
+# prior to running the following cell.
 
 temp_dir.cleanup()

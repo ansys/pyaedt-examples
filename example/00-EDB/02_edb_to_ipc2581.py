@@ -5,20 +5,20 @@
 # Perform required imports, which includes importing a section.
 
 import os
-import pyaedt
 import tempfile
+
+import pyaedt
 
 # Download the AEDB file and copy it in the temporary folder.
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-targetfile = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb', 
-                                            destination=temp_dir.name)
+targetfile = pyaedt.downloads.download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
 ipc2581_file_name = os.path.join(temp_dir.name, "Ansys_Hsd.xml")
 print(targetfile)
 
 # ## Launch EDB
 #
-# Launch the `pyaedt.Edb` class, using EDB 2023. 
+# Launch the `pyaedt.Edb` class, using EDB 2023.
 # > Note that length dimensions passed to EDB are in SI units.
 
 edb = pyaedt.Edb(edbpath=targetfile, edbversion="2023.2")
@@ -36,14 +36,17 @@ for net in edb.nets.netlist:
     if "PCIe" in net:
         signal_list.append(net)
 power_list = ["GND"]
-edb.cutout(signal_list=signal_list, reference_list=power_list, extent_type="ConvexHull",
-           expansion_size=0.002,
-           use_round_corner=False,
-           number_of_threads=4,
-           remove_single_pin_components=True,
-           use_pyaedt_extent_computing=True,
-           extent_defeature=0,
-           )
+edb.cutout(
+    signal_list=signal_list,
+    reference_list=power_list,
+    extent_type="ConvexHull",
+    expansion_size=0.002,
+    use_round_corner=False,
+    number_of_threads=4,
+    remove_single_pin_components=True,
+    use_pyaedt_extent_computing=True,
+    extent_defeature=0,
+)
 edb.nets.plot(None, None, color_by_net=True)
 
 # Export the EDB to an IPC2581 file.

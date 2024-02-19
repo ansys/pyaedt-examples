@@ -2,44 +2,51 @@
 
 # -- Project information -----------------------------------------------------
 import datetime
+from importlib import import_module
+import json
 import os
-import re
 import pathlib
+from pprint import pformat
+import re
+import shutil
 import sys
 import warnings
-from sphinx.util import logging
 
-import pyvista
-import numpy as np
-import json
 # from sphinx_gallery.sorting import FileNameSortKey
-from ansys_sphinx_theme import (ansys_favicon, 
-                                get_version_match, pyansys_logo_black,
-                                watermark, 
-                                ansys_logo_white, 
-                                ansys_logo_white_cropped, latex)
-from importlib import import_module
-from pprint import pformat
-from docutils.parsers.rst import Directive
+from ansys_sphinx_theme import (
+    ansys_favicon,
+    ansys_logo_white,
+    ansys_logo_white_cropped,
+    get_version_match,
+    latex,
+    pyansys_logo_black,
+    watermark,
+)
 from docutils import nodes
+from docutils.parsers.rst import Directive
+import numpy as np
+import pyvista
 from sphinx import addnodes
-import shutil
 
 # <-----------------Override the sphinx pdf builder---------------->
 # Some pages do not render properly as per the expected Sphinx LaTeX PDF signature.
 # This issue can be resolved by migrating to the autoapi format.
-# Additionally, when documenting images in formats other than the supported ones, 
+# Additionally, when documenting images in formats other than the supported ones,
 # make sure to specify their types.
 from sphinx.builders.latex import LaTeXBuilder
-LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml", "image/webp" ]
+from sphinx.util import logging
 
-from sphinx.writers.latex import CR
-from sphinx.writers.latex import LaTeXTranslator
+LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml", "image/webp"]
+
 from docutils.nodes import Element
+from sphinx.writers.latex import CR, LaTeXTranslator
+
 
 def visit_desc_content(self, node: Element) -> None:
-    self.body.append(CR + r'\pysigstopsignatures')
+    self.body.append(CR + r"\pysigstopsignatures")
     self.in_desc_signature = False
+
+
 LaTeXTranslator.visit_desc_content = visit_desc_content
 
 # <----------------- End of sphinx pdf builder override---------------->
@@ -49,25 +56,26 @@ logger = logging.getLogger(__name__)
 path = pathlib.Path(__file__).parent.parent.parent / "examples"
 EXAMPLES_DIRECTORY = path.resolve()
 
+
 class PrettyPrintDirective(Directive):
     """Renders a constant using ``pprint.pformat`` and inserts into the document."""
+
     required_arguments = 1
 
     def run(self):
-        module_path, member_name = self.arguments[0].rsplit('.', 1)
+        module_path, member_name = self.arguments[0].rsplit(".", 1)
 
         member_data = getattr(import_module(module_path), member_name)
         code = pformat(member_data, 2, width=68)
 
         literal = nodes.literal_block(code, code)
-        literal['language'] = 'python'
+        literal["language"] = "python"
 
-        return [
-                addnodes.desc_name(text=member_name),
-                addnodes.desc_content('', literal)
-        ]
+        return [addnodes.desc_name(text=member_name), addnodes.desc_content("", literal)]
+
 
 # Sphinx event hooks
+
 
 def directory_size(directory_path):
     """Compute the size (in mega bytes) of a directory."""
@@ -80,54 +88,47 @@ def directory_size(directory_path):
     res /= 1e6
     return res
 
-def autodoc_skip_member(app, what, name, obj, skip, options):
-    try:
-        exclude = True if ".. deprecated::" in obj.__doc__ else False
-    except:
-        exclude = False
-    exclude2 = True if name.startswith("_") else False
-    return True if (skip or exclude or exclude2) else None  # Can interfere with subsequent skip functions.
-    # return True if exclude else None
 
 def remove_doctree(app, exception):
-    """Remove the .doctree directory created during the documentation build.
-    """
+    """Remove the .doctree directory created during the documentation build."""
     size = directory_size(app.doctreedir)
     logger.info(f"Removing doctree {app.doctreedir} ({size} MB).")
     shutil.rmtree(app.doctreedir, ignore_errors=True)
     logger.info(f"Doctree removed.")
 
+
 def copy_examples(app):
-    """Copy directory examples (root directory) files into the doc/source/examples directory.
-    """
-    DESTINATION_DIRECTORY = pathlib.Path(app.srcdir, "examples").resolve()
-    logger.info(f"Copying examples from {EXAMPLES_DIRECTORY} to {DESTINATION_DIRECTORY}.")
-    if os.path.exists(DESTINATION_DIRECTORY):
-        size = directory_size(DESTINATION_DIRECTORY)
-        logger.info(f"Directory {DESTINATION_DIRECTORY} ({size} MB) already exist, removing it.")
-        shutil.rmtree(DESTINATION_DIRECTORY)
+    """Copy directory examples (root directory) files into the doc/source/examples directory."""
+    destination_dir = pathlib.Path(app.srcdir, "examples").resolve()
+    logger.info(f"Copying examples from {EXAMPLES_DIRECTORY} to {destination_dir}.")
+
+    if os.path.exists(destination_dir):
+        size = directory_size(destination_dir)
+        logger.info(f"Directory {destination_dir} ({size} MB) already exist, removing it.")
+        shutil.rmtree(destination_dir)
         logger.info(f"Directory removed.")
 
-    shutil.copytree(EXAMPLES_DIRECTORY, DESTINATION_DIRECTORY)
+    shutil.copytree(EXAMPLES_DIRECTORY, destination_dir)
     logger.info(f"Copy performed")
 
+
 def remove_examples(app, exception):
-    """Remove the doc/source/examples directory created during the documentation build.
-    """
-    DESTINATION_DIRECTORY = pathlib.Path(app.srcdir) / "examples"
-    size = directory_size(DESTINATION_DIRECTORY)
-    logger.info(f"Removing directory {DESTINATION_DIRECTORY} ({size} MB).")
-    shutil.rmtree(DESTINATION_DIRECTORY, ignore_errors=True)
+    """Remove the doc/source/examples directory created during the documentation build."""
+    destination_dir = pathlib.Path(app.srcdir) / "examples"
+    size = directory_size(destination_dir)
+    logger.info(f"Removing directory {destination_dir} ({size} MB).")
+
+    shutil.rmtree(destination_dir, ignore_errors=True)
     logger.info(f"Directory removed.")
 
+
 def add_ipython_time(app, docname, source):
-    """Add '# %%time' to every code cell in an example Python script.
-    """
+    """Add '# %%time' to every code cell in an example Python script."""
     # Get the full path to the document
     docpath = os.path.join(app.srcdir, docname)
 
     # Check if this is a .py example file
-    if not os.path.exists(docpath + '.py') or not docname.startswith("examples"):
+    if not os.path.exists(docpath + ".py") or not docname.startswith("examples"):
         return
 
     logger.info(f"Adding '# %%time' to file {docname}.py")
@@ -139,13 +140,13 @@ def add_ipython_time(app, docname, source):
     for line in lines:
         stripped_line = line.strip()
         # Detect the start of a new code cell
-        if stripped_line.startswith('# +'):
+        if stripped_line.startswith("# +"):
             in_code_cell = True
             in_code_cell_plus = True
             modified_lines.append(line)
-            modified_lines.append('# %%time')
+            modified_lines.append("# %%time")
         # Detect the end of a code cell
-        elif stripped_line.startswith('# -'):
+        elif stripped_line.startswith("# -"):
             in_code_cell = False
             in_code_cell_plus = False
             modified_lines.append(line)
@@ -161,7 +162,7 @@ def add_ipython_time(app, docname, source):
             # Detect the start of a new code cell
             if not stripped_line.startswith("# ") and stripped_line not in ("", "#"):
                 in_code_cell = True
-                modified_lines.append('# %%time')
+                modified_lines.append("# %%time")
                 modified_lines.append(line)
             # Detect already being out of a code cell
             else:
@@ -173,9 +174,10 @@ def add_ipython_time(app, docname, source):
     source[0] = "\n".join(modified_lines)
     # logger.info(source[0])
 
+
 def adjust_image_path(app, docname, source):
     """Adjust the HTML label used to insert images in the examples.
-    
+
     The following path makes the examples in the root directory work:
     # <img src="../../doc/source/_static/diff_via.png" width="500">
     However, examples fail when used through the documentation build because
@@ -187,19 +189,20 @@ def adjust_image_path(app, docname, source):
     docpath = os.path.join(app.srcdir, docname)
 
     # Check if this is a PY example file
-    if not os.path.exists(docpath + '.py') or not docname.startswith("examples"):
+    if not os.path.exists(docpath + ".py") or not docname.startswith("examples"):
         return
 
     logger.info(f"Changing HTML image path in '{docname}.py' file.")
-    source[0] = source[0].replace('../../doc/source/_static', '../../_static')
+    source[0] = source[0].replace("../../doc/source/_static", "../../_static")
+
 
 def remove_ipython_time_from_html(app, pagename, templatename, context, doctree):
-    """Remove '# %%time' from examples generated HTML files.
-    """
+    """Remove '# %%time' from examples generated HTML files."""
     if pagename.startswith("examples") and not pagename.endswith("/index"):
         logger.info(f"Removing '# %%time' from file {pagename}")
         pattern = r'<span class="o">%%time<\/span>\n'
-        context['body'] = re.sub(pattern, '', context['body'])  
+        context["body"] = re.sub(pattern, "", context["body"])
+
 
 def check_example_error(app, pagename, templatename, context, doctree):
     """Log an error if the execution of an example as a notebook triggered an error.
@@ -209,18 +212,19 @@ def check_example_error(app, pagename, templatename, context, doctree):
     """
     # Check if the HTML contains an error message
     if pagename.startswith("examples") and not pagename.endswith("/index"):
-        if any(map(lambda msg: msg in context['body'], ['UsageError', 'NameError'])):
+        if any(map(lambda msg: msg in context["body"], ["UsageError", "NameError"])):
             logger.error(f"An error was detected in file {pagename}")
-            app.builder.config.html_context['build_error'] = True
+            app.builder.config.html_context["build_error"] = True
+
 
 def check_build_finished_without_error(app, exception):
     """Check that no error is detected along the documentation build process."""
-    if app.builder.config.html_context.get('build_error', False):
-        raise Exception('Build failed due to error in html-page-context')
+    if app.builder.config.html_context.get("build_error", False):
+        raise Exception("Build failed due to error in html-page-context")
+
 
 def check_pandoc_installed(app):
-    """Ensure that pandoc is installed
-    """
+    """Ensure that pandoc is installed"""
     import pypandoc
 
     try:
@@ -231,18 +235,19 @@ def check_pandoc_installed(app):
     except OSError:
         logger.error("Pandoc was not found, please add it to your path or install pypandoc-binary")
 
+
 def setup(app):
-    app.add_directive('pprint', PrettyPrintDirective)
-    app.connect('autodoc-skip-member', autodoc_skip_member)
-    app.connect('builder-inited', copy_examples)
+    app.add_directive("pprint", PrettyPrintDirective)
+    app.connect("builder-inited", copy_examples)
     app.connect("builder-inited", check_pandoc_installed)
-    app.connect('source-read', add_ipython_time)
-    app.connect('source-read', adjust_image_path)
-    app.connect('html-page-context', remove_ipython_time_from_html)
-    app.connect('html-page-context', check_example_error)
-    app.connect('build-finished', remove_examples)
-    app.connect('build-finished', remove_doctree)
-    app.connect('build-finished', check_build_finished_without_error)
+    app.connect("source-read", add_ipython_time)
+    app.connect("source-read", adjust_image_path)
+    app.connect("html-page-context", remove_ipython_time_from_html)
+    app.connect("html-page-context", check_example_error)
+    app.connect("build-finished", remove_examples)
+    app.connect("build-finished", remove_doctree)
+    app.connect("build-finished", check_build_finished_without_error)
+
 
 local_path = os.path.dirname(os.path.realpath(__file__))
 module_path = pathlib.Path(local_path)
@@ -332,8 +337,8 @@ numpydoc_validation_checks = {
     "GL09",  # Deprecation warning should precede extended summary
     "GL10",  # reST directives {directives} must be followed by two colons
     # Return
-    "RT04", # Return value description should start with a capital letter"
-    "RT05", # Return value description should finish with "."
+    "RT04",  # Return value description should start with a capital letter"
+    "RT05",  # Return value description should finish with "."
     # Summary
     "SS01",  # No summary found
     "SS02",  # Summary does not start with a capital letter
@@ -378,10 +383,20 @@ language = "en"
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ["_build", "sphinx_boogergreen_theme_1", "Thumbs.db", ".DS_Store", "*.txt", "conf.py", "Resources/PyAEDTInstallerFromDesktop.py"]
+exclude_patterns = [
+    "_build",
+    "sphinx_boogergreen_theme_1",
+    "Thumbs.db",
+    ".DS_Store",
+    "*.txt",
+    "conf.py",
+    "Resources/PyAEDTInstallerFromDesktop.py",
+]
 
 inheritance_graph_attrs = dict(rankdir="RL", size='"8.0, 10.0"', fontsize=14, ratio="compress")
-inheritance_node_attrs = dict(shape="ellipse", fontsize=14, height=0.75, color="dodgerblue1", style="filled")
+inheritance_node_attrs = dict(
+    shape="ellipse", fontsize=14, height=0.75, color="dodgerblue1", style="filled"
+)
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -402,7 +417,7 @@ master_doc = "index"
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
 
-# Execute notebooks before convertion
+# Execute notebooks before conversion
 nbsphinx_execute = "always"
 
 # Allow errors to help debug.
@@ -443,7 +458,7 @@ if is_windows and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
     warnings.filterwarnings(
         "ignore",
         category=UserWarning,
-        message="Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.",
+        message="Matplotlib is currently using agg so figures are not shown.",
     )
 
     # necessary for pyvista when building the sphinx gallery
@@ -544,8 +559,8 @@ html_static_path = ["_static"]
 # These paths are either relative to html_static_path
 # or fully qualified paths (eg. https://...)
 html_css_files = [
-    'css/custom.css',
-    'css/highlight.css',
+    "css/custom.css",
+    "css/highlight.css",
 ]
 
 

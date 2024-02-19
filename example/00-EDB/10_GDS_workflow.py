@@ -6,9 +6,10 @@
 # Perform imports.
 
 import os
-import tempfile
-import pyaedt
 import shutil
+import tempfile
+
+import pyaedt
 from pyaedt.edb_core.edb_data.control_file import ControlFile
 
 # ## Fetch Example Data
@@ -27,18 +28,18 @@ control_fn = "sky130_fictitious_dtc_example_control_no_map.xml"
 gds_fn = "sky130_fictitious_dtc_example.gds"
 layer_map = "dummy_layermap.map"
 
-local_path = pyaedt.downloads.download_file('gds', destination=temp_dir.name)
+local_path = pyaedt.downloads.download_file("gds", destination=temp_dir.name)
 c_file_in = os.path.join(local_path, control_fn)
 c_map = os.path.join(local_path, layer_map)
 gds_in = os.path.join(local_path, gds_fn)
 gds_out = os.path.join(temp_dir, "gds_out.gds")
-shutil.copy2(gds_in,gds_out )
+shutil.copy2(gds_in, gds_out)
 # -
 
 # ## Control file
-# 
-# A Control file is an xml file which purpose if to provide additional
-# information during import phase. It can include, materials, stackup, setup, boundaries and settings.
+#
+# A Control file is an xml file which purpose if to provide additional information during
+# import phase. It can include, materials, stackup, setup, boundaries and settings.
 # In this example we will import an existing xml, integrate it with a layer mapping file of gds
 # and then adding setup and boundaries.
 
@@ -67,8 +68,7 @@ for via in c.stackup.vias:
 # Boundaries can include ports, components and boundary extent.
 
 c.boundaries.units = "um"
-c.boundaries.add_port("P1", x1=223.7, y1=222.6, layer1="Metal6", 
-                      x2=223.7, y2=100, layer2="Metal6")
+c.boundaries.add_port("P1", x1=223.7, y1=222.6, layer1="Metal6", x2=223.7, y2=100, layer2="Metal6")
 c.boundaries.add_extent()
 comp = c.components.add_component("B1", "BGA", "IC", "Flip chip", "Cylinder")
 comp.solder_diameter = "65um"
@@ -91,8 +91,7 @@ c.write_xml(os.path.join(temp_dir.name, "output.xml"))
 # +
 from pyaedt import Edb
 
-edb = Edb(gds_out, edbversion="2023.2", 
-          technology_file=os.path.join(temp_dir.name, "output.xml"))
+edb = Edb(gds_out, edbversion="2023.2", technology_file=os.path.join(temp_dir.name, "output.xml"))
 # -
 
 # ## Plot stackup

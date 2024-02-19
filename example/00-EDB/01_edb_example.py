@@ -6,13 +6,13 @@
 
 # +
 import os
-import time
-import pyaedt
 import tempfile
+import time
+
+import pyaedt
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-targetfile = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb', 
-                                            destination=temp_dir.name)
+targetfile = pyaedt.downloads.download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
 
 siwave_file = os.path.join(os.path.dirname(targetfile), "ANSYS-HSD_V1.siw")
 print(targetfile)
@@ -21,7 +21,7 @@ aedt_file = targetfile[:-4] + "aedt"
 
 # ## Launch Ansys Electronics Database (EDB)
 #
-# Instantiate an instance of the `pyaedt.Edb` class 
+# Instantiate an instance of the `pyaedt.Edb` class
 # using EDB 2023 R2 and SI units.
 
 edb_version = "2023.2"
@@ -32,8 +32,8 @@ edb = pyaedt.Edb(edbpath=targetfile, edbversion=edb_version)
 # ## Identify nets and components
 #
 # The ``Edb.nets.netlist`` and ``Edb.components.components`` properties contain information
-# about all of the nets and components. The following cell uses this information to print the number of nets and
-# components.
+# about all of the nets and components. The following cell uses this information to print the
+# number of nets and components.
 
 print("Nets {}".format(len(edb.nets.netlist)))
 start = time.time()
@@ -60,14 +60,14 @@ for pin in edb.components["U2"].pins.values():
 # the pin and the name of the net that it is connected to.
 
 connections = edb.components.get_component_net_connection_info("U2")
-n_print = 0 # Counter to limit the number of printed lines.
+n_print = 0  # Counter to limit the number of printed lines.
 print_max = 15
 for m in range(len(connections["pin_name"])):
     ref_des = connections["refdes"][m]
     pin_name = connections["pin_name"][m]
     net_name = connections["net_name"][m]
     if net_name != "" and (n_print < print_max):
-        print("{}, pin {} -> net \"{}\"".format(ref_des, pin_name, net_name))
+        print('{}, pin {} -> net "{}"'.format(ref_des, pin_name, net_name))
         n_print += 1
     elif n_print == print_max:
         print("...and many more.")
@@ -79,7 +79,7 @@ rats = edb.components.get_rats()
 
 # ## Identify connected nets
 #
-# The ``get_dcconnected_net_list()`` method retrieves a list of 
+# The ``get_dcconnected_net_list()`` method retrieves a list of
 # all DC-connected power nets. Each group of connected nets is returned
 # as a [set](https://docs.python.org/3/tutorial/datastructures.html#sets).
 # The first argument to the method is the list of ground nets, which are
@@ -104,7 +104,7 @@ powertree_df, component_list_columns, net_group = edb.nets.get_powertree(OUTPUT_
 print_columns = ["refdes", "pin_name", "component_partname"]
 ncol = [component_list_columns.index(c) for c in print_columns]
 
-# This prints the header. Replace "pin_name" with "pin" to 
+# This prints the header. Replace "pin_name" with "pin" to
 # make the header align with the values.
 
 # +
@@ -123,7 +123,7 @@ for el in powertree_df:
 
 # ## Remove unused components
 #
-# Delete all RLC components that are connected with only one pin. 
+# Delete all RLC components that are connected with only one pin.
 # The ``Edb.components.delete_single_pin_rlc()`` method
 # provides a useful way to
 # remove components that are not needed for the simulation.
@@ -138,13 +138,13 @@ edb.components.delete("C380")
 
 edb.nets.delete("PDEN")
 
-# Print the top and bottom elevation of the stackup obtained using 
+# Print the top and bottom elevation of the stackup obtained using
 # the ``Edb.stackup.limits()`` method.
 
-s = "Top layer name: \"{top}\", Elevation: {top_el:.2f} "
-s += "mm\nBottom layer name: \"{bot}\", Elevation: {bot_el:2f} mm"
+s = 'Top layer name: "{top}", Elevation: {top_el:.2f} '
+s += 'mm\nBottom layer name: "{bot}", Elevation: {bot_el:2f} mm'
 top, top_el, bot, bot_el = edb.stackup.limits()
-print(s.format(top = top, top_el = top_el*1E3, bot = bot, bot_el = bot_el*1E3))
+print(s.format(top=top, top_el=top_el * 1e3, bot=bot, bot_el=bot_el * 1e3))
 
 # ## Set up for SIwave DCIR analysis
 #
@@ -162,16 +162,20 @@ setup.add_source_terminal_to_ground("V1", 1)
 # Save the modifications and run the analysis in SIwave.
 
 edb.save_edb()
-edb.nets.plot(None, "1_Top",plot_components_on_top=True)
+edb.nets.plot(None, "1_Top", plot_components_on_top=True)
 
 siw_file = edb.solve_siwave()
 
 # ## Export results
 #
-# Export all quantities calculated from the DC-IR analysis. The following method runs SIwave in batch mode from
-# the command line. Results are written to the edb folder.
+# Export all quantities calculated from the DC-IR analysis.
+# The following method runs SIwave in batch mode from the command line.
+# Results are written to the edb folder.
 
-outputs = edb.export_siwave_dc_results(siw_file, setup.name, )
+outputs = edb.export_siwave_dc_results(
+    siw_file,
+    setup.name,
+)
 
 # Close EDB. After EDB is closed, it can be opened by AEDT.
 

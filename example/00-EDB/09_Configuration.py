@@ -7,18 +7,18 @@
 # ## Perform required imports
 #
 # The ``Hfss3dlayout`` class provides an interface to
-# the 3D Layout editor in AEDT. 
+# the 3D Layout editor in AEDT.
 # on version 2023 R2.
 
 import os
-import pyaedt
 import tempfile
+
+import pyaedt
 
 # Download the AEDB file and copy it to a temporary folder.
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-target_aedb = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb', 
-                                             destination=temp_dir.name)
+target_aedb = pyaedt.downloads.download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
 print("Project folder is", target_aedb)
 
 # ## Launch EDB
@@ -67,10 +67,10 @@ edbapp = pyaedt.Edb(target_aedb, edbversion="2023.2")
 # }
 # ```
 #
-# The ``Edb.components.import_definitions()`` method imports the component definitions that map electrical models to the components in the simulation model.
+# The ``Edb.components.import_definitions()`` method imports the component definitions that map
+# electrical models to the components in the simulation model.
 
-edbapp.components.import_definition(os.path.join(target_aedb, 
-                                                 "1_comp_definition.json"))
+edbapp.components.import_definition(os.path.join(target_aedb, "1_comp_definition.json"))
 
 # ## Import BOM
 #
@@ -89,25 +89,29 @@ edbapp.components.import_definition(os.path.join(target_aedb,
 # +------------+-----------------------+-----------+------------+
 # ```
 #
-# Having red the informaton in the BOM and definitions file, electrical models can be
+# Having red the information in the BOM and definitions file, electrical models can be
 # assigned to all of the components in the simulation model.
 
-edbapp.components.import_bom(os.path.join(target_aedb, "0_bom.csv"),
-                                  refdes_col=0,
-                                  part_name_col=1,
-                                  comp_type_col=2,
-                                  value_col=3)
+edbapp.components.import_bom(
+    os.path.join(target_aedb, "0_bom.csv"),
+    refdes_col=0,
+    part_name_col=1,
+    comp_type_col=2,
+    value_col=3,
+)
 
 # ## Verify a Component
 #
-# Component property allows to access all components instances and their property with getters and setters.
+# Component property allows to access all components instances and their property with
+# getters and setters.
 
 comp = edbapp.components["C1"]
 comp.model_type, comp.value
 
 # ## Check component definition
 #
-# When an s-parameter model is associated to a component it will be available in nport_comp_definition property.
+# When an s-parameter model is associated to a component it will be available in
+# nport_comp_definition property.
 
 edbapp.components.nport_comp_definition
 edbapp.save_edb()
@@ -121,8 +125,8 @@ edbapp.save_edb()
 # - Components to create the ports on
 # - Simulation settings
 #
-# The ``Edb.new_simulaton_configuration()`` method returns an instance 
-# of the [``SimulationConfiguration``](https://aedt.docs.pyansys.com/version/stable/EDBAPI/SimulationConfigurationEdb.html) class.
+# The ``Edb.new_simulaton_configuration()`` method returns an instance
+# of the ``SimulationConfiguration`` class.
 
 # +
 sim_setup = edbapp.new_simulation_configuration()
@@ -133,10 +137,12 @@ sim_setup.batch_solve_settings.use_pyaedt_cutout = True
 sim_setup.ac_settings.max_arc_points = 6
 sim_setup.ac_settings.max_num_passes = 5
 
-sim_setup.batch_solve_settings.signal_nets = ['PCIe_Gen4_TX2_CAP_P',
-                                              'PCIe_Gen4_TX2_CAP_N',
-                                              'PCIe_Gen4_TX2_P',
-                                              'PCIe_Gen4_TX2_N']
+sim_setup.batch_solve_settings.signal_nets = [
+    "PCIe_Gen4_TX2_CAP_P",
+    "PCIe_Gen4_TX2_CAP_N",
+    "PCIe_Gen4_TX2_P",
+    "PCIe_Gen4_TX2_N",
+]
 sim_setup.batch_solve_settings.components = ["U1", "X1"]
 sim_setup.batch_solve_settings.power_nets = ["GND", "GND_DP"]
 sim_setup.ac_settings.start_freq = "100Hz"
@@ -155,7 +161,7 @@ edbapp.build_simulation_project(sim_setup)
 #
 # Plot cutout once finished. The model is ready to simulate.
 
-edbapp.nets.plot(None,None)
+edbapp.nets.plot(None, None)
 
 # ## Save and close EDB
 #
@@ -171,14 +177,17 @@ edbapp.close_edb()
 #
 # Set ``non_graphical=True`` to run the simulation in non-graphical mode.
 
-h3d = pyaedt.Hfss3dLayout(specified_version="2023.2", 
-                          projectname=target_aedb, 
-                          non_graphical=False, 
-                          new_desktop_session=False)
+h3d = pyaedt.Hfss3dLayout(
+    specified_version="2023.2",
+    projectname=target_aedb,
+    non_graphical=False,
+    new_desktop_session=False,
+)
 
 # ## Analyze
 #
-# This project is ready to solve. Executing the following cell runs the HFSS simulation on the layout.
+# This project is ready to solve.
+# Executing the following cell runs the HFSS simulation on the layout.
 
 h3d.analyze()
 

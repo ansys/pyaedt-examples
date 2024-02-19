@@ -8,9 +8,10 @@
 # Perform required imports, which includes importing the ``Hfss3dlayout`` object
 # and initializing it on version 2023 R2.
 
-import tempfile
-import pyaedt
 import os
+import tempfile
+
+import pyaedt
 
 # Set non-graphical mode
 
@@ -68,6 +69,8 @@ class LinearArray:
             ["{}+1e-3".format(self.length), "{}/2+1e-3".format(self.width)],
             [-1e-3, "{}/2+1e-3".format(self.width)],
         ]
+
+
 # -
 
 # ## Launch EDB
@@ -81,9 +84,13 @@ edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2023.2")  # Create an instance o
 # Add stackup layers
 
 edb.stackup.add_layer("Virt_GND")
-edb.stackup.add_layer("Gap", "Virt_GND", layer_type="dielectric", thickness="0.05mm", material="Air")
+edb.stackup.add_layer(
+    "Gap", "Virt_GND", layer_type="dielectric", thickness="0.05mm", material="Air"
+)
 edb.stackup.add_layer("GND", "Gap")
-edb.stackup.add_layer("Substrat", "GND", layer_type="dielectric", thickness="0.5mm", material="Duroid (tm)")
+edb.stackup.add_layer(
+    "Substrat", "GND", layer_type="dielectric", thickness="0.5mm", material="Duroid (tm)"
+)
 edb.stackup.add_layer("TOP", "Substrat")
 
 # Create the the first patch and feed line using the ``Patch``, ``Line``classes defined above.
@@ -140,7 +147,9 @@ edb.modeler.create_polygon(linear_array.points, "GND", net_name="GND")
 
 # Add the connector pin to use to assign the port.
 
-edb.padstacks.create(padstackname="Connector_pin", holediam="100um", paddiam="0", antipaddiam="200um")
+edb.padstacks.create(
+    padstackname="Connector_pin", holediam="100um", paddiam="0", antipaddiam="200um"
+)
 con_pin = edb.padstacks.place(
     ["{}/4.0".format(first_patch.width), 0],
     "Connector_pin",
@@ -156,28 +165,40 @@ edb.modeler.create_polygon(first_patch.points, "Virt_GND", net_name="GND")
 edb.padstacks.create("gnd_via", "100um", "0", "0")
 edb["via_spacing"] = 0.2e-3
 con_ref1 = edb.padstacks.place(
-    ["{} + {}".format(first_patch.points[0][0], "via_spacing"), "{} + {}".format(first_patch.points[0][1], "via_spacing")],
+    [
+        "{} + {}".format(first_patch.points[0][0], "via_spacing"),
+        "{} + {}".format(first_patch.points[0][1], "via_spacing"),
+    ],
     "gnd_via",
     fromlayer="GND",
     tolayer="Virt_GND",
     net_name="GND",
 )
 con_ref2 = edb.padstacks.place(
-    ["{} + {}".format(first_patch.points[1][0], "-via_spacing"), "{} + {}".format(first_patch.points[1][1], "via_spacing")],
+    [
+        "{} + {}".format(first_patch.points[1][0], "-via_spacing"),
+        "{} + {}".format(first_patch.points[1][1], "via_spacing"),
+    ],
     "gnd_via",
     fromlayer="GND",
     tolayer="Virt_GND",
     net_name="GND",
 )
 con_ref3 = edb.padstacks.place(
-    ["{} + {}".format(first_patch.points[2][0], "-via_spacing"), "{} + {}".format(first_patch.points[2][1], "-via_spacing")],
+    [
+        "{} + {}".format(first_patch.points[2][0], "-via_spacing"),
+        "{} + {}".format(first_patch.points[2][1], "-via_spacing"),
+    ],
     "gnd_via",
     fromlayer="GND",
     tolayer="Virt_GND",
     net_name="GND",
 )
 con_ref4 = edb.padstacks.place(
-    ["{} + {}".format(first_patch.points[3][0], "via_spacing"), "{} + {}".format(first_patch.points[3][1], "-via_spacing")],
+    [
+        "{} + {}".format(first_patch.points[3][0], "via_spacing"),
+        "{} + {}".format(first_patch.points[3][1], "-via_spacing"),
+    ],
     "gnd_via",
     fromlayer="GND",
     tolayer="Virt_GND",
@@ -204,17 +225,19 @@ print("EDB saved correctly to {}. You can import in AEDT.".format(aedb_path))
 # First create an instance of the ``pyaedt.Hfss`` class. If you set
 # > ``non_graphical = False
 #
-# then AEDT user interface will be visible after the following cell is executed. It is now possible
-# to monitor the progress in the UI as each of the following cells is executed. All commands can be run
-# without the UI by chaning the value of ``non_graphical``.
+# then AEDT user interface will be visible after the following cell is executed.
+# It is now possible to monitor the progress in the UI as each of the following cells is executed.
+# All commands can be run without the UI by changing the value of ``non_graphical``.
 
-h3d = pyaedt.Hfss(projectname="Demo_3DComp",
-                  designname="Linear_Array",
-                  specified_version="2023.2",
-                  new_desktop_session=True, 
-                  non_graphical=non_graphical,
-                  close_on_exit=True, 
-                  solution_type="Terminal")
+h3d = pyaedt.Hfss(
+    projectname="Demo_3DComp",
+    designname="Linear_Array",
+    specified_version="2023.2",
+    new_desktop_session=True,
+    non_graphical=non_graphical,
+    close_on_exit=True,
+    solution_type="Terminal",
+)
 
 # Set units to ``mm``.
 
@@ -222,8 +245,8 @@ h3d.modeler.model_units = "mm"
 
 # ## Import the EDB as a 3D component
 #
-# One or more layout components can be imported into HFSS. The combination of layout data and 3D CAD data helps streamline
-# model creation and setup.
+# One or more layout components can be imported into HFSS.
+# The combination of layout data and 3D CAD data helps streamline model creation and setup.
 
 component = h3d.modeler.insert_layout_component(aedb_path, parameter_mapping=True)
 
@@ -235,39 +258,43 @@ component = h3d.modeler.insert_layout_component(aedb_path, parameter_mapping=Tru
 component.parameters
 
 w1_name = "{}_{}".format("w1", h3d.modeler.user_defined_component_names[0])
-h3d[w1_name]= 0.0015
+h3d[w1_name] = 0.0015
 # -
 
 # ### Radiation Boundary Assignment
 #
-# The 3D domain includes the air volume surrounding the antenna. This antenna will be simulted from 20 GHz - 50 GHz.
+# The 3D domain includes the air volume surrounding the antenna.
+# This antenna will be simulted from 20 GHz - 50 GHz.
 #
 # A "radiation boundary" will be assigned to the outer boundaries of the domain.
-# This boundary should be roughly one quarter wavelength away from the radiating strucure:
+# This boundary should be roughly one quarter wavelength away from the radiating structure:
 #
 # $$ \lambda/4 = \frac{c_0}{4 f} \approx 2.8mm $$
 
 # +
 h3d.modeler.fit_all()
 
-h3d.modeler.create_air_region(2.8, 2.8, 2.8, 2.8, 2.8, 2.8, is_percentage=False) 
+h3d.modeler.create_air_region(2.8, 2.8, 2.8, 2.8, 2.8, 2.8, is_percentage=False)
 h3d.assign_radiation_boundary_to_objects("Region")
 # -
 
 # ### Set up analysis
 #
-# The finite element mesh is adapted iteratively. The maximum number of adaptive passes is set using the ``MaximumPasses`` property.  This model converges such that the $S_{11}$ is independent of the mesh. The default accuracy setting is:
+# The finite element mesh is adapted iteratively.
+# The maximum number of adaptive passes is set using the ``MaximumPasses`` property.
+# This model converges such that the $S_{11}$ is independent of the mesh.
+# The default accuracy setting is:
 # $$ \max(|\Delta S|) < 0.02 $$
 
 setup = h3d.create_setup()
-setup.props['Frequency']="20GHz"
-setup.props['MaximumPasses'] = 10
+setup.props["Frequency"] = "20GHz"
+setup.props["MaximumPasses"] = 10
 
 # Specify properties of the frequency sweep:
 
 sweep1 = setup.add_sweep(sweepname="20GHz_to_50GHz")
-sweep1.props["RangeStart"]="20GHz"
-sweep1.props["RangeEnd"]="50GHz"
+sweep1.props["RangeStart"] = "20GHz"
+sweep1.props["RangeEnd"] = "50GHz"
 sweep1.update()
 
 # Solve the project
@@ -291,13 +318,15 @@ variations = {}
 variations["Freq"] = ["20GHz"]
 variations["Theta"] = ["All"]
 variations["Phi"] = ["All"]
-h3d.insert_infinite_sphere( name="3D")
+h3d.insert_infinite_sphere(name="3D")
 
-new_report = h3d.post.reports_by_category.far_field("db(RealizedGainTotal)", h3d.nominal_adaptive, "3D")
+new_report = h3d.post.reports_by_category.far_field(
+    "db(RealizedGainTotal)", h3d.nominal_adaptive, "3D"
+)
 new_report.variations = variations
 new_report.primary_sweep = "Theta"
 new_report.create("Realized2D")
-# - 
+# -
 
 # ## Plot far fields in AEDT
 #
@@ -319,15 +348,15 @@ solutions_custom.plot_3d()
 # Plot E Field on nets and layers in AEDT
 
 h3d.post.create_fieldplot_layers_nets(
-            [["TOP","Array_antenna"]],
-            "Mag_E",
-            intrinsics={"Freq":"20GHz", "Phase": "0deg"},
-            plot_name="E_Layers",
-        )
+    [["TOP", "Array_antenna"]],
+    "Mag_E",
+    intrinsics={"Freq": "20GHz", "Phase": "0deg"},
+    plot_name="E_Layers",
+)
 
 # ## Close AEDT
 #
-# After the simulation completes, the application can be released from the 
+# After the simulation completes, the application can be released from the
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing AEDT.
 
@@ -336,6 +365,8 @@ h3d.release_desktop()
 
 # ### Clean up the temporary directory
 #
-# The following command removes the project and the temporary directory. If you'd like to save this project, save it to a folder of your choice prior to running the following cell.
+# The following command removes the project and the temporary directory.
+# If you'd like to save this project, save it to a folder of your choice prior
+# to running the following cell.
 
 temp_dir.cleanup()

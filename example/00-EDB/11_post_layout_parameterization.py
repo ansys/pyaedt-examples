@@ -12,14 +12,14 @@ layers = ["16_Bottom"]  # Specify layers to parameterize
 
 import os
 import tempfile
+
 import pyaedt
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # Download and open example layout file in edb format.
 
-edb_path = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb',
-                                           destination=temp_dir.name)
+edb_path = pyaedt.downloads.download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
 edb = pyaedt.Edb(edb_path, edbversion="2023.2")
 
 # ## Create cutout
@@ -28,8 +28,7 @@ edb = pyaedt.Edb(edb_path, edbversion="2023.2")
 # signal nets as the first argument and a list of
 # reference nets as the second argument.
 
-edb.cutout([signal_net_name], [coplanar_plane_net_name, "GND"],
-              remove_single_pin_components=True)
+edb.cutout([signal_net_name], [coplanar_plane_net_name, "GND"], remove_single_pin_components=True)
 
 # Retrieve the path segments from the signal net.
 
@@ -54,8 +53,7 @@ for p in trace_segments:
 # Delete existing clearance.
 
 for p in trace_segments:
-    for g in edb.modeler.get_polygons_by_layer(p.layer_name, 
-                                               coplanar_plane_net_name):
+    for g in edb.modeler.get_polygons_by_layer(p.layer_name, coplanar_plane_net_name):
         for v in g.voids:
             if p.is_intersecting(v):
                 v.delete()
@@ -67,8 +65,7 @@ for p in trace_segments:
     if clr not in edb.variables:
         edb[clr] = "0.5mm"
     path = p.get_center_line()
-    for g in edb.modeler.get_polygons_by_layer(p.layer_name, 
-                                               coplanar_plane_net_name):
+    for g in edb.modeler.get_polygons_by_layer(p.layer_name, coplanar_plane_net_name):
         void = edb.modeler.create_trace(path, p.layer_name, f"{p.width}+{clr}*2")
         g.add_void(void)
 
