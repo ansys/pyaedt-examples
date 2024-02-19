@@ -1,0 +1,2 @@
+vtk-osmesa==9.2.20230527.dev0
+pypandoc-binary==1.13

@@ -1,0 +1,4 @@
+# Examples dependencies
+pyaedt
+numpy
+pyvista
