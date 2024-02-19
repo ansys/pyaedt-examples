@@ -10,10 +10,14 @@
 #
 # <img src="_static\pcb_transition_parameterized.png" width="500">
 
+# +
 import os
 import tempfile
 
+from example.constants import EDB_VERSION
 import pyaedt
+
+# -
 
 # ## Set non-graphical mode
 #
@@ -22,11 +26,18 @@ import pyaedt
 
 non_graphical = False
 
-# Launch EDB.
+# ## Launch EDB.
 
+# +
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 aedb_path = os.path.join(temp_dir.name, "pcb.aedb")
-edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2023.2")
+
+# Select EDB version (change it manually if needed, e.g. "2023.2")
+edb_version = EDB_VERSION
+print(f"EDB version: {edb_version}")
+
+edb = pyaedt.Edb(edbpath=aedb_path, edbversion=edb_version)
+# -
 
 # Define the parameters.
 

@@ -5,12 +5,16 @@
 
 # Perform imports.
 
+# +
 import os
 import shutil
 import tempfile
 
+from example.constants import EDB_VERSION
 import pyaedt
 from pyaedt.edb_core.edb_data.control_file import ControlFile
+
+# -
 
 # ## Fetch Example Data
 #
@@ -91,7 +95,13 @@ c.write_xml(os.path.join(temp_dir.name, "output.xml"))
 # +
 from pyaedt import Edb
 
-edb = Edb(gds_out, edbversion="2023.2", technology_file=os.path.join(temp_dir.name, "output.xml"))
+# Select EDB version (change it manually if needed, e.g. "2023.2")
+edb_version = EDB_VERSION
+print(f"EDB version: {edb_version}")
+
+edb = Edb(
+    gds_out, edbversion=edb_version, technology_file=os.path.join(temp_dir.name, "output.xml")
+)
 # -
 
 # ## Plot stackup

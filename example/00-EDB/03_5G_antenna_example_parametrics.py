@@ -8,12 +8,16 @@
 # Perform required imports, which includes importing the ``Hfss3dlayout`` object
 # and initializing it on version 2023 R2.
 
+# +
 import os
 import tempfile
 
+from example.constants import EDB_VERSION
 import pyaedt
 
-# Set non-graphical mode
+# -
+
+# ## Set non-graphical mode
 
 non_graphical = False
 
@@ -77,9 +81,17 @@ class LinearArray:
 #
 # PyAEDT.Edb allows to open existing Edb project or create a new empty project.
 
+# +
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 aedb_path = os.path.join(temp_dir.name, "linear_array.aedb")
-edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2023.2")  # Create an instance of the Edb class.
+
+# Select EDB version (change it manually if needed, e.g. "2023.2")
+edb_version = EDB_VERSION
+print(f"EDB version: {edb_version}")
+
+# Create an instance of the Edb class.
+edb = pyaedt.Edb(edbpath=aedb_path, edbversion=edb_version)
+# -
 
 # Add stackup layers
 

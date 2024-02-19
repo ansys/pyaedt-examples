@@ -9,6 +9,7 @@ import os
 import tempfile
 import time
 
+from example.constants import EDB_VERSION
 import pyaedt
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
@@ -21,13 +22,18 @@ aedt_file = targetfile[:-4] + "aedt"
 
 # ## Launch Ansys Electronics Database (EDB)
 #
-# Instantiate an instance of the `pyaedt.Edb` class
-# using EDB 2023 R2 and SI units.
+# Instantiate an instance of the `pyaedt.Edb` class using SI units.
 
-edb_version = "2023.2"
+# +
 if os.path.exists(aedt_file):
     os.remove(aedt_file)
+
+# Select EDB version (change it manually if needed, e.g. "2023.2")
+edb_version = EDB_VERSION
+print(f"EDB version: {edb_version}")
+
 edb = pyaedt.Edb(edbpath=targetfile, edbversion=edb_version)
+# -
 
 # ## Identify nets and components
 #

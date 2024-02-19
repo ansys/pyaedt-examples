@@ -9,20 +9,30 @@
 #
 # Perform required imports, which includes importing a section.
 
+# +
 import tempfile
 
+from example.constants import EDB_VERSION
 import pyaedt
 
-# Download the EDB and copy it into the temporary folder.
+# -
+
+# ## Download the EDB and copy it into the temporary folder.
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 targetfolder = pyaedt.downloads.download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
 
-# Create an instance of the Electronics Database using the `pyaedt.Edb` class.
+# ## Create an instance of the Electronics Database using the `pyaedt.Edb` class.
 #
 # > Note that units are SI.
 
-edb = pyaedt.Edb(edbpath=targetfolder, edbversion="2023.2")
+# +
+# Select EDB version (change it manually if needed, e.g. "2023.2")
+edb_version = EDB_VERSION
+print(f"EDB version: {edb_version}")
+
+edb = pyaedt.Edb(edbpath=targetfolder, edbversion=edb_version)
+# -
 
 # Display the nets on a layer. You can display the net geometry directly in Python using
 # ``matplotlib`` from the ``pyaedt.Edb`` class.

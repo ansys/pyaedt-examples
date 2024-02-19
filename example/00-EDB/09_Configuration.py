@@ -10,10 +10,14 @@
 # the 3D Layout editor in AEDT.
 # on version 2023 R2.
 
+# +
 import os
 import tempfile
 
+from example.constants import EDB_VERSION
 import pyaedt
+
+# -
 
 # Download the AEDB file and copy it to a temporary folder.
 
@@ -25,7 +29,13 @@ print("Project folder is", target_aedb)
 #
 # Launch the ``pyaedt.Edb`` class using EDB 2023 R2. Length units are SI.
 
-edbapp = pyaedt.Edb(target_aedb, edbversion="2023.2")
+# +
+# Select EDB version (change it manually if needed, e.g. "2023.2")
+edb_version = EDB_VERSION
+print(f"EDB version: {edb_version}")
+
+edbapp = pyaedt.Edb(target_aedb, edbversion=edb_version)
+# -
 
 # ## Import definitions
 #

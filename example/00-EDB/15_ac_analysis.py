@@ -14,6 +14,7 @@
 import tempfile
 import time
 
+from example.constants import EDB_VERSION
 import pyaedt
 
 # ### Download file
@@ -32,7 +33,13 @@ print(edb_full_path)
 #
 # Create an instance of the ``pyaedt.Edb`` class.
 
-edbapp = pyaedt.Edb(edbpath=edb_full_path, edbversion="2023.2")
+# +
+# Select EDB version (change it manually if needed, e.g. "2023.2")
+edb_version = EDB_VERSION
+print(f"EDB version: {edb_version}")
+
+edbapp = pyaedt.Edb(edbpath=edb_full_path, edbversion=edb_version)
+# -
 
 # ### Generate extended nets
 #

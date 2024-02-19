@@ -8,16 +8,22 @@
 # ## Import EDB layout object
 # Import the EDB layout object and initialize it on version 2023 R2.
 
+# +
 import os
 import tempfile
 
-# +
+from example.constants import EDB_VERSION
 import pyaedt
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 aedb_path = os.path.join(temp_dir.name, "create_via.aedb")
-print(aedb_path)
-edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2023.2")
+print(f"AEDB file path: {aedb_path}")
+
+# Select EDB version (change it manually if needed, e.g. "2023.2")
+edb_version = EDB_VERSION
+print(f"EDB version: {edb_version}")
+
+edb = pyaedt.Edb(edbpath=aedb_path, edbversion=edb_version)
 # -
 
 # ## Add stackup layers

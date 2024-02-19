@@ -8,6 +8,7 @@
 import os
 import tempfile
 
+from example.constants import EDB_VERSION
 import numpy as np
 import pyaedt
 
@@ -35,7 +36,13 @@ def create_ground_planes(edb, layers):
 # Create the EDB instance.
 # If the path doesn't exist, PyAEDT automatically generates a new AEDB folder.
 
-edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2023.2")
+# +
+# Select EDB version (change it manually if needed, e.g. "2023.2")
+edb_version = EDB_VERSION
+print(f"EDB version: {edb_version}")
+
+edb = pyaedt.Edb(edbpath=aedb_path, edbversion=edb_version)
+# -
 
 # Insert the stackup layers.
 

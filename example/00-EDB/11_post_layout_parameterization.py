@@ -10,9 +10,11 @@ layers = ["16_Bottom"]  # Specify layers to parameterize
 
 # Perform required imports.
 
+# +
 import os
 import tempfile
 
+from example.constants import EDB_VERSION
 import pyaedt
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
@@ -20,7 +22,13 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 # Download and open example layout file in edb format.
 
 edb_path = pyaedt.downloads.download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
-edb = pyaedt.Edb(edb_path, edbversion="2023.2")
+
+# Select EDB version (change it manually if needed, e.g. "2023.2")
+edb_version = EDB_VERSION
+print(f"EDB version: {edb_version}")
+
+edb = pyaedt.Edb(edb_path, edbversion=edb_version)
+# -
 
 # ## Create cutout
 #

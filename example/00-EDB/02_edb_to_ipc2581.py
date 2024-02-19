@@ -4,12 +4,16 @@
 #
 # Perform required imports, which includes importing a section.
 
+# +
 import os
 import tempfile
 
+from example.constants import EDB_VERSION
 import pyaedt
 
-# Download the AEDB file and copy it in the temporary folder.
+# -
+
+# ## Download the AEDB file and copy it in the temporary folder.
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 targetfile = pyaedt.downloads.download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
@@ -21,15 +25,21 @@ print(targetfile)
 # Launch the `pyaedt.Edb` class, using EDB 2023.
 # > Note that length dimensions passed to EDB are in SI units.
 
-edb = pyaedt.Edb(edbpath=targetfile, edbversion="2023.2")
+# +
+# Select EDB version (change it manually if needed, e.g. "2023.2")
+edb_version = EDB_VERSION
+print(f"EDB version: {edb_version}")
 
-# Parametrize the width of a trace.
+edb = pyaedt.Edb(edbpath=targetfile, edbversion=edb_version)
+# -
+
+# ## Parametrize the width of a trace.
 
 edb.modeler.parametrize_trace_width(
     "A0_N", parameter_name=pyaedt.generate_unique_name("Par"), variable_value="0.4321mm"
 )
 
-# Create a cutout and plot it.
+# ## Create a cutout and plot it.
 
 signal_list = []
 for net in edb.nets.netlist:
@@ -49,15 +59,15 @@ edb.cutout(
 )
 edb.nets.plot(None, None, color_by_net=True)
 
-# Export the EDB to an IPC2581 file.
+# ## Export the EDB to an IPC2581 file.
 
 edb.export_to_ipc2581(ipc2581_file_name, "inch")
 print("IPC2581 File has been saved to {}".format(ipc2581_file_name))
 
-# Close EDB
+# ## Close EDB
 
 edb.close_edb()
 
-# Clean up the temporary directory
+# ## Clean up the temporary directory
 
 temp_dir.cleanup()

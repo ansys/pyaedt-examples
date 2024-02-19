@@ -11,6 +11,7 @@
 
 import os
 
+from example.constants import EDB_VERSION
 import numpy as np
 import pyaedt
 
@@ -22,11 +23,18 @@ non_graphical = False
 
 # ## Launch EDB
 
+# +
 aedb_path = os.path.join(
     pyaedt.generate_unique_folder_name(), pyaedt.generate_unique_name("pcb") + ".aedb"
 )
 print(aedb_path)
-edbapp = pyaedt.Edb(edbpath=aedb_path, edbversion="2023.2")
+
+# Select EDB version (change it manually if needed, e.g. "2023.2")
+edb_version = EDB_VERSION
+print(f"EDB version: {edb_version}")
+
+edbapp = pyaedt.Edb(edbpath=aedb_path, edbversion=edb_version)
+# -
 
 # ## Define parameters
 

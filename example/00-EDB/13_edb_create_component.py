@@ -27,17 +27,24 @@
 
 # Initialize the EDB layout object.
 
+# +
 import os
 import tempfile
 
+from example.constants import EDB_VERSION
 import pyaedt
 from pyaedt import Edb
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 aedb_path = os.path.join(temp_dir.name, "component_example.aedb")
 
-edb = Edb(edbpath=aedb_path, edbversion="2023.2")
+# Select EDB version (change it manually if needed, e.g. "2023.2")
+edb_version = EDB_VERSION
+print(f"EDB version: {edb_version}")
+
+edb = Edb(edbpath=aedb_path, edbversion=edb_version)
 print("EDB is located at {}".format(aedb_path))
+# -
 
 # Initialize variables
 

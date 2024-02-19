@@ -18,19 +18,24 @@
 import os
 import tempfile
 
+from example.constants import EDB_VERSION
 import numpy as np
 import pyaedt
 
 # Create the EDB.
 
 # +
-ansys_version = "2023.2"
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 working_folder = temp_dir.name
 
+# Select EDB version (change it manually if needed, e.g. "2023.2")
+edb_version = EDB_VERSION
+print(f"EDB version: {edb_version}")
+
 aedb_path = os.path.join(working_folder, "pcb.aedb")
-edb = pyaedt.Edb(edbpath=aedb_path, edbversion=ansys_version)
 print("AEDB file is located in {}".format(aedb_path))
+
+edb = pyaedt.Edb(edbpath=aedb_path, edbversion=edb_version)
 # -
 
 # Add the FR4 dielectric for the PCB.
