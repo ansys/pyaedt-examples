@@ -57,12 +57,17 @@ jobs:
           python -m pip install wheel setuptools -U
           python -c "import sys; print(sys.executable)"
 
-      - name: Install project and documentation dependencies 
+      - name: Install project and documentation dependencies
         run: |
           .venv\Scripts\Activate.ps1
-          pip install .
-          pip install .[doc]
-          # Copy-Item -Path "C:\actions-runner\opengl32.dll" -Destination ".venv\Lib\site-packages\vtkmodules" -Force
+          pip install -r requirements\requirements.txt
+          pip install -r requirements\requirements_doc.txt
+
+      - name: Uninstall packages and install CI dependencies
+        run: |
+          .venv\Scripts\Activate.ps1
+          pip uninstall vtk -y
+          pip install --extra-index-url https://wheels.vtk.org -r requirements\requirements_doc_ci.txt
 
       - name: Create HTML documentation
         run: |
