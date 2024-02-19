@@ -7,7 +7,8 @@ import json
 import os
 import pathlib
 from pprint import pformat
-import re
+
+# import re
 import shutil
 import sys
 import warnings
@@ -122,57 +123,57 @@ def remove_examples(app, exception):
     logger.info(f"Directory removed.")
 
 
-def add_ipython_time(app, docname, source):
-    """Add '# %%time' to every code cell in an example Python script."""
-    # Get the full path to the document
-    docpath = os.path.join(app.srcdir, docname)
+# def add_ipython_time(app, docname, source):
+#     """Add '# %%time' to every code cell in an example Python script."""
+#     # Get the full path to the document
+#     docpath = os.path.join(app.srcdir, docname)
 
-    # Check if this is a .py example file
-    if not os.path.exists(docpath + ".py") or not docname.startswith("examples"):
-        return
+#     # Check if this is a .py example file
+#     if not os.path.exists(docpath + ".py") or not docname.startswith("examples"):
+#         return
 
-    logger.info(f"Adding '# %%time' to file {docname}.py")
-    lines = source[0].split("\n")
-    modified_lines = []
-    in_code_cell = False
-    in_code_cell_plus = False
+#     logger.info(f"Adding '# %%time' to file {docname}.py")
+#     lines = source[0].split("\n")
+#     modified_lines = []
+#     in_code_cell = False
+#     in_code_cell_plus = False
 
-    for line in lines:
-        stripped_line = line.strip()
-        # Detect the start of a new code cell
-        if stripped_line.startswith("# +"):
-            in_code_cell = True
-            in_code_cell_plus = True
-            modified_lines.append(line)
-            modified_lines.append("# %%time")
-        # Detect the end of a code cell
-        elif stripped_line.startswith("# -"):
-            in_code_cell = False
-            in_code_cell_plus = False
-            modified_lines.append(line)
-        # Detect already being in a code cell
-        elif in_code_cell and in_code_cell_plus:
-            modified_lines.append(line)
-        elif in_code_cell and not in_code_cell_plus:
-            # Detect being out of a code cell
-            if stripped_line == "":
-                in_code_cell = False
-            modified_lines.append(line)
-        elif not in_code_cell:
-            # Detect the start of a new code cell
-            if not stripped_line.startswith("# ") and stripped_line not in ("", "#"):
-                in_code_cell = True
-                modified_lines.append("# %%time")
-                modified_lines.append(line)
-            # Detect already being out of a code cell
-            else:
-                modified_lines.append(line)
-        else:
-            raise Exception("not handled")
+#     for line in lines:
+#         stripped_line = line.strip()
+#         # Detect the start of a new code cell
+#         if stripped_line.startswith("# +"):
+#             in_code_cell = True
+#             in_code_cell_plus = True
+#             modified_lines.append(line)
+#             modified_lines.append("# %%time")
+#         # Detect the end of a code cell
+#         elif stripped_line.startswith("# -"):
+#             in_code_cell = False
+#             in_code_cell_plus = False
+#             modified_lines.append(line)
+#         # Detect already being in a code cell
+#         elif in_code_cell and in_code_cell_plus:
+#             modified_lines.append(line)
+#         elif in_code_cell and not in_code_cell_plus:
+#             # Detect being out of a code cell
+#             if stripped_line == "":
+#                 in_code_cell = False
+#             modified_lines.append(line)
+#         elif not in_code_cell:
+#             # Detect the start of a new code cell
+#             if not stripped_line.startswith("# ") and stripped_line not in ("", "#"):
+#                 in_code_cell = True
+#                 modified_lines.append("# %%time")
+#                 modified_lines.append(line)
+#             # Detect already being out of a code cell
+#             else:
+#                 modified_lines.append(line)
+#         else:
+#             raise Exception("not handled")
 
-    # Update the source
-    source[0] = "\n".join(modified_lines)
-    # logger.info(source[0])
+#     # Update the source
+#     source[0] = "\n".join(modified_lines)
+#     # logger.info(source[0])
 
 
 def adjust_image_path(app, docname, source):
@@ -196,12 +197,12 @@ def adjust_image_path(app, docname, source):
     source[0] = source[0].replace("../../doc/source/_static", "../../_static")
 
 
-def remove_ipython_time_from_html(app, pagename, templatename, context, doctree):
-    """Remove '# %%time' from examples generated HTML files."""
-    if pagename.startswith("examples") and not pagename.endswith("/index"):
-        logger.info(f"Removing '# %%time' from file {pagename}")
-        pattern = r'<span class="o">%%time<\/span>\n'
-        context["body"] = re.sub(pattern, "", context["body"])
+# def remove_ipython_time_from_html(app, pagename, templatename, context, doctree):
+#     """Remove '# %%time' from examples generated HTML files."""
+#     if pagename.startswith("examples") and not pagename.endswith("/index"):
+#         logger.info(f"Removing '# %%time' from file {pagename}")
+#         pattern = r'<span class="o">%%time<\/span>\n'
+#         context["body"] = re.sub(pattern, "", context["body"])
 
 
 def check_example_error(app, pagename, templatename, context, doctree):
@@ -240,9 +241,9 @@ def setup(app):
     app.add_directive("pprint", PrettyPrintDirective)
     app.connect("builder-inited", copy_examples)
     app.connect("builder-inited", check_pandoc_installed)
-    app.connect("source-read", add_ipython_time)
+    # app.connect("source-read", add_ipython_time)
     app.connect("source-read", adjust_image_path)
-    app.connect("html-page-context", remove_ipython_time_from_html)
+    # app.connect("html-page-context", remove_ipython_time_from_html)
     app.connect("html-page-context", check_example_error)
     app.connect("build-finished", remove_examples)
     app.connect("build-finished", remove_doctree)
@@ -390,7 +391,7 @@ exclude_patterns = [
     ".DS_Store",
     "*.txt",
     "conf.py",
-    "Resources/PyAEDTInstallerFromDesktop.py",
+    "constants.py",
 ]
 
 inheritance_graph_attrs = dict(rankdir="RL", size='"8.0, 10.0"', fontsize=14, ratio="compress")
