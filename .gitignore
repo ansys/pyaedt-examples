@@ -47,7 +47,8 @@ coverage.xml
 *.pot
 
 # Sphinx documentation
-docs/_build/
+doc/_build/
+doc/source/api/
 log.txt
 
 python/dcp.egg-info/
@@ -109,3 +110,6 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+
+# Generated example
+src/ansys/pyaedt/examples/simple_example.py
