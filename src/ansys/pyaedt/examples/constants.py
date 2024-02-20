@@ -57,7 +57,7 @@ EDB_IMPORTS = """
 import os
 import tempfile
 
-from src.ansys.pyaedt.examples.constants import EDB_VERSION
+from ansys.pyaedt.examples.constants import EDB_VERSION
 from pyaedt import Edb
 # -"""
 

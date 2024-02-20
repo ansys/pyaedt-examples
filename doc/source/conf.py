@@ -13,6 +13,8 @@ import shutil
 import sys
 import warnings
 
+from ansys.pyaedt.examples import __version__
+
 # from sphinx_gallery.sorting import FileNameSortKey
 from ansys_sphinx_theme import (
     ansys_favicon,
@@ -28,32 +30,12 @@ from docutils.parsers.rst import Directive
 import numpy as np
 import pyvista
 from sphinx import addnodes
-
-# <-----------------Override the sphinx pdf builder---------------->
-# Some pages do not render properly as per the expected Sphinx LaTeX PDF signature.
-# This issue can be resolved by migrating to the autoapi format.
-# Additionally, when documenting images in formats other than the supported ones,
-# make sure to specify their types.
 from sphinx.builders.latex import LaTeXBuilder
 from sphinx.util import logging
 
 LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml", "image/webp"]
 
-from docutils.nodes import Element
-from sphinx.writers.latex import CR, LaTeXTranslator
-
-
-def visit_desc_content(self, node: Element) -> None:
-    self.body.append(CR + r"\pysigstopsignatures")
-    self.in_desc_signature = False
-
-
-LaTeXTranslator.visit_desc_content = visit_desc_content
-
-# <----------------- End of sphinx pdf builder override---------------->
-
 logger = logging.getLogger(__name__)
-
 path = pathlib.Path(__file__).parent.parent.parent / "examples"
 EXAMPLES_DIRECTORY = path.resolve()
 
@@ -221,7 +203,7 @@ def check_example_error(app, pagename, templatename, context, doctree):
 def check_build_finished_without_error(app, exception):
     """Check that no error is detected along the documentation build process."""
     if app.builder.config.html_context.get("build_error", False):
-        raise Exception("Build failed due to error in html-page-context")
+        raise Exception("Build failed due to an error in html-page-context")
 
 
 def check_pandoc_installed(app):
@@ -232,7 +214,9 @@ def check_pandoc_installed(app):
         pandoc_path = pypandoc.get_pandoc_path()
         pandoc_dir = os.path.dirname(pandoc_path)
         if pandoc_dir not in os.environ["PATH"].split(os.pathsep):
+            logger.info("Pandoc directory is not in $PATH.")
             os.environ["PATH"] += os.pathsep + pandoc_dir
+            logger.info(f"Pandoc directory '{pandoc_dir}' has been added to $PATH")
     except OSError:
         logger.error("Pandoc was not found, please add it to your path or install pypandoc-binary")
 
@@ -263,7 +247,7 @@ except ImportError:
 
 from pyaedt import is_windows
 
-project = "PyAEDT"
+project = "pyaedt-examples"
 copyright = f"(c) {datetime.datetime.now().year} ANSYS, Inc. All rights reserved"
 author = "Ansys Inc."
 cname = os.getenv("DOCUMENTATION_CNAME", "nocname.com")
@@ -584,8 +568,8 @@ latex_elements = {"preamble": latex.generate_preamble(html_title)}
 latex_documents = [
     (
         master_doc,
-        f"{project}-Documentation-{__version__}.tex",
-        f"{project} Documentation",
+        f"{project}.tex",
+        f"{project} documentation",
         author,
         "manual",
     ),
