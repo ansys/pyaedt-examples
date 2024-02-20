@@ -36,7 +36,7 @@ local_path = pyaedt.downloads.download_file("gds", destination=temp_dir.name)
 c_file_in = os.path.join(local_path, control_fn)
 c_map = os.path.join(local_path, layer_map)
 gds_in = os.path.join(local_path, gds_fn)
-gds_out = os.path.join(temp_dir, "gds_out.gds")
+gds_out = os.path.join(temp_dir.name, "gds_out.gds")
 shutil.copy2(gds_in, gds_out)
 # -
 

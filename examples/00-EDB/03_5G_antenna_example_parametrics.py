@@ -372,7 +372,7 @@ h3d.post.create_fieldplot_layers_nets(
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing AEDT.
 
-h3d.save_project(os.path.join(temp_dir, "test_layout.aedt"))
+h3d.save_project(os.path.join(temp_dir.name, "test_layout.aedt"))
 h3d.release_desktop()
 
 # ### Clean up the temporary directory
