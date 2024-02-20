@@ -60,20 +60,23 @@ jobs:
       - name: Install project and documentation dependencies
         run: |
           .venv\Scripts\Activate.ps1
-          pip install -r requirements\requirements.txt
-          pip install -r requirements\requirements_doc.txt
+          pip install .
+          pip install .[doc]
 
-      - name: Uninstall packages and install CI dependencies
+      - name: Uninstall conflicting CI packages
         run: |
           .venv\Scripts\Activate.ps1
           pip uninstall vtk -y
-          pip install --extra-index-url https://wheels.vtk.org -r requirements\requirements_doc_ci.txt
+
+      - name: Install CI related dependencies
+        run: |
+          .venv\Scripts\Activate.ps1
+          pip install --extra-index-url https://wheels.vtk.org .[ci]
 
       - name: Create HTML documentation
         run: |
           .venv\Scripts\Activate.ps1
-          cd doc
-          .\make.bat html
+          . .\doc\make.bat html
 
       - name: Upload HTML documentation artifact
         uses: actions/upload-artifact@v3
@@ -82,18 +85,10 @@ jobs:
           path: doc/_build/html
           retention-days: 7
 
-      - name: Create PDF documentation
-        run: |
-          .venv\Scripts\Activate.ps1
-          cd doc
-          .\doc\make.bat pdf
-
-      - name: Upload HTML documentation artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: documentation-html-edb
-          path: doc/_build/html/EDBAPI
-          retention-days: 7
+      # - name: Create PDF documentation
+      #   run: |
+      #     .venv\Scripts\Activate.ps1
+      #     . .\doc\make.bat pdf
 
 #      - name: Upload PDF documentation artifact
 #        uses: actions/upload-artifact@v3
