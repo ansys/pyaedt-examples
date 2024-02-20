@@ -232,7 +232,9 @@ def check_pandoc_installed(app):
         pandoc_path = pypandoc.get_pandoc_path()
         pandoc_dir = os.path.dirname(pandoc_path)
         if pandoc_dir not in os.environ["PATH"].split(os.pathsep):
+            logger.info("Pandoc directory is not in $PATH.")
             os.environ["PATH"] += os.pathsep + pandoc_dir
+            logger.info(f"Pandoc directory '{pandoc_dir}' has been added to $PATH")
     except OSError:
         logger.error("Pandoc was not found, please add it to your path or install pypandoc-binary")
 
