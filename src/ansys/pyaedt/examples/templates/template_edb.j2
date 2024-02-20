@@ -1,0 +1,45 @@
+{%- if header_required -%}
+{{ header }}
+{%- endif -%}
+# ## {{ example_title }}
+#
+{{ example_preamble.text }}
+
+# ## Perform required imports and create a temporary folder.
+#
+# Perform imports required to run the example and create a temporary folder in which to save files.
+{{ step_imports.code }}
+
+{{ step_temp_dir.code }}
+
+{%- if download_required -%}
+# ## Download the EDB file.
+{{ step_download.code }}
+{% endif %}
+
+# ## Create an instance of the Electronics Database using the `pyaedt.Edb` class.
+#
+# > Note that units are SI.
+
+# Select EDB version (change it manually if needed, e.g. "2023.2")
+edb_version = {{ edb_version }}
+print(f"EDB version: {edb_version}")
+
+{{ step_app_setup.code }}
+
+{{ step_processing }}
+
+# ## Save and clean up
+#
+# The following commands save and close the EDB. After that, the temporary
+# directory containing the project is deleted. To keep this project, save it to
+# another folder of your choice prior to running the following cell.
+
+# +
+edb.save_edb()
+edb.close_edb()
+print("EDB saved correctly to {}. You can import in AEDT.".format(aedb_path))
+
+# Removing the temporary directory
+temp_dir.cleanup()
+# -
