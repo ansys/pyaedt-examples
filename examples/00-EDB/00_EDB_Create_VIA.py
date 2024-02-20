@@ -12,8 +12,8 @@
 import os
 import tempfile
 
-from examples.constants import EDB_VERSION
 import pyaedt
+from src.ansys.pyaedt.examples.constants import EDB_VERSION
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 aedb_path = os.path.join(temp_dir.name, "create_via.aedb")
