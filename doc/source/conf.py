@@ -195,7 +195,12 @@ def check_example_error(app, pagename, templatename, context, doctree):
     """
     # Check if the HTML contains an error message
     if pagename.startswith("examples") and not pagename.endswith("/index"):
-        if any(map(lambda msg: msg in context["body"], ["UsageError", "NameError"])):
+        if any(
+            map(
+                lambda msg: msg in context["body"],
+                ["UsageError", "NameError", "DeadKernelError", "NotebookError"],
+            )
+        ):
             logger.error(f"An error was detected in file {pagename}")
             app.builder.config.html_context["build_error"] = True
 
