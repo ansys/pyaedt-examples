@@ -25,7 +25,7 @@ jobs:
     name: Code style
     runs-on: ubuntu-latest
     steps:
-      - uses: ansys/actions/code-style@v5
+      - uses: ansys/actions/code-style@v4
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           use-python-cache: false
@@ -34,7 +34,7 @@ jobs:
     name: Documentation style
     runs-on: ubuntu-latest
     steps:
-      - uses: ansys/actions/doc-style@v5
+      - uses: ansys/actions/doc-style@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -85,50 +85,41 @@ jobs:
           path: doc/_build/html
           retention-days: 7
 
-      # - name: Create PDF documentation
-      #   run: |
-      #     .venv\Scripts\Activate.ps1
-      #     . .\doc\make.bat pdf
+      - name: Create PDF documentation
+        run: |
+          .venv\Scripts\Activate.ps1
+          . .\doc\make.bat pdf
 
-#      - name: Upload PDF documentation artifact
-#        uses: actions/upload-artifact@v3
-#        with:
-#          name: documentation-pdf
-#          path: doc/_build/pdf
-#          retention-days: 7
-
-#      - name: Release
-#        uses: softprops/action-gh-release@v1
-#        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
-#        with:
-#          generate_release_notes: true
-#          files: |
-#            doc/_build/pdf
+     - name: Upload PDF documentation artifact
+       uses: actions/upload-artifact@v3
+       with:
+         name: documentation-pdf
+         path: doc/_build/pdf
+         retention-days: 7
 
 
+  release:
+    if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
+    needs: [style, doc-build] #docs-style
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-  # release:
-  #   if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
-  #   needs: [doc-style, code-style]
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v3
 
-  #     - uses: actions/download-artifact@v3
+      - name: Display structure of downloaded files
+        run: ls -R
 
-  #     - name: Display structure of downloaded files
-  #       run: ls -R
+      - name: Zip HTML documentation
+        uses: vimtor/action-zip@v1.2
+        with:
+          files: documentation-html
+          dest: documentation-html.zip
 
-  #     - name: Zip HTML documentation
-  #       uses: vimtor/action-zip@v1.1
-  #       with:
-  #         files: documentation-html
-  #         dest: documentation-html.zip
-
-  #     - name: Release
-  #       uses: softprops/action-gh-release@v1
-  #       with:
-  #         generate_release_notes: true
-  #         files: |
-  #           ./documentation-html.zip
-  #           ./documentation-pdf/*.pdf
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          generate_release_notes: true
+          files: |
+            ./documentation-html.zip
+            ./documentation-pdf/*.pdf
