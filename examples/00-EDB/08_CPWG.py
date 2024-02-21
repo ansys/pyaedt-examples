@@ -11,7 +11,7 @@
 
 import os
 
-from ansys.pyaedt.examples.constants import EDB_VERSION
+from ansys.pyaedt.examples.constants import AEDT_VERSION, EDB_VERSION
 import numpy as np
 import pyaedt
 
@@ -117,7 +117,7 @@ edbapp.close_edb()
 
 h3d = pyaedt.Hfss3dLayout(
     projectname=aedb_path,
-    specified_version="2023.2",
+    specified_version=AEDT_VERSION,
     non_graphical=non_graphical,
     new_desktop_session=True,
 )
@@ -161,31 +161,29 @@ h3d.create_linear_count_sweep(
 h3d.modeler.edb.nets.plot(None, None, color_by_net=True)
 
 cp_name = h3d.modeler.clip_plane()
-
-h3d.save_project()
 # -
 
-# ## Start HFSS solver
+# ## Solve the active design
 
-# Start the HFSS solver by uncommenting the ``h3d.analyze()`` command.
+# Uncomment the following code to start the HFSS solver and perform post processing.
 
 # +
 # h3d.analyze()
+
+# solutions = h3d.get_touchstone_data()[0]
+# solutions.log_x = False
+# solutions.plot()
+
+# h3d.post.create_fieldplot_cutplane(
+#     cp_name, "Mag_E", h3d.nominal_adaptive, intrinsincDict={"Freq": "3GHz", "Phase": "0deg"}
+# )
 # -
 
 # ## Save AEDT
 
-# +
 aedt_path = aedb_path.replace(".aedb", ".aedt")
 h3d.logger.info("Your AEDT project is saved to {}".format(aedt_path))
-solutions = h3d.get_touchstone_data()[0]
-solutions.log_x = False
-solutions.plot()
-
-h3d.post.create_fieldplot_cutplane(
-    cp_name, "Mag_E", h3d.nominal_adaptive, intrinsincDict={"Freq": "3GHz", "Phase": "0deg"}
-)
-# -
+h3d.save_project()
 
 # ## Release AEDT
 
