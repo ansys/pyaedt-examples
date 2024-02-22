@@ -62,7 +62,7 @@ doc = [
     "openpyxl==3.1.2",
     "sphinx_design",
     "sphinx_jinja",
-    "vtk==9.2.6",
+    "vtk==9.3.0",
     "pypandoc",
 ]
 ci = [
