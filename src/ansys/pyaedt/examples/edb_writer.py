@@ -35,7 +35,7 @@ from ansys.pyaedt.examples.constants import (
     EDB_VERSION,
     HEADER,
 )
-from ansys.pyaedt.examples.models import CodeCell, EDBModel, TextCell
+from ansys.pyaedt.examples.models import CodeCell, EDBModel, Header, TextCell
 from jinja2 import Environment, FileSystemLoader
 
 PARENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -59,7 +59,7 @@ if __name__ == "__main__":
     # Data of a simple edb example
     data = {
         "header_required": False,
-        "header": HEADER,
+        "header": Header(HEADER),
         "example_title": EXAMPLE_TITLE,
         "example_preamble": TextCell(EDB_PREAMBLE),
         "step_imports": CodeCell(EDB_IMPORTS),

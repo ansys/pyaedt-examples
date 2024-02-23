@@ -8,7 +8,7 @@ from ansys.pyaedt.examples.constants import (
     HEADER,
 )
 from ansys.pyaedt.examples.edb_writer import EXAMPLE_TITLE, write_example
-from ansys.pyaedt.examples.models import CodeCell, EDBModel, TextCell
+from ansys.pyaedt.examples.models import CodeCell, EDBModel, Header, TextCell
 
 EXAMPLE_PREAMBLE = "# Here is a simple workflow without processings"
 EXPECTED_RESULT = f"""# ## {EXAMPLE_TITLE}
@@ -55,7 +55,7 @@ def test_edb_writer(common_temp_dir):
     example_path = os.path.join(common_temp_dir, "dummy_example.py")
     data = {
         "header_required": False,
-        "header": HEADER,
+        "header": Header(HEADER),
         "example_title": "Simple workflow using EDB",
         "example_preamble": TextCell(EXAMPLE_PREAMBLE),
         "step_imports": CodeCell(EDB_IMPORTS),
