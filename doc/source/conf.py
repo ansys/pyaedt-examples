@@ -408,7 +408,7 @@ master_doc = "index"
 pygments_style = "sphinx"
 
 # Execute notebooks before conversion
-nbsphinx_execute = "always"
+nbsphinx_execute = "auto"
 
 # Allow errors to help debug.
 nbsphinx_allow_errors = False
