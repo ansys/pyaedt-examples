@@ -33,13 +33,13 @@ from ansys.pyaedt.examples.constants import (
     EDB_VERSION,
     HEADER,
 )
-from ansys.pyaedt.examples.models import CodeCell, EDBModel, TextCell
+from ansys.pyaedt.examples.models import CodeCell, EDBModel, Header, TextCell
 from pydantic import ValidationError
 import pytest
 
 CORRECT_INPUT = {
     "header_required": False,
-    "header": HEADER,
+    "header": Header(HEADER),
     "example_title": "Simple workflow using EDB",
     "example_preamble": TextCell(text=EDB_PREAMBLE),
     "step_imports": CodeCell(code=EDB_IMPORTS),

@@ -21,10 +21,10 @@
 # SOFTWARE.
 """Models used to store data related to writing PyAEDT examples.
 """
-from typing import Union
+from typing import Optional
 
 from ansys.pyaedt.examples.constants import EDB_APP_SETUP, EDB_IMPORTS, EDB_TMP_DIR, EDB_VERSION
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, model_validator
 
 
 class CodeCell(BaseModel):
@@ -32,7 +32,7 @@ class CodeCell(BaseModel):
 
     code: str
 
-    def __init__(self, code: str = None, **data):
+    def __init__(self, code: Optional[str] = None, **data):
         code_value = code if code is not None else data.get("code")
         super().__init__(code=code_value)
 
@@ -48,7 +48,7 @@ class TextCell(BaseModel):
 
     text: str
 
-    def __init__(self, text: str = None, **data):
+    def __init__(self, text: Optional[str] = None, **data):
         text_value = text if text is not None else data.get("text")
         super().__init__(text=text_value)
 
@@ -63,11 +63,32 @@ class TextCell(BaseModel):
         return v
 
 
+class Header(BaseModel):
+    """Notebook text cell"""
+
+    text: str
+
+    def __init__(self, text: Optional[str] = None, **data):
+        text_value = text if text is not None else data.get("text", None)
+        super().__init__(text=text_value)
+
+    @field_validator("text")
+    def must_start_with_hash_if_not_none(cls, v):
+        if v is not None:
+            lines = v.split("\n")
+            for line in lines:
+                if line == "#":
+                    continue
+                if not line.startswith("# "):
+                    raise ValueError("each line of a text cell must be '#' or start with '# '")
+        return v
+
+
 class EDBModel(BaseModel):
     """Store AEDT properties."""
 
     header_required: bool = False
-    header: Union[TextCell, str] = ""
+    header: Optional[Header] = None
     example_title: str = "Simple workflow using EDB"
     example_preamble: TextCell = TextCell("# This example contains multiple steps...")
     step_imports: CodeCell = CodeCell(EDB_IMPORTS)
@@ -77,6 +98,11 @@ class EDBModel(BaseModel):
     edb_version: str = EDB_VERSION
     step_app_setup: CodeCell = CodeCell(EDB_APP_SETUP)
     step_processing: str = ""
+
+    @model_validator(mode="after")
+    def must_contain_header_if_header_required(self):
+        if self.header_required and self.header is None:
+            raise ValueError("header must be provided when header_required is set to True")
 
 
 if __name__ == "__main__":
