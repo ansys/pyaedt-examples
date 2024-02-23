@@ -30,6 +30,7 @@ dependencies = [
     "twine==5.0.0",
     "pydantic",
     "pyvista",
+    "jinja2",
 ]
 
 [project.optional-dependencies]
