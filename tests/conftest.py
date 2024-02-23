@@ -19,17 +19,18 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-"""Utilities module.
+
 """
+"""
+import shutil
 
-import requests
+import pytest
 
 
-def download_file(url, local_filename):
-    """Download a file from an URL into a local file."""
-    with requests.get(url, stream=True) as r:
-        r.raise_for_status()
-        with open(local_filename, "wb") as f:
-            for chunk in r.iter_content(chunk_size=4096):
-                f.write(chunk)
-    return local_filename
+@pytest.fixture(scope="session")
+def common_temp_dir(tmp_path_factory):
+    tmp_dir = tmp_path_factory.mktemp("test_examples", numbered=True)
+
+    yield tmp_dir
+
+    shutil.rmtree(str(tmp_dir), ignore_errors=True)

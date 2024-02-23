@@ -69,7 +69,7 @@ class EDBModel(BaseModel):
     header_required: bool = False
     header: Union[TextCell, str] = ""
     example_title: str = "Simple workflow using EDB"
-    example_preamble: Union[TextCell, str] = ""
+    example_preamble: TextCell = TextCell("# This example contains multiple steps...")
     step_imports: CodeCell = CodeCell(EDB_IMPORTS)
     step_temp_dir: CodeCell = CodeCell(EDB_TMP_DIR)
     download_required: bool = False

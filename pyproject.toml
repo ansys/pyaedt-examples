@@ -30,6 +30,7 @@ dependencies = [
     "twine==5.0.0",
     "pydantic",
     "pyvista",
+    "jinja2",
 ]
 
 [project.optional-dependencies]
@@ -65,6 +66,10 @@ doc = [
     "vtk==9.2.6",
     "pypandoc",
 ]
+tests = [
+    "pytest==7.4.3",
+    "pytest-cov==4.1.0",
+]
 ci = [
     "vtk-osmesa==9.2.20230527.dev0",
     "pypandoc-binary==1.13",
@@ -91,3 +96,17 @@ line_length=100
 [tool.codespell]
 skip = '*.css,*.pyc,*.txt,*.gif,*.png,*.jpg,*.js,*.html,*.doctree,*.ttf,*.woff,*.woff2,*.eot,*.mp4,*.inv,*.pickle,*.ipynb,flycheck*,./.git/*,./.hypothesis/*,*.yml,./doc/build/*,./doc/images/*,./dist/*,*~,.hypothesis*,./doc/source/examples/*,*cover,*.dat,*.mac,build,./docker/mapdl/v*,./factory/*,./ansys/mapdl/core/mapdl_functions.py,PKG-INFO,*.mypy_cache/*,./docker/mapdl/*,./_unused/*'
 quiet-level = 3
+
+[tool.coverage.run]
+source = ["ansys.pyaedt.examples"]
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = [  
+    'if __name__ == .__main__.:'  
+]  
+
+[tool.pytest.ini_options]
+minversion = "7.1"
+addopts = "-ra --cov=ansys.pyaedt.examples --cov-report html:.cov/html --cov-report xml:.cov/xml --cov-report term -vv"
+testpaths = ["tests"]

@@ -39,6 +39,7 @@ from ansys.pyaedt.examples.models import CodeCell, EDBModel, TextCell
 from jinja2 import Environment, FileSystemLoader
 
 PARENT_DIR = os.path.dirname(os.path.abspath(__file__))
+EXAMPLE_TITLE = "Simple workflow using EDB"
 
 
 def write_example(example_path, data: EDBModel):
@@ -59,7 +60,7 @@ if __name__ == "__main__":
     data = {
         "header_required": False,
         "header": HEADER,
-        "example_title": "Simple workflow using EDB",
+        "example_title": EXAMPLE_TITLE,
         "example_preamble": TextCell(EDB_PREAMBLE),
         "step_imports": CodeCell(EDB_IMPORTS),
         "step_temp_dir": CodeCell(EDB_TMP_DIR),
