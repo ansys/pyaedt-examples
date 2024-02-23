@@ -117,33 +117,23 @@ jobs:
           . .\doc\make.bat html
 
       - name: Upload HTML documentation artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: documentation-html
           path: doc/_build/html
           retention-days: 7
 
-      # - name: Create PDF documentation
-      #   run: |
-      #     .venv\Scripts\Activate.ps1
-      #     . .\doc\make.bat pdf
+      - name: Create PDF documentation
+        run: |
+          .venv\Scripts\Activate.ps1
+          . .\doc\make.bat pdf
 
-      # - name: Upload PDF documentation artifact
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: documentation-pdf
-      #     path: doc/_build/latex
-      #     retention-days: 7
-
-      - name: Deploy
-        if: contains(github.ref, 'refs/heads/main')
-        uses: JamesIves/github-pages-deploy-action@v4.5.0
+      - name: Upload PDF documentation artifact
+        uses: actions/upload-artifact@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          branch: gh-pages
-          folder: doc/_build/html
-          clean: true
-          single-commit: true
+          name: documentation-pdf
+          path: doc/_build/latex
+          retention-days: 7
 
   release:
     name: Release project
