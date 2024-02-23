@@ -63,6 +63,27 @@ class TextCell(BaseModel):
         return v
 
 
+class Header(BaseModel):
+    """Notebook text cell"""
+
+    text: str
+
+    def __init__(self, text: Optional[str] = None, **data):
+        text_value = text if text is not None else data.get("text", None)
+        super().__init__(text=text_value)
+
+    @field_validator("text")
+    def must_start_with_hash_if_not_none(cls, v):
+        if v is not None:
+            lines = v.split("\n")
+            for line in lines:
+                if line == "#":
+                    continue
+                if not line.startswith("# "):
+                    raise ValueError("each line of a text cell must be '#' or start with '# '")
+        return v
+
+
 class EDBModel(BaseModel):
     """Store AEDT properties."""
 
