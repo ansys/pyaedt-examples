@@ -74,11 +74,10 @@ def directory_size(directory_path):
 
 def remove_doctree(app, exception):
     """Remove the .doctree directory created during the documentation build."""
-    builder = app.builder.name
 
-    # Keep the examples already copied to avoid running them twice in CI
-    # when building html and pdf
-    if builder == "html" and os.getenv("ON_CI", False):
+    # Keep the doctree to avoid creating it twice. This is typically helpful in CI/CD
+    # where we want to build both HTML and PDF pages.
+    if bool(os.getenv("SPHINXBUILD_KEEP_DOCTREEDIR", False)):
         logger.info(f"Keeping directory {app.doctreedir}.")
     else:
         size = directory_size(app.doctreedir)
@@ -89,40 +88,27 @@ def remove_doctree(app, exception):
 
 def copy_examples(app):
     """Copy directory examples (root directory) files into the doc/source/examples directory."""
-    builder = app.builder.name
     destination_dir = pathlib.Path(app.srcdir, "examples").resolve()
+    logger.info(f"Copying examples from {EXAMPLES_DIRECTORY} to {destination_dir}.")
 
-    # Keep the examples already copied to avoid running them twice in CI
-    # when building html and pdf
-    if builder == "pdf" and os.getenv("ON_CI", False):
-        logger.info(f"Keeping directory {destination_dir}.")
-    else:
-        logger.info(f"Copying examples from {EXAMPLES_DIRECTORY} to {destination_dir}.")
+    if os.path.exists(destination_dir):
+        size = directory_size(destination_dir)
+        logger.info(f"Directory {destination_dir} ({size} MB) already exist, removing it.")
+        shutil.rmtree(destination_dir)
+        logger.info(f"Directory removed.")
 
-        if os.path.exists(destination_dir):
-            size = directory_size(destination_dir)
-            logger.info(f"Directory {destination_dir} ({size} MB) already exist, removing it.")
-            shutil.rmtree(destination_dir)
-            logger.info(f"Directory removed.")
-
-        shutil.copytree(EXAMPLES_DIRECTORY, destination_dir)
-        logger.info(f"Copy performed")
+    shutil.copytree(EXAMPLES_DIRECTORY, destination_dir)
+    logger.info(f"Copy performed")
 
 
 def remove_examples(app, exception):
     """Remove the doc/source/examples directory created during the documentation build."""
-    builder = app.builder.name
     destination_dir = pathlib.Path(app.srcdir) / "examples"
 
-    # Keep the examples result to avoid running them twice in CI
-    # when building html and pdf
-    if builder == "html" and os.getenv("ON_CI", False):
-        logger.info(f"Keeping directory {destination_dir}.")
-    else:
-        size = directory_size(destination_dir)
-        logger.info(f"Removing directory {destination_dir} ({size} MB).")
-        shutil.rmtree(destination_dir, ignore_errors=True)
-        logger.info(f"Directory removed.")
+    size = directory_size(destination_dir)
+    logger.info(f"Removing directory {destination_dir} ({size} MB).")
+    shutil.rmtree(destination_dir, ignore_errors=True)
+    logger.info(f"Directory removed.")
 
 
 # def add_ipython_time(app, docname, source):
