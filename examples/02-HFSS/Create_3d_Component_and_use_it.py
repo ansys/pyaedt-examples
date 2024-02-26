@@ -39,8 +39,7 @@ hfss["width"] = "1mm"
 
 # +
 substrate = hfss.modeler.create_box(
-    ["-width", "-width", "-thick"],
-    ["2*width", "2*width", "thick"], matname="FR4_epoxy", name="sub"
+    ["-width", "-width", "-thick"], ["2*width", "2*width", "thick"], matname="FR4_epoxy", name="sub"
 )
 
 patch = hfss.modeler.create_rectangle(
@@ -48,8 +47,7 @@ patch = hfss.modeler.create_rectangle(
 )
 
 via1 = hfss.modeler.create_cylinder(
-    2,["-width/8", "-width/4", "-thick"],
-    "0.01mm", "thick", matname="copper", name="via_inner"
+    2, ["-width/8", "-width/4", "-thick"], "0.01mm", "thick", matname="copper", name="via_inner"
 )
 
 via_outer = hfss.modeler.create_cylinder(

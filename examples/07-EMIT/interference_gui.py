@@ -117,27 +117,35 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 # Define all widgets from the UI file, connect the widgets to functions, define 
 # table colors, and format table settings. 
 
-     def setup_widgets(self):
+    def setup_widgets(self):
         # Widget definitions for file selection/tab management
         self.file_select_btn = self.findChild(QtWidgets.QToolButton, "file_select_btn")
         self.file_path_box = self.findChild(QtWidgets.QLineEdit, "file_path_box") 
-        self.design_name_dropdown = self.findChild(QtWidgets.QComboBox, "design_name_dropdown")
+        self.design_name_dropdown = self.findChild(QtWidgets.QComboBox,
+                                                   "design_name_dropdown")
         self.design_name_dropdown.setEnabled(True)
         self.tab_widget = self.findChild(QtWidgets.QTabWidget, "tab_widget")
     
         # Widget definitions for protection level classification
-        self.protection_results_btn = self.findChild(QtWidgets.QPushButton, "protection_results_btn")
+        self.protection_results_btn = self.findChild(QtWidgets.QPushButton,
+                                                     "protection_results_btn")
         self.protection_matrix = self.findChild(QtWidgets.QTableWidget, "protection_matrix")    
-        self.protection_legend_table = self.findChild(QtWidgets.QTableWidget, "protection_legend_table")
+        self.protection_legend_table = self.findChild(QtWidgets.QTableWidget,
+                                                      "protection_legend_table")
     
         self.damage_check = self.findChild(QtWidgets.QCheckBox, "damage_check")
         self.overload_check = self.findChild(QtWidgets.QCheckBox, "overload_check")
-        self.intermodulation_check = self.findChild(QtWidgets.QCheckBox, "intermodulation_check")
-        self.desensitization_check = self.findChild(QtWidgets.QCheckBox, "desensitization_check")
-        self.protection_export_btn = self.findChild(QtWidgets.QPushButton, "protection_export_btn")
-        self.radio_specific_levels = self.findChild(QtWidgets.QCheckBox, "radio_specific_levels")
+        self.intermodulation_check = self.findChild(QtWidgets.QCheckBox,
+                                                    "intermodulation_check")
+        self.desensitization_check = self.findChild(QtWidgets.QCheckBox,
+                                                    "desensitization_check")
+        self.protection_export_btn = self.findChild(QtWidgets.QPushButton,
+                                                    "protection_export_btn")
+        self.radio_specific_levels = self.findChild(QtWidgets.QCheckBox,
+                                                    "radio_specific_levels")
         self.radio_dropdown = self.findChild(QtWidgets.QComboBox, "radio_dropdown")
-        self.protection_save_img_btn = self.findChild(QtWidgets.QPushButton, 'protection_save_img_btn')
+        self.protection_save_img_btn = self.findChild(QtWidgets.QPushButton,
+                                                      'protection_save_img_btn')
     
         # warning label
         self.warning_label = self.findChild(QtWidgets.QLabel, "warnings")
@@ -163,7 +171,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.protection_legend_table.setEditTriggers(QtWidgets.QTableWidget.DoubleClicked)
         self.global_protection_level = True
         self.protection_levels = {}
-        values = [float(self.protection_legend_table.item(row, 0).text()) for row in range(self.protection_legend_table.rowCount())]
+        values = [float(self.protection_legend_table.item(row, 0).text())
+                  for row in range(self.protection_legend_table.rowCount())]
         self.protection_levels['Global'] = values
         self.changing = False
         self.radio_dropdown.currentIndexChanged.connect(self.radio_dropdown_changed)
@@ -171,9 +180,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.protection_save_img_btn.clicked.connect(self.save_image)
     
         # Widget definitions for interference type
-        self.interference_results_btn = self.findChild(QtWidgets.QPushButton, "interference_results_btn")
-        self.interference_matrix = self.findChild(QtWidgets.QTableWidget, "interference_matrix")    
-        self.interference_legend_table = self.findChild(QtWidgets.QTableWidget, "interference_legend_table")
+        self.interference_results_btn = self.findChild(QtWidgets.QPushButton,
+                                                       "interference_results_btn")
+        self.interference_matrix = self.findChild(QtWidgets.QTableWidget,
+                                                  "interference_matrix")
+        self.interference_legend_table = self.findChild(QtWidgets.QTableWidget,
+                                                        "interference_legend_table")
     
         # set the items read only
         for i in range(0, self.interference_legend_table.rowCount()):
@@ -185,8 +197,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.in_out_check = self.findChild(QtWidgets.QCheckBox, "in_out_check")
         self.out_in_check = self.findChild(QtWidgets.QCheckBox, "out_in_check")
         self.out_out_check = self.findChild(QtWidgets.QCheckBox, "out_out_check")
-        self.interference_export_btn = self.findChild(QtWidgets.QPushButton, "interference_export_btn")
-        self.interference_save_img_btn = self.findChild(QtWidgets.QPushButton, 'interference_save_img_btn')
+        self.interference_export_btn = self.findChild(QtWidgets.QPushButton,
+                                                      "interference_export_btn")
+        self.interference_save_img_btn = self.findChild(QtWidgets.QPushButton,
+                                                        'interference_save_img_btn')
         
         # Setup for interference type buttons and table
         self.interference_results_btn.setEnabled(False)
@@ -244,7 +258,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 # with all EMIT designs in the project. 
 
     def open_file_dialog(self):
-        fname, _filter = QtWidgets.QFileDialog.getOpenFileName(self, "Select EMIT Project", "", "Ansys Electronics Desktop Files (*.aedt)", )
+        fname, _filter = QtWidgets.QFileDialog.getOpenFileName(self,
+                                         "Select EMIT Project",
+                                             "",
+                                            "Ansys Electronics Desktop Files (*.aedt)", )
         if fname: 
             self.file_path_box.setText(fname)
     
@@ -269,7 +286,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             if desktop_proj.lock_file == None:
                 msg = QtWidgets.QMessageBox()
                 msg.setWindowTitle("Error: Project already open")
-                msg.setText("Project is locked. Close or remove the lock before proceeding. See AEDT log for more information.")
+                msg.setText("Project is locked. Close or remove the lock before "
+                            "proceeding. See AEDT log for more information.")
                 x = msg.exec()
                 return
             
@@ -289,7 +307,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             # should add a blank EMIT design
             self.warning_label.setHidden(True)
             if len(emit_designs) == 0:
-                self.warning_label.setText("Warning: The project must contain at least one EMIT design.")
+                self.warning_label.setText("Warning: The project must "
+                                           "contain at least one EMIT design.")
                 self.warning_label.setHidden(False)
                 return
     
@@ -303,7 +322,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             radios = self.emitapp.modeler.components.get_radios()
             self.warning_label.setHidden(True)
             if len(radios) < 2:
-                self.warning_label.setText("Warning: The selected design must contain at least two radios.")
+                self.warning_label.setText("Warning: The selected design "
+                                           "must contain at least two radios.")
                 self.warning_label.setHidden(False)
     
             if self.radio_specific_levels.isEnabled():
@@ -311,7 +331,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.radio_dropdown.clear()
                 self.radio_dropdown.setEnabled(False)
                 self.protection_levels = {}
-                values = [float(self.protection_legend_table.item(row, 0).text()) for row in range(self.protection_legend_table.rowCount())]
+                values = [float(self.protection_legend_table.item(row, 0).text())
+                          for row in range(self.protection_legend_table.rowCount())]
                 self.protection_levels['Global'] = values
     
             self.radio_specific_levels.setEnabled(True)
@@ -332,7 +353,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         radios = self.emitapp.modeler.components.get_radios()
         self.warning_label.setHidden(True)
         if len(radios) < 2:
-            self.warning_label.setText("Warning: The selected design must contain at least two radios.")
+            self.warning_label.setText("Warning: The selected design must "
+                                       "contain at least two radios.")
             self.warning_label.setHidden(False)
 
         # clear the table if the design is changed
@@ -349,14 +371,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if self.radio_dropdown.isEnabled():
             self.emitapp.set_active_design(self.design_name_dropdown.currentText())
             radios = self.emitapp.modeler.components.get_radios()
-            values = [float(self.protection_legend_table.item(row, 0).text()) for row in range(self.protection_legend_table.rowCount())]
+            values = [float(self.protection_legend_table.item(row, 0).text()) for row in
+                      range(self.protection_legend_table.rowCount())]
             for radio in radios:
                 if radios[radio].has_rx_channels():
                     self.protection_levels[radio] = values
                     self.radio_dropdown.addItem(radio)
         else:
             self.radio_dropdown.clear()
-            values = [float(self.protection_legend_table.item(row, 0).text()) for row in range(self.protection_legend_table.rowCount())]
+            values = [float(self.protection_legend_table.item(row, 0).text()) for row in
+                      range(self.protection_legend_table.rowCount())]
             self.protection_levels['Global'] = values
         self.global_protection_level = not self.radio_specific_levels.isChecked()
    
@@ -403,7 +427,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             table = self.interference_matrix
 
-        fname, _filter = QtWidgets.QFileDialog.getSaveFileName(self, "Save Scenario Matrix", "Scenario Matrix", "png (*.png)")
+        fname, _filter = QtWidgets.QFileDialog.getSaveFileName(self,
+                                        "Save Scenario Matrix",
+                                            "Scenario Matrix",
+                                           "png (*.png)")
         if fname:
             image = QtGui.QImage(table.size(), QtGui.QImage.Format_ARGB32)
             table.render(image)
@@ -422,7 +449,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             table = self.interference_matrix
             defaultName = "Interference Type Classification"
 
-        fname, _filter = QtWidgets.QFileDialog.getSaveFileName(self, "Save Scenario Matrix", defaultName, "xlsx (*.xlsx)")
+        fname, _filter = QtWidgets.QFileDialog.getSaveFileName(self,
+                                                       "Save Scenario Matrix",
+                                                       defaultName, "xlsx (*.xlsx)")
 
         if fname:
             workbook = openpyxl.Workbook()
@@ -436,9 +465,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     text = str(table.item(row-2, col-2).text())
                     worksheet.cell(row = row, column = col, value = text)
                     cell = worksheet.cell(row, col)
-                    cell.fill = PatternFill(start_color = self.color_dict[self.all_colors[col-2][row-2]][1][1:], 
-                                            end_color = self.color_dict[self.all_colors[col-2][row-2]][1][1:], 
-                                            fill_type = "solid")
+                    cell.fill = PatternFill(
+                        start_color = self.color_dict[self.all_colors[col-2][row-2]][1][1:],
+                        end_color = self.color_dict[self.all_colors[col-2][row-2]][1][1:],
+                        fill_type = "solid")
             workbook.save(fname)
 
 # ### Run interference type simulation
@@ -450,14 +480,21 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.interference_checks = [self.in_in_check.isChecked(), self.out_in_check.isChecked(),
                                   self.in_out_check.isChecked(), self.out_out_check.isChecked()]
 
-        self.interference_filters =["TxFundamental:In-band", ["TxHarmonic/Spurious:In-band","Intermod:In-band", "Broadband:In-band"], 
-                                    "TxFundamental:Out-of-band", ["TxHarmonic/Spurious:Out-of-band","Intermod:Out-of-band", "Broadband:Out-of-band"]]
+        self.interference_filters =["TxFundamental:In-band",
+                                    ["TxHarmonic/Spurious:In-band",
+                                     "Intermod:In-band",
+                                     "Broadband:In-band"],
+                                    "TxFundamental:Out-of-band",
+                                    ["TxHarmonic/Spurious:Out-of-band",
+                                     "Intermod:Out-of-band",
+                                     "Broadband:Out-of-band"]]
 
         # Create list of problem types to analyze according to inputted filters
         filter = [i for (i,v) in zip(self.interference_filters, self.interference_checks) if v]
 
         if self.file_path_box.text() != "" and self.design_name_dropdown.currentText() != "":
-            if self.previous_design != self.design_name_dropdown.currentText() or self.previous_project != self.file_path_box.text():
+            if (self.previous_design != self.design_name_dropdown.currentText() or
+                    self.previous_project != self.file_path_box.text()):
                 self.previous_design = self.design_name_dropdown.currentText()
                 self.previous_project = self.file_path_box.text()
                 self.emitapp.set_active_design(self.design_name_dropdown.currentText())
@@ -487,7 +524,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 # which, if any, type of interference occurred.
 
             domain = self.emitapp.results.interaction_domain()
-            self.all_colors, self.power_matrix = self.rev.interference_type_classification(domain, use_filter = True, filter_list = filter)
+            self.all_colors, self.power_matrix = self.rev.interference_type_classification(
+                domain, use_filter = True, filter_list = filter)
 
             # Save project and plot results on table widget
             self.emitapp.save_project()
@@ -501,14 +539,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def protection_results(self):
         # Initialize filter check marks and expected filter results
         self.protection_checks = [self.damage_check.isChecked(), self.overload_check.isChecked(),
-                                  self.intermodulation_check.isChecked(), self.desensitization_check.isChecked()]
+                                  self.intermodulation_check.isChecked(),
+                                  self.desensitization_check.isChecked()]
 
         self.protection_filters = ['damage', 'overload', 'intermodulation', 'desensitization']
 
         filter = [i for (i,v) in zip(self.protection_filters, self.protection_checks) if v]
 
         if self.file_path_box.text() != "" and self.design_name_dropdown.currentText() != "":
-            if self.previous_design != self.design_name_dropdown.currentText() or self.previous_project != self.file_path_box.text():
+            if (self.previous_design != self.design_name_dropdown.currentText() or
+                    self.previous_project != self.file_path_box.text()):
                 self.previous_design = self.design_name_dropdown.currentText()
                 self.previous_project = self.file_path_box.text()
                 self.emitapp.set_active_design(self.design_name_dropdown.currentText())
@@ -517,7 +557,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 if self.emitapp.save_project() == False:
                     msg = QtWidgets.QMessageBox()
                     msg.setWindowTitle("Writing Error")
-                    msg.setText("An error occurred while writing to the file. Is it readonly? Disk full? See AEDT log for more information.")
+                    msg.setText("An error occurred while writing to the file. Is it "
+                                "read only? Disk full? See AEDT log for more information.")
                     x = msg.exec()
                     return
                 
@@ -532,11 +573,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 return
 
             domain = self.emitapp.results.interaction_domain()
-            self.all_colors, self.power_matrix = self.rev.protection_level_classification(domain, 
-                                                                                 self.global_protection_level, 
-                                                                                 self.protection_levels['Global'], 
-                                                                                 self.protection_levels, use_filter = True, 
-                                                                                 filter_list = filter)
+            self.all_colors, self.power_matrix = self.rev.protection_level_classification(
+                                                     domain,
+                                                     self.global_protection_level,
+                                                     self.protection_levels['Global'],
+                                                     self.protection_levels, use_filter = True,
+                                                     filter_list = filter)
 
             self.populate_table()
 
