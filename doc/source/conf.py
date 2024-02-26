@@ -74,10 +74,16 @@ def directory_size(directory_path):
 
 def remove_doctree(app, exception):
     """Remove the .doctree directory created during the documentation build."""
-    size = directory_size(app.doctreedir)
-    logger.info(f"Removing doctree {app.doctreedir} ({size} MB).")
-    shutil.rmtree(app.doctreedir, ignore_errors=True)
-    logger.info(f"Doctree removed.")
+
+    # Keep the doctree to avoid creating it twice. This is typically helpful in CI/CD
+    # where we want to build both HTML and PDF pages.
+    if bool(os.getenv("SPHINXBUILD_KEEP_DOCTREEDIR", False)):
+        logger.info(f"Keeping directory {app.doctreedir}.")
+    else:
+        size = directory_size(app.doctreedir)
+        logger.info(f"Removing doctree {app.doctreedir} ({size} MB).")
+        shutil.rmtree(app.doctreedir, ignore_errors=True)
+        logger.info(f"Doctree removed.")
 
 
 def copy_examples(app):
@@ -98,9 +104,9 @@ def copy_examples(app):
 def remove_examples(app, exception):
     """Remove the doc/source/examples directory created during the documentation build."""
     destination_dir = pathlib.Path(app.srcdir) / "examples"
+
     size = directory_size(destination_dir)
     logger.info(f"Removing directory {destination_dir} ({size} MB).")
-
     shutil.rmtree(destination_dir, ignore_errors=True)
     logger.info(f"Directory removed.")
 
@@ -283,7 +289,6 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.todo",
     "sphinx.ext.autosummary",
-    "sphinx.ext.intersphinx",
     "sphinx.ext.coverage",
     "sphinx_copybutton",
     "sphinx_design",
@@ -292,7 +297,6 @@ extensions = [
     "recommonmark",
     "numpydoc",
     "ansys_sphinx_theme.extension.linkcode",
-    # "myst_parser"
 ]
 
 # MathJax config

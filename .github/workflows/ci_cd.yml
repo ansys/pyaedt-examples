@@ -111,8 +111,10 @@ jobs:
           .venv\Scripts\Activate.ps1
           pip install --extra-index-url https://wheels.vtk.org .[ci]
 
+      # Use environment variable to keep the doctree and avoid redundant build for PDF pages
       - name: Create HTML documentation
         run: |
+          echo "SPHINXBUILD_KEEP_DOCTREEDIR=1" >> $GITHUB_ENV
           .venv\Scripts\Activate.ps1
           . .\doc\make.bat html
 
@@ -123,8 +125,11 @@ jobs:
           path: doc/_build/html
           retention-days: 7
 
+      # Use environment variable to remove the doctree after the build of PDF pages
+      # Keeping doctree could cause an issue, see https://github.com/ansys/pyaedt/pull/3844/files
       - name: Create PDF documentation
         run: |
+          echo "SPHINXBUILD_KEEP_DOCTREEDIR=0" >> $GITHUB_ENV
           .venv\Scripts\Activate.ps1
           . .\doc\make.bat pdf
 
