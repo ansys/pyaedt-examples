@@ -12,7 +12,6 @@ from math import sqrt as mysqrt
 import os
 
 import pyaedt
-from pyaedt import generate_unique_folder_name
 
 # ## Initialize Maxwell 2D
 #
@@ -463,17 +462,18 @@ for item in vacuum_obj_id:
 
 # +
 rotor_id = mod2D.create_circle(
-    position=[0, 0, 0], radius="DiaRotorLam/2", num_sides=0, name="Rotor",
-    matname="30DH_20C_smooth")
+    position=[0, 0, 0], radius="DiaRotorLam/2", num_sides=0, name="Rotor", matname="30DH_20C_smooth"
+)
 
 rotor_id.color = (0, 128, 255)
 mod2D.subtract(rotor_id, shaft_id, keep_originals=True)
 void_small_1_id = mod2D.create_circle(
-    position=[62, 0, 0], radius="2.55mm", num_sides=0, name="void1", matname="vacuum")
+    position=[62, 0, 0], radius="2.55mm", num_sides=0, name="void1", matname="vacuum"
+)
 
 M2D.modeler.duplicate_around_axis(
-    void_small_1_id, cs_axis="Z", angle="360deg/SymmetryFactor",
-    nclones=2, create_new_objects=False)
+    void_small_1_id, cs_axis="Z", angle="360deg/SymmetryFactor", nclones=2, create_new_objects=False
+)
 
 void_big_1_id = mod2D.create_circle(
     position=[29.5643, 12.234389332712, 0],
@@ -660,7 +660,8 @@ M2D.mesh.assign_length_mesh(rotor_id, isinside=True, maxlength=3, maxel=None, me
 #
 # Turn on eddy effects.
 
-# M2D.eddy_effects_on(eddy_effects_list,activate_eddy_effects=True, activate_displacement_current=False)
+# M2D.eddy_effects_on(eddy_effects_list,activate_eddy_effects=True,
+#                     activate_displacement_current=False)
 
 # ## Turn on core loss
 #
@@ -834,9 +835,11 @@ for k, v in post_params.items():
 
 # +
 # for k, v in post_params_multiplot.items():
-#     M2D.post.create_report(expressions=list(k), setup_sweep_name="", domain="Sweep", variations=None,
+#     M2D.post.create_report(expressions=list(k), setup_sweep_name="",
+#                            domain="Sweep", variations=None,
 #                            primary_sweep_variable="Time", secondary_sweep_variable=None,
-#                            report_category=None, plot_type="Rectangular Plot", context=None, subdesign_id=None,
+#                            report_category=None, plot_type="Rectangular Plot",
+#                            context=None, subdesign_id=None,
 #                            polyline_points=1001, plotname=v)
 # -
 

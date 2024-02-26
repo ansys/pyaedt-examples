@@ -49,7 +49,7 @@ patch = hfss.modeler.create_rectangle(
 
 via1 = hfss.modeler.create_cylinder(
     cs_axis=2,
-    postion=["-width/8", "-width/4", "-thick"],
+    position=["-width/8", "-width/4", "-thick"],
     "0.01mm", "thick", matname="copper", name="via_inner"
 )
 

@@ -60,8 +60,7 @@ stop_freq = 50
 Setup = M3D.create_setup(setupname="Setup1")
 Setup.props["Frequency"] = "200Hz"
 Setup.props["HasSweepSetup"] = True
-Setup.add_eddy_current_sweep("LinearStep", dc_freq,
-                             stop_freq, stop_freq - dc_freq, clear=True)
+Setup.add_eddy_current_sweep("LinearStep", dc_freq, stop_freq, stop_freq - dc_freq, clear=True)
 Setup.props["UseHighOrderShapeFunc"] = True
 Setup.props["PercentError"] = 0.4
 # -
@@ -219,8 +218,7 @@ polyline2_mesh.set_crosssection_properties(type="Circle", width=mesh_diameter)
 # Plot the model.
 
 M3D.plot(
-    show=False, export_path=os.path.join(M3D.working_directory, "Image.jpg"),
-    plot_air_objects=False
+    show=False, export_path=os.path.join(M3D.working_directory, "Image.jpg"), plot_air_objects=False
 )
 
 # Published measurement results are included with this script via the list below.

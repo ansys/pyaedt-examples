@@ -9,10 +9,8 @@
 # Perform required imports including the operating system, regular expression, csv, Ansys PyAEDT
 # and its boundary objects.
 
-from collections import OrderedDict
 import csv
 import os
-import re
 
 import pyaedt
 from pyaedt.modules.Boundary import BoundaryObject
@@ -44,8 +42,7 @@ ipk.autosave_disable()
 # Create the PCB as a simple block.
 
 board = ipk.modeler.create_box(
-    [-30.48, -27.305, 0], [146.685, 71.755, 0.4064],
-    "board_outline", matname="FR-4_Ref"
+    [-30.48, -27.305, 0], [146.685, 71.755, 0.4064], "board_outline", matname="FR-4_Ref"
 )
 
 # ## Blocks creation with a CSV file
@@ -69,8 +66,7 @@ board = ipk.modeler.create_box(
 # Every row of the csv has information of a particular block.
 
 # +
-filename = pyaedt.downloads.download_file("icepak", "blocks-list.csv",
-                                          destination=temp_folder)
+filename = pyaedt.downloads.download_file("icepak", "blocks-list.csv", destination=temp_folder)
 
 with open(filename, "r") as csv_file:
     csv_reader = csv.DictReader(csv_file)

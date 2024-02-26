@@ -142,12 +142,10 @@ first_winding_faces = m3d.modeler.get_object_faces(first_winding_list[0].name)
 second_winding_faces = m3d.modeler.get_object_faces(second_winding_list[0].name)
 third_winding_faces = m3d.modeler.get_object_faces(third_winding_list[0].name)
 m3d.assign_current(
-    [first_winding_faces[-1]], amplitude=1000, phase="0deg",
-    swap_direction=False, name="phase_1_in"
+    [first_winding_faces[-1]], amplitude=1000, phase="0deg", swap_direction=False, name="phase_1_in"
 )
 m3d.assign_current(
-    [first_winding_faces[-2]], amplitude=1000, phase="0deg",
-    swap_direction=True, name="phase_1_out"
+    [first_winding_faces[-2]], amplitude=1000, phase="0deg", swap_direction=True, name="phase_1_out"
 )
 m3d.assign_current(
     [second_winding_faces[-1]],
@@ -232,8 +230,8 @@ setup.add_eddy_current_sweep(
 m3d.save_project()
 m3d.modeler.fit_all()
 m3d.plot(
-    show=False, export_path=os.path.join(m3d.working_directory, "Image.jpg"),
-    plot_air_objects=True)
+    show=False, export_path=os.path.join(m3d.working_directory, "Image.jpg"), plot_air_objects=True
+)
 
 # ## Close AEDT
 #

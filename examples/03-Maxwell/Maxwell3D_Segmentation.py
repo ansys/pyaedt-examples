@@ -22,8 +22,7 @@ non_graphical = False
 # Set local temporary folder to export the .aedt file to.
 
 temp_folder = generate_unique_folder_name()
-aedt_file = downloads.download_file("object_segmentation",
-                                    "Motor3D_obj_segments.aedt", temp_folder)
+aedt_file = downloads.download_file("object_segmentation", "Motor3D_obj_segments.aedt", temp_folder)
 
 # ## Launch Maxwell 3D
 #

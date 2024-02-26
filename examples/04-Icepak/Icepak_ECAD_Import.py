@@ -61,10 +61,8 @@ ipk.autosave_disable()
 def_path = pyaedt.downloads.download_file(
     "icepak/Icepak_ECAD_Import/A1_uprev.aedb", "edb.def", temp_folder
 )
-board_path = pyaedt.downloads.download_file("icepak/Icepak_ECAD_Import/",
-                                            "A1.bdf", temp_folder)
-library_path = pyaedt.downloads.download_file("icepak/Icepak_ECAD_Import/",
-                                              "A1.ldf", temp_folder)
+board_path = pyaedt.downloads.download_file("icepak/Icepak_ECAD_Import/", "A1.bdf", temp_folder)
+library_path = pyaedt.downloads.download_file("icepak/Icepak_ECAD_Import/", "A1.ldf", temp_folder)
 
 ipk.import_idf(
     board_path,

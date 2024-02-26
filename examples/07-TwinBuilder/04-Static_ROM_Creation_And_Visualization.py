@@ -14,11 +14,7 @@
 import os
 import shutil
 
-from pyaedt import (
-    TwinBuilder,
-    downloads,
-    generate_unique_project_name,
-)
+from pyaedt import TwinBuilder, downloads, generate_unique_project_name
 
 # ## Select version and set launch options
 #
@@ -45,15 +41,13 @@ source_props_conf_file = "SROM_props.conf"
 
 # ## Download Example Data
 #
-# The following cell downloads the required files needed to run this example and extracts them in a local folder ``"Ex04"``
+# The following cell downloads the required files needed to run this example and
+# extracts them in a local folder ``"Ex04"``
 
 # +
-source_data_folder = downloads.download_twin_builder_data(
-    source_snapshot_data_zipfilename, True)
-source_data_folder = downloads.download_twin_builder_data(
-    source_build_conf_file, True)
-source_data_folder = downloads.download_twin_builder_data(
-    source_props_conf_file, True)
+source_data_folder = downloads.download_twin_builder_data(source_snapshot_data_zipfilename, True)
+source_data_folder = downloads.download_twin_builder_data(source_build_conf_file, True)
+source_data_folder = downloads.download_twin_builder_data(source_props_conf_file, True)
 
 # Target folder to extract project files.
 data_folder = os.path.join(source_data_folder, "Ex04")

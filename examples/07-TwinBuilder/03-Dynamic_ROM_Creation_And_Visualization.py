@@ -15,12 +15,7 @@ import os
 import shutil
 
 import matplotlib.pyplot as plt
-from pyaedt import (
-    TwinBuilder,
-    downloads,
-    generate_unique_folder_name,
-    generate_unique_project_name,
-)
+from pyaedt import TwinBuilder, downloads, generate_unique_folder_name, generate_unique_project_name
 
 # ## Select version and set launch options
 #
