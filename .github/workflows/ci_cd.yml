@@ -111,7 +111,7 @@ jobs:
           .venv\Scripts\Activate.ps1
           pip install --extra-index-url https://wheels.vtk.org .[ci]
 
-      # Use environment variable to keep the doctree as it shorten the build of PDF pages
+      # Use environment variable to keep the doctree and avoid redundant build for PDF pages
       - name: Create HTML documentation
         run: |
           echo "SPHINXBUILD_KEEP_DOCTREEDIR=1" >> $GITHUB_ENV
