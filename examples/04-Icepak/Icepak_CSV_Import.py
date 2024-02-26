@@ -13,7 +13,6 @@ import csv
 import os
 
 import pyaedt
-from pyaedt.modules.Boundary import BoundaryObject
 
 # ## Set non-graphical mode
 #
