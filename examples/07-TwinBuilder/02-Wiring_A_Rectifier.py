@@ -10,10 +10,11 @@
 # Perform required imports.
 
 import math
+import os
+import tempfile
+
 import matplotlib.pyplot as plt
 import pyaedt
-import tempfile
-import os
 
 # ## Select version and set launch options
 #
@@ -35,11 +36,12 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 # Launch Twin Builder using an implicit declaration and add a new design with
 # a default setup.
 
-tb = pyaedt.TwinBuilder(projectname=os.path.join(temp_dir.name, "TB_Rectifier_Demo"),
-                        specified_version=desktop_version,
-                        non_graphical=non_graphical,
-                        new_desktop_session=new_thread
-                        )
+tb = pyaedt.TwinBuilder(
+    projectname=os.path.join(temp_dir.name, "TB_Rectifier_Demo"),
+    specified_version=desktop_version,
+    non_graphical=non_graphical,
+    new_desktop_session=new_thread,
+)
 
 # ## Create components for bridge rectifier
 #
@@ -58,18 +60,30 @@ source = tb.modeler.schematic.create_voltage_source("V_AC", "ESINE", 100, 50, lo
 # Place the four diodes of the bridge rectifier. The named argument ``angle`` is the rotation angle
 # of the component in radians.
 
-diode1 = tb.modeler.schematic.create_diode(compname="D1", location=[10 * G, 6 * G], angle=3 * math.pi / 2)
-diode2 = tb.modeler.schematic.create_diode(compname="D2", location=[20 * G, 6 * G], angle=3 * math.pi / 2)
-diode3 = tb.modeler.schematic.create_diode(compname="D3", location=[10 * G, -4 * G], angle=3 * math.pi / 2)
-diode4 = tb.modeler.schematic.create_diode(compname="D4", location=[20 * G, -4 * G], angle=3 * math.pi / 2)
+diode1 = tb.modeler.schematic.create_diode(
+    compname="D1", location=[10 * G, 6 * G], angle=3 * math.pi / 2
+)
+diode2 = tb.modeler.schematic.create_diode(
+    compname="D2", location=[20 * G, 6 * G], angle=3 * math.pi / 2
+)
+diode3 = tb.modeler.schematic.create_diode(
+    compname="D3", location=[10 * G, -4 * G], angle=3 * math.pi / 2
+)
+diode4 = tb.modeler.schematic.create_diode(
+    compname="D4", location=[20 * G, -4 * G], angle=3 * math.pi / 2
+)
 
 # Place a capacitor filter.
 
-capacitor = tb.modeler.schematic.create_capacitor(compname="C_FILTER", value=1e-6, location=[29 * G, -10 * G])
+capacitor = tb.modeler.schematic.create_capacitor(
+    compname="C_FILTER", value=1e-6, location=[29 * G, -10 * G]
+)
 
 # Place a load resistor.
 
-resistor = tb.modeler.schematic.create_resistor(compname="RL", value=100000, location=[39 * G, -10 * G])
+resistor = tb.modeler.schematic.create_resistor(
+    compname="RL", value=100000, location=[39 * G, -10 * G]
+)
 
 # Place the ground component.
 
@@ -88,8 +102,12 @@ tb.modeler.schematic.create_wire(points_array=[diode3.pins[1].location, diode4.p
 
 # Connect the voltage source to the bridge.
 
-tb.modeler.schematic.create_wire(points_array=[source.pins[1].location, [0, 10 * G], [15 * G, 10 * G], [15 * G, 5 * G]])
-tb.modeler.schematic.create_wire(points_array=[source.pins[0].location, [0, -10 * G], [15 * G, -10 * G], [15 * G, -5 * G]])
+tb.modeler.schematic.create_wire(
+    points_array=[source.pins[1].location, [0, 10 * G], [15 * G, 10 * G], [15 * G, 5 * G]]
+)
+tb.modeler.schematic.create_wire(
+    points_array=[source.pins[0].location, [0, -10 * G], [15 * G, -10 * G], [15 * G, -5 * G]]
+)
 
 # Connect the filter capacitor and load resistor.
 
@@ -98,7 +116,9 @@ tb.modeler.schematic.create_wire(points_array=[capacitor.pins[0].location, [30 *
 
 # Add the ground connection.
 
-tb.modeler.schematic.create_wire(points_array=[resistor.pins[1].location, [40 * G, -15 * G], gnd.pins[0].location])
+tb.modeler.schematic.create_wire(
+    points_array=[resistor.pins[1].location, [40 * G, -15 * G], gnd.pins[0].location]
+)
 tb.modeler.schematic.create_wire(points_array=[capacitor.pins[1].location, [30 * G, -15 * G]])
 tb.modeler.schematic.create_wire(points_array=[gnd.pins[0].location, [5 * G, 0], [8 * G, 0]])
 

@@ -8,11 +8,12 @@
 # Perform required imports.
 
 import os
+
 import pyaedt
 
 # ## Set non-graphical mode
 #
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -25,11 +26,12 @@ non_graphical = False
 temp_folder = pyaedt.generate_unique_folder_name()
 project_temp_name = pyaedt.downloads.download_icepak(temp_folder)
 
-ipk = pyaedt.Icepak(projectname=project_temp_name,
-                    specified_version="2023.2",
-                    new_desktop_session=True,
-                    non_graphical=non_graphical
-                    )
+ipk = pyaedt.Icepak(
+    projectname=project_temp_name,
+    specified_version="2023.2",
+    new_desktop_session=True,
+    non_graphical=non_graphical,
+)
 
 ipk.autosave_disable()
 # -
@@ -38,7 +40,9 @@ ipk.autosave_disable()
 #
 # Plot the model.
 
-ipk.plot(show=False, export_path=os.path.join(temp_folder, "Graphics_card.jpg"), plot_air_objects=False)
+ipk.plot(
+    show=False, export_path=os.path.join(temp_folder, "Graphics_card.jpg"), plot_air_objects=False
+)
 
 # ## Create source blocks
 #
@@ -71,7 +75,9 @@ mesh_region.update()
 #
 # Assign a point monitor and set it up.
 
-ipk.assign_point_monitor(point_position=["-35mm", "3.6mm", "-86mm"], monitor_name="TemperatureMonitor1")
+ipk.assign_point_monitor(
+    point_position=["-35mm", "3.6mm", "-86mm"], monitor_name="TemperatureMonitor1"
+)
 ipk.assign_point_monitor(point_position=["80mm", "14.243mm", "-55mm"], monitor_type="Speed")
 setup1 = ipk.create_setup()
 setup1.props["Flow Regime"] = "Turbulent"

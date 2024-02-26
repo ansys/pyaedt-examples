@@ -6,17 +6,20 @@
 #
 # Perform required imports, which includes importing a section.
 
-from pyaedt import Edb, Circuit
 import os.path
-import pyaedt
 import tempfile
+
+import pyaedt
+from pyaedt import Circuit, Edb
 
 # ## Download file
 #
 # Download the AEDB file and copy it in the temporary folder.
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-edb_file = pyaedt.downloads.download_file(destination=temp_dir.name, directory="edb/siwave_multi_zones.aedb")
+edb_file = pyaedt.downloads.download_file(
+    destination=temp_dir.name, directory="edb/siwave_multi_zones.aedb"
+)
 aedt_file = os.path.splitext(edb_file)[0] + ".aedt"
 circuit_project_file = os.path.join(temp_dir.name, "multizone_clipped_circuit.aedt")
 print(edb_file)
@@ -60,15 +63,18 @@ defined_ports, project_connexions = edb.cutout_multizone_layout(edb_zones, commo
 # Create circuit design, import all sub-project as EM model and connect all corresponding pins in circuit.
 
 circuit = Circuit(specified_version=edb_version, projectname=circuit_project_file)
-circuit.connect_circuit_models_from_multi_zone_cutout(project_connections=project_connexions,
-                                                      edb_zones_dict=edb_zones, ports=defined_ports,
-                                                      model_inc=70)
+circuit.connect_circuit_models_from_multi_zone_cutout(
+    project_connections=project_connexions,
+    edb_zones_dict=edb_zones,
+    ports=defined_ports,
+    model_inc=70,
+)
 
 # ## Setup
 #
 # Add Nexxim LNA simulation setup.
 
-circuit_setup= circuit.create_setup("Pyedt_LNA")
+circuit_setup = circuit.create_setup("Pyedt_LNA")
 
 # ## Frequency sweep
 #
@@ -84,14 +90,18 @@ circuit.analyze()
 
 # Define differential pairs
 
-circuit.set_differential_pair(diff_name="U0", positive_terminal="U0.via_38.B2B_SIGP",
-                              negative_terminal="U0.via_39.B2B_SIGN")
-circuit.set_differential_pair(diff_name="U1", positive_terminal="U1.via_32.B2B_SIGP",
-                              negative_terminal="U1.via_33.B2B_SIGN")
+circuit.set_differential_pair(
+    diff_name="U0", positive_terminal="U0.via_38.B2B_SIGP", negative_terminal="U0.via_39.B2B_SIGN"
+)
+circuit.set_differential_pair(
+    diff_name="U1", positive_terminal="U1.via_32.B2B_SIGP", negative_terminal="U1.via_33.B2B_SIGN"
+)
 
 # Plot results
 
-circuit.post.create_report(expressions=["dB(S(U0,U0))", "dB(S(U1,U0))"], context="Differential Pairs")
+circuit.post.create_report(
+    expressions=["dB(S(U0,U0))", "dB(S(U1,U0))"], context="Differential Pairs"
+)
 
 # ## Release AEDT desktop
 #

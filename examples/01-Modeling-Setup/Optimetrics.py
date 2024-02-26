@@ -7,13 +7,13 @@
 #
 # Perform required imports.
 
-import pyaedt
-
 import os
+
+import pyaedt
 
 # ## Set non-graphical mode
 #
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -23,7 +23,9 @@ non_graphical = False
 # Initialize the ``Hfss`` object and create two needed design variables,
 # ``w1`` and ``w2``.
 
-hfss = pyaedt.Hfss(specified_version="2023.2", new_desktop_session=True, non_graphical=non_graphical)
+hfss = pyaedt.Hfss(
+    specified_version="2023.2", new_desktop_session=True, non_graphical=non_graphical
+)
 hfss["w1"] = "1mm"
 hfss["w2"] = "100mm"
 
@@ -60,7 +62,13 @@ hfss.wave_port(p2, integration_line=hfss.AxisDir.ZPos, name="2")
 
 setup = hfss.create_setup()
 hfss.create_linear_step_sweep(
-    setupname=setup.name, unit="GHz", freqstart=1, freqstop=5, step_size=0.1, sweepname="Sweep1", save_fields=True
+    setupname=setup.name,
+    unit="GHz",
+    freqstart=1,
+    freqstop=5,
+    step_size=0.1,
+    sweepname="Sweep1",
+    save_fields=True,
 )
 
 # ## Optimetrics analysis
@@ -76,7 +84,9 @@ sweep.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 
 # Create an optimetrics sensitivity analysis with output calculations.
 
-sweep2 = hfss.optimizations.add(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="Sensitivity")
+sweep2 = hfss.optimizations.add(
+    calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="Sensitivity"
+)
 sweep2.add_variation("w1", 0.1, 3, 0.5)
 sweep2.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 
@@ -94,14 +104,18 @@ sweep3.add_goal(
 
 # Create a DX (DesignXplorer) optimization based on a goal and a calculation.
 
-sweep4 = hfss.optimizations.add(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="DesignExplorer")
+sweep4 = hfss.optimizations.add(
+    calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="DesignExplorer"
+)
 sweep4.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 
 # ## Create DOE based on a goal and calculation
 #
 # Create a DOE (Design of Experiments) based on a goal and a calculation.
 
-sweep5 = hfss.optimizations.add(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="DXDOE")
+sweep5 = hfss.optimizations.add(
+    calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="DXDOE"
+)
 
 # ## Create DOE based on a goal and calculation
 

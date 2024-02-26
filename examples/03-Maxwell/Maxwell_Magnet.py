@@ -7,13 +7,13 @@
 #
 # Perform required imports.
 
-from pyaedt import Maxwell3d
-from pyaedt import generate_unique_project_name
 import os
+
+from pyaedt import Maxwell3d, generate_unique_project_name
 
 # ## Set non-graphical mode
 #
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -22,10 +22,12 @@ non_graphical = False
 #
 # Launch AEDT 2023 R2 in graphical mode.
 
-m3d = Maxwell3d(projectname=generate_unique_project_name(),
-                specified_version="2023.2",
-                new_desktop_session=True,
-                non_graphical=non_graphical)
+m3d = Maxwell3d(
+    projectname=generate_unique_project_name(),
+    specified_version="2023.2",
+    new_desktop_session=True,
+    non_graphical=non_graphical,
+)
 
 # ## Set up Maxwell solution
 #
@@ -37,7 +39,9 @@ m3d.solution_type = m3d.SOLUTIONS.Maxwell3d.ElectroDCConduction
 #
 # Create a magnet.
 
-magnet = m3d.modeler.create_box(position=[7, 4, 22], dimensions_list=[10, 5, 30], name="Magnet", matname="copper")
+magnet = m3d.modeler.create_box(
+    position=[7, 4, 22], dimensions_list=[10, 5, 30], name="Magnet", matname="copper"
+)
 
 # ## Create setup and assign voltage
 #
@@ -50,7 +54,9 @@ m3d.create_setup()
 #
 # Plot the model.
 
-m3d.plot(show=False, export_path=os.path.join(m3d.working_directory, "Image.jpg"), plot_air_objects=True)
+m3d.plot(
+    show=False, export_path=os.path.join(m3d.working_directory, "Image.jpg"), plot_air_objects=True
+)
 
 # ## Solve setup
 #
@@ -97,7 +103,9 @@ m3d[magnet.name + "z"] = str(zval * 1e3) + "mm"
 # Create a parametric coordinate system.
 
 cs1 = m3d.modeler.create_coordinate_system(
-    [magnet.name + "x", magnet.name + "y", magnet.name + "z"], reference_cs="Global", name=magnet.name + "CS"
+    [magnet.name + "x", magnet.name + "y", magnet.name + "z"],
+    reference_cs="Global",
+    name=magnet.name + "CS",
 )
 
 # ## Save and close

@@ -1,18 +1,19 @@
 # # Q2D: Cable parameter identification
 
 # This example shows how you can use PyAEDT to perform these tasks:
-# 
+#
 #  - Create a Q2D design using the Modeler primitives and importing part of the geometry.
 #  - Set up the entire simulation.
 #  - Link the solution to a Simplorer design.
-# 
+#
 # For cable information, see `4 Core Armoured Power Cable <https://www.luxingcable.com/low-voltage-cables/4-core-armoured-power-cable.html>`_
 
 # ## Perform required imports
 #
 
-import pyaedt
 import math
+
+import pyaedt
 
 # ## Initialize core strand dimensions and positions
 #
@@ -50,19 +51,19 @@ n_arm_strands = 30
 core_params = {
     "n_cores": str(cable_n_cores),
     "n_strands_core": str(core_n_strands),
-    "c_strand_radius": str(c_strand_radius) + 'mm',
-    "c_strand_xy_coord": str(core_xy_coord) + 'mm'
+    "c_strand_radius": str(c_strand_radius) + "mm",
+    "c_strand_xy_coord": str(core_xy_coord) + "mm",
 }
 outer_params = {
-    "filling_radius": str(filling_radius) + 'mm',
-    "inner_sheath_radius": str(inner_sheath_radius) + 'mm',
-    "armour_radius": str(armour_radius) + 'mm',
-    "outer_sheath_radius": str(outer_sheath_radius) + 'mm'
+    "filling_radius": str(filling_radius) + "mm",
+    "inner_sheath_radius": str(inner_sheath_radius) + "mm",
+    "armour_radius": str(armour_radius) + "mm",
+    "outer_sheath_radius": str(outer_sheath_radius) + "mm",
 }
 armour_params = {
-    "armour_centre_pos": str(armour_centre_pos) + 'mm',
-    "arm_strand_rad": str(arm_strand_rad) + 'mm',
-    "n_arm_strands": str(n_arm_strands)
+    "armour_centre_pos": str(armour_centre_pos) + "mm",
+    "arm_strand_rad": str(arm_strand_rad) + "mm",
+    "n_arm_strands": str(n_arm_strands),
 }
 
 # ## Initialize Q2D
@@ -71,12 +72,14 @@ armour_params = {
 # name and type.
 
 desktop_version = "2023.2"
-project_name = 'Q2D_ArmouredCableExample'
-q2d_design_name = '2D_Extractor_Cable'
+project_name = "Q2D_ArmouredCableExample"
+q2d_design_name = "2D_Extractor_Cable"
 setup_name = "MySetupAuto"
 sweep_name = "sweep1"
-tb_design_name = 'CableSystem'
-q2d = pyaedt.Q2d(projectname=project_name, designname=q2d_design_name, specified_version=desktop_version)
+tb_design_name = "CableSystem"
+q2d = pyaedt.Q2d(
+    projectname=project_name, designname=q2d_design_name, specified_version=desktop_version
+)
 
 # ## Define variables from dictionaries
 #
@@ -117,22 +120,33 @@ mat_pp.update()
 # ## Create geometry for core strands, filling, and XLPE insulation
 
 # +
-mod2D.create_coordinate_system(['c_strand_xy_coord', 'c_strand_xy_coord', '0mm'], name='CS_c_strand_1')
-mod2D.set_working_coordinate_system('CS_c_strand_1')
-c1_id = mod2D.create_circle(['0mm', '0mm', '0mm'], 'c_strand_radius', name='c_strand_1', matname='copper')
-c2_id = c1_id.duplicate_along_line(vector=['0mm', '2.0*c_strand_radius', '0mm'], nclones=2)
+mod2D.create_coordinate_system(
+    ["c_strand_xy_coord", "c_strand_xy_coord", "0mm"], name="CS_c_strand_1"
+)
+mod2D.set_working_coordinate_system("CS_c_strand_1")
+c1_id = mod2D.create_circle(
+    ["0mm", "0mm", "0mm"], "c_strand_radius", name="c_strand_1", matname="copper"
+)
+c2_id = c1_id.duplicate_along_line(vector=["0mm", "2.0*c_strand_radius", "0mm"], nclones=2)
 mod2D.duplicate_around_axis(c2_id, cs_axis="Z", angle=360 / core_n_strands, nclones=6)
 c_unite_name = mod2D.unite(q2d.get_all_conductors_names())
 
-fill_id = mod2D.create_circle(['0mm', '0mm', '0mm'], '3*c_strand_radius', name='c_strand_fill',
-                              matname='plastic_pp_carbon_fiber')
+fill_id = mod2D.create_circle(
+    ["0mm", "0mm", "0mm"],
+    "3*c_strand_radius",
+    name="c_strand_fill",
+    matname="plastic_pp_carbon_fiber",
+)
 fill_id.color = (255, 255, 0)
-xlpe_id = mod2D.create_circle(['0mm', '0mm', '0mm'], '3*c_strand_radius+' + str(core_xlpe_ins_thickness) + 'mm',
-                              name='c_strand_xlpe',
-                              matname='plastic_pe_cable_grade')
+xlpe_id = mod2D.create_circle(
+    ["0mm", "0mm", "0mm"],
+    "3*c_strand_radius+" + str(core_xlpe_ins_thickness) + "mm",
+    name="c_strand_xlpe",
+    matname="plastic_pe_cable_grade",
+)
 xlpe_id.color = (0, 128, 128)
 
-mod2D.set_working_coordinate_system('Global')
+mod2D.set_working_coordinate_system("Global")
 all_obj_names = q2d.get_all_conductors_names() + q2d.get_all_dielectrics_names()
 mod2D.duplicate_around_axis(all_obj_names, cs_axis="Z", angle=360 / cable_n_cores, nclones=4)
 cond_names = q2d.get_all_conductors_names()
@@ -140,35 +154,40 @@ cond_names = q2d.get_all_conductors_names()
 
 # ## Create geometry for filling object
 
-filling_id = mod2D.create_circle(['0mm', '0mm', '0mm'], 'filling_radius', name='Filling',
-                                 matname='plastic_pp_carbon_fiber')
+filling_id = mod2D.create_circle(
+    ["0mm", "0mm", "0mm"], "filling_radius", name="Filling", matname="plastic_pp_carbon_fiber"
+)
 filling_id.color = (255, 255, 180)
 
 # ## Create geometry for inner sheath object
 
-inner_sheath_id = mod2D.create_circle(['0mm', '0mm', '0mm'], 'inner_sheath_radius', name='InnerSheath',
-                                     matname='PVC plastic')
+inner_sheath_id = mod2D.create_circle(
+    ["0mm", "0mm", "0mm"], "inner_sheath_radius", name="InnerSheath", matname="PVC plastic"
+)
 inner_sheath_id.color = (0, 0, 0)
 
 # ## Create geometry for armature fill
 
-arm_fill_id = mod2D.create_circle(['0mm', '0mm', '0mm'], 'armour_radius', name='ArmourFilling',
-                                  matname='plastic_pp_carbon_fiber')
+arm_fill_id = mod2D.create_circle(
+    ["0mm", "0mm", "0mm"], "armour_radius", name="ArmourFilling", matname="plastic_pp_carbon_fiber"
+)
 arm_fill_id.color = (255, 255, 255)
 
 # ## Create geometry for outer sheath
 
-outer_sheath_id = mod2D.create_circle(['0mm', '0mm', '0mm'], 'outer_sheath_radius', name='OuterSheath',
-                                     matname='PVC plastic')
+outer_sheath_id = mod2D.create_circle(
+    ["0mm", "0mm", "0mm"], "outer_sheath_radius", name="OuterSheath", matname="PVC plastic"
+)
 outer_sheath_id.color = (0, 0, 0)
 
 # ## Create geometry for armature steel strands
 
-arm_strand_1_id = mod2D.create_circle(['0mm', 'armour_centre_pos', '0mm'], '1.1mm', name='arm_strand_1',
-                                      matname='steel_stainless')
+arm_strand_1_id = mod2D.create_circle(
+    ["0mm", "armour_centre_pos", "0mm"], "1.1mm", name="arm_strand_1", matname="steel_stainless"
+)
 arm_strand_1_id.color = (128, 128, 64)
-arm_strand_1_id.duplicate_around_axis('Z', '360deg/n_arm_strands', nclones='n_arm_strands')
-arm_strand_names = mod2D.get_objects_w_string('arm_strand')
+arm_strand_1_id.duplicate_around_axis("Z", "360deg/n_arm_strands", nclones="n_arm_strands")
+arm_strand_names = mod2D.get_objects_w_string("arm_strand")
 
 # ## Create region
 
@@ -178,8 +197,12 @@ region.material_name = "vacuum"
 # ## Assign conductors and reference ground
 
 obj = [q2d.modeler.get_object_from_name(i) for i in cond_names]
-[q2d.assign_single_conductor(name='C1' + str(obj.index(i) + 1), target_objects=i, conductor_type='SignalLine') for i
- in obj]
+[
+    q2d.assign_single_conductor(
+        name="C1" + str(obj.index(i) + 1), target_objects=i, conductor_type="SignalLine"
+    )
+    for i in obj
+]
 obj = [q2d.modeler.get_object_from_name(i) for i in arm_strand_names]
 q2d.assign_single_conductor(name="gnd", target_objects=obj, conductor_type="ReferenceGround")
 mod2D.fit_all()
@@ -188,7 +211,7 @@ mod2D.fit_all()
 
 lumped_length = "100m"
 q2d_des_settings = q2d.design_settings()
-q2d_des_settings['LumpedLength'] = lumped_length
+q2d_des_settings["LumpedLength"] = lumped_length
 q2d.change_design_settings(q2d_des_settings)
 
 # ## Insert setup and frequency sweep
@@ -212,12 +235,14 @@ tb = pyaedt.TwinBuilder(designname=tb_design_name)
 
 # ## Add a Q3D dynamic component
 
-tb.add_q3d_dynamic_component(project_name,
-                             q2d_design_name,
-                             setup_name,
-                             sweep_name,
-                             model_depth=lumped_length,
-                             coupling_matrix_name="Original")
+tb.add_q3d_dynamic_component(
+    project_name,
+    q2d_design_name,
+    setup_name,
+    sweep_name,
+    model_depth=lumped_length,
+    coupling_matrix_name="Original",
+)
 
 # ## Save project and release desktop
 

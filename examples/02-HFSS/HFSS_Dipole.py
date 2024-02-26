@@ -8,6 +8,7 @@
 # Perform required imports.
 
 import os
+
 import pyaedt
 
 project_name = pyaedt.generate_unique_project_name(project_name="dipole")
@@ -115,7 +116,9 @@ hfss.post.create_report(
 # Create a far fields report using the ``report_by_category.far field`` method,
 # which gives you more freedom.
 
-new_report = hfss.post.reports_by_category.far_field("db(RealizedGainTotal)", hfss.nominal_adaptive, "3D")
+new_report = hfss.post.reports_by_category.far_field(
+    "db(RealizedGainTotal)", hfss.nominal_adaptive, "3D"
+)
 new_report.variations = variations
 new_report.primary_sweep = "Theta"
 new_report.create("Realized2D")
@@ -185,19 +188,23 @@ solutions.plot(math_formula="db20", is_polar=True)
 # field data is generated port by port and stored in a data class, , user can use this data
 # once AEDT is released.
 
-ffdata = hfss.get_antenna_ffd_solution_data(sphere_name="Sphere_Custom", setup_name=hfss.nominal_adaptive,
-                                            frequencies=["1000MHz"])
+ffdata = hfss.get_antenna_ffd_solution_data(
+    sphere_name="Sphere_Custom", setup_name=hfss.nominal_adaptive, frequencies=["1000MHz"]
+)
 
 # ## Generate 2D cutout plot
 #
 # Generate 2D cutout plot. You can define the Theta scan
 # and Phi scan.
 
-ffdata.plot_2d_cut(primary_sweep="theta", secondary_sweep_value=0,
-                   farfield_quantity='RealizedGain',
-                   title='FarField',
-                   quantity_format="dB20",
-                   is_polar=True)
+ffdata.plot_2d_cut(
+    primary_sweep="theta",
+    secondary_sweep_value=0,
+    farfield_quantity="RealizedGain",
+    title="FarField",
+    quantity_format="dB20",
+    is_polar=True,
+)
 
 # ## Close AEDT
 #

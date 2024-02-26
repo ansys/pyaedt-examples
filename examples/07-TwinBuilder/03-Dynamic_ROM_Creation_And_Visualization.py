@@ -13,12 +13,15 @@
 
 import os
 import shutil
+
 import matplotlib.pyplot as plt
-from pyaedt import TwinBuilder
-from pyaedt import generate_unique_project_name
-from pyaedt import generate_unique_folder_name
-from pyaedt import downloads
-from pyaedt import settings
+from pyaedt import (
+    TwinBuilder,
+    downloads,
+    generate_unique_folder_name,
+    generate_unique_project_name,
+    settings,
+)
 
 # ## Select version and set launch options
 #
@@ -43,17 +46,22 @@ source_build_conf_file = "dynarom_build.conf"
 
 # Download data from example_data repository
 temp_folder = generate_unique_folder_name()
-source_data_folder = downloads.download_twin_builder_data(source_snapshot_data_zipfilename, True, temp_folder)
+source_data_folder = downloads.download_twin_builder_data(
+    source_snapshot_data_zipfilename, True, temp_folder
+)
 source_data_folder = downloads.download_twin_builder_data(source_build_conf_file, True, temp_folder)
 
-# Toggle these for local testing 
+# Toggle these for local testing
 # source_data_folder = "D:\\Scratch\\TempDyn"
 
 data_folder = os.path.join(source_data_folder, "Ex03")
 
 # Unzip training data and config file
-downloads.unzip(os.path.join(source_data_folder ,source_snapshot_data_zipfilename), data_folder)
-shutil.copyfile(os.path.join(source_data_folder ,source_build_conf_file), os.path.join(data_folder,source_build_conf_file))
+downloads.unzip(os.path.join(source_data_folder, source_snapshot_data_zipfilename), data_folder)
+shutil.copyfile(
+    os.path.join(source_data_folder, source_build_conf_file),
+    os.path.join(data_folder, source_build_conf_file),
+)
 
 
 # ## Launch Twin Builder and build ROM component
@@ -61,19 +69,24 @@ shutil.copyfile(os.path.join(source_data_folder ,source_build_conf_file), os.pat
 # Launch Twin Builder using an implicit declaration and add a new design with
 # a default setup for building the dynamic ROM component.
 
-tb = TwinBuilder(projectname=generate_unique_project_name(),specified_version=desktop_version, non_graphical=non_graphical, new_desktop_session=new_thread)
+tb = TwinBuilder(
+    projectname=generate_unique_project_name(),
+    specified_version=desktop_version,
+    non_graphical=non_graphical,
+    new_desktop_session=new_thread,
+)
 
 # ## Desktop Configuration
 #
 # > **Note:** Only run following cell if AEDT is not configured to run _"Twin Builder"_.
-# > 
-# > The following cell configures Electronics Desktop (AEDT) and the schematic editor 
-# > to use the _"Twin Builder"_ confguration.
+# >
+# > The following cell configures Electronics Desktop (AEDT) and the schematic editor
+# > to use the _"Twin Builder"_ configuration.
 # > The dynamic ROM feature is only available with a Twin Builder license.
 # > A cell at the end of this example restores the AEDT configuration. If your
 # > environment is set up
 # > to use the _"Twin Builder"_ configuration, you do not need to run these sections.
-# > 
+# >
 
 current_desktop_config = tb._odesktop.GetDesktopConfiguration()
 current_schematic_environment = tb._odesktop.GetSchematicEnvironment()
@@ -85,18 +98,20 @@ rom_manager = tb._odesign.GetROMManager()
 dynamic_rom_builder = rom_manager.GetDynamicROMBuilder()
 
 # Build the dynamic ROM with specified configuration file
-conf_file_path = os.path.join(data_folder,source_build_conf_file)
-dynamic_rom_builder.Build(conf_file_path.replace('\\', '/'))
+conf_file_path = os.path.join(data_folder, source_build_conf_file)
+dynamic_rom_builder.Build(conf_file_path.replace("\\", "/"))
 
 # Test if ROM was created successfully
-dynamic_rom_path = os.path.join(data_folder,'DynamicRom.dyn')
+dynamic_rom_path = os.path.join(data_folder, "DynamicRom.dyn")
 if os.path.exists(dynamic_rom_path):
-	tb._odesign.AddMessage("Info","path exists: {}".format(dynamic_rom_path.replace('\\', '/')), "")
+    tb._odesign.AddMessage(
+        "Info", "path exists: {}".format(dynamic_rom_path.replace("\\", "/")), ""
+    )
 else:
-	tb._odesign.AddMessage("Info","path does not exist: {}".format(dynamic_rom_path), "")
+    tb._odesign.AddMessage("Info", "path does not exist: {}".format(dynamic_rom_path), "")
 
-#Create the ROM component definition in Twin Builder
-rom_manager.CreateROMComponent(dynamic_rom_path.replace('\\', '/'),'dynarom') 
+# Create the ROM component definition in Twin Builder
+rom_manager.CreateROMComponent(dynamic_rom_path.replace("\\", "/"), "dynarom")
 
 
 # ## Create schematic
@@ -109,17 +124,23 @@ G = 0.00254
 
 # Place a dynamic ROM component
 
-rom1 = tb.modeler.schematic.create_component("ROM1","","dynarom", [36 * G, 28 * G])
+rom1 = tb.modeler.schematic.create_component("ROM1", "", "dynarom", [36 * G, 28 * G])
 
 # Place two excitation sources
 
-source1 = tb.modeler.schematic.create_periodic_waveform_source(None, "PULSE", 190, 0.002, "300deg", 210, 0, [20 * G, 29 * G])
-source2 = tb.modeler.schematic.create_periodic_waveform_source(None, "PULSE", 190, 0.002, "300deg", 210, 0, [20 * G, 25 * G])
+source1 = tb.modeler.schematic.create_periodic_waveform_source(
+    None, "PULSE", 190, 0.002, "300deg", 210, 0, [20 * G, 29 * G]
+)
+source2 = tb.modeler.schematic.create_periodic_waveform_source(
+    None, "PULSE", 190, 0.002, "300deg", 210, 0, [20 * G, 25 * G]
+)
 
 # Connect components with wires
 
 tb.modeler.schematic.create_wire([[22 * G, 29 * G], [33 * G, 29 * G]])
-tb.modeler.schematic.create_wire([[22 * G, 25 * G], [30 * G, 25 * G], [30 * G, 28 * G], [33 * G, 28 * G]])
+tb.modeler.schematic.create_wire(
+    [[22 * G, 25 * G], [30 * G, 25 * G], [30 * G, 28 * G], [33 * G, 28 * G]]
+)
 
 # Zoom to fit the schematic
 tb.modeler.zoom_to_fit()

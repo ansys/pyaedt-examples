@@ -5,6 +5,7 @@
 # Keywords: DXF import, material sweep, expression cache
 
 import os.path
+
 import pyaedt
 from pyaedt.generic.pdf import AnsysReport
 
@@ -20,7 +21,7 @@ m2d = pyaedt.Maxwell2d(
     close_on_exit=True,
     solution_type="DCConduction",
     projectname="M2D_DC_Conduction",
-    designname="Ansys_resistor"
+    designname="Ansys_resistor",
 )
 
 # ## Create results folder
@@ -52,7 +53,7 @@ m2d.modeler.import_3d_cad(ParasolidPath)
 # and MaterialIndex referring to the material array.
 
 m2d["MaterialThickness"] = "5mm"
-m2d["ConductorMaterial"] = "[\"Copper\", \"Aluminum\", \"silver\", \"gold\"]"
+m2d["ConductorMaterial"] = '["Copper", "Aluminum", "silver", "gold"]'
 MaterialIndex = 0
 m2d["MaterialIndex"] = str(MaterialIndex)
 no_materials = 4
@@ -76,7 +77,7 @@ m2d.assign_voltage(["ANSYS_LOGO_2D_2"], amplitude=0, name="0V")
 #
 # 1V is the source, 0V ground.
 
-m2d.assign_matrix(sources=['1V'], group_sources=['0V'], matrix_name="Matrix1")
+m2d.assign_matrix(sources=["1V"], group_sources=["0V"], matrix_name="Matrix1")
 
 # ## Assign mesh operation
 #
@@ -90,12 +91,13 @@ m2d.mesh.assign_length_mesh(["ANSYS_LOGO_2D_3"], meshop_name="conductor", maxlen
 # Enable expression cache to observe the convergence.
 
 setup1 = m2d.create_setup(setupname="Setup1", MinimumPasses=4)
-setup1.enable_expression_cache( # doesn't work?
+setup1.enable_expression_cache(  # doesn't work?
     report_type="DCConduction",
     expressions="1/Matrix1.G(1V,1V)/MaterialThickness",
     isconvergence=True,
     conv_criteria=1,
-    use_cache_for_freq=False)
+    use_cache_for_freq=False,
+)
 setup1.analyze()
 
 # ## Create parametric sweep
@@ -104,8 +106,8 @@ setup1.analyze()
 # Save fields and mesh and use the mesh for all the materials.
 
 param_sweep = m2d.parametrics.add(
-    "MaterialIndex", 0, no_materials-1, 1, "LinearStep",
-    parametricname="MaterialSweep")
+    "MaterialIndex", 0, no_materials - 1, 1, "LinearStep", parametricname="MaterialSweep"
+)
 param_sweep["SaveFields"] = True
 param_sweep["CopyMesh"] = True
 param_sweep["SolveWithCopiedMeshOnly"] = True
@@ -126,7 +128,7 @@ report = m2d.post.create_report(
     plotname="Resistance vs. Material",
 )
 d = report.get_solution_data()
-resistence = d.data_magnitude()
+resistance = d.data_magnitude()
 material_index = d.primary_sweep_values
 d.primary_sweep = "MaterialIndex"
 d.plot(snapshot_path=os.path.join(results_folder, "M2D_DCConduction.jpg"))
@@ -134,7 +136,7 @@ d.plot(snapshot_path=os.path.join(results_folder, "M2D_DCConduction.jpg"))
 material_index_vs_resistance = [["Material", "Resistance"]]
 colors = [[(255, 255, 255), (0, 255, 0)]]
 for i in range(len(d.primary_sweep_values)):
-    material_index_vs_resistance.append([str(d.primary_sweep_values[i]), str(resistence[i])])
+    material_index_vs_resistance.append([str(d.primary_sweep_values[i]), str(resistance[i])])
     colors.append([None, None])
 # -
 
@@ -168,7 +170,7 @@ animated = m2d.post.plot_animated_field(
     object_list=conductor_surface,
     export_path=results_folder,
     variation_variable="MaterialIndex",
-    variation_list=[0,1,2,3],
+    variation_list=[0, 1, 2, 3],
     show=False,
     export_gif=False,
     log_scale=True,
@@ -191,7 +193,9 @@ model_picture = m2d.post.export_model_picture()
 #
 # Generate a PDF report with output of simulation.
 
-pdf_report = AnsysReport(project_name=m2d.project_name, design_name=m2d.design_name, version="2023.2")
+pdf_report = AnsysReport(
+    project_name=m2d.project_name, design_name=m2d.design_name, version="2023.2"
+)
 pdf_report.report_specs.font = "times"
 pdf_report.report_specs.text_font_size = 10
 pdf_report.project_name = m2d.project_name
@@ -213,7 +217,9 @@ pdf_report.add_text("This section contains resistance vs material data.")
 pdf_report.add_image(os.path.join(results_folder, "M2D_DCConduction.jpg"), width=130)
 pdf_report.add_sub_chapter("Resistance data table")
 pdf_report.add_text("This section contains Resistance data.")
-pdf_report.add_table("Resistance Data", content=material_index_vs_resistance, formatting=colors, col_widths=[75, 100])
+pdf_report.add_table(
+    "Resistance Data", content=material_index_vs_resistance, formatting=colors, col_widths=[75, 100]
+)
 pdf_report.add_toc()
 pdf_report.save_pdf(results_folder, "AEDT_Results.pdf")
 

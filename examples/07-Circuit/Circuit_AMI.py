@@ -9,20 +9,21 @@
 # Perform required imports and set the local path to the path for PyAEDT.
 
 import os
+import tempfile
+
 from matplotlib import pyplot as plt
 import numpy as np
 import pyaedt
-import tempfile
 
 # ## Download Example Data
 #
 # The ``download_file()`` method retrieves example
-# data from the PyAnsys _example-data_ repository. 
+# data from the PyAnsys _example-data_ repository.
 #
-# - The fist argument is the folder name where 
+# - The fist argument is the folder name where
 #   the example files are located in the GitHub repository.
 # - The 2nd argument is the file to retrieve.
-# - The 3rd argument is the desination folder.
+# - The 3rd argument is the destination folder.
 #
 # Files are placed in the destination folder.
 
@@ -37,7 +38,7 @@ desktopVersion = "2023.2"
 
 # ## Set non-graphical mode
 #
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 # The Boolean parameter ``new_thread`` defines whether to create a new instance
 # of AEDT or try to connect to an existing instance of it.
@@ -52,8 +53,12 @@ NewThread = True
 # and starts the specified version in the specified mode.
 
 pyaedt.settings.enable_pandas_output = True
-cir = pyaedt.Circuit(projectname=os.path.join(project_path), non_graphical=non_graphical,
-                     specified_version=desktopVersion, new_desktop_session=NewThread)
+cir = pyaedt.Circuit(
+    projectname=os.path.join(project_path),
+    non_graphical=non_graphical,
+    specified_version=desktopVersion,
+    new_desktop_session=NewThread,
+)
 
 # ## Solve AMI setup
 #
@@ -67,9 +72,12 @@ cir.analyze()
 
 plot_name = "WaveAfterProbe<b_input_43.int_ami_rx>"
 cir.solution_type = "NexximAMI"
-original_data = cir.post.get_solution_data(expressions=plot_name,
-                                           setup_sweep_name="AMIAnalysis", domain="Time",
-                                           variations=cir.available_variations.nominal)
+original_data = cir.post.get_solution_data(
+    expressions=plot_name,
+    setup_sweep_name="AMIAnalysis",
+    domain="Time",
+    variations=cir.available_variations.nominal,
+)
 original_data_value = original_data.full_matrix_real_imag[0]
 original_data_sweep = original_data.primary_sweep_values
 print(original_data_value)
@@ -82,9 +90,9 @@ fig = original_data.plot()
 
 # ## Extract Wave Form
 #
-# Use the _WaveAfterProbe_ plot type to extract the 
+# Use the _WaveAfterProbe_ plot type to extract the
 # waveform using an AMI receiver clock probe.
-# The signal is extracted at a specific clock 
+# The signal is extracted at a specific clock
 # flank with addiional half unit interval.
 
 probe_name = "b_input_43"
@@ -93,11 +101,15 @@ plot_type = "WaveAfterProbe"
 setup_name = "AMIAnalysis"
 ignore_bits = 100
 unit_interval = 0.1e-9
-sample_waveform = cir.post.sample_ami_waveform(setupname=setup_name, probe_name=probe_name, 
-                                               source_name=source_name,
-                                               variation_list_w_value=cir.available_variations.nominal,
-                                               unit_interval=unit_interval, ignore_bits=ignore_bits,
-                                               plot_type=plot_type)
+sample_waveform = cir.post.sample_ami_waveform(
+    setupname=setup_name,
+    probe_name=probe_name,
+    source_name=source_name,
+    variation_list_w_value=cir.available_variations.nominal,
+    unit_interval=unit_interval,
+    ignore_bits=ignore_bits,
+    plot_type=plot_type,
+)
 
 # ## Plot waveform and samples
 #
@@ -106,10 +118,12 @@ sample_waveform = cir.post.sample_ami_waveform(setupname=setup_name, probe_name=
 # +
 tstop = 55e-9
 tstart = 50e-9
-scale_time = pyaedt.constants.unit_converter(1, unit_system="Time", input_units="s",
-                                             output_units=original_data.units_sweeps["Time"])
-scale_data = pyaedt.constants.unit_converter(1, unit_system="Voltage", input_units="V",
-                                             output_units=original_data.units_data[plot_name])
+scale_time = pyaedt.constants.unit_converter(
+    1, unit_system="Time", input_units="s", output_units=original_data.units_sweeps["Time"]
+)
+scale_data = pyaedt.constants.unit_converter(
+    1, unit_system="Voltage", input_units="V", output_units=original_data.units_data[plot_name]
+)
 
 tstop_ns = scale_time * tstop
 tstart_ns = scale_time * tstart
@@ -139,8 +153,8 @@ sampled_time_zoom = sample_waveform[0].index[start_index_waveform:stop_index_wav
 
 fig, ax = plt.subplots()
 ax.plot(sampled_time_zoom, sampled_data_zoom, "r*")
-ax.plot(np.array(list(original_data_zoom.index.values)), original_data_zoom.values, color='blue')
-ax.set_title('WaveAfterProbe')
+ax.plot(np.array(list(original_data_zoom.index.values)), original_data_zoom.values, color="blue")
+ax.set_title("WaveAfterProbe")
 ax.set_xlabel(original_data.units_sweeps["Time"])
 ax.set_ylabel(original_data.units_data[plot_name])
 plt.show()
@@ -152,7 +166,7 @@ plt.show()
 
 fig, ax2 = plt.subplots()
 ax2.plot(sample_waveform[0].index, sample_waveform[0].values, "r*")
-ax2.set_title('Slicer Scatter: WaveAfterProbe')
+ax2.set_title("Slicer Scatter: WaveAfterProbe")
 ax2.set_xlabel("s")
 ax2.set_ylabel("V")
 plt.show()
@@ -162,8 +176,8 @@ plt.show()
 # Create the plot from a start time to stop time in seconds.
 
 fig, ax4 = plt.subplots()
-ax4.set_title('Slicer Histogram: WaveAfterProbe')
-ax4.hist(sample_waveform[0].values, orientation='horizontal')
+ax4.set_title("Slicer Histogram: WaveAfterProbe")
+ax4.hist(sample_waveform[0].values, orientation="horizontal")
 ax4.set_ylabel("V")
 ax4.grid()
 plt.show()
@@ -174,9 +188,12 @@ plt.show()
 
 plot_name = "V(b_input_43.int_ami_rx.eye_probe.out)"
 cir.solution_type = "NexximTransient"
-original_data = cir.post.get_solution_data(expressions=plot_name,
-                                           setup_sweep_name="NexximTransient", domain="Time",
-                                           variations=cir.available_variations.nominal)
+original_data = cir.post.get_solution_data(
+    expressions=plot_name,
+    setup_sweep_name="NexximTransient",
+    domain="Time",
+    variations=cir.available_variations.nominal,
+)
 
 # ## Sample waveform using a user-defined clock
 #
@@ -208,10 +225,12 @@ sample_waveform = cir.post.sample_waveform(
 # +
 tstop = 40.0e-9
 tstart = 25.0e-9
-scale_time = pyaedt.constants.unit_converter(1, unit_system="Time", input_units="s",
-                                             output_units=waveform_sweep_unit)
-scale_data = pyaedt.constants.unit_converter(1, unit_system="Voltage", input_units="V",
-                                             output_units=waveform_unit)
+scale_time = pyaedt.constants.unit_converter(
+    1, unit_system="Time", input_units="s", output_units=waveform_sweep_unit
+)
+scale_data = pyaedt.constants.unit_converter(
+    1, unit_system="Voltage", input_units="V", output_units=waveform_unit
+)
 
 tstop_ns = scale_time * tstop
 tstart_ns = scale_time * tstart
@@ -246,7 +265,7 @@ sampled_data_zoom_array[:, 1] *= scale_data
 
 fig, ax = plt.subplots()
 ax.plot(sampled_data_zoom_array[:, 0], sampled_data_zoom_array[:, 1], "r*")
-ax.plot(original_sweep_zoom, original_data_zoom_array[:, 1], color='blue')
+ax.plot(original_sweep_zoom, original_data_zoom_array[:, 1], color="blue")
 ax.set_title(plot_name)
 ax.set_xlabel(waveform_sweep_unit)
 ax.set_ylabel(waveform_unit)
@@ -260,7 +279,7 @@ plt.show()
 sample_waveform_array = np.array(sample_waveform)
 fig, ax2 = plt.subplots()
 ax2.plot(sample_waveform_array[:, 0], sample_waveform_array[:, 1], "r*")
-ax2.set_title('Slicer Scatter: ' + plot_name)
+ax2.set_title("Slicer Scatter: " + plot_name)
 ax2.set_xlabel("s")
 ax2.set_ylabel("V")
 plt.show()

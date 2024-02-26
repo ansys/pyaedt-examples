@@ -8,11 +8,12 @@
 # Perform required imports.
 
 import os
+
 import pyaedt
 
 # ## Set non-graphical mode
 #
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -28,8 +29,12 @@ project_temp_name = pyaedt.downloads.download_via_wizard(pyaedt.generate_unique_
 # Start HFSS and initialize the PyAEDT object.
 
 version = "2023.2"
-hfss = pyaedt.Hfss(projectname=project_temp_name, specified_version=version, non_graphical=non_graphical,
-                   new_desktop_session=True)
+hfss = pyaedt.Hfss(
+    projectname=project_temp_name,
+    specified_version=version,
+    non_graphical=non_graphical,
+    new_desktop_session=True,
+)
 pin_names = hfss.excitations
 hfss.change_material_override(True)
 
@@ -48,7 +53,9 @@ hfss_comp = circuit.modeler.schematic.add_subcircuit_dynamic_link(hfss)
 circuit.modeler.schematic.refresh_dynamic_link(hfss_comp.composed_name)
 circuit.modeler.schematic.set_sim_option_on_hfss_subcircuit(hfss_comp)
 hfss_setup_name = hfss.setups[0].name + " : " + hfss.setups[0].sweeps[0].name
-circuit.modeler.schematic.set_sim_solution_on_hfss_subcircuit(hfss_comp.composed_name, hfss_setup_name)
+circuit.modeler.schematic.set_sim_solution_on_hfss_subcircuit(
+    hfss_comp.composed_name, hfss_setup_name
+)
 
 # ## Create ports and excitations
 #
@@ -120,14 +127,18 @@ mech.assign_em_losses(
 )
 diels = ["1_pd", "2_pd", "3_pd", "4_pd", "5_pd"]
 for el in diels:
-    mech.assign_uniform_convection(objects_list=[mech.modeler[el].top_face_y, mech.modeler[el].bottom_face_y],
-                                   convection_value=3)
+    mech.assign_uniform_convection(
+        objects_list=[mech.modeler[el].top_face_y, mech.modeler[el].bottom_face_y],
+        convection_value=3,
+    )
 
 # ## Plot model
 #
 # Plot the model.
 
-mech.plot(show=False, export_path=os.path.join(mech.working_directory, "Mech.jpg"), plot_air_objects=False)
+mech.plot(
+    show=False, export_path=os.path.join(mech.working_directory, "Mech.jpg"), plot_air_objects=False
+)
 
 # ## Solve and plot thermal results
 #

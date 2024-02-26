@@ -8,13 +8,11 @@ The method is valid and usable for any object the user would like to segment.
 #
 # Perform required imports.
 
-from pyaedt import downloads
-from pyaedt import generate_unique_folder_name
-from pyaedt import Maxwell3d
+from pyaedt import Maxwell3d, downloads, generate_unique_folder_name
 
 # ## Set non-graphical mode
 #
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -30,10 +28,12 @@ aedt_file = downloads.download_file("object_segmentation", "Motor3D_obj_segments
 #
 # Launch Maxwell 3D.
 
-m3d = Maxwell3d(projectname=aedt_file,
-                specified_version="2023.2",
-                new_desktop_session=True,
-                non_graphical=non_graphical)
+m3d = Maxwell3d(
+    projectname=aedt_file,
+    specified_version="2023.2",
+    new_desktop_session=True,
+    non_graphical=non_graphical,
+)
 
 # ## Create object to access 3D modeler
 #
@@ -52,7 +52,9 @@ modeler = m3d.modeler
 
 segments_number = 5
 object_name = "PM_I1"
-sheets_1 = modeler.objects_segmentation(object_name, segments_number=segments_number, apply_mesh_sheets=True)
+sheets_1 = modeler.objects_segmentation(
+    object_name, segments_number=segments_number, apply_mesh_sheets=True
+)
 
 # ## Segment second magnet by specifying the number of segments
 #
@@ -62,7 +64,9 @@ sheets_1 = modeler.objects_segmentation(object_name, segments_number=segments_nu
 segments_number = 4
 object_name = "PM_I1_1"
 magnet_id = [obj.id for obj in modeler.object_list if obj.name == object_name][0]
-sheets_2 = modeler.objects_segmentation(magnet_id, segments_number=segments_number, apply_mesh_sheets=True)
+sheets_2 = modeler.objects_segmentation(
+    magnet_id, segments_number=segments_number, apply_mesh_sheets=True
+)
 
 # ## Segment third magnet by specifying the segmentation thickness
 #
@@ -72,7 +76,9 @@ sheets_2 = modeler.objects_segmentation(magnet_id, segments_number=segments_numb
 segmentation_thickness = 1
 object_name = "PM_O1"
 magnet = [obj for obj in modeler.object_list if obj.name == object_name][0]
-sheets_3 = modeler.objects_segmentation(magnet, segmentation_thickness=segmentation_thickness, apply_mesh_sheets=True)
+sheets_3 = modeler.objects_segmentation(
+    magnet, segmentation_thickness=segmentation_thickness, apply_mesh_sheets=True
+)
 
 # ## Segment fourth magnet by specifying the number of segments
 #

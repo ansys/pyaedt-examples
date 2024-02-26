@@ -9,6 +9,7 @@
 # +
 import json
 import os
+
 import pyaedt
 
 project_name = pyaedt.generate_unique_project_name(project_name="choke")
@@ -16,7 +17,7 @@ project_name = pyaedt.generate_unique_project_name(project_name="choke")
 
 # ## Set non-graphical mode
 #
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -25,11 +26,13 @@ non_graphical = False
 #
 # Launches HFSS 2023 R2 in graphical mode.
 
-hfss = pyaedt.Hfss(projectname=project_name,
-                   specified_version="2023.2",
-                   non_graphical=non_graphical,
-                   new_desktop_session=True,
-                   solution_type="Terminal")
+hfss = pyaedt.Hfss(
+    projectname=project_name,
+    specified_version="2023.2",
+    non_graphical=non_graphical,
+    new_desktop_session=True,
+    solution_type="Terminal",
+)
 
 # ## Rules and information of use
 #
@@ -98,7 +101,7 @@ values = {
 # ## Convert dictionary to JSON file
 #
 # Convert a dictionary to a JSON file. You must supply the path of the
-# JSON file as an argument. 
+# JSON file as an argument.
 
 json_path = os.path.join(hfss.working_directory, "choke_example.json")
 with open(json_path, "w") as outfile:
@@ -117,7 +120,7 @@ print(dictionary_values)
 
 # ## Create choke
 #
-# Create the choke. The ``Hfss.modeler.create_choke()`` method takes the JSON file path as an 
+# Create the choke. The ``Hfss.modeler.create_choke()`` method takes the JSON file path as an
 # argument.
 
 list_object = hfss.modeler.create_choke(json_path)
@@ -132,7 +135,9 @@ second_winding_list = list_object[3]
 
 ground_radius = 1.2 * dictionary_values[1]["Outer Winding"]["Outer Radius"]
 ground_position = [0, 0, first_winding_list[1][0][2] - 2]
-ground = hfss.modeler.create_circle("XY", ground_position, ground_radius, name="GND", matname="copper")
+ground = hfss.modeler.create_circle(
+    "XY", ground_position, ground_radius, name="GND", matname="copper"
+)
 coat = hfss.assign_coating(ground, isinfgnd=True)
 
 # ## Create lumped ports
@@ -143,15 +148,20 @@ port_position_list = [
     [first_winding_list[1][0][0], first_winding_list[1][0][1], first_winding_list[1][0][2] - 1],
     [first_winding_list[1][-1][0], first_winding_list[1][-1][1], first_winding_list[1][-1][2] - 1],
     [second_winding_list[1][0][0], second_winding_list[1][0][1], second_winding_list[1][0][2] - 1],
-    [second_winding_list[1][-1][0], second_winding_list[1][-1][1], second_winding_list[1][-1][2] - 1],
+    [
+        second_winding_list[1][-1][0],
+        second_winding_list[1][-1][1],
+        second_winding_list[1][-1][2] - 1,
+    ],
 ]
 port_dimension_list = [2, dictionary_values[1]["Outer Winding"]["Wire Diameter"]]
 for position in port_position_list:
     sheet = hfss.modeler.create_rectangle("XZ", position, port_dimension_list, name="sheet_port")
     sheet.move([-dictionary_values[1]["Outer Winding"]["Wire Diameter"] / 2, 0, -1])
-    hfss.lumped_port(signal=sheet.name,
-                     name="port_" + str(port_position_list.index(position) + 1),
-                     reference=[ground]
+    hfss.lumped_port(
+        signal=sheet.name,
+        name="port_" + str(port_position_list.index(position) + 1),
+        reference=[ground],
     )
 
 # ## Create mesh
@@ -163,7 +173,9 @@ cylinder_position = [0, 0, first_winding_list[1][0][2] - 4]
 mesh_operation_cylinder = hfss.modeler.create_cylinder(
     "XY", cylinder_position, ground_radius, cylinder_height, numSides=36, name="mesh_cylinder"
 )
-hfss.mesh.assign_length_mesh([mesh_operation_cylinder], maxlength=15, maxel=None, meshop_name="choke_mesh")
+hfss.mesh.assign_length_mesh(
+    [mesh_operation_cylinder], maxlength=15, maxel=None, meshop_name="choke_mesh"
+)
 
 
 # ## Create boundaries
@@ -197,7 +209,9 @@ hfss.create_linear_count_sweep(
 # Save the project.
 
 hfss.modeler.fit_all()
-hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=True)
+hfss.plot(
+    show=False, export_path=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=True
+)
 
 
 # ## Close AEDT

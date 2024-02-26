@@ -13,14 +13,15 @@
 # Perform required imports.
 
 import os
+import tempfile
+
 import pyaedt
 from pyaedt.generic.pdf import AnsysReport
-import tempfile
 
 # ## Setup
 #
-# Set non-graphical mode. 
-# Set ``non_graphical`` to ``False`` if the AEDT user interface should 
+# Set non-graphical mode.
+# Set ``non_graphical`` to ``False`` if the AEDT user interface should
 # be started when HFSS and Icepak are accessed.
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
@@ -32,12 +33,13 @@ desktopVersion = "2023.2"
 # Launch AEDT and initialize HFSS. If there is an active HFSS design, the ``aedtapp``
 # object is linked to it. Otherwise, a new design is created.
 
-aedtapp = pyaedt.Hfss(projectname=os.path.join(temp_dir.name, "Icepak_HFSS_Coupling"),
-                      designname="RF",
-                      specified_version=desktopVersion,
-                      non_graphical=non_graphical,
-                      new_desktop_session=True
-                      )
+aedtapp = pyaedt.Hfss(
+    projectname=os.path.join(temp_dir.name, "Icepak_HFSS_Coupling"),
+    designname="RF",
+    specified_version=desktopVersion,
+    non_graphical=non_graphical,
+    new_desktop_session=True,
+)
 
 # ## Parameters
 #
@@ -57,12 +59,30 @@ aedtapp["inner"] = "3mm"  #  Local "Design" scope.
 # Optionally, you can assign a material using the `assign_material` method.
 
 # TODO: How does this work when two true surfaces are defined?
-o1 = aedtapp.modeler.create_cylinder(cs_axis=aedtapp.PLANE.ZX, position=udp, radius="inner", height="$coax_dimension",
-                                     numSides=0, name="inner")
-o2 = aedtapp.modeler.create_cylinder(cs_axis=aedtapp.PLANE.ZX, position=udp, radius=8, height="$coax_dimension",
-                                     numSides=0, matname="teflon_based")
-o3 = aedtapp.modeler.create_cylinder(cs_axis=aedtapp.PLANE.ZX, position=udp, radius=10, height="$coax_dimension",
-                                     numSides=0, name="outer")
+o1 = aedtapp.modeler.create_cylinder(
+    cs_axis=aedtapp.PLANE.ZX,
+    position=udp,
+    radius="inner",
+    height="$coax_dimension",
+    numSides=0,
+    name="inner",
+)
+o2 = aedtapp.modeler.create_cylinder(
+    cs_axis=aedtapp.PLANE.ZX,
+    position=udp,
+    radius=8,
+    height="$coax_dimension",
+    numSides=0,
+    matname="teflon_based",
+)
+o3 = aedtapp.modeler.create_cylinder(
+    cs_axis=aedtapp.PLANE.ZX,
+    position=udp,
+    radius=10,
+    height="$coax_dimension",
+    numSides=0,
+    name="outer",
+)
 
 # ## Assign colors
 #
@@ -96,7 +116,7 @@ aedtapp.modeler.subtract(o2, o1, True)
 # which is an instance of the ``pyaedt.modules.MeshIcepak.IcepakMesh`` class.
 #
 # This example demonstrates the use of several common mesh
-# operatons.
+# operations.
 
 aedtapp.mesh.assign_initial_mesh_from_slider(level=6)
 aedtapp.mesh.assign_model_resolution(names=[o1.name, o3.name], defeature_length=None)
@@ -111,19 +131,23 @@ aedtapp.mesh.assign_length_mesh(names=o2.faces, isinside=False, maxlength=1, max
 # creates a perfectly conducting (lossless) cap covering the port.
 
 # +
-aedtapp.wave_port(signal="inner",
-                  reference="outer",
-                  integration_line=1,
-                  create_port_sheet=True,
-                  create_pec_cap=True,
-                  name="P1")
+aedtapp.wave_port(
+    signal="inner",
+    reference="outer",
+    integration_line=1,
+    create_port_sheet=True,
+    create_pec_cap=True,
+    name="P1",
+)
 
-aedtapp.wave_port(signal="inner",
-                  reference="outer",
-                  integration_line=4,
-                  create_pec_cap=True,
-                  create_port_sheet=True,
-                  name="P2")
+aedtapp.wave_port(
+    signal="inner",
+    reference="outer",
+    integration_line=4,
+    create_pec_cap=True,
+    create_port_sheet=True,
+    name="P2",
+)
 
 port_names = aedtapp.get_all_sources()
 aedtapp.modeler.fit_all()
@@ -146,8 +170,14 @@ setup.props["MaximumPasses"] = 1
 # The frequency sweep defines the RF frequency range over which the RF power is
 # injected into the structure.
 
-sweepname = aedtapp.create_linear_count_sweep(setupname="MySetup", unit="GHz", freqstart=0.8, freqstop=1.2,
-                                              num_of_freq_points=401, sweep_type="Interpolating")
+sweepname = aedtapp.create_linear_count_sweep(
+    setupname="MySetup",
+    unit="GHz",
+    freqstart=0.8,
+    freqstop=1.2,
+    num_of_freq_points=401,
+    sweep_type="Interpolating",
+)
 
 # ## Create Icepak model
 #
@@ -163,11 +193,14 @@ ipkapp.copy_solid_bodies_from(aedtapp)
 # The RF loss in HFSS will be used as the thermal source in Icepak.
 
 surfaceobj = ["inner", "outer"]
-ipkapp.assign_em_losses(designname=aedtapp.design_name, setupname="MySetup", 
-                        sweepname="LastAdaptive",
-                        map_frequency="1GHz", 
-                        surface_objects=surfaceobj, 
-                        paramlist=["$coax_dimension", "inner"])
+ipkapp.assign_em_losses(
+    designname=aedtapp.design_name,
+    setupname="MySetup",
+    sweepname="LastAdaptive",
+    map_frequency="1GHz",
+    surface_objects=surfaceobj,
+    paramlist=["$coax_dimension", "inner"],
+)
 
 # ## Assign the Direction of Gravity
 #
@@ -189,7 +222,7 @@ ipkapp.edit_design_settings(aedtapp.GRAVITY.ZNeg)
 setup_ipk = ipkapp.create_setup("SetupIPK")
 setup_ipk.props["Convergence Criteria - Max Iterations"] = 3
 
-# ### Icepak Solution Properteis
+# ### Icepak Solution Properties
 #
 # The setup properties are accessible through the ``props`` property as
 # an ordered dict. The ``keys()`` method can be used to retrieve all settings for
@@ -200,7 +233,7 @@ setup_ipk.props["Convergence Criteria - Max Iterations"] = 3
 conv_props = [k for k in setup_ipk.props.keys() if "Convergence" in k]
 print("Here are some default setup properties:")
 for p in conv_props:
-    print("\"" + p + "\" -> " + str(setup_ipk.props[p]))
+    print('"' + p + '" -> ' + str(setup_ipk.props[p]))
 
 # ### Edit or Review Mesh Parameters
 #
@@ -244,12 +277,11 @@ cutlist = [pyaedt.constants.GLOBALCS.XY, pyaedt.constants.GLOBALCS.ZX, pyaedt.co
 vollist = [o2.name]
 quantity_name1 = "ComplexMag_E"
 quantity_name2 = "ComplexMag_H"
-intrinsic = {"Freq": aedtapp.setups[0].props["Frequency"], 
-             "Phase": "0deg"}
+intrinsic = {"Freq": aedtapp.setups[0].props["Frequency"], "Phase": "0deg"}
 surflist = aedtapp.modeler.get_object_faces("outer")
-plot1 = aedtapp.post.create_fieldplot_surface(surflist, quantity_name2, 
-                                              setup_name=aedtapp.nominal_adaptive, 
-                                              intrinsicDict=intrinsic)
+plot1 = aedtapp.post.create_fieldplot_surface(
+    surflist, quantity_name2, setup_name=aedtapp.nominal_adaptive, intrinsicDict=intrinsic
+)
 
 results_folder = os.path.join(aedtapp.working_directory, "Coaxial_Results_NG")
 if not os.path.exists(results_folder):
@@ -325,16 +357,21 @@ trace_names = aedtapp.get_traces_for_plot(category="S")
 cxt = ["Domain:=", "Sweep"]
 families = ["Freq:=", ["All"]]
 my_data = aedtapp.post.get_solution_data(expressions=trace_names)
-my_data.plot(trace_names, "db20",
-             xlabel="Frequency (Ghz)",
-             ylabel="SParameters(dB)",
-             title="Scattering Chart",
-             snapshot_path=os.path.join(results_folder, "Touchstone_from_matplotlib.jpg"))
+my_data.plot(
+    trace_names,
+    "db20",
+    xlabel="Frequency (Ghz)",
+    ylabel="SParameters(dB)",
+    title="Scattering Chart",
+    snapshot_path=os.path.join(results_folder, "Touchstone_from_matplotlib.jpg"),
+)
 
 # ## Generate pdf report
 #
 # Generate a pdf report with output of simultion.
-report = AnsysReport(project_name=aedtapp.project_name, design_name=aedtapp.design_name, version=desktopVersion)
+report = AnsysReport(
+    project_name=aedtapp.project_name, design_name=aedtapp.design_name, version=desktopVersion
+)
 report.create()
 report.add_section()
 report.add_chapter("Hfss Results")
@@ -343,8 +380,12 @@ report.add_text("This section contains Field plots of Hfss Coaxial.")
 report.add_image(os.path.join(results_folder, plot1.name + ".jpg"), "Coaxial Cable")
 report.add_page_break()
 report.add_sub_chapter("S Parameters")
-report.add_chart(my_data.intrinsics["Freq"], my_data.data_db20(), "Freq", trace_names[0], "S-Parameters")
-report.add_image(os.path.join(results_folder, "Touchstone_from_matplotlib.jpg"), "Touchstone from Matplotlib")
+report.add_chart(
+    my_data.intrinsics["Freq"], my_data.data_db20(), "Freq", trace_names[0], "S-Parameters"
+)
+report.add_image(
+    os.path.join(results_folder, "Touchstone_from_matplotlib.jpg"), "Touchstone from Matplotlib"
+)
 report.add_section()
 report.add_chapter("Icepak Results")
 report.add_sub_chapter("Temperature Plot")

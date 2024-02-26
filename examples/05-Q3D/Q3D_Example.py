@@ -8,11 +8,12 @@
 # Perform required imports.
 
 import os
+
 import pyaedt
 
 # ## Set non-graphical mode
 #
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -30,10 +31,12 @@ pyaedt.settings.enable_debug_internal_methods_logger = False
 #
 # Launch AEDT 2023 R2 in graphical mode and launch Q3D Extractor. This example uses SI units.
 
-q = pyaedt.Q3d(projectname=pyaedt.generate_unique_project_name(),
-               specified_version="2023.2",
-               non_graphical=non_graphical,
-               new_desktop_session=True)
+q = pyaedt.Q3d(
+    projectname=pyaedt.generate_unique_project_name(),
+    specified_version="2023.2",
+    non_graphical=non_graphical,
+    new_desktop_session=True,
+)
 
 # ## Create primitives
 #

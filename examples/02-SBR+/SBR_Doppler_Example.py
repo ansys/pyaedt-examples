@@ -8,6 +8,7 @@
 # Perform required imports.
 
 import os
+
 import pyaedt
 
 # ## Launch AEDT
@@ -21,7 +22,7 @@ library_path = pyaedt.downloads.download_multiparts()
 
 # ## Set non-graphical mode
 #
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -39,7 +40,7 @@ app = pyaedt.Hfss(
     new_desktop_session=True,
     projectname=project_name,
     close_on_exit=True,
-    non_graphical=non_graphical
+    non_graphical=non_graphical,
 )
 
 app.autosave_disable()
@@ -82,9 +83,15 @@ person1 = app.modeler.add_person(
 person2 = app.modeler.add_person(
     actor_folder=person_folder, speed=1.0, global_offset=[25, 2.5, 0], yaw=180, actor_name="Devin"
 )
-car1 = app.modeler.add_vehicle(actor_folder=car_folder, speed=8.7, global_offset=[3, -2.5, 0], actor_name="LuxuryCar")
+car1 = app.modeler.add_vehicle(
+    actor_folder=car_folder, speed=8.7, global_offset=[3, -2.5, 0], actor_name="LuxuryCar"
+)
 bike1 = app.modeler.add_vehicle(
-    actor_folder=bike_folder, speed=2.1, global_offset=[24, 3.6, 0], yaw=180, actor_name="Alberto_in_bike"
+    actor_folder=bike_folder,
+    speed=2.1,
+    global_offset=[24, 3.6, 0],
+    yaw=180,
+    actor_name="Alberto_in_bike",
 )
 bird1 = app.modeler.add_bird(
     actor_folder=bird_folder,
@@ -96,7 +103,12 @@ bird1 = app.modeler.add_bird(
     actor_name="Pigeon",
 )
 bird2 = app.modeler.add_bird(
-    actor_folder=bird_folder, speed=1.0, global_offset=[6, 2, 3], yaw=-60, pitch=10, actor_name="Eagle"
+    actor_folder=bird_folder,
+    speed=1.0,
+    global_offset=[6, 2, 3],
+    yaw=-60,
+    pitch=10,
+    actor_name="Eagle",
 )
 
 # ## Place radar
@@ -126,12 +138,14 @@ app.validate_simple()
 #
 # Plot the model.
 
-app.plot(show=False, export_path=os.path.join(app.working_directory, "Image.jpg"), plot_air_objects=True)
+app.plot(
+    show=False, export_path=os.path.join(app.working_directory, "Image.jpg"), plot_air_objects=True
+)
 
 # ## Solve and release AEDT
 #
 # Solve and release AEDT. To solve, uncomment the ``app.analyze_setup`` command
-# to activate the simulation. 
+# to activate the simulation.
 
 # app.analyze_setup(sweep.name)
 app.save_project()

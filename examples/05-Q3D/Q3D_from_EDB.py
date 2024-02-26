@@ -8,6 +8,7 @@
 # Perform required imports.
 
 import os
+
 import pyaedt
 
 # ## Setup project files and path
@@ -15,12 +16,12 @@ import pyaedt
 # Download of needed project file and setup of temporary project directory.
 
 # +
-project_dir =  pyaedt.generate_unique_folder_name()
-aedb_project = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb',destination=project_dir)
+project_dir = pyaedt.generate_unique_folder_name()
+aedb_project = pyaedt.downloads.download_file("edb/ANSYS-HSD_V1.aedb", destination=project_dir)
 
 project_name = pyaedt.generate_unique_name("HSD")
-output_edb = os.path.join(project_dir, project_name + '.aedb')
-output_q3d = os.path.join(project_dir, project_name + '_q3d.aedt')
+output_edb = os.path.join(project_dir, project_name + ".aedb")
+output_q3d = os.path.join(project_dir, project_name + "_q3d.aedt")
 # -
 
 # ## Open EDB
@@ -29,8 +30,12 @@ output_q3d = os.path.join(project_dir, project_name + '_q3d.aedt')
 # before exporting to Q3D.
 
 edb = pyaedt.Edb(aedb_project, edbversion="2023.2")
-edb.cutout(["CLOCK_I2C_SCL", "CLOCK_I2C_SDA"], ["GND"], output_aedb_path=output_edb,
-                              use_pyaedt_extent_computing=True, )
+edb.cutout(
+    ["CLOCK_I2C_SCL", "CLOCK_I2C_SDA"],
+    ["GND"],
+    output_aedb_path=output_edb,
+    use_pyaedt_extent_computing=True,
+)
 
 
 # ## Identify pins position
@@ -70,7 +75,9 @@ location_u1_sda.append(edb.components["U1"].upper_elevation * 1000)
 edb.save_edb()
 edb.close_edb()
 
-h3d = pyaedt.Hfss3dLayout(output_edb, specified_version="2023.2", non_graphical=True, new_desktop_session=True)
+h3d = pyaedt.Hfss3dLayout(
+    output_edb, specified_version="2023.2", non_graphical=True, new_desktop_session=True
+)
 # -
 
 # ## Export to Q3D
@@ -87,8 +94,12 @@ h3d.close_project()
 # Launch the newly created q3d project and plot it.
 
 q3d = pyaedt.Q3d(output_q3d)
-q3d.plot(show=False, objects=["CLOCK_I2C_SCL", "CLOCK_I2C_SDA"],
-         export_path=os.path.join(q3d.working_directory, "Q3D.jpg"), plot_air_objects=False)
+q3d.plot(
+    show=False,
+    objects=["CLOCK_I2C_SCL", "CLOCK_I2C_SDA"],
+    export_path=os.path.join(q3d.working_directory, "Q3D.jpg"),
+    plot_air_objects=False,
+)
 
 # ## Assign Source and Sink
 #
@@ -113,7 +124,9 @@ setup = q3d.create_setup()
 setup.dc_enabled = True
 setup.capacitance_enabled = False
 sweep = setup.add_sweep()
-sweep.add_subrange("LinearStep", 0, end=2, count=0.05, unit="GHz", save_single_fields=False, clear=True)
+sweep.add_subrange(
+    "LinearStep", 0, end=2, count=0.05, unit="GHz", save_single_fields=False, clear=True
+)
 setup.analyze()
 
 # ## ACL Report

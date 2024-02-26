@@ -8,11 +8,12 @@
 
 import json
 import os
+
 import pyaedt
 
 # ## Set non-graphical mode
 #
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can define ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -22,12 +23,13 @@ version = "2023.2"
 #
 # Launch Maxwell 3D 2023 R2 in graphical mode.
 
-m3d = pyaedt.Maxwell3d(projectname=pyaedt.generate_unique_project_name(),
-                       solution_type="EddyCurrent",
-                       specified_version=version,
-                       non_graphical=non_graphical,
-                       new_desktop_session=True
-                       )
+m3d = pyaedt.Maxwell3d(
+    projectname=pyaedt.generate_unique_project_name(),
+    solution_type="EddyCurrent",
+    specified_version=version,
+    non_graphical=non_graphical,
+    new_desktop_session=True,
+)
 
 # ## Rules and information of use
 #
@@ -38,7 +40,7 @@ m3d = pyaedt.Maxwell3d(projectname=pyaedt.generate_unique_project_name(),
 # dictionaries as values. The keys of these dictionaries are secondary keys
 # of the dictionary values, such as ``"1"``, ``"2"``, ``"3"``, ``"4"``, and
 # ``"Simple"``.
-# 
+#
 # You must not modify the primary or secondary keys. You can modify only their values.
 # You must not change the data types for these keys. For the dictionaries from
 # ``"Number of Windings"`` through ``"Wire Section"``, values must be Boolean. Only
@@ -48,7 +50,7 @@ m3d = pyaedt.Maxwell3d(projectname=pyaedt.generate_unique_project_name(),
 # values must be strings, floats, or integers.
 #
 # Descriptions follow for primary keys:
-# 
+#
 # - ``"Number of Windings"``: Number of windings around the core
 # - ``"Layer"``: Number of layers of all windings
 # - ``"Layer Type"``: Whether layers of a winding are linked to each other
@@ -95,7 +97,7 @@ values = {
 
 # ## Convert dictionary to JSON file
 #
-# Covert a dictionary to a JSON file. PyAEDT methods ask for the path of the
+# Convert a dictionary to a JSON file. PyAEDT methods ask for the path of the
 # JSON file as an argument. You can convert a dictionary to a JSON file.
 
 # +
@@ -118,7 +120,7 @@ print(dictionary_values)
 
 # ## Create choke
 #
-# Create the choke. The ``create_choke`` method takes the JSON file path as an 
+# Create the choke. The ``create_choke`` method takes the JSON file path as an
 # argument.
 
 list_object = m3d.modeler.create_choke(json_path)
@@ -135,12 +137,40 @@ third_winding_list = list_object[4]
 first_winding_faces = m3d.modeler.get_object_faces(first_winding_list[0].name)
 second_winding_faces = m3d.modeler.get_object_faces(second_winding_list[0].name)
 third_winding_faces = m3d.modeler.get_object_faces(third_winding_list[0].name)
-m3d.assign_current([first_winding_faces[-1]], amplitude=1000, phase="0deg", swap_direction=False, name="phase_1_in")
-m3d.assign_current([first_winding_faces[-2]], amplitude=1000, phase="0deg", swap_direction=True, name="phase_1_out")
-m3d.assign_current([second_winding_faces[-1]], amplitude=1000, phase="120deg", swap_direction=False, name="phase_2_in")
-m3d.assign_current([second_winding_faces[-2]], amplitude=1000, phase="120deg", swap_direction=True, name="phase_2_out")
-m3d.assign_current([third_winding_faces[-1]], amplitude=1000, phase="240deg", swap_direction=False, name="phase_3_in")
-m3d.assign_current([third_winding_faces[-2]], amplitude=1000, phase="240deg", swap_direction=True, name="phase_3_out")
+m3d.assign_current(
+    [first_winding_faces[-1]], amplitude=1000, phase="0deg", swap_direction=False, name="phase_1_in"
+)
+m3d.assign_current(
+    [first_winding_faces[-2]], amplitude=1000, phase="0deg", swap_direction=True, name="phase_1_out"
+)
+m3d.assign_current(
+    [second_winding_faces[-1]],
+    amplitude=1000,
+    phase="120deg",
+    swap_direction=False,
+    name="phase_2_in",
+)
+m3d.assign_current(
+    [second_winding_faces[-2]],
+    amplitude=1000,
+    phase="120deg",
+    swap_direction=True,
+    name="phase_2_out",
+)
+m3d.assign_current(
+    [third_winding_faces[-1]],
+    amplitude=1000,
+    phase="240deg",
+    swap_direction=False,
+    name="phase_3_in",
+)
+m3d.assign_current(
+    [third_winding_faces[-2]],
+    amplitude=1000,
+    phase="240deg",
+    swap_direction=True,
+    name="phase_3_out",
+)
 
 # ## Assign matrix
 #
@@ -170,7 +200,9 @@ mesh.assign_surface_mesh_manual(
 #
 # Create the boundaries. A region with openings is needed to run the analysis.
 
-region = m3d.modeler.create_air_region(x_pos=100, y_pos=100, z_pos=100, x_neg=100, y_neg=100, z_neg=0)
+region = m3d.modeler.create_air_region(
+    x_pos=100, y_pos=100, z_pos=100, x_neg=100, y_neg=100, z_neg=0
+)
 
 # ## Create setup
 #
@@ -183,7 +215,9 @@ setup.props["Frequency"] = "100kHz"
 setup.props["PercentRefinement"] = 15
 setup.props["MaximumPasses"] = 10
 setup.props["HasSweepSetup"] = True
-setup.add_eddy_current_sweep(range_type="LinearCount", start=100, end=1000, count=12, units="kHz", clear=True)
+setup.add_eddy_current_sweep(
+    range_type="LinearCount", start=100, end=1000, count=12, units="kHz", clear=True
+)
 
 # ## Save project
 #
@@ -191,7 +225,9 @@ setup.add_eddy_current_sweep(range_type="LinearCount", start=100, end=1000, coun
 
 m3d.save_project()
 m3d.modeler.fit_all()
-m3d.plot(show=False, export_path=os.path.join(m3d.working_directory, "Image.jpg"), plot_air_objects=True)
+m3d.plot(
+    show=False, export_path=os.path.join(m3d.working_directory, "Image.jpg"), plot_air_objects=True
+)
 
 # ## Close AEDT
 #

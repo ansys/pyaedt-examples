@@ -8,13 +8,13 @@
 
 # Perform required imports.
 
-import sys
-from pyaedt.emit_core.emit_constants import InterfererType, ResultType, TxRxMode
-from pyaedt import Emit
-from pyaedt import get_pyaedt_app
-import pyaedt
 import os
 import subprocess
+import sys
+
+import pyaedt
+from pyaedt import Emit, get_pyaedt_app
+from pyaedt.emit_core.emit_constants import InterfererType, ResultType, TxRxMode
 import pyaedt.generic.constants as consts
 
 # Check to see which Python libraries have been installed.
@@ -37,10 +37,9 @@ for package in required_packages:
 # Import PySide6 and openpyxl libraries
 
 
-from PySide6 import QtWidgets, QtUiTools, QtGui, QtCore
-from openpyxl.styles import PatternFill
+from PySide6 import QtCore, QtGui, QtUiTools, QtWidgets
 import openpyxl
-
+from openpyxl.styles import PatternFill
 
 # +
 # Uncomment if there are Qt plugin errors
@@ -62,6 +61,7 @@ desktop = pyaedt.launch_desktop(emitapp_desktop_version, non_graphical, new_thre
 emit_path = os.path.join(desktop.install_path, "Delcross")
 sys.path.insert(0,emit_path)
 import EmitApiPython
+
 api = EmitApiPython.EmitApi()
 
 # Define .ui file for GUI
@@ -212,7 +212,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.previous_design = ''
         self.previous_project = ''
     
-        # Set the legend tables to strech resize mode
+        # Set the legend tables to stretch resize mode
         header = self.protection_legend_table.horizontalHeader()
         v_header = self.protection_legend_table.verticalHeader()
     
@@ -495,7 +495,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
 # ### Run protection level simulation
 #
-# Run protection level simulation and classify results accroding to inputted 
+# Run protection level simulation and classify results according to inputted 
 # threshold levels.
 
     def protection_results(self):

@@ -8,6 +8,7 @@
 # Perform required imports.
 
 import os
+
 import pyaedt
 
 # ## Set up project files and path
@@ -15,12 +16,12 @@ import pyaedt
 # Download needed project file and set up temporary project directory.
 
 project_dir = pyaedt.generate_unique_folder_name()
-aedb_project = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb', destination=project_dir)
-coil = pyaedt.downloads.download_file('inductance_3d_component', 'air_coil.a3dcomp')
-res = pyaedt.downloads.download_file('resistors', 'Res_0402.a3dcomp')
+aedb_project = pyaedt.downloads.download_file("edb/ANSYS-HSD_V1.aedb", destination=project_dir)
+coil = pyaedt.downloads.download_file("inductance_3d_component", "air_coil.a3dcomp")
+res = pyaedt.downloads.download_file("resistors", "Res_0402.a3dcomp")
 project_name = pyaedt.generate_unique_name("HSD")
-output_edb = os.path.join(project_dir, project_name + '.aedb')
-output_q3d = os.path.join(project_dir, project_name + '_q3d.aedt')
+output_edb = os.path.join(project_dir, project_name + ".aedb")
+output_q3d = os.path.join(project_dir, project_name + "_q3d.aedt")
 
 # ## Open EDB
 #
@@ -28,11 +29,12 @@ output_q3d = os.path.join(project_dir, project_name + '_q3d.aedt')
 # before exporting to Q3D.
 
 edb = pyaedt.Edb(aedb_project, edbversion="2023.2")
-edb.cutout(["1.2V_AVDLL_PLL", "1.2V_AVDDL", "1.2V_DVDDL", "NetR106_1"],
-           ["GND"],
-           output_aedb_path=output_edb,
-           use_pyaedt_extent_computing=True,
-           )
+edb.cutout(
+    ["1.2V_AVDLL_PLL", "1.2V_AVDDL", "1.2V_DVDDL", "NetR106_1"],
+    ["GND"],
+    output_aedb_path=output_edb,
+    use_pyaedt_extent_computing=True,
+)
 
 # ## Identify pin positions
 #
@@ -84,7 +86,9 @@ location_r106_1.append(edb.components["R106"].upper_elevation * 1000)
 edb.save_edb()
 edb.close_edb()
 
-h3d = pyaedt.Hfss3dLayout(output_edb, specified_version="2023.2", non_graphical=False, new_desktop_session=True)
+h3d = pyaedt.Hfss3dLayout(
+    output_edb, specified_version="2023.2", non_graphical=False, new_desktop_session=True
+)
 # -
 
 # ## Export to Q3D
@@ -116,7 +120,10 @@ comp.parameters["n_turns"] = "3"
 comp.parameters["d_wire"] = "100um"
 q3d.modeler.set_working_coordinate_system("Global")
 q3d.modeler.create_coordinate_system(location_l4_1, name="L4")
-comp2 = q3d.modeler.insert_3d_component(coil, targetCS="L4",)
+comp2 = q3d.modeler.insert_3d_component(
+    coil,
+    targetCS="L4",
+)
 comp2.rotate(q3d.AXIS.Z, -90)
 comp2.parameters["n_turns"] = "3"
 comp2.parameters["d_wire"] = "100um"
@@ -124,7 +131,7 @@ q3d.modeler.set_working_coordinate_system("Global")
 
 q3d.modeler.set_working_coordinate_system("Global")
 q3d.modeler.create_coordinate_system(location_r106_1, name="R106")
-comp3= q3d.modeler.insert_3d_component(res, targetCS="R106",geo_params={'$Resistance': 2000})
+comp3 = q3d.modeler.insert_3d_component(res, targetCS="R106", geo_params={"$Resistance": 2000})
 comp3.rotate(q3d.AXIS.Z, -90)
 
 q3d.modeler.set_working_coordinate_system("Global")
@@ -142,8 +149,13 @@ q3d.modeler.delete(q3d.modeler.get_objects_by_material("Solder Resist"))
 
 objs_copper = q3d.modeler.get_objects_by_material("copper")
 objs_copper_names = [i.name for i in objs_copper]
-q3d.plot(show=False,objects=objs_copper_names, plot_as_separate_objects=False,
-         export_path=os.path.join(q3d.working_directory, "Q3D.jpg"), plot_air_objects=False)
+q3d.plot(
+    show=False,
+    objects=objs_copper_names,
+    plot_as_separate_objects=False,
+    export_path=os.path.join(q3d.working_directory, "Q3D.jpg"),
+    plot_air_objects=False,
+)
 # -
 
 # ## Assign source and sink
@@ -155,7 +167,7 @@ q3d.plot(show=False,objects=objs_copper_names, plot_as_separate_objects=False,
 sink_f = q3d.modeler.create_circle(q3d.PLANE.XY, location_u11_scl, 0.1)
 source_f1 = q3d.modeler.create_circle(q3d.PLANE.XY, location_u9_1_scl, 0.1)
 source_f2 = q3d.modeler.create_circle(q3d.PLANE.XY, location_u9_2_scl, 0.1)
-source_f3= q3d.modeler.create_circle(q3d.PLANE.XY, location_u11_r106, 0.1)
+source_f3 = q3d.modeler.create_circle(q3d.PLANE.XY, location_u11_r106, 0.1)
 sources_objs = [source_f1, source_f2, source_f3]
 q3d.auto_identify_nets()
 
@@ -169,9 +181,13 @@ source2 = q3d.source(source_f2, net_name=identified_net)
 source3 = q3d.source(source_f3, net_name=identified_net)
 sources_bounds = [source1, source2, source3]
 
-q3d.edit_sources(dcrl={"{}:{}".format(source1.props["Net"], source1.name): "-1.0A",
-                       "{}:{}".format(source2.props["Net"], source2.name): "-1.0A",
-                       "{}:{}".format(source2.props["Net"], source3.name): "-1.0A"})
+q3d.edit_sources(
+    dcrl={
+        "{}:{}".format(source1.props["Net"], source1.name): "-1.0A",
+        "{}:{}".format(source2.props["Net"], source2.name): "-1.0A",
+        "{}:{}".format(source2.props["Net"], source3.name): "-1.0A",
+    }
+)
 # -
 
 # ## Create setup
@@ -184,7 +200,7 @@ setup.dc_enabled = True
 setup.capacitance_enabled = False
 setup.ac_rl_enabled = False
 setup.props["SaveFields"] = True
-setup.props["DC"]["Cond"]["MaxPass"]=3
+setup.props["DC"]["Cond"]["MaxPass"] = 3
 setup.analyze()
 
 # ## Field Calculator
@@ -204,8 +220,11 @@ q3d.ofieldsreporter.AddNamedExpression(drop_name, "DC R/L Fields")
 # Compute ACL solutions and plot them.
 
 # +
-plot1 = q3d.post.create_fieldplot_surface(q3d.modeler.get_objects_by_material("copper"), quantityName=drop_name,
-                                          intrinsincDict={"Freq": "1GHz"})
+plot1 = q3d.post.create_fieldplot_surface(
+    q3d.modeler.get_objects_by_material("copper"),
+    quantityName=drop_name,
+    intrinsincDict={"Freq": "1GHz"},
+)
 
 q3d.post.plot_field_from_fieldplot(
     plot1.name,
@@ -239,11 +258,11 @@ for source_circle, source_bound in zip(sources_objs, sources_bounds):
     q3d.ofieldsreporter.AddNamedExpression("V{}".format(source_bound.name), "DC R/L Fields")
 
 data = q3d.post.get_solution_data(
-            curves,
-            q3d.nominal_adaptive,
-            variations={"Freq": "1GHz"},
-            report_category="DC R/L Fields",
-        )
+    curves,
+    q3d.nominal_adaptive,
+    variations={"Freq": "1GHz"},
+    report_category="DC R/L Fields",
+)
 for curve in curves:
     print(data.data_real(curve))
 # -

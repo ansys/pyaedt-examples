@@ -1,6 +1,6 @@
 # # Twin Builder: Static ROM
 #
-# This example shows how to create a static reduced order model (ROM) 
+# This example shows how to create a static reduced order model (ROM)
 # in Twin Builder
 # and run a transient simulation.
 #
@@ -11,15 +11,18 @@
 #
 # Perform required imports.
 
-import os
 import math
+import os
 import shutil
+
 import matplotlib.pyplot as plt
-from pyaedt import TwinBuilder
-from pyaedt import generate_unique_project_name
-from pyaedt import generate_unique_folder_name
-from pyaedt import downloads
-from pyaedt import settings
+from pyaedt import (
+    TwinBuilder,
+    downloads,
+    generate_unique_folder_name,
+    generate_unique_project_name,
+    settings,
+)
 
 # ## Select version and set launch options
 #
@@ -37,7 +40,7 @@ new_thread = True
 
 # ## Set up input data
 #
-# The following files will be downloaded along with the 
+# The following files will be downloaded along with the
 # other project data used to run this example.
 
 source_snapshot_data_zipfilename = "Ex1_Fluent_StaticRom.zip"
@@ -58,10 +61,14 @@ data_folder = os.path.join(source_data_folder, "Ex04")
 
 # Unzip training data and config file
 downloads.unzip(os.path.join(source_data_folder, source_snapshot_data_zipfilename), data_folder)
-shutil.copyfile(os.path.join(source_data_folder, source_build_conf_file),
-                os.path.join(data_folder, source_build_conf_file))
-shutil.copyfile(os.path.join(source_data_folder, source_props_conf_file),
-                os.path.join(data_folder, source_props_conf_file))
+shutil.copyfile(
+    os.path.join(source_data_folder, source_build_conf_file),
+    os.path.join(data_folder, source_build_conf_file),
+)
+shutil.copyfile(
+    os.path.join(source_data_folder, source_props_conf_file),
+    os.path.join(data_folder, source_props_conf_file),
+)
 # -
 
 # ## Launch Twin Builder and build ROM component
@@ -69,15 +76,19 @@ shutil.copyfile(os.path.join(source_data_folder, source_props_conf_file),
 # Launch Twin Builder using an implicit declaration and add a new design with
 # a default setup for building the static ROM component.
 
-tb = TwinBuilder(projectname=generate_unique_project_name(), specified_version=desktop_version,
-                 non_graphical=non_graphical, new_desktop_session=new_thread)
+tb = TwinBuilder(
+    projectname=generate_unique_project_name(),
+    specified_version=desktop_version,
+    non_graphical=non_graphical,
+    new_desktop_session=new_thread,
+)
 
 # ## Desktop Configuration
 #
 # > **Note:** Only run following cell if AEDT is not configured to run "Twin Builder".
-# > 
-# > The following cell configures Electronics Desktop (AEDT) and the schematic editor 
-# > to use the _"Twin Builder"_ confguration.
+# >
+# > The following cell configures Electronics Desktop (AEDT) and the schematic editor
+# > to use the _"Twin Builder"_ configuration.
 # > The Static ROM feature is only available with a Twin Builder license.
 # > A cell at the end of this example restores the AEDT configuration. If your
 # > environment is set up_
@@ -95,17 +106,17 @@ static_rom_builder = rom_manager.GetStaticROMBuilder()
 
 # Build the static ROM with specified configuration file
 confpath = os.path.join(data_folder, source_build_conf_file)
-static_rom_builder.Build(confpath.replace('\\', '/'))
+static_rom_builder.Build(confpath.replace("\\", "/"))
 
 # Test if ROM was created successfully
-static_rom_path = os.path.join(data_folder, 'StaticRom.rom')
+static_rom_path = os.path.join(data_folder, "StaticRom.rom")
 if os.path.exists(static_rom_path):
     tb.logger.info("Built intermediate rom file successfully at: %s", static_rom_path)
 else:
     tb.logger.error("Intermediate rom file not found at: %s", static_rom_path)
 
 # Create the ROM component definition in Twin Builder
-rom_manager.CreateROMComponent(static_rom_path.replace('\\', '/'), 'staticrom')
+rom_manager.CreateROMComponent(static_rom_path.replace("\\", "/"), "staticrom")
 # -
 
 # ## Create schematic
@@ -120,14 +131,20 @@ G = 0.00254
 rom1 = tb.modeler.schematic.create_component("ROM1", "", "staticrom", [40 * G, 25 * G])
 
 # Place two excitation sources
-source1 = tb.modeler.schematic.create_periodic_waveform_source(None, "SINE", 2.5, 0.01, 0, 7.5, 0, [20 * G, 29 * G])
-source2 = tb.modeler.schematic.create_periodic_waveform_source(None, "SINE", 50, 0.02, 0, 450, 0, [20 * G, 25 * G])
+source1 = tb.modeler.schematic.create_periodic_waveform_source(
+    None, "SINE", 2.5, 0.01, 0, 7.5, 0, [20 * G, 29 * G]
+)
+source2 = tb.modeler.schematic.create_periodic_waveform_source(
+    None, "SINE", 50, 0.02, 0, 450, 0, [20 * G, 25 * G]
+)
 # -
 
 # Connect components with wires
 
 tb.modeler.schematic.create_wire([[22 * G, 29 * G], [33 * G, 29 * G]])
-tb.modeler.schematic.create_wire([[22 * G, 25 * G], [30 * G, 25 * G], [30 * G, 28 * G], [33 * G, 28 * G]])
+tb.modeler.schematic.create_wire(
+    [[22 * G, 25 * G], [30 * G, 25 * G], [30 * G, 28 * G], [33 * G, 28 * G]]
+)
 
 # Enable storage of views
 

@@ -1,11 +1,11 @@
 # # EMIT: HFSS to EMIT coupling
 #
-# <img src="_static/emit_hfss.png" width="60"> This example 
+# <img src="_static/emit_hfss.png" width="60"> This example
 # demonstrates how link an HFSS design
 # to EMIT and model RF interference among various components.
 #
 # > **Note:** This example uses the ``Cell Phone RFI Desense``
-# > project that is available with the AEDT installation in the 
+# > project that is available with the AEDT installation in the
 # > folder ``\Examples\EMIT\``
 
 # ## Perform required imports
@@ -13,14 +13,15 @@
 # Perform required imports.
 
 import os
-import pyaedt
-import tempfile
-from pyaedt.emit_core.emit_constants import TxRxMode, ResultType
 import shutil
+import tempfile
+
+import pyaedt
+from pyaedt.emit_core.emit_constants import ResultType, TxRxMode
 
 # ## Set non-graphical mode
 #
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 # The Boolean parameter ``new_thread`` defines whether to create a new instance
 # of AEDT or try to connect to an existing instance of it.
@@ -47,11 +48,11 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 # > **Note:** The HFSS design from the installed example
 # > used to model the RF environment
 # > has been pre-solved. Hence, the results folder is copied and
-# > the RF interference between transcievers is calculated in EMIT using
+# > the RF interference between transceivers is calculated in EMIT using
 # > results from the linked HFSS design.
 #
 # The following lambda functions help create file and folder
-# names when copying data from the Examples folder. 
+# names when copying data from the Examples folder.
 
 file_name = lambda s: s + ".aedt"
 results_name = lambda s: s + ".aedtresults"
@@ -67,12 +68,11 @@ example_pdf = os.path.join(example_dir, pdf_name(example))
 
 # Copy the files to the temporary working directory.
 
-project_name = shutil.copyfile(example_project, 
-                               os.path.join(temp_dir.name, file_name(example)))
-results_folder = shutil.copytree(example_results_folder,
-                                 os.path.join(temp_dir.name, results_name(example)))
-project_pdf = shutil.copyfile(example_pdf, 
-                              os.path.join(temp_dir.name, pdf_name(example)))
+project_name = shutil.copyfile(example_project, os.path.join(temp_dir.name, file_name(example)))
+results_folder = shutil.copytree(
+    example_results_folder, os.path.join(temp_dir.name, results_name(example))
+)
+project_pdf = shutil.copyfile(example_pdf, os.path.join(temp_dir.name, pdf_name(example)))
 
 # Open the project in the working directory.
 
@@ -91,25 +91,25 @@ rad2, ant2 = aedtapp.modeler.components.create_radio_antenna("Bluetooth Low Ener
 
 for link in aedtapp.couplings.linkable_design_names:
     aedtapp.couplings.add_link(link)
-    print("linked \"" + link + "\".")
+    print('linked "' + link + '".')
 
 for link in aedtapp.couplings.coupling_names:
     aedtapp.couplings.update_link(link)
-    print("linked \"" + link + "\".")
+    print('linked "' + link + '".')
 
 # ## Calculate RF Interference
 #
 # Run the EMIT simulation. This portion of the EMIT API is not yet implemented.
 #
-# This part of the example requires Ansys AEDT 2023 R2. 
+# This part of the example requires Ansys AEDT 2023 R2.
 
 if desktop_version > "2023.1":
     rev = aedtapp.results.analyze()
-    rx_bands = rev.get_band_names(rad1.name, TxRxMode.RX) 
-    tx_bands = rev.get_band_names(rad2.name, TxRxMode.TX) 
+    rx_bands = rev.get_band_names(rad1.name, TxRxMode.RX)
+    tx_bands = rev.get_band_names(rad2.name, TxRxMode.TX)
     domain = aedtapp.results.interaction_domain()
     domain.set_receiver(rad1.name, rx_bands[0], -1)
-    domain.set_interferer(rad2.name,tx_bands[0])
+    domain.set_interferer(rad2.name, tx_bands[0])
     interaction = rev.run(domain)
     worst = interaction.get_worst_instance(ResultType.EMI)
     if worst.has_valid_values():

@@ -6,13 +6,14 @@
 #
 # Perform required imports.
 
+from math import cos, radians, sin, sqrt
 import os
-from math import radians, sin, cos, sqrt
+
 import pyaedt
 
 # ## Set non-graphical mode
 #
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -21,10 +22,12 @@ non_graphical = False
 #
 # Launch AEDT 2023 R2 in graphical mode.
 
-hfss = pyaedt.Hfss(specified_version="2023.2",
-                   solution_type="DrivenTerminal",
-                   new_desktop_session=True,
-                   non_graphical=non_graphical)
+hfss = pyaedt.Hfss(
+    specified_version="2023.2",
+    solution_type="DrivenTerminal",
+    new_desktop_session=True,
+    non_graphical=non_graphical,
+)
 hfss.change_material_override(True)
 hfss.change_automatically_use_causal_materials(True)
 hfss.create_open_region("100GHz")
@@ -68,6 +71,8 @@ def create_bending(radius, extension=0):
 
     position_list[-1] = (x, y, z)
     return position_list
+
+
 # -
 
 # ## Draw signal line
@@ -94,7 +99,11 @@ gnd_l = [(x, -y, z) for x, y, z in gnd_r]
 gnd_objs = []
 for gnd in [gnd_r, gnd_l]:
     x = hfss.modeler.create_polyline(
-        position_list=gnd, xsection_type="Rectangle", xsection_width=height, xsection_height=gnd_width, matname="copper"
+        position_list=gnd,
+        xsection_type="Rectangle",
+        xsection_width=height,
+        xsection_height=gnd_width,
+        matname="copper",
     )
     x.color = (255, 0, 0)
     gnd_objs.append(x)
@@ -142,7 +151,9 @@ for face, blockname in zip([fr4.top_face_z, fr4.bottom_face_x], ["b1", "b2"]):
     xc, yc, zc = face.center
     positions = [i.position for i in face.vertices]
 
-    port_sheet_list = [((x - xc) * 10 + xc, (y - yc) + yc, (z - zc) * 10 + zc) for x, y, z in positions]
+    port_sheet_list = [
+        ((x - xc) * 10 + xc, (y - yc) + yc, (z - zc) * 10 + zc) for x, y, z in positions
+    ]
     s = hfss.modeler.create_polyline(port_sheet_list, close_surface=True, cover_surface=True)
     center = [round(i, 6) for i in s.faces[0].center]
 

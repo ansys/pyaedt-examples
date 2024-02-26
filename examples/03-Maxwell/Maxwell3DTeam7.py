@@ -8,15 +8,15 @@ conductor with a hole and solve it using the Maxwell 3D Eddy Current solver.
 #
 # Perform required imports.
 
-from pyaedt import Maxwell3d
-from pyaedt import generate_unique_project_name
-import numpy as np
 import csv
 import os
 
+import numpy as np
+from pyaedt import Maxwell3d, generate_unique_project_name
+
 # ## Set non-graphical mode
 #
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
@@ -24,7 +24,7 @@ non_graphical = False
 # ## Launch AEDT and Maxwell 3D
 #
 # Launch AEDT and Maxwell 3D. The following code sets up the project and design names, the solver, and
-# the version. It also creates an instance of the ``Maxwell3d`` class named ``M3D``. 
+# the version. It also creates an instance of the ``Maxwell3d`` class named ``M3D``.
 
 # +
 Project_Name = "COMPUMAG"
@@ -38,7 +38,7 @@ M3D = Maxwell3d(
     solution_type=Solver,
     specified_version=DesktopVersion,
     non_graphical=non_graphical,
-    new_desktop_session=True
+    new_desktop_session=True,
 )
 M3D.modeler.model_units = "mm"
 modeler = M3D.modeler
@@ -100,7 +100,9 @@ M3D.modeler.create_coordinate_system(origin=coil_centre, mode="view", view="XY",
 #
 # Create a polyline. One quarter of the coil is modeled by sweeping a 2D sheet along a polyline.
 
-test = M3D.modeler.create_polyline(position_list=[P1, P2, P3, P4], segment_type=["Line", "Arc"], name="Coil")
+test = M3D.modeler.create_polyline(
+    position_list=[P1, P2, P3, P4], segment_type=["Line", "Arc"], name="Coil"
+)
 test.set_crosssection_properties(type="Rectangle", width=coil_thk, height=coil_height)
 
 # ## Duplicate and unite polyline to create full coil
@@ -150,8 +152,9 @@ mat.conductivity = 3.526e7
 #
 # Model the aluminium plate with a hole by subtracting two rectangular cuboids.
 
-plate = M3D.modeler.create_box(position=[0, 0, 0], dimensions_list=[294, 294, 19], name="Plate",
-                               matname="team7_aluminium")
+plate = M3D.modeler.create_box(
+    position=[0, 0, 0], dimensions_list=[294, 294, 19], name="Plate", matname="team7_aluminium"
+)
 M3D.modeler.fit_all()
 hole = M3D.modeler.create_box(position=[18, 18, 0], dimensions_list=[108, 108, 19], name="Hole")
 M3D.modeler.subtract("Plate", ["Hole"], keep_originals=False)
@@ -169,9 +172,11 @@ M3D.modeler.create_air_region(x_pos=100, y_pos=100, z_pos=100, x_neg=100, y_neg=
 # used in the coil.
 
 M3D.eddy_effects_on(object_list="Plate")
-M3D.eddy_effects_on(object_list=["Coil", "Region", "Line_A1_B1mesh", "Line_A2_B2mesh"],
-                    activate_eddy_effects=False,
-                    activate_displacement_current=False)
+M3D.eddy_effects_on(
+    object_list=["Coil", "Region", "Line_A1_B1mesh", "Line_A2_B2mesh"],
+    activate_eddy_effects=False,
+    activate_displacement_current=False,
+)
 
 # ## Create expression for Z component of B in Gauss
 #
@@ -211,7 +216,9 @@ polyline2_mesh.set_crosssection_properties(type="Circle", width=mesh_diameter)
 #
 # Plot the model.
 
-M3D.plot(show=False, export_path=os.path.join(M3D.working_directory, "Image.jpg"), plot_air_objects=False)
+M3D.plot(
+    show=False, export_path=os.path.join(M3D.working_directory, "Image.jpg"), plot_air_objects=False
+)
 
 # Published measurement results are included with this script via the list below.
 # Test results are used to create text files for import into a rectangular plot
@@ -272,7 +279,25 @@ data = [
         52.78,
         27.61,
     ],
-    [-1.16, 2.84, 4.15, 4.00, 3.07, 2.31, 1.89, 4.97, 12.61, 14.15, 13.04, 12.40, 12.05, 12.27, 12.66, 9.96, 2.36],
+    [
+        -1.16,
+        2.84,
+        4.15,
+        4.00,
+        3.07,
+        2.31,
+        1.89,
+        4.97,
+        12.61,
+        14.15,
+        13.04,
+        12.40,
+        12.05,
+        12.27,
+        12.66,
+        9.96,
+        2.36,
+    ],
     [
         -3.63,
         -18.46,
@@ -292,7 +317,25 @@ data = [
         46.11,
         24.96,
     ],
-    [-1.38, 1.20, 2.15, 1.63, 1.10, 0.27, -2.28, -1.40, 4.17, 3.94, 4.86, 4.09, 3.69, 4.60, 3.48, 4.10, 0.98],
+    [
+        -1.38,
+        1.20,
+        2.15,
+        1.63,
+        1.10,
+        0.27,
+        -2.28,
+        -1.40,
+        4.17,
+        3.94,
+        4.86,
+        4.09,
+        3.69,
+        4.60,
+        3.48,
+        4.10,
+        0.98,
+    ],
     [
         -1.83,
         -8.50,
@@ -312,7 +355,25 @@ data = [
         52.08,
         26.56,
     ],
-    [-1.63, -0.60, -0.43, 0.11, 1.26, 3.40, 6.53, 10.25, 11.83, 11.83, 11.01, 10.58, 10.80, 10.54, 10.62, 9.03, 1.79],
+    [
+        -1.63,
+        -0.60,
+        -0.43,
+        0.11,
+        1.26,
+        3.40,
+        6.53,
+        10.25,
+        11.83,
+        11.83,
+        11.01,
+        10.58,
+        10.80,
+        10.54,
+        10.62,
+        9.03,
+        1.79,
+    ],
     [
         -0.86,
         -7.00,
@@ -332,7 +393,25 @@ data = [
         45.37,
         24.01,
     ],
-    [-1.35, -0.71, -0.81, -0.67, 0.15, 1.39, 2.67, 3.00, 4.01, 3.80, 4.00, 3.02, 2.20, 2.78, 1.58, 1.37, 0.93],
+    [
+        -1.35,
+        -0.71,
+        -0.81,
+        -0.67,
+        0.15,
+        1.39,
+        2.67,
+        3.00,
+        4.01,
+        3.80,
+        4.00,
+        3.02,
+        2.20,
+        2.78,
+        1.58,
+        1.37,
+        0.93,
+    ],
 ]
 # -
 
@@ -357,7 +436,7 @@ for item in dataset_range:
         writer.writerow(header)
         writer.writerows(ziplist)
 # -
-        
+
 # ## Create rectangular plots
 #
 # Create rectangular plots, using text file encoding to control their formatting. Create
@@ -365,7 +444,14 @@ for item in dataset_range:
 
 for item in dataset_range:
     if item % 2 == 0:
-        plotname = dataset[item][0:3] + "Along the Line" + dataset[item][2:9] + ", " + dataset[item][9:12] + "Hz"
+        plotname = (
+            dataset[item][0:3]
+            + "Along the Line"
+            + dataset[item][2:9]
+            + ", "
+            + dataset[item][9:12]
+            + "Hz"
+        )
         if dataset[item][9:12] == "000":
             variations = {
                 "Distance": ["All"],
@@ -414,8 +500,12 @@ else:
 
 surflist = modeler.get_object_faces("Plate")
 intrinsic_dict = {"Freq": "200Hz", "Phase": "0deg"}
-M3D.post.create_fieldplot_surface(surflist, "Mag_J", intrinsincDict=intrinsic_dict, plot_name="Mag_J")
-M3D.post.create_fieldplot_surface(surflist, "Mag_B", intrinsincDict=intrinsic_dict, plot_name="Mag_B")
+M3D.post.create_fieldplot_surface(
+    surflist, "Mag_J", intrinsincDict=intrinsic_dict, plot_name="Mag_J"
+)
+M3D.post.create_fieldplot_surface(
+    surflist, "Mag_B", intrinsincDict=intrinsic_dict, plot_name="Mag_B"
+)
 
 # ## Save project and solve
 #

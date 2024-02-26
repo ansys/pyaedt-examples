@@ -9,9 +9,10 @@
 #
 # Perform required imports.
 
-import pyaedt
-import tempfile
 import os
+import tempfile
+
+import pyaedt
 
 # ## Launch AEDT
 #
@@ -19,7 +20,7 @@ import os
 
 # ## Set non-graphical mode
 #
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 # The Boolean parameter ``new_thread`` defines whether to create a new instance
 # of AEDT or try to connect to an existing instance of it.
@@ -36,8 +37,9 @@ new_thread = True
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 desktop = pyaedt.launch_desktop(desktop_version, non_graphical, new_thread)
-aedt_app = pyaedt.Circuit(projectname=os.path.join(temp_dir.name, "CircuitExample"),
-                                                  designname="Simple")
+aedt_app = pyaedt.Circuit(
+    projectname=os.path.join(temp_dir.name, "CircuitExample"), designname="Simple"
+)
 aedt_app.modeler.schematic.schematic_units = "mil"
 # -
 
@@ -55,14 +57,16 @@ setup1.props["SweepDefinition"]["Data"] = "LINC 0GHz 4GHz 10001"
 
 inductor = aedt_app.modeler.schematic.create_inductor(compname="L1", value=1e-9, location=[0, 0])
 resistor = aedt_app.modeler.schematic.create_resistor(compname="R1", value=50, location=[500, 0])
-capacitor = aedt_app.modeler.schematic.create_capacitor(compname="C1", value=1e-12, location=[1000, 0])
+capacitor = aedt_app.modeler.schematic.create_capacitor(
+    compname="C1", value=1e-12, location=[1000, 0]
+)
 
 #  ## Get all pins
 #
-# The component pins are instances of the class 
-# ``pyaedt.modeler.circuits.objct3dcircuit.CircuitPins`` class and 
+# The component pins are instances of the class
+# ``pyaedt.modeler.circuits.objct3dcircuit.CircuitPins`` class and
 # provide access to the
-# pin location, net connectivity and the method ``connect_to_component()`` which 
+# pin location, net connectivity and the method ``connect_to_component()`` which
 # can be used to connect components in the schematic
 # as will be demonstrated in
 # this example.
@@ -71,12 +75,12 @@ capacitor = aedt_app.modeler.schematic.create_capacitor(compname="C1", value=1e-
 #
 # Place a port and a ground in the schematic.
 
-port = aedt_app.modeler.components.create_interface_port(name="myport", location=[-300, 50] )
+port = aedt_app.modeler.components.create_interface_port(name="myport", location=[-300, 50])
 gnd = aedt_app.modeler.components.create_gnd(location=[1200, -100])
 
 # ## Connect components
 #
-# Connect components with wires in the schematic. The ``connect_to_component()`` 
+# Connect components with wires in the schematic. The ``connect_to_component()``
 # method is used to create connections between pins.
 
 port.pins[0].connect_to_component(component_pin=inductor.pins[0], use_wire=True)

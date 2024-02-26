@@ -12,6 +12,7 @@
 
 import os
 import tempfile
+
 import pyaedt
 from pyaedt import general_methods
 
@@ -27,12 +28,14 @@ from pyaedt import general_methods
 # t: Metal thickness of the iris insert.
 
 # +
-wgparams = {'l': [0.7428, 0.82188],
-            'w': [0.50013, 0.3642, 0.3458],
-            'a': 0.4,
-            'b': 0.9,
-            't': 0.15,
-            'units': 'in'}
+wgparams = {
+    "l": [0.7428, 0.82188],
+    "w": [0.50013, 0.3642, 0.3458],
+    "a": 0.4,
+    "b": 0.9,
+    "t": 0.15,
+    "units": "in",
+}
 
 non_graphical = False
 new_thread = True
@@ -47,12 +50,14 @@ project_name = os.path.join(project_folder, general_methods.generate_unique_name
 
 # Instantiate the HFSS application
 
-hfss = pyaedt.Hfss(projectname=project_name + '.aedt',
-                   specified_version="2023.2",
-                   designname="filter",
-                   non_graphical=non_graphical,
-                   new_desktop_session=True,
-                   close_on_exit=True)
+hfss = pyaedt.Hfss(
+    projectname=project_name + ".aedt",
+    specified_version="2023.2",
+    designname="filter",
+    non_graphical=non_graphical,
+    new_desktop_session=True,
+    close_on_exit=True,
+)
 
 # hfss.settings.enable_debug_methods_argument_logger = False  # Only for debugging.
 
@@ -64,17 +69,17 @@ var_mapping = dict()  # Used by parse_expr to parse expressions.
 hfss.modeler.model_units = "in"  # Set to inches
 for key in wgparams:
     if type(wgparams[key]) in [int, float]:
-        hfss[key] = str(wgparams[key]) + wgparams['units']
+        hfss[key] = str(wgparams[key]) + wgparams["units"]
         var_mapping[key] = wgparams[key]  # Used for expression parsing
     elif type(wgparams[key]) == list:
         count = 1
         for v in wgparams[key]:
             this_key = key + str(count)
-            hfss[this_key] = str(v) + wgparams['units']
+            hfss[this_key] = str(v) + wgparams["units"]
             var_mapping[this_key] = v  # Used to parse expressions and generate numerical values.
             count += 1
 
-if len(wgparams['l']) % 2 == 0:
+if len(wgparams["l"]) % 2 == 0:
     zstart = "-t/2"  # Even number of cavities, odd number of irises.
     is_even = True
 else:
@@ -88,24 +93,32 @@ else:
 # Loop from the largest index (interior of the filter) to 1, which is the first
 # iris nearest the waveguide ports.
 
+
 def place_iris(zpos, dz, n):
     w_str = "w" + str(n)  # Iris width parameter as a string.
     this_name = "iris_a_" + str(n)  # Iris object name in the HFSS project.
     iris = []  # Return a list of the two objects that make up the iris.
     if this_name in hfss.modeler.object_names:
         this_name = this_name.replace("a", "c")
-    iris.append(hfss.modeler.create_box(['-b/2', '-a/2', zpos], ['(b - ' + w_str + ')/2', 'a', dz],
-                                        name=this_name, matname="silver"))
+    iris.append(
+        hfss.modeler.create_box(
+            ["-b/2", "-a/2", zpos],
+            ["(b - " + w_str + ")/2", "a", dz],
+            name=this_name,
+            matname="silver",
+        )
+    )
     iris.append(iris[0].mirror([0, 0, 0], [1, 0, 0], duplicate=True))
     return iris
+
 
 # ### Place irises
 #
 # Place the irises from inner (highest integer) to outer.
 
 # +
-for count in reversed(range(1, len(wgparams['w']) + 1)):
-    if count < len(wgparams['w']):  # Update zpos
+for count in reversed(range(1, len(wgparams["w"]) + 1)):
+    if count < len(wgparams["w"]):  # Update zpos
         zpos = zpos + "".join([" + l" + str(count) + " + "])[:-3]
         iris = place_iris(zpos, "t", count)
         iris = place_iris("-(" + zpos + ")", "-t", count)
@@ -125,16 +138,17 @@ for count in reversed(range(1, len(wgparams['w']) + 1)):
 # ``VariableManager`` properties enable access to update, modify and
 # evaluate variables.
 
-var_mapping['port_extension'] = 1.5 * wgparams['l'][0]
-hfss['port_extension'] = str(var_mapping['port_extension']) + wgparams['units']
+var_mapping["port_extension"] = 1.5 * wgparams["l"][0]
+hfss["port_extension"] = str(var_mapping["port_extension"]) + wgparams["units"]
 hfss["wg_z_start"] = "-(" + zpos + ") - port_extension"
 hfss["wg_length"] = "2*(" + zpos + " + port_extension )"
 wg_z_start = hfss.variable_manager["wg_z_start"]
 wg_length = hfss.variable_manager["wg_length"]
 hfss["u_start"] = "-a/2"
 hfss["u_end"] = "a/2"
-hfss.modeler.create_box(["-b/2", "-a/2", "wg_z_start"], ["b", "a", "wg_length"],
-                        name="waveguide", matname="vacuum")
+hfss.modeler.create_box(
+    ["-b/2", "-a/2", "wg_z_start"], ["b", "a", "wg_length"], name="waveguide", matname="vacuum"
+)
 
 # ### Draw the whole waveguide.
 #
@@ -142,7 +156,10 @@ hfss.modeler.create_box(["-b/2", "-a/2", "wg_z_start"], ["b", "a", "wg_length"],
 # Note that the ``.evaluated_value`` provides access to the numerical value of
 # ``wg_z_start`` which is an expression in HFSS.
 
-wg_z = [wg_z_start.evaluated_value, hfss.value_with_units(wg_z_start.numeric_value + wg_length.numeric_value, "in")]
+wg_z = [
+    wg_z_start.evaluated_value,
+    hfss.value_with_units(wg_z_start.numeric_value + wg_length.numeric_value, "in"),
+]
 
 # Assign wave ports to the end faces of the waveguide
 # and define the calibration lines to ensure self-consistent
@@ -156,7 +173,11 @@ for n, z in enumerate(wg_z):
     u_start = [0, hfss.variable_manager["u_start"].evaluated_value, z]
     u_end = [0, hfss.variable_manager["u_end"].evaluated_value, z]
 
-    ports.append(hfss.wave_port(face_id, integration_line=[u_start, u_end], name="P" + str(n + 1), renormalize=False))
+    ports.append(
+        hfss.wave_port(
+            face_id, integration_line=[u_start, u_end], name="P" + str(n + 1), renormalize=False
+        )
+    )
 # -
 
 # ### Insert the mesh adaptation setup using refinement at two frequencies.
@@ -167,9 +188,12 @@ for n, z in enumerate(wg_z):
 # through the resonant structure while the mesh is refined.
 
 # +
-setup = hfss.create_setup("Setup1", setuptype="HFSSDriven",
-                          MultipleAdaptiveFreqsSetup=['9.8GHz', '10.2GHz'],
-                          MaximumPasses=5)
+setup = hfss.create_setup(
+    "Setup1",
+    setuptype="HFSSDriven",
+    MultipleAdaptiveFreqsSetup=["9.8GHz", "10.2GHz"],
+    MaximumPasses=5,
+)
 
 setup.create_frequency_sweep(
     unit="GHz",
@@ -206,13 +230,15 @@ plt = solution.plot(solution.expressions)  # Matplotlib axes object.
 #  The following command generates a field plot in HFSS and uses PyVista
 #  to plot the field in Jupyter.
 
-plot = hfss.post.plot_field(quantity="Mag_E",
-                            object_list=["Global:XZ"],
-                            plot_type="CutPlane",
-                            setup_name=hfss.nominal_adaptive,
-                            intrinsics={"Freq": "9.8GHz", "Phase": "0deg"},
-                            export_path=hfss.working_directory,
-                            show=False)
+plot = hfss.post.plot_field(
+    quantity="Mag_E",
+    object_list=["Global:XZ"],
+    plot_type="CutPlane",
+    setup_name=hfss.nominal_adaptive,
+    intrinsics={"Freq": "9.8GHz", "Phase": "0deg"},
+    export_path=hfss.working_directory,
+    show=False,
+)
 
 # ### Save and close the desktop
 #

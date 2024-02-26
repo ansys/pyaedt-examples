@@ -8,8 +8,9 @@
 # Perform required imports and set paths.
 
 import os
-import pyaedt
 import tempfile
+
+import pyaedt
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 netlist = pyaedt.downloads.download_netlist(destination=temp_dir.name)
@@ -20,7 +21,7 @@ netlist = pyaedt.downloads.download_netlist(destination=temp_dir.name)
 
 # ## Set non-graphical mode
 #
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 # The Boolean parameter ``NewThread`` defines whether to create a new instance
 # of AEDT or try to connect to an existing instance of it.

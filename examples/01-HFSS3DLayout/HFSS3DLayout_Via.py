@@ -4,19 +4,22 @@
 
 # Perform required imports.
 
-import pyaedt
 import os
+
+import pyaedt
 
 # ## Set non-graphical mode
 #
-# Set non-graphical mode. 
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = True
 
 # Launch AEDT 2023 R2 in graphical mode.
 
-h3d = pyaedt.Hfss3dLayout(specified_version="2023.2", new_desktop_session=True, non_graphical=non_graphical)
+h3d = pyaedt.Hfss3dLayout(
+    specified_version="2023.2", new_desktop_session=True, non_graphical=non_graphical
+)
 
 # Set up all parametric variables to use in the layout.
 
@@ -29,14 +32,28 @@ h3d["len"] = "50mm"
 # Add stackup layers.
 
 h3d.modeler.layers.add_layer(layername="GND", layertype="signal", thickness="0", isnegative=True)
-h3d.modeler.layers.add_layer(layername="diel", layertype="dielectric", thickness="0.2mm", material="FR4_epoxy")
-h3d.modeler.layers.add_layer(layername="TOP", layertype="signal", thickness="0.035mm", elevation="0.2mm")
+h3d.modeler.layers.add_layer(
+    layername="diel", layertype="dielectric", thickness="0.2mm", material="FR4_epoxy"
+)
+h3d.modeler.layers.add_layer(
+    layername="TOP", layertype="signal", thickness="0.035mm", elevation="0.2mm"
+)
 
 # Create a signal net and ground planes.
 
-h3d.modeler.create_line(layername="TOP", center_line_list=[[0, 0], ["len", 0]], lw="w1", netname="microstrip", name="microstrip")
-h3d.modeler.create_rectangle(layername="TOP", origin=[0, "-w1/2-sp"], dimensions=["len", "-w1/2-sp-20mm"])
-h3d.modeler.create_rectangle(layername="TOP", origin=[0, "w1/2+sp"], dimensions=["len", "w1/2+sp+20mm"])
+h3d.modeler.create_line(
+    layername="TOP",
+    center_line_list=[[0, 0], ["len", 0]],
+    lw="w1",
+    netname="microstrip",
+    name="microstrip",
+)
+h3d.modeler.create_rectangle(
+    layername="TOP", origin=[0, "-w1/2-sp"], dimensions=["len", "-w1/2-sp-20mm"]
+)
+h3d.modeler.create_rectangle(
+    layername="TOP", origin=[0, "w1/2+sp"], dimensions=["len", "w1/2+sp+20mm"]
+)
 
 # Create vias with parametric positions.
 
