@@ -8,7 +8,7 @@ import tempfile
 
 import pyaedt
 
-temp_dir = tempfile.TemporaryDirectory(suffx=".ansys")
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 project_folder = os.path.join(temp_dir.name, "Example")
 if not os.path.exists(project_folder):
     os.makedirs(project_folder)
