@@ -1,10 +1,11 @@
 # # Twin Builder: Static ROM
 #
-# This example shows how you can use PyAEDT to create a static ROM in Twin Builder
-# and run a Twin Builder time-domain simulation.
+# This example shows how to create a static reduced order model (ROM) 
+# in Twin Builder
+# and run a transient simulation.
 #
-# > **Note:** This example uses functionality only
-# > available in Twin Builder 2023 R2 and later.
+# > **Note:** _This example uses functionality only_
+# > _available in Twin Builder 2023 R2 and later._
 
 # ## Perform required imports
 #
@@ -73,14 +74,14 @@ tb = TwinBuilder(projectname=generate_unique_project_name(), specified_version=d
 
 # ## Desktop Configuration
 #
-# > **Note:** Only run following cell if AEDT is not configured to run _"Twin Builder"_.
+# > **Note:** Only run following cell if AEDT is not configured to run "Twin Builder".
 # > 
 # > The following cell configures Electronics Desktop (AEDT) and the schematic editor 
 # > to use the _"Twin Builder"_ confguration.
 # > The Static ROM feature is only available with a Twin Builder license.
 # > A cell at the end of this example restores the AEDT configuration. If your
-# > environment is set up
-# > to use the _"Twin Builder"_ configuration, you do not need to run these sections._
+# > environment is set up_
+# > to use the "Twin Builder" configuration, you do not need to run these sections.
 
 current_desktop_config = tb._odesktop.GetDesktopConfiguration()
 current_schematic_environment = tb._odesktop.GetSchematicEnvironment()
