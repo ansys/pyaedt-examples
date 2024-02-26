@@ -54,13 +54,17 @@ m3d = pyaedt.Maxwell3d(
 # - ``"Number of Windings"``: Number of windings around the core
 # - ``"Layer"``: Number of layers of all windings
 # - ``"Layer Type"``: Whether layers of a winding are linked to each other
-# - ``"Similar Layer"``: Whether layers of a winding have the same number of turns and same spacing between turns
+# - ``"Similar Layer"``: Whether layers of a winding have the same number of turns and
+# same spacing between turns
 # - ``"Mode"``: When there are only two windows, whether they are in common or differential mode
 # - ``"Wire Section"``: Type of wire section and number of segments
 # - ``"Core"``: Design of the core
-# - ``"Outer Winding"``: Design of the first layer or outer layer of a winding and the common parameters for all layers
-# - ``"Mid Winding"``: Turns and turns spacing ("Coil Pit") for the second or mid layer if it is necessary
-# - ``"Inner Winding"``: Turns and turns spacing ("Coil Pit") for the third or inner layer if it is necessary
+# - ``"Outer Winding"``: Design of the first layer or outer layer of a winding and the common
+# parameters for all layers
+# - ``"Mid Winding"``: Turns and turns spacing ("Coil Pit") for the second or mid layer if
+# it is necessary
+# - ``"Inner Winding"``: Turns and turns spacing ("Coil Pit") for the third or inner layer
+# if it is necessary
 # - ``"Occupation(%)"``: An informative parameter that is useless to modify
 #
 # The following parameter values work. You can modify them if you want.
@@ -138,10 +142,12 @@ first_winding_faces = m3d.modeler.get_object_faces(first_winding_list[0].name)
 second_winding_faces = m3d.modeler.get_object_faces(second_winding_list[0].name)
 third_winding_faces = m3d.modeler.get_object_faces(third_winding_list[0].name)
 m3d.assign_current(
-    [first_winding_faces[-1]], amplitude=1000, phase="0deg", swap_direction=False, name="phase_1_in"
+    [first_winding_faces[-1]], amplitude=1000, phase="0deg",
+    swap_direction=False, name="phase_1_in"
 )
 m3d.assign_current(
-    [first_winding_faces[-2]], amplitude=1000, phase="0deg", swap_direction=True, name="phase_1_out"
+    [first_winding_faces[-2]], amplitude=1000, phase="0deg",
+    swap_direction=True, name="phase_1_out"
 )
 m3d.assign_current(
     [second_winding_faces[-1]],
@@ -226,8 +232,8 @@ setup.add_eddy_current_sweep(
 m3d.save_project()
 m3d.modeler.fit_all()
 m3d.plot(
-    show=False, export_path=os.path.join(m3d.working_directory, "Image.jpg"), plot_air_objects=True
-)
+    show=False, export_path=os.path.join(m3d.working_directory, "Image.jpg"),
+    plot_air_objects=True)
 
 # ## Close AEDT
 #

@@ -9,7 +9,6 @@
 # Perform required imports.
 
 import pyaedt
-import tempd
 
 # ## Select version and set launch options
 #

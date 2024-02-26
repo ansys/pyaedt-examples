@@ -1,6 +1,7 @@
 # # HFSS: FSS Unitcell Simulation
 #
-# This example shows how you can use PyAEDT to create a FSS unitcell simulations in HFSS and postprocess results.
+# This example shows how you can use PyAEDT to create a FSS unitcell simulations in
+# HFSS and postprocess results.
 
 # ## Perform required imports
 #
@@ -25,7 +26,8 @@ non_graphical = False
 #
 # Launch AEDT 2023 R2 in graphical mode.
 
-d = pyaedt.launch_desktop("2023.2", non_graphical=non_graphical, new_desktop_session=True)
+d = pyaedt.launch_desktop("2023.2", non_graphical=non_graphical,
+                          new_desktop_session=True)
 
 # ## Launch HFSS
 #

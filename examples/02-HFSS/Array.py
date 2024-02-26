@@ -1,6 +1,7 @@
 # # HFSS: component antenna array
 
-# This example shows how you can use PyAEDT to create an example using a 3D component file. It sets up
+# This example shows how you can use PyAEDT to create an example using a 3D component file. It sets
+# up
 # the analysis, solves it, and uses postprocessing functions to create plots using Matplotlib and
 # PyVista without opening the HFSS user interface. This examples runs only on Windows using CPython.
 

@@ -57,13 +57,17 @@ hfss = pyaedt.Hfss(
 # - ``"Number of Windings"``: Number of windings around the core
 # - ``"Layer"``: Number of layers of all windings
 # - ``"Layer Type"``: Whether layers of a winding are linked to each other
-# - ``"Similar Layer"``: Whether layers of a winding have the same number of turns and same spacing between turns
+# - ``"Similar Layer"``: Whether layers of a winding have the same number of turns and
+# same spacing between turns
 # - ``"Mode"``: When there are only two windows, whether they are in common or differential mode
 # - ``"Wire Section"``: Type of wire section and number of segments
 # - ``"Core"``: Design of the core
-# - ``"Outer Winding"``: Design of the first layer or outer layer of a winding and the common parameters for all layers
-# - ``"Mid Winding"``: Turns and turns spacing ("Coil Pit") for the second or mid layer if it is necessary
-# - ``"Inner Winding"``: Turns and turns spacing ("Coil Pit") for the third or inner layer if it is necessary
+# - ``"Outer Winding"``: Design of the first layer or outer layer of a winding and the common
+# parameters for all layers
+# - ``"Mid Winding"``: Turns and turns spacing ("Coil Pit") for the second or
+# mid layer if it is necessary
+# - ``"Inner Winding"``: Turns and turns spacing ("Coil Pit") for the third or inner
+# layer if it is necessary
 # - ``"Occupation(%)"``: An informative parameter that is useless to modify
 #
 # The following parameter values work. You can modify them if you want.
@@ -171,8 +175,10 @@ for position in port_position_list:
 cylinder_height = 2.5 * dictionary_values[1]["Outer Winding"]["Height"]
 cylinder_position = [0, 0, first_winding_list[1][0][2] - 4]
 mesh_operation_cylinder = hfss.modeler.create_cylinder(
-    "XY", cylinder_position, ground_radius, cylinder_height, numSides=36, name="mesh_cylinder"
+    "XY", cylinder_position, ground_radius, cylinder_height,
+    numSides=36, name="mesh_cylinder",
 )
+
 hfss.mesh.assign_length_mesh(
     [mesh_operation_cylinder], maxlength=15, maxel=None, meshop_name="choke_mesh"
 )
@@ -210,7 +216,8 @@ hfss.create_linear_count_sweep(
 
 hfss.modeler.fit_all()
 hfss.plot(
-    show=False, export_path=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=True
+    show=False, export_path=os.path.join(hfss.working_directory, "Image.jpg"),
+    plot_air_objects=True
 )
 
 

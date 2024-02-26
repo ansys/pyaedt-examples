@@ -1,6 +1,7 @@
 # # Icepak: Creating blocks and assigning materials and power
 
-# This example shows how to create different types of blocks and assign power and material to them using
+# This example shows how to create different types of blocks and assign power
+# and material to them using
 # a *.csv input file
 
 # ## Perform required imports
@@ -43,16 +44,19 @@ ipk.autosave_disable()
 # Create the PCB as a simple block.
 
 board = ipk.modeler.create_box(
-    [-30.48, -27.305, 0], [146.685, 71.755, 0.4064], "board_outline", matname="FR-4_Ref"
+    [-30.48, -27.305, 0], [146.685, 71.755, 0.4064],
+    "board_outline", matname="FR-4_Ref"
 )
 
 # ## Blocks creation with a CSV file
 #
 # The CSV file lists the name of blocks, their type and material properties.
-# Block types (solid, network, hollow), block name, block starting and end points, solid material, and power are listed.
+# Block types (solid, network, hollow), block name, block starting and end points,
+# solid material, and power are listed.
 # Hollow and network blocks do not need the material name.
 # Network blocks must have Rjb and Rjc values.
-# Monitor points can be created for any types of block if the last column is assigned to be 1 (0 and 1 are the only options).
+# Monitor points can be created for any types of block if the last column is assigned
+# to be 1 (0 and 1 are the only options).
 #
 # The following image does not show the entire rows and data and only serves as a sample.
 #
@@ -65,7 +69,8 @@ board = ipk.modeler.create_box(
 # Every row of the csv has information of a particular block.
 
 # +
-filename = pyaedt.downloads.download_file("icepak", "blocks-list.csv", destination=temp_folder)
+filename = pyaedt.downloads.download_file("icepak", "blocks-list.csv",
+                                          destination=temp_folder)
 
 with open(filename, "r") as csv_file:
     csv_reader = csv.DictReader(csv_file)
@@ -103,7 +108,8 @@ with open(filename, "r") as csv_file:
                 boundary_name=block_name,
             )
 
-        # Create temperature monitor points if assigned value is 1 in the last column of the csv file
+        # Create temperature monitor points if assigned value is 1 in the last
+        # column of the csv file
         if row["Monitor_point"] == "1":
             ipk.monitor.assign_point_monitor_in_object(
                 row["name"], monitor_quantity="Temperature", monitor_name=row["name"]

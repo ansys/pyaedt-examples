@@ -163,7 +163,8 @@ ipk.plot(
 # Set up boundaries.
 
 # Mesh settings that is tailored for PCB
-# Max iterations is set to 20 for quick demonstration, please increase to at least 100 for better accuracy.
+# Max iterations is set to 20 for quick demonstration, please increase to at
+# least 100 for better accuracy.
 
 # +
 ipk.globalMeshSettings(

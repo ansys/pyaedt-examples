@@ -60,7 +60,8 @@ defined_ports, project_connexions = edb.cutout_multizone_layout(edb_zones, commo
 
 # ## Circuit
 #
-# Create circuit design, import all sub-project as EM model and connect all corresponding pins in circuit.
+# Create circuit design, import all sub-project as EM model and connect
+# all corresponding pins in circuit.
 
 circuit = Circuit(specified_version=edb_version, projectname=circuit_project_file)
 circuit.connect_circuit_models_from_multi_zone_cutout(

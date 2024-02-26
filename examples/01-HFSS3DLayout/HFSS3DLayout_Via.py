@@ -4,8 +4,6 @@
 
 # Perform required imports.
 
-import os
-
 import pyaedt
 
 # ## Set non-graphical mode

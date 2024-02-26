@@ -22,7 +22,8 @@ non_graphical = False
 # Set local temporary folder to export the .aedt file to.
 
 temp_folder = generate_unique_folder_name()
-aedt_file = downloads.download_file("object_segmentation", "Motor3D_obj_segments.aedt", temp_folder)
+aedt_file = downloads.download_file("object_segmentation",
+                                    "Motor3D_obj_segments.aedt", temp_folder)
 
 # ## Launch Maxwell 3D
 #
@@ -71,7 +72,8 @@ sheets_2 = modeler.objects_segmentation(
 # ## Segment third magnet by specifying the segmentation thickness
 #
 # Select third magnet to segment by specifying the segmentation thickness.
-# In this specific case we give as input the magnet object of type :class:`pyaedt.modeler.cad.object3d.Object3d`.
+# In this specific case we give as input the magnet object
+# of type `pyaedt.modeler.cad.object3d.Object3d`.
 
 segmentation_thickness = 1
 object_name = "PM_O1"

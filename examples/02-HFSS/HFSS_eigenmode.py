@@ -16,9 +16,12 @@
 # is determined manually and simulations re-run until the complete frequency range is covered
 # and all important physical modes are calculated.
 #
-# The following script finds the physical modes of a model in a wide frequency range by automating the solution setup.
-# During each simulation, a user-defined number of modes is simulated, and the modes with a Q higher than a user- defined value are filtered.
-# The next simulation automatically continues to find modes having a frequency higher than the last mode of the previous analysis.
+# The following script finds the physical modes of a model in a wide frequency
+# range by automating the solution setup.
+# During each simulation, a user-defined number of modes is simulated, and the modes
+# with a Q higher than a user- defined value are filtered.
+# The next simulation automatically continues to find modes having a frequency higher
+# than the last mode of the previous analysis.
 # This continues until the maximum frequency in the desired range is achieved.
 
 # ## Perform required imports
@@ -32,7 +35,8 @@ import pyaedt
 # Create a temporary folder to download the example to.
 
 temp_folder = pyaedt.generate_unique_folder_name()
-project_path = pyaedt.downloads.download_file("eigenmode", "emi_PCB_house.aedt", temp_folder)
+project_path = pyaedt.downloads.download_file("eigenmode",
+                                              "emi_PCB_house.aedt", temp_folder)
 
 # ## Launch AEDT
 #
@@ -126,9 +130,12 @@ def find_resonance():
 
 # ## Automate eigenmode solution
 #
-# Running the next cell calls the resonance function and saves only those modes with a Q higher than the defined
-# limit. The ``find_resonance`` function is called until the complete frequency range is covered.
-# When the automation ends, the physical modes in the whole frequency range are reported.
+# Running the next cell calls the resonance function and saves
+# only those modes with a Q higher than the defined
+# limit. The ``find_resonance`` function is called until the complete
+# frequency range is covered.
+# When the automation ends, the physical modes in the whole frequency
+# range are reported.
 
 # +
 while next_fmin < fmax:

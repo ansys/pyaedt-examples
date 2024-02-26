@@ -255,7 +255,9 @@ stator_id = mod2D.create_udp(
 M2D.assign_material(obj=stator_id, mat="30DH_20C_smooth")
 stator_id.name = "Stator"
 stator_id.color = (0, 0, 255)  # rgb
-stator_id.solve_inside = True  # to be reassigned: M2D.assign material puts False if not dielectric
+
+# to be reassigned: M2D.assign material puts False if not dielectric
+stator_id.solve_inside = True
 
 # ## Create geometry for PMs
 #
@@ -303,7 +305,9 @@ def create_cs_magnets(pm_id, cs_name, point_direction):
     edge_len_list = list(
         map(mod2D.get_edge_length, pm_edges)
     )  # apply method get_edge_length to all elements of list pm_edges
-    index_2_longest = find_n_largest(edge_len_list, 2)  # find the 2 longest edges of the PM
+
+    # find the 2 longest edges of the PM
+    index_2_longest = find_n_largest(edge_len_list, 2)
     longest_edge_list = find_elements(pm_edges, index_2_longest)
     edge_center_list = list(
         map(mod2D.get_edge_midpoint, longest_edge_list)
@@ -459,16 +463,18 @@ for item in vacuum_obj_id:
 
 # +
 rotor_id = mod2D.create_circle(
-    position=[0, 0, 0], radius="DiaRotorLam/2", num_sides=0, name="Rotor", matname="30DH_20C_smooth"
-)
+    position=[0, 0, 0], radius="DiaRotorLam/2", num_sides=0, name="Rotor",
+    matname="30DH_20C_smooth")
+
 rotor_id.color = (0, 128, 255)
 mod2D.subtract(rotor_id, shaft_id, keep_originals=True)
 void_small_1_id = mod2D.create_circle(
-    position=[62, 0, 0], radius="2.55mm", num_sides=0, name="void1", matname="vacuum"
-)
+    position=[62, 0, 0], radius="2.55mm", num_sides=0, name="void1", matname="vacuum")
+
 M2D.modeler.duplicate_around_axis(
-    void_small_1_id, cs_axis="Z", angle="360deg/SymmetryFactor", nclones=2, create_new_objects=False
-)
+    void_small_1_id, cs_axis="Z", angle="360deg/SymmetryFactor",
+    nclones=2, create_new_objects=False)
+
 void_big_1_id = mod2D.create_circle(
     position=[29.5643, 12.234389332712, 0],
     radius="9.88mm/2",

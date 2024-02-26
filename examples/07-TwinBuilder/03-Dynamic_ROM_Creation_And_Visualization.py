@@ -20,7 +20,6 @@ from pyaedt import (
     downloads,
     generate_unique_folder_name,
     generate_unique_project_name,
-    settings,
 )
 
 # ## Select version and set launch options

@@ -50,17 +50,21 @@ ipk.autosave_disable()
 #
 # <img src="_static\ldf.png" width="400">
 #
-# Imports the idf files with several filtering options including caps, resistors, inductors, power, size, ...
+# Imports the idf files with several filtering options including caps, resistors,
+# inductors, power, size, ...
 # There are also options for the PCB creation (number o flayers, copper percentages, layer sizes).
 # In this example, the default values are used for the PCB.
-# The imported PCB here will be deleted later and replaced by a PCB that has the trace information for higher accuracy.
+# The imported PCB here will be deleted later and replaced by a PCB that has the trace
+# information for higher accuracy.
 
 # +
 def_path = pyaedt.downloads.download_file(
     "icepak/Icepak_ECAD_Import/A1_uprev.aedb", "edb.def", temp_folder
 )
-board_path = pyaedt.downloads.download_file("icepak/Icepak_ECAD_Import/", "A1.bdf", temp_folder)
-library_path = pyaedt.downloads.download_file("icepak/Icepak_ECAD_Import/", "A1.ldf", temp_folder)
+board_path = pyaedt.downloads.download_file("icepak/Icepak_ECAD_Import/",
+                                            "A1.bdf", temp_folder)
+library_path = pyaedt.downloads.download_file("icepak/Icepak_ECAD_Import/",
+                                              "A1.ldf", temp_folder)
 
 ipk.import_idf(
     board_path,

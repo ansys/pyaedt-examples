@@ -1,6 +1,7 @@
 # # General: optimetrics setup
 #
-# This example shows how you can use PyAEDT to create a project in HFSS and create all optimetrics setups.
+# This example shows how you can use PyAEDT to create a project in HFSS and create all optimetrics
+# setups.
 
 
 # ## Perform required imports

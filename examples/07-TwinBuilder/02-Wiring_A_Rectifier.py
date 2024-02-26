@@ -125,7 +125,8 @@ tb.modeler.schematic.create_wire(points_array=[gnd.pins[0].location, [5 * G, 0],
 # Zoom to fit the schematic
 tb.modeler.zoom_to_fit()
 
-# The circuit schematic will now be visible in the Twin Builder schematic editor and should look like
+# The circuit schematic will now be visible in the Twin Builder
+# schematic editor and should look like
 # the image shown at the beginning of the example.
 #
 # ## Run the Simulation

@@ -6,7 +6,8 @@
 #  - Set up the entire simulation.
 #  - Link the solution to a Simplorer design.
 #
-# For cable information, see `4 Core Armoured Power Cable <https://www.luxingcable.com/low-voltage-cables/4-core-armoured-power-cable.html>`_
+# For cable information, see `4 Core Armoured Power Cable
+# <https://www.luxingcable.com/low-voltage-cables/4-core-armoured-power-cable.html>`_
 
 # ## Perform required imports
 #
@@ -102,7 +103,8 @@ mod2D.model_units = "mm"
 
 # ## Initialize required material properties
 #
-# Cable insulators require the definition of specific materials since they are not included in the Sys Library.
+# Cable insulators require the definition of specific materials since they are not
+# included in the Sys Library.
 # Plastic, PE (cross-linked, wire, and cable grade)
 
 mat_pe_cable_grade = q2d.materials.add_material("plastic_pe_cable_grade")

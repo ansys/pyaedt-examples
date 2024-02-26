@@ -9,7 +9,7 @@
 
 import os
 
-from pyaedt import Icepak, downloads, generate_unique_folder_name, settings
+from pyaedt import Icepak, downloads, generate_unique_folder_name
 
 # Download needed files
 
@@ -41,7 +41,8 @@ ipk = Icepak(
     new_desktop_session=True,
 )
 
-# Remove air region created by default because it is not needed as the heatsink will be exported as a 3DComponent.
+# Remove air region created by default because it is not needed as the heatsink will
+# be exported as a 3DComponent.
 
 ipk.modeler.get_object_from_name("Region").delete()
 
@@ -92,7 +93,8 @@ ipk.monitor.assign_point_monitor_in_object(
 )
 # -
 
-# Export the heatsink 3D component and close project. auxiliary_dict is set to true in order to export the
+# Export the heatsink 3D component and close project. auxiliary_dict is set to true in
+# to export the
 # monitor objects along with the .a3dcomp file.
 
 os.mkdir(os.path.join(temp_folder, "componentLibrary"))
@@ -153,7 +155,8 @@ ipk.monitor.assign_surface_monitor(
     "Die_Attach", monitor_quantity="Temperature", monitor_name="DieAttach"
 )
 
-# Export the QFP 3D component and close project. Here the auxiliary dictionary allows exporting not only the monitor
+# Export the QFP 3D component and close project. Here the auxiliary dictionary
+# allows exporting not only the monitor
 # objects but also the dataset used for the power source assignment.
 
 ipk.modeler.create_3dcomponent(
@@ -172,8 +175,10 @@ ipk = Icepak(
 )
 ipk.plot(show=False, export_path=os.path.join(temp_folder, "electronic_package_missing_obj.jpg"))
 
-# The heatsink and the QFP are missing. They can be inserted as 3d components. The auxiliary files are needed since
-# the aim is to import also monitor objects and datasets. Also, a coordinate system is created for the heatsink so
+# The heatsink and the QFP are missing. They can be inserted as 3d components.
+# The auxiliary files are needed since
+# the aim is to import also monitor objects and datasets. Also, a coordinate system
+# is created for the heatsink so
 # that it is placed on top of the AGP.
 
 # +
@@ -210,8 +215,10 @@ cs_pcb_assembly = ipk.modeler.create_coordinate_system(
     y_pointing=[0, 1, 0],
 )
 
-# Export of the whole assembly as 3d component and close project. First, a flattening is needed because nested 3d
-# components are not natively supported. Then it is possible to export the whole package as 3d component. Here the
+# Export of the whole assembly as 3d component and close project. First, a flattening
+# is needed because nested 3d
+# components are not natively supported. Then it is possible to export the whole
+# package as 3d component. Here the
 # auxiliary dictionary is needed to export monitor objects, datasets and native components.
 
 # +

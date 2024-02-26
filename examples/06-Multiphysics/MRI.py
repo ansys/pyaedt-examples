@@ -5,7 +5,8 @@
 #
 # Steps to follow
 # Step 1: Simulate coil loaded by empty phantom:
-# Scale input to coil ports to produce desired background SAR of 1 W/kg at location that will later contain the implant.
+# Scale input to coil ports to produce desired background SAR of 1 W/kg at location
+# that will later contain the implant.
 # Step 2: Simulate coil loaded by phantom containing implant in proper location:
 # View SAR in tissue surrounding implant.
 # Step 3: Thermal simulation:
@@ -54,7 +55,8 @@ hfss.modeler.insert_3d_component(os.path.join(project_path, "coil.a3dcomp"))
 
 # ## Expression Cache
 #
-#  On the expression cache tab, define additional convergence criteria for self impedance of the four coil
+#  On the expression cache tab, define additional convergence criteria for self
+#  impedance of the four coil
 # ports
 # ‒ Set each of these convergence criteria to 2.5 ohm
 # For this demo number of passes is limited to 2 to reduce simulation time.

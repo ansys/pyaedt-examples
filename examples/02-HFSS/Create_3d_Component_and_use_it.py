@@ -1,7 +1,8 @@
 # # Create a 3D Component and reuse it
 
 # Summary of the workflow
-# 1. Create an antenna using PyAEDT and HFSS 3D Modeler (same can be done with EDB and HFSS 3D Layout)
+# 1. Create an antenna using PyAEDT and HFSS 3D Modeler (same can be done with EDB and
+# HFSS 3D Layout)
 # 2. Store the object as a 3D Component on the disk
 # 3. Reuse the 3D component in another project
 # 4. Parametrize and optimize target design
@@ -38,7 +39,8 @@ hfss["width"] = "1mm"
 
 # +
 substrate = hfss.modeler.create_box(
-    ["-width", "-width", "-thick"], ["2*width", "2*width", "thick"], matname="FR4_epoxy", name="sub"
+    ["-width", "-width", "-thick"],
+    ["2*width", "2*width", "thick"], matname="FR4_epoxy", name="sub"
 )
 
 patch = hfss.modeler.create_rectangle(
@@ -46,7 +48,9 @@ patch = hfss.modeler.create_rectangle(
 )
 
 via1 = hfss.modeler.create_cylinder(
-    2, ["-width/8", "-width/4", "-thick"], "0.01mm", "thick", matname="copper", name="via_inner"
+    cs_axis=2,
+    postion=["-width/8", "-width/4", "-thick"],
+    "0.01mm", "thick", matname="copper", name="via_inner"
 )
 
 via_outer = hfss.modeler.create_cylinder(
@@ -69,7 +73,8 @@ hfss.assign_perfecte_to_sheets(patch)
 
 # ## Advanced Modeler functions
 #
-# Thanks to Python capabilities a lot of additional functionalities have been added to the modeler of PyAEDT.
+# Thanks to Python capabilities a lot of additional functionalities
+# have been added to the modeler of PyAEDT.
 # In this example there is a property to retrieve automatically top and bottom faces of an objects.
 
 # +
@@ -157,7 +162,9 @@ optim = hfss2.parametrics.add("p_thick", "0.2mm", "1.5mm", step=14)
 
 hfss2.modeler.fit_all()
 hfss2.plot(
-    show=False, export_path=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=True
+    show=False,
+    export_path=os.path.join(hfss.working_directory, "Image.jpg"),
+    plot_air_objects=True,
 )
 
 # ## Close AEDT

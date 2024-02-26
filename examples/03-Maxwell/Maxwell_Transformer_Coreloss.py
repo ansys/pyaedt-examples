@@ -35,7 +35,8 @@ freq_curve_csv_400kHz = downloads.download_file(
 freq_curve_csv_700kHz = downloads.download_file(
     "core_loss_transformer", "mf3_700kHz.csv", temp_folder
 )
-freq_curve_csv_1MHz = downloads.download_file("core_loss_transformer", "mf3_1MHz.csv", temp_folder)
+freq_curve_csv_1MHz = downloads.download_file("core_loss_transformer",
+                                              "mf3_1MHz.csv", temp_folder)
 
 data = read_csv_pandas(filename=freq_curve_csv_25kHz)
 curves_csv_25kHz = list(zip(data[data.columns[0]], data[data.columns[1]]))
@@ -65,7 +66,8 @@ m3d = Maxwell3d(
 
 # ## Set core loss at frequencies
 #
-# Create a new material, create a dictionary of Power-Volume [kw/m^3] points for a set of frequencies
+# Create a new material, create a dictionary of Power-Volume [kw/m^3] points
+# for a set of frequencies
 # retrieved from datasheet provided by supplier and finally set Power-Ferrite core loss model.
 
 mat = m3d.materials.add_material("newmat")
