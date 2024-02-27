@@ -31,3 +31,7 @@ nav.bd-links ul li.toctree-l4 > a {
     font-size: .8rem;
     text-indent: 3px;
 }
+
+div.cell_output {
+    text-align: left !important;
+}
