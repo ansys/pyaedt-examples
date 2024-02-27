@@ -35,3 +35,7 @@ nav.bd-links ul li.toctree-l4 > a {
 div.cell_output {
     text-align: left !important;
 }
+
+div.nbinput.container div.input_area, div.nboutput.container div.output_area {
+    display: block;
+}
