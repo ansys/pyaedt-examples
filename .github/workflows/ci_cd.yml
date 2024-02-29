@@ -15,7 +15,7 @@ env:
   MAIN_PYTHON_VERSION: '3.10'
   # Some versions are not available in windows, so we need to specify which one to use on windows self-hosted runners
   # see (https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json)
-  MAIN_PYTHON_VERSION_WINDOWS: '3.10.11'
+  MAIN_PYTHON_VERSION_WINDOWS: '3.10.8'
   PACKAGE_NAME: 'pyaedt-examples'
 
 concurrency:
