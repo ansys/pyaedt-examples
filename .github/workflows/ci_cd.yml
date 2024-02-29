@@ -13,8 +13,6 @@ on:
 
 env:
   MAIN_PYTHON_VERSION: '3.10'
-  # TODO: For some reasons, 3.10 and 3.11 are not working. We should be aligned with the main python version.
-  MAIN_PYTHON_VERSION_WINDOWS: '3.9'
   PACKAGE_NAME: 'pyaedt-examples'
 
 concurrency:
@@ -85,9 +83,10 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Set up Python ${{ env.MAIN_PYTHON_VERSION_WINDOWS }}
-        uses: actions/setup-python@v5
+        uses: ansys/actions/_setup-python@v5
         with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION_WINDOWS }}
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          use-cache: false
 
       - name: Create virtual environment
         run: |
