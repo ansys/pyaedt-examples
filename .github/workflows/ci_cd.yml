@@ -13,6 +13,9 @@ on:
 
 env:
   MAIN_PYTHON_VERSION: '3.10'
+  # Some versions are not available in windows, so we need to specify which one to use on windows self-hosted runners
+  # see (https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json)
+  MAIN_PYTHON_VERSION_WINDOWS: '3.10.11'
   PACKAGE_NAME: 'pyaedt-examples'
 
 concurrency:
@@ -82,10 +85,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python ${{ env.MAIN_PYTHON_VERSION }}
+      - name: Set up Python ${{ env.MAIN_PYTHON_VERSION_WINDOWS }}
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          python-version: ${{ env.MAIN_PYTHON_VERSION_WINDOWS }}
 
       - name: Create virtual environment
         run: |
