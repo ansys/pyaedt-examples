@@ -78,7 +78,7 @@ jobs:
 
   doc-build:
     name: Build documentation
-    runs-on: [pyaedt, Windows]
+    runs-on: [self-hosted, Windows, pyaedt-examples]
     steps:
       - uses: actions/checkout@v4
 
