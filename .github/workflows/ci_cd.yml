@@ -78,14 +78,15 @@ jobs:
 
   doc-build:
     name: Build documentation
-    runs-on: [pyaedt, Windows]
+    runs-on: [self-hosted, Windows, pyaedt-examples]
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python ${{ env.MAIN_PYTHON_VERSION }}
-        uses: actions/setup-python@v5
+      - name: Set up Python ${{ env.MAIN_PYTHON_VERSION_WINDOWS }}
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          use-cache: false
 
       - name: Create virtual environment
         run: |
