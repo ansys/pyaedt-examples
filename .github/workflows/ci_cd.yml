@@ -14,6 +14,7 @@ on:
 env:
   MAIN_PYTHON_VERSION: '3.10'
   PACKAGE_NAME: 'pyaedt-examples'
+  ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
