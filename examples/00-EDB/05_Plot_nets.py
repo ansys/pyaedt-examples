@@ -29,7 +29,7 @@ targetfolder = pyedb.misc.downloads.download_file(
 # > Note that units are SI.
 
 # +
-# Select EDB version (change it manually if needed, e.g. "2023.2")
+# Select EDB version (change it manually if needed, e.g. "2024.1")
 edb_version = EDB_VERSION
 print(f"EDB version: {edb_version}")
 

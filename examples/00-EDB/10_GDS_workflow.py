@@ -93,7 +93,7 @@ c.write_xml(os.path.join(temp_dir.name, "output.xml"))
 # Import the gds and open the edb.
 
 # +
-# Select EDB version (change it manually if needed, e.g. "2023.2")
+# Select EDB version (change it manually if needed, e.g. "2024.1")
 edb_version = EDB_VERSION
 print(f"EDB version: {edb_version}")
 

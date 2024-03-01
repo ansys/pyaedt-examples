@@ -31,7 +31,7 @@ print("Project folder is", target_aedb)
 # Launch the ``pyedb.Edb`` class using EDB 2023 R2. Length units are SI.
 
 # +
-# Select EDB version (change it manually if needed, e.g. "2023.2")
+# Select EDB version (change it manually if needed, e.g. "2024.1")
 edb_version = EDB_VERSION
 print(f"EDB version: {edb_version}")
 
@@ -189,7 +189,7 @@ edbapp.close_edb()
 # Set ``non_graphical=True`` to run the simulation in non-graphical mode.
 
 h3d = pyaedt.Hfss3dLayout(
-    specified_version="2023.2",
+    specified_version="2024.1",
     projectname=target_aedb,
     non_graphical=False,
     new_desktop_session=False,

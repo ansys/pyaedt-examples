@@ -22,8 +22,8 @@
 """Constants used in PyAEDT examples.
 """
 
-AEDT_VERSION = "2023.2"
-EDB_VERSION = "2023.2"
+AEDT_VERSION = "2024.1"
+EDB_VERSION = "2024.1"
 
 HEADER = """# Copyright (C) 2024 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT

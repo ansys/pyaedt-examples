@@ -38,7 +38,7 @@ from pyedb import Edb
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 aedb_path = os.path.join(temp_dir.name, "component_example.aedb")
 
-# Select EDB version (change it manually if needed, e.g. "2023.2")
+# Select EDB version (change it manually if needed, e.g. "2024.1")
 edb_version = EDB_VERSION
 print(f"EDB version: {edb_version}")
 
@@ -227,7 +227,7 @@ edb.build_simulation_project(sim_setup)
 edb.save_edb()
 edb.close_edb()
 h3d = pyaedt.Hfss3dLayout(
-    specified_version="2023.2",
+    specified_version="2024.1",
     projectname=aedb_path,
     non_graphical=False,  # Set non_graphical = False to launch AEDT in graphical mode.
     new_desktop_session=True,

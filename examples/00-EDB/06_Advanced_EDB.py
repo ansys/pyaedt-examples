@@ -37,7 +37,7 @@ def create_ground_planes(edb, layers):
 # If the path doesn't exist, PyEDB automatically generates a new AEDB folder.
 
 # +
-# Select EDB version (change it manually if needed, e.g. "2023.2")
+# Select EDB version (change it manually if needed, e.g. "2024.1")
 edb_version = EDB_VERSION
 print(f"EDB version: {edb_version}")
 

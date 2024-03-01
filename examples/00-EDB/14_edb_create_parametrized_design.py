@@ -24,7 +24,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 target_aedb = pyedb.misc.downloads.download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
 print("Project is located in ", target_aedb)
 
-# Select EDB version (change it manually if needed, e.g. "2023.2")
+# Select EDB version (change it manually if needed, e.g. "2024.1")
 edb_version = EDB_VERSION
 print(f"EDB version: {edb_version}")
 

@@ -37,7 +37,7 @@ print(edb_full_path)
 # Create an instance of the ``pyedb.Edb`` class.
 
 # +
-# Select EDB version (change it manually if needed, e.g. "2023.2")
+# Select EDB version (change it manually if needed, e.g. "2024.1")
 edb_version = EDB_VERSION
 print(f"EDB version: {edb_version}")
 
@@ -145,7 +145,7 @@ edbapp.close_edb()
 
 h3d = pyaedt.Hfss3dLayout(
     edb_full_path,
-    specified_version="2023.2",
+    specified_version="2024.1",
     non_graphical=False,  # Set to true for non-graphical mode.
     new_desktop_session=True,
 )
