@@ -22,7 +22,7 @@ EXPECTED_RESULT = f"""# ## {EXAMPLE_TITLE}
 
 {EDB_TMP_DIR}
 
-# ## Create an instance of the Electronics Database using the `pyaedt.Edb` class.
+# ## Create an instance of the Electronics Database using the `pyedb.Edb` class.
 #
 # > Note that units are SI.
 
