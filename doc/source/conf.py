@@ -204,7 +204,13 @@ def check_example_error(app, pagename, templatename, context, doctree):
         if any(
             map(
                 lambda msg: msg in context["body"],
-                ["UsageError", "NameError", "DeadKernelError", "NotebookError"],
+                [
+                    "UsageError",
+                    "NameError",
+                    "DeadKernelError",
+                    "NotebookError",
+                    "CellExecutionError",
+                ],
             )
         ):
             logger.error(f"An error was detected in file {pagename}")
