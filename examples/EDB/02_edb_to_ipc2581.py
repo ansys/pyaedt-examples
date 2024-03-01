@@ -10,6 +10,7 @@ import tempfile
 
 from ansys.pyaedt.examples.constants import EDB_VERSION
 import pyedb
+from pyedb.generic.general_methods import generate_unique_name
 from pyedb.misc.downloads import download_file
 
 # -
@@ -37,7 +38,7 @@ edb = pyedb.Edb(edbpath=targetfile, edbversion=edb_version)
 # ## Parametrize the width of a trace.
 
 edb.modeler.parametrize_trace_width(
-    "A0_N", parameter_name=pyedb.generate_unique_name("Par"), variable_value="0.4321mm"
+    "A0_N", parameter_name=generate_unique_name("Par"), variable_value="0.4321mm"
 )
 
 # ## Create a cutout and plot it.

@@ -15,6 +15,7 @@ from ansys.pyaedt.examples.constants import AEDT_VERSION, EDB_VERSION
 import numpy as np
 import pyaedt
 import pyedb
+from pyedb.generic.general_methods import generate_unique_folder_name, generate_unique_name
 
 # ## Set non-graphical mode
 
@@ -25,9 +26,7 @@ non_graphical = False
 # ## Launch EDB
 
 # +
-aedb_path = os.path.join(
-    pyedb.generate_unique_folder_name(), pyedb.generate_unique_name("pcb") + ".aedb"
-)
+aedb_path = os.path.join(generate_unique_folder_name(), generate_unique_name("pcb") + ".aedb")
 print(aedb_path)
 
 # Select EDB version (change it manually if needed, e.g. "2024.1")
