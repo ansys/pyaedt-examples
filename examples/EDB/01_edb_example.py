@@ -11,9 +11,10 @@ import time
 
 from ansys.pyaedt.examples.constants import EDB_VERSION
 import pyedb
+from pyedb.misc.downloads import download_file
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-targetfile = pyedb.misc.downloads.download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
+targetfile = download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
 
 siwave_file = os.path.join(os.path.dirname(targetfile), "ANSYS-HSD_V1.siw")
 print(targetfile)
