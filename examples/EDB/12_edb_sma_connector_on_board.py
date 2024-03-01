@@ -22,6 +22,7 @@ from ansys.pyaedt.examples.constants import EDB_VERSION
 import numpy as np
 import pyaedt
 import pyedb
+from pyedb.misc.downloads import download_file
 
 # Create the EDB.
 
@@ -190,7 +191,7 @@ h3d = pyaedt.Hfss3dLayout(aedb_path, specified_version=edb_version, new_desktop_
 
 # Place a 3D component.
 
-full_comp_name = pyedb.misc.downloads.download_file(
+full_comp_name = download_file(
     "component_3d", filename="SMA_RF_SURFACE_MOUNT.a3dcomp", destination=working_folder
 )
 comp = h3d.modeler.place_3d_component(

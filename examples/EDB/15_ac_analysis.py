@@ -17,6 +17,7 @@ import time
 from ansys.pyaedt.examples.constants import EDB_VERSION
 import pyaedt
 import pyedb
+from pyedb.misc.downloads import download_file
 
 # ### Download file
 #
@@ -24,9 +25,7 @@ import pyedb
 
 # +
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-edb_full_path = pyedb.misc.downloads.download_file(
-    "edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name
-)
+edb_full_path = download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
 time.sleep(5)
 
 print(edb_full_path)

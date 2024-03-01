@@ -16,12 +16,13 @@ import tempfile
 
 from ansys.pyaedt.examples.constants import EDB_VERSION
 import pyedb
+from pyedb.misc.downloads import download_file
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # Download and open example layout file in edb format.
 
-edb_path = pyedb.misc.downloads.download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
+edb_path = download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
 
 # Select EDB version (change it manually if needed, e.g. "2024.1")
 edb_version = EDB_VERSION

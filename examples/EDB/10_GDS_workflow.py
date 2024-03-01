@@ -13,6 +13,7 @@ import tempfile
 from ansys.pyaedt.examples.constants import EDB_VERSION
 import pyedb
 from pyedb.dotnet.edb_core.edb_data.control_file import ControlFile
+from pyedb.misc.downloads import download_file
 
 # -
 
@@ -32,7 +33,7 @@ control_fn = "sky130_fictitious_dtc_example_control_no_map.xml"
 gds_fn = "sky130_fictitious_dtc_example.gds"
 layer_map = "dummy_layermap.map"
 
-local_path = pyedb.misc.downloads.download_file("gds", destination=temp_dir.name)
+local_path = download_file("gds", destination=temp_dir.name)
 c_file_in = os.path.join(local_path, control_fn)
 c_map = os.path.join(local_path, layer_map)
 gds_in = os.path.join(local_path, gds_fn)

@@ -10,13 +10,14 @@ import tempfile
 
 from ansys.pyaedt.examples.constants import EDB_VERSION
 import pyedb
+from pyedb.misc.downloads import download_file
 
 # -
 
 # ## Download the AEDB file and copy it in the temporary folder.
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-targetfile = pyedb.misc.downloads.download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
+targetfile = download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
 ipc2581_file_name = os.path.join(temp_dir.name, "Ansys_Hsd.xml")
 print(targetfile)
 

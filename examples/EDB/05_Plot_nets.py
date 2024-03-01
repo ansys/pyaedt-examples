@@ -14,15 +14,14 @@ import tempfile
 
 from ansys.pyaedt.examples.constants import EDB_VERSION
 import pyedb
+from pyedb.misc.downloads import download_file
 
 # -
 
 # ## Download the EDB and copy it into the temporary folder.
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-targetfolder = pyedb.misc.downloads.download_file(
-    "edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name
-)
+targetfolder = download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
 
 # ## Create an instance of the Electronics Database using the `pyedb.Edb` class.
 #
