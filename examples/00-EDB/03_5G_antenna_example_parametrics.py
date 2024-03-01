@@ -14,6 +14,7 @@ import tempfile
 
 from ansys.pyaedt.examples.constants import EDB_VERSION
 import pyaedt
+import pyedb
 
 # -
 
@@ -79,7 +80,7 @@ class LinearArray:
 
 # ## Launch EDB
 #
-# PyAEDT.Edb allows to open existing Edb project or create a new empty project.
+# PyEDB.Edb allows to open existing Edb project or create a new empty project.
 
 # +
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
@@ -90,7 +91,7 @@ edb_version = EDB_VERSION
 print(f"EDB version: {edb_version}")
 
 # Create an instance of the Edb class.
-edb = pyaedt.Edb(edbpath=aedb_path, edbversion=edb_version)
+edb = pyedb.Edb(edbpath=aedb_path, edbversion=edb_version)
 # -
 
 # Add stackup layers

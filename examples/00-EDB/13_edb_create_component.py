@@ -33,7 +33,7 @@ import tempfile
 
 from ansys.pyaedt.examples.constants import EDB_VERSION
 import pyaedt
-from pyaedt import Edb
+from pyedb import Edb
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 aedb_path = os.path.join(temp_dir.name, "component_example.aedb")

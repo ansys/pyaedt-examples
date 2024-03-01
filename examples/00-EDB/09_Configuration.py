@@ -16,25 +16,26 @@ import tempfile
 
 from ansys.pyaedt.examples.constants import EDB_VERSION
 import pyaedt
+import pyedb
 
 # -
 
 # Download the AEDB file and copy it to a temporary folder.
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-target_aedb = pyaedt.downloads.download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
+target_aedb = pyedb.misc.downloads.download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
 print("Project folder is", target_aedb)
 
 # ## Launch EDB
 #
-# Launch the ``pyaedt.Edb`` class using EDB 2023 R2. Length units are SI.
+# Launch the ``pyedb.Edb`` class using EDB 2023 R2. Length units are SI.
 
 # +
 # Select EDB version (change it manually if needed, e.g. "2023.2")
 edb_version = EDB_VERSION
 print(f"EDB version: {edb_version}")
 
-edbapp = pyaedt.Edb(target_aedb, edbversion=edb_version)
+edbapp = pyedb.Edb(target_aedb, edbversion=edb_version)
 # -
 
 # ## Import definitions

@@ -9,20 +9,20 @@ import os
 import tempfile
 
 from ansys.pyaedt.examples.constants import EDB_VERSION
-import pyaedt
+import pyedb
 
 # -
 
 # ## Download the AEDB file and copy it in the temporary folder.
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-targetfile = pyaedt.downloads.download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
+targetfile = pyedb.misc.downloads.download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
 ipc2581_file_name = os.path.join(temp_dir.name, "Ansys_Hsd.xml")
 print(targetfile)
 
 # ## Launch EDB
 #
-# Launch the `pyaedt.Edb` class, using EDB 2023.
+# Launch the `pyedb.Edb` class, using EDB 2023.
 # > Note that length dimensions passed to EDB are in SI units.
 
 # +
@@ -30,13 +30,13 @@ print(targetfile)
 edb_version = EDB_VERSION
 print(f"EDB version: {edb_version}")
 
-edb = pyaedt.Edb(edbpath=targetfile, edbversion=edb_version)
+edb = pyedb.Edb(edbpath=targetfile, edbversion=edb_version)
 # -
 
 # ## Parametrize the width of a trace.
 
 edb.modeler.parametrize_trace_width(
-    "A0_N", parameter_name=pyaedt.generate_unique_name("Par"), variable_value="0.4321mm"
+    "A0_N", parameter_name=pyedb.generate_unique_name("Par"), variable_value="0.4321mm"
 )
 
 # ## Create a cutout and plot it.

@@ -15,19 +15,19 @@ import os
 import tempfile
 
 from ansys.pyaedt.examples.constants import EDB_VERSION
-import pyaedt
+import pyedb
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # Download and open example layout file in edb format.
 
-edb_path = pyaedt.downloads.download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
+edb_path = pyedb.misc.downloads.download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
 
 # Select EDB version (change it manually if needed, e.g. "2023.2")
 edb_version = EDB_VERSION
 print(f"EDB version: {edb_version}")
 
-edb = pyaedt.Edb(edb_path, edbversion=edb_version)
+edb = pyedb.Edb(edb_path, edbversion=edb_version)
 # -
 
 # ## Create cutout

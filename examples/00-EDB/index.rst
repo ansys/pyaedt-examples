@@ -3,7 +3,7 @@
 EDB examples
 ~~~~~~~~~~~~
 
-These examples use EDB (Electronics Database) with PyAEDT.
+These examples use EDB (Electronics Database) with PyEDB and PyAEDT.
 EDB is a flexible API that provides efficient control of PCB data.
 The EDB can be used standalone or in combination with the
 electronics desktop user interface.

@@ -21,6 +21,7 @@ import tempfile
 from ansys.pyaedt.examples.constants import EDB_VERSION
 import numpy as np
 import pyaedt
+import pyedb
 
 # Create the EDB.
 
@@ -35,7 +36,7 @@ print(f"EDB version: {edb_version}")
 aedb_path = os.path.join(working_folder, "pcb.aedb")
 print("AEDB file is located in {}".format(aedb_path))
 
-edb = pyaedt.Edb(edbpath=aedb_path, edbversion=edb_version)
+edb = pyedb.Edb(edbpath=aedb_path, edbversion=edb_version)
 # -
 
 # Add the FR4 dielectric for the PCB.
@@ -189,7 +190,7 @@ h3d = pyaedt.Hfss3dLayout(aedb_path, specified_version=edb_version, new_desktop_
 
 # Place a 3D component.
 
-full_comp_name = pyaedt.downloads.download_file(
+full_comp_name = pyedb.misc.downloads.download_file(
     "component_3d", filename="SMA_RF_SURFACE_MOUNT.a3dcomp", destination=working_folder
 )
 comp = h3d.modeler.place_3d_component(

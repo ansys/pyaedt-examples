@@ -58,7 +58,7 @@ import os
 import tempfile
 
 from ansys.pyaedt.examples.constants import EDB_VERSION
-from pyaedt import Edb
+from pyedb import Edb
 # -"""
 
 EDB_TMP_DIR = r"""# Create and return a temporary directory
