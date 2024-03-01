@@ -11,8 +11,8 @@ import shutil
 import tempfile
 
 from ansys.pyaedt.examples.constants import EDB_VERSION
-from pyaedt.edb_core.edb_data.control_file import ControlFile
 import pyedb
+from pyedb.dotnet.edb_core.edb_data.control_file import ControlFile
 
 # -
 
