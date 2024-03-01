@@ -24,7 +24,7 @@ targetfolder = pyedb.misc.downloads.download_file(
     "edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name
 )
 
-# ## Create an instance of the Electronics Database using the `pyaedt.Edb` class.
+# ## Create an instance of the Electronics Database using the `pyedb.Edb` class.
 #
 # > Note that units are SI.
 
