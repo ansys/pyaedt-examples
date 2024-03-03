@@ -77,7 +77,7 @@ def remove_doctree(app, exception):
 
     # Keep the doctree to avoid creating it twice. This is typically helpful in CI/CD
     # where we want to build both HTML and PDF pages.
-    if bool(os.getenv("SPHINXBUILD_KEEP_DOCTREEDIR", False)):
+    if bool(int(os.getenv("SPHINXBUILD_KEEP_DOCTREEDIR", "0"))):
         logger.info(f"Keeping directory {app.doctreedir}.")
     else:
         size = directory_size(app.doctreedir)

@@ -80,6 +80,8 @@ jobs:
   doc-build:
     name: Build documentation
     runs-on: [self-hosted, Windows, pyaedt-examples]
+    env:
+      SPHINXBUILD_KEEP_DOCTREEDIR: "1"
     steps:
       - uses: actions/checkout@v4
 
@@ -116,7 +118,6 @@ jobs:
       # Use environment variable to keep the doctree and avoid redundant build for PDF pages
       - name: Create HTML documentation
         run: |
-          echo "SPHINXBUILD_KEEP_DOCTREEDIR=1" >> $GITHUB_ENV
           .venv\Scripts\Activate.ps1
           . .\doc\make.bat html
 
