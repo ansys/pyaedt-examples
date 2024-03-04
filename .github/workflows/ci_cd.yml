@@ -128,6 +128,10 @@ jobs:
           path: doc/_build/html
           retention-days: 7
 
+      - name: Update environment variable
+        run: |
+          echo "SPHINXBUILD_KEEP_DOCTREEDIR=0" >> $GITHUB_ENV
+
       # Use environment variable to remove the doctree after the build of PDF pages
       # Keeping doctree could cause an issue, see https://github.com/ansys/pyaedt/pull/3844/files
       - name: Create PDF documentation
