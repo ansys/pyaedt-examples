@@ -22,8 +22,8 @@
 """Constants used in PyAEDT examples.
 """
 
-AEDT_VERSION = "2023.2"
-EDB_VERSION = "2023.2"
+AEDT_VERSION = "2024.1"
+EDB_VERSION = "2024.1"
 
 HEADER = """# Copyright (C) 2024 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
@@ -58,7 +58,7 @@ import os
 import tempfile
 
 from ansys.pyaedt.examples.constants import EDB_VERSION
-from pyaedt import Edb
+from pyedb import Edb
 # -"""
 
 EDB_TMP_DIR = r"""# Create and return a temporary directory

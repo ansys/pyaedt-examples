@@ -16,6 +16,8 @@ import time
 
 from ansys.pyaedt.examples.constants import EDB_VERSION
 import pyaedt
+import pyedb
+from pyedb.misc.downloads import download_file
 
 # ### Download file
 #
@@ -23,7 +25,7 @@ import pyaedt
 
 # +
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-edb_full_path = pyaedt.downloads.download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
+edb_full_path = download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
 time.sleep(5)
 
 print(edb_full_path)
@@ -31,14 +33,14 @@ print(edb_full_path)
 
 # ### Configure EDB
 #
-# Create an instance of the ``pyaedt.Edb`` class.
+# Create an instance of the ``pyedb.Edb`` class.
 
 # +
-# Select EDB version (change it manually if needed, e.g. "2023.2")
+# Select EDB version (change it manually if needed, e.g. "2024.1")
 edb_version = EDB_VERSION
 print(f"EDB version: {edb_version}")
 
-edbapp = pyaedt.Edb(edbpath=edb_full_path, edbversion=edb_version)
+edbapp = pyedb.Edb(edbpath=edb_full_path, edbversion=edb_version)
 # -
 
 # ### Generate extended nets
@@ -142,7 +144,7 @@ edbapp.close_edb()
 
 h3d = pyaedt.Hfss3dLayout(
     edb_full_path,
-    specified_version="2023.2",
+    specified_version="2024.1",
     non_graphical=False,  # Set to true for non-graphical mode.
     new_desktop_session=True,
 )

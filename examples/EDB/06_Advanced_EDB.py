@@ -10,7 +10,7 @@ import tempfile
 
 from ansys.pyaedt.examples.constants import EDB_VERSION
 import numpy as np
-import pyaedt
+import pyedb
 
 # Create the EDB project.
 
@@ -34,14 +34,14 @@ def create_ground_planes(edb, layers):
 # ## Create the EDB
 #
 # Create the EDB instance.
-# If the path doesn't exist, PyAEDT automatically generates a new AEDB folder.
+# If the path doesn't exist, PyEDB automatically generates a new AEDB folder.
 
 # +
-# Select EDB version (change it manually if needed, e.g. "2023.2")
+# Select EDB version (change it manually if needed, e.g. "2024.1")
 edb_version = EDB_VERSION
 print(f"EDB version: {edb_version}")
 
-edb = pyaedt.Edb(edbpath=aedb_path, edbversion=edb_version)
+edb = pyedb.Edb(edbpath=aedb_path, edbversion=edb_version)
 # -
 
 # Insert the stackup layers.

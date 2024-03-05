@@ -13,17 +13,17 @@ import os
 import tempfile
 
 from ansys.pyaedt.examples.constants import EDB_VERSION
-import pyaedt
+import pyedb
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 aedb_path = os.path.join(temp_dir.name, "create_via.aedb")
 print(f"AEDB file path: {aedb_path}")
 
-# Select EDB version (change it manually if needed, e.g. "2023.2")
+# Select EDB version (change it manually if needed, e.g. "2024.1")
 edb_version = EDB_VERSION
 print(f"EDB version: {edb_version}")
 
-edb = pyaedt.Edb(edbpath=aedb_path, edbversion=edb_version)
+edb = pyedb.Edb(edbpath=aedb_path, edbversion=edb_version)
 # -
 
 # ## Add stackup layers

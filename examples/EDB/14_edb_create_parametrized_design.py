@@ -15,19 +15,21 @@ import tempfile
 
 from ansys.pyaedt.examples.constants import EDB_VERSION
 import pyaedt
+import pyedb
+from pyedb.misc.downloads import download_file
 
-# ## Create an instance of a pyaedt.Edb object.
+# ## Create an instance of a pyedb.Edb object.
 
 # +
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-target_aedb = pyaedt.downloads.download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
+target_aedb = download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
 print("Project is located in ", target_aedb)
 
-# Select EDB version (change it manually if needed, e.g. "2023.2")
+# Select EDB version (change it manually if needed, e.g. "2024.1")
 edb_version = EDB_VERSION
 print(f"EDB version: {edb_version}")
 
-edb = pyaedt.Edb(edbpath=target_aedb, edbversion=edb_version)
+edb = pyedb.Edb(edbpath=target_aedb, edbversion=edb_version)
 print("AEDB file is located in {}".format(target_aedb))
 # -
 
