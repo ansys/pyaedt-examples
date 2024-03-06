@@ -80,8 +80,6 @@ jobs:
   doc-build:
     name: Build documentation
     runs-on: [self-hosted, Windows, pyaedt-examples]
-    env:
-      SPHINXBUILD_KEEP_DOCTREEDIR: "1"
     steps:
       - uses: actions/checkout@v4
 
@@ -117,6 +115,8 @@ jobs:
 
       # Use environment variable to keep the doctree and avoid redundant build for PDF pages
       - name: Create HTML documentation
+        env:
+          SPHINXBUILD_KEEP_DOCTREEDIR: "1"
         run: |
           .venv\Scripts\Activate.ps1
           . .\doc\make.bat html
@@ -128,15 +128,12 @@ jobs:
           path: doc/_build/html
           retention-days: 7
 
-      - name: Update environment variable
-        run: |
-          echo "SPHINXBUILD_KEEP_DOCTREEDIR=0" >> $GITHUB_ENV
-
       # Use environment variable to remove the doctree after the build of PDF pages
       # Keeping doctree could cause an issue, see https://github.com/ansys/pyaedt/pull/3844/files
       - name: Create PDF documentation
+        env:
+          SPHINXBUILD_KEEP_DOCTREEDIR: "0"
         run: |
-          echo "SPHINXBUILD_KEEP_DOCTREEDIR=0" >> $GITHUB_ENV
           .venv\Scripts\Activate.ps1
           . .\doc\make.bat pdf
 
