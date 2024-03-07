@@ -26,7 +26,3 @@ repos:
   hooks:
   - id: codespell
     args: ["--ignore-words", "doc/styles/Vocab/ANSYS/accept.txt", "-w"]
-    exclude: >
-      (?x)^(
-          .*\.css
-      )$
