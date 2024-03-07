@@ -33,7 +33,7 @@ desktopVersion = "2023.2"
 # ## Initialize AEDT and launch HFSS 3D Layout
 #
 # Initialize AEDT and launch HFSS 3D Layout.
-# The ``h3d`` object contains the `pyaedt.Edb` class query methods.
+# The ``h3d`` object contains the `pyedb.Edb` class query methods.
 
 d = pyaedt.launch_desktop(desktopVersion, non_graphical, NewThread)
 if os.path.exists(aedt_file):

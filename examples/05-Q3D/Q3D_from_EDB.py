@@ -10,6 +10,7 @@
 import os
 
 import pyaedt
+import pyedb
 
 # ## Setup project files and path
 #
@@ -29,7 +30,7 @@ output_q3d = os.path.join(project_dir, project_name + "_q3d.aedt")
 # Open the edb project and created a cutout on the selected nets
 # before exporting to Q3D.
 
-edb = pyaedt.Edb(aedb_project, edbversion="2023.2")
+edb = pyedb.Edb(aedb_project, edbversion="2023.2")
 edb.cutout(
     ["CLOCK_I2C_SCL", "CLOCK_I2C_SDA"],
     ["GND"],

@@ -7,6 +7,7 @@ import os
 import tempfile
 
 import pyaedt
+import pyedb
 
 # Copy example into temporary folder
 
@@ -18,7 +19,7 @@ local_path = pyaedt.downloads.download_aedb(dst_dir)
 # Load example board into EDB
 
 edbversion = "2023.2"
-appedb = pyaedt.Edb(local_path, edbversion=edbversion)
+appedb = pyedb.Edb(local_path, edbversion=edbversion)
 
 # Create pin group on VRM positive pins
 
