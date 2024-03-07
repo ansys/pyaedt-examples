@@ -50,7 +50,7 @@ if rad1 and ant1:
 # ## Place Antenna Radio Pairs
 #
 # The method ``create_radio_antenna()`` places radio/antenna pair. The first
-# argument is the type of radio. The 2nd argumnt is the name that
+# argument is the type of radio. The 2nd argument is the name that
 # will be assigned to the radio.
 
 rad2, ant2 = aedtapp.modeler.components.create_radio_antenna("GPS Receiver")

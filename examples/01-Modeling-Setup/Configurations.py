@@ -1,6 +1,6 @@
 # # General: configuration files
 #
-# This example shows how you can use PyAEDT to export configuration files and re-use
+# This example shows how you can use PyAEDT to export configuration files and reuse
 # them to import in a new project. A configuration file is supported by these applications:
 #
 # * HFSS

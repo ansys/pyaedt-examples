@@ -93,7 +93,7 @@ fig = original_data.plot()
 # Use the _WaveAfterProbe_ plot type to extract the
 # waveform using an AMI receiver clock probe.
 # The signal is extracted at a specific clock
-# flank with addiional half unit interval.
+# flank with additional half unit interval.
 
 probe_name = "b_input_43"
 source_name = "b_output4_42"

@@ -228,7 +228,7 @@ setup_ipk.props["Convergence Criteria - Max Iterations"] = 3
 # an ordered dict. The ``keys()`` method can be used to retrieve all settings for
 # the setup.
 #
-# Find propertes that contain the string ``"Convergence"`` and print the default values.
+# Find properties that contain the string ``"Convergence"`` and print the default values.
 
 conv_props = [k for k in setup_ipk.props.keys() if "Convergence" in k]
 print("Here are some default setup properties:")
