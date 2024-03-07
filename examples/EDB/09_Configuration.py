@@ -16,25 +16,27 @@ import tempfile
 
 from ansys.pyaedt.examples.constants import EDB_VERSION
 import pyaedt
+import pyedb
+from pyedb.misc.downloads import download_file
 
 # -
 
 # Download the AEDB file and copy it to a temporary folder.
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-target_aedb = pyaedt.downloads.download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
+target_aedb = download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
 print("Project folder is", target_aedb)
 
 # ## Launch EDB
 #
-# Launch the ``pyaedt.Edb`` class using EDB 2023 R2. Length units are SI.
+# Launch the ``pyedb.Edb`` class using EDB 2023 R2. Length units are SI.
 
 # +
-# Select EDB version (change it manually if needed, e.g. "2023.2")
+# Select EDB version (change it manually if needed, e.g. "2024.1")
 edb_version = EDB_VERSION
 print(f"EDB version: {edb_version}")
 
-edbapp = pyaedt.Edb(target_aedb, edbversion=edb_version)
+edbapp = pyedb.Edb(target_aedb, edbversion=edb_version)
 # -
 
 # ## Import definitions
@@ -188,7 +190,7 @@ edbapp.close_edb()
 # Set ``non_graphical=True`` to run the simulation in non-graphical mode.
 
 h3d = pyaedt.Hfss3dLayout(
-    specified_version="2023.2",
+    specified_version="2024.1",
     projectname=target_aedb,
     non_graphical=False,
     new_desktop_session=False,

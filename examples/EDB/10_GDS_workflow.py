@@ -11,8 +11,9 @@ import shutil
 import tempfile
 
 from ansys.pyaedt.examples.constants import EDB_VERSION
-import pyaedt
-from pyaedt.edb_core.edb_data.control_file import ControlFile
+import pyedb
+from pyedb.dotnet.edb_core.edb_data.control_file import ControlFile
+from pyedb.misc.downloads import download_file
 
 # -
 
@@ -32,7 +33,7 @@ control_fn = "sky130_fictitious_dtc_example_control_no_map.xml"
 gds_fn = "sky130_fictitious_dtc_example.gds"
 layer_map = "dummy_layermap.map"
 
-local_path = pyaedt.downloads.download_file("gds", destination=temp_dir.name)
+local_path = download_file("gds", destination=temp_dir.name)
 c_file_in = os.path.join(local_path, control_fn)
 c_map = os.path.join(local_path, layer_map)
 gds_in = os.path.join(local_path, gds_fn)
@@ -93,13 +94,11 @@ c.write_xml(os.path.join(temp_dir.name, "output.xml"))
 # Import the gds and open the edb.
 
 # +
-from pyaedt import Edb
-
-# Select EDB version (change it manually if needed, e.g. "2023.2")
+# Select EDB version (change it manually if needed, e.g. "2024.1")
 edb_version = EDB_VERSION
 print(f"EDB version: {edb_version}")
 
-edb = Edb(
+edb = pyedb.Edb(
     gds_out, edbversion=edb_version, technology_file=os.path.join(temp_dir.name, "output.xml")
 )
 # -

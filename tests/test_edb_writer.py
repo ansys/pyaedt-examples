@@ -22,11 +22,11 @@ EXPECTED_RESULT = f"""# ## {EXAMPLE_TITLE}
 
 {EDB_TMP_DIR}
 
-# ## Create an instance of the Electronics Database using the `pyaedt.Edb` class.
+# ## Create an instance of the Electronics Database using the `pyedb.Edb` class.
 #
 # > Note that units are SI.
 
-# Select EDB version (change it manually if needed, e.g. "2023.2")
+# Select EDB version (change it manually if needed, e.g. "2024.1")
 edb_version = {EDB_VERSION}
 print(f"EDB version: {{edb_version}}")
 

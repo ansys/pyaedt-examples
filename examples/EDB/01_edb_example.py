@@ -10,10 +10,11 @@ import tempfile
 import time
 
 from ansys.pyaedt.examples.constants import EDB_VERSION
-import pyaedt
+import pyedb
+from pyedb.misc.downloads import download_file
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-targetfile = pyaedt.downloads.download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
+targetfile = download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
 
 siwave_file = os.path.join(os.path.dirname(targetfile), "ANSYS-HSD_V1.siw")
 print(targetfile)
@@ -22,17 +23,17 @@ aedt_file = targetfile[:-4] + "aedt"
 
 # ## Launch Ansys Electronics Database (EDB)
 #
-# Instantiate an instance of the `pyaedt.Edb` class using SI units.
+# Instantiate an instance of the `pyedb.Edb` class using SI units.
 
 # +
 if os.path.exists(aedt_file):
     os.remove(aedt_file)
 
-# Select EDB version (change it manually if needed, e.g. "2023.2")
+# Select EDB version (change it manually if needed, e.g. "2024.1")
 edb_version = EDB_VERSION
 print(f"EDB version: {edb_version}")
 
-edb = pyaedt.Edb(edbpath=targetfile, edbversion=edb_version)
+edb = pyedb.Edb(edbpath=targetfile, edbversion=edb_version)
 # -
 
 # ## Identify nets and components
@@ -193,7 +194,7 @@ edb.close_edb()
 # using the SIwave user interface. This command works on Window OS only.
 
 # +
-# siwave = pyaedt.Siwave("2023.2")
+# siwave = pyedb.Siwave("2024.1")
 # siwave.open_project(siwave_file)
 # report_file = os.path.join(temp_folder,'Ansys.htm')
 

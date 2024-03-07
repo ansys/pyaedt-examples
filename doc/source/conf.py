@@ -77,7 +77,7 @@ def remove_doctree(app, exception):
 
     # Keep the doctree to avoid creating it twice. This is typically helpful in CI/CD
     # where we want to build both HTML and PDF pages.
-    if bool(os.getenv("SPHINXBUILD_KEEP_DOCTREEDIR", False)):
+    if bool(int(os.getenv("SPHINXBUILD_KEEP_DOCTREEDIR", "0"))):
         logger.info(f"Keeping directory {app.doctreedir}.")
     else:
         size = directory_size(app.doctreedir)
@@ -204,7 +204,13 @@ def check_example_error(app, pagename, templatename, context, doctree):
         if any(
             map(
                 lambda msg: msg in context["body"],
-                ["UsageError", "NameError", "DeadKernelError", "NotebookError"],
+                [
+                    "UsageError",
+                    "NameError",
+                    "DeadKernelError",
+                    "NotebookError",
+                    "CellExecutionError",
+                ],
             )
         ):
             logger.error(f"An error was detected in file {pagename}")
