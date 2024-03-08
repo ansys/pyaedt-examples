@@ -81,10 +81,10 @@ hfss3dl = pyaedt.Hfss3dLayout(local_path)
 hfss3dl.analyze()
 hfss3dl.save_project()
 
-# Get loop resistance
+# # Get loop resistance
 
-loop_resistance = hfss3dl.get_dcir_element_data_loop_resistance(setup_name="my_setup")
-print(loop_resistance)
+# loop_resistance = hfss3dl.get_dcir_element_data_loop_resistance(setup_name="my_setup")
+# print(loop_resistance)
 
 # Get current source
 
