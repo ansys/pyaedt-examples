@@ -14,6 +14,7 @@
 import os
 import shutil
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 import matplotlib.pyplot as plt
 from pyaedt import TwinBuilder, downloads, generate_unique_folder_name, generate_unique_project_name
 
@@ -27,7 +28,7 @@ from pyaedt import TwinBuilder, downloads, generate_unique_folder_name, generate
 # ``new_thread`` to ``False`` to launch Twin Builder in an existing AEDT session
 # if one is running.
 
-desktop_version = "2023.2"
+desktop_version = AEDT_VERSION
 non_graphical = False
 new_thread = True
 

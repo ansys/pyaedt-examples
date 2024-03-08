@@ -9,6 +9,7 @@
 
 import os
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 
 # Set non-graphical mode
@@ -25,7 +26,7 @@ non_graphical = False
 M3D = pyaedt.Maxwell3d(
     solution_type="Transient",
     designname="test_polyline_3D",
-    specified_version="2023.2",
+    specified_version=AEDT_VERSION,
     new_desktop_session=True,
     non_graphical=non_graphical,
 )

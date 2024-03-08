@@ -4,6 +4,7 @@
 
 # Perform required imports.
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 
 # ## Set non-graphical mode
@@ -16,7 +17,7 @@ non_graphical = True
 # Launch AEDT 2023 R2 in graphical mode.
 
 h3d = pyaedt.Hfss3dLayout(
-    specified_version="2023.2", new_desktop_session=True, non_graphical=non_graphical
+    specified_version=AEDT_VERSION, new_desktop_session=True, non_graphical=non_graphical
 )
 
 # Set up all parametric variables to use in the layout.

@@ -5,6 +5,7 @@
 import os
 import tempfile
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 
 # Set non-graphical mode.
@@ -20,7 +21,7 @@ diel_height = "121mil"
 sig_height = "5mil"
 max_steps = 3
 freq = "3GHz"
-desktop_version = "2023.2"
+desktop_version = AEDT_VERSION
 new_session = True
 
 # ## 3D Component Definition

@@ -11,6 +11,7 @@ conductor with a hole and solve it using the Maxwell 3D Eddy Current solver.
 import csv
 import os
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 import numpy as np
 from pyaedt import Maxwell3d, generate_unique_project_name
 
@@ -31,7 +32,7 @@ non_graphical = False
 Project_Name = "COMPUMAG"
 Design_Name = "TEAM 7 Asymmetric Conductor"
 Solver = "EddyCurrent"
-DesktopVersion = "2023.2"
+DesktopVersion = AEDT_VERSION
 
 M3D = Maxwell3d(
     projectname=generate_unique_project_name(),

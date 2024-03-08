@@ -14,6 +14,7 @@
 
 import math
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 
 # ## Initialize core strand dimensions and positions
@@ -72,7 +73,7 @@ armour_params = {
 # Initialize Q2D, providing the version, path to the project, and the design
 # name and type.
 
-desktop_version = "2023.2"
+desktop_version = AEDT_VERSION
 project_name = "Q2D_ArmouredCableExample"
 q2d_design_name = "2D_Extractor_Cable"
 setup_name = "MySetupAuto"

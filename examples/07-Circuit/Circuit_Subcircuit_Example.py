@@ -10,6 +10,7 @@
 import os
 import tempfile
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 
 # ## Set non-graphical mode
@@ -26,7 +27,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 circuit = pyaedt.Circuit(
     projectname=os.path.join(temp_dir.name, "SubcircuitExample"),
     designname="SimpleExample",
-    specified_version="2023.2",
+    specified_version=AEDT_VERSION,
     non_graphical=non_graphical,
     new_desktop_session=True,
 )

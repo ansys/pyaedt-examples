@@ -9,6 +9,7 @@
 
 import os
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 
 # ## Set non-graphical mode
@@ -33,7 +34,7 @@ pyaedt.settings.enable_debug_internal_methods_logger = False
 
 q = pyaedt.Q3d(
     projectname=pyaedt.generate_unique_project_name(),
-    specified_version="2023.2",
+    specified_version=AEDT_VERSION,
     non_graphical=non_graphical,
     new_desktop_session=True,
 )

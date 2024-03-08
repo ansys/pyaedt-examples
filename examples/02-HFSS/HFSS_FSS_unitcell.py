@@ -10,6 +10,7 @@
 # +
 import os
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 
 project_name = pyaedt.generate_unique_project_name(project_name="FSS")
@@ -26,7 +27,7 @@ non_graphical = False
 #
 # Launch AEDT 2023 R2 in graphical mode.
 
-d = pyaedt.launch_desktop("2023.2", non_graphical=non_graphical, new_desktop_session=True)
+d = pyaedt.launch_desktop(AEDT_VERSION, non_graphical=non_graphical, new_desktop_session=True)
 
 # ## Launch HFSS
 #

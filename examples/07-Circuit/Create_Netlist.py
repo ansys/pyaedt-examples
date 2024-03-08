@@ -10,6 +10,7 @@
 import os
 import tempfile
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
@@ -26,7 +27,7 @@ netlist = pyaedt.downloads.download_netlist(destination=temp_dir.name)
 # The Boolean parameter ``NewThread`` defines whether to create a new instance
 # of AEDT or try to connect to an existing instance of it.
 
-desktopVersion = "2023.2"
+desktopVersion = AEDT_VERSION
 non_graphical = False
 NewThread = True
 

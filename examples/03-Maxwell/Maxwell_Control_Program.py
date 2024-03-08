@@ -9,6 +9,7 @@
 #
 # Perform required imports.
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 from pyaedt import Maxwell2d, downloads, generate_unique_folder_name
 
 # ## Set non-graphical mode
@@ -32,7 +33,7 @@ ctrl_prg_file = downloads.download_file("maxwell_ctrl_prg", "timestep_only.py", 
 
 m2d = Maxwell2d(
     projectname=aedt_file,
-    specified_version="2023.2",
+    specified_version=AEDT_VERSION,
     new_desktop_session=True,
     non_graphical=non_graphical,
 )

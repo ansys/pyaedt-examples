@@ -11,6 +11,7 @@
 import os
 import tempfile
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 from matplotlib import pyplot as plt
 import numpy as np
 import pyaedt
@@ -30,7 +31,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 cir = pyaedt.Circuit(
     projectname=os.path.join(temp_dir.name, "CktTransient"),
     designname="Circuit Examples",
-    specified_version="2023.2",
+    specified_version=AEDT_VERSION,
     new_desktop_session=True,
     non_graphical=non_graphical,
 )

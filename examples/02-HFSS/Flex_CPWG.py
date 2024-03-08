@@ -10,6 +10,7 @@
 from math import cos, radians, sin, sqrt
 import os
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 
 # ## Set non-graphical mode
@@ -24,7 +25,7 @@ non_graphical = False
 # Launch AEDT 2023 R2 in graphical mode.
 
 hfss = pyaedt.Hfss(
-    specified_version="2023.2",
+    specified_version=AEDT_VERSION,
     solution_type="DrivenTerminal",
     new_desktop_session=True,
     non_graphical=non_graphical,

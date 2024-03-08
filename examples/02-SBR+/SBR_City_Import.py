@@ -10,6 +10,7 @@
 
 import os
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 from pyaedt import Hfss
 
 # ## Set non-graphical mode
@@ -27,7 +28,7 @@ non_graphical = False
 app = Hfss(
     designname="Ansys",
     solution_type="SBR+",
-    specified_version="2023.2",
+    specified_version=AEDT_VERSION,
     new_desktop_session=True,
     non_graphical=non_graphical,
 )

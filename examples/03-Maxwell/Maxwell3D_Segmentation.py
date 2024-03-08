@@ -8,6 +8,7 @@ The method is valid and usable for any object the user would like to segment.
 #
 # Perform required imports.
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 from pyaedt import Maxwell3d, downloads, generate_unique_folder_name
 
 # ## Set non-graphical mode
@@ -30,7 +31,7 @@ aedt_file = downloads.download_file("object_segmentation", "Motor3D_obj_segments
 
 m3d = Maxwell3d(
     projectname=aedt_file,
-    specified_version="2023.2",
+    specified_version=AEDT_VERSION,
     new_desktop_session=True,
     non_graphical=non_graphical,
 )

@@ -10,6 +10,7 @@
 import json
 import os
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 
 project_name = pyaedt.generate_unique_project_name(project_name="choke")
@@ -28,7 +29,7 @@ non_graphical = False
 
 hfss = pyaedt.Hfss(
     projectname=project_name,
-    specified_version="2023.2",
+    specified_version=AEDT_VERSION,
     non_graphical=non_graphical,
     new_desktop_session=True,
     solution_type="Terminal",

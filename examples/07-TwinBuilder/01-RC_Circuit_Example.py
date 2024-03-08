@@ -8,6 +8,7 @@
 #
 # Perform required imports.
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 
 # ## Select version and set launch options
@@ -20,7 +21,7 @@ import pyaedt
 # ``new_thread`` to ``False`` to launch Twin Builder in an existing AEDT session
 # if one is running.
 
-desktop_version = "2023.2"
+desktop_version = AEDT_VERSION
 
 non_graphical = False
 new_thread = True

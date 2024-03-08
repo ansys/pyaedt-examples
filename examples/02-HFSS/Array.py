@@ -12,6 +12,7 @@
 
 import os
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 from pyaedt.modules.solutions import FfdSolutionData
 
@@ -34,7 +35,7 @@ example_path = pyaedt.downloads.download_3dcomponent()
 project_name = pyaedt.generate_unique_project_name(project_name="array")
 hfss = pyaedt.Hfss(
     projectname=project_name,
-    specified_version="2023.2",
+    specified_version=AEDT_VERSION,
     designname="Array_Simple",
     non_graphical=non_graphical,
     new_desktop_session=True,

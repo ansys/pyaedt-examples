@@ -11,6 +11,7 @@
 import os
 import tempfile
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 from matplotlib import pyplot as plt
 import numpy as np
 import pyaedt
@@ -34,7 +35,7 @@ project_path = pyaedt.downloads.download_file("ami", "ami_usb.aedtz", temp_dir.n
 #
 # Launch AEDT 2023 R2 in graphical mode. This example uses SI units.
 
-desktopVersion = "2023.2"
+desktopVersion = AEDT_VERSION
 
 # ## Set non-graphical mode
 #

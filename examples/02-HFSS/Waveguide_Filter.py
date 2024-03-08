@@ -13,6 +13,7 @@
 import os
 import tempfile
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 from pyaedt import general_methods
 
@@ -52,7 +53,7 @@ project_name = os.path.join(project_folder, general_methods.generate_unique_name
 
 hfss = pyaedt.Hfss(
     projectname=project_name + ".aedt",
-    specified_version="2023.2",
+    specified_version=AEDT_VERSION,
     designname="filter",
     non_graphical=non_graphical,
     new_desktop_session=True,

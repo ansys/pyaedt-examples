@@ -9,6 +9,7 @@
 
 import os
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION, EDB_VERSION
 import pyaedt
 import pyedb
 
@@ -30,7 +31,7 @@ output_q3d = os.path.join(project_dir, project_name + "_q3d.aedt")
 # Open the edb project and created a cutout on the selected nets
 # before exporting to Q3D.
 
-edb = pyedb.Edb(aedb_project, edbversion="2023.2")
+edb = pyedb.Edb(aedb_project, edbversion=EDB_VERSION)
 edb.cutout(
     ["CLOCK_I2C_SCL", "CLOCK_I2C_SDA"],
     ["GND"],
@@ -77,7 +78,7 @@ edb.save_edb()
 edb.close_edb()
 
 h3d = pyaedt.Hfss3dLayout(
-    output_edb, specified_version="2023.2", non_graphical=True, new_desktop_session=True
+    output_edb, specified_version=AEDT_VERSION, non_graphical=True, new_desktop_session=True
 )
 # -
 

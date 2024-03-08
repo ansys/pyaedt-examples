@@ -9,6 +9,7 @@
 
 import os
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 
 # ## Set non-graphical mode
@@ -28,7 +29,7 @@ project_temp_name = pyaedt.downloads.download_via_wizard(pyaedt.generate_unique_
 #
 # Start HFSS and initialize the PyAEDT object.
 
-version = "2023.2"
+version = AEDT_VERSION
 hfss = pyaedt.Hfss(
     projectname=project_temp_name,
     specified_version=version,

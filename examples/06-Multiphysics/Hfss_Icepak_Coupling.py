@@ -15,6 +15,7 @@
 import os
 import tempfile
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 from pyaedt.generic.pdf import AnsysReport
 
@@ -26,7 +27,7 @@ from pyaedt.generic.pdf import AnsysReport
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 non_graphical = False
-desktopVersion = "2023.2"
+desktopVersion = AEDT_VERSION
 
 # ## Launch AEDT and initialize HFSS
 #

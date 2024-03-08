@@ -9,6 +9,7 @@
 
 import os
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 from pyaedt import Icepak, downloads, generate_unique_folder_name
 
 # Download needed files
@@ -20,7 +21,7 @@ package_temp_name, qfp_temp_name = downloads.download_icepak_3d_component(temp_f
 #
 # Set AEDT version.
 
-aedt_version = "2023.2"
+aedt_version = AEDT_VERSION
 
 # ## Set non-graphical mode
 #

@@ -11,6 +11,7 @@ import datetime
 import os
 import time
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 
 # Set paths
@@ -44,7 +45,7 @@ outline_polygon_name = "poly_14188"
 
 # +
 d = pyaedt.launch_desktop(
-    specified_version="2023.2", non_graphical=non_graphical, new_desktop_session=True
+    specified_version=AEDT_VERSION, non_graphical=non_graphical, new_desktop_session=True
 )
 
 start = time.time()

@@ -9,13 +9,14 @@
 
 import os
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 
 # ## Launch AEDT
 #
 # Launch AEDT.
 
-aedt_version = "2023.2"
+aedt_version = AEDT_VERSION
 projectname = "MicroDoppler_with_ADP"
 designname = "doppler"
 library_path = pyaedt.downloads.download_multiparts()

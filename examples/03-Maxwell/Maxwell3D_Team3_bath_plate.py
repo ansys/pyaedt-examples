@@ -10,6 +10,7 @@ solve it using the Maxwell 3D Eddy Current solver.
 
 import os
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 
 # ## Set non-graphical mode
@@ -29,7 +30,7 @@ non_graphical = False
 project_name = "COMPUMAG"
 design_name = "TEAM 3 Bath Plate"
 Solver = "EddyCurrent"
-desktop_version = "2023.2"
+desktop_version = AEDT_VERSION
 
 m3d = pyaedt.Maxwell3d(
     projectname=pyaedt.generate_unique_project_name(),

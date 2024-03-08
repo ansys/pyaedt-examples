@@ -14,6 +14,7 @@
 import os
 import shutil
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 from pyaedt import TwinBuilder, downloads, generate_unique_project_name
 
 # ## Select version and set launch options
@@ -26,7 +27,7 @@ from pyaedt import TwinBuilder, downloads, generate_unique_project_name
 # ``new_thread`` to ``False`` to launch Twin Builder in an existing AEDT session
 # if one is running.
 
-desktop_version = "2023.2"
+desktop_version = AEDT_VERSION
 non_graphical = False
 new_thread = True
 

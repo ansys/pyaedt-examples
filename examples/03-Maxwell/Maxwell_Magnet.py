@@ -9,6 +9,7 @@
 
 import os
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 from pyaedt import Maxwell3d, generate_unique_project_name
 
 # ## Set non-graphical mode
@@ -24,7 +25,7 @@ non_graphical = False
 
 m3d = Maxwell3d(
     projectname=generate_unique_project_name(),
-    specified_version="2023.2",
+    specified_version=AEDT_VERSION,
     new_desktop_session=True,
     non_graphical=non_graphical,
 )

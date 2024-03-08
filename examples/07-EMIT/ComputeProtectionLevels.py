@@ -11,6 +11,7 @@ import os
 import subprocess
 import sys
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 from pyaedt import Emit
 from pyaedt.emit_core.emit_constants import InterfererType
@@ -52,7 +53,7 @@ import plotly.graph_objects as go
 
 non_graphical = False
 new_thread = True
-desktop_version = "2023.2"
+desktop_version = AEDT_VERSION
 
 # ## Launch AEDT with EMIT
 #

@@ -30,6 +30,7 @@
 
 import os
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 
 # Create a temporary folder to download the example to.
@@ -41,7 +42,7 @@ project_path = pyaedt.downloads.download_file("eigenmode", "emi_PCB_house.aedt",
 #
 # Launch AEDT 2023 R2 in graphical mode.
 
-desktop_version = "2023.2"
+desktop_version = AEDT_VERSION
 
 # ## Set non-graphical mode
 #

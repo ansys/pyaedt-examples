@@ -9,6 +9,7 @@
 # +
 import os
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 
 project_name = pyaedt.generate_unique_project_name(project_name="spiral")
@@ -27,7 +28,7 @@ non_graphical = False
 # units to microns.
 
 hfss = pyaedt.Hfss(
-    specified_version="2023.2",
+    specified_version=AEDT_VERSION,
     non_graphical=non_graphical,
     designname="A1",
     new_desktop_session=True,

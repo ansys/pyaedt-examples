@@ -14,6 +14,7 @@
 import os
 import tempfile
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 from pyaedt import Hfss
 from pyaedt.generic.general_methods import generate_unique_name
 
@@ -22,7 +23,7 @@ from pyaedt.generic.general_methods import generate_unique_name
 # PyAEDT can initialize a new session of Electronics Desktop or connect to an existing one.
 # Once Desktop is connected, a new HFSS session is started and a design is created.
 
-hfss = Hfss(specified_version="2023.2", new_desktop_session=True, close_on_exit=True)
+hfss = Hfss(specified_version=AEDT_VERSION, new_desktop_session=True, close_on_exit=True)
 
 # ## Variables
 #

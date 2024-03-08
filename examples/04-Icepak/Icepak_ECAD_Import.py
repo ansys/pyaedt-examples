@@ -11,6 +11,7 @@
 
 import os
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 from pyaedt import Hfss3dLayout
 
@@ -34,7 +35,7 @@ temp_folder = pyaedt.generate_unique_folder_name()
 
 ipk = pyaedt.Icepak(
     projectname=os.path.join(temp_folder, "Icepak_ECAD_Import.aedt"),
-    specified_version="2023.2",
+    specified_version=AEDT_VERSION,
     new_desktop_session=True,
     non_graphical=non_graphical,
 )

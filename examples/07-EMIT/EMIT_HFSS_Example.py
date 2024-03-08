@@ -16,6 +16,7 @@ import os
 import shutil
 import tempfile
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 from pyaedt.emit_core.emit_constants import ResultType, TxRxMode
 
@@ -28,7 +29,7 @@ from pyaedt.emit_core.emit_constants import ResultType, TxRxMode
 
 non_graphical = False
 NewThread = True
-desktop_version = "2023.2"
+desktop_version = AEDT_VERSION
 
 # ## Launch AEDT with EMIT
 #

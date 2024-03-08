@@ -11,6 +11,7 @@ import csv
 from math import sqrt as mysqrt
 import os
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 
 # ## Initialize Maxwell 2D
@@ -18,7 +19,7 @@ import pyaedt
 # Initialize Maxwell 2D, providing the version, path to the project, and the design
 # name and type.
 
-desktopVersion = "2023.2"
+desktopVersion = AEDT_VERSION
 sName = "MySetupAuto"
 sType = "TransientXY"
 pName = pyaedt.generate_unique_project_name()

@@ -7,6 +7,7 @@
 #
 # Perform required imports.
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 from pyaedt import Maxwell3d, downloads, generate_unique_folder_name
 from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.general_methods import read_csv_pandas
@@ -58,7 +59,7 @@ curves_csv_1MHz = list(zip(data[data.columns[0]], data[data.columns[1]]))
 m3d = Maxwell3d(
     projectname=aedt_file,
     designname="02_3D eddycurrent_CmXY_for_thermal",
-    specified_version="2023.2",
+    specified_version=AEDT_VERSION,
     new_desktop_session=True,
     non_graphical=False,
 )

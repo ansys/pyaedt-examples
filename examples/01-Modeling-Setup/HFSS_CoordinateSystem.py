@@ -6,6 +6,7 @@
 #
 # Perform required imports
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 
 # ## Set non-graphical mode
@@ -20,7 +21,7 @@ non_graphical = False
 # Launch AEDT 2023 R2 in graphical mode.
 
 d = pyaedt.launch_desktop(
-    specified_version="2023.2", non_graphical=non_graphical, new_desktop_session=True
+    specified_version=AEDT_VERSION, non_graphical=non_graphical, new_desktop_session=True
 )
 
 # ## Insert HFSS design

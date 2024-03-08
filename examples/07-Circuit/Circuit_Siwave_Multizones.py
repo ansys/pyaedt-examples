@@ -9,6 +9,7 @@
 import os.path
 import tempfile
 
+from ansys.pyaedt.examples.constants import EDB_VERSION
 import pyaedt
 from pyaedt import Circuit, Edb
 
@@ -29,7 +30,7 @@ print(edb_file)
 #
 # Sets the Aedt version to 2023 R2.
 
-edb_version = "2023.2"
+edb_version = EDB_VERSION
 
 # ## Ground net
 #

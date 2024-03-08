@@ -12,6 +12,7 @@
 import os
 import tempfile
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 
 # ## Launch AEDT
@@ -31,7 +32,7 @@ import pyaedt
 # starts the specified version in the specified mode.
 
 # +
-desktop_version = "2023.2"
+desktop_version = AEDT_VERSION
 non_graphical = False
 new_thread = True
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")

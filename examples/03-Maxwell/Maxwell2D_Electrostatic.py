@@ -9,6 +9,7 @@
 #
 # Perform required imports.
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 
 # ## Initialize Maxwell 2D
@@ -16,7 +17,7 @@ import pyaedt
 # Initialize Maxwell 2D, providing the version, path to the project, and the design
 # name and type.
 
-desktopVersion = "2023.2"
+desktopVersion = AEDT_VERSION
 sName = "MySetupAuto"
 sType = "Electrostatic"
 dName = "Design1"

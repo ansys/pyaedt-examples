@@ -6,6 +6,7 @@
 
 import os.path
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 from pyaedt.generic.pdf import AnsysReport
 
@@ -16,7 +17,7 @@ from pyaedt.generic.pdf import AnsysReport
 # ``Maxwell2d`` class named ``m2d``.
 
 m2d = pyaedt.Maxwell2d(
-    specified_version="2023.2",
+    specified_version=AEDT_VERSION,
     new_desktop_session=True,
     close_on_exit=True,
     solution_type="DCConduction",
@@ -194,7 +195,7 @@ model_picture = m2d.post.export_model_picture()
 # Generate a PDF report with output of simulation.
 
 pdf_report = AnsysReport(
-    project_name=m2d.project_name, design_name=m2d.design_name, version="2023.2"
+    project_name=m2d.project_name, design_name=m2d.design_name, version=AEDT_VERSION
 )
 pdf_report.report_specs.font = "times"
 pdf_report.report_specs.text_font_size = 10

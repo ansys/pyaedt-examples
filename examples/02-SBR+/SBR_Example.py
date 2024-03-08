@@ -10,6 +10,7 @@
 
 import os
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 
 project_full_name = pyaedt.downloads.download_sbr(
@@ -33,7 +34,7 @@ target = pyaedt.Hfss(
     projectname=project_full_name,
     designname="Cassegrain_",
     solution_type="SBR+",
-    specified_version="2023.2",
+    specified_version=AEDT_VERSION,
     new_desktop_session=True,
     non_graphical=non_graphical,
 )
@@ -41,7 +42,7 @@ target = pyaedt.Hfss(
 source = pyaedt.Hfss(
     projectname=target.project_name,
     designname="feeder",
-    specified_version="2023.2",
+    specified_version=AEDT_VERSION,
 )
 # -
 

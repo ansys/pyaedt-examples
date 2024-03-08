@@ -6,6 +6,7 @@
 import os
 import tempfile
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
@@ -28,7 +29,7 @@ NewThread = True
 
 # Launch AEDT 2023R2 in graphical mode. Units are SI.
 
-desktopVersion = "2023.2"
+desktopVersion = AEDT_VERSION
 
 # ## Initialize AEDT and launch HFSS 3D Layout
 #

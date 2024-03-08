@@ -9,6 +9,7 @@
 
 import os
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 from pyaedt import Hfss, downloads
 
 # ## Set non-graphical mode
@@ -27,7 +28,7 @@ project_file = downloads.download_sbr_time()
 
 hfss = Hfss(
     projectname=project_file,
-    specified_version="2023.2",
+    specified_version=AEDT_VERSION,
     non_graphical=non_graphical,
     new_desktop_session=True,
 )

@@ -6,6 +6,7 @@
 import os
 import tempfile
 
+from ansys.pyaedt.examples.constants import EDB_VERSION
 import pyaedt
 import pyedb
 
@@ -18,7 +19,7 @@ local_path = pyaedt.downloads.download_aedb(dst_dir)
 
 # Load example board into EDB
 
-edbversion = "2023.2"
+edbversion = EDB_VERSION
 appedb = pyedb.Edb(local_path, edbversion=edbversion)
 
 # Create pin group on VRM positive pins

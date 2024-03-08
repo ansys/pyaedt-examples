@@ -22,6 +22,7 @@
 
 import os
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 
 # ## Set non-graphical mode
@@ -37,7 +38,7 @@ non_graphical = False
 
 maxwell_2d = pyaedt.Maxwell2d(
     solution_type="TransientXY",
-    specified_version="2023.2",
+    specified_version=AEDT_VERSION,
     non_graphical=non_graphical,
     new_desktop_session=True,
     projectname=pyaedt.generate_unique_project_name(),

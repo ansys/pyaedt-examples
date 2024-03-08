@@ -9,6 +9,7 @@
 
 import os
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 
 # ## Set non-graphical mode
@@ -17,7 +18,7 @@ import pyaedt
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
-desktop_version = "2023.2"
+desktop_version = AEDT_VERSION
 
 # ## Launch AEDT and 2D Extractor
 #

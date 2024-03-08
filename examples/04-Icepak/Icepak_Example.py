@@ -11,6 +11,7 @@
 
 import os
 
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 
 # ## Set non-graphical mode
@@ -30,7 +31,7 @@ project_temp_name = pyaedt.downloads.download_icepak(temp_folder)
 
 ipk = pyaedt.Icepak(
     projectname=project_temp_name,
-    specified_version="2023.2",
+    specified_version=AEDT_VERSION,
     new_desktop_session=True,
     non_graphical=non_graphical,
 )
