@@ -1,11 +1,9 @@
 # # Twin Builder: Static ROM
 #
 # This example shows how to create a static reduced order model (ROM)
-# in Twin Builder
-# and run a transient simulation.
+# in Twin Builder and run a transient simulation.
 #
-# > **Note:** _This example uses functionality only_
-# > _available in Twin Builder 2023 R2 and later._
+# > **Note:** _This example uses functionality only available in Twin Builder 2024 R2 and later._
 
 # ## Perform required imports
 #

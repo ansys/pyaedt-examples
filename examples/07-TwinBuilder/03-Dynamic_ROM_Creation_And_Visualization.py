@@ -21,7 +21,7 @@ from pyaedt import TwinBuilder, downloads, generate_unique_folder_name, generate
 # ## Select version and set launch options
 #
 # Select the Twin Builder version and set launch options. The following code
-# launches Twin Builder 2023 R2 in graphical mode.
+# launches Twin Builder in graphical mode.
 #
 # You can change the Boolean parameter ``non_graphical`` to ``True`` to launch
 # Twin Builder in non-graphical mode. You can also change the Boolean parameter
