@@ -4,7 +4,7 @@
    :hidden:
    :maxdepth: 2
 
-   07-TwinBuilder/index
+   twin_builder/index
 
 Examples
 ========

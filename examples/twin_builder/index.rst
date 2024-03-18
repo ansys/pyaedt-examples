@@ -5,6 +5,7 @@ This includes schematic generation, setup, and postprocessing.
 
 .. nbgallery::
 
-    02-Wiring_A_Rectifier.py
-    03-Dynamic_ROM_Creation_And_Visualization.py
-    04-Static_ROM_Creation_And_Visualization.py
+    rc_circuit.py
+    wiring_rectifier.py
+    dynamic_rom_creation_and_visualization.py
+    static_rom_creation_and_visualization.py
