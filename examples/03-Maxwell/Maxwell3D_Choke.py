@@ -241,11 +241,9 @@ m3d.plot(
     show=False, export_path=os.path.join(temp_dir.name, "Image.jpg"), plot_air_objects=True
 )
 
-# ## Close AEDT
+# ## Release AEDT and clean up temporary directory
 #
-# After the simulation completes, you can close AEDT or release it using the
-# :func:`pyaedt.Desktop.release_desktop` method.
-# All methods provide for saving the project before closing.
+# Release AEDT and remove both the project and temporary directories.
 
 m3d.release_desktop()
 temp_dir.cleanup()

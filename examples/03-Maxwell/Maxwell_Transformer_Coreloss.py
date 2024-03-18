@@ -7,36 +7,43 @@
 #
 # Perform required imports.
 
+import tempfile
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 from pyaedt import Maxwell3d, downloads, generate_unique_folder_name
 from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.general_methods import read_csv_pandas
+
+# ## Create temporary directory
+#
+# Create temporary directory.
+
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Download .aedt file example
 #
 # Set local temporary folder to export the .aedt file to.
 
 # +
-temp_folder = generate_unique_folder_name()
+
 aedt_file = downloads.download_file(
-    "core_loss_transformer", "Ex2-PlanarTransformer_2023R2.aedtz", temp_folder
+    "core_loss_transformer", "Ex2-PlanarTransformer_2023R2.aedtz", temp_dir.name
 )
 freq_curve_csv_25kHz = downloads.download_file(
-    "core_loss_transformer", "mf3_25kHz.csv", temp_folder
+    "core_loss_transformer", "mf3_25kHz.csv", temp_dir.name
 )
 freq_curve_csv_100kHz = downloads.download_file(
-    "core_loss_transformer", "mf3_100kHz.csv", temp_folder
+    "core_loss_transformer", "mf3_100kHz.csv", temp_dir.name
 )
 freq_curve_csv_200kHz = downloads.download_file(
-    "core_loss_transformer", "mf3_200kHz.csv", temp_folder
+    "core_loss_transformer", "mf3_200kHz.csv", temp_dir.name
 )
 freq_curve_csv_400kHz = downloads.download_file(
-    "core_loss_transformer", "mf3_400kHz.csv", temp_folder
+    "core_loss_transformer", "mf3_400kHz.csv", temp_dir.name
 )
 freq_curve_csv_700kHz = downloads.download_file(
-    "core_loss_transformer", "mf3_700kHz.csv", temp_folder
+    "core_loss_transformer", "mf3_700kHz.csv", temp_dir.name
 )
-freq_curve_csv_1MHz = downloads.download_file("core_loss_transformer", "mf3_1MHz.csv", temp_folder)
+freq_curve_csv_1MHz = downloads.download_file("core_loss_transformer", "mf3_1MHz.csv", temp_dir.name)
 
 data = read_csv_pandas(filename=freq_curve_csv_25kHz)
 curves_csv_25kHz = list(zip(data[data.columns[0]], data[data.columns[1]]))
@@ -92,9 +99,9 @@ coefficients = m3d.materials[mat.name].get_core_loss_coefficients(
     points_list_at_freq=pv, coefficient_setup="kw_per_cubic_meter"
 )
 
-# ## Save project and close AEDT
+# ## Release AEDT and clean up temporary directory
 #
-# Save the project and close AEDT.
+# Release AEDT and remove both the project and temporary directories.
 
-m3d.save_project()
 m3d.release_desktop()
+temp_dir.cleanup()

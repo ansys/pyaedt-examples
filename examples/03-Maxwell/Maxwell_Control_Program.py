@@ -79,9 +79,9 @@ sols = m2d.post.get_solution_data(
 )
 sols.plot()
 
-# ## Save project and close AEDT
+# ## Release AEDT and clean up temporary directory
 #
-# Save the project and close AEDT.
+# Release AEDT and remove both the project and temporary directories.
 
-m2d.save_project()
 m2d.release_desktop()
+temp_dir.cleanup()

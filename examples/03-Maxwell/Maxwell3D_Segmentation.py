@@ -97,10 +97,9 @@ object_name = "PM_O1_1"
 segments_number = 2
 sheets_4 = modeler.objects_segmentation(object_name, segments_number=segments_number)
 
-# ## Save project and close AEDT
+# ## Release AEDT and clean up temporary directory
 #
-# Save the project and close AEDT.
+# Release AEDT and remove both the project and temporary directories.
 
-m3d.save_project()
 m3d.release_desktop()
 temp_dir.cleanup()

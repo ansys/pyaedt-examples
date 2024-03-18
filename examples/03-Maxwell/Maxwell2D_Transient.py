@@ -148,9 +148,9 @@ gif.animate()
 solutions = maxwell_2d.post.get_solution_data("InputCurrent(PHA)", primary_sweep_variable="Time")
 solutions.plot()
 
-# ## Close AEDT
+# ## Release AEDT and clean up temporary directory
 #
-# Close AEDT.
+# Release AEDT and remove both the project and temporary directories.
 
 maxwell_2d.release_desktop()
 temp_dir.cleanup()
