@@ -1,9 +1,9 @@
-"""
-Maxwell 3D: bath plate analysis
--------------------------------
-This example uses PyAEDT to set up the TEAM 3 bath plate problem and
-solve it using the Maxwell 3D Eddy Current solver.
-"""
+# # Maxwell 3D: bath plate analysis
+#
+# This example uses PyAEDT to set up the TEAM 3 bath plate problem and
+# solve it using the Maxwell 3D Eddy Current solver.
+# https://www.compumag.org/wp/wp-content/uploads/2018/06/problem3.pdf
+
 # ## Perform required imports
 #
 # Perform required imports.
@@ -31,7 +31,7 @@ non_graphical = False
 #
 # Launch AEDT and Maxwell 3D after first setting up the project and design names,
 # the solver, and the version. The following code also creates an instance of the
-# ``Maxwell3d`` class named ``M3D``.
+# ``Maxwell3d`` class named ``m3d``.
 
 # +
 project_name = "COMPUMAG"
@@ -235,7 +235,7 @@ solutions.plot()
 #
 # Plot the induced current density, ``"Mag_J"``, on the surface of the ladder plate.
 
-ladder_plate = m3d.modeler.get_object_faces("LadderPlate")
+ladder_plate = m3d.modeler.objects_by_name["LadderPlate"]
 intrinsic_dict = {"Freq": "50Hz", "Phase": "0deg"}
 m3d.post.create_fieldplot_surface(
     ladder_plate.faces, quantityName="Mag_J", intrinsincDict=intrinsic_dict, plot_name="Mag_J"

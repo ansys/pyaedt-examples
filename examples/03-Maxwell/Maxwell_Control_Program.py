@@ -10,7 +10,15 @@
 # Perform required imports.
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
-from pyaedt import Maxwell2d, downloads, generate_unique_folder_name
+from pyaedt import Maxwell2d, downloads
+
+import tempfile
+
+# ## Create temporary directory
+#
+# Create temporary directory.
+
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Set non-graphical mode
 #
@@ -23,9 +31,8 @@ non_graphical = False
 #
 # Set local temporary folder to export the .aedt file to.
 
-temp_folder = generate_unique_folder_name()
-aedt_file = downloads.download_file("maxwell_ctrl_prg", "ControlProgramDemo.aedt", temp_folder)
-ctrl_prg_file = downloads.download_file("maxwell_ctrl_prg", "timestep_only.py", temp_folder)
+aedt_file = downloads.download_file("maxwell_ctrl_prg", "ControlProgramDemo.aedt", temp_dir)
+ctrl_prg_file = downloads.download_file("maxwell_ctrl_prg", "timestep_only.py", temp_dir)
 
 # ## Launch Maxwell 2D
 #
@@ -68,7 +75,7 @@ setup.analyze()
 # Plot Solved Results.
 
 sols = m2d.post.get_solution_data(
-    "FluxLinkage(Winding1)", variations={"Time": ["All"]}, primary_sweep_variable="Time"
+    expressions="FluxLinkage(Winding1)", variations={"Time": ["All"]}, primary_sweep_variable="Time"
 )
 sols.plot()
 
