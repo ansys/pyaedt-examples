@@ -9,10 +9,10 @@
 #
 # Perform required imports.
 
+import tempfile
+
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 from pyaedt import Maxwell2d, downloads
-
-import tempfile
 
 # ## Create temporary directory
 #

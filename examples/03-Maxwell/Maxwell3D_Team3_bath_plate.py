@@ -9,10 +9,10 @@
 # Perform required imports.
 
 import os
-
-from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 import tempfile
+
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 
 # ## Create temporary directory
 #

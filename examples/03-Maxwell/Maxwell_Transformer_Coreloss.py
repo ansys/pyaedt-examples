@@ -8,6 +8,7 @@
 # Perform required imports.
 
 import tempfile
+
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 from pyaedt import Maxwell3d, downloads, generate_unique_folder_name
 from pyaedt.generic.constants import unit_converter

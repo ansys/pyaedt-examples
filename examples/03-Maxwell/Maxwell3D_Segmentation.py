@@ -8,9 +8,10 @@ The method is valid and usable for any object the user would like to segment.
 #
 # Perform required imports.
 
+import tempfile
+
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 from pyaedt import Maxwell3d, downloads, generate_unique_folder_name
-import tempfile
 
 # ## Create temporary directory
 #
