@@ -17,11 +17,11 @@ import pyaedt
 # Initialize Maxwell 2D, providing the version, path to the project, and the design
 # name and type.
 
-desktopVersion = AEDT_VERSION
-sName = "MySetupAuto"
-sType = "Electrostatic"
-dName = "Design1"
-pName = pyaedt.generate_unique_project_name()
+aedt_version = AEDT_VERSION
+setup_name = "MySetupAuto"
+solver = "Electrostatic"
+design_name = "Design1"
+project_name = pyaedt.generate_unique_project_name()
 non_graphical = False
 
 # ## Download .xlsx file
@@ -58,10 +58,10 @@ geom_params_rectangle = {
 # Launch Maxwell 2D and save the project.
 
 M2D = pyaedt.Maxwell2d(
-    projectname=pName,
-    specified_version=desktopVersion,
-    designname=dName,
-    solution_type=sType,
+    projectname=project_name,
+    specified_version=aedt_version,
+    designname=design_name,
+    solution_type=solver,
     new_desktop_session=True,
     non_graphical=non_graphical,
 )
@@ -140,11 +140,11 @@ M2D.mesh.assign_surface_mesh_manual(names=["Ground"], surf_dev=0.001)
 #
 # Create, update, validate and analyze the setup.
 
-setup = M2D.create_setup(setupname=sName)
+setup = M2D.create_setup(setupname=setup_name)
 setup.props["PercentError"] = 0.5
 setup.update()
 M2D.validate_simple()
-M2D.analyze_setup(sName)
+M2D.analyze_setup(setup_name)
 
 # ## Evaluate the E Field tangential component
 #
@@ -171,7 +171,7 @@ fields.AddNamedExpression("e_tan_poly2", "Fields")
 # and as ``In surface objects`` only the region.
 
 plot = M2D.post.create_fieldplot_line_traces(
-    ["Ground", "Electrode", "Region"], "Region", plot_name="LineTracesTest"
+    ["Ground", "Electrode", "Region"], ["Region"], plot_name="LineTracesTest"
 )
 
 # ## Update Field Line Traces Plot
@@ -183,6 +183,25 @@ plot.SeedingPointsNumber = 20
 plot.LineStyle = "Cylinder"
 plot.LineWidth = 3
 plot.update()
+
+# ## Export field line traces plot
+#
+# Export field line traces plot.
+# For field lint traces plot, the export file format is ``.fldplt``.
+
+M2D.post.export_field_plot(plotname="LineTracesTest", filepath=M2D.toolkit_directory, file_format="fldplt")
+
+# ## Export a field plot to an image file
+#
+# Export the flux lines plot to an image file using PyVista Python package.
+
+M2D.post.plot_field_from_fieldplot(plot.name, show=False)
+
+# ## Export the mesh field plot
+#
+# Export the mesh in ``aedtplt`` format.
+
+M2D.post.export_mesh_obj(setup_name=M2D.nominal_adaptive)
 
 # ## Save project and close AEDT
 #
