@@ -44,8 +44,8 @@ if not os.path.exists(results_folder):
 # dxf_layers = m2d.get_dxf_layers(DXFPath)
 # m2d.import_dxf(DXFPath, dxf_layers, scale=1E-05)
 
-ParasolidPath = pyaedt.downloads.download_file("x_t", "Ansys_logo_2D.x_t")
-m2d.modeler.import_3d_cad(ParasolidPath)
+parasolid_path = pyaedt.downloads.download_file("x_t", "Ansys_logo_2D.x_t")
+m2d.modeler.import_3d_cad(parasolid_path)
 # -
 
 # ## Define variables
