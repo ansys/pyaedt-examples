@@ -10,6 +10,13 @@ The method is valid and usable for any object the user would like to segment.
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 from pyaedt import Maxwell3d, downloads, generate_unique_folder_name
+import tempfile
+
+# ## Create temporary directory
+#
+# Create temporary directory.
+
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Set non-graphical mode
 #
@@ -22,8 +29,7 @@ non_graphical = False
 #
 # Set local temporary folder to export the .aedt file to.
 
-temp_folder = generate_unique_folder_name()
-aedt_file = downloads.download_file("object_segmentation", "Motor3D_obj_segments.aedt", temp_folder)
+aedt_file = downloads.download_file("object_segmentation", "Motor3D_obj_segments.aedt", temp_dir.name)
 
 # ## Launch Maxwell 3D
 #
@@ -51,10 +57,10 @@ modeler = m3d.modeler
 # be applied in the geometry too.
 # In this specific case we give as input the name of the magnet.
 
-segments_number = 5
+segments_number = 2
 object_name = "PM_I1"
 sheets_1 = modeler.objects_segmentation(
-    object_name, segments_number=segments_number, apply_mesh_sheets=True
+    object_name, segments_number=segments_number, apply_mesh_sheets=True, mesh_sheets_number=3
 )
 
 # ## Segment second magnet by specifying the number of segments
@@ -62,7 +68,7 @@ sheets_1 = modeler.objects_segmentation(
 # Select second magnet to segment by specifying the number of segments.
 # In this specific case we give as input the id of the magnet.
 
-segments_number = 4
+segments_number = 2
 object_name = "PM_I1_1"
 magnet_id = [obj.id for obj in modeler.object_list if obj.name == object_name][0]
 sheets_2 = modeler.objects_segmentation(
@@ -88,7 +94,7 @@ sheets_3 = modeler.objects_segmentation(
 # In this specific case we give as input the name of the magnet and we disable the mesh sheets.
 
 object_name = "PM_O1_1"
-segments_number = 10
+segments_number = 2
 sheets_4 = modeler.objects_segmentation(object_name, segments_number=segments_number)
 
 # ## Save project and close AEDT
@@ -97,3 +103,4 @@ sheets_4 = modeler.objects_segmentation(object_name, segments_number=segments_nu
 
 m3d.save_project()
 m3d.release_desktop()
+temp_dir.cleanup()

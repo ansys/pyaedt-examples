@@ -74,7 +74,7 @@ m2d.modeler["ANSYS_LOGO_2D_3"].material_name = "ConductorMaterial[MaterialIndex]
 m2d.assign_voltage(["ANSYS_LOGO_2D_1"], amplitude=1, name="1V")
 m2d.assign_voltage(["ANSYS_LOGO_2D_2"], amplitude=0, name="0V")
 
-# ## Setup conductance calculation
+# ## setup conductance calculation
 #
 # 1V is the source, 0V ground.
 
