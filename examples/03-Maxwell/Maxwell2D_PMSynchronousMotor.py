@@ -19,11 +19,11 @@ import pyaedt
 # Initialize Maxwell 2D, providing the version, path to the project, and the design
 # name and type.
 
-desktopVersion = AEDT_VERSION
-sName = "MySetupAuto"
-sType = "TransientXY"
-pName = pyaedt.generate_unique_project_name()
-dName = "Sinusoidal"
+aedt_version = AEDT_VERSION
+setup_name = "MySetupAuto"
+solver = "TransientXY"
+project_name = pyaedt.generate_unique_project_name()
+design_name = "Sinusoidal"
 
 # ## Initialize dictionaries
 #
@@ -113,10 +113,10 @@ non_graphical = False
 # Launch Maxwell 2D and save the project.
 
 M2D = pyaedt.Maxwell2d(
-    projectname=pName,
-    specified_version=desktopVersion,
-    designname=dName,
-    solution_type=sType,
+    projectname=project_name,
+    specified_version=aedt_version,
+    designname=design_name,
+    solution_type=solver,
     new_desktop_session=True,
     non_graphical=non_graphical,
 )
@@ -262,15 +262,7 @@ stator_id.solve_inside = True
 # ## Create geometry for PMs
 #
 # Create the geometry for the PMs (permanent magnets). In Maxwell 2D, you assign
-# magnetization via the coordinate system. Because each PM needs to have a coordinate
-# system in the face center, auxiliary functions are created. Here, you use the auxiliary
-# function ``find_elements(lst1, lst2)`` to find the elements in list ``lst1`` with indexes
-# in list ``lst2``.
-
-
-def find_elements(lst1, lst2):
-    return [lst1[i] for i in lst2]
-
+# magnetization via the coordinate system.
 
 # ## Find largest elements in list
 #
@@ -308,7 +300,7 @@ def create_cs_magnets(pm_id, cs_name, point_direction):
 
     # find the 2 longest edges of the PM
     index_2_longest = find_n_largest(edge_len_list, 2)
-    longest_edge_list = find_elements(pm_edges, index_2_longest)
+    longest_edge_list = [pm_edges[i] for i in index_2_longest]
     edge_center_list = list(
         map(mod2D.get_edge_midpoint, longest_edge_list)
     )  # apply method get_edge_midpoint to all elements of list longest_edge_list
@@ -694,7 +686,7 @@ M2D.change_symmetry_multiplier("SymmetryFactor")
 # Create the setup and validate it.
 
 # +
-setup = M2D.create_setup(setupname=sName)
+setup = M2D.create_setup(setupname=setup_name)
 setup.props["StopTime"] = "StopTime"
 setup.props["TimeStep"] = "TimeStep"
 setup.props["SaveFieldsType"] = "None"
@@ -849,7 +841,7 @@ for k, v in post_params.items():
 # Analyze and save the project.
 
 M2D.save_project()
-M2D.analyze_setup(sName, use_auto_settings=False)
+M2D.analyze_setup(setup_name, use_auto_settings=False)
 
 # ## Create flux lines plot on region
 #
