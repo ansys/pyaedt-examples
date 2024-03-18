@@ -11,6 +11,13 @@ import os
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
+import tempfile
+
+# ## Create temporary directory
+#
+# Create temporary directory.
+
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Set non-graphical mode
 #
@@ -106,7 +113,7 @@ values = {
 # JSON file as an argument. You can convert a dictionary to a JSON file.
 
 # +
-json_path = os.path.join(m3d.working_directory, "choke_example.json")
+json_path = os.path.join(temp_dir.name, "choke_example.json")
 
 with open(json_path, "w") as outfile:
     json.dump(values, outfile)
@@ -189,13 +196,13 @@ m3d.assign_matrix(["phase_1_in", "phase_2_in", "phase_3_in"], matrix_name="curre
 
 mesh = m3d.mesh
 mesh.assign_skin_depth(
-    [first_winding_list[0], second_winding_list[0], third_winding_list[0]],
-    0.20,
+    names=[first_winding_list[0], second_winding_list[0], third_winding_list[0]],
+    skindepth=0.20,
     triangulation_max_length="10mm",
     meshop_name="skin_depth",
 )
 mesh.assign_surface_mesh_manual(
-    [first_winding_list[0], second_winding_list[0], third_winding_list[0]],
+    names=[first_winding_list[0], second_winding_list[0], third_winding_list[0]],
     surf_dev=None,
     normal_dev="30deg",
     meshop_name="surface_approx",
@@ -231,7 +238,7 @@ setup.add_eddy_current_sweep(
 m3d.save_project()
 m3d.modeler.fit_all()
 m3d.plot(
-    show=False, export_path=os.path.join(m3d.working_directory, "Image.jpg"), plot_air_objects=True
+    show=False, export_path=os.path.join(temp_dir.name, "Image.jpg"), plot_air_objects=True
 )
 
 # ## Close AEDT
@@ -241,3 +248,4 @@ m3d.plot(
 # All methods provide for saving the project before closing.
 
 m3d.release_desktop()
+temp_dir.cleanup()

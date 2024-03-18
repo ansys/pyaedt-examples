@@ -153,3 +153,4 @@ solutions.plot()
 # Close AEDT.
 
 maxwell_2d.release_desktop()
+temp_dir.cleanup()
