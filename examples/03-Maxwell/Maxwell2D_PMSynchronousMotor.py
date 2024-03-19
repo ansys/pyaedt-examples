@@ -8,7 +8,7 @@
 # Perform required imports.
 
 import csv
-from math import sqrt as mysqrt
+from operator import attrgetter
 import os
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
@@ -112,7 +112,7 @@ non_graphical = False
 #
 # Launch Maxwell 2D and save the project.
 
-M2D = pyaedt.Maxwell2d(
+m2d = pyaedt.Maxwell2d(
     projectname=project_name,
     specified_version=aedt_version,
     designname=design_name,
@@ -125,7 +125,7 @@ M2D = pyaedt.Maxwell2d(
 #
 # Create the object ``mod2D`` to access the 2D modeler easily.
 
-mod2D = M2D.modeler
+mod2D = m2d.modeler
 mod2D.delete()
 mod2D.model_units = "mm"
 
@@ -134,13 +134,13 @@ mod2D.model_units = "mm"
 # Define design variables from the created dictionaries.
 
 for k, v in geom_params.items():
-    M2D[k] = v
+    m2d[k] = v
 for k, v in wind_params.items():
-    M2D[k] = v
+    m2d[k] = v
 for k, v in mod_params.items():
-    M2D[k] = v
+    m2d[k] = v
 for k, v in oper_params.items():
-    M2D[k] = v
+    m2d[k] = v
 
 # ## Define path for non-linear material properties
 #
@@ -153,7 +153,7 @@ filename_lam, filename_PM = pyaedt.downloads.download_leaf()
 #
 # Create the material ``"Copper (Annealed)_65C"``.
 
-mat_coils = M2D.materials.add_material("Copper (Annealed)_65C")
+mat_coils = m2d.materials.add_material("Copper (Annealed)_65C")
 mat_coils.update()
 mat_coils.conductivity = "49288048.9198"
 mat_coils.permeability = "1"
@@ -165,7 +165,7 @@ mat_coils.permeability = "1"
 # is created. This list is passed to the ``mat_PM.permeability.value``
 # method.
 
-mat_PM = M2D.materials.add_material("Arnold_Magnetics_N30UH_80C_new")
+mat_PM = m2d.materials.add_material("Arnold_Magnetics_N30UH_80C_new")
 mat_PM.update()
 mat_PM.conductivity = "555555.5556"
 mat_PM.set_magnetic_coercivity(value=-800146.66287534, x=1, y=0, z=0)
@@ -184,7 +184,7 @@ mat_PM.permeability.value = BH_List_PM
 # This material has a BH curve and a core loss model,
 # which is set to electrical steel.
 
-mat_lam = M2D.materials.add_material("30DH_20C_smooth")
+mat_lam = m2d.materials.add_material("30DH_20C_smooth")
 mat_lam.update()
 mat_lam.conductivity = "1694915.25424"
 kh = 71.7180985413
@@ -244,7 +244,8 @@ stator_id = mod2D.create_udp(
     udp_parameters_list=udp_par_list_stator,
     upd_library="syslib",
     name="my_stator",
-)  # name not taken
+)
+
 # -
 
 # ## Assign properties to stator
@@ -252,77 +253,12 @@ stator_id = mod2D.create_udp(
 # Assign properties to the stator. The following code assigns
 # the material, name, color, and  ``solve_inside`` properties.
 
-M2D.assign_material(obj=stator_id, mat="30DH_20C_smooth")
+m2d.assign_material(obj=stator_id, mat="30DH_20C_smooth")
 stator_id.name = "Stator"
 stator_id.color = (0, 0, 255)  # rgb
 
 # to be reassigned: m2d.assign material puts False if not dielectric
 stator_id.solve_inside = True
-
-# ## Create geometry for PMs
-#
-# Create the geometry for the PMs (permanent magnets). In Maxwell 2D, you assign
-# magnetization via the coordinate system.
-
-# ## Find largest elements in list
-#
-# Use the auxiliary function ``find_n_largest (input_len_list, n_largest_edges)``
-# to find the ``n`` largest elements in the list ``input_len_list``.
-
-
-def find_n_largest(input_len_list, n_largest_edges):
-    tmp = list(input_len_list)
-    copied = list(input_len_list)
-    copied.sort()  # sort list so that largest elements are on the far right
-    index_list = []
-    for n in range(1, n_largest_edges + 1):  # get index of the nth largest element
-        index_list.append(tmp.index(copied[-n]))
-        tmp[
-            tmp.index(copied[-n])
-        ] = 0  # index can only get the first occurrence that solves the problem
-    return index_list
-
-
-# ## Create coordinate system for PMs
-#
-# Create the coordinate system for the PMs. The inputs are the object name, coordinate
-# system name, and inner or outer magnetization. Find the two longest edges of the magnets
-# and get the midpoint of the outer edge. You must have this point to create the face
-# coordinate systems in case of outer magnetization.
-
-# +
-def create_cs_magnets(pm_id, cs_name, point_direction):
-    pm_face_id = mod2D.get_object_faces(pm_id.name)[0]  # works with name only
-    pm_edges = mod2D.get_object_edges(pm_id.name)  # gets the edges of the PM object
-    edge_len_list = list(
-        map(mod2D.get_edge_length, pm_edges)
-    )  # apply method get_edge_length to all elements of list pm_edges
-
-    # find the 2 longest edges of the PM
-    index_2_longest = find_n_largest(edge_len_list, 2)
-    longest_edge_list = [pm_edges[i] for i in index_2_longest]
-    edge_center_list = list(
-        map(mod2D.get_edge_midpoint, longest_edge_list)
-    )  # apply method get_edge_midpoint to all elements of list longest_edge_list
-
-    rad = lambda x: mysqrt(x[0] * x[0] + x[1] * x[1] + x[2] * x[2])
-    index_largest_r = find_n_largest(list(map(rad, edge_center_list)), 2)
-    longest_edge_list2 = [
-        longest_edge_list[i] for i in index_largest_r
-    ]  # reorder: outer first element of the list
-    if point_direction == "outer":
-        my_axis_pos = longest_edge_list2[0]
-    elif point_direction == "inner":
-        my_axis_pos = longest_edge_list2[1]
-
-    mod2D.create_face_coordinate_system(
-        face=pm_face_id, origin=pm_face_id, axis_position=my_axis_pos, axis="X", name=cs_name
-    )
-    pm_id.part_coordinate_system = cs_name
-    mod2D.set_working_coordinate_system("Global")
-
-
-# -
 
 # ## Create outer and inner PMs
 #
@@ -355,6 +291,35 @@ OPM1_id = mod2D.create_polyline(
 )
 OPM1_id.color = (0, 128, 64)
 
+
+# ## Create coordinate system for PMs
+#
+# Create the coordinate system for the PMs.
+# In Maxwell 2D, you assign magnetization via the coordinate system.
+# The inputs are the object name, coordinate system name, and inner or outer magnetization.
+
+# +
+def create_cs_magnets(pm_id, cs_name, point_direction):
+    edges = sorted(pm_id.edges, key=attrgetter("length"), reverse=True)
+
+    if point_direction == "outer":
+        my_axis_pos = edges[0]
+    elif point_direction == "inner":
+        my_axis_pos = edges[1]
+
+    mod2D.create_face_coordinate_system(
+        face=pm_id.faces[0],
+        origin=pm_id.faces[0],
+        axis_position=my_axis_pos,
+        axis="X",
+        name=cs_name,
+    )
+    pm_id.part_coordinate_system = cs_name
+    mod2D.set_working_coordinate_system("Global")
+
+
+# -
+
 # ## Create coordinate system for PMs in face center
 #
 # Create the coordinate system for PMs in the face center.
@@ -367,7 +332,7 @@ create_cs_magnets(OPM1_id, "CS_" + OPM1_id.name, "outer")
 # Duplicate and mirror the PMs along with the local coordinate system.
 
 mod2D.duplicate_and_mirror(
-    [IPM1_id, OPM1_id],
+    objid=[IPM1_id, OPM1_id],
     position=[0, 0, 0],
     vector=["cos((360deg/SymmetryFactor/2)+90deg)", "sin((360deg/SymmetryFactor/2)+90deg)", 0],
 )
@@ -384,7 +349,7 @@ coil_id = mod2D.create_rectangle(
     matname="Copper (Annealed)_65C",
 )
 coil_id.color = (255, 128, 0)
-M2D.modeler.rotate(objid=coil_id, cs_axis="Z", angle="360deg/SlotNumber/2")
+m2d.modeler.rotate(objid=coil_id, cs_axis="Z", angle="360deg/SlotNumber/2")
 coil_id.duplicate_around_axis(
     cs_axis="Z", angle="360deg/SlotNumber", nclones="CoilPitch+1", create_new_objects=True
 )
@@ -431,7 +396,7 @@ bandOUT_id = mod2D.create_circle(
 #
 # Assign a motion setup to a ``Band`` object named ``RotatingBand_mid``.
 
-M2D.assign_rotate_motion(
+m2d.assign_rotate_motion(
     band_object="Band",
     coordinate_system="Global",
     axis="Z",
@@ -464,7 +429,7 @@ void_small_1_id = mod2D.create_circle(
     position=[62, 0, 0], radius="2.55mm", num_sides=0, name="void1", matname="vacuum"
 )
 
-M2D.modeler.duplicate_around_axis(
+m2d.modeler.duplicate_around_axis(
     void_small_1_id, cs_axis="Z", angle="360deg/SymmetryFactor", nclones=2, create_new_objects=False
 )
 
@@ -497,14 +462,14 @@ slot_OM_id = mod2D.create_polyline(
     position_list=slot_OM1_points, cover_surface=True, name="slot_OM1", matname="vacuum"
 )
 
-M2D.modeler.duplicate_and_mirror(
+m2d.modeler.duplicate_and_mirror(
     objid=[slot_IM_id, slot_OM_id],
     position=[0, 0, 0],
     vector=["cos((360deg/SymmetryFactor/2)+90deg)", "sin((360deg/SymmetryFactor/2)+90deg)", 0],
 )
 
 id_holes = mod2D.get_objects_w_string("slot_", case_sensitive=True)
-M2D.modeler.subtract(rotor_id, id_holes, keep_originals=True)
+m2d.modeler.subtract(rotor_id, id_holes, keep_originals=True)
 # -
 
 # ## Create section of machine
@@ -524,9 +489,9 @@ mod2D.create_coordinate_system(
 )
 
 mod2D.set_working_coordinate_system("Section")
-mod2D.split(object_list, "ZX", sides="NegativeOnly")
+mod2D.split(object_list, plane="ZX", sides="NegativeOnly")
 mod2D.set_working_coordinate_system("Global")
-mod2D.split(object_list, "ZX", sides="PositiveOnly")
+mod2D.split(object_list, plane="ZX", sides="PositiveOnly")
 # -
 
 # ## Create boundary conditions
@@ -541,7 +506,7 @@ id_bc_2 = mod2D.get_edgeid_from_position(
     position=[pos_1 + "*cos((360deg/SymmetryFactor))", pos_1 + "*sin((360deg/SymmetryFactor))", 0],
     obj_name="Region",
 )
-M2D.assign_master_slave(
+m2d.assign_master_slave(
     master_edge=id_bc_1,
     slave_edge=id_bc_2,
     reverse_master=False,
@@ -563,7 +528,7 @@ id_bc_az = mod2D.get_edgeid_from_position(
     ],
     obj_name="Region",
 )
-M2D.assign_vector_potential(id_bc_az, vectorvalue=0, bound_name="VectorPotentialZero")
+m2d.assign_vector_potential(input_edge=id_bc_az, vectorvalue=0, bound_name="VectorPotentialZero")
 
 # ## Create excitations
 #
@@ -577,13 +542,13 @@ PhC_current = "IPeak * cos(2*pi * ElectricFrequency*time - 240deg+Theta_i)"
 #
 # Define windings in phase A.
 
-M2D.assign_coil(
+m2d.assign_coil(
     input_object=["Coil"], conductor_number=6, polarity="Positive", name="CT_Ph1_P2_C1_Go"
 )
-M2D.assign_coil(
+m2d.assign_coil(
     input_object=["Coil_5"], conductor_number=6, polarity="Negative", name="CT_Ph1_P2_C1_Ret"
 )
-M2D.assign_winding(
+m2d.assign_winding(
     coil_terminals=None,
     winding_type="Current",
     is_solid=False,
@@ -591,19 +556,19 @@ M2D.assign_winding(
     parallel_branches=1,
     name="Phase_A",
 )
-M2D.add_winding_coils(windingname="Phase_A", coil_names=["CT_Ph1_P2_C1_Go", "CT_Ph1_P2_C1_Ret"])
+m2d.add_winding_coils(windingname="Phase_A", coil_names=["CT_Ph1_P2_C1_Go", "CT_Ph1_P2_C1_Ret"])
 
 # ## Define windings in phase B
 #
 # Define windings in phase B.
 
-M2D.assign_coil(
+m2d.assign_coil(
     input_object="Coil_3", conductor_number=6, polarity="Positive", name="CT_Ph3_P1_C2_Go"
 )
-M2D.assign_coil(
+m2d.assign_coil(
     input_object="Coil_4", conductor_number=6, polarity="Positive", name="CT_Ph3_P1_C1_Go"
 )
-M2D.assign_winding(
+m2d.assign_winding(
     coil_terminals=None,
     winding_type="Current",
     is_solid=False,
@@ -611,19 +576,19 @@ M2D.assign_winding(
     parallel_branches=1,
     name="Phase_B",
 )
-M2D.add_winding_coils(windingname="Phase_B", coil_names=["CT_Ph3_P1_C2_Go", "CT_Ph3_P1_C1_Go"])
+m2d.add_winding_coils(windingname="Phase_B", coil_names=["CT_Ph3_P1_C2_Go", "CT_Ph3_P1_C1_Go"])
 
 # ## Define windings in phase C
 #
 # Define windings in phase C.
 
-M2D.assign_coil(
+m2d.assign_coil(
     input_object="Coil_1", conductor_number=6, polarity="Negative", name="CT_Ph2_P2_C2_Ret"
 )
-M2D.assign_coil(
+m2d.assign_coil(
     input_object="Coil_2", conductor_number=6, polarity="Negative", name="CT_Ph2_P2_C1_Ret"
 )
-M2D.assign_winding(
+m2d.assign_winding(
     coil_terminals=None,
     winding_type="Current",
     is_solid=False,
@@ -631,7 +596,7 @@ M2D.assign_winding(
     parallel_branches=1,
     name="Phase_C",
 )
-M2D.add_winding_coils(windingname="Phase_C", coil_names=["CT_Ph2_P2_C2_Ret", "CT_Ph2_P2_C1_Ret"])
+m2d.add_winding_coils(windingname="Phase_C", coil_names=["CT_Ph2_P2_C2_Ret", "CT_Ph2_P2_C1_Ret"])
 
 # ## Assign total current on PMs
 #
@@ -639,15 +604,15 @@ M2D.add_winding_coils(windingname="Phase_C", coil_names=["CT_Ph2_P2_C2_Ret", "CT
 
 PM_list = id_PMs
 for item in PM_list:
-    M2D.assign_current(item, amplitude=0, solid=True, name=item + "_I0")
+    m2d.assign_current(item, amplitude=0, solid=True, name=item + "_I0")
 
 # ## Create mesh operations
 #
 # Create the mesh operations.
 
-M2D.mesh.assign_length_mesh(id_coils, isinside=True, maxlength=3, maxel=None, meshop_name="coils")
-M2D.mesh.assign_length_mesh(stator_id, isinside=True, maxlength=3, maxel=None, meshop_name="stator")
-M2D.mesh.assign_length_mesh(rotor_id, isinside=True, maxlength=3, maxel=None, meshop_name="rotor")
+m2d.mesh.assign_length_mesh(id_coils, isinside=True, maxlength=3, maxel=None, meshop_name="coils")
+m2d.mesh.assign_length_mesh(stator_id, isinside=True, maxlength=3, maxel=None, meshop_name="stator")
+m2d.mesh.assign_length_mesh(rotor_id, isinside=True, maxlength=3, maxel=None, meshop_name="rotor")
 
 # ## Turn on eddy effects
 #
@@ -661,32 +626,32 @@ M2D.mesh.assign_length_mesh(rotor_id, isinside=True, maxlength=3, maxel=None, me
 # Turn on core loss.
 
 core_loss_list = ["Rotor", "Stator"]
-M2D.set_core_losses(core_loss_list, value=True)
+m2d.set_core_losses(core_loss_list, value=True)
 
 # ## Compute transient inductance
 #
 # Compute the transient inductance.
 
-M2D.change_inductance_computation(compute_transient_inductance=True, incremental_matrix=False)
+m2d.change_inductance_computation(compute_transient_inductance=True, incremental_matrix=False)
 
 # ## Set model depth
 #
 # Set the model depth.
 
-M2D.model_depth = "Magnetic_Axial_Length"
+m2d.model_depth = "Magnetic_Axial_Length"
 
 # ## Set symmetry factor
 #
 # Set the symmetry factor.
 
-M2D.change_symmetry_multiplier("SymmetryFactor")
+m2d.change_symmetry_multiplier("SymmetryFactor")
 
 # ## Create setup and validate
 #
 # Create the setup and validate it.
 
 # +
-setup = M2D.create_setup(setupname=setup_name)
+setup = m2d.create_setup(setupname=setup_name)
 setup.props["StopTime"] = "StopTime"
 setup.props["TimeStep"] = "TimeStep"
 setup.props["SaveFieldsType"] = "None"
@@ -694,10 +659,10 @@ setup.props["OutputPerObjectCoreLoss"] = True
 setup.props["OutputPerObjectSolidLoss"] = True
 setup.props["OutputError"] = True
 setup.update()
-M2D.validate_simple()
+m2d.validate_simple()
 
-model = M2D.plot(show=False)
-model.plot(os.path.join(M2D.working_directory, "Image.jpg"))
+model = m2d.plot(show=False)
+model.plot(os.path.join(m2d.working_directory, "Image.jpg"))
 # -
 
 # ## Initialize definitions for output variables
@@ -751,7 +716,7 @@ output_vars = {
 # Create output variables for postprocessing.
 
 for k, v in output_vars.items():
-    M2D.create_output_variable(k, v)
+    m2d.create_output_variable(k, v)
 
 # ## Initialize definition for postprocessing plots
 #
@@ -807,7 +772,7 @@ post_params_multiplot = {  # reports
 # Create a report.
 
 for k, v in post_params.items():
-    M2D.post.create_report(
+    m2d.post.create_report(
         expressions=k,
         setup_sweep_name="",
         domain="Sweep",
@@ -840,8 +805,8 @@ for k, v in post_params.items():
 #
 # Analyze and save the project.
 
-M2D.save_project()
-M2D.analyze_setup(setup_name, use_auto_settings=False)
+m2d.save_project()
+m2d.analyze_setup(setup_name, use_auto_settings=False)
 
 # ## Create flux lines plot on region
 #
@@ -849,10 +814,10 @@ M2D.analyze_setup(setup_name, use_auto_settings=False)
 # formerly created when the section is applied.
 
 faces_reg = mod2D.get_object_faces(object_list[1].name)  # Region
-plot1 = M2D.post.create_fieldplot_surface(
+plot1 = m2d.post.create_fieldplot_surface(
     objlist=faces_reg,
     quantityName="Flux_Lines",
-    intrinsincDict={"Time": M2D.variable_manager.variables["StopTime"].evaluated_value},
+    intrinsincDict={"Time": m2d.variable_manager.variables["StopTime"].evaluated_value},
     plot_name="Flux_Lines",
 )
 
@@ -860,14 +825,14 @@ plot1 = M2D.post.create_fieldplot_surface(
 #
 # Export the flux lines plot to an image file using Python PyVista.
 
-M2D.post.plot_field_from_fieldplot(plot1.name, show=False)
+m2d.post.plot_field_from_fieldplot(plot1.name, show=False)
 
 # ## Get solution data
 #
 # Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
 # Plot the desired expression by using Matplotlib plot().
 
-solutions = M2D.post.get_solution_data(expressions="Moving1.Torque", primary_sweep_variable="Time")
+solutions = m2d.post.get_solution_data(expressions="Moving1.Torque", primary_sweep_variable="Time")
 # solutions.plot()
 
 # ## Retrieve the data magnitude of an expression
@@ -881,12 +846,12 @@ avg = sum(mag) / len(mag)
 #
 # Export a 2D Plot data to a .csv file.
 
-M2D.post.export_report_to_file(
-    output_dir=M2D.toolkit_directory, plot_name="TorquePlots", extension=".csv"
+m2d.post.export_report_to_file(
+    output_dir=m2d.toolkit_directory, plot_name="TorquePlots", extension=".csv"
 )
 
 # ## Close AEDT
 #
 # Close AEDT.
 
-M2D.release_desktop()
+m2d.release_desktop()

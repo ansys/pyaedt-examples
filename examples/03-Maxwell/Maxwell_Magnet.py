@@ -55,7 +55,7 @@ magnet = m3d.modeler.create_box(
 #
 # Create the setup and assign a voltage.
 
-m3d.assign_voltage(magnet.faces, amplitude=0)
+m3d.assign_voltage(face_list=magnet.faces, amplitude=0)
 m3d.create_setup()
 
 # ## Plot model

@@ -63,7 +63,7 @@ no_materials = 4
 # Voltage ports will be defined as gold, conductor
 # gets the material defined by the 0th entry of the material array.
 
-m2d.assign_material(["ANSYS_LOGO_2D_1", "ANSYS_LOGO_2D_2"], "gold")
+m2d.assign_material(obj=["ANSYS_LOGO_2D_1", "ANSYS_LOGO_2D_2"], mat="gold")
 m2d.modeler["ANSYS_LOGO_2D_3"].material_name = "ConductorMaterial[MaterialIndex]"
 
 # ## Assign voltages
@@ -158,14 +158,20 @@ for i in range(len(d.primary_sweep_values)):
 # Plot electric field and current density on the conductor surface.
 
 conductor_surface = m2d.modeler["ANSYS_LOGO_2D_3"].faces
-plot1 = m2d.post.create_fieldplot_surface(conductor_surface, "Mag_E", plot_name="Electric Field")
-plot2 = m2d.post.create_fieldplot_surface(conductor_surface, "Mag_J", plot_name="Current Density")
+plot1 = m2d.post.create_fieldplot_surface(
+    objlist=conductor_surface, quantityName="Mag_E", plot_name="Electric Field"
+)
+plot2 = m2d.post.create_fieldplot_surface(
+    objlist=conductor_surface, quantityName="Mag_J", plot_name="Current Density"
+)
 
 # ## Field overlay
 #
 # Plot electric field using pyvista and saving to an image.
 
-py_vista_plot = m2d.post.plot_field("Mag_E", conductor_surface, plot_cad_objs=False, show=False)
+py_vista_plot = m2d.post.plot_field(
+    quantity="Mag_E", object_list=conductor_surface, plot_cad_objs=False, show=False
+)
 py_vista_plot.isometric_view = False
 py_vista_plot.camera_position = [0, 0, 7]
 py_vista_plot.focal_point = [0, 0, 0]
@@ -253,7 +259,10 @@ pdf_report.add_image(os.path.join(temp_dir.name, "M2D_DCConduction.jpg"), width=
 pdf_report.add_sub_chapter("Resistance data table")
 pdf_report.add_text("This section contains Resistance data.")
 pdf_report.add_table(
-    "Resistance Data", content=material_index_vs_resistance, formatting=colors, col_widths=[75, 100]
+    title="Resistance Data",
+    content=material_index_vs_resistance,
+    formatting=colors,
+    col_widths=[75, 100],
 )
 
 # Add table of content and save PDF.

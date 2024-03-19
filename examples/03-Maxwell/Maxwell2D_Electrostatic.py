@@ -28,7 +28,9 @@ non_graphical = False
 #
 # Set local temporary folder to export the .xlsx file to.
 
-file_name_xlsx = pyaedt.downloads.download_file("field_line_traces", "my_copper.xlsx")
+file_name_xlsx = pyaedt.downloads.download_file(
+    directory="field_line_traces", filename="my_copper.xlsx"
+)
 
 # ## Initialize dictionaries
 #
@@ -119,8 +121,8 @@ poly1_points = [[-9, 2, 0], [-4, 2, 0], [2, -2, 0], [8, 2, 0]]
 poly2_points = [[-9, 0, 0], [9, 0, 0]]
 poly1_id = mod2D.create_polyline(position_list=poly1_points, segment_type="Spline", name="Poly1")
 poly2_id = mod2D.create_polyline(position_list=poly2_points, name="Poly2")
-mod2D.split([poly1_id, poly2_id], "YZ", sides="NegativeOnly")
-mod2D.create_region([20, 100, 20, 100])
+mod2D.split(objects=[poly1_id, poly2_id], plane="YZ", sides="NegativeOnly")
+mod2D.create_region(pad_percent=[20, 100, 20, 100])
 # -
 
 # ## Define excitations
