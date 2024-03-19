@@ -8,12 +8,11 @@
 #
 # Perform required imports.
 
-import numpy as np
 import os
 import tempfile
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
-
+import numpy as np
 from pyaedt import Maxwell3d
 from pyaedt.generic.general_methods import write_csv
 
@@ -485,9 +484,15 @@ m3d.analyze()
 
 surf_list = m3d.modeler.get_object_faces("Plate")
 intrinsic_dict = {"Freq": "200Hz", "Phase": "0deg"}
-m3d.post.create_fieldplot_surface(surf_list, quantityName="Mag_J", intrinsincDict=intrinsic_dict, plot_name="Mag_J")
-m3d.post.create_fieldplot_surface(surf_list, quantityName="Mag_B", intrinsincDict=intrinsic_dict, plot_name="Mag_B")
-m3d.post.create_fieldplot_surface(surf_list, quantityName="Mesh", intrinsincDict=intrinsic_dict, plot_name="Mesh")
+m3d.post.create_fieldplot_surface(
+    surf_list, quantityName="Mag_J", intrinsincDict=intrinsic_dict, plot_name="Mag_J"
+)
+m3d.post.create_fieldplot_surface(
+    surf_list, quantityName="Mag_B", intrinsincDict=intrinsic_dict, plot_name="Mag_B"
+)
+m3d.post.create_fieldplot_surface(
+    surf_list, quantityName="Mesh", intrinsincDict=intrinsic_dict, plot_name="Mesh"
+)
 
 # ## Release AEDT and clean up temporary directory
 #

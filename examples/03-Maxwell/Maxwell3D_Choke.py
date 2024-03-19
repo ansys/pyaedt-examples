@@ -8,10 +8,10 @@
 
 import json
 import os
-import pyaedt
 import tempfile
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
+import pyaedt
 
 # ## Create temporary directory
 #
@@ -237,9 +237,7 @@ setup.add_eddy_current_sweep(
 
 m3d.save_project()
 m3d.modeler.fit_all()
-m3d.plot(
-    show=False, export_path=os.path.join(temp_dir.name, "Image.jpg"), plot_air_objects=True
-)
+m3d.plot(show=False, export_path=os.path.join(temp_dir.name, "Image.jpg"), plot_air_objects=True)
 
 # ## Release AEDT and clean up temporary directory
 #

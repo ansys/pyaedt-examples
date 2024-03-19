@@ -9,10 +9,10 @@
 # Perform required imports.
 
 import os
-import pyaedt
 import tempfile
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
+import pyaedt
 
 # ## Create temporary directory
 #
@@ -136,9 +136,7 @@ poly.set_crosssection_properties(type="Circle", width="0.5mm")
 #
 # Plot the model.
 
-m3d.plot(
-    show=False, export_path=os.path.join(temp_dir.name, "Image.jpg"), plot_air_objects=False
-)
+m3d.plot(show=False, export_path=os.path.join(temp_dir.name, "Image.jpg"), plot_air_objects=False)
 
 # ## Add Maxwell 3D setup
 #
@@ -154,8 +152,12 @@ setup.add_eddy_current_sweep(range_type="LinearStep", start=50, end=200, count=1
 # Adjust eddy effects for the ladder plate and the search coil. The setting for
 # eddy effect is ignored for the stranded conductor type used in the search coil.
 
-m3d.eddy_effects_on(object_list=["LadderPlate"], activate_eddy_effects=True, activate_displacement_current=True)
-m3d.eddy_effects_on(object_list=["SearchCoil"], activate_eddy_effects=False, activate_displacement_current=True)
+m3d.eddy_effects_on(
+    object_list=["LadderPlate"], activate_eddy_effects=True, activate_displacement_current=True
+)
+m3d.eddy_effects_on(
+    object_list=["SearchCoil"], activate_eddy_effects=False, activate_displacement_current=True
+)
 
 # ## Add linear parametric sweep
 #

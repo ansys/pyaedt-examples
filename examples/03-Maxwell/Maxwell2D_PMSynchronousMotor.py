@@ -256,7 +256,7 @@ M2D.assign_material(obj=stator_id, mat="30DH_20C_smooth")
 stator_id.name = "Stator"
 stator_id.color = (0, 0, 255)  # rgb
 
-# to be reassigned: M2D.assign material puts False if not dielectric
+# to be reassigned: m2d.assign material puts False if not dielectric
 stator_id.solve_inside = True
 
 # ## Create geometry for PMs
@@ -653,7 +653,7 @@ M2D.mesh.assign_length_mesh(rotor_id, isinside=True, maxlength=3, maxel=None, me
 #
 # Turn on eddy effects.
 
-# M2D.eddy_effects_on(eddy_effects_list,activate_eddy_effects=True,
+# m2d.eddy_effects_on(eddy_effects_list,activate_eddy_effects=True,
 #                     activate_displacement_current=False)
 
 # ## Turn on core loss
@@ -828,7 +828,7 @@ for k, v in post_params.items():
 
 # +
 # for k, v in post_params_multiplot.items():
-#     M2D.post.create_report(expressions=list(k), setup_sweep_name="",
+#     m2d.post.create_report(expressions=list(k), setup_sweep_name="",
 #                            domain="Sweep", variations=None,
 #                            primary_sweep_variable="Time", secondary_sweep_variable=None,
 #                            report_category=None, plot_type="Rectangular Plot",
