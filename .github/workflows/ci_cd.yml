@@ -111,7 +111,8 @@ jobs:
       - name: Install CI related dependencies
         run: |
           .venv\Scripts\Activate.ps1
-          pip install --extra-index-url https://wheels.vtk.org .[ci]
+          pip install pypandoc-binary==1.13
+          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0
 
       # Use environment variable to keep the doctree and avoid redundant build for PDF pages
       - name: Create HTML documentation
