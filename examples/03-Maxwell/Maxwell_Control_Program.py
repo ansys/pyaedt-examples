@@ -31,8 +31,8 @@ non_graphical = False
 #
 # Set local temporary folder to export the .aedt file to.
 
-aedt_file = downloads.download_file("maxwell_ctrl_prg", "ControlProgramDemo.aedt", temp_dir)
-ctrl_prg_file = downloads.download_file("maxwell_ctrl_prg", "timestep_only.py", temp_dir)
+aedt_file = downloads.download_file("maxwell_ctrl_prg", "ControlProgramDemo.aedt", temp_dir.name)
+ctrl_prg_file = downloads.download_file("maxwell_ctrl_prg", "timestep_only.py", temp_dir.name)
 
 # ## Launch Maxwell 2D
 #

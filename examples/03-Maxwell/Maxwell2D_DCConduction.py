@@ -5,6 +5,7 @@
 # Keywords: DXF import, material sweep, expression cache
 
 import os.path
+import tempfile
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
@@ -25,13 +26,11 @@ m2d = pyaedt.Maxwell2d(
     designname="Ansys_resistor",
 )
 
-# ## Create results folder
+# ## Create temporary directory
 #
-# Create results folder.
+# Create temporary directory.
 
-results_folder = os.path.join(m2d.working_directory, "M2D_DC_Conduction")
-if not os.path.exists(results_folder):
-    os.mkdir(results_folder)
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Import geometry as a DXF file
 #
@@ -44,7 +43,7 @@ if not os.path.exists(results_folder):
 # dxf_layers = m2d.get_dxf_layers(DXFPath)
 # m2d.import_dxf(DXFPath, dxf_layers, scale=1E-05)
 
-parasolid_path = pyaedt.downloads.download_file("x_t", "Ansys_logo_2D.x_t")
+parasolid_path = pyaedt.downloads.download_file(directory="x_t", filename="Ansys_logo_2D.x_t")
 m2d.modeler.import_3d_cad(parasolid_path)
 # -
 
@@ -71,8 +70,8 @@ m2d.modeler["ANSYS_LOGO_2D_3"].material_name = "ConductorMaterial[MaterialIndex]
 #
 # 1V and 0V.
 
-m2d.assign_voltage(["ANSYS_LOGO_2D_1"], amplitude=1, name="1V")
-m2d.assign_voltage(["ANSYS_LOGO_2D_2"], amplitude=0, name="0V")
+m2d.assign_voltage(face_list=["ANSYS_LOGO_2D_1"], amplitude=1, name="1V")
+m2d.assign_voltage(face_list=["ANSYS_LOGO_2D_2"], amplitude=0, name="0V")
 
 # ## setup conductance calculation
 #
@@ -84,7 +83,9 @@ m2d.assign_matrix(sources=["1V"], group_sources=["0V"], matrix_name="Matrix1")
 #
 # 3mm on the .
 
-m2d.mesh.assign_length_mesh(["ANSYS_LOGO_2D_3"], meshop_name="conductor", maxlength=3, maxel=None)
+m2d.mesh.assign_length_mesh(
+    names=["ANSYS_LOGO_2D_3"], meshop_name="conductor", maxlength=3, maxel=None
+)
 
 # ## Create simulation setup and enable expression cache
 #
@@ -138,7 +139,7 @@ d = report.get_solution_data()
 resistance = d.data_magnitude()
 material_index = d.primary_sweep_values
 d.primary_sweep = "MaterialIndex"
-d.plot(snapshot_path=os.path.join(results_folder, "M2D_DCConduction.jpg"))
+d.plot(snapshot_path=os.path.join(temp_dir.name, "M2D_DCConduction.jpg"))
 
 # ## Create material index vs resistance table
 #
@@ -171,7 +172,7 @@ py_vista_plot.focal_point = [0, 0, 0]
 py_vista_plot.roll_angle = 0
 py_vista_plot.elevation_angle = 0
 py_vista_plot.azimuth_angle = 0
-py_vista_plot.plot(os.path.join(results_folder, "mag_E.jpg"))
+py_vista_plot.plot(os.path.join(temp_dir.name, "mag_E.jpg"))
 
 # ## Field animation
 #
@@ -180,7 +181,7 @@ py_vista_plot.plot(os.path.join(results_folder, "mag_E.jpg"))
 animated = m2d.post.plot_animated_field(
     quantity="Mag_J",
     object_list=conductor_surface,
-    export_path=results_folder,
+    export_path=temp_dir.name,
     variation_variable="MaterialIndex",
     variation_list=[0, 1, 2, 3],
     show=False,
@@ -226,14 +227,16 @@ pdf_report.add_project_info(m2d)
 
 pdf_report.add_chapter("Model Picture")
 pdf_report.add_text("This section contains the model picture")
-pdf_report.add_image(model_picture, "Model Picture", width=80, height=60)
+pdf_report.add_image(path=model_picture, caption="Model Picture", width=80, height=60)
 
 # Add in a new chapter field overlay plots.
 
 pdf_report.add_chapter("Field overlay")
 pdf_report.add_sub_chapter("Plots")
 pdf_report.add_text("This section contains the fields overlay.")
-pdf_report.add_image(os.path.join(results_folder, "mag_E.jpg"), "Mag E", width=120, height=80)
+pdf_report.add_image(
+    os.path.join(temp_dir.name, "mag_E.jpg"), caption="Mag E", width=120, height=80
+)
 pdf_report.add_page_break()
 
 # Add a new section to display results.
@@ -243,7 +246,7 @@ pdf_report.add_chapter("Results")
 pdf_report.add_sub_chapter("Resistance vs. Material")
 pdf_report.add_text("This section contains resistance vs material data.")
 # Aspect ratio is automatically calculated if only width is provided
-pdf_report.add_image(os.path.join(results_folder, "M2D_DCConduction.jpg"), width=130)
+pdf_report.add_image(os.path.join(temp_dir.name, "M2D_DCConduction.jpg"), width=130)
 
 # Add a new subchapter to display resistance data from previously created table.
 
@@ -256,8 +259,11 @@ pdf_report.add_table(
 # Add table of content and save PDF.
 
 pdf_report.add_toc()
-pdf_report.save_pdf(results_folder, "AEDT_Results.pdf")
+pdf_report.save_pdf(temp_dir.name, "AEDT_Results.pdf")
 
-# ## Release desktop
+# ## Release AEDT and clean up temporary directory
+#
+# Release AEDT and remove both the project and temporary directories.
 
 m2d.release_desktop()
+temp_dir.cleanup()

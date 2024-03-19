@@ -43,7 +43,7 @@ non_graphical = False
 #
 # Insert a Maxwell 2D design and save the project.
 
-maxwell_2d = pyaedt.Maxwell2d(
+m2d = pyaedt.Maxwell2d(
     solution_type="TransientXY",
     specified_version=AEDT_VERSION,
     non_graphical=non_graphical,
@@ -55,28 +55,28 @@ maxwell_2d = pyaedt.Maxwell2d(
 #
 # Create a rectangle and duplicate it.
 
-rect1 = maxwell_2d.modeler.create_rectangle([0, 0, 0], [10, 20], name="winding", matname="copper")
+rect1 = m2d.modeler.create_rectangle([0, 0, 0], [10, 20], name="winding", matname="copper")
 added = rect1.duplicate_along_line([14, 0, 0])
-rect2 = maxwell_2d.modeler[added[0]]
+rect2 = m2d.modeler[added[0]]
 
 # ## Create air region
 #
 # Create an air region.
 
-region = maxwell_2d.modeler.create_region([100, 100, 100, 100, 100, 100])
+region = m2d.modeler.create_region([100, 100, 100, 100, 100, 100])
 
 # ## Assign windings and balloon
 #
 # Assigns windings to the sheets and a balloon to the air region.
 
-maxwell_2d.assign_winding([rect1.name, rect2.name], name="PHA")
-maxwell_2d.assign_balloon(region.edges)
+m2d.assign_winding([rect1.name, rect2.name], name="PHA")
+m2d.assign_balloon(region.edges)
 
 # ## Plot model
 #
 # Plot the model.
 
-maxwell_2d.plot(
+m2d.plot(
     show=False,
     export_path=os.path.join(temp_dir.name, "Image.jpg"),
     plot_air_objects=True,
@@ -86,7 +86,7 @@ maxwell_2d.plot(
 #
 # Create the transient setup.
 
-setup = maxwell_2d.create_setup()
+setup = m2d.create_setup()
 setup.props["StopTime"] = "0.02s"
 setup.props["TimeStep"] = "0.0002s"
 setup.props["SaveFieldsType"] = "Every N Steps"
@@ -98,7 +98,7 @@ setup.props["Steps To"] = "0.002s"
 #
 # Create a rectangular plot.
 
-maxwell_2d.post.create_report(
+m2d.post.create_report(
     "InputCurrent(PHA)", domain="Time", primary_sweep_variable="Time", plotname="Winding Plot 1"
 )
 
@@ -106,7 +106,7 @@ maxwell_2d.post.create_report(
 #
 # Solve the model.
 
-maxwell_2d.analyze(use_auto_settings=False)
+m2d.analyze(use_auto_settings=False)
 
 # ## Create output and plot using PyVista
 #
@@ -119,7 +119,7 @@ face_lists += rect2.faces
 timesteps = [str(i * 2e-4) + "s" for i in range(11)]
 id_list = [f.id for f in face_lists]
 
-gif = maxwell_2d.post.plot_animated_field(
+gif = m2d.post.plot_animated_field(
     quantity="Mag_B",
     object_list=id_list,
     plot_type="Surface",
@@ -145,12 +145,12 @@ gif.animate()
 #
 # Generate the same plot outside AEDT.
 
-solutions = maxwell_2d.post.get_solution_data("InputCurrent(PHA)", primary_sweep_variable="Time")
+solutions = m2d.post.get_solution_data("InputCurrent(PHA)", primary_sweep_variable="Time")
 solutions.plot()
 
 # ## Release AEDT and clean up temporary directory
 #
 # Release AEDT and remove both the project and temporary directories.
 
-maxwell_2d.release_desktop()
+m2d.release_desktop()
 temp_dir.cleanup()
