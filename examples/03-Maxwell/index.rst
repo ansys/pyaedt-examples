@@ -9,7 +9,7 @@ and Transient).
 
     Maxwell2D_DCConduction.py
     Maxwell2D_Electrostatic.py
-    Maxwell2D_NissanLeaf.py
+    Maxwell2D_PMSynchronousMotor.py
     Maxwell2D_Transient.py
     Maxwell3DTeam7.py
     Maxwell3D_Choke.py
