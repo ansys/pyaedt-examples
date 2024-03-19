@@ -69,7 +69,6 @@ setup.enable_control_program(control_program_path=ctrl_prg_file)
 
 setup.analyze()
 
-
 # ## Plot results
 #
 # Plot Solved Results.
