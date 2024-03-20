@@ -43,7 +43,9 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 # dxf_layers = m2d.get_dxf_layers(DXFPath)
 # m2d.import_dxf(DXFPath, dxf_layers, scale=1E-05)
 
-parasolid_path = pyaedt.downloads.download_file(directory="x_t", filename="Ansys_logo_2D.x_t")
+parasolid_path = pyaedt.downloads.download_file(
+    directory="x_t", filename="Ansys_logo_2D.x_t", destination=temp_dir.name
+)
 m2d.modeler.import_3d_cad(parasolid_path)
 # -
 

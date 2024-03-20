@@ -31,7 +31,7 @@ non_graphical = False
 # Set local temporary folder to export the .aedt file to.
 
 aedt_file = downloads.download_file(
-    "object_segmentation", "Motor3D_obj_segments.aedt", temp_dir.name
+    directory="object_segmentation", filename="Motor3D_obj_segments.aedt", destination=temp_dir.name
 )
 
 # ## Launch Maxwell 3D
@@ -47,7 +47,7 @@ m3d = Maxwell3d(
 
 # ## Create object to access 3D modeler
 #
-# Create the object ``mod3D`` to access the 3D modeler easily.
+# Create the object ``modeler`` to access the 3D modeler easily.
 
 modeler = m3d.modeler
 

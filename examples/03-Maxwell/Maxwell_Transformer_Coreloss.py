@@ -27,25 +27,27 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 # +
 
 aedt_file = downloads.download_file(
-    "core_loss_transformer", "Ex2-PlanarTransformer_2023R2.aedtz", temp_dir.name
+    directory="core_loss_transformer",
+    filename="Ex2-PlanarTransformer_2023R2.aedtz",
+    destination=temp_dir.name,
 )
 freq_curve_csv_25kHz = downloads.download_file(
-    "core_loss_transformer", "mf3_25kHz.csv", temp_dir.name
+    directory="core_loss_transformer", filename="mf3_25kHz.csv", destination=temp_dir.name
 )
 freq_curve_csv_100kHz = downloads.download_file(
-    "core_loss_transformer", "mf3_100kHz.csv", temp_dir.name
+    directory="core_loss_transformer", filename="mf3_100kHz.csv", destination=temp_dir.name
 )
 freq_curve_csv_200kHz = downloads.download_file(
-    "core_loss_transformer", "mf3_200kHz.csv", temp_dir.name
+    directory="core_loss_transformer", filename="mf3_200kHz.csv", destination=temp_dir.name
 )
 freq_curve_csv_400kHz = downloads.download_file(
-    "core_loss_transformer", "mf3_400kHz.csv", temp_dir.name
+    directory="core_loss_transformer", filename="mf3_400kHz.csv", destination=temp_dir.name
 )
 freq_curve_csv_700kHz = downloads.download_file(
-    "core_loss_transformer", "mf3_700kHz.csv", temp_dir.name
+    directory="core_loss_transformer", filename="mf3_700kHz.csv", destination=temp_dir.name
 )
 freq_curve_csv_1MHz = downloads.download_file(
-    "core_loss_transformer", "mf3_1MHz.csv", temp_dir.name
+    directory="core_loss_transformer", filename="mf3_1MHz.csv", destination=temp_dir.name
 )
 
 data = read_csv_pandas(filename=freq_curve_csv_25kHz)

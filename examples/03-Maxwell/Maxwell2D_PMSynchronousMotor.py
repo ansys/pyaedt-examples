@@ -123,11 +123,11 @@ m2d = pyaedt.Maxwell2d(
 
 # ## Create object to access 2D modeler
 #
-# Create the object ``mod2D`` to access the 2D modeler easily.
+# Create the object ``mod_2d`` to access the 2D modeler easily.
 
-mod2D = m2d.modeler
-mod2D.delete()
-mod2D.model_units = "mm"
+mod_2d = m2d.modeler
+mod_2d.delete()
+mod_2d.model_units = "mm"
 
 # ## Define variables from dictionaries
 #
@@ -239,7 +239,7 @@ udp_par_list_stator = [
     ["InfoCore", "0"],
 ]
 
-stator_id = mod2D.create_udp(
+stator_id = mod_2d.create_udp(
     udp_dll_name="RMxprt/VentSlotCore.dll",
     udp_parameters_list=udp_par_list_stator,
     upd_library="syslib",
@@ -276,14 +276,14 @@ OM1_points = [
     [63.26490432, 11.15992981, 0],
     [57.94560461, 24.00185531, 0],
 ]
-IPM1_id = mod2D.create_polyline(
+IPM1_id = mod_2d.create_polyline(
     position_list=IM1_points,
     cover_surface=True,
     name="PM_I1",
     matname="Arnold_Magnetics_N30UH_80C_new",
 )
 IPM1_id.color = (0, 128, 64)
-OPM1_id = mod2D.create_polyline(
+OPM1_id = mod_2d.create_polyline(
     position_list=OM1_points,
     cover_surface=True,
     name="PM_O1",
@@ -307,7 +307,7 @@ def create_cs_magnets(pm_id, cs_name, point_direction):
     elif point_direction == "inner":
         my_axis_pos = edges[1]
 
-    mod2D.create_face_coordinate_system(
+    mod_2d.create_face_coordinate_system(
         face=pm_id.faces[0],
         origin=pm_id.faces[0],
         axis_position=my_axis_pos,
@@ -315,7 +315,7 @@ def create_cs_magnets(pm_id, cs_name, point_direction):
         name=cs_name,
     )
     pm_id.part_coordinate_system = cs_name
-    mod2D.set_working_coordinate_system("Global")
+    mod_2d.set_working_coordinate_system("Global")
 
 
 # -
@@ -331,18 +331,18 @@ create_cs_magnets(OPM1_id, "CS_" + OPM1_id.name, "outer")
 #
 # Duplicate and mirror the PMs along with the local coordinate system.
 
-mod2D.duplicate_and_mirror(
+mod_2d.duplicate_and_mirror(
     objid=[IPM1_id, OPM1_id],
     position=[0, 0, 0],
     vector=["cos((360deg/SymmetryFactor/2)+90deg)", "sin((360deg/SymmetryFactor/2)+90deg)", 0],
 )
-id_PMs = mod2D.get_objects_w_string("PM", case_sensitive=True)
+id_PMs = mod_2d.get_objects_w_string("PM", case_sensitive=True)
 
 # ## Create coils
 #
 # Create the coils.
 
-coil_id = mod2D.create_rectangle(
+coil_id = mod_2d.create_rectangle(
     position=["DiaRotorLam/2+Airgap+Coil_SetBack", "-Coil_Edge_Short/2", 0],
     dimension_list=["Coil_Edge_Long", "Coil_Edge_Short", 0],
     name="Coil",
@@ -353,16 +353,16 @@ m2d.modeler.rotate(objid=coil_id, cs_axis="Z", angle="360deg/SlotNumber/2")
 coil_id.duplicate_around_axis(
     cs_axis="Z", angle="360deg/SlotNumber", nclones="CoilPitch+1", create_new_objects=True
 )
-id_coils = mod2D.get_objects_w_string("Coil", case_sensitive=True)
+id_coils = mod_2d.get_objects_w_string("Coil", case_sensitive=True)
 
 # ## Create shaft and region
 #
 # Create the shaft and region.
 
-region_id = mod2D.create_circle(
+region_id = mod_2d.create_circle(
     position=[0, 0, 0], radius="DiaOuter/2", num_sides="SegAngle", is_covered=True, name="Region"
 )
-shaft_id = mod2D.create_circle(
+shaft_id = mod_2d.create_circle(
     position=[0, 0, 0], radius="DiaShaft/2", num_sides="SegAngle", is_covered=True, name="Shaft"
 )
 
@@ -370,21 +370,21 @@ shaft_id = mod2D.create_circle(
 #
 # Create the inner band, band, and outer band.
 
-bandIN_id = mod2D.create_circle(
+bandIN_id = mod_2d.create_circle(
     position=[0, 0, 0],
     radius="(DiaGap - (1.5 * Airgap))/2",
     num_sides="mapping_angle",
     is_covered=True,
     name="Inner_Band",
 )
-bandMID_id = mod2D.create_circle(
+bandMID_id = mod_2d.create_circle(
     position=[0, 0, 0],
     radius="(DiaGap - (1.0 * Airgap))/2",
     num_sides="mapping_angle",
     is_covered=True,
     name="Band",
 )
-bandOUT_id = mod2D.create_circle(
+bandOUT_id = mod_2d.create_circle(
     position=[0, 0, 0],
     radius="(DiaGap - (0.5 * Airgap))/2",
     num_sides="mapping_angle",
@@ -419,13 +419,13 @@ for item in vacuum_obj_id:
 # Allocated PMs are created.
 
 # +
-rotor_id = mod2D.create_circle(
+rotor_id = mod_2d.create_circle(
     position=[0, 0, 0], radius="DiaRotorLam/2", num_sides=0, name="Rotor", matname="30DH_20C_smooth"
 )
 
 rotor_id.color = (0, 128, 255)
-mod2D.subtract(rotor_id, shaft_id, keep_originals=True)
-void_small_1_id = mod2D.create_circle(
+mod_2d.subtract(rotor_id, shaft_id, keep_originals=True)
+void_small_1_id = mod_2d.create_circle(
     position=[62, 0, 0], radius="2.55mm", num_sides=0, name="void1", matname="vacuum"
 )
 
@@ -433,14 +433,14 @@ m2d.modeler.duplicate_around_axis(
     void_small_1_id, cs_axis="Z", angle="360deg/SymmetryFactor", nclones=2, create_new_objects=False
 )
 
-void_big_1_id = mod2D.create_circle(
+void_big_1_id = mod_2d.create_circle(
     position=[29.5643, 12.234389332712, 0],
     radius="9.88mm/2",
     num_sides=0,
     name="void_big",
     matname="vacuum",
 )
-mod2D.subtract(rotor_id, [void_small_1_id, void_big_1_id], keep_originals=False)
+mod_2d.subtract(rotor_id, [void_small_1_id, void_big_1_id], keep_originals=False)
 
 slot_IM1_points = [
     [37.5302872, 15.54555396, 0],
@@ -455,10 +455,10 @@ slot_OM1_points = [
     [63.53825619, 10.5, 0],
     [57.94560461, 24.00185531, 0],
 ]
-slot_IM_id = mod2D.create_polyline(
+slot_IM_id = mod_2d.create_polyline(
     position_list=slot_IM1_points, cover_surface=True, name="slot_IM1", matname="vacuum"
 )
-slot_OM_id = mod2D.create_polyline(
+slot_OM_id = mod_2d.create_polyline(
     position_list=slot_OM1_points, cover_surface=True, name="slot_OM1", matname="vacuum"
 )
 
@@ -468,7 +468,7 @@ m2d.modeler.duplicate_and_mirror(
     vector=["cos((360deg/SymmetryFactor/2)+90deg)", "sin((360deg/SymmetryFactor/2)+90deg)", 0],
 )
 
-id_holes = mod2D.get_objects_w_string("slot_", case_sensitive=True)
+id_holes = mod_2d.get_objects_w_string("slot_", case_sensitive=True)
 m2d.modeler.subtract(rotor_id, id_holes, keep_originals=True)
 # -
 
@@ -479,7 +479,7 @@ m2d.modeler.subtract(rotor_id, id_holes, keep_originals=True)
 
 # +
 object_list = [stator_id, rotor_id] + vacuum_obj_id
-mod2D.create_coordinate_system(
+mod_2d.create_coordinate_system(
     origin=[0, 0, 0],
     reference_cs="Global",
     name="Section",
@@ -488,10 +488,10 @@ mod2D.create_coordinate_system(
     y_pointing=["-sin(360deg/SymmetryFactor)", "cos(360deg/SymmetryFactor)", 0],
 )
 
-mod2D.set_working_coordinate_system("Section")
-mod2D.split(object_list, plane="ZX", sides="NegativeOnly")
-mod2D.set_working_coordinate_system("Global")
-mod2D.split(object_list, plane="ZX", sides="PositiveOnly")
+mod_2d.set_working_coordinate_system("Section")
+mod_2d.split(object_list, plane="ZX", sides="NegativeOnly")
+mod_2d.set_working_coordinate_system("Global")
+mod_2d.split(object_list, plane="ZX", sides="PositiveOnly")
 # -
 
 # ## Create boundary conditions
@@ -501,8 +501,8 @@ mod2D.split(object_list, plane="ZX", sides="PositiveOnly")
 # The points for edge picking are in the airgap.
 
 pos_1 = "((DiaGap - (1.0 * Airgap))/4)"
-id_bc_1 = mod2D.get_edgeid_from_position(position=[pos_1, 0, 0], obj_name="Region")
-id_bc_2 = mod2D.get_edgeid_from_position(
+id_bc_1 = mod_2d.get_edgeid_from_position(position=[pos_1, 0, 0], obj_name="Region")
+id_bc_2 = mod_2d.get_edgeid_from_position(
     position=[pos_1 + "*cos((360deg/SymmetryFactor))", pos_1 + "*sin((360deg/SymmetryFactor))", 0],
     obj_name="Region",
 )
@@ -520,7 +520,7 @@ m2d.assign_master_slave(
 # Assign a vector potential of ``0`` to the second position.
 
 pos_2 = "(DiaOuter/2)"
-id_bc_az = mod2D.get_edgeid_from_position(
+id_bc_az = mod_2d.get_edgeid_from_position(
     position=[
         pos_2 + "*cos((360deg/SymmetryFactor/2))",
         pos_2 + "*sin((360deg/SymmetryFactor)/2)",
@@ -813,7 +813,7 @@ m2d.analyze_setup(setup_name, use_auto_settings=False)
 # Create a flux lines plot on a region. The ``object_list`` is
 # formerly created when the section is applied.
 
-faces_reg = mod2D.get_object_faces(object_list[1].name)  # Region
+faces_reg = mod_2d.get_object_faces(object_list[1].name)  # Region
 plot1 = m2d.post.create_fieldplot_surface(
     objlist=faces_reg,
     quantityName="Flux_Lines",

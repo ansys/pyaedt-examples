@@ -9,10 +9,13 @@
 #
 # Perform required imports.
 
+# +
 import tempfile
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 from pyaedt import Maxwell2d, downloads
+
+# -
 
 # ## Create temporary directory
 #
@@ -31,8 +34,12 @@ non_graphical = False
 #
 # Set local temporary folder to export the .aedt file to.
 
-aedt_file = downloads.download_file("maxwell_ctrl_prg", "ControlProgramDemo.aedt", temp_dir.name)
-ctrl_prg_file = downloads.download_file("maxwell_ctrl_prg", "timestep_only.py", temp_dir.name)
+aedt_file = downloads.download_file(
+    directory="maxwell_ctrl_prg", filename="ControlProgramDemo.aedt", destination=temp_dir.name
+)
+ctrl_prg_file = downloads.download_file(
+    directory="maxwell_ctrl_prg", filename="timestep_only.py", destination=temp_dir.name
+)
 
 # ## Launch Maxwell 2D
 #
