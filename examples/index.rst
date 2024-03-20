@@ -4,6 +4,7 @@
    :hidden:
    :maxdepth: 2
 
+   00-EDB/index
    01-HFSS3DLayout/index
 
 Examples
