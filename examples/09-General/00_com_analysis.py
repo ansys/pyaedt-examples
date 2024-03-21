@@ -44,7 +44,7 @@ next_11_9 = shutil.copy2(source_folder / "FCI_CC_Long_Link_Pair_11_to_Pair_9_NEX
 
 spisim = SpiSim(thru)
 com_results = spisim.compute_com(
-    standard="50GAUI-1-C2C",
+    standard=1,  # 50GAUI-1-C2C
     port_order="EvenOdd",
     fext_s4p=[fext_5_9, fext_5_9],
     next_s4p=next_11_9
@@ -69,14 +69,14 @@ print(temp_folder.name)
 # ### Export template configuration file in JSON format.
 
 custom_json = Path(temp_folder.name) / "custom.json"
-spisim.export_com_configure_file(custom_json, standard="50GAUI-1-C2C")
+spisim.export_com_configure_file(custom_json, standard=1)
 
 # Modify the custom JSON file as needed.
 
 # ### Import configuration file and run
 
 com_results = spisim.compute_com(
-    standard="custom",
+    standard=0,  # Custom
     config_file=custom_json,
     port_order="EvenOdd",
     fext_s4p=[fext_5_9, fext_5_9],
@@ -87,7 +87,18 @@ print(*com_results)
 # ## Export SPISim supported configuration file
 # The exported configuration file can be used in SPISim GUI.
 
+from pyaedt.misc.spisim_com_configuration_files.com_parameters import COMParametersVer3p4
+
+com_param = COMParametersVer3p4()
+com_param.load(custom_json)
 custom_cfg = Path(temp_folder.name) / "custom.cfg"
-spisim.export_com_configure_file(custom_cfg, standard="50GAUI-1-C2C")
+com_param.export_spisim_cfg(custom_cfg)
 
+# PyAEDT support SPISim cfg file as well.
 
+com_results = spisim.compute_com(
+    standard=0,  # Custom
+    config_file=custom_cfg,
+    port_order="EvenOdd"
+)
+print(*com_results)
