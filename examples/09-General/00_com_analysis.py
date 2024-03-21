@@ -64,8 +64,9 @@ print(temp_folder.name)
 
 # <img src="_static\00\com_report.png" width="800">
 
-# # Run COM analysis on custom configuration file
-# ## Export template configuration file in JSON format.
+# ## Run COM analysis on custom configuration file
+
+# ### Export template configuration file in JSON format.
 
 custom_json = Path(temp_folder.name) / "custom.json"
 spisim.export_com_configure_file(custom_json, standard="50GAUI-1-C2C")
