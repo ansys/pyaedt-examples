@@ -24,7 +24,7 @@
 
 AEDT_VERSION = "2024.1"
 EDB_VERSION = "2024.1"
-NUM_CORES = 3
+NUM_CORES = 4
 
 HEADER = """# Copyright (C) 2024 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
