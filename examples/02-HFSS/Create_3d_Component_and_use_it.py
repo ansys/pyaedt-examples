@@ -24,9 +24,9 @@ from pyaedt.generic.general_methods import generate_unique_name
 
 temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 
-# ## Launch HFSS and save project
+# ## Launch AEDT
 #
-# Launch HFSS and save the project.
+# Launch AEDT, create an HFSS design, and save the project.
 
 hfss = Hfss(specified_version=AEDT_VERSION, new_desktop_session=True, close_on_exit=True)
 hfss.save_project(os.path.join(temp_dir.name, generate_unique_name("example") + ".aedt"))
@@ -166,11 +166,7 @@ hfss2.plot(
     plot_air_objects=True,
 )
 
-# ## Close AEDT
-#
-# After the simulation completes, you can close AEDT or release it using the
-# `pyaedt.Desktop.release_desktop` method.
-# All methods provide for saving the project before closing AEDT.
+# ## Release AEDT
 
 hfss2.release_desktop()
 

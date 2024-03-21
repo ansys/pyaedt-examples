@@ -2,6 +2,8 @@
 #
 # This example shows how you can use PyAEDT to create a flex cable CPWG
 # (coplanar waveguide with ground).
+#
+# Keywords: **HFSS**, **flex cable**, **CPWG**.
 
 # ## Perform required imports
 #
@@ -9,9 +11,11 @@
 
 from math import cos, radians, sin, sqrt
 import os
+import tempfile
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
+from pyaedt.generic.general_methods import generate_unique_name
 
 # ## Set non-graphical mode
 #
@@ -20,9 +24,13 @@ import pyaedt
 
 non_graphical = False
 
+# ## Create temporary directory
+
+temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
+
 # ## Launch AEDT
 #
-# Launch AEDT 2023 R2 in graphical mode.
+# Launch AEDT, create an HFSS design, and save the project.
 
 hfss = pyaedt.Hfss(
     specified_version=AEDT_VERSION,
@@ -30,6 +38,12 @@ hfss = pyaedt.Hfss(
     new_desktop_session=True,
     non_graphical=non_graphical,
 )
+hfss.save_project(os.path.join(temp_dir.name, generate_unique_name("example") + ".aedt"))
+
+# ## Design settings
+#
+# Modify some design settings.
+
 hfss.change_material_override(True)
 hfss.change_automatically_use_causal_materials(True)
 hfss.create_open_region("100GHz")
@@ -55,10 +69,10 @@ xt = (total_length - r * radians(theta)) / 2
 
 # ## Create bend
 #
-# Create the bend. The ``create_bending`` method creates a list of points for
+# The ``create_bending`` method creates a list of points for
 # the bend based on the curvature radius and extension.
 
-# +
+
 def create_bending(radius, extension=0):
     position_list = [(-xt, 0, -radius), (0, 0, -radius)]
 
@@ -74,8 +88,6 @@ def create_bending(radius, extension=0):
     position_list[-1] = (x, y, z)
     return position_list
 
-
-# -
 
 # ## Draw signal line
 #
@@ -147,7 +159,6 @@ bot = hfss.modeler.create_polyline(
 #
 # Create port interfaces (PEC enclosures).
 
-# +
 port_faces = []
 for face, blockname in zip([fr4.top_face_z, fr4.bottom_face_x], ["b1", "b2"]):
     xc, yc, zc = face.center
@@ -172,7 +183,6 @@ for face, blockname in zip([fr4.top_face_z, fr4.bottom_face_x], ["b1", "b2"]):
         i.subtract([port_block], True)
 
     print(port_faces)
-# -
 
 # ## Create boundary condition
 #
@@ -188,12 +198,10 @@ for face in [fr4.top_face_y, fr4.bottom_face_y]:
 #
 # Creates ports.
 
-# +
 for s, port_name in zip(port_faces, ["1", "2"]):
     reference = [i.name for i in gnd_objs + boundary + [bot]] + ["b1", "b2"]
 
     hfss.wave_port(s.id, name=port_name, reference=reference)
-# -
 
 # ## Create setup and sweep
 #
@@ -225,9 +233,10 @@ my_plot.plot(
     os.path.join(hfss.working_directory, "Image.jpg"),
 )
 
-# ## Analyze and release
-#
-# Uncomment the ``hfss.analyze`` command if you want to analyze the
-# model and release AEDT.
+# ## Release AEDT
 
 hfss.release_desktop()
+
+# ## Clean temporary directory
+
+temp_dir.cleanup()
