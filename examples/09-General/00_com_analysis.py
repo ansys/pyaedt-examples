@@ -3,7 +3,7 @@
 
 # <img src="_static\00\com_eye.png" width="500">
 
-# # What is COM
+# ## What is COM
 # - COM was developed as part of IEEE 802.3bj, 100GBASE Ethernet.
 # - COM is a figure of merit for an S-parameter representing a high speed SerDes channel.
 # - COM is the ratio between eye height and noise
