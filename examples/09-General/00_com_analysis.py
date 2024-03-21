@@ -50,8 +50,7 @@ com_results = spisim.compute_com(
     next_s4p=next_11_9
 )
 
-# # COM analysis results
-# ## COM values
+# ## Print COM values
 # There are two COM values reported by the definition of the standard.
 # - Case 0. COM value in dB when big package is used.
 # - Case 1. COM value in dB when small package is used.
