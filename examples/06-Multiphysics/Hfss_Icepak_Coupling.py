@@ -14,6 +14,7 @@
 
 import os
 import tempfile
+import time
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
@@ -27,17 +28,17 @@ from pyaedt.generic.pdf import AnsysReport
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 non_graphical = False
-desktopVersion = AEDT_VERSION
+desktop_version = AEDT_VERSION
 
 # ## Launch AEDT and initialize HFSS
 #
-# Launch AEDT and initialize HFSS. If there is an active HFSS design, the ``aedtapp``
+# Launch AEDT and initialize HFSS. If there is an active HFSS design, the ``hfss``
 # object is linked to it. Otherwise, a new design is created.
 
-aedtapp = pyaedt.Hfss(
+hfss = pyaedt.Hfss(
     projectname=os.path.join(temp_dir.name, "Icepak_HFSS_Coupling"),
     designname="RF",
-    specified_version=desktopVersion,
+    specified_version=desktop_version,
     non_graphical=non_graphical,
     new_desktop_session=True,
 )
@@ -48,9 +49,9 @@ aedtapp = pyaedt.Hfss(
 # instance as demonstrated below. The prefix ``$`` is used to define
 # project-wide scope for the parameter. Otherwise the parameter scope is limited the current design.
 
-aedtapp["$coax_dimension"] = "100mm"  # Project-wide scope.
-udp = aedtapp.modeler.Position(0, 0, 0)
-aedtapp["inner"] = "3mm"  #  Local "Design" scope.
+hfss["$coax_dimension"] = "100mm"  # Project-wide scope.
+udp = hfss.modeler.Position(0, 0, 0)
+hfss["inner"] = "3mm"  # Local "Design" scope.
 
 # ## Create coaxial and cylinders
 #
@@ -60,24 +61,24 @@ aedtapp["inner"] = "3mm"  #  Local "Design" scope.
 # Optionally, you can assign a material using the `assign_material` method.
 
 # TODO: How does this work when two true surfaces are defined?
-o1 = aedtapp.modeler.create_cylinder(
-    cs_axis=aedtapp.PLANE.ZX,
+o1 = hfss.modeler.create_cylinder(
+    cs_axis=hfss.PLANE.ZX,
     position=udp,
     radius="inner",
     height="$coax_dimension",
     numSides=0,
     name="inner",
 )
-o2 = aedtapp.modeler.create_cylinder(
-    cs_axis=aedtapp.PLANE.ZX,
+o2 = hfss.modeler.create_cylinder(
+    cs_axis=hfss.PLANE.ZX,
     position=udp,
     radius=8,
     height="$coax_dimension",
     numSides=0,
     matname="teflon_based",
 )
-o3 = aedtapp.modeler.create_cylinder(
-    cs_axis=aedtapp.PLANE.ZX,
+o3 = hfss.modeler.create_cylinder(
+    cs_axis=hfss.PLANE.ZX,
     position=udp,
     radius=10,
     height="$coax_dimension",
@@ -93,7 +94,7 @@ o1.color = (255, 0, 0)
 o2.color = (0, 255, 0)
 o3.color = (255, 0, 0)
 o3.transparency = 0.8
-aedtapp.modeler.fit_all()
+hfss.modeler.fit_all()
 
 # ## Assign materials
 #
@@ -108,8 +109,8 @@ o3.material_name = "Copper"
 # Perform modeler operations. You can subtract, add, and perform other operations
 # using either the object ID or object name.
 
-aedtapp.modeler.subtract(o3, o2, True)
-aedtapp.modeler.subtract(o2, o1, True)
+hfss.modeler.subtract(o3, o2, True)
+hfss.modeler.subtract(o2, o1, True)
 
 # ## Assign Mesh Operations
 #
@@ -119,9 +120,9 @@ aedtapp.modeler.subtract(o2, o1, True)
 # This example demonstrates the use of several common mesh
 # operations.
 
-aedtapp.mesh.assign_initial_mesh_from_slider(level=6)
-aedtapp.mesh.assign_model_resolution(names=[o1.name, o3.name], defeature_length=None)
-aedtapp.mesh.assign_length_mesh(names=o2.faces, isinside=False, maxlength=1, maxel=2000)
+hfss.mesh.assign_initial_mesh_from_slider(level=6)
+hfss.mesh.assign_model_resolution(names=[o1.name, o3.name], defeature_length=None)
+hfss.mesh.assign_length_mesh(names=o2.faces, isinside=False, maxlength=1, maxel=2000)
 
 # ## Create HFSS Sources
 #
@@ -132,7 +133,7 @@ aedtapp.mesh.assign_length_mesh(names=o2.faces, isinside=False, maxlength=1, max
 # creates a perfectly conducting (lossless) cap covering the port.
 
 # +
-aedtapp.wave_port(
+hfss.wave_port(
     signal="inner",
     reference="outer",
     integration_line=1,
@@ -141,7 +142,7 @@ aedtapp.wave_port(
     name="P1",
 )
 
-aedtapp.wave_port(
+hfss.wave_port(
     signal="inner",
     reference="outer",
     integration_line=4,
@@ -150,8 +151,8 @@ aedtapp.wave_port(
     name="P2",
 )
 
-port_names = aedtapp.get_all_sources()
-aedtapp.modeler.fit_all()
+port_names = hfss.get_all_sources()
+hfss.modeler.fit_all()
 # -
 
 # ## HFSS Simulation Setup
@@ -160,8 +161,8 @@ aedtapp.modeler.fit_all()
 # you can change values and update the setup. The ``update`` method returns a Boolean
 # value.
 
-aedtapp.set_active_design(aedtapp.design_name)
-setup = aedtapp.create_setup("MySetup")
+hfss.set_active_design(hfss.design_name)
+setup = hfss.create_setup("MySetup")
 setup.props["Frequency"] = "1GHz"
 setup.props["BasisOrder"] = 2
 setup.props["MaximumPasses"] = 1
@@ -171,7 +172,7 @@ setup.props["MaximumPasses"] = 1
 # The frequency sweep defines the RF frequency range over which the RF power is
 # injected into the structure.
 
-sweepname = aedtapp.create_linear_count_sweep(
+sweepname = hfss.create_linear_count_sweep(
     setupname="MySetup",
     unit="GHz",
     freqstart=0.8,
@@ -186,16 +187,16 @@ sweepname = aedtapp.create_linear_count_sweep(
 # design and the coupled physics analysis can be run. The `FieldAnalysis3D.copy_solid_bodies_from()`
 # method imports a model from HFSS into Icepak including all material definitions.
 
-ipkapp = pyaedt.Icepak(designname="CalcTemp")
-ipkapp.copy_solid_bodies_from(aedtapp)
+ipk = pyaedt.Icepak(designname="CalcTemp")
+ipk.copy_solid_bodies_from(hfss)
 
 # ## Link RF Thermal Source
 #
 # The RF loss in HFSS will be used as the thermal source in Icepak.
 
 surfaceobj = ["inner", "outer"]
-ipkapp.assign_em_losses(
-    designname=aedtapp.design_name,
+ipk.assign_em_losses(
+    designname=hfss.design_name,
     setupname="MySetup",
     sweepname="LastAdaptive",
     map_frequency="1GHz",
@@ -208,7 +209,7 @@ ipkapp.assign_em_losses(
 # Set the direction of gravity for convection in Icepak. Gravity drives a temperature gradient
 # due to the dependence of gas density on temperature.
 
-ipkapp.edit_design_settings(aedtapp.GRAVITY.ZNeg)
+ipk.edit_design_settings(hfss.GRAVITY.ZNeg)
 
 # ## Set up the Icepak Project
 #
@@ -220,7 +221,7 @@ ipkapp.edit_design_settings(aedtapp.GRAVITY.ZNeg)
 # applies the settings to the setup. The setup creation process is identical
 # for all tools.
 
-setup_ipk = ipkapp.create_setup("SetupIPK")
+setup_ipk = ipk.create_setup("SetupIPK")
 setup_ipk.props["Convergence Criteria - Max Iterations"] = 3
 
 # ### Icepak Solution Properties
@@ -241,10 +242,10 @@ for p in conv_props:
 # Edit or review the mesh parameters. After a mesh is created, you can access
 # a mesh operation to edit or review parameter values.
 
-airbox = ipkapp.modeler.get_obj_id("Region")
-ipkapp.modeler[airbox].display_wireframe = True
-airfaces = ipkapp.modeler.get_object_faces(airbox)
-ipkapp.assign_openings(airfaces)
+airbox = ipk.modeler.get_obj_id("Region")
+ipk.modeler[airbox].display_wireframe = True
+airfaces = ipk.modeler.get_object_faces(airbox)
+ipk.assign_openings(airfaces)
 
 # ## Close and open projects
 #
@@ -252,43 +253,37 @@ ipkapp.assign_openings(airfaces)
 # correctly in AEDT versions 2019 R3 through 2021 R1. Closing and opening projects
 # can be helpful when performing operations on multiple projects.
 
-aedtapp.save_project()
-project_filename = aedtapp.project_file  # Save the project file name.
-aedtapp.close_project(aedtapp.project_name)
-aedtapp = pyaedt.Hfss(project_filename)
-ipkapp = pyaedt.Icepak()
-ipkapp.solution_type = ipkapp.SOLUTIONS.Icepak.SteadyTemperatureAndFlow
-ipkapp.modeler.fit_all()
+hfss.save_project()
+hfss.close_project(hfss.project_name)
+hfss = pyaedt.Hfss(hfss.project_file)
+ipk = pyaedt.Icepak()
+ipk.solution_type = ipk.SOLUTIONS.Icepak.SteadyTemperatureAndFlow
+ipk.modeler.fit_all()
 
 # ## Solve the Project
 #
 # Solve the Icepak and HFSS models.
 
-ipkapp.setups[0].analyze()  # Run the Icepak analysis.
-aedtapp.save_project()
-aedtapp.modeler.fit_all()
-aedtapp.setups[0].analyze()  # Run the HFSS analysis.
+ipk.setups[0].analyze()
+hfss.save_project()
+hfss.modeler.fit_all()
+hfss.setups[0].analyze()
 
 # ### Plot and Export Results
 #
-# Generate field plots on the HFSS project and export them as images.
+# Generate field plots in the HFSS project and export them as images.
 
 # +
-cutlist = [pyaedt.constants.GLOBALCS.XY, pyaedt.constants.GLOBALCS.ZX, pyaedt.constants.GLOBALCS.YZ]
-vollist = [o2.name]
-quantity_name1 = "ComplexMag_E"
-quantity_name2 = "ComplexMag_H"
-intrinsic = {"Freq": aedtapp.setups[0].props["Frequency"], "Phase": "0deg"}
-surflist = aedtapp.modeler.get_object_faces("outer")
-plot1 = aedtapp.post.create_fieldplot_surface(
-    surflist, quantity_name2, setup_name=aedtapp.nominal_adaptive, intrinsicDict=intrinsic
+quantity_name = "ComplexMag_H"
+intrinsic = {"Freq": hfss.setups[0].props["Frequency"], "Phase": "0deg"}
+surface_list = hfss.modeler.get_object_faces("outer")
+plot1 = hfss.post.create_fieldplot_surface(
+    surface_list, quantity_name, setup_name=hfss.nominal_adaptive, intrinsicDict=intrinsic
 )
 
-results_folder = os.path.join(aedtapp.working_directory, "Coaxial_Results_NG")
-if not os.path.exists(results_folder):
-    os.mkdir(results_folder)
+results_folder = os.path.join(temp_dir.name, "Coaxial_Results_NG")
 
-aedtapp.post.plot_field_from_fieldplot(
+hfss.post.plot_field_from_fieldplot(
     plot1.name,
     project_path=results_folder,
     meshplot=False,
@@ -305,17 +300,15 @@ aedtapp.post.plot_field_from_fieldplot(
 # Generate an animation from field plots using PyVista.
 
 # +
-import time
-
 start = time.time()
 cutlist = ["Global:XY"]
 phase_values = [str(i * 5) + "deg" for i in range(18)]
 
-animated = aedtapp.post.plot_animated_field(
+animated = hfss.post.plot_animated_field(
     quantity="Mag_E",
     object_list=cutlist,
     plot_type="CutPlane",
-    setup_name=aedtapp.nominal_adaptive,
+    setup_name=hfss.nominal_adaptive,
     intrinsics=intrinsic,
     export_path=results_folder,
     variation_variable="Phase",
@@ -324,15 +317,15 @@ animated = aedtapp.post.plot_animated_field(
     export_gif=False,
     log_scale=True,
 )
-animated.gif_file = os.path.join(aedtapp.working_directory, "animate.gif")
+animated.gif_file = os.path.join(temp_dir.name, "animate.gif")
 # animated.camera_position = [0, 0, 300]
 # animated.focal_point = [0, 0, 0]
 # Set off_screen to False to visualize the animation.
 # animated.off_screen = False
 animated.animate()
 
-endtime = time.time() - start
-print("Total Time", endtime)
+end_time = time.time() - start
+print("Total Time", end_time)
 # -
 
 # ## Create Icepak plots and export
@@ -341,26 +334,25 @@ print("Total Time", endtime)
 # were used early. Only the quantity is different.
 
 # +
-quantity_name = "Temperature"
-setup_name = ipkapp.existing_analysis_sweeps[0]
+setup_name = ipk.existing_analysis_sweeps[0]
 intrinsic = ""
-surflist = ipkapp.modeler.get_object_faces("inner") + ipkapp.modeler.get_object_faces("outer")
-plot5 = ipkapp.post.create_fieldplot_surface(surflist, "SurfTemperature")
+surface_list = ipk.modeler.get_object_faces("inner") + ipk.modeler.get_object_faces("outer")
+plot5 = ipk.post.create_fieldplot_surface(surface_list, quantityName="SurfTemperature")
 
-aedtapp.save_project()
+hfss.save_project()
 # -
 
-# ## Generate plots outside of AEDT
+# ## Generate plots outside AEDT
 #
-# Generate plots outside of AEDT using Matplotlib and NumPy.
+# Generate plots outside AEDT using Matplotlib and NumPy.
 
-trace_names = aedtapp.get_traces_for_plot(category="S")
-cxt = ["Domain:=", "Sweep"]
+trace_names = hfss.get_traces_for_plot(category="S")
+context = ["Domain:=", "Sweep"]
 families = ["Freq:=", ["All"]]
-my_data = aedtapp.post.get_solution_data(expressions=trace_names)
+my_data = hfss.post.get_solution_data(expressions=trace_names)
 my_data.plot(
     trace_names,
-    "db20",
+    math_formula="db20",
     xlabel="Frequency (Ghz)",
     ylabel="SParameters(dB)",
     title="Scattering Chart",
@@ -369,23 +361,28 @@ my_data.plot(
 
 # ## Generate pdf report
 #
-# Generate a pdf report with output of simultion.
+# Generate a pdf report with simulation results.
 report = AnsysReport(
-    project_name=aedtapp.project_name, design_name=aedtapp.design_name, version=desktopVersion
+    project_name=hfss.project_name, design_name=hfss.design_name, version=desktop_version
 )
 report.create()
 report.add_section()
 report.add_chapter("Hfss Results")
 report.add_sub_chapter("Field Plot")
 report.add_text("This section contains Field plots of Hfss Coaxial.")
-report.add_image(os.path.join(results_folder, plot1.name + ".jpg"), "Coaxial Cable")
+report.add_image(os.path.join(results_folder, plot1.name + ".jpg"), caption="Coaxial Cable")
 report.add_page_break()
 report.add_sub_chapter("S Parameters")
 report.add_chart(
-    my_data.intrinsics["Freq"], my_data.data_db20(), "Freq", trace_names[0], "S-Parameters"
+    x_values=my_data.intrinsics["Freq"],
+    y_values=my_data.data_db20(),
+    x_caption="Freq",
+    y_caption=trace_names[0],
+    title="S-Parameters",
 )
 report.add_image(
-    os.path.join(results_folder, "Touchstone_from_matplotlib.jpg"), "Touchstone from Matplotlib"
+    path=os.path.join(results_folder, "Touchstone_from_matplotlib.jpg"),
+    caption="Touchstone from Matplotlib",
 )
 report.add_section()
 report.add_chapter("Icepak Results")
@@ -393,13 +390,11 @@ report.add_sub_chapter("Temperature Plot")
 report.add_text("This section contains Multiphysics temperature plot.")
 report.add_toc()
 # report.add_image(os.path.join(results_folder, plot5.name+".jpg"), "Coaxial Cable Temperatures")
-report.save_pdf(results_folder, "AEDT_Results.pdf")
+report.save_pdf(file_path=results_folder, file_name="AEDT_Results.pdf")
 
-
-# ## Close project and release AEDT
+# ## Release AEDT and clean up temporary directory
 #
-# Close the project and release AEDT.
+# Release AEDT and clean up temporary directory.
 
-aedtapp.release_desktop()
-
-temp_dir.cleanup()  # Clean up temporary directory and delete project files.
+hfss.release_desktop()
+temp_dir.cleanup()
