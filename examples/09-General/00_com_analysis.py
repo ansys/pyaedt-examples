@@ -84,7 +84,7 @@ com_results = spisim.compute_com(
 )
 print(*com_results)
 
-# # Export SPISim supported configuration file
+# ## Export SPISim supported configuration file
 # The exported configuration file can be used in SPISim GUI.
 
 custom_cfg = Path(temp_folder.name) / "custom.cfg"
