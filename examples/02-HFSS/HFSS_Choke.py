@@ -1,20 +1,19 @@
 # # HFSS: choke
 #
 # This example shows how you can use PyAEDT to create a choke setup in HFSS.
+#
+# Keywords: **HFSS**, **Choke**, **EMC**.
 
 # ## Perform required imports
 #
 # Perform required imports.
 
-# +
 import json
 import os
+import tempfile
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
-
-project_name = pyaedt.generate_unique_project_name(project_name="choke")
-# -
 
 # ## Set non-graphical mode
 #
@@ -23,10 +22,13 @@ project_name = pyaedt.generate_unique_project_name(project_name="choke")
 
 non_graphical = False
 
-# ## Launch HFSS
-#
-# Launches HFSS 2023 R2 in graphical mode.
+# ## Create temporary directory
 
+temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
+
+# ## Launch HFSS
+
+project_name = pyaedt.generate_unique_project_name(rootname=temp_dir.name, project_name="choke")
 hfss = pyaedt.Hfss(
     projectname=project_name,
     specified_version=AEDT_VERSION,
@@ -144,6 +146,7 @@ ground = hfss.modeler.create_circle(
     "XY", ground_position, ground_radius, name="GND", matname="copper"
 )
 coat = hfss.assign_coating(ground, isinfgnd=True)
+ground.transparency = 0.9
 
 # ## Create lumped ports
 #
@@ -215,20 +218,20 @@ hfss.create_linear_count_sweep(
     save_fields=False,
 )
 
-# ## Save project
-#
-# Save the project.
+# ## Plot objects
 
 hfss.modeler.fit_all()
 hfss.plot(
-    show=False, export_path=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=True
+    show=False,
+    export_path=os.path.join(hfss.working_directory, "Image.jpg"),
+    plot_air_objects=False,
 )
 
 
-# ## Close AEDT
-#
-# After the simulation completes, you can close AEDT or release it using the
-# `pyaedt.Desktop.release_desktop` method.
-# All methods provide for saving the project before closing.
+# ## Release AEDT
 
 hfss.release_desktop()
+
+# ## Clean temporary directory
+
+temp_dir.cleanup()
