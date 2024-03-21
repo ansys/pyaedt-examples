@@ -64,7 +64,7 @@ dict_in = {"Circ_Patch_5GHz1": os.path.join(example_path, "Circ_Patch_5GHz.a3dco
 
 # ## Add 3D Component Array
 #
-# Created 3D Component array from the previous dictionary. 
+# Created 3D Component array from the previous dictionary.
 # If a 3D component is not available in the design, it is loaded
 # into the dictionary from the path that you specify. The following
 # code edits the dictionary to point to the location of the A3DCOMP file.
@@ -162,3 +162,7 @@ ffdata.plot_2d_cut(
 # the Theta scan and Phi scan.
 
 ffdata.polar_plot_3d(farfield_quantity="RealizedGain")
+
+# ## Clean temporary directory
+
+temp_dir.cleanup()
