@@ -33,7 +33,6 @@ fext_5_9 = shutil.copy2(source_folder / "FCI_CC_Long_Link_Pair_5_to_Pair_9_FEXT.
 next_11_9 = shutil.copy2(source_folder / "FCI_CC_Long_Link_Pair_11_to_Pair_9_NEXT.s4p", temp_folder.name)
 # -
 
-# # COM analysis
 # ## Run COM analysis
 # PyAEDT calls SPISim for COM analysis. Please check PyAEDT documentation for supported standards.
 # Set port_order="EvenOdd" when S-parameter has below port order.
