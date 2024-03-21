@@ -12,7 +12,7 @@
 # COM = 20 * log10 (A_signal / A_noise)
 # ```
 
-# # Preparation
+# ## Preparation
 # Import required packages
 
 
