@@ -73,7 +73,7 @@ spisim.export_com_configure_file(custom_json, standard="50GAUI-1-C2C")
 
 # Modify the custom JSON file as needed.
 
-# ## Import configuration file and run
+# ### Import configuration file and run
 
 com_results = spisim.compute_com(
     standard="custom",
