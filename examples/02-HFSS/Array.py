@@ -60,7 +60,7 @@ dict_in = pyaedt.general_methods.read_json(os.path.join(example_path, "array_sim
 #
 # Define 3DComponent cell.
 
-dict_in = {"Circ_Patch_5GHz1": os.path.join(example_path, "Circ_Patch_5GHz.a3dcomp"), **dict_in}
+dict_in["Circ_Patch_5GHz1"] = os.path.join(example_path, "Circ_Patch_5GHz.a3dcomp")
 
 # ## Add 3D Component Array
 #
