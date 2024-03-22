@@ -35,9 +35,9 @@ temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 
 example_path = pyaedt.downloads.download_3dcomponent(destination=temp_dir.name)
 
-# ## Launch HFSS and save project
+# ## Launch HFSS and open project
 #
-# Launch HFSS and save the project.
+# Launch HFSS and open the project.
 
 project_name = pyaedt.generate_unique_project_name(rootname=temp_dir.name, project_name="array")
 hfss = pyaedt.Hfss(
