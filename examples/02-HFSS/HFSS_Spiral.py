@@ -1,6 +1,8 @@
 # # HFSS: spiral inductor
 #
 # This example shows how you can use PyAEDT to create a spiral inductor, solve it, and plot results.
+#
+# Keywords: **HFSS**, **Spiral**, **Inductance**, **Output variable**.
 
 # ## Perform required imports
 #
@@ -8,11 +10,11 @@
 
 # +
 import os
+import tempfile
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
+from ansys.pyaedt.examples.constants import AEDT_VERSION, NUM_CORES
 import pyaedt
 
-project_name = pyaedt.generate_unique_project_name(project_name="spiral")
 # -
 
 # ## Set non-graphical mode
@@ -22,19 +24,23 @@ project_name = pyaedt.generate_unique_project_name(project_name="spiral")
 
 non_graphical = False
 
+# ## Create temporary directory
+
+temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
+
 # ## Launch HFSS
 #
-# Launch HFSS 2023 R2 in non-graphical mode and change the
-# units to microns.
+# Create a new HFSS design and change the units to microns.
 
+project_name = pyaedt.generate_unique_project_name(rootname=temp_dir.name, project_name="spiral")
 hfss = pyaedt.Hfss(
+    projectname=project_name,
     specified_version=AEDT_VERSION,
     non_graphical=non_graphical,
     designname="A1",
     new_desktop_session=True,
 )
 hfss.modeler.model_units = "um"
-p = hfss.modeler
 
 # ## Define variables
 #
@@ -57,7 +63,7 @@ hfss["Tsub"] = "6" + hfss.modeler.model_units
 
 
 def create_line(pts):
-    p.create_polyline(
+    hfss.modeler.create_polyline(
         pts,
         xsection_type="Rectangle",
         xsection_width=width,
@@ -90,7 +96,7 @@ ind = hfss.modeler.create_spiral(
 x0, y0, z0 = ind.points[0]
 x1, y1, z1 = ind.points[-1]
 create_line([(x0 - width / 2, y0, -gap), (abs(x1) + 5, y0, -gap)])
-p.create_box(
+hfss.modeler.create_box(
     [x0 - width / 2, y0 - width / 2, -gap - thickness / 2],
     [width, width, gap + thickness],
     matname="copper",
@@ -100,7 +106,7 @@ p.create_box(
 #
 # Create port 1.
 
-p.create_rectangle(
+hfss.modeler.create_rectangle(
     csPlane=pyaedt.constants.PLANE.YZ,
     position=[abs(x1) + 5, y0 - width / 2, -gap - thickness / 2],
     dimension_list=[width, "Tsub+{}{}".format(gap, hfss.modeler.model_units)],
@@ -113,7 +119,7 @@ hfss.lumped_port(signal="port1", integration_line=pyaedt.constants.AXIS.Z)
 # Create port 2.
 
 create_line([(x1 + width / 2, y1, 0), (x1 - 5, y1, 0)])
-p.create_rectangle(
+hfss.modeler.create_rectangle(
     pyaedt.constants.PLANE.YZ,
     [x1 - 5, y1 - width / 2, -thickness / 2],
     [width, "-Tsub"],
@@ -126,13 +132,13 @@ hfss.lumped_port(signal="port2", integration_line=pyaedt.constants.AXIS.Z)
 # Create the silicon substrate and the ground plane.
 
 # +
-p.create_box(
+hfss.modeler.create_box(
     [x1 - 20, x1 - 20, "-Tsub-{}{}/2".format(thickness, hfss.modeler.model_units)],
     [-2 * x1 + 40, -2 * x1 + 40, "Tsub"],
     matname="silicon",
 )
 
-p.create_box(
+hfss.modeler.create_box(
     [x1 - 20, x1 - 20, "-Tsub-{}{}/2".format(thickness, hfss.modeler.model_units)],
     [-2 * x1 + 40, -2 * x1 + 40, -0.1],
     matname="PEC",
@@ -140,11 +146,9 @@ p.create_box(
 # -
 
 # ## Assign airbox and radiation
-#
-# Assign the airbox and the radiation.
 
 # +
-box = p.create_box(
+box = hfss.modeler.create_box(
     [
         x1 - 20,
         x1 - 20,
@@ -168,8 +172,6 @@ hfss.assign_radiation_boundary_to_objects("airbox")
 hfss.change_material_override()
 
 # ## Plot model
-#
-# Plot the model.
 
 hfss.plot(
     show=False,
@@ -192,7 +194,7 @@ hfss.create_linear_count_sweep(
     sweep_type="Interpolating",
 )
 hfss.save_project()
-hfss.analyze()
+hfss.analyze(num_cores=NUM_CORES)
 
 # ## Get report data
 #
@@ -216,8 +218,8 @@ data = hfss.post.get_solution_data([L_formula, Q_formula])
 data.plot(curves=[L_formula, Q_formula], math_formula="re", xlabel="Freq", ylabel="L and Q")
 
 # ## Export results to csv file
-#
 # Export results to csv file
+
 data.export_data_to_csv(os.path.join(hfss.toolkit_directory, "output.csv"))
 
 # ## Save project and close AEDT
@@ -226,3 +228,7 @@ data.export_data_to_csv(os.path.join(hfss.toolkit_directory, "output.csv"))
 
 hfss.save_project(project_name)
 hfss.release_desktop()
+
+# ## Clean temporary directory
+
+temp_dir.cleanup()
