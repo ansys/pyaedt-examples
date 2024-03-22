@@ -8,14 +8,20 @@
 # Perform required imports.
 
 import os
+import tempfile
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 
+# ## Create temporary directory
+#
+# Create temporary directory.
+
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+
 # ## Set non-graphical mode
 #
 # Set non-graphical mode.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
 
@@ -23,20 +29,18 @@ non_graphical = False
 #
 # Download and open the project. Save it to the temporary folder.
 
-project_temp_name = pyaedt.downloads.download_via_wizard(pyaedt.generate_unique_folder_name())
+project_temp_name = pyaedt.downloads.download_via_wizard(destination=temp_dir.name)
 
 # ## Start HFSS
 #
-# Start HFSS and initialize the PyAEDT object.
+# Initialize HFSS.
 
-version = AEDT_VERSION
 hfss = pyaedt.Hfss(
     projectname=project_temp_name,
-    specified_version=version,
+    specified_version=AEDT_VERSION,
     non_graphical=non_graphical,
     new_desktop_session=True,
 )
-pin_names = hfss.excitations
 hfss.change_material_override(True)
 
 # ## Start Circuit
@@ -77,12 +81,10 @@ circuit.modeler.schematic.create_interface_port(
     name="Port_2", location=[hfss_comp.pins[3].location[0], hfss_comp.pins[3].location[1]]
 )
 
-voltage = 1
-phase = 0
 ports_list = ["Excitation_1", "Excitation_2"]
 source = circuit.assign_voltage_sinusoidal_excitation_to_ports(ports_list)
-source.ac_magnitude = voltage
-source.phase = phase
+source.ac_magnitude = 1
+source.phase = 0
 # -
 
 # ## Create setup
@@ -137,9 +139,7 @@ for el in diels:
 #
 # Plot the model.
 
-mech.plot(
-    show=False, export_path=os.path.join(mech.working_directory, "Mech.jpg"), plot_air_objects=False
-)
+mech.plot(show=False, export_path=os.path.join(temp_dir.name, "Mech.jpg"), plot_air_objects=False)
 
 # ## Solve and plot thermal results
 #
@@ -153,8 +153,9 @@ for name in mech.get_all_conductors_names():
     surfaces.extend(mech.modeler.get_object_faces(name))
 mech.post.create_fieldplot_surface(objlist=surfaces, quantityName="Temperature")
 
-# ## Release AEDT
+# ## Release AEDT and clean up temporary directory
 #
-# Release AEDT.
+# Release AEDT and clean up temporary directory.
 
-mech.release_desktop(True, True)
+hfss.release_desktop()
+temp_dir.cleanup()

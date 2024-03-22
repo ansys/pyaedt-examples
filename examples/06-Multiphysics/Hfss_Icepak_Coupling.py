@@ -16,19 +16,21 @@ import os
 import tempfile
 import time
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
+from ansys.pyaedt.examples.constants import AEDT_VERSION, NUM_CORES
 import pyaedt
 from pyaedt.generic.pdf import AnsysReport
+
+# ## Create temporary directory
+#
+# Create temporary directory.
+
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Setup
 #
 # Set non-graphical mode.
-# Set ``non_graphical`` to ``False`` if the AEDT user interface should
-# be started when HFSS and Icepak are accessed.
 
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 non_graphical = False
-desktop_version = AEDT_VERSION
 
 # ## Launch AEDT and initialize HFSS
 #
@@ -38,7 +40,7 @@ desktop_version = AEDT_VERSION
 hfss = pyaedt.Hfss(
     projectname=os.path.join(temp_dir.name, "Icepak_HFSS_Coupling"),
     designname="RF",
-    specified_version=desktop_version,
+    specified_version=AEDT_VERSION,
     non_graphical=non_graphical,
     new_desktop_session=True,
 )
@@ -247,15 +249,9 @@ ipk.modeler[airbox].display_wireframe = True
 airfaces = ipk.modeler.get_object_faces(airbox)
 ipk.assign_openings(airfaces)
 
-# ## Close and open projects
-#
-# Close and open the projects to ensure that the HFSS - Icepak coupling works
-# correctly in AEDT versions 2019 R3 through 2021 R1. Closing and opening projects
-# can be helpful when performing operations on multiple projects.
+# Save project and attach to Icepak instance
 
 hfss.save_project()
-hfss.close_project(hfss.project_name)
-hfss = pyaedt.Hfss(hfss.project_file)
 ipk = pyaedt.Icepak()
 ipk.solution_type = ipk.SOLUTIONS.Icepak.SteadyTemperatureAndFlow
 ipk.modeler.fit_all()
@@ -264,7 +260,7 @@ ipk.modeler.fit_all()
 #
 # Solve the Icepak and HFSS models.
 
-ipk.setups[0].analyze()
+ipk.setups[0].analyze(num_cores=NUM_CORES)
 hfss.save_project()
 hfss.modeler.fit_all()
 hfss.setups[0].analyze()
@@ -278,20 +274,22 @@ quantity_name = "ComplexMag_H"
 intrinsic = {"Freq": hfss.setups[0].props["Frequency"], "Phase": "0deg"}
 surface_list = hfss.modeler.get_object_faces("outer")
 plot1 = hfss.post.create_fieldplot_surface(
-    surface_list, quantity_name, setup_name=hfss.nominal_adaptive, intrinsicDict=intrinsic
+    objlist=surface_list,
+    quantityName=quantity_name,
+    setup_name=hfss.nominal_adaptive,
+    intrinsincDict=intrinsic,
 )
-
-results_folder = os.path.join(temp_dir.name, "Coaxial_Results_NG")
 
 hfss.post.plot_field_from_fieldplot(
     plot1.name,
-    project_path=results_folder,
+    project_path=temp_dir.name,
     meshplot=False,
     imageformat="jpg",
     view="isometric",
     show=False,
     plot_cad_objs=False,
     log_scale=False,
+    file_format="aedtplt",
 )
 # -
 
@@ -310,7 +308,7 @@ animated = hfss.post.plot_animated_field(
     plot_type="CutPlane",
     setup_name=hfss.nominal_adaptive,
     intrinsics=intrinsic,
-    export_path=results_folder,
+    export_path=temp_dir.name,
     variation_variable="Phase",
     variation_list=phase_values,
     show=False,
@@ -322,7 +320,7 @@ animated.gif_file = os.path.join(temp_dir.name, "animate.gif")
 # animated.focal_point = [0, 0, 0]
 # Set off_screen to False to visualize the animation.
 # animated.off_screen = False
-animated.animate()
+# animated.animate()
 
 end_time = time.time() - start
 print("Total Time", end_time)
@@ -356,41 +354,55 @@ my_data.plot(
     xlabel="Frequency (Ghz)",
     ylabel="SParameters(dB)",
     title="Scattering Chart",
-    snapshot_path=os.path.join(results_folder, "Touchstone_from_matplotlib.jpg"),
+    snapshot_path=os.path.join(temp_dir.name, "Touchstone_from_matplotlib.jpg"),
 )
 
-# ## Generate pdf report
+# ## Generate PDF pdf_report
 #
-# Generate a pdf report with simulation results.
-report = AnsysReport(
-    project_name=hfss.project_name, design_name=hfss.design_name, version=desktop_version
+# Generate a PDF pdf_report with simulation results.
+pdf_report = AnsysReport(
+    project_name=hfss.project_name, design_name=hfss.design_name, version=AEDT_VERSION
 )
-report.create()
-report.add_section()
-report.add_chapter("Hfss Results")
-report.add_sub_chapter("Field Plot")
-report.add_text("This section contains Field plots of Hfss Coaxial.")
-report.add_image(os.path.join(results_folder, plot1.name + ".jpg"), caption="Coaxial Cable")
-report.add_page_break()
-report.add_sub_chapter("S Parameters")
-report.add_chart(
+
+# Create report
+
+pdf_report.create()
+
+# Add section for plots
+
+pdf_report.add_section()
+pdf_report.add_chapter("Hfss Results")
+pdf_report.add_sub_chapter("Field Plot")
+pdf_report.add_text("This section contains Field plots of Hfss Coaxial.")
+pdf_report.add_image(os.path.join(temp_dir.name, plot1.name + ".jpg"), caption="Coaxial Cable")
+
+# Add a page break and a subchapter for S Parameter results
+
+pdf_report.add_page_break()
+pdf_report.add_sub_chapter("S Parameters")
+pdf_report.add_chart(
     x_values=my_data.intrinsics["Freq"],
     y_values=my_data.data_db20(),
     x_caption="Freq",
     y_caption=trace_names[0],
     title="S-Parameters",
 )
-report.add_image(
-    path=os.path.join(results_folder, "Touchstone_from_matplotlib.jpg"),
+pdf_report.add_image(
+    path=os.path.join(temp_dir.name, "Touchstone_from_matplotlib.jpg"),
     caption="Touchstone from Matplotlib",
 )
-report.add_section()
-report.add_chapter("Icepak Results")
-report.add_sub_chapter("Temperature Plot")
-report.add_text("This section contains Multiphysics temperature plot.")
-report.add_toc()
-# report.add_image(os.path.join(results_folder, plot5.name+".jpg"), "Coaxial Cable Temperatures")
-report.save_pdf(file_path=results_folder, file_name="AEDT_Results.pdf")
+
+# Add a new section for Icepak results
+
+pdf_report.add_section()
+pdf_report.add_chapter("Icepak Results")
+pdf_report.add_sub_chapter("Temperature Plot")
+pdf_report.add_text("This section contains Multiphysics temperature plot.")
+
+# Add table of content and save PDF.
+
+pdf_report.add_toc()
+pdf_report.save_pdf(file_path=temp_dir.name, file_name="AEDT_Results.pdf")
 
 # ## Release AEDT and clean up temporary directory
 #
