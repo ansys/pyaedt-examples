@@ -5,65 +5,51 @@
 #
 # Note that the HFSS 3D Layout interface may offer advantages for
 # laminate structures such as the patch antenna.
+#
+# Keywords: **HFSS**, **Patch**, **antenna**.
 
-# ## Perform  imports
+# ## Perform required imports
+#
+# Perform required imports.
 
-import os
 import tempfile
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
+from ansys.pyaedt.examples.constants import AEDT_VERSION, NUM_CORES
 import pyaedt
 from pyaedt.modeler.advanced_cad.stackup_3d import Stackup3D
 
 # ## Set non-graphical mode
 #
-# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is set to ``False``
-# to create this documentation.
-#
-# You can set ``non_graphical``  to ``True`` to view
-# HFSS while the notebook cells are executed.
-#
-# Use the 2023R2 release of HFSS.
+# Set non-graphical mode.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
 
-non_graphical = True  # Set to False to launch the AEDT UI.
-desktop_version = AEDT_VERSION
-length_units = "mm"
-freq_units = "GHz"
+non_graphical = False
 
-# ## Create temporary working folder
-#
-# Use tempfile to create a temporary working folder. Project data
-# is deleted after this example is run.
-#
-# To save the project data in another location, change
-# the location of the project directory.
-#
+# ## Create temporary directory
 
-# tmpdir.cleanup() at the end of this notebook removes all
-# project files and data.
-
-tmpdir = tempfile.TemporaryDirectory(suffix="_aedt")
-project_folder = tmpdir.name
-proj_name = os.path.join(project_folder, "antenna")
+temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 
 # ## Launch HFSS
+#
+# Launch HFSS and change length units.
 
-# +
+project_name = pyaedt.generate_unique_project_name(rootname=temp_dir.name, project_name="patch")
 hfss = pyaedt.Hfss(
-    projectname=proj_name,
+    projectname=project_name,
     solution_type="Terminal",
     designname="patch",
     non_graphical=non_graphical,
-    specified_version=desktop_version,
+    specified_version=AEDT_VERSION,
 )
 
+length_units = "mm"
+freq_units = "GHz"
+
 hfss.modeler.model_units = length_units
-# -
 
 # ## Create patch
 #
 # Create the patch.
-
 
 # +
 stackup = Stackup3D(hfss)
@@ -80,6 +66,12 @@ region = hfss.modeler.create_region(pad_length, is_percentage=False)
 hfss.assign_radiation_boundary_to_objects(region)
 
 patch.create_probe_port(ground, rel_x_offset=0.485)
+# -
+
+# ## Set up simulation
+# Set up a simulation and analyze it.
+
+# +
 setup = hfss.create_setup(setupname="Setup1", setuptype="HFSSDriven", Frequency="10GHz")
 
 setup.create_frequency_sweep(
@@ -87,7 +79,7 @@ setup.create_frequency_sweep(
 )
 
 hfss.save_project()
-hfss.analyze()
+hfss.analyze(num_cores=NUM_CORES)
 # -
 
 # ## Plot S11
@@ -100,7 +92,10 @@ plt = solution.plot(solution.expressions)
 
 # ## Release AEDT
 #
-# Release AEDT and clean up temporary folders and files.
+# Release AEDT.
 
 hfss.release_desktop()
-tmpdir.cleanup()
+
+# ## Clean temporary directory
+
+temp_dir.cleanup()
