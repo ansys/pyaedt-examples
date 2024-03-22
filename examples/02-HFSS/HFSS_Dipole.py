@@ -2,17 +2,18 @@
 #
 # This example shows how you can use PyAEDT to create a dipole antenna in HFSS
 # and postprocess results.
+#
+# Keywords: **HFSS**, **antenna array**, **far field**.
 
 # ## Perform required imports
 #
 # Perform required imports.
 
 import os
+import tempfile
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
+from ansys.pyaedt.examples.constants import AEDT_VERSION, NUM_CORES
 import pyaedt
-
-project_name = pyaedt.generate_unique_project_name(project_name="dipole")
 
 # ## Set non-graphical mode
 #
@@ -21,16 +22,19 @@ project_name = pyaedt.generate_unique_project_name(project_name="dipole")
 
 non_graphical = False
 
+# ## Create temporary directory
+
+temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
+
 # ## Launch AEDT
-#
-# Launch AEDT 2023 R2 in graphical mode.
 
 d = pyaedt.launch_desktop(AEDT_VERSION, non_graphical=non_graphical, new_desktop_session=True)
 
 # ## Launch HFSS
 #
-# Launch HFSS 2023 R2 in graphical mode.
+# Create a new HFSS design.
 
+project_name = pyaedt.generate_unique_project_name(rootname=temp_dir.name, project_name="dipole")
 hfss = pyaedt.Hfss(projectname=project_name, solution_type="Modal")
 
 # ## Define variable
@@ -52,13 +56,11 @@ hfss.modeler.insert_3d_component(compfile, geometryparams)
 
 # ## Create boundaries
 #
-# Create boundaries. A region with openings is needed to run the analysis.
+# Create an open region.
 
 hfss.create_open_region(Frequency="1GHz")
 
 # ## Plot model
-#
-# Plot the model.
 
 my_plot = hfss.plot(show=False, plot_air_objects=False)
 my_plot.show_axes = False
@@ -80,7 +82,7 @@ hfss.create_linear_count_sweep(
     unit="GHz",
     freqstart=0.5,
     freqstop=1.5,
-    num_of_freq_points=251,
+    num_of_freq_points=101,
     sweepname="sweep1",
     sweep_type="Interpolating",
     interpolation_tol=3,
@@ -88,11 +90,9 @@ hfss.create_linear_count_sweep(
     save_fields=False,
 )
 
-# ## Save and run simulation
-#
-# Save and run the simulation.
+# ## Run simulation
 
-hfss.analyze_setup("MySetup")
+hfss.analyze_setup(name="MySetup", num_cores=NUM_CORES)
 
 # ## Create scattering plot and far fields report
 #
@@ -207,10 +207,10 @@ ffdata.plot_2d_cut(
     is_polar=True,
 )
 
-# ## Close AEDT
-#
-# After the simulation completes, you can close AEDT or release it using the
-# :func:`pyaedt.Desktop.release_desktop` method.
-# All methods provide for saving the project before closing.
+# ## Release AEDT
 
 d.release_desktop()
+
+# ## Clean temporary directory
+
+temp_dir.cleanup()
