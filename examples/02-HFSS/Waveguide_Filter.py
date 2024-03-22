@@ -2,6 +2,8 @@
 #
 # This example shows how to build and analyze a 4-pole
 # X-Band waveguide filter using inductive irises.
+#
+# Keywords: **HFSS**, **Waveguide filter**.
 
 # <img src="_static/wgf.png" width="500">
 
@@ -10,12 +12,10 @@
 # Perform required imports.
 #
 
-import os
 import tempfile
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
+from ansys.pyaedt.examples.constants import AEDT_VERSION, NUM_CORES
 import pyaedt
-from pyaedt import general_methods
 
 # ## Launch Ansys Electronics Desktop (AEDT)
 
@@ -42,17 +42,18 @@ non_graphical = False
 new_thread = True
 # -
 
+# ## Create temporary directory
+
+temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
+
 # ### Save the project and results in the TEMP folder
 
-project_folder = os.path.join(tempfile.gettempdir(), "waveguide_example")
-if not os.path.exists(project_folder):
-    os.mkdir(project_folder)
-project_name = os.path.join(project_folder, general_methods.generate_unique_name("wgf", n=2))
+project_name = pyaedt.generate_unique_project_name(rootname=temp_dir.name, project_name="waveguide")
 
-# Instantiate the HFSS application
+# ### Create the HFSS design
 
 hfss = pyaedt.Hfss(
-    projectname=project_name + ".aedt",
+    projectname=project_name,
     specified_version=AEDT_VERSION,
     designname="filter",
     non_graphical=non_graphical,
@@ -60,14 +61,12 @@ hfss = pyaedt.Hfss(
     close_on_exit=True,
 )
 
-# hfss.settings.enable_debug_methods_argument_logger = False  # Only for debugging.
-
-var_mapping = dict()  # Used by parse_expr to parse expressions.
 
 # ### Initialize design parameters in HFSS.
 
 # +
 hfss.modeler.model_units = "in"  # Set to inches
+var_mapping = dict()  # Used by parse_expr to parse expressions.
 for key in wgparams:
     if type(wgparams[key]) in [int, float]:
         hfss[key] = str(wgparams[key]) + wgparams["units"]
@@ -95,29 +94,29 @@ else:
 # iris nearest the waveguide ports.
 
 
-def place_iris(zpos, dz, n):
-    w_str = "w" + str(n)  # Iris width parameter as a string.
-    this_name = "iris_a_" + str(n)  # Iris object name in the HFSS project.
-    iris = []  # Return a list of the two objects that make up the iris.
+def place_iris(z_pos, dz, param_count):
+    w_str = "w" + str(param_count)  # Iris width parameter as a string.
+    this_name = "iris_a_" + str(param_count)  # Iris object name in the HFSS project.
+    iris_new = []  # Return a list of the two objects that make up the iris.
     if this_name in hfss.modeler.object_names:
         this_name = this_name.replace("a", "c")
-    iris.append(
+    iris_new.append(
         hfss.modeler.create_box(
-            ["-b/2", "-a/2", zpos],
+            ["-b/2", "-a/2", z_pos],
             ["(b - " + w_str + ")/2", "a", dz],
             name=this_name,
             matname="silver",
         )
     )
-    iris.append(iris[0].mirror([0, 0, 0], [1, 0, 0], duplicate=True))
-    return iris
+    iris_new.append(iris_new[0].mirror([0, 0, 0], [1, 0, 0], duplicate=True))
+    return iris_new
 
 
 # ### Place irises
 #
 # Place the irises from inner (highest integer) to outer.
 
-# +
+zpos = zstart
 for count in reversed(range(1, len(wgparams["w"]) + 1)):
     if count < len(wgparams["w"]):  # Update zpos
         zpos = zpos + "".join([" + l" + str(count) + " + "])[:-3]
@@ -125,11 +124,9 @@ for count in reversed(range(1, len(wgparams["w"]) + 1)):
         iris = place_iris("-(" + zpos + ")", "-t", count)
 
     else:  # Place first iris
-        zpos = zstart
         iris = place_iris(zpos, "t", count)
         if not is_even:
             iris = place_iris("-(" + zpos + ")", "-t", count)
-# -
 
 # ### Draw full waveguide with ports
 #
@@ -166,7 +163,6 @@ wg_z = [
 # and define the calibration lines to ensure self-consistent
 # polarization between wave ports.
 
-# +
 count = 0
 ports = []
 for n, z in enumerate(wg_z):
@@ -179,7 +175,6 @@ for n, z in enumerate(wg_z):
             face_id, integration_line=[u_start, u_end], name="P" + str(n + 1), renormalize=False
         )
     )
-# -
 
 # ### Insert the mesh adaptation setup using refinement at two frequencies.
 #
@@ -209,7 +204,7 @@ setup.create_frequency_sweep(
 #  Each frequency point is solved simultaneously.
 
 
-setup.analyze(num_tasks=2)
+setup.analyze(num_tasks=2, num_cores=NUM_CORES)
 
 # ### Generate S-Parameter Plots
 #
@@ -241,9 +236,13 @@ plot = hfss.post.plot_field(
     show=False,
 )
 
-# ### Save and close the desktop
+# ## Release AEDT
 #
 #  The following command saves the project to a file and closes the desktop.
 
 hfss.save_project()
 hfss.release_desktop()
+
+# ## Clean temporary directory
+
+temp_dir.cleanup()
