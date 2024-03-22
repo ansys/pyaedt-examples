@@ -2,24 +2,18 @@
 #
 # This example shows how you can use PyAEDT to create a multipart scenario in HFSS SBR+
 # and set up a doppler analysis.
+#
+# Keywords: **HFSS SBR+**, **Doppler**.
 
 # ## Perform required imports
 #
 # Perform required imports.
 
 import os
+import tempfile
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
-
-# ## Launch AEDT
-#
-# Launch AEDT.
-
-aedt_version = AEDT_VERSION
-projectname = "MicroDoppler_with_ADP"
-designname = "doppler"
-library_path = pyaedt.downloads.download_multiparts()
 
 # ## Set non-graphical mode
 #
@@ -28,15 +22,22 @@ library_path = pyaedt.downloads.download_multiparts()
 
 non_graphical = False
 
-# ## Download and open project
+# ## Create temporary directory
+
+temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
+
+# ## Download 3D component
+# Download the 3D component that is needed to run the example.
+
+library_path = pyaedt.downloads.download_multiparts(destination=temp_dir.name)
+
+# ## Launch HFSS and open project
 #
-# Download and open the project.
+# Launch HFSS and open the project.
 
-project_name = pyaedt.generate_unique_project_name(project_name="doppler")
-
-# Instantiate the application.
+project_name = pyaedt.generate_unique_project_name(rootname=temp_dir.name, project_name="doppler")
 app = pyaedt.Hfss(
-    specified_version=aedt_version,
+    specified_version=AEDT_VERSION,
     solution_type="SBR+",
     new_desktop_session=True,
     projectname=project_name,
@@ -50,8 +51,9 @@ app.autosave_disable()
 #
 # Save the project to the temporary folder and rename the design.
 
-app.save_project()
+designname = "doppler"
 app.rename_design(designname)
+app.save_project()
 
 # ## Set up library paths
 #
@@ -149,5 +151,13 @@ app.plot(
 # to activate the simulation.
 
 # app.analyze_setup(sweep.name)
-app.save_project()
-app.release_desktop(close_projects=True, close_desktop=True)
+
+# ## Release AEDT
+#
+# Release AEDT and close the example.
+
+app.release_desktop()
+
+# ## Clean temporary directory
+
+temp_dir.cleanup()

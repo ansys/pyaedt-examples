@@ -2,6 +2,8 @@
 #
 # This example shows how you can use PyAEDT to create an HFSS SBR+ project from an
 # OpenStreeMaps.
+#
+# Keywords: **HFSS SBR+**, **City**.
 
 # ## Perform required imports
 #
@@ -9,6 +11,7 @@
 # directory path.
 
 import os
+import tempfile
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 from pyaedt import Hfss
@@ -20,12 +23,17 @@ from pyaedt import Hfss
 
 non_graphical = False
 
-# ## Define designs
-#
-# Define two designs, one source and one target.
-# Each design is connected to a different object.
+# ## Create temporary directory
 
+temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
+
+# ## Launch HFSS and open project
+#
+# Launch HFSS and open the project.
+
+project_name = pyaedt.generate_unique_project_name(rootname=temp_dir.name, project_name="city")
 app = Hfss(
+    projectname=project_name,
     designname="Ansys",
     solution_type="SBR+",
     specified_version=AEDT_VERSION,
@@ -36,6 +44,7 @@ app = Hfss(
 # ## Define Location to import
 #
 # Define latitude and longitude to import.
+
 ansys_home = [40.273726, -80.168269]
 
 # ## Generate map and import
@@ -63,3 +72,7 @@ plot_obj.plot(os.path.join(app.working_directory, "Source.jpg"))
 # Release AEDT and close the example.
 
 app.release_desktop()
+
+# ## Clean temporary directory
+
+temp_dir.cleanup()

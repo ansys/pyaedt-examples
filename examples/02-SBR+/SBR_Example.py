@@ -2,6 +2,8 @@
 #
 # This example shows how you can use PyAEDT to create an HFSS SBR+ project from an
 # HFSS antenna and run a simulation.
+#
+# Keywords: **HFSS SBR+**, **Reflector**.
 
 # ## Perform required imports
 #
@@ -9,13 +11,10 @@
 # directory.
 
 import os
+import tempfile
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
+from ansys.pyaedt.examples.constants import AEDT_VERSION, NUM_CORES
 import pyaedt
-
-project_full_name = pyaedt.downloads.download_sbr(
-    pyaedt.generate_unique_project_name(project_name="sbr_freq")
-)
 
 # ## Set non-graphical mode
 #
@@ -23,6 +22,14 @@ project_full_name = pyaedt.downloads.download_sbr(
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
+
+# ## Create temporary directory
+
+temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
+
+# ## Download project
+
+project_full_name = pyaedt.downloads.download_sbr(destination=temp_dir.name)
 
 # ## Define designs
 #
@@ -85,7 +92,7 @@ setup1.props["RayDensityPerWavelength"] = 2
 setup1.props["MaxNumberOfBounces"] = 3
 setup1["RangeType"] = "SinglePoints"
 setup1["RangeStart"] = "10GHz"
-target.analyze()
+target.analyze(num_cores=NUM_CORES)
 
 # ## Plot results
 #
@@ -123,3 +130,7 @@ solution.plot()
 # Release AEDT and close the example.
 
 target.release_desktop()
+
+# ## Clean temporary directory
+
+temp_dir.cleanup()

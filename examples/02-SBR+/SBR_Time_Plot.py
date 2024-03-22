@@ -2,14 +2,17 @@
 #
 # This example shows how you can use PyAEDT to create an SBR+ time animation
 # and save it to a GIF file. This example works only on CPython.
+#
+# Keywords: **HFSS SBR+**, **Time domain**, **IFFT**.
 
 # ## Perform required imports.
 #
 # Perform required imports.
 
 import os
+import tempfile
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
+from ansys.pyaedt.examples.constants import AEDT_VERSION, NUM_CORES
 from pyaedt import Hfss, downloads
 
 # ## Set non-graphical mode
@@ -19,12 +22,16 @@ from pyaedt import Hfss, downloads
 
 non_graphical = False
 
-# ## Launch AEDT and load project
-#
-# Launch AEDT and load the project.
+# ## Create temporary directory
 
-# +
-project_file = downloads.download_sbr_time()
+temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
+
+
+# ## Download project
+
+project_file = downloads.download_sbr_time(destination=temp_dir.name)
+
+# ## Launch HFSS and analyze
 
 hfss = Hfss(
     projectname=project_file,
@@ -33,8 +40,7 @@ hfss = Hfss(
     new_desktop_session=True,
 )
 
-hfss.analyze()
-# -
+hfss.analyze(num_cores=NUM_CORES)
 
 # ## Get solution data
 #
@@ -54,7 +60,6 @@ solution_data = hfss.post.get_solution_data(
 
 t_matrix = solution_data.ifft("NearE", window=True)
 
-
 # ## Export IFFT to CSV file
 #
 # Export IFFT to a CSV file.
@@ -69,7 +74,6 @@ frames_list_file = solution_data.ifft_to_file(
 #
 # Plot the scene to create the time plot animation
 
-# +
 hfss.post.plot_scene(
     frames_list=frames_list_file,
     output_gif_path=os.path.join(hfss.working_directory, "animation.gif"),
@@ -80,5 +84,12 @@ hfss.post.plot_scene(
     zoom=1,
 )
 
+# ## Release AEDT
+#
+# Release AEDT and close the example.
+
 hfss.release_desktop()
-# -
+
+# ## Clean temporary directory
+
+temp_dir.cleanup()
