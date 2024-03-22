@@ -4,6 +4,8 @@
 # the simulation of an antenna using HFSS.
 #
 # <img src="_static/emit_simple_cosite.png" width="400">
+#
+# Keywords: **EMIT**, **Antenna**.
 
 # ## Perform required inputs
 #
@@ -20,24 +22,27 @@ from pyaedt.emit_core.emit_constants import ResultType, TxRxMode
 #
 # Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
-# The ``NewThread`` Boolean variable defines whether to create a new instance
-# of AEDT or try to connect to existing instance of it if one is available.
 
 non_graphical = False
-NewThread = True
-desktop_version = AEDT_VERSION
 
+# ## Create temporary directory
+
+temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 
 # ## Launch AEDT with EMIT
 #
 # Launch AEDT with EMIT. The ``launch_desktop()`` method initializes AEDT
-# using the specified version. The 2nd argument can be set to ``True`` to
+# using the specified version. The second argument can be set to ``True`` to
 # run AEDT in non-graphical mode.
 
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-d = pyaedt.launch_desktop(desktop_version, non_graphical, NewThread)
-aedtapp = pyaedt.Emit(os.path.join(temp_dir.name, "antenna_cosite"))
+# +
 
+project_name = pyaedt.generate_unique_project_name(
+    rootname=temp_dir.name, project_name="antenna_cosite"
+)
+d = pyaedt.launch_desktop(AEDT_VERSION, non_graphical, True)
+aedtapp = pyaedt.Emit(project_name)
+# -
 
 # ## Create and connect EMIT components
 #
@@ -73,7 +78,7 @@ rad3, ant3 = aedtapp.modeler.components.create_radio_antenna(
 #
 # This part of the example requires Ansys AEDT 2023 R2.
 
-if desktop_version > "2023.1" and os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
+if AEDT_VERSION > "2023.1" and os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
     rev = aedtapp.results.analyze()
     rx_bands = rev.get_band_names(rad2.name, TxRxMode.RX)
     tx_bands = rev.get_band_names(rad3.name, TxRxMode.TX)
@@ -86,16 +91,12 @@ if desktop_version > "2023.1" and os.getenv("PYAEDT_DOC_GENERATION", "False") !=
         emi = worst.get_value(ResultType.EMI)
         print("Worst case interference is: {} dB".format(emi))
 
-# ## Save project and close AEDT
+# ## Release AEDT
 #
-# After the simulation completes, you can close AEDT or release it using the
-# `pyaedt.Desktop.force_close_desktop` method.
-# All methods provide for saving the project before closing.
+# Release AEDT and close the example.
 
-aedtapp.save_project()
-aedtapp.release_desktop(close_projects=True, close_desktop=True)
+aedtapp.release_desktop()
 
-# Clean up the temporary directory and remove the project files located
-# in ``temp_dir.name``.
+# ## Clean temporary directory
 
 temp_dir.cleanup()

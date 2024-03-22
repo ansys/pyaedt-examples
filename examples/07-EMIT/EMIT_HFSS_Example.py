@@ -7,6 +7,8 @@
 # > **Note:** This example uses the ``Cell Phone RFI Desense``
 # > project that is available with the AEDT installation in the
 # > folder ``\Examples\EMIT\``
+#
+# Keywords: **EMIT**, **Coupling**.
 
 # ## Perform required imports
 #
@@ -24,12 +26,12 @@ from pyaedt.emit_core.emit_constants import ResultType, TxRxMode
 #
 # Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
-# The Boolean parameter ``new_thread`` defines whether to create a new instance
-# of AEDT or try to connect to an existing instance of it.
 
 non_graphical = False
-NewThread = True
-desktop_version = AEDT_VERSION
+
+# ## Create temporary directory
+
+temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 
 # ## Launch AEDT with EMIT
 #
@@ -37,8 +39,7 @@ desktop_version = AEDT_VERSION
 # on the specified version and in the specified graphical mode.
 # A temporary working directory is created using ``tempfile``.
 
-d = pyaedt.launch_desktop(desktop_version, non_graphical, NewThread)
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+d = pyaedt.launch_desktop(AEDT_VERSION, non_graphical, True)
 
 # ## Copy Example Files
 #
@@ -104,7 +105,7 @@ for link in aedtapp.couplings.coupling_names:
 #
 # This part of the example requires Ansys AEDT 2023 R2.
 
-if desktop_version > "2023.1":
+if AEDT_VERSION > "2023.1":
     rev = aedtapp.results.analyze()
     rx_bands = rev.get_band_names(rad1.name, TxRxMode.RX)
     tx_bands = rev.get_band_names(rad2.name, TxRxMode.TX)
@@ -117,13 +118,12 @@ if desktop_version > "2023.1":
         emi = worst.get_value(ResultType.EMI)
         print("Worst case interference is: {} dB".format(emi))
 
-# ## Save and Close the Project
+# ## Release AEDT
 #
-# After the simulation completes, you can close AEDT or release it using the
-# `pyaedt.Desktop.force_close_desktop` method.
-# All methods provide for saving the project before closing.
+# Release AEDT and close the example.
 
-aedtapp.save_project()
-aedtapp.release_desktop(close_projects=True, close_desktop=True)
+aedtapp.release_desktop()
 
-temp_dir.cleanup()  # Remove temporary project files.
+# ## Clean temporary directory
+
+temp_dir.cleanup()

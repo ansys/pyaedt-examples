@@ -3,6 +3,8 @@
 # This example shows how to load an existing AEDT EMIT
 # design and analyze the results to classify the
 # worst-case interference.
+#
+# Keywords: **EMIT**, **Interference**.
 
 # +
 # Perform required imports
@@ -10,6 +12,7 @@
 import os
 import subprocess
 import sys
+import tempfile
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
@@ -46,6 +49,10 @@ import plotly.graph_objects as go
 
 # -
 
+# ## Create temporary directory
+
+temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
+
 # Check that EMIT version 2023.2 or greater is installed.
 
 desktop_version = AEDT_VERSION
@@ -65,8 +72,21 @@ desktop = pyaedt.launch_desktop(
 )
 
 
-path_to_desktop_project = pyaedt.downloads.download_file("emit", "interference.aedtz")
+# ## Download project
+#
+
+path_to_desktop_project = pyaedt.downloads.download_file(
+    "emit", "interference.aedtz", destination=temp_dir.name
+)
+
+path_to_desktop_project
+
+# ## Launch EMIT and open project
+
+# +
+
 emitapp = Emit(non_graphical=False, new_desktop_session=False, projectname=path_to_desktop_project)
+# -
 
 # ## Get a List of Transmitters
 #
@@ -95,13 +115,10 @@ all_colors, power_matrix = rev.interference_type_classification(
     domain, use_filter=False, filter_list=[]
 )
 
-# ## Save project and close AEDT
+# ## Release AEDT
 #
-# After the simulation completes, you can close AEDT or release it using the
-# :func:`pyaedt.Desktop.force_close_desktop` method.
-# All methods provide for saving the project before closing.
+# Release AEDT and close the example.
 
-emitapp.save_project()
 emitapp.release_desktop()
 
 # ## Create a scenario matrix view
@@ -230,3 +247,7 @@ if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
 
     # Create a legend for the interference types
     create_legend_table()
+
+# ## Clean temporary directory
+
+temp_dir.cleanup()

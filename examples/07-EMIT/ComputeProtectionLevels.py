@@ -5,11 +5,15 @@
 # power at the input to each receiver exceeds the specified protection
 # levels.
 #
-# Perform required imports
+# Keywords: **EMIT**, **Protection levels**.
+
+# ## Perform required imports
+#
 
 import os
 import subprocess
 import sys
+import tempfile
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
@@ -45,15 +49,14 @@ import plotly.graph_objects as go
 
 # ## Set non-graphical mode
 #
-# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"``` is needed to generate
-# documentation only.
+# Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
-# The ``new_thread`` Boolean variable defines whether to create a new instance
-# of AEDT or try to connect to existing instance of it if one is available.
 
 non_graphical = False
-new_thread = True
-desktop_version = AEDT_VERSION
+
+# ## Create temporary directory
+
+temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 
 # ## Launch AEDT with EMIT
 #
@@ -62,11 +65,13 @@ desktop_version = AEDT_VERSION
 #
 # Check that the correct version of EMIT is installed.
 
-if desktop_version <= "2023.1":
+if AEDT_VERSION <= "2023.1":
     print("Warning: this example requires AEDT 2023.2 or later.")
     sys.exit()
-d = pyaedt.launch_desktop(desktop_version, non_graphical, new_thread)
-emitapp = Emit(pyaedt.generate_unique_project_name())
+
+project_name = pyaedt.generate_unique_project_name(rootname=temp_dir.name, project_name="emit")
+d = pyaedt.launch_desktop(AEDT_VERSION, non_graphical, True)
+emitapp = Emit(project_name)
 
 # ## Specify the protection levels
 #
@@ -272,11 +277,12 @@ if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
     # Create a legend for the protection levels
     create_legend_table()
 
-# ## Save project and close AEDT
+# ## Release AEDT
 #
-# After the simulation completes, you can close AEDT or release it using the
-# `pyaedt.Desktop.force_close_desktop` method.
-# All methods provide for saving the project before closing.
+# Release AEDT and close the example.
 
-emitapp.save_project()
-emitapp.release_desktop(close_projects=True, close_desktop=True)
+emitapp.release_desktop()
+
+# ## Clean temporary directory
+
+temp_dir.cleanup()
