@@ -2,19 +2,18 @@
 #
 # This example shows how you can use PyAEDT to create a FSS unitcell simulations in
 # HFSS and postprocess results.
+#
+# Keywords: **HFSS**, **FSS**, **Floquet**.
 
 # ## Perform required imports
 #
 # Perform required imports.
 
-# +
 import os
+import tempfile
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
-
-project_name = pyaedt.generate_unique_project_name(project_name="FSS")
-# -
 
 # ## Set non-graphical mode
 #
@@ -23,15 +22,18 @@ project_name = pyaedt.generate_unique_project_name(project_name="FSS")
 
 non_graphical = False
 
-# ## Launch AEDT
-#
-# Launch AEDT 2023 R2 in graphical mode.
+# ## Create temporary directory
 
+temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
+
+# ## Launch AEDT
+
+project_name = pyaedt.generate_unique_project_name(rootname=temp_dir.name, project_name="FSS")
 d = pyaedt.launch_desktop(AEDT_VERSION, non_graphical=non_graphical, new_desktop_session=True)
 
 # ## Launch HFSS
 #
-# Launch HFSS 2023 R2 in graphical mode.
+# Create a new HFSS design.
 
 hfss = pyaedt.Hfss(projectname=project_name, solution_type="Modal")
 
@@ -46,7 +48,7 @@ hfss["patch_dim"] = "10mm"
 # Download the 3D component from the example data and insert the 3D Component.
 
 # +
-unitcell_3d_component_path = pyaedt.downloads.download_FSS_3dcomponent()
+unitcell_3d_component_path = pyaedt.downloads.download_FSS_3dcomponent(destination=temp_dir.name)
 unitcell_path = os.path.join(unitcell_3d_component_path, "FSS_unitcell_23R2.a3dcomp")
 
 comp = hfss.modeler.insert_3d_component(unitcell_path)
@@ -96,7 +98,6 @@ hfss.create_floquet_port(
     portname="port_z_max",
     deembed_dist=10 * bounding_dimensions[2],
 )
-
 
 # ## Create setup
 #
@@ -150,10 +151,10 @@ hfss.post.create_report(
 
 # hfss.analyze()
 
-# ## Close AEDT
-#
-# After the simulation completes, you can close AEDT or release it using the
-# :func:`pyaedt.Desktop.release_desktop` method.
-# All methods provide for saving the project before closing.
+# ## Release AEDT
 
 hfss.release_desktop()
+
+# ## Clean temporary directory
+
+temp_dir.cleanup()
