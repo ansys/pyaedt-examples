@@ -51,7 +51,7 @@ app.autosave_disable()
 #
 # Save the project to the temporary folder and rename the design.
 
-designname = "doppler"
+designname = "doppler_sbr"
 app.rename_design(designname)
 app.save_project()
 

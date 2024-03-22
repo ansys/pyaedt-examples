@@ -14,7 +14,7 @@ import os
 import tempfile
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
-from pyaedt import Hfss
+import pyaedt
 
 # ## Set non-graphical mode
 #
@@ -32,7 +32,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 # Launch HFSS and open the project.
 
 project_name = pyaedt.generate_unique_project_name(rootname=temp_dir.name, project_name="city")
-app = Hfss(
+app = pyaedt.Hfss(
     projectname=project_name,
     designname="Ansys",
     solution_type="SBR+",
