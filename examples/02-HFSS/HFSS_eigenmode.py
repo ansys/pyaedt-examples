@@ -19,30 +19,22 @@
 # The following script finds the physical modes of a model in a wide frequency
 # range by automating the solution setup.
 # During each simulation, a user-defined number of modes is simulated, and the modes
-# with a Q higher than a user- defined value are filtered.
+# with a Q higher than a user-defined value are filtered.
 # The next simulation automatically continues to find modes having a frequency higher
 # than the last mode of the previous analysis.
 # This continues until the maximum frequency in the desired range is achieved.
+#
+# Keywords: **HFSS**, **Eigenmode**, **resonance**.
 
 # ## Perform required imports
 #
-# Run through each cell. This cell imports the required packages.
+# Perform required imports.
 
 import os
+import tempfile
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
+from ansys.pyaedt.examples.constants import AEDT_VERSION, NUM_CORES
 import pyaedt
-
-# Create a temporary folder to download the example to.
-
-temp_folder = pyaedt.generate_unique_folder_name()
-project_path = pyaedt.downloads.download_file("eigenmode", "emi_PCB_house.aedt", temp_folder)
-
-# ## Launch AEDT
-#
-# Launch AEDT 2023 R2 in graphical mode.
-
-desktop_version = AEDT_VERSION
 
 # ## Set non-graphical mode
 #
@@ -51,15 +43,22 @@ desktop_version = AEDT_VERSION
 
 non_graphical = False
 
-# ## Launch AEDT
-#
-# Launch AEDT 2023 R2 in graphical mode.
+# ## Create temporary directory
 
-d = pyaedt.launch_desktop(desktop_version, non_graphical=non_graphical, new_desktop_session=True)
+temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
+
+# ## Download 3D component
+# Download the 3D component that is needed to run the example.
+
+project_path = pyaedt.downloads.download_file("eigenmode", "emi_PCB_house.aedt", temp_dir.name)
+
+# ## Launch AEDT
+
+d = pyaedt.launch_desktop(AEDT_VERSION, non_graphical=non_graphical, new_desktop_session=True)
 
 # ## Launch HFSS
 #
-# Launch HFSS 2023 R2 in graphical mode.
+# Create a new HFSS design.
 
 hfss = pyaedt.Hfss(projectname=project_path, non_graphical=non_graphical)
 
@@ -89,11 +88,11 @@ resonance = {}
 # After the solve, each mode, along with its corresponding real frequency and quality factor,
 # are saved for further processing.
 
-# +
+
 def find_resonance():
-    # setup creation
-    next_min_freq = str(next_fmin) + " GHz"
-    setup_name = "em_setup" + str(setup_nr)
+    # Setup creation
+    next_min_freq = f"{next_fmin} GHz"
+    setup_name = f"em_setup{setup_nr}"
     setup = hfss.create_setup(setup_name)
     setup.props["MinimumFrequency"] = next_min_freq
     setup.props["NumModes"] = num_modes
@@ -101,32 +100,30 @@ def find_resonance():
     setup.props["MaximumPasses"] = 10
     setup.props["MinimumPasses"] = 3
     setup.props["MaxDeltaFreq"] = 5
-    # analyzing the eigenmode setup
-    hfss.analyze_setup(setup_name, num_cores=8, use_auto_settings=True)
-    # getting the Q and real frequency of each mode
-    eigen_q = hfss.post.available_report_quantities(quantities_category="Eigen Q")
-    eigen_mode = hfss.post.available_report_quantities()
+
+    # Analyzing the eigenmode setup
+    hfss.analyze_setup(setup_name, num_cores=NUM_CORES, use_auto_settings=True)
+
+    # Getting the Q and real frequency of each mode
+    eigen_q_quantities = hfss.post.available_report_quantities(quantities_category="Eigen Q")
+    eigen_mode_quantities = hfss.post.available_report_quantities()
     data = {}
-    cont = 0
-    for i in eigen_mode:
+    for i, expression in enumerate(eigen_mode_quantities):
         eigen_q_value = hfss.post.get_solution_data(
-            expressions=eigen_q[cont],
-            setup_sweep_name=setup_name + " : LastAdaptive",
+            expressions=eigen_q_quantities[i],
+            setup_sweep_name=f"{setup_name} : LastAdaptive",
             report_category="Eigenmode",
         )
         eigen_mode_value = hfss.post.get_solution_data(
-            expressions=eigen_mode[cont],
-            setup_sweep_name=setup_name + " : LastAdaptive",
+            expressions=expression,
+            setup_sweep_name=f"{setup_name} : LastAdaptive",
             report_category="Eigenmode",
         )
-        data[cont] = [eigen_q_value.data_real()[0], eigen_mode_value.data_real()[0]]
-        cont += 1
+        data[i] = [eigen_q_value.data_real()[0], eigen_mode_value.data_real()[0]]
 
     print(data)
     return data
 
-
-# -
 
 # ## Automate eigenmode solution
 #
@@ -136,6 +133,7 @@ def find_resonance():
 # frequency range is covered.
 # When the automation ends, the physical modes in the whole frequency
 # range are reported.
+
 
 # +
 while next_fmin < fmax:
@@ -152,9 +150,7 @@ resonance_frequencies = [f"{resonance[i][1] / 1e9:.5} GHz" for i in resonance]
 print(str(resonance_frequencies))
 # -
 
-# ## Save project
-#
-# Save the project.
+# ## Plot model
 
 hfss.modeler.fit_all()
 hfss.plot(
@@ -163,9 +159,10 @@ hfss.plot(
     plot_air_objects=False,
 )
 
-# ## Save project and close AEDT
-#
-# Save the project and close AEDT.
+# ## Release AEDT
 
-hfss.save_project()
-hfss.release_desktop()
+d.release_desktop()
+
+# ## Clean temporary directory
+
+temp_dir.cleanup()
