@@ -10,6 +10,7 @@
 # ## Perform required imports
 #
 
+# +
 import os
 import subprocess
 import sys
@@ -19,6 +20,7 @@ from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 from pyaedt import Emit
 from pyaedt.emit_core.emit_constants import InterfererType
+# -
 
 # ## Python Dependencies
 #
@@ -41,11 +43,12 @@ required_packages = ["plotly"]
 for package in required_packages:
     if package not in installed_packages:
         install(package)
+# -
+
+# Import to support plotting.
 
 # Import required modules
 import plotly.graph_objects as go
-
-# -
 
 # ## Set non-graphical mode
 #
@@ -99,8 +102,7 @@ protection_levels = [damage_threshold, overload_threshold, intermod_threshold, d
 # Set up the scenario with radios connected to antennas.
 
 bluetooth, blue_ant = emitapp.modeler.components.create_radio_antenna(
-    "Bluetooth Low Energy (LE)", "Bluetooth"
-)
+                      "Bluetooth Low Energy (LE)", "Bluetooth")
 gps, gps_ant = emitapp.modeler.components.create_radio_antenna("GPS Receiver", "GPS")
 wifi, wifi_ant = emitapp.modeler.components.create_radio_antenna("WiFi - 802.11-2012", "WiFi")
 
@@ -122,10 +124,6 @@ bands = bluetooth.bands()
 for band in bands:
     band.set_band_power_level(-20)
 
-
-# -
-
-
 def get_radio_node(radio_name):
     """Get the radio node that matches the
     given radio name.
@@ -143,7 +141,6 @@ def get_radio_node(radio_name):
         radio = wifi
     return radio
 
-
 bands = gps.bands()
 for band in bands:
     for child in band.children:
@@ -151,6 +148,7 @@ for band in bands:
             band.enabled = True
         else:
             band.enabled = False
+# -
 
 # ## Load the results set
 #

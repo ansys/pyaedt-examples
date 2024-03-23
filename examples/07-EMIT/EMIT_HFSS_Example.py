@@ -1,6 +1,6 @@
 # # EMIT: HFSS to EMIT coupling
 #
-# <img src="_static/emit_hfss.png" width="60"> This example
+# <img src="_static/emit_hfss.png" width="40"> This example
 # demonstrates how link an HFSS design
 # to EMIT and model RF interference among various components.
 #
@@ -14,6 +14,7 @@
 #
 # Perform required imports.
 
+# +
 import os
 import shutil
 import tempfile
@@ -21,6 +22,7 @@ import tempfile
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 from pyaedt.emit_core.emit_constants import ResultType, TxRxMode
+# -
 
 # ## Set non-graphical mode
 #

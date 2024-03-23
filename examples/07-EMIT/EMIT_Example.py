@@ -11,12 +11,14 @@
 #
 # Perform required imports.
 
+# +
 import os
 import tempfile
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 from pyaedt.emit_core.emit_constants import ResultType, TxRxMode
+# -
 
 # ## Set non-graphical mode
 #
@@ -35,14 +37,11 @@ temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 # using the specified version. The second argument can be set to ``True`` to
 # run AEDT in non-graphical mode.
 
-# +
-
 project_name = pyaedt.generate_unique_project_name(
     rootname=temp_dir.name, project_name="antenna_cosite"
 )
 d = pyaedt.launch_desktop(AEDT_VERSION, non_graphical, True)
 aedtapp = pyaedt.Emit(project_name)
-# -
 
 # ## Create and connect EMIT components
 #
@@ -69,7 +68,7 @@ rad3, ant3 = aedtapp.modeler.components.create_radio_antenna(
 # The next step in this workflow is to specify the RF coupling among antennas.
 # This functionality yet to be implemented in the API, but can be entered from the UI.
 #
-# <img src="_static/coupling.png" width="500">
+# <img src="_static/coupling.png" width="250">
 
 
 # ## Run EMIT simulation

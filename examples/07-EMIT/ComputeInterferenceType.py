@@ -18,7 +18,6 @@ from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 from pyaedt import Emit
 from pyaedt.emit_core.emit_constants import InterfererType
-
 # -
 
 # ## Python Dependencies
@@ -28,7 +27,6 @@ from pyaedt.emit_core.emit_constants import InterfererType
 # to run this cell.
 
 # +
-# Check to see which Python packages have been installed
 reqs = subprocess.check_output([sys.executable, "-m", "pip", "freeze"])
 installed_packages = [r.decode().split("==")[0] for r in reqs.split()]
 
@@ -68,30 +66,25 @@ if desktop_version <= "2023.1":
 non_graphical = False
 new_thread = True
 desktop = pyaedt.launch_desktop(
-    desktop_version, non_graphical=non_graphical, new_desktop_session=new_thread
-)
+    desktop_version, non_graphical=non_graphical, new_desktop_session=new_thread)
 
 
 # ## Download project
 #
 
 path_to_desktop_project = pyaedt.downloads.download_file(
-    "emit", "interference.aedtz", destination=temp_dir.name
-)
-
+    "emit", "interference.aedtz", destination=temp_dir.name)
 path_to_desktop_project
 
 # ## Launch EMIT and open project
 
-# +
-
 emitapp = Emit(non_graphical=False, new_desktop_session=False, projectname=path_to_desktop_project)
-# -
 
 # ## Get a List of Transmitters
 #
 # Get lists of all transmitters and receivers in the project.
 
+# +
 rev = emitapp.results.analyze()
 tx_interferer = InterfererType().TRANSMITTERS
 rx_radios = rev.get_receiver_names()
@@ -101,7 +94,7 @@ domain = emitapp.results.interaction_domain()
 if tx_radios is None or rx_radios is None:
     print("No receivers or transmitters are in the design.")
     sys.exit()
-
+# -
 
 # ## Classify the interference
 #
@@ -112,8 +105,7 @@ if tx_radios is None or rx_radios is None:
 power_matrix = []
 all_colors = []
 all_colors, power_matrix = rev.interference_type_classification(
-    domain, use_filter=False, filter_list=[]
-)
+    domain, use_filter=False, filter_list=[])
 
 # ## Release AEDT
 #
