@@ -8,10 +8,10 @@
 # Perform required imports.
 
 import os
-import pyaedt
 import tempfile
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION, NUM_CORES
+import pyaedt
 
 # ## Create temporary directory
 #
