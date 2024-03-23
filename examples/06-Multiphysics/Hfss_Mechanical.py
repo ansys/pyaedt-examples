@@ -8,10 +8,10 @@
 # Perform required imports.
 
 import os
+import pyaedt
 import tempfile
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
-import pyaedt
+from ansys.pyaedt.examples.constants import AEDT_VERSION, NUM_CORES
 
 # ## Create temporary directory
 #
@@ -29,37 +29,38 @@ non_graphical = False
 #
 # Download and open the project. Save it to the temporary folder.
 
-project_temp_name = pyaedt.downloads.download_via_wizard(destination=temp_dir.name)
+project_name = pyaedt.downloads.download_via_wizard(destination=temp_dir.name)
 
 # ## Start HFSS
 #
 # Initialize HFSS.
 
 hfss = pyaedt.Hfss(
-    projectname=project_temp_name,
+    projectname=project_name,
     specified_version=AEDT_VERSION,
     non_graphical=non_graphical,
     new_desktop_session=True,
 )
 hfss.change_material_override(True)
 
-# ## Start Circuit
+# ## Initialize Circuit
 #
-# Start Circuit and add the HFSS dynamic link component to it.
+# Initialize Circuit and add the HFSS dynamic link component.
 
 circuit = pyaedt.Circuit()
-hfss_comp = circuit.modeler.schematic.add_subcircuit_dynamic_link(hfss)
+hfss_comp = circuit.modeler.schematic.add_subcircuit_dynamic_link(pyaedt_app=hfss)
 
 # ## Set up dynamic link options
 #
-# Set up dynamic link options. The argument for the ``set_sim_option_on_hfss_subcircuit``
+# Set up dynamic link options. The argument for ``set_sim_option_on_hfss_subcircuit``
 # method can be the component name, component ID, or component object.
 
-circuit.modeler.schematic.refresh_dynamic_link(hfss_comp.composed_name)
-circuit.modeler.schematic.set_sim_option_on_hfss_subcircuit(hfss_comp)
+circuit.modeler.schematic.refresh_dynamic_link(component_name=hfss_comp.composed_name)
+circuit.modeler.schematic.set_sim_option_on_hfss_subcircuit(component=hfss_comp)
+# CHECK IT!!
 hfss_setup_name = hfss.setups[0].name + " : " + hfss.setups[0].sweeps[0].name
 circuit.modeler.schematic.set_sim_solution_on_hfss_subcircuit(
-    hfss_comp.composed_name, hfss_setup_name
+    component=hfss_comp.composed_name, solution_name=hfss_setup_name
 )
 
 # ## Create ports and excitations
@@ -93,11 +94,7 @@ source.phase = 0
 
 setup_name = "MySetup"
 LNA_setup = circuit.create_setup(setupname=setup_name)
-bw_start = 4.3
-bw_stop = 4.4
-n_points = 1001
-unit = "GHz"
-sweep_list = ["LINC", str(bw_start) + unit, str(bw_stop) + unit, str(n_points)]
+sweep_list = ["LINC", str(4.3) + "GHz", str(4.4) + "GHz", str(1001)]
 LNA_setup.props["SweepDefinition"]["Data"] = " ".join(sweep_list)
 
 # ## Solve and push excitations
@@ -105,16 +102,15 @@ LNA_setup.props["SweepDefinition"]["Data"] = " ".join(sweep_list)
 # Solve the circuit and push excitations to the HFSS model to calculate the
 # correct value of losses.
 
-circuit.analyze()
+circuit.analyze(num_cores=NUM_CORES)
 circuit.push_excitations(instance_name="S1", setup_name=setup_name)
-
 
 # ## Start Mechanical
 #
 # Start Mechanical and copy bodies from the HFSS project.
 
 mech = pyaedt.Mechanical()
-mech.copy_solid_bodies_from(hfss)
+mech.copy_solid_bodies_from(design=hfss)
 mech.change_material_override(True)
 
 # ## Get losses from HFSS and assign convection to Mechanical
@@ -147,7 +143,7 @@ mech.plot(show=False, export_path=os.path.join(temp_dir.name, "Mech.jpg"), plot_
 
 mech.create_setup()
 mech.save_project()
-mech.analyze()
+mech.analyze(num_cores=NUM_CORES)
 surfaces = []
 for name in mech.get_all_conductors_names():
     surfaces.extend(mech.modeler.get_object_faces(name))

@@ -316,11 +316,11 @@ animated = hfss.post.plot_animated_field(
     log_scale=True,
 )
 animated.gif_file = os.path.join(temp_dir.name, "animate.gif")
-# animated.camera_position = [0, 0, 300]
-# animated.focal_point = [0, 0, 0]
+
 # Set off_screen to False to visualize the animation.
 # animated.off_screen = False
-# animated.animate()
+
+animated.animate()
 
 end_time = time.time() - start
 print("Total Time", end_time)

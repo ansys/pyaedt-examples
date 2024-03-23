@@ -22,8 +22,7 @@ from pyaedt import Hfss, Icepak, Mechanical, downloads
 
 # ## Set non-graphical mode
 #
-# Set non-graphical mode. `
-# You can set ``non_graphical`` either to ``True`` or ``False``.
+# Set non-graphical mode.
 
 non_graphical = False
 
