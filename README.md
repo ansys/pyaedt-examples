@@ -38,7 +38,7 @@ The following guidelines help ensure that the examples are consistent, easy to r
   ```
      temp_dir.cleanup()
   ```
-- The examples should be formatted so they are compatible with jupytext using the (light format)[https://jupytext.readthedocs.io/en/latest/formats-scripts.html#the-light-format] and can
+- The examples should be formatted, so they are compatible with jupytext using the (light format)[https://jupytext.readthedocs.io/en/latest/formats-scripts.html#the-light-format] and can
 be rendered and run in (Jupyter Lab)[https://docs.jupyter.org/en/latest/] as Notebook files. Jupyter can be used to ensure correct rendering of markdown, images, and equations.
   ```
      pip install .[doc]
