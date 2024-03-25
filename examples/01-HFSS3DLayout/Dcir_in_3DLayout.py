@@ -15,9 +15,11 @@ import pyedb
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 dst_dir = os.path.join(temp_dir.name, "pyaedt_dcir")
 os.mkdir(dst_dir)
-local_path = pyaedt.downloads.download_aedb(dst_dir)
+
+local_path = pyaedt.downloads.download_file("edb/ANSYS-HSD_V1.aedb", destination=dst_dir)
 
 # Load example board into EDB
+# TODO: Update example for SI-Verse
 
 edbversion = EDB_VERSION
 appedb = pyedb.Edb(local_path, edbversion=edbversion)
