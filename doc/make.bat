@@ -16,7 +16,7 @@ REM This LOCs are used to uninstall and install specific package(s) during CI/CD
 echo Value of ON_CI: "%ON_CI%"
 for /f %%i in ('pip freeze ^| findstr /c:"vtk-osmesa"') do set is_vtk_osmesa_installed=%%i
 echo Value of is_vtk_osmesa_installed: "%is_vtk_osmesa_installed%"
-if NOT "%is_vtk_osmesa_installed%" == "vtk-osmesa" if "%ON_CI%" == "True" (
+if NOT "%is_vtk_osmesa_installed%" == "vtk-osmesa" if "%ON_CI%" == "true" (
 	echo "Removing vtk to avoid conflicts with vtk-osmesa"
 	pip uninstall --yes vtk
 	echo "Installing vtk-osmesa"
@@ -26,7 +26,7 @@ echo Value of is_vtk_osmesa_installed: "%is_vtk_osmesa_installed%"
 
 for /f %%i in ('pip freeze ^| findstr /c:"pypandoc_binary"') do set is_pypandoc_binary_installed=%%i
 echo Value of is_pypandoc_binary_installed: "%is_pypandoc_binary_installed%"
-if NOT "%is_pypandoc_binary_installed%" == "pypandoc_binary" if "%ON_CI%" == "True" (
+if NOT "%is_pypandoc_binary_installed%" == "pypandoc_binary" if "%ON_CI%" == "true" (
 	@ECHO ON
 	echo "Removing pypandoc to avoid conflicts with pypandoc-binary"
 	@ECHO OFF
