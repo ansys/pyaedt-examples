@@ -105,17 +105,6 @@ jobs:
           pip install .
           pip install .[doc]
 
-      - name: Uninstall conflicting CI packages
-        run: |
-          .venv\Scripts\Activate.ps1
-          pip uninstall vtk pypandoc -y
-
-      - name: Install CI related dependencies
-        run: |
-          .venv\Scripts\Activate.ps1
-          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0
-          pip install pypandoc-binary==1.13
-
       # Use environment variable to keep the doctree and avoid redundant build for PDF pages
       - name: Create HTML documentation
         env:
