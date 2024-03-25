@@ -38,6 +38,24 @@ The following guidelines help ensure that the examples are consistent, easy tp r
   ```
      temp_dir.cleanup()
   ```
+- Rely on Jupyter Lab to visualize the example and check the correctness
+  of cells layout.
+  ```
+     pip install .[doc]
+     jupyter lab
+  ```
+  Select the example you would like to open, right click > Open With > Jupytext Notebook.
+
+## Why Jupytext?
+
+Jupytext is available from within Jupyter and lets you save Jupyter Notebooks as text notebooks.
+Multiple formats are supported and notebooks can be saved either as *Markdown files* with a ```.md```
+extension or *scripts* (for example with a ```.py``` extension).
+Text notebooks are conveniently edited and executed in Jupyter as notebooks.
+You could also edit them with your favorite text editor and get the changes back in Jupyter by re-loading 
+the document.
+When a notebook is edited, the code is stored in plain text and this means Git 
+will also see the changes as plain text. 
 
 ## Code Style
 
