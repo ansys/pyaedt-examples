@@ -7,11 +7,14 @@
 #
 # Perform required imports.
 
+# +
 import os
 import tempfile
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION, NUM_CORES
 import pyaedt
+
+# -
 
 # ## Create temporary directory
 #
@@ -57,7 +60,6 @@ hfss_comp = circuit.modeler.schematic.add_subcircuit_dynamic_link(pyaedt_app=hfs
 
 circuit.modeler.schematic.refresh_dynamic_link(component_name=hfss_comp.composed_name)
 circuit.modeler.schematic.set_sim_option_on_hfss_subcircuit(component=hfss_comp)
-# CHECK IT!!
 hfss_setup_name = hfss.setups[0].name + " : " + hfss.setups[0].sweeps[0].name
 circuit.modeler.schematic.set_sim_solution_on_hfss_subcircuit(
     component=hfss_comp.composed_name, solution_name=hfss_setup_name

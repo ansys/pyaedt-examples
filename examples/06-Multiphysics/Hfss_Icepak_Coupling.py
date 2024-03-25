@@ -12,6 +12,7 @@
 #
 # Perform required imports.
 
+# +
 import os
 import tempfile
 import time
@@ -19,6 +20,8 @@ import time
 from ansys.pyaedt.examples.constants import AEDT_VERSION, NUM_CORES
 import pyaedt
 from pyaedt.generic.pdf import AnsysReport
+
+# -
 
 # ## Create temporary directory
 #
@@ -62,7 +65,6 @@ hfss["inner"] = "3mm"  # Local "Design" scope.
 # method. You can assign a material directly to the object creation action.
 # Optionally, you can assign a material using the `assign_material` method.
 
-# TODO: How does this work when two true surfaces are defined?
 o1 = hfss.modeler.create_cylinder(
     cs_axis=hfss.PLANE.ZX,
     position=udp,
@@ -360,6 +362,7 @@ my_data.plot(
 # ## Generate PDF pdf_report
 #
 # Generate a PDF pdf_report with simulation results.
+
 pdf_report = AnsysReport(
     project_name=hfss.project_name, design_name=hfss.design_name, version=AEDT_VERSION
 )

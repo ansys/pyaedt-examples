@@ -1,6 +1,6 @@
 # # Multiphysics: HFSS-Mechanical MRI analysis
 #
-# The goal of this workshop is to use a coil tuned to 63.8 MHz to determine the temperature
+# The goal of this example is to use a coil tuned to 63.8 MHz to determine the temperature
 # rise in a gel phantom near an implant given a background SAR of 1 W/kg.
 #
 # Steps to follow
@@ -15,10 +15,20 @@
 # ## Perform required imports
 # Perform required imports.
 
+# +
 import os.path
+import tempfile
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
+from ansys.pyaedt.examples.constants import AEDT_VERSION, NUM_CORES
 from pyaedt import Hfss, Icepak, Mechanical, downloads
+
+# -
+
+# ## Create temporary directory
+#
+# Create temporary directory.
+
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Set non-graphical mode
 #
@@ -28,16 +38,17 @@ non_graphical = False
 
 # ## Project load
 #
-# Open the ANSYS Electronics Desktop 2018.2
+# Open ANSYS Electronics Desktop
 # Open project background_SAR.aedt
 # Project contains phantom and airbox
 # Phantom consists of two objects: phantom and implant_box
 # Separate objects are used to selectively assign mesh operations
-# Material properties defined in  this project already contain #electrical and thermal properties.
+# Material properties defined in  this project already contain electrical and thermal properties.
 
-project_path = downloads.download_file(directory="mri")
+project_path = downloads.download_file(directory="mri", destination=temp_dir.name)
+project_name = os.path.join(project_path, "background_SAR.aedt")
 hfss = Hfss(
-    os.path.join(project_path, "background_SAR.aedt"),
+    projectname=project_name,
     specified_version=AEDT_VERSION,
     non_graphical=non_graphical,
     new_desktop_session=True,
@@ -51,7 +62,8 @@ hfss = Hfss(
 # and excitations
 # ‒ 3D Components make it easy to reuse and share parts of a simulation
 
-hfss.modeler.insert_3d_component(os.path.join(project_path, "coil.a3dcomp"))
+component_file = os.path.join(project_path, "coil.a3dcomp")
+hfss.modeler.insert_3d_component(comp_file=component_file)
 
 # ## Expression Cache
 #
@@ -75,12 +87,10 @@ hfss.setups[0].enable_expression_cache(
     use_cache_for_freq=False,
 )
 hfss.setups[0].props["MaximumPasses"] = 2
-im_traces
 # -
 
-###############################################################################
-# Edit Sources
-# ~~~~~~~~~~~~
+# ## Edit Sources
+#
 # The 3D Component of the MRI Coil contains all the ports,
 # but the sources for these ports are not yet defined.
 # Browse to and select sources.csv.
@@ -89,33 +99,32 @@ im_traces
 
 hfss.edit_sources_from_file(os.path.join(project_path, "sources.csv"))
 
-###############################################################################
-# Run Simulation
-# ~~~~~~~~~~~~~~
+# ## Run Simulation
+#
 # Save and analyze the project.
 
-hfss.save_project(os.path.join(project_path, "solved.aedt"))
-hfss.analyze(num_cores=6)
+hfss.save_project(project_file=os.path.join(project_path, "solved.aedt"))
+hfss.analyze(num_cores=NUM_CORES)
 
-###############################################################################
-# Plot SAR on Cut Plane in Phantom
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Ensure that the SAR averaging method is set to Gridless
-# Plot averagedSAR on GlobalYZ plane
-# Draw Point1 at origin of the implant coordinate system
+# ## Plot SAR on Cut Plane in Phantom
+
+# +
+Ensure that the SAR averaging method is set to Gridless
+Plot averagedSAR on GlobalYZ plane
+Draw Point1 at origin of the implant coordinate system
 
 hfss.sar_setup(
-    -1,
+    Tissue_object_List_ID=-1,
     Average_SAR_method=1,
     TissueMass=1,
     MaterialDensity=1,
 )
 hfss.post.create_fieldplot_cutplane(
-    objlist="implant:YZ", quantityName="Average_SAR", filter_objects=["implant_box"]
+    objlist=["implant:YZ"], quantityName="Average_SAR", filter_objects=["implant_box"]
 )
 
 hfss.modeler.set_working_coordinate_system("implant")
-hfss.modeler.create_point([0, 0, 0], name="Point1")
+hfss.modeler.create_point(position=[0, 0, 0], name="Point1")
 
 hfss.post.plot_field(
     quantity="Average_SAR",
@@ -124,16 +133,16 @@ hfss.post.plot_field(
     show_legend=False,
     filter_objects=["implant_box"],
 )
+# -
 
-###############################################################################
-# Adjust Input Power to MRI Coil
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Adjust Input Power to MRI Coil
+#
 # The goal is to adjust the MRI coil’s input power, so that the averageSAR at Point1 is 1 W/kg
 # Note that SAR and input power are linearly related
 # To determine required input, calculate
 # input_scale = 1/AverageSAR at Point1
 
-
+# +
 sol_data = hfss.post.get_solution_data(
     expressions="Average_SAR",
     primary_sweep_variable="Freq",
@@ -143,40 +152,39 @@ sol_data = hfss.post.get_solution_data(
 sol_data.data_real()
 
 hfss["input_scale"] = 1 / sol_data.data_real()[0]
+# -
 
-###############################################################################
-# Phantom with Implant
-# ~~~~~~~~~~~~~~~~~~~~
+# ## Phantom with Implant
+#
 # Import implant geometry.
 # Subtract rod from implant_box.
 # Assign titanium to the imported object rod.
 # Analyze the project.
 
+# +
 hfss.modeler.import_3d_cad(os.path.join(project_path, "implant_rod.sat"))
 
-hfss.modeler["implant_box"].subtract("rod", keep_originals=True)
+hfss.modeler["implant_box"].subtract(tool_list="rod", keep_originals=True)
 hfss.modeler["rod"].material_name = "titanium"
-hfss.analyze(num_cores=6)
+hfss.analyze(num_cores=NUM_CORES)
 hfss.save_project()
+# -
 
-###############################################################################
-# Thermal Simulation
-# ~~~~~~~~~~~~~~~~~~
+# ## Thermal Simulation
+#
 # Initialize a new Mechanical Transient Thermal analysis.
 # Mechanical Transient Thermal is available in AEDT from 2023 R2 as a Beta feature.
 
 mech = Mechanical(solution_type="Transient Thermal", specified_version=AEDT_VERSION)
 
-###############################################################################
-# Copy geometries
-# ~~~~~~~~~~~~~~~
+# ## Copy geometries
+#
 # Copy bodies from the HFSS project. 3D Component will not be copied.
 
 mech.copy_solid_bodies_from(hfss)
 
-################################################################################
-# Link sources to EM losses
-# ~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Link sources to EM losses
+#
 # Link sources to the EM losses.
 # Assign external convection.
 
@@ -187,47 +195,45 @@ exc = mech.assign_em_losses(
     map_frequency=hfss.setups[0].props["Frequency"],
     surface_objects=mech.get_all_conductors_names(),
 )
-mech.assign_uniform_convection(mech.modeler["Region"].faces, convection_value=1)
+mech.assign_uniform_convection(objects_list=mech.modeler["Region"].faces, convection_value=1)
 
-################################################################################
-# Create Setup
-# ~~~~~~~~~~~~
+# ## Create Setup
+#
 # Create a new setup and edit properties.
-# Simulation will be for 60 seconds.
 
+# +
 setup = mech.create_setup()
 # setup.add_mesh_link("backgroundSAR")
 # mech.create_dataset1d_design("PowerMap", [0, 239, 240, 360], [1, 1, 0, 0])
 # exc.props["LossMultiplier"] = "pwl(PowerMap,Time)"
 
 mech.modeler.set_working_coordinate_system("implant")
-mech.modeler.create_point([0, 0, 0], name="Point1")
+mech.modeler.create_point(position=[0, 0, 0], name="Point1")
 setup.props["Stop Time"] = 60
 setup.props["Time Step"] = "10s"
 setup.props["SaveFieldsType"] = "Every N Steps"
 setup.props["N Steps"] = "2"
+# -
 
-###############################################################################
-# Analyze Mechanical
-# ~~~~~~~~~~~~~~~~~~
+# ## Analyze Mechanical
+#
 # Analyze the project.
 
-mech.analyze(num_cores=6)
+mech.analyze(num_cores=NUM_CORES)
 
-###############################################################################
-# Plot Fields
-# ~~~~~~~~~~~
-# Plot Temperature on cut plane.
-# Plot Temperature on point.
+# ## Plot Fields
 
+# +
+Plot Temperature on cut plane.
+Plot Temperature on point.
 
 mech.post.create_fieldplot_cutplane(
-    "implant:YZ", "Temperature", filter_objects=["implant_box"], intrinsincDict={"Time": "10s"}
+    objlist=["implant:YZ"], quantityName="Temperature", filter_objects=["implant_box"], intrinsincDict={"Time": "10s"}
 )
 mech.save_project()
 
 data = mech.post.get_solution_data(
-    "Temperature", primary_sweep_variable="Time", context="Point1", report_category="Fields"
+    expressions="Temperature", primary_sweep_variable="Time", context="Point1", report_category="Fields"
 )
 data.plot()
 
@@ -240,30 +246,28 @@ mech.post.plot_animated_field(
     variation_list=["10s", "20s", "30s", "40s", "50s", "60s"],
     filter_objects=["implant_box"],
 )
+# -
 
-###############################################################################
-# Thermal Simulation
-# ~~~~~~~~~~~~~~~~~~
+# ## Thermal Simulation
+#
 # Initialize a new Icepak Transient Thermal analysis.
 
 ipk = Icepak(solution_type="Transient", specified_version=AEDT_VERSION)
 ipk.design_solutions.problem_type = "TemperatureOnly"
 
-###############################################################################
-# Copy geometries
-# ~~~~~~~~~~~~~~~
+# ## Copy geometries
+#
 # Copy bodies from the HFSS project. 3D Component will not be copied.
 
 ipk.modeler.delete("Region")
 ipk.copy_solid_bodies_from(hfss)
 
-################################################################################
-# Link sources to EM losses
-# ~~~~~~~~~~~~~~~~~~~~~~~~~
+# ## Link sources to EM losses
+#
 # Link sources to the EM losses.
 # Assign external convection.
 
-exc = ipk.assign_em_losses(
+ipk.assign_em_losses(
     designname=hfss.design_name,
     setupname=hfss.setups[0].name,
     sweepname="LastAdaptive",
@@ -271,28 +275,27 @@ exc = ipk.assign_em_losses(
     surface_objects=ipk.get_all_conductors_names(),
 )
 
-################################################################################
-# Create Setup
-# ~~~~~~~~~~~~
+# ## Create Setup
+#
 # Create a new setup and edit properties.
 # Simulation will be for 60 seconds.
 
+# +
 setup = ipk.create_setup()
 
 setup.props["Stop Time"] = 60
 setup.props["N Steps"] = 2
 setup.props["Time Step"] = 5
 setup.props["Convergence Criteria - Energy"] = 1e-12
+# -
 
-################################################################################
-# Mesh Region
-# ~~~~~~~~~~~
+# ## Mesh Region
+#
 # Create a new mesh region and change accuracy level to 4.
-
 
 bound = ipk.modeler["implant_box"].bounding_box
 mesh_box = ipk.modeler.create_box(
-    bound[:3], [bound[3] - bound[0], bound[4] - bound[1], bound[5] - bound[2]]
+    position=bound[:3], dimensions_list=[bound[3] - bound[0], bound[4] - bound[1], bound[5] - bound[2]]
 )
 mesh_box.model = False
 mesh_region = ipk.mesh.assign_mesh_region([mesh_box.name])
@@ -300,31 +303,36 @@ mesh_region.UserSpecifiedSettings = False
 mesh_region.Level = 4
 mesh_region.update()
 
-################################################################################
-# Point Monitor
-# ~~~~~~~~~~~~~
+# ## n Point Monitor
+#
 # Create a new point monitor.
 
 ipk.modeler.set_working_coordinate_system("implant")
-ipk.monitor.assign_point_monitor([0, 0, 0], monitor_name="Point1")
+ipk.monitor.assign_point_monitor(point_position=[0, 0, 0], monitor_name="Point1")
 ipk.assign_openings(ipk.modeler["Region"].top_face_z)
 
-###############################################################################
-# Analyze and plot fields
-# ~~~~~~~~~~~~~~~~~~~~~~~
+# ## Analyze and plot fields
+#
 # Analyze the project.
 # Plot Temperature on cut plane.
 # Plot Temperature on monitor point.
 
-ipk.analyze(num_cores=4, num_tasks=4)
+# +
+ipk.analyze(num_cores=NUM_CORES, num_tasks=4)
 ipk.post.create_fieldplot_cutplane(
-    "implant:YZ", "Temperature", filter_objects=["implant_box"], intrinsincDict={"Time": "0s"}
+    objlist=["implant:YZ"], quantityName="Temperature", filter_objects=["implant_box"], intrinsincDict={"Time": "0s"}
 )
 ipk.save_project()
 
 data = ipk.post.get_solution_data(
-    "Point1.Temperature", primary_sweep_variable="Time", report_category="Monitor"
+    expressions="Point1.Temperature", primary_sweep_variable="Time", report_category="Monitor"
 )
 data.plot()
+# -
 
-ipk.release_desktop(False)
+# ## Release AEDT and clean up temporary directory
+#
+# Release AEDT and clean up temporary directory.
+
+hfss.release_desktop()
+temp_dir.cleanup()
