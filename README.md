@@ -4,16 +4,16 @@ This repository holds examples for PyAEDT.
 
 ## Guidelines for contribution
 
-A list of syntax and code style rules to follow in order to have clean and readable examples:
+The following guidelines help ensure that the examples are consistent, easy tp read and maintain:
 
-- Camel case convention
-- No upper case letters in variable names, especially when creating new instance of a physics.
+- Use lower case with underscore for variables, functions and methods.
+- Variable instances should use lower case with underscore.
   For example:
   ```
      m2d = Maxwell2d()
      hfss = Hfss() 
   ```
-- Clearly type the inputs required by methods. For example:
+- Explicitly use the named arguments when calling methods or functions. For example:
   ```
      m3d.modeler.create_box(position=[7, 4, 22], 
                             dimensions_list=[10, 5, 30], 
@@ -21,11 +21,12 @@ A list of syntax and code style rules to follow in order to have clean and reada
                             matname="copper")
   ```
 - Check if some logic is available as a method in PyAEDT.
-- Install pre-commit to help you identify simple issues before submission to code review.
+- Install (pre-commit)[https://[pre-commit](https://pre-commit.com/).com/] to help identify simple issues before submitting your code for review.
   ```
      pre-commit run --all-files
   ```
-- To store temporary files use tempfile module:
+- Use the ``tempfile`` module to create and clean up the folder where your
+  example will run:
   ```
      import tempfile
   ```
