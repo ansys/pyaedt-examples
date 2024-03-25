@@ -4,7 +4,7 @@ This repository holds examples for PyAEDT.
 
 ## Guidelines for contribution
 
-The following guidelines help ensure that the examples are consistent, easy tp read and maintain:
+The following guidelines help ensure that the examples are consistent, easy to read and maintain:
 
 - Use lower case with underscore for variables, functions and methods.
 - Variable instances should use lower case with underscore.
@@ -20,13 +20,13 @@ The following guidelines help ensure that the examples are consistent, easy tp r
                             name="Magnet", 
                             matname="copper")
   ```
-- Check if some logic is available as a method in PyAEDT.
+- Keep the syntax in your example simple and easy to read. For example, the logic required for your example may already exist in ``pyaedt`` or other installed packages.
 - Install (pre-commit)[https://[pre-commit](https://pre-commit.com/).com/] to help identify simple issues before submitting your code for review.
   ```
      pre-commit run --all-files
   ```
 - Use the ``tempfile`` module to create and clean up the folder where your
-  example will run:
+  example will read and write files:
   ```
      import tempfile
   ```
