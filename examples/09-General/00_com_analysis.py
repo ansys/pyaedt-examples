@@ -1,13 +1,12 @@
 # # Channel Operating Margin (COM)
 # This example shows how you can use pyaedt for COM analysis.
 # Supported stdnards are as below.
-# COM_CUSTOM = 0
-# COM_50GAUI_1_C2C = 1
-# COM_100GAUI_2_C2C = 2
-# COM_200GAUI_4 = 3
-# COM_400GAUI_8 = 4
-# COM_100GBASE_KR4 = 5
-# COM_100GBASE_KP4 = 6
+# - 50GAUI_1_C2C
+# - 100GAUI_2_C2C
+# - 200GAUI_4
+# - 400GAUI_8
+# - 100GBASE_KR4
+# - 100GBASE_KP4
 
 # <img src="_static\00\com_eye.png" width="500">
 
@@ -45,10 +44,15 @@ next_11_9 = download_file("com_analysis", "FCI_CC_Long_Link_Pair_11_to_Pair_9_NE
 # ## Run COM analysis
 # PyAEDT calls SPISim for COM analysis. Please check PyAEDT documentation for supported standards.
 # Set port_order="EvenOdd" when S-parameter has below port order.
+#
 # 1 - 2
+#
 # 3 - 4
+#
 # Set port_order="Incremental" when S-parameter has below port order.
+#
 # 1 - 3
+#
 # 2 - 4
 
 spisim = SpiSim(thru)
