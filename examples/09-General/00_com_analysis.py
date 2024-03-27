@@ -1,12 +1,5 @@
 # # Channel Operating Margin (COM)
 # This example shows how you can use pyaedt for COM analysis.
-# Supported standards are as below:
-# - 50GAUI_1_C2C
-# - 100GAUI_2_C2C
-# - 200GAUI_4
-# - 400GAUI_8
-# - 100GBASE_KR4
-# - 100GBASE_KP4
 
 # <img src="_static\00\com_eye.png" width="500">
 
@@ -23,6 +16,7 @@
 # Import required packages
 
 # +
+import json
 import os
 import tempfile
 
@@ -65,7 +59,7 @@ next_11_9 = download_file(
 # - 5 = 100GBASE_KR4
 # - 6 = 100GBASE_KP4
 #             
-# Please check PyAEDT documentation for supported standards.
+# Please check PyAEDT documentation for updated standard list.
 
 # Set port_order="EvenOdd" when S-parameter has below port order.
 #
@@ -80,6 +74,7 @@ next_11_9 = download_file(
 # 2 - 4
 
 spi_sim = SpiSim(thru)
+
 com_results = spi_sim.compute_com(
     standard=1,  # 50GAUI-1-C2C
     port_order="EvenOdd",
@@ -109,6 +104,16 @@ custom_json = os.path.join(temp_folder.name, "custom.json")
 spi_sim.export_com_configure_file(custom_json, standard=1)
 
 # Modify the custom JSON file as needed.
+
+# +
+with open(custom_json) as f:
+    cfg = json.load(f)
+    cfg["operational"]["COM Pass threshold"] = "4"
+    cfg["noise_jitter"]["sigma_RJ"]="0.005"
+    
+with open(custom_json, "w") as f:
+    f.write(json.dumps(cfg, indent=4, ensure_ascii=False))
+# -
 
 # ### Import configuration file and run
 
