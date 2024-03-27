@@ -107,12 +107,12 @@ hfss.save_project(project_file=os.path.join(project_path, "solved.aedt"))
 hfss.analyze(num_cores=NUM_CORES)
 
 # ## Plot SAR on Cut Plane in Phantom
+#
+# Ensure that the SAR averaging method is set to Gridless
+# Plot averagedSAR on GlobalYZ plane
+# Draw Point1 at origin of the implant coordinate system
 
 # +
-Ensure that the SAR averaging method is set to Gridless
-Plot averagedSAR on GlobalYZ plane
-Draw Point1 at origin of the implant coordinate system
-
 hfss.sar_setup(
     Tissue_object_List_ID=-1,
     Average_SAR_method=1,
@@ -222,11 +222,11 @@ setup.props["N Steps"] = "2"
 mech.analyze(num_cores=NUM_CORES)
 
 # ## Plot Fields
+#
+# Plot Temperature on cut plane.
+# Plot Temperature on point.
 
 # +
-Plot Temperature on cut plane.
-Plot Temperature on point.
-
 mech.post.create_fieldplot_cutplane(
     objlist=["implant:YZ"], quantityName="Temperature", filter_objects=["implant_box"], intrinsincDict={"Time": "10s"}
 )
