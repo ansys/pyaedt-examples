@@ -70,10 +70,6 @@ tests = [
     "pytest==7.4.3",
     "pytest-cov==4.1.0",
 ]
-ci = [
-    "vtk-osmesa==9.2.20230527.dev0",
-    "pypandoc-binary==1.13",
-]
 
 [tool.flit.module]
 name = "ansys.pyaedt.examples"
