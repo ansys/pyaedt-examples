@@ -22,10 +22,9 @@
 # ## Preparation
 # Import required packages
 
-
+import os
 import tempfile
-import shutil
-from pathlib import Path
+
 from pyaedt.generic.spisim import SpiSim
 from pyedb.misc.downloads import download_file
 
@@ -33,12 +32,25 @@ from pyedb.misc.downloads import download_file
 
 # +
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
-source_folder = Path(__file__).parent / "_static" / "00"
 
-thru = download_file("com_analysis", "SerDes_Demo_02_Thru.s4p", destination=temp_folder.name)
-fext_2_9 = download_file("com_analysis","FCI_CC_Long_Link_Pair_2_to_Pair_9_FEXT.s4p", destination=temp_folder.name)
-fext_5_9 = download_file("com_analysis","FCI_CC_Long_Link_Pair_5_to_Pair_9_FEXT.s4p", destination=temp_folder.name)
-next_11_9 = download_file("com_analysis", "FCI_CC_Long_Link_Pair_11_to_Pair_9_NEXT.s4p", destination=temp_folder.name)
+thru = download_file(
+    directory="com_analysis", filename="SerDes_Demo_02_Thru.s4p", destination=temp_folder.name
+)
+fext_2_9 = download_file(
+    directory="com_analysis",
+    filename="FCI_CC_Long_Link_Pair_2_to_Pair_9_FEXT.s4p",
+    destination=temp_folder.name,
+)
+fext_5_9 = download_file(
+    directory="com_analysis",
+    filename="FCI_CC_Long_Link_Pair_5_to_Pair_9_FEXT.s4p",
+    destination=temp_folder.name,
+)
+next_11_9 = download_file(
+    directory="com_analysis",
+    filename="FCI_CC_Long_Link_Pair_11_to_Pair_9_NEXT.s4p",
+    destination=temp_folder.name,
+)
 # -
 
 # ## Run COM analysis
@@ -55,12 +67,12 @@ next_11_9 = download_file("com_analysis", "FCI_CC_Long_Link_Pair_11_to_Pair_9_NE
 #
 # 2 - 4
 
-spisim = SpiSim(thru)
-com_results = spisim.compute_com(
+spi_sim = SpiSim(thru)
+com_results = spi_sim.compute_com(
     standard=1,  # 50GAUI-1-C2C
     port_order="EvenOdd",
     fext_s4p=[fext_5_9, fext_5_9],
-    next_s4p=next_11_9
+    next_s4p=next_11_9,
 )
 
 # ## Print COM values
@@ -81,19 +93,19 @@ print(temp_folder.name)
 
 # ### Export template configuration file in JSON format.
 
-custom_json = Path(temp_folder.name) / "custom.json"
-spisim.export_com_configure_file(custom_json, standard=1)
+custom_json = os.path.join(temp_folder.name, "custom.json")
+spi_sim.export_com_configure_file(custom_json, standard=1)
 
 # Modify the custom JSON file as needed.
 
 # ### Import configuration file and run
 
-com_results = spisim.compute_com(
+com_results = spi_sim.compute_com(
     standard=0,  # Custom
     config_file=custom_json,
     port_order="EvenOdd",
     fext_s4p=[fext_5_9, fext_5_9],
-    next_s4p=next_11_9
+    next_s4p=next_11_9,
 )
 print(*com_results)
 
@@ -104,14 +116,12 @@ from pyaedt.misc.spisim_com_configuration_files.com_parameters import COMParamet
 
 com_param = COMParametersVer3p4()
 com_param.load(custom_json)
-custom_cfg = Path(temp_folder.name) / "custom.cfg"
+custom_cfg = os.path.join(temp_folder.name, "custom.cfg")
 com_param.export_spisim_cfg(custom_cfg)
 
 # PyAEDT support SPISim cfg file as well.
 
-com_results = spisim.compute_com(
-    standard=0,  # Custom
-    config_file=custom_cfg,
-    port_order="EvenOdd"
+com_results = spi_sim.compute_com(
+    standard=0, config_file=custom_cfg, port_order="EvenOdd"  # Custom
 )
 print(*com_results)
