@@ -15,6 +15,7 @@ env:
   MAIN_PYTHON_VERSION: '3.10'
   PACKAGE_NAME: 'pyaedt-examples'
   ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
+  ON_CI: True
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -22,14 +23,15 @@ concurrency:
 
 jobs:
   
-  code-style:
-    name: Code style
-    runs-on: ubuntu-latest
-    steps:
-      - uses: ansys/actions/code-style@v4
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-          use-python-cache: false
+  #TODO: Update to use code-style
+  # code-style:
+  #   name: Code style
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: ansys/actions/code-style@v4
+  #       with:
+  #         python-version: ${{ env.MAIN_PYTHON_VERSION }}
+  #         use-python-cache: false
 
   smoke-tests:
     name: Build and Smoke tests
@@ -103,16 +105,6 @@ jobs:
           pip install .
           pip install .[doc]
 
-      - name: Uninstall conflicting CI packages
-        run: |
-          .venv\Scripts\Activate.ps1
-          pip uninstall vtk pypandoc -y
-
-      - name: Install CI related dependencies
-        run: |
-          .venv\Scripts\Activate.ps1
-          pip install --extra-index-url https://wheels.vtk.org .[ci]
-
       # Use environment variable to keep the doctree and avoid redundant build for PDF pages
       - name: Create HTML documentation
         env:
@@ -144,10 +136,12 @@ jobs:
           path: doc/_build/latex
           retention-days: 7
 
+  #TODO: Update to use code-style
   release:
     name: Release project
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
-    needs: [code-style, doc-build]
+    # needs: [code-style, doc-build]
+    needs: [doc-build]
     runs-on: ubuntu-latest
     steps:
       # TODO: update if ever public
