@@ -22,11 +22,13 @@
 # ## Preparation
 # Import required packages
 
+# +
 import os
 import tempfile
 
 from pyaedt.generic.spisim import SpiSim
 from pyedb.misc.downloads import download_file
+# -
 
 # Download example files into temporary folder
 
@@ -112,12 +114,14 @@ print(*com_results)
 # ## Export SPISim supported configuration file
 # The exported configuration file can be used in SPISim GUI.
 
+# +
 from pyaedt.misc.spisim_com_configuration_files.com_parameters import COMParametersVer3p4
 
 com_param = COMParametersVer3p4()
 com_param.load(custom_json)
 custom_cfg = os.path.join(temp_folder.name, "custom.cfg")
 com_param.export_spisim_cfg(custom_cfg)
+# -
 
 # PyAEDT support SPISim cfg file as well.
 
