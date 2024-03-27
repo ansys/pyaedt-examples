@@ -56,7 +56,17 @@ next_11_9 = download_file(
 # -
 
 # ## Run COM analysis
-# PyAEDT calls SPISim for COM analysis. Please check PyAEDT documentation for supported standards.
+# PyAEDT calls SPISim for COM analysis. The supported standards are 
+#
+# - 1 = 50GAUI_1_C2C
+# - 2 = 100GAUI_2_C2C
+# - 3 = 200GAUI_4
+# - 4 = 400GAUI_8
+# - 5 = 100GBASE_KR4
+# - 6 = 100GBASE_KP4
+#             
+# Please check PyAEDT documentation for supported standards.
+
 # Set port_order="EvenOdd" when S-parameter has below port order.
 #
 # 1 - 2
