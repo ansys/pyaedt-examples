@@ -44,7 +44,7 @@ be rendered and run in (Jupyter Lab)[https://docs.jupyter.org/en/latest/] as Not
      pip install .[doc]
      jupyter lab
   ```
-  Select the example you would like to open, right click > Open With > Jupytext Notebook.
+  Notebook files can be opened, edited and run from within Jupyter using _right click > Open With > Jupytext Notebook_.
 
 ## Why Jupytext?
 
