@@ -1,53 +1,54 @@
 # # Icepak: thermal analysis with 3D components
 
 # This example shows how to create a thermal analysis of an electronic package by
-# taking advantage of 3D components and features added by PyAEDT.
+# taking advantage of 3D components with advanced features added by PyAEDT.
+# Keywords: 3D components
 
 # ## Import PyAEDT and download files
-#
 # Perform import of required classes from the ``pyaedt`` package and import the ``os`` package.
 
+# +
 import os
+import tempfile
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
-from pyaedt import Icepak, downloads, generate_unique_folder_name
+from pyaedt import Icepak, downloads
 
-# Download needed files
+# -
 
-temp_folder = generate_unique_folder_name()
-package_temp_name, qfp_temp_name = downloads.download_icepak_3d_component(temp_folder)
+# Download needed files in a temporary folder
+
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
+package_temp_name, qfp_temp_name = downloads.download_icepak_3d_component(temp_folder.name)
 
 # ## Set AEDT version
-#
 # Set AEDT version.
 
 aedt_version = AEDT_VERSION
 
 # ## Set non-graphical mode
-#
 # Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
 
 # ## Create heatsink
-#
-# Open a new project in non-graphical mode.
+# Create new empty project in non-graphical mode.
 
 ipk = Icepak(
-    projectname=os.path.join(temp_folder, "Heatsink.aedt"),
+    projectname=os.path.join(temp_folder.name, "Heatsink.aedt"),
     specified_version=aedt_version,
     non_graphical=non_graphical,
     close_on_exit=True,
     new_desktop_session=True,
 )
 
-# Remove air region created by default because it is not needed as the heatsink will
+# Remove air region (which is present by default) because it is not needed as the heatsink will
 # be exported as a 3DComponent.
 
 ipk.modeler.get_object_from_name("Region").delete()
 
-# Definition of heatsink with boxes
+# Define the heatsink using multiple boxes
 
 hs_base = ipk.modeler.create_box(
     position=[0, 0, 0], dimensions_list=[37.5, 37.5, 2], name="HS_Base"
@@ -55,34 +56,30 @@ hs_base = ipk.modeler.create_box(
 hs_base.material_name = "Al-Extruded"
 hs_fin = ipk.modeler.create_box(position=[0, 0, 2], dimensions_list=[37.5, 1, 18], name="HS_Fin1")
 hs_fin.material_name = "Al-Extruded"
-hs_fin.duplicate_along_line([0, 3.65, 0], nclones=11)
+n_fins = 11
+hs_fins = hs_fin.duplicate_along_line(vector=[0, 3.65, 0], nclones=n_fins)
 
-ipk.plot(show=False, export_path=os.path.join(temp_folder, "Heatsink.jpg"))
+ipk.plot(show=False, export_path=os.path.join(temp_folder.name, "Heatsink.jpg"))
 
-# Definition of a mesh region. First a non-model box is created, then the mesh region is assigned
-
-mesh_box = ipk.modeler.create_box(position=[-2, -2, -3], dimensions_list=[41.5, 41.5, 24])
-mesh_box.model = False
-mesh_region = ipk.mesh.assign_mesh_region([mesh_box.name])
-mesh_region.UserSpecifiedSettings = True
-mesh_region.MaxElementSizeX = "5mm"
-mesh_region.MaxElementSizeY = "5mm"
-mesh_region.MaxElementSizeZ = "1mm"
-mesh_region.MinElementsInGap = "4"
-mesh_region.MaxLevels = "2"
-mesh_region.BufferLayers = "1"
+# Definition of a mesh region around the heatsink
+mesh_region = ipk.mesh.assign_mesh_region([hs_base.name, hs_fin.name] + hs_fins)
+mesh_region.manual_settings = True
+mesh_region.settings["MaxElementSizeX"] = "5mm"
+mesh_region.settings["MaxElementSizeY"] = "5mm"
+mesh_region.settings["MaxElementSizeZ"] = "1mm"
+mesh_region.settings["MinElementsInGap"] = "4"
+mesh_region.settings["MaxLevels"] = "2"
+mesh_region.settings["BufferLayers"] = "1"
 mesh_region.update()
 
 # Assignment of monitor objects.
 
-# +
-hs_fin5_object = ipk.modeler.get_object_from_name("HS_Fin1_5")
+hs_middle_fin = ipk.modeler.get_object_from_name(objname=hs_fins[n_fins // 2])
 point_monitor_position = [
-    0.5 * (hs_base.bounding_box[i] + hs_base.bounding_box[i + 3]) for i in range(2)
-] + [
-    hs_fin5_object.bounding_box[-1]
-]  # average x,y, top z
-
+                             0.5 * (hs_base.bounding_box[i] + hs_base.bounding_box[i + 3]) for i in range(2)
+                         ] + [
+                             hs_middle_fin.bounding_box[-1]
+                         ]  # average x,y, top z
 ipk.monitor.assign_point_monitor(
     point_monitor_position, monitor_quantity=["Temperature", "HeatFlux"], monitor_name="TopPoint"
 )
@@ -90,99 +87,88 @@ ipk.monitor.assign_face_monitor(
     hs_base.bottom_face_z.id, monitor_quantity="Temperature", monitor_name="Bottom"
 )
 ipk.monitor.assign_point_monitor_in_object(
-    "HS_Fin1_5", monitor_quantity="Temperature", monitor_name="Fin5Center"
+    hs_middle_fin.name, monitor_quantity="Temperature", monitor_name="MiddleFinCenter"
 )
-# -
 
-# Export the heatsink 3D component and close project. auxiliary_dict is set to true in
-# to export the
-# monitor objects along with the .a3dcomp file.
+# Export the heatsink 3D component in a ``"componentLibrary"`` folder.
+# ``auxiliary_dict`` is set to true to export the monitor objects along with the .a3dcomp file.
 
-os.mkdir(os.path.join(temp_folder, "componentLibrary"))
+os.mkdir(os.path.join(temp_folder.name, "componentLibrary"))
 ipk.modeler.create_3dcomponent(
-    os.path.join(temp_folder, "componentLibrary", "Heatsink.a3dcomp"),
+    component_file=os.path.join(temp_folder.name, "componentLibrary", "Heatsink.a3dcomp"),
     component_name="Heatsink",
     auxiliary_dict=True,
 )
 ipk.close_project(save_project=False)
 
 # ## Create QFP
-#
-# Download and open a project containing a QPF.
+# Open the previously downloaded project containing a QPF.
 
 ipk = Icepak(projectname=qfp_temp_name)
-ipk.plot(show=False, export_path=os.path.join(temp_folder, "QFP2.jpg"))
+ipk.plot(show=False, export_path=os.path.join(temp_folder.name, "QFP2.jpg"))
 
 # Create dataset for power dissipation.
 
 x_datalist = [45, 53, 60, 70]
 y_datalist = [0.5, 3, 6, 9]
 ipk.create_dataset(
-    "PowerDissipationDataset",
-    x_datalist,
-    y_datalist,
-    zlist=None,
-    vlist=None,
+    ds_name="PowerDissipationDataset",
+    xlist=x_datalist,
+    ylist=y_datalist,
     is_project_dataset=False,
     xunit="cel",
     yunit="W",
-    zunit="",
-    vunit="",
 )
 
 # Assign source power condition to the die.
 
 ipk.create_source_power(
-    "DieSource", thermal_dependent_dataset="PowerDissipationDataset", source_name="DieSource"
+    face_id="DieSource", thermal_dependent_dataset="PowerDissipationDataset", source_name="DieSource"
 )
 
 # Assign thickness to the die attach surface.
 
-ipk.create_conduting_plate(
-    face_id="Die_Attach",
-    thermal_specification="Thickness",
+ipk.assign_conducting_plate_with_thickness(
+    obj_plate="Die_Attach",
     shell_conduction=True,
     thickness="0.05mm",
     solid_material="Epoxy Resin-Typical",
-    bc_name="Die_Attach",
+    boundary_name="Die_Attach",
 )
 
 # Assign monitor objects.
 
 ipk.monitor.assign_point_monitor_in_object(
-    "QFP2_die", monitor_quantity="Temperature", monitor_name="DieCenter"
+    name="QFP2_die", monitor_quantity="Temperature", monitor_name="DieCenter"
 )
 ipk.monitor.assign_surface_monitor(
-    "Die_Attach", monitor_quantity="Temperature", monitor_name="DieAttach"
+    surface_name="Die_Attach", monitor_quantity="Temperature", monitor_name="DieAttach"
 )
 
-# Export the QFP 3D component and close project. Here the auxiliary dictionary
-# allows exporting not only the monitor
-# objects but also the dataset used for the power source assignment.
+# Export the QFP 3D component in the ``"componentLibrary"`` folder and close project. Here the auxiliary dictionary
+# allows exporting not only the monitor objects but also the dataset used for the power source assignment.
 
 ipk.modeler.create_3dcomponent(
-    os.path.join(temp_folder, "componentLibrary", "QFP.a3dcomp"),
+    component_file=os.path.join(temp_folder.name, "componentLibrary", "QFP.a3dcomp"),
     component_name="QFP",
     auxiliary_dict=True,
     datasets=["PowerDissipationDataset"],
 )
-ipk.release_desktop(False, False)
+ipk.release_desktop(close_projects=False, close_desktop=False)
 
-# ## Create electronic package
-#
+# ## Create complete electronic package
 # Download and open a project containing the electronic package.
 ipk = Icepak(
     projectname=package_temp_name, specified_version=aedt_version, non_graphical=non_graphical
 )
-ipk.plot(show=False, export_path=os.path.join(temp_folder, "electronic_package_missing_obj.jpg"))
+ipk.plot(show=False, export_path=os.path.join(temp_folder.name, "electronic_package_missing_obj.jpg"))
 
 # The heatsink and the QFP are missing. They can be inserted as 3d components.
-# The auxiliary files are needed since
-# the aim is to import also monitor objects and datasets. Also, a coordinate system
-# is created for the heatsink so
-# that it is placed on top of the AGP.
+# The auxiliary files are needed since the aim is to import also monitor objects and datasets.
 
-# +
+# A coordinate system is created for the heatsink so that it is placed on top of the AGP.
+
+#+
 agp = ipk.modeler.get_object_from_name("AGP_IDF")
 cs = ipk.modeler.create_coordinate_system(
     origin=[agp.bounding_box[0], agp.bounding_box[1], agp.bounding_box[-1]],
@@ -192,17 +178,18 @@ cs = ipk.modeler.create_coordinate_system(
     y_pointing=[0, 1, 0],
 )
 heatsink_obj = ipk.modeler.insert_3d_component(
-    comp_file=os.path.join(temp_folder, "componentLibrary", "Heatsink.a3dcomp"),
+    comp_file=os.path.join(temp_folder.name, "componentLibrary", "Heatsink.a3dcomp"),
     targetCS="HeatsinkCS",
     auxiliary_dict=True,
 )
 
 QFP2_obj = ipk.modeler.insert_3d_component(
-    comp_file=os.path.join(temp_folder, "componentLibrary", "QFP.a3dcomp"),
+    comp_file=os.path.join(temp_folder.name, "componentLibrary", "QFP.a3dcomp"),
     targetCS="Global",
     auxiliary_dict=True,
 )
-ipk.plot(show=False, export_path=os.path.join(temp_folder, "electronic_package.jpg"))
+
+ipk.plot(show=False, export_path=os.path.join(temp_folder.name, "electronic_package.jpg"))
 # -
 
 # Create a coordinate system at the xmin, ymin, zmin of the model
@@ -225,7 +212,7 @@ cs_pcb_assembly = ipk.modeler.create_coordinate_system(
 # +
 ipk.flatten_3d_components()
 ipk.modeler.create_3dcomponent(
-    component_file=os.path.join(temp_folder, "componentLibrary", "PCBAssembly.a3dcomp"),
+    component_file=os.path.join(temp_folder.name, "componentLibrary", "PCBAssembly.a3dcomp"),
     component_name="PCBAssembly",
     auxiliary_dict=True,
     included_cs=["Global", "HeatsinkCS", "PCB_Assembly"],
@@ -233,7 +220,7 @@ ipk.modeler.create_3dcomponent(
 )
 
 # ## Release AEDT
-#
-# Release AEDT.
+# Release AEDT and remove the temporary folder.
 
 ipk.release_desktop(True, True)
+temp_folder.cleanup()
