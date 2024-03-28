@@ -9,6 +9,31 @@ if "%SPHINXBUILD%" == "" (
 )
 set SOURCEDIR=source
 set BUILDDIR=_build
+set LINKCHECKDIR=\%BUILDDIR%\linkcheck
+set LINKCHECKOPTS=-d %BUILDDIR%\.doctrees -W --keep-going --color
+
+REM This LOCs are used to uninstall and install specific package(s) during CI/CD
+for /f %%i in ('pip freeze ^| findstr /c:"vtk-osmesa"') do set is_vtk_osmesa_installed=%%i
+if NOT "%is_vtk_osmesa_installed%" == "vtk-osmesa" if "%ON_CI%" == "true" (
+	@ECHO ON
+	echo "Removing vtk to avoid conflicts with vtk-osmesa"
+	@ECHO OFF
+	pip uninstall --yes vtk
+	@ECHO ON
+	echo "Installing vtk-osmesa"
+	@ECHO OFF
+	pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0)
+for /f %%i in ('pip freeze ^| findstr /c:"pypandoc_binary"') do set is_pypandoc_binary_installed=%%i
+if NOT "%is_pypandoc_binary_installed%" == "pypandoc_binary" if "%ON_CI%" == "true" (
+	@ECHO ON
+	echo "Removing pypandoc to avoid conflicts with pypandoc-binary"
+	@ECHO OFF
+	pip uninstall --yes pypandoc
+	@ECHO ON
+	echo "Installing pypandoc-binary"
+	@ECHO OFF
+	pip install pypandoc-binary==1.13)
+REM End of CICD dedicated setup
 
 if "%1" == "" goto help
 if "%1" == "clean" goto clean
@@ -33,21 +58,27 @@ goto end
 
 :help
 %SPHINXBUILD% -M help %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
+goto end
 
 :clean
+echo Cleaning everything
+rmdir /s /q %SOURCEDIR%\examples > /NUL 2>&1 
 rmdir /s /q %BUILDDIR% > /NUL 2>&1
-for /d /r %SOURCEDIR% %%d in (_autosummary) do @if exist "%%d" rmdir /s /q "%%d"
 goto end
 
 :html
-%SPHINXBUILD% -M html %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% -v %O%
+echo Building HTML pages with running examples
+REM %SPHINXBUILD% -M linkcheck %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %LINKCHECKOPTS% %O%
+%SPHINXBUILD% -M html %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
+echo
+echo "Build finished. The HTML pages are in %BUILDDIR%."
 goto end
 
 :pdf
 %SPHINXBUILD% -M latex %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
 cd "%BUILDDIR%\latex"
 for %%f in (*.tex) do (
-pdflatex "%%f" --interaction=nonstopmode)
+xelatex "%%f" --interaction=nonstopmode)
 if NOT EXIST pyaedt-examples.pdf (
 	Echo "no pdf generated!"
 	exit /b 1)
