@@ -25,16 +25,15 @@ The following guidelines help ensure that the examples are consistent, easy to r
   ```
      pre-commit run --all-files
   ```
-- Use the ``tempfile`` module to create and clean up the folder where your
-  example will read and write files:
+- Use the ``tempfile`` module to create and clean up the folder where your example will read and write files:
   ```
      import tempfile
   ```
-  and create a temporary folder at the beginning of the example:
+  Create a temporary folder at the beginning of the example:
   ```
      temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
   ```
-  and at the end remember to clean it up:
+  Remove the temporary folder at the end of the example:
   ```
      temp_dir.cleanup()
   ```
