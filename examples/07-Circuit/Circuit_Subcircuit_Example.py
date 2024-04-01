@@ -1,9 +1,10 @@
 # # Circuit: schematic subcircuit management
 #
-# This example shows how you can use PyAEDT to add a subcircuit to a circuit design.
-# It pushes down the child subcircuit and pops up to the parent design.
+# This example shows how to add a subcircuit to a circuit design.
+# In this example, the focus is changed within the hierarchy between
+# the child subcircuit and the parent design.
 
-# ## Perform required import
+# ## Imports
 #
 # Perform the required import.
 
@@ -20,7 +21,7 @@ import pyaedt
 
 # ## Launch AEDT with Circuit
 #
-# Launch AEDT 2023 R2 in graphical mode with Circuit.
+# Launch AEDT in graphical mode. Instantite an instance of the ``Circuit`` class.
 
 non_graphical = False
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
@@ -33,7 +34,7 @@ circuit = pyaedt.Circuit(
 )
 circuit.modeler.schematic_units = "mil"
 
-# ## Add subcircuit
+# ## Add Subcircuit
 #
 # Add a new subcircuit to the previously created circuit design, creating a
 # child circuit. Push this child circuit down into the child subcircuit.
@@ -42,11 +43,12 @@ subcircuit = circuit.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
 subcircuit_name = subcircuit.composed_name
 circuit.push_down(subcircuit)
 
-# ## Parametrize subcircuit
+# ## Parametrization
 #
 # Parametrize the subcircuit and add a resistor, inductor, and a capacitor with
-# the parameter values in the following code example. Connect them in series
-# and then use the ``pop_up`` # method to get back to the parent design.
+# the parameter values. Components are connected in series
+# and the focus is changed to the parent schematic using
+# the ``pop_up`` method.
 
 circuit.variable_manager.set_variable(variable_name="R_val", expression="35ohm")
 circuit.variable_manager.set_variable(variable_name="L_val", expression="1e-7H")
@@ -62,9 +64,10 @@ circuit.modeler.schematic.connect_components_in_series(
 circuit.pop_up()
 
 
-# ## Release AEDT
+# ## Done
 #
-# Release AEDT.
+# Release AEDT and clean up the temporary files. If you run this example locally and
+# want to keep the files, the project folder name can be retrieved from ``temp_file.name``.
 
 circuit.release_desktop(True, True)
 

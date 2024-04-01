@@ -1,4 +1,4 @@
-# # Circuit: schematic creation and analysis
+# # Circuit Schematic Creation and Analysis
 #
 # This example shows how to build a circuit schematic
 # and run a transient circuit simulation.
@@ -9,15 +9,17 @@
 #
 # Perform required imports.
 
+# +
 import os
 import tempfile
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
+# -
 
 # ## Launch AEDT
 #
-# Launch AEDT 2023 R2 in graphical mode. This example uses SI units.
+# Launch AEDT in graphical mode. This example uses SI units.
 
 # ## Set non-graphical mode
 #
@@ -28,7 +30,9 @@ import pyaedt
 
 # ## Launch AEDT and Circuit
 #
-# Launch AEDT and Circuit. The :class:`pyaedt.Desktop` class initializes AEDT and
+# Launch AEDT and Circuit. 
+# The [pyaedt.Desktop](https://aedt.docs.pyansys.com/version/stable/API/_autosummary/pyaedt.desktop.Desktop.html#pyaedt.desktop.Desktop) 
+# class initializes AEDT and
 # starts the specified version in the specified mode.
 
 # +
@@ -65,7 +69,7 @@ capacitor = aedt_app.modeler.schematic.create_capacitor(
 #  ## Get all pins
 #
 # The component pins are instances of the class
-# ``pyaedt.modeler.circuits.objct3dcircuit.CircuitPins`` class and
+# ``pyaedt.modeler.circuits.objct3dcircuit.CircuitPins`` and
 # provide access to the
 # pin location, net connectivity and the method ``connect_to_component()`` which
 # can be used to connect components in the schematic
@@ -124,7 +128,7 @@ fig = solutions.plot()
 # ## Close AEDT
 #
 # After the simulation completes, you can close AEDT or release it using the
-# :func:`pyaedt.Desktop.force_close_desktop` method.
+# `pyaedt.Desktop.force_close_desktop` method.
 # All methods provide for saving the project before closing.
 
 desktop.release_desktop()

@@ -1,11 +1,11 @@
 """
-Circuit: automatic report creation
-----------------------------------
-This example shows how you can use PyAEDT to create reports automatically using a JSON file.
+# Report Templates
+
+This example shows how to create reports based on a JSON configuration file.
 """
 
 ###############################################################################
-# ## Perform required imports
+# ## Imports
 #
 # Perform required imports and set the local path to the path for PyAEDT.
 
@@ -16,15 +16,20 @@ from IPython.display import Image
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 
-""
-# Set local path to path for PyAEDT
+###############################################################################
+# ## Project Folder
+#
+# Specify a temporary project folder using the ``tempfile`` module.
+
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 project_path = pyaedt.downloads.download_custom_reports(destination=temp_dir.name)
 
 ###############################################################################
 # ## Launch AEDT
 #
-# Launch AEDT 2023 R2 in graphical mode. This example uses SI units.
+# Launch AEDT in graphical mode. 
+#
+# > _This example uses SI units._
 
 desktopVersion = AEDT_VERSION
 
@@ -34,15 +39,15 @@ desktopVersion = AEDT_VERSION
 # Set non-graphical mode.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 # The Boolean parameter ``new_thread`` defines whether to create a new instance
-# of AEDT or try to connect to an existing instance of it.
+# of AEDT or try to connect to an existing instance.
 
 non_graphical = True
 NewThread = True
 
 ###############################################################################
-# ## Launch AEDT with Circuit
+# ## Launch AEDT
 #
-# Launch AEDT with Circuit. The :class:`pyaedt.Desktop` class initializes AEDT
+# Launch AEDT and instantiate a Circuit schematic. The `pyaedt.Desktop` class initializes AEDT
 # and starts the specified version in the specified mode.
 
 cir = pyaedt.Circuit(
@@ -54,13 +59,15 @@ cir = pyaedt.Circuit(
 cir.analyze()
 
 ###############################################################################
-# ## Create spectrum report
+# ## Spectrum Report
 #
-# Create a spectrum report. You can use a JSON file to create a simple setup
-# or a fully customized one. The following code creates a simple setup and changes
-# the JSON file to customize it. In a spectrum report, you can add limitilines and
-# notes and edit axes, the grid, and the legend. You can create custom reports
-# in non-graphical mode in AEDT 2023 R2 and later.
+# A JSON file can be used to customize the post-processing report.
+# The following code creates a simple setup and modifies
+# the JSON file to customize the report. The JSON format enables addition of 
+# limit lines,
+# notes, and the axes, grid, and the legend can all be modified. Custom reports
+# can be generated
+# in non-graphical mode for version 2023R2 and later.
 
 report1 = cir.post.create_report_from_configuration(
     os.path.join(project_path, "Spectrum_CISPR_Basic.json")
@@ -69,8 +76,6 @@ out = cir.post.export_report_to_jpg(cir.working_directory, report1.plot_name)
 Image(out)
 
 ###############################################################################
-# ## Create spectrum report
-#
 # Every aspect of the report can be customized.
 
 report1_full = cir.post.create_report_from_configuration(
@@ -79,12 +84,11 @@ report1_full = cir.post.create_report_from_configuration(
 out = cir.post.export_report_to_jpg(cir.working_directory, report1_full.plot_name)
 Image(out)
 ###############################################################################
-# ## Create transient report
+# ## Transient Report
 #
-# Create a transient report. You can read and modify the JSON file
-# before running the script. The following code modifies the traces
-# before generating the report. You can create custom reports in non-graphical
-# mode in AEDT 2023 R2 and later.
+# The following code modifies the traces
+# and then generates a report. Custom reports can be created in non-graphical
+# mode for version 2023 R2 and later.
 
 props = pyaedt.general_methods.read_json(os.path.join(project_path, "Transient_CISPR_Custom.json"))
 
@@ -95,10 +99,7 @@ out = cir.post.export_report_to_jpg(cir.working_directory, report2.plot_name)
 Image(out)
 
 ###############################################################################
-# ## Create transient report
-#
-# Property dictionary can be customized in any aspect and new report can be created easily.
-# In this example the curve name is customized.
+# The ``props`` dictionary provides full access to customize the report.
 
 props["expressions"] = {"V(Battery)": {}, "V(U1_VDD)": {}}
 props["plot_name"] = "Battery Voltage"
@@ -109,7 +110,7 @@ out = cir.post.export_report_to_jpg(cir.working_directory, report3.plot_name)
 Image(out)
 
 ###############################################################################
-# ## Create eye diagram
+# ## Eye Diagram
 #
 # Create an eye diagram. If the JSON file contains an eye mask, you can create
 # an eye diagram and fully customize it.
@@ -121,7 +122,7 @@ out = cir.post.export_report_to_jpg(cir.working_directory, report4.plot_name)
 Image(out)
 
 ###############################################################################
-# ## Create eye diagram
+# ## Eye Diagram
 #
 # You can create custom reports in
 # non-graphical mode in AEDT 2023 R2 and later.
@@ -133,12 +134,12 @@ report4_full = cir.post.create_report_from_configuration(
 out = cir.post.export_report_to_jpg(cir.working_directory, report4_full.plot_name)
 Image(out)
 ################################################
-# This is how the spectrum looks like
+# This is what the spectrum looks like
 #
 # <img src="_static/spectrum_plot.png" width="500">
 
 ###############################################################################
-# ## Save project and close AEDT
+# ## Done
 #
 # Save the project and close AEDT.
 

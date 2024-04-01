@@ -1,13 +1,15 @@
 # # Circuit: AMI PostProcessing
 #
-# This example shows how you can use PyAEDT to perform advanced postprocessing of AMI simulations.
+# This example demonstartes advanced postprocessing of AMI simulations.
 
 # <img src='_static/spectrum_plot.png' width="500">
 
 # ## Perform required imports
 #
-# Perform required imports and set the local path to the path for PyAEDT.
+# Perform required imports. Note that [Numpy](https://numpy.org/) 
+# and [Matplotlib](https://matplotlib.org/) are required to run this example.
 
+# +
 import os
 import tempfile
 
@@ -15,11 +17,13 @@ from ansys.pyaedt.examples.constants import AEDT_VERSION
 from matplotlib import pyplot as plt
 import numpy as np
 import pyaedt
+# -
 
 # ## Download Example Data
 #
 # The ``download_file()`` method retrieves example
-# data from the PyAnsys _example-data_ repository.
+# data from the PyAnsys 
+# [example-data](https://github.com/ansys/example-data/tree/master/pyaedt) repository.
 #
 # - The fist argument is the folder name where
 #   the example files are located in the GitHub repository.
@@ -29,11 +33,11 @@ import pyaedt
 # Files are placed in the destination folder.
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-project_path = pyaedt.downloads.download_file("ami", "ami_usb.aedtz", temp_dir.name)
+project_path = pyaedt.downloads.download_file("ami", filename="ami_usb.aedtz", destintion=temp_dir.name)
 
 # ## Launch AEDT
 #
-# Launch AEDT 2023 R2 in graphical mode. This example uses SI units.
+# Launch AEDT in graphical mode. This example uses SI units.
 
 desktopVersion = AEDT_VERSION
 
@@ -49,7 +53,8 @@ NewThread = True
 
 # ## Launch AEDT with Circuit and enable Pandas as the output format
 #
-# All outputs obtained with the `get_solution_data` method will have the Pandas format.
+# All outputs obtained with the `get_solution_data` method will have the 
+# [Pandas](https://pandas.pydata.org/docs/user_guide/index.html) format.
 # Launch AEDT with Circuit. The `pyaedt.Desktop` class initializes AEDT
 # and starts the specified version in the specified mode.
 
@@ -172,7 +177,7 @@ ax2.set_xlabel("s")
 ax2.set_ylabel("V")
 plt.show()
 
-# ## Plot scatter histogram
+# ## Plot Scatter Histogram
 #
 # Create the plot from a start time to stop time in seconds.
 
@@ -183,7 +188,7 @@ ax4.set_ylabel("V")
 ax4.grid()
 plt.show()
 
-# ## Get Transient report
+# ## Transient Report
 #
 # Get Transient report data
 
@@ -196,7 +201,7 @@ original_data = cir.post.get_solution_data(
     variations=cir.available_variations.nominal,
 )
 
-# ## Sample waveform using a user-defined clock
+# ## Sample Waveform
 #
 # Extract waveform at specific clock time plus half unit interval.
 
@@ -219,7 +224,7 @@ sample_waveform = cir.post.sample_waveform(
 )
 # -
 
-# ## Plot waveform and samples
+# ## Plot Waveform
 #
 # Create the plot from a start time to stop time in seconds.
 
@@ -273,7 +278,7 @@ ax.set_ylabel(waveform_unit)
 plt.show()
 # -
 
-# ## Plot slicer scatter
+# ## Plot Slicer Scatter
 #
 # Create the plot from a start time to stop time in seconds.
 
@@ -285,7 +290,7 @@ ax2.set_xlabel("s")
 ax2.set_ylabel("V")
 plt.show()
 
-# ## Save project and close AEDT
+# ## Save Project
 #
 # Save the project and close AEDT.
 

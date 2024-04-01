@@ -6,16 +6,18 @@
 #
 # Perform required imports, which includes importing a section.
 
+# +
 import os.path
 import tempfile
 
 from ansys.pyaedt.examples.constants import EDB_VERSION
 import pyaedt
 from pyaedt import Circuit, Edb
+# -
 
 # ## Download file
 #
-# Download the AEDB file and copy it in the temporary folder.
+# Download the EDB folder.
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 edb_file = pyaedt.downloads.download_file(
@@ -28,7 +30,7 @@ print(edb_file)
 
 # ## AEDT version
 #
-# Sets the Aedt version to 2023 R2.
+# Sets the AEDT version.
 
 edb_version = EDB_VERSION
 
@@ -38,7 +40,7 @@ edb_version = EDB_VERSION
 
 common_reference_net = "GND"
 
-# ## Project load
+# ## Load the Project
 #
 # Load initial Edb file, checking if aedt file exists and remove to allow Edb loading.
 
