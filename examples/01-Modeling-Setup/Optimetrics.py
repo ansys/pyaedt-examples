@@ -9,6 +9,7 @@
 # Perform required imports.
 
 import os
+import tempfile
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
@@ -20,13 +21,23 @@ import pyaedt
 
 non_graphical = False
 
-# ## Initialize object and create variables
+# ## Create temporary directory
+
+temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
+
+# ## Initialize HFSS and create variables
 #
 # Initialize the ``Hfss`` object and create two needed design variables,
 # ``w1`` and ``w2``.
 
+project_name = pyaedt.generate_unique_project_name(
+    rootname=temp_dir.name, project_name="optimetrics"
+)
 hfss = pyaedt.Hfss(
-    specified_version=AEDT_VERSION, new_desktop_session=True, non_graphical=non_graphical
+    projectname=project_name,
+    specified_version=AEDT_VERSION,
+    new_desktop_session=True,
+    non_graphical=non_graphical,
 )
 hfss["w1"] = "1mm"
 hfss["w2"] = "100mm"
@@ -52,7 +63,7 @@ model.show_grid = False
 model.plot(os.path.join(hfss.working_directory, "Image.jpg"))
 # -
 
-# Create two wave ports on the sheets.
+# ## Create two wave ports on the sheets.
 
 hfss.wave_port(p1, integration_line=hfss.AxisDir.ZPos, name="1")
 hfss.wave_port(p2, integration_line=hfss.AxisDir.ZPos, name="2")
@@ -84,7 +95,7 @@ sweep.add_variation("w1", 0.1, 2, 10)
 sweep.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"})
 sweep.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 
-# Create an optimetrics sensitivity analysis with output calculations.
+# ## Create an optimetrics sensitivity analysis with output calculations.
 
 sweep2 = hfss.optimizations.add(
     calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="Sensitivity"
@@ -92,7 +103,7 @@ sweep2 = hfss.optimizations.add(
 sweep2.add_variation("w1", 0.1, 3, 0.5)
 sweep2.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 
-# Create an optimization analysis based on goals and calculations.
+# ## Create an optimization analysis based on goals and calculations.
 
 sweep3 = hfss.optimizations.add(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"})
 sweep3.add_variation("w1", 0.1, 3, 0.5)
@@ -104,7 +115,7 @@ sweep3.add_goal(
     condition="Maximize",
 )
 
-# Create a DX (DesignXplorer) optimization based on a goal and a calculation.
+# ## Create a DX (DesignXplorer) optimization based on a goal and a calculation.
 
 sweep4 = hfss.optimizations.add(
     calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="DesignExplorer"
@@ -131,10 +142,10 @@ sweep6 = hfss.optimizations.add(
     context="Infinite_1",
 )
 
-# ## Close AEDT
-#
-# After the simulaton completes, you can close AEDT or release it using the
-# :func:`pyaedt.Desktop.release_desktop` method.
-# All methods provide for saving the project before closing.
+# ## Release AEDT
 
 hfss.release_desktop()
+
+# ## Clean temporary directory
+
+temp_dir.cleanup()
