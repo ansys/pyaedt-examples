@@ -4,7 +4,7 @@
    :hidden:
    :maxdepth: 2
 
-   00-EDB/index
+   03-Maxwell/index
 
 Examples
 ========
