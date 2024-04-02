@@ -26,9 +26,11 @@
 # ## Perform required imports
 
 import os
+import tempfile
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
+from pyaedt.generic.general_methods import generate_unique_name
 
 # ## Set non-graphical mode
 
@@ -36,14 +38,17 @@ import pyaedt
 
 non_graphical = False
 
+# ## Create temporary directory
+
+temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
+
+# ## Download project
+
+project_full_name = pyaedt.downloads.download_icepak(destination=temp_dir.name)
+
 # ## Open project
 
-# Download the project, open it, and save it to the temporary folder.
-
-# +
-project_full_name = pyaedt.downloads.download_icepak(
-    pyaedt.generate_unique_folder_name(folder_name="Graphic_Card")
-)
+# Open the project, and save it to the temporary folder.
 
 ipk = pyaedt.Icepak(
     projectname=project_full_name,
@@ -52,7 +57,6 @@ ipk = pyaedt.Icepak(
     non_graphical=non_graphical,
 )
 ipk.autosave_disable()
-# -
 
 # ## Create source blocks
 #
@@ -80,7 +84,7 @@ setup1["FlowRegime"] = "Turbulent"
 setup1["Max Iterations"] = 5
 setup1["Solver Type Pressure"] = "flex"
 setup1["Solver Type Temperature"] = "flex"
-ipk.save_project(r"C:\temp\Graphic_card.aedt")
+ipk.save_project()
 
 # ## Export project to step file
 #
@@ -108,7 +112,8 @@ ipk.close_project()
 #
 # Create an Icepak project and import the step.
 
-app = pyaedt.Icepak(projectname="new_proj_Ipk")
+new_project = os.path.join(temp_dir.name, generate_unique_name("example") + ".aedt")
+app = pyaedt.Icepak(projectname=new_project)
 app.modeler.import_3d_cad(file_path)
 
 # ## Import and apply configuration file
@@ -119,8 +124,11 @@ app.modeler.import_3d_cad(file_path)
 out = app.configurations.import_config(conf_file)
 app.configurations.results.global_import_success
 
-# ## Close project
-#
-# Close the project.
+# ## Release AEDT
+# Close the project and release AEDT.
 
 app.release_desktop()
+
+# ## Clean temporary directory
+
+temp_dir.cleanup()
