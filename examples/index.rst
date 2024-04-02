@@ -4,7 +4,11 @@
    :hidden:
    :maxdepth: 2
 
+
    twin_builder/index
+   03-Maxwell/index
+   EDB/index
+
 
 Examples
 ========
