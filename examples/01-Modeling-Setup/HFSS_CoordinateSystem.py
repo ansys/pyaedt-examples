@@ -6,6 +6,8 @@
 #
 # Perform required imports
 
+import tempfile
+
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 
@@ -16,9 +18,11 @@ import pyaedt
 
 non_graphical = False
 
-# ## Launch AEDT in graphical mode
-#
-# Launch AEDT 2023 R2 in graphical mode.
+# ## Create temporary directory
+
+temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
+
+# ## Launch AEDT
 
 d = pyaedt.launch_desktop(
     specified_version=AEDT_VERSION, non_graphical=non_graphical, new_desktop_session=True
@@ -28,7 +32,10 @@ d = pyaedt.launch_desktop(
 #
 # Insert an HFSS design with the default name.
 
-hfss = pyaedt.Hfss(projectname=pyaedt.generate_unique_project_name(folder_name="CoordSysDemo"))
+project_name = pyaedt.generate_unique_project_name(
+    rootname=temp_dir.name, project_name="CoordSysDemo"
+)
+hfss = pyaedt.Hfss(projectname=project_name)
 
 # ## Create coordinate system
 #
@@ -160,7 +167,8 @@ fcs4 = hfss.modeler.create_face_coordinate_system(
     face=face, origin=face, axis_position=face.edges[1], rotation=10.3
 )
 
-# Rotation can also be changed after coordinate system creation
+# ### Rotation can also be changed after coordinate system creation
+
 fcs4.props["ZRotationAngle"] = "3deg"
 
 # ## Apply offset to X and Y axes of face coordinate system
@@ -172,7 +180,8 @@ fcs5 = hfss.modeler.create_face_coordinate_system(
     face=face, origin=face, axis_position=face.edges[2], offset=[0.5, 0.3]
 )
 
-# The offset can also be changed after the coordinate system is created.
+# ### The offset can also be changed after the coordinate system is created.
+
 fcs5.props["XOffset"] = "0.2mm"
 fcs5.props["YOffset"] = "0.1mm"
 
@@ -227,9 +236,7 @@ obj_cs_3 = hfss.modeler.create_object_coordinate_system(
 obj_cs_3.props["MoveToEnd"] = False
 obj_cs_3.update()
 
-# Get ## all coordinate systems
-#
-# Get all coordinate systems.
+# ## Get all coordinate systems
 
 css = hfss.modeler.coordinate_systems
 names = [i.name for i in css]
@@ -254,10 +261,11 @@ print("Global: ", p)
 p2 = hfss.modeler.global_to_cs(p, "CS5")
 print("CS5 :", p2)
 
-# ## Close AEDT
-#
-# After the simulaton completes, you can close AEDT or release it using the
-# `pyaedt.Desktop.release_desktop` method.
-# All methods provide for saving the project before closing.
+# ## Release AEDT
+# Close the project and release AEDT.
 
 d.release_desktop()
+
+# ## Clean temporary directory
+
+temp_dir.cleanup()
