@@ -5,6 +5,7 @@
    :maxdepth: 2
 
    03-Maxwell/index
+   twin_builder/index
 
 Examples
 ========
