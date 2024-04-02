@@ -306,7 +306,6 @@ line_segments = ["Line", "Arc", "Line", "Arc", "Line"]
 line_complex1 = modeler.create_polyline(
     line_points, segment_type=line_segments, name="Polyline_example"
 )
-assert return_value  # triggers an error at the application error
 
 # Here is an example that provides more points than the segment list requires.
 # This is valid usage. The remaining points are ignored.
