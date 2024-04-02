@@ -33,7 +33,7 @@ import pyaedt
 # Files are placed in the destination folder.
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-project_path = pyaedt.downloads.download_file("ami", filename="ami_usb.aedtz", destintion=temp_dir.name)
+project_path = pyaedt.downloads.download_file("ami", filename="ami_usb.aedtz", destination=temp_dir.name)
 
 # ## Launch AEDT
 #
