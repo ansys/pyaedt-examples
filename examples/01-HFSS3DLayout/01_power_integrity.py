@@ -1,6 +1,7 @@
 # # Power Integrity Analysis
 # This example shows how to configure EDB for power integrity analysis, and load EDB into HFSS 3D Layout for analysis and post-processing.
 
+# todo remove below lines after pyedb new release.
 import sys
 sys.path.append(r"C:\ansysdev\pycharm_projects\pyansys-edb\src")
 sys.path.append(r"D:\_pycharm_project\pyaedt")
