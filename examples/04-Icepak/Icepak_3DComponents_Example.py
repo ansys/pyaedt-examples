@@ -13,13 +13,12 @@ import tempfile
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 from pyaedt import Icepak, downloads
-
 # -
 
 # Download needed files in a temporary folder
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
-package_temp_name, qfp_temp_name = downloads.download_icepak_3d_component(temp_folder.name)
+package_temp_name, qfp_temp_name = downloads.download_icepak_3d_component(destination=temp_folder.name)
 
 # ## Set AEDT version
 # Set AEDT version.
@@ -46,7 +45,7 @@ ipk = Icepak(
 # Remove air region (which is present by default) because it is not needed as the heatsink will
 # be exported as a 3DComponent.
 
-ipk.modeler.get_object_from_name("Region").delete()
+ipk.modeler.get_object_from_name(objname="Region").delete()
 
 # Define the heatsink using multiple boxes
 
@@ -62,7 +61,7 @@ hs_fins = hs_fin.duplicate_along_line(vector=[0, 3.65, 0], nclones=n_fins)
 ipk.plot(show=False, export_path=os.path.join(temp_folder.name, "Heatsink.jpg"))
 
 # Definition of a mesh region around the heatsink
-mesh_region = ipk.mesh.assign_mesh_region([hs_base.name, hs_fin.name] + hs_fins)
+mesh_region = ipk.mesh.assign_mesh_region(objectlist=[hs_base.name, hs_fin.name] + hs_fins)
 mesh_region.manual_settings = True
 mesh_region.settings["MaxElementSizeX"] = "5mm"
 mesh_region.settings["MaxElementSizeY"] = "5mm"
@@ -81,13 +80,13 @@ point_monitor_position = [
                              hs_middle_fin.bounding_box[-1]
                          ]  # average x,y, top z
 ipk.monitor.assign_point_monitor(
-    point_monitor_position, monitor_quantity=["Temperature", "HeatFlux"], monitor_name="TopPoint"
+    name=point_monitor_position, monitor_quantity=["Temperature", "HeatFlux"], monitor_name="TopPoint"
 )
 ipk.monitor.assign_face_monitor(
-    hs_base.bottom_face_z.id, monitor_quantity="Temperature", monitor_name="Bottom"
+    name=hs_base.bottom_face_z.id, monitor_quantity="Temperature", monitor_name="Bottom"
 )
 ipk.monitor.assign_point_monitor_in_object(
-    hs_middle_fin.name, monitor_quantity="Temperature", monitor_name="MiddleFinCenter"
+    name=hs_middle_fin.name, monitor_quantity="Temperature", monitor_name="MiddleFinCenter"
 )
 
 # Export the heatsink 3D component in a ``"componentLibrary"`` folder.
@@ -168,8 +167,8 @@ ipk.plot(show=False, export_path=os.path.join(temp_folder.name, "electronic_pack
 
 # A coordinate system is created for the heatsink so that it is placed on top of the AGP.
 
-#+
-agp = ipk.modeler.get_object_from_name("AGP_IDF")
+# +
+agp = ipk.modeler.get_object_from_name(objname="AGP_IDF")
 cs = ipk.modeler.create_coordinate_system(
     origin=[agp.bounding_box[0], agp.bounding_box[1], agp.bounding_box[-1]],
     name="HeatsinkCS",
@@ -220,6 +219,6 @@ ipk.modeler.create_3dcomponent(
 
 # Release AEDT and remove the temporary folder.
 
-ipk.release_desktop(True, True)
+ipk.release_desktop(close_projects=True, close_desktop=True)
 temp_folder.cleanup()
 # -
