@@ -5,8 +5,8 @@ schematic generation, setup, and thermal postprocessing.
 
 .. nbgallery::
 
-    Icepak_3DComponents_Example.py
-    Icepak_CSV_Import.py
-    Icepak_ECAD_Import.py
-    Icepak_Example.py
-    Sherlock_Example.py
+    icepak_3d_components_example.py
+    icepak_csv_import.py
+    icepak_ecad_import.py
+    icepak_graphic_card_example.py
+    sherlock_example.py
