@@ -2,7 +2,7 @@
 
 # This example shows how to create a thermal analysis of an electronic package by
 # taking advantage of 3D components with advanced features added by PyAEDT.
-# Keywords: 3D components
+# Keywords: 3D components, mesh regions, monitor objects
 
 # ## Import PyAEDT and download files
 # Perform import of required classes from the ``pyaedt`` package and import the ``os`` package.
@@ -207,7 +207,6 @@ cs_pcb_assembly = ipk.modeler.create_coordinate_system(
 # to export the whole package as 3d component. Here the auxiliary dictionary is needed
 # to export monitor objects, datasets and native components.
 
-# +
 ipk.flatten_3d_components()
 ipk.modeler.create_3dcomponent(
     component_file=os.path.join(temp_folder.name, "componentLibrary", "PCBAssembly.a3dcomp"),
@@ -217,8 +216,9 @@ ipk.modeler.create_3dcomponent(
     reference_cs="PCB_Assembly",
 )
 
+# ## Release AEDT
+#
 # Release AEDT and remove the temporary folder.
 
 ipk.release_desktop(close_projects=True, close_desktop=True)
 temp_folder.cleanup()
-# -
