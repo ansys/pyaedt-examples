@@ -204,10 +204,9 @@ cs_pcb_assembly = ipk.modeler.create_coordinate_system(
 )
 
 # Export of the whole assembly as 3d component and close project. First, a flattening
-# is needed because nested 3d
-# components are not natively supported. Then it is possible to export the whole
-# package as 3d component. Here the
-# auxiliary dictionary is needed to export monitor objects, datasets and native components.
+# is needed because nested 3d components are not natively supported. Then it is possible
+# to export the whole package as 3d component. Here the auxiliary dictionary is needed
+# to export monitor objects, datasets and native components.
 
 # +
 ipk.flatten_3d_components()
@@ -219,8 +218,8 @@ ipk.modeler.create_3dcomponent(
     reference_cs="PCB_Assembly",
 )
 
-# ## Release AEDT
 # Release AEDT and remove the temporary folder.
 
 ipk.release_desktop(True, True)
 temp_folder.cleanup()
+# -
