@@ -3,6 +3,7 @@
 
 # todo remove below lines after pyedb new release.
 import sys
+
 sys.path.append(r"C:\ansysdev\pycharm_projects\pyansys-edb\src")
 sys.path.append(r"D:\_pycharm_project\pyaedt")
 
@@ -46,10 +47,14 @@ cfg["general"] = {
 cfg["s_parameters"] = [
     {
         "name": "GRM32_DC0V_25degC_series",
-        "component_definition": "CAPC3216X180X20ML20",
+        "component_definition": "CAPC0603X33X15LL03T05",
         "file_path": "GRM32_DC0V_25degC_series.s2p",
         "apply_to_all": False,
-        "components": ["C3", "C4"]
+        "components": ["C110", "C206"],
+        "reference_net": "GND",
+        "reference_net_per_component": {
+            "C110": "GND"
+        }
     }
 ]
 
@@ -113,32 +118,32 @@ cfg["setups"] = [
 # ## Do cutout
 
 cfg["operations"] = {
-        "cutout": {
-            "signal_list": ["1V0"],
-            "reference_list": ["GND"],
-            "extent_type": "ConvexHull",
-            "expansion_size": 0.002,
-            "use_round_corner": False,
-            "output_aedb_path": "",
-            "open_cutout_at_end": True,
-            "use_pyaedt_cutout": True,
-            "number_of_threads": 4,
-            "use_pyaedt_extent_computing": True,
-            "extent_defeature": 0,
-            "remove_single_pin_components": False,
-            "custom_extent": "",
-            "custom_extent_units": "mm",
-            "include_partial_instances": False,
-            "keep_voids": True,
-            "check_terminals": False,
-            "include_pingroups": False,
-            "expansion_factor": 0,
-            "maximum_iterations": 10,
-            "preserve_components_with_model": False,
-            "simple_pad_check": True,
-            "keep_lines_as_path": False
-        }
+    "cutout": {
+        "signal_list": ["1V0"],
+        "reference_list": ["GND"],
+        "extent_type": "ConvexHull",
+        "expansion_size": 0.002,
+        "use_round_corner": False,
+        "output_aedb_path": "",
+        "open_cutout_at_end": True,
+        "use_pyaedt_cutout": True,
+        "number_of_threads": 4,
+        "use_pyaedt_extent_computing": True,
+        "extent_defeature": 0,
+        "remove_single_pin_components": False,
+        "custom_extent": "",
+        "custom_extent_units": "mm",
+        "include_partial_instances": False,
+        "keep_voids": True,
+        "check_terminals": False,
+        "include_pingroups": False,
+        "expansion_factor": 0,
+        "maximum_iterations": 10,
+        "preserve_components_with_model": False,
+        "simple_pad_check": True,
+        "keep_lines_as_path": False
     }
+}
 
 # ## Save configuration as a JSON file
 
@@ -165,7 +170,7 @@ print(temp_folder.name)
 # ## Load edb into HFSS 3D Layout.
 
 h3d = Hfss3dLayout(
-    aedb, 
+    aedb,
     non_graphical=False,  # Set to true for non-graphical mode.
     new_desktop_session=True
 )
@@ -179,3 +184,5 @@ h3d.analyze()
 solutions = h3d.post.get_solution_data(expressions='Z(port1,port1)')
 
 solutions.plot()
+
+h3d.release_desktop(close_projects=True, close_desktop=True)
