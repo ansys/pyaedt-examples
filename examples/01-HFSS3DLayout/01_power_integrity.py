@@ -185,4 +185,4 @@ solutions = h3d.post.get_solution_data(expressions='Z(port1,port1)')
 
 solutions.plot()
 
-h3d.release_desktop(close_projects=True, close_desktop=True)
+h3d.close_desktop()
