@@ -1,11 +1,13 @@
 # # Power Integrity Analysis
 # This example shows how to configure EDB for power integrity analysis, and load EDB into HFSS 3D Layout for analysis and post-processing.
 
+# +
 # todo remove below lines after pyedb new release.
 import sys
 
 sys.path.append(r"C:\ansysdev\pycharm_projects\pyansys-edb\src")
 sys.path.append(r"D:\_pycharm_project\pyaedt")
+# -
 
 # # Preparation
 # Import required packages
@@ -20,11 +22,9 @@ from pyedb.misc.downloads import download_file
 # Download example board.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
-
 aedb = download_file(
     directory="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name
 )
-
 download_file(
     directory="touchstone", filename="GRM32_DC0V_25degC_series.s2p", destination=temp_folder.name
 )
