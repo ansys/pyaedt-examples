@@ -7,8 +7,8 @@
 
    twin_builder/index
    03-Maxwell/index
+   06-Multiphysics/index
    EDB/index
-
 
 Examples
 ========
