@@ -30,7 +30,13 @@ download_file(
 
 edbapp = Edb(aedb)
 
-# ## Assign S-parameter to capactitors.
+# # Change via hole size and plating thickness
+
+pdef = edbapp.padstacks.definitions["v35h15"]
+pdef.hole_diameter = "0.2mm"
+pdef.hole_plating_thickness = "25um"
+
+# # Assign S-parameter to capactitors.
 # In this example, "GRM32_DC0V_25degC_series.s2p" is assigned to C3 and C4, which share the same component part number.
 # When "apply_to_all": True, all components share part number "CAPC3216X180X20ML20" will be assigned the S-parameter. In this case, "components" becomes exceptional li
 
@@ -54,7 +60,7 @@ _, pin_group_2 = edbapp.siwave.create_pin_group_on_net(
     group_name="PIN_GROUP_2"
 )
 
-# ## Create ports
+# # Create ports
 # Create a circuit port between the two pin groups just created.
 
 positive_terminal = pin_group_1.get_terminal(name="port1", create_new_terminal=True)
@@ -65,7 +71,7 @@ edbapp.create_port(
     is_circuit_port=True
 )
 
-# ## Create SIwave DC analysis
+# # Create SIwave DC analysis
 
 setup = edbapp.create_siwave_syz_setup("siwave_syz")
 setup.pi_slider_position = 1
@@ -75,7 +81,7 @@ setup.add_frequency_sweep(
     ]
 )
 
-# ## Do cutout
+# # Do cutout
 
 edbapp.cutout(
     signal_list=["1V0"],
