@@ -4,7 +4,15 @@
    :hidden:
    :maxdepth: 2
 
+
+   twin_builder/index
+   01-Modeling-Setup/index
+   02-HFSS/index
+   03-Maxwell/index
    04-Icepak/index
+   06-Multiphysics/index
+   07-EMIT/index
+   EDB/index
 
 Examples
 ========
