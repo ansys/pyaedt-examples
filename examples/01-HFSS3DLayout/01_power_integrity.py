@@ -1,23 +1,18 @@
 # # Power Integrity Analysis
 # This example shows how to configure EDB for power integrity analysis, and load EDB into HFSS 3D Layout for analysis and post-processing.
 
-# +
-# todo remove below lines after pyedb new release.
-import sys
-
-sys.path.append(r"C:\ansysdev\pycharm_projects\pyansys-edb\src")
-sys.path.append(r"D:\_pycharm_project\pyaedt")
-# -
-
 # # Preparation
 # Import required packages
 
 import os
 import json
 import tempfile
-from pyedb import Edb
+from pyaedt import Edb
 from pyaedt import Hfss3dLayout
 from pyedb.misc.downloads import download_file
+
+NG_MODE = True
+VERSION = "2024.1"
 
 # Download example board.
 
@@ -91,7 +86,7 @@ cfg["ports"] = [
     }
 ]
 
-# ## Create SIwave DC analysis
+# ## Create SIwave SYZ analysis
 
 cfg["setups"] = [
     {
@@ -155,7 +150,7 @@ with open(pi_json, "w") as f:
 
 # Load configuration from JSON
 
-edbapp = Edb(aedb)
+edbapp = Edb(aedb, edbversion=VERSION)
 edbapp.configuration.load(config_file=pi_json)
 edbapp.configuration.run()
 edbapp.save()
@@ -171,7 +166,8 @@ print(temp_folder.name)
 
 h3d = Hfss3dLayout(
     aedb,
-    non_graphical=False,  # Set to true for non-graphical mode.
+    specified_version=VERSION,
+    non_graphical=NG_MODE,
     new_desktop_session=True
 )
 
