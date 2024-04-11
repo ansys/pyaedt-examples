@@ -21,7 +21,7 @@ The following guidelines help ensure that the examples are consistent, easy to r
                             matname="copper")
   ```
 - Keep the syntax in your example simple and easy to read. For example, the logic required for your example may already exist in ``pyaedt`` or other installed packages.
-- Install (pre-commit)[https://[pre-commit](https://pre-commit.com/).com/] to help identify simple issues before submitting your code for review.
+- Install [pre-commit](https://pre-commit.com/) to help identify simple issues before submitting your code for review.
   ```
      pre-commit run --all-files
   ```
@@ -37,45 +37,10 @@ The following guidelines help ensure that the examples are consistent, easy to r
   ```
      temp_dir.cleanup()
   ```
-- The examples should be formatted, so they are compatible with jupytext using the (light format)[https://jupytext.readthedocs.io/en/latest/formats-scripts.html#the-light-format] and can
-be rendered and run in (Jupyter Lab)[https://docs.jupyter.org/en/latest/] as Notebook files. Jupyter can be used to ensure correct rendering of markdown, images, and equations.
+- The examples should be formatted, so they are compatible with jupytext using the [light format](https://jupytext.readthedocs.io/en/latest/formats-scripts.html#the-light-format) and can
+be rendered and run in [Jupyter Lab](https://docs.jupyter.org/en/latest/) as Notebook files. Jupyter can be used to ensure correct rendering of markdown, images, and equations.
   ```
      pip install .[doc]
      jupyter lab
   ```
   Notebook files can be opened, edited and run from within Jupyter using _right click > Open With > Jupytext Notebook_.
-
-## Code Style
-
-Code style can be checked by running:
-
-```
-    tox -e style
-```
-
-Previous command will run [pre-commit](https://pre-commit.com/) for checking code quality.
-
-
-## Documentation
-
-Documentation can be rendered by running:
-
-### Windows
-
-```
-    TODO
-```
-
-### MacOS/Linux (requires make)
-
-```
-    TODO
-```
-
-The resultant HTML files can be inspected using your favorite web browser:
-
-```
-    <browser> TODO
-```
-
-Previous will open the rendered documentation in the desired browser.
