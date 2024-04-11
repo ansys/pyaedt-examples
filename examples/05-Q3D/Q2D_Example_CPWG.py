@@ -25,7 +25,7 @@ desktop_version = AEDT_VERSION
 # Launch AEDT 2023 R2 in graphical mode and launch 2D Extractor. This example
 # uses SI units.
 
-q = pyaedt.Q2d(
+q2d = pyaedt.Q2d(
     specified_version=desktop_version,
     non_graphical=non_graphical,
     new_desktop_session=True,
