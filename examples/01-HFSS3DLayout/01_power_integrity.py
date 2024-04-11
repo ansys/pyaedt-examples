@@ -4,6 +4,7 @@
 # # Preparation
 # Import required packages
 
+# +
 import os
 import json
 import tempfile
@@ -13,6 +14,7 @@ from pyedb.misc.downloads import download_file
 
 NG_MODE = True
 VERSION = "2024.1"
+# -
 
 # Download example board.
 
@@ -26,6 +28,7 @@ download_file(
 
 # # Create a configuration file
 # ## Initialize a dictionary
+# Create an empty dictionary to host all configurations.
 
 cfg = dict()
 
@@ -86,7 +89,7 @@ cfg["ports"] = [
     }
 ]
 
-# ## Create SIwave SYZ analysis
+# ## Create SIwave SYZ analysis setup
 
 cfg["setups"] = [
     {
