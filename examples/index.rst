@@ -6,6 +6,7 @@
 
 
    twin_builder/index
+   01-Modeling-Setup/index
    02-HFSS/index
    03-Maxwell/index
    06-Multiphysics/index
