@@ -55,7 +55,7 @@ for var_name, var_value in {
     "d_h": "150um",
     "sm_h": "20um",
 }.items():
-    q[var_name] = var_value
+    q2d[var_name] = var_value
 
 delta_w_half = "({0}/{1})".format(cond_h, e_factor)
 sig_top_w = "({1}-{0}*2)".format(delta_w_half, sig_bot_w)
@@ -76,39 +76,39 @@ layer_2_uh = layer_2_lh + "+" + cond_h
 #
 # Create a signal.
 
-base_line_obj = q.modeler.create_polyline(
+base_line_obj = q2d.modeler.create_polyline(
     position_list=[[0, layer_2_lh, 0], [sig_bot_w, layer_2_lh, 0]], name="signal"
 )
-top_line_obj = q.modeler.create_polyline(
+top_line_obj = q2d.modeler.create_polyline(
     position_list=[[0, layer_2_uh, 0], [sig_top_w, layer_2_uh, 0]]
 )
-q.modeler.move(objid=[top_line_obj], vector=[delta_w_half, 0, 0])
-q.modeler.connect([base_line_obj, top_line_obj])
-q.modeler.move(objid=[base_line_obj], vector=["{}+{}".format(co_gnd_w, clearance), 0, 0])
+q2d.modeler.move(objid=[top_line_obj], vector=[delta_w_half, 0, 0])
+q2d.modeler.connect([base_line_obj, top_line_obj])
+q2d.modeler.move(objid=[base_line_obj], vector=["{}+{}".format(co_gnd_w, clearance), 0, 0])
 
 # ## Create coplanar ground
 #
 # Create a coplanar ground.
 
 # +
-base_line_obj = q.modeler.create_polyline(
+base_line_obj = q2d.modeler.create_polyline(
     position_list=[[0, layer_2_lh, 0], [co_gnd_w, layer_2_lh, 0]], name="co_gnd_left"
 )
-top_line_obj = q.modeler.create_polyline(
+top_line_obj = q2d.modeler.create_polyline(
     position_list=[[0, layer_2_uh, 0], [co_gnd_top_w, layer_2_uh, 0]]
 )
-q.modeler.move(objid=[top_line_obj], vector=[delta_w_half, 0, 0])
-q.modeler.connect([base_line_obj, top_line_obj])
+q2d.modeler.move(objid=[top_line_obj], vector=[delta_w_half, 0, 0])
+q2d.modeler.connect([base_line_obj, top_line_obj])
 
-base_line_obj = q.modeler.create_polyline(
+base_line_obj = q2d.modeler.create_polyline(
     position_list=[[0, layer_2_lh, 0], [co_gnd_w, layer_2_lh, 0]], name="co_gnd_right"
 )
-top_line_obj = q.modeler.create_polyline(
+top_line_obj = q2d.modeler.create_polyline(
     position_list=[[0, layer_2_uh, 0], [co_gnd_top_w, layer_2_uh, 0]]
 )
-q.modeler.move(objid=[top_line_obj], vector=[delta_w_half, 0, 0])
-q.modeler.connect([base_line_obj, top_line_obj])
-q.modeler.move(
+q2d.modeler.move(objid=[top_line_obj], vector=[delta_w_half, 0, 0])
+q2d.modeler.connect([base_line_obj, top_line_obj])
+q2d.modeler.move(
     objid=[base_line_obj], vector=["{}+{}*2+{}".format(co_gnd_w, clearance, sig_bot_w), 0, 0]
 )
 # -
@@ -117,7 +117,7 @@ q.modeler.move(
 #
 # Create a reference ground plane.
 
-q.modeler.create_rectangle(
+q2d.modeler.create_rectangle(
     position=[0, layer_1_lh, 0], dimension_list=[model_w, cond_h], name="ref_gnd"
 )
 
@@ -125,7 +125,7 @@ q.modeler.create_rectangle(
 #
 # Create a dielectric.
 
-q.modeler.create_rectangle(
+q2d.modeler.create_rectangle(
     position=[0, layer_1_uh, 0],
     dimension_list=[model_w, d_h],
     name="Dielectric",
@@ -143,29 +143,29 @@ if desktop_version >= "2023.1":
     ids = [0, 1, 2]
 
 for obj_name in ["signal", "co_gnd_left", "co_gnd_right"]:
-    obj = q.modeler.get_object_from_name(obj_name)
+    obj = q2d.modeler.get_object_from_name(obj_name)
     e_obj_list = []
     for i in ids:
-        e_obj = q.modeler.create_object_from_edge(obj.edges[i])
+        e_obj = q2d.modeler.create_object_from_edge(obj.edges[i])
         e_obj_list.append(e_obj)
     e_obj_1 = e_obj_list[0]
-    q.modeler.unite(e_obj_list)
-    new_obj = q.modeler.sweep_along_vector(e_obj_1.id, [0, sm_h, 0])
+    q2d.modeler.unite(e_obj_list)
+    new_obj = q2d.modeler.sweep_along_vector(e_obj_1.id, [0, sm_h, 0])
     sm_obj_list.append(e_obj_1)
 
-new_obj = q.modeler.create_rectangle(
+new_obj = q2d.modeler.create_rectangle(
     position=[co_gnd_w, layer_2_lh, 0], dimension_list=[clearance, sm_h]
 )
 sm_obj_list.append(new_obj)
 
-new_obj = q.modeler.create_rectangle(
+new_obj = q2d.modeler.create_rectangle(
     position=[co_gnd_w, layer_2_lh, 0], dimension_list=[clearance, sm_h]
 )
-q.modeler.move([new_obj], [sig_bot_w + "+" + clearance, 0, 0])
+q2d.modeler.move([new_obj], [sig_bot_w + "+" + clearance, 0, 0])
 sm_obj_list.append(new_obj)
 
 sm_obj = sm_obj_list[0]
-q.modeler.unite(sm_obj_list)
+q2d.modeler.unite(sm_obj_list)
 sm_obj.material_name = "SolderMask"
 sm_obj.color = (0, 150, 100)
 sm_obj.name = "solder_mask"
@@ -175,8 +175,8 @@ sm_obj.name = "solder_mask"
 #
 # Assign a conductor to the signal.
 
-obj = q.modeler.get_object_from_name("signal")
-q.assign_single_conductor(
+obj = q2d.modeler.get_object_from_name("signal")
+q2d.assign_single_conductor(
     name=obj.name,
     target_objects=[obj],
     conductor_type="SignalLine",
@@ -188,8 +188,8 @@ q.assign_single_conductor(
 #
 # Create a reference ground.
 
-obj = [q.modeler.get_object_from_name(i) for i in ["co_gnd_left", "co_gnd_right", "ref_gnd"]]
-q.assign_single_conductor(
+obj = [q2d.modeler.get_object_from_name(i) for i in ["co_gnd_left", "co_gnd_right", "ref_gnd"]]
+q2d.assign_single_conductor(
     name="gnd",
     target_objects=obj,
     conductor_type="ReferenceGround",
@@ -201,15 +201,15 @@ q.assign_single_conductor(
 #
 # Assign the Huray model on the signal.
 
-obj = q.modeler.get_object_from_name("signal")
-q.assign_huray_finitecond_to_edges(obj.edges, radius="0.5um", ratio=3, name="b_" + obj.name)
+obj = q2d.modeler.get_object_from_name("signal")
+q2d.assign_huray_finitecond_to_edges(obj.edges, radius="0.5um", ratio=3, name="b_" + obj.name)
 
 # ## Create setup, analyze, and plot
 #
 # Create the setup, analyze it, and plot solution data.
 
 # +
-setup = q.create_setup(setupname="new_setup")
+setup = q2d.create_setup(setupname="new_setup")
 
 sweep = setup.add_sweep(sweepname="sweep1", sweeptype="Discrete")
 sweep.props["RangeType"] = "LinearStep"
@@ -222,9 +222,9 @@ sweep.props["Type"] = "Interpolating"
 
 sweep.update()
 
-q.analyze()
+q2d.analyze()
 
-a = q.post.get_solution_data(expressions="Z0(signal,signal)", context="Original")
+a = q2d.post.get_solution_data(expressions="Z0(signal,signal)", context="Original")
 a.plot()
 # -
 
@@ -233,5 +233,5 @@ a.plot()
 # Save the project and close AEDT.
 
 home = os.path.expanduser("~")
-q.save_project(os.path.join(home, "Downloads", "pyaedt_example", q.project_name + ".aedt"))
-q.release_desktop()
+q2d.save_project(os.path.join(home, "Downloads", "pyaedt_example", q2d.project_name + ".aedt"))
+q2d.release_desktop()
