@@ -26,7 +26,7 @@ classifiers = [
 dependencies = [
     "build==1.0.3",
     "numpy",
-    "pyaedt==0.8.1",
+    "pyaedt==0.8.2",
     "twine==5.0.0",
     "pydantic",
     "pyvista",
@@ -69,10 +69,6 @@ doc = [
 tests = [
     "pytest==7.4.3",
     "pytest-cov==4.1.0",
-]
-ci = [
-    "vtk-osmesa==9.2.20230527.dev0",
-    "pypandoc-binary==1.13",
 ]
 
 [tool.flit.module]
