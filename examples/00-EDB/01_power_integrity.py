@@ -1,5 +1,6 @@
 # # Power Integrity Analysis
-# This example shows how to configure EDB for power integrity analysis, and load EDB into HFSS 3D Layout for analysis and post-processing.
+# This example shows how to configure EDB for power integrity analysis, and load EDB into HFSS 3D Layout for analysis
+# and post-processing.
 
 # # Preparation
 # Import required packages

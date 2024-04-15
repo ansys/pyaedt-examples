@@ -1,5 +1,14 @@
 # # Power Integrity Analysis
 # This example shows how to configure EDB for power integrity analysis, and load EDB into HFSS 3D Layout for analysis and post-processing.
+# - Set up EDB
+#     - Assign S-parameter model to components
+#     - Create pin groups
+#     - Create ports
+#     - Create SIwave SYZ anaylsis
+#     - Create cutout
+# - Import EDB into HFSS 3D Layout
+#     - Analyze
+#     - Plot Z11
 
 # # Preparation
 # Import required packages
@@ -27,6 +36,7 @@ download_file(
 )
 
 # # Create a configuration file
+# In this example, we are going to use a configure file to set up layout for analysis.
 # ## Initialize a dictionary
 # Create an empty dictionary to host all configurations.
 

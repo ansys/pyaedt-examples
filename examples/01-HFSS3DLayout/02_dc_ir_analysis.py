@@ -1,5 +1,16 @@
 # # DC IR Analysis
 # This example shows how to configure EDB for DC IR analysis, and load EDB into HFSS 3D Layout for analysis and post-processing.
+# - Set up EDB
+#     - Add thermal information and heatsink to components
+#     - Edit via padstack
+#     - Assign SPICE model to components
+#     - Create pin groups
+#     - Create voltage and current sources
+#     - Create SIwave DC anaylsis
+#     - Create cutout
+# - Import EDB into HFSS 3D Layout
+#     - Analyze
+#     - Get DC IR analysis results
 
 
 # # Preparation
@@ -28,6 +39,7 @@ download_file(
 )
 
 # # Create a configuration file
+# In this example, we are going to use a configure file to set up layout for analysis.
 # ## Initialize a dictionary
 
 cfg = dict()
