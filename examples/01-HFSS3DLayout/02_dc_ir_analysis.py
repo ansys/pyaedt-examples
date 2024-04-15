@@ -1,5 +1,6 @@
-# # DC IR Analysis
-# This example shows how to configure EDB for DC IR analysis, and load EDB into HFSS 3D Layout for analysis and post-processing.
+# # HFSS 3D Layout: DC IR Analysis
+# This example shows how to configure EDB for DC IR analysis, and load EDB into HFSS 3D Layout for analysis and
+# post-processing.
 # - Set up EDB
 #     - Add thermal information and heatsink to components
 #     - Edit via padstack

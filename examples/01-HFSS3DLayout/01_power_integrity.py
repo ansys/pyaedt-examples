@@ -1,4 +1,4 @@
-# # Power Integrity Analysis
+# # HFSS 3D Layout: Power Integrity Analysis
 # This example shows how to configure EDB for power integrity analysis, and load EDB into HFSS 3D Layout for analysis and post-processing.
 # - Set up EDB
 #     - Assign S-parameter model to components
