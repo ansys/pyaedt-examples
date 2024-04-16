@@ -1,6 +1,6 @@
-# # Circuit: Simulate multi-zones layout with Siwave
+# # Circuit: Simulate multi-zone layout with SIwave
 #
-# This example shows how you can use PyAEDT simulate multi-zones with Siwave.
+# This example demonstates simulation of multiple zones with SIwave.
 
 # ## Perform required imports
 #
@@ -20,9 +20,9 @@ from pyaedt import Circuit, Edb
 # Download the EDB folder.
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-edb_file = pyaedt.downloads.download_file(
-    destination=temp_dir.name, directory="edb/siwave_multi_zones.aedb"
-)
+edb_file = pyaedt.downloads.download_file(directory="edb/siwave_multi_zones.aedb",
+                                          destination=temp_dir.name)
+work_folder = os.path.join(temp_dir.name, "work")
 aedt_file = os.path.splitext(edb_file)[0] + ".aedt"
 circuit_project_file = os.path.join(temp_dir.name, "multizone_clipped_circuit.aedt")
 print(edb_file)
@@ -52,7 +52,7 @@ edb = Edb(edbversion=edb_version, edbpath=edb_file)
 #
 # Copy project zone into sub project.
 
-edb_zones = edb.copy_zones(working_directory=working_directory)
+edb_zones = edb.copy_zones(working_directory=work_folder)
 
 # ## Split zones
 #
