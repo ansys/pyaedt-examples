@@ -2,7 +2,6 @@
 # This example shows how to configure EDB for DC IR analysis, and load EDB into HFSS 3D Layout for analysis and
 # post-processing.
 # - Set up EDB
-#     - Add thermal information and heatsink to components
 #     - Edit via padstack
 #     - Assign SPICE model to components
 #     - Create pin groups
@@ -25,7 +24,7 @@ from pyedb import Edb
 from pyaedt import Hfss3dLayout
 from pyedb.misc.downloads import download_file
 
-NG_MODE = True
+NG_MODE = False
 VERSION = "2024.1"
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # -
@@ -52,27 +51,6 @@ cfg["general"] = {
     "spice_model_library": os.path.join(temp_folder.name, "spice")
 }
 
-# ## Add component thermal information and heatsink definition
-
-cfg["package_definitions"] = [
-    {
-        "name": "package_1",
-        "maximum_power": 1,
-        "therm_cond": 1,
-        "theta_jb": 1,
-        "theta_jc": 1,
-        "height": 1,
-        "heatsink": {
-            "fin_base_height": "1mm",
-            "fin_height": "1mm",
-            "fin_orientation": "x_oriented",
-            "fin_spacing": "1mm",
-            "fin_thickness": "4mm"
-        },
-        "components": ["J5"]
-    }
-]
-
 # ## Change via hole size and plating thickness
 
 cfg["padstacks"] = {
@@ -93,7 +71,7 @@ cfg["spice_models"] = [
         "component_definition": "COIL-1008CS_V",  # Part name of the components
         "file_path": "ferrite_bead_BLM15BX750SZ1.mod",  # File name or full file path to the SPICE file.
         "sub_circuit_name": "BLM15BX750SZ1",
-        "apply_to_all": True,  # If True, SPICE model is be to assigned to all components share the same part name.
+        "apply_to_all": True,  # If True, SPICE model is to be assigned to all components share the same part name.
         # If False, only assign SPICE model to components in "components".
         "components": []
     }
@@ -236,7 +214,6 @@ h3d.analyze()
 
 h3d.get_dcir_element_data_current_source("siwave_dc")
 
+# ## Close
 
 h3d.close_desktop()
-
-
