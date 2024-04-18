@@ -15,3 +15,4 @@ This includes model generation, setup, meshing, and postprocessing.
     HFSS_Spiral.py
     Probe_Fed_Patch.py
     Waveguide_Filter.py
+    Encrypted_3DComp_ACIS_to_Parasolid.py
