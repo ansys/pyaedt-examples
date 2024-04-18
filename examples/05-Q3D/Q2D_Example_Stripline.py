@@ -85,6 +85,7 @@ layer_3_uh = layer_3_lh + "+" + cond_h
 base_line_obj = q2d.modeler.create_polyline(
     [[0, layer_2_lh, 0], [sig_w, layer_2_lh, 0]], name="signal_p"
 )
+
 top_line_obj = q2d.modeler.create_polyline([[0, layer_2_uh, 0], [sig_top_w, layer_2_uh, 0]])
 q2d.modeler.move([top_line_obj], [delta_w_half, 0, 0])
 q2d.modeler.connect([base_line_obj, top_line_obj])
@@ -97,42 +98,16 @@ q2d.modeler.move([base_line_obj], ["{}+{}".format(co_gnd_w, clearance), 0, 0])
 base_line_obj = q2d.modeler.create_polyline(
     position_list=[[0, layer_2_lh, 0], [sig_w, layer_2_lh, 0]], name="signal_n"
 )
+
 top_line_obj = q2d.modeler.create_polyline(
     position_list=[[0, layer_2_uh, 0], [sig_top_w, layer_2_uh, 0]]
 )
+
 q2d.modeler.move(objid=[top_line_obj], vector=[delta_w_half, 0, 0])
 q2d.modeler.connect([base_line_obj, top_line_obj])
 q2d.modeler.move(
     objid=[base_line_obj], vector=["{}+{}+{}+{}".format(co_gnd_w, clearance, sig_w, sig_gap), 0, 0]
 )
-
-# ## Create coplanar ground
-#
-# Create a coplanar ground.
-
-# +
-base_line_obj = q2d.modeler.create_polyline(
-    position_list=[[0, layer_2_lh, 0], [co_gnd_w, layer_2_lh, 0]], name="co_gnd_left"
-)
-top_line_obj = q2d.modeler.create_polyline(
-    position_list=[[0, layer_2_uh, 0], [co_gnd_top_w, layer_2_uh, 0]]
-)
-q2d.modeler.move([top_line_obj], [delta_w_half, 0, 0])
-q2d.modeler.connect([base_line_obj, top_line_obj])
-
-base_line_obj = q2d.modeler.create_polyline(
-    position_list=[[0, layer_2_lh, 0], [co_gnd_w, layer_2_lh, 0]], name="co_gnd_right"
-)
-top_line_obj = q2d.modeler.create_polyline(
-    position_list=[[0, layer_2_uh, 0], [co_gnd_top_w, layer_2_uh, 0]]
-)
-q2d.modeler.move(objid=[top_line_obj], vector=[delta_w_half, 0, 0])
-q2d.modeler.connect([base_line_obj, top_line_obj])
-q2d.modeler.move(
-    objid=[base_line_obj],
-    vector=["{}+{}*2+{}*2+{}".format(co_gnd_w, clearance, sig_w, sig_gap), 0, 0],
-)
-# -
 
 # ## Create reference ground plane
 #
@@ -190,10 +165,8 @@ q2d.assign_single_conductor(
 #
 # Create a reference ground.
 
-obj = [
-    q2d.modeler.get_object_from_name(i)
-    for i in ["co_gnd_left", "co_gnd_right", "ref_gnd_u", "ref_gnd_l"]
-]
+obj = [q2d.modeler.get_object_from_name(i) for i in ["ref_gnd_u", "ref_gnd_l"]]
+
 q2d.assign_single_conductor(
     name="gnd",
     target_objects=obj,
@@ -266,6 +239,7 @@ parametric.add_variation(
     step=5,
     variation_type="LinearCount",
 )
+
 q2d.analyze_setup(name=parametric.name, num_cores=NUM_CORES)
 
 # ## Save project and release AEDT

@@ -226,8 +226,8 @@ sweep.update()
 
 q2d.analyze(num_cores=NUM_CORES)
 
-a = q2d.post.get_solution_data(expressions="Z0(signal,signal)", context="Original")
-a.plot()
+data = q2d.post.get_solution_data(expressions="Z0(signal,signal)", context="Original")
+data.plot()
 # -
 
 # ## Save project and close AEDT
