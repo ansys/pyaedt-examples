@@ -7,29 +7,31 @@
 #
 # Perform required imports.
 
+# +
 import os
+import tempfile
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
+from ansys.pyaedt.examples.constants import AEDT_VERSION, NUM_CORES
 import pyaedt
 
-# ## Set non-graphical mode
-#
-# Set non-graphical mode.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
+# -
 
-non_graphical = False
-project_path = pyaedt.generate_unique_project_name()
+# ## Create temporary directory
+#
+# Create temporary directory.
+
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch AEDT and 2D Extractor
 #
-# Launch AEDT 2023 R2 in graphical mode and launch 2D Extractor. This example
+# Launch AEDT 2024.1 in graphical mode and launch 2D Extractor. This example
 # uses SI units.
 
-q = pyaedt.Q2d(
-    projectname=project_path,
+q2d = pyaedt.Q2d(
+    projectname=pyaedt.generate_unique_project_name(),
     designname="differential_stripline",
     specified_version=AEDT_VERSION,
-    non_graphical=non_graphical,
+    non_graphical=False,
     new_desktop_session=True,
 )
 
@@ -57,7 +59,7 @@ for var_name, var_value in {
     "core_h": "150um",
     "pp_h": "150um",
 }.items():
-    q[var_name] = var_value
+    q2d[var_name] = var_value
 
 delta_w_half = "({0}/{1})".format(cond_h, e_factor)
 sig_top_w = "({1}-{0}*2)".format(delta_w_half, sig_w)
@@ -80,27 +82,27 @@ layer_3_uh = layer_3_lh + "+" + cond_h
 #
 # Create a positive signal.
 
-base_line_obj = q.modeler.create_polyline(
+base_line_obj = q2d.modeler.create_polyline(
     [[0, layer_2_lh, 0], [sig_w, layer_2_lh, 0]], name="signal_p"
 )
-top_line_obj = q.modeler.create_polyline([[0, layer_2_uh, 0], [sig_top_w, layer_2_uh, 0]])
-q.modeler.move([top_line_obj], [delta_w_half, 0, 0])
-q.modeler.connect([base_line_obj, top_line_obj])
-q.modeler.move([base_line_obj], ["{}+{}".format(co_gnd_w, clearance), 0, 0])
+top_line_obj = q2d.modeler.create_polyline([[0, layer_2_uh, 0], [sig_top_w, layer_2_uh, 0]])
+q2d.modeler.move([top_line_obj], [delta_w_half, 0, 0])
+q2d.modeler.connect([base_line_obj, top_line_obj])
+q2d.modeler.move([base_line_obj], ["{}+{}".format(co_gnd_w, clearance), 0, 0])
 
 # ## Create negative signal
 #
 # Create a negative signal.
 
-base_line_obj = q.modeler.create_polyline(
+base_line_obj = q2d.modeler.create_polyline(
     position_list=[[0, layer_2_lh, 0], [sig_w, layer_2_lh, 0]], name="signal_n"
 )
-top_line_obj = q.modeler.create_polyline(
+top_line_obj = q2d.modeler.create_polyline(
     position_list=[[0, layer_2_uh, 0], [sig_top_w, layer_2_uh, 0]]
 )
-q.modeler.move(objid=[top_line_obj], vector=[delta_w_half, 0, 0])
-q.modeler.connect([base_line_obj, top_line_obj])
-q.modeler.move(
+q2d.modeler.move(objid=[top_line_obj], vector=[delta_w_half, 0, 0])
+q2d.modeler.connect([base_line_obj, top_line_obj])
+q2d.modeler.move(
     objid=[base_line_obj], vector=["{}+{}+{}+{}".format(co_gnd_w, clearance, sig_w, sig_gap), 0, 0]
 )
 
@@ -109,24 +111,24 @@ q.modeler.move(
 # Create a coplanar ground.
 
 # +
-base_line_obj = q.modeler.create_polyline(
+base_line_obj = q2d.modeler.create_polyline(
     position_list=[[0, layer_2_lh, 0], [co_gnd_w, layer_2_lh, 0]], name="co_gnd_left"
 )
-top_line_obj = q.modeler.create_polyline(
+top_line_obj = q2d.modeler.create_polyline(
     position_list=[[0, layer_2_uh, 0], [co_gnd_top_w, layer_2_uh, 0]]
 )
-q.modeler.move([top_line_obj], [delta_w_half, 0, 0])
-q.modeler.connect([base_line_obj, top_line_obj])
+q2d.modeler.move([top_line_obj], [delta_w_half, 0, 0])
+q2d.modeler.connect([base_line_obj, top_line_obj])
 
-base_line_obj = q.modeler.create_polyline(
+base_line_obj = q2d.modeler.create_polyline(
     position_list=[[0, layer_2_lh, 0], [co_gnd_w, layer_2_lh, 0]], name="co_gnd_right"
 )
-top_line_obj = q.modeler.create_polyline(
+top_line_obj = q2d.modeler.create_polyline(
     position_list=[[0, layer_2_uh, 0], [co_gnd_top_w, layer_2_uh, 0]]
 )
-q.modeler.move(objid=[top_line_obj], vector=[delta_w_half, 0, 0])
-q.modeler.connect([base_line_obj, top_line_obj])
-q.modeler.move(
+q2d.modeler.move(objid=[top_line_obj], vector=[delta_w_half, 0, 0])
+q2d.modeler.connect([base_line_obj, top_line_obj])
+q2d.modeler.move(
     objid=[base_line_obj],
     vector=["{}+{}*2+{}*2+{}".format(co_gnd_w, clearance, sig_w, sig_gap), 0, 0],
 )
@@ -136,10 +138,10 @@ q.modeler.move(
 #
 # Create a reference ground plane.
 
-q.modeler.create_rectangle(
+q2d.modeler.create_rectangle(
     position=[0, layer_1_lh, 0], dimension_list=[model_w, cond_h], name="ref_gnd_u"
 )
-q.modeler.create_rectangle(
+q2d.modeler.create_rectangle(
     position=[0, layer_3_lh, 0], dimension_list=[model_w, cond_h], name="ref_gnd_l"
 )
 
@@ -147,13 +149,13 @@ q.modeler.create_rectangle(
 #
 # Create a dielectric.
 
-q.modeler.create_rectangle(
+q2d.modeler.create_rectangle(
     position=[0, layer_1_uh, 0], dimension_list=[model_w, core_h], name="Core", matname="FR4_epoxy"
 )
-q.modeler.create_rectangle(
+q2d.modeler.create_rectangle(
     position=[0, layer_2_uh, 0], dimension_list=[model_w, pp_h], name="Prepreg", matname="FR4_epoxy"
 )
-q.modeler.create_rectangle(
+q2d.modeler.create_rectangle(
     position=[0, layer_2_lh, 0],
     dimension_list=[model_w, cond_h],
     name="Filling",
@@ -165,8 +167,8 @@ q.modeler.create_rectangle(
 # Assign conductors to the signal.
 
 # +
-obj = q.modeler.get_object_from_name("signal_p")
-q.assign_single_conductor(
+obj = q2d.modeler.get_object_from_name("signal_p")
+q2d.assign_single_conductor(
     name=obj.name,
     target_objects=[obj],
     conductor_type="SignalLine",
@@ -174,8 +176,8 @@ q.assign_single_conductor(
     unit="mm",
 )
 
-obj = q.modeler.get_object_from_name("signal_n")
-q.assign_single_conductor(
+obj = q2d.modeler.get_object_from_name("signal_n")
+q2d.assign_single_conductor(
     name=obj.name,
     target_objects=[obj],
     conductor_type="SignalLine",
@@ -189,10 +191,10 @@ q.assign_single_conductor(
 # Create a reference ground.
 
 obj = [
-    q.modeler.get_object_from_name(i)
+    q2d.modeler.get_object_from_name(i)
     for i in ["co_gnd_left", "co_gnd_right", "ref_gnd_u", "ref_gnd_l"]
 ]
-q.assign_single_conductor(
+q2d.assign_single_conductor(
     name="gnd",
     target_objects=obj,
     conductor_type="ReferenceGround",
@@ -205,19 +207,19 @@ q.assign_single_conductor(
 # Assign the Huray model on the signals.
 
 # +
-obj = q.modeler.get_object_from_name("signal_p")
-q.assign_huray_finitecond_to_edges(obj.edges, radius="0.5um", ratio=3, name="b_" + obj.name)
+obj = q2d.modeler.get_object_from_name("signal_p")
+q2d.assign_huray_finitecond_to_edges(obj.edges, radius="0.5um", ratio=3, name="b_" + obj.name)
 
-obj = q.modeler.get_object_from_name("signal_n")
-q.assign_huray_finitecond_to_edges(obj.edges, radius="0.5um", ratio=3, name="b_" + obj.name)
+obj = q2d.modeler.get_object_from_name("signal_n")
+q2d.assign_huray_finitecond_to_edges(obj.edges, radius="0.5um", ratio=3, name="b_" + obj.name)
 # -
 
 # ## Define differential pair
 #
 # Define the differential pair.
 
-matrix = q.insert_reduced_matrix(
-    operation_name=q.MATRIXOPERATIONS.DiffPair,
+matrix = q2d.insert_reduced_matrix(
+    operation_name=q2d.MATRIXOPERATIONS.DiffPair,
     source_names=["signal_p", "signal_n"],
     rm_name="diff_pair",
 )
@@ -228,7 +230,7 @@ matrix = q.insert_reduced_matrix(
 
 # Create a setup.
 
-setup = q.create_setup(setupname="new_setup")
+setup = q2d.create_setup(setupname="new_setup")
 
 # Add a sweep.
 
@@ -244,14 +246,17 @@ sweep.update()
 
 # Analyze the nominal design and plot characteristic impedance.
 
-q.analyze()
+q2d.analyze()
 plot_sources = matrix.get_sources_for_plot(category="Z0")
-a = q.post.get_solution_data(expressions=plot_sources, context=matrix.name)
-a.plot(snapshot_path=os.path.join(q.working_directory, "plot.jpg"))  # Save plot as jpg
+
+# Get simulation results as a ``SolutionData`` object and plot as a jpg
+
+data = q2d.post.get_solution_data(expressions=plot_sources, context=matrix.name)
+data.plot(snapshot_path=os.path.join(temp_dir.name, "plot.jpg"))
 
 # Add a parametric sweep and analyze.
 
-parametric = q.parametrics.add(
+parametric = q2d.parametrics.add(
     sweep_var="sig_bot_w", start_point=75, end_point=100, step=5, variation_type="LinearStep"
 )
 parametric.add_variation(
@@ -261,11 +266,12 @@ parametric.add_variation(
     step=5,
     variation_type="LinearCount",
 )
-q.analyze_setup(name=parametric.name)
+q2d.analyze_setup(name=parametric.name, num_cores=NUM_CORES)
 
 # ## Save project and release AEDT
 #
-# Save the project and release AEDT.
+# Save the project, release AEDT and remove both the project and temporary directory.
 
-q.save_project()
-q.release_desktop()
+q2d.save_project()
+q2d.release_desktop()
+temp_dir.cleanup()

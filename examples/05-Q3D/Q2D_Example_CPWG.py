@@ -11,7 +11,7 @@
 import os
 import tempfile
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
+from ansys.pyaedt.examples.constants import AEDT_VERSION, NUM_CORES
 import pyaedt
 
 # -
@@ -224,7 +224,7 @@ sweep.props["Type"] = "Interpolating"
 
 sweep.update()
 
-q2d.analyze()
+q2d.analyze(num_cores=NUM_CORES)
 
 a = q2d.post.get_solution_data(expressions="Z0(signal,signal)", context="Original")
 a.plot()
@@ -232,7 +232,8 @@ a.plot()
 
 # ## Save project and close AEDT
 #
-# Save the project and close AEDT.
+# Save the project, release AEDT and remove both the project and temporary directory.
 
 q2d.save_project(os.path.join(temp_dir.name, q2d.project_name + ".aedt"))
 q2d.release_desktop()
+temp_dir.cleanup()
