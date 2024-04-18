@@ -14,7 +14,6 @@
    07-EMIT/index
    EDB/index
 
-
 Examples
 ========
 End-to-end examples show how you can use PyAEDT. If PyAEDT is installed
