@@ -12,10 +12,13 @@
 # ## Perform required imports
 #
 
+# +
 import math
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
+
+# -
 
 # ## Initialize core strand dimensions and positions
 #
@@ -94,13 +97,9 @@ for k, v in outer_params.items():
 for k, v in armour_params.items():
     q2d[k] = v
 
-# ## Create object to access 2D modeler
-#
-# Create the ``mod2D`` object to access the 2D modeler easily.
+# ## Set model units
 
-mod2D = q2d.modeler
-mod2D.delete()
-mod2D.model_units = "mm"
+q2d.modeler.model_units = "mm"
 
 # ## Initialize required material properties
 #
@@ -123,25 +122,25 @@ mat_pp.update()
 # ## Create geometry for core strands, filling, and XLPE insulation
 
 # +
-mod2D.create_coordinate_system(
-    ["c_strand_xy_coord", "c_strand_xy_coord", "0mm"], name="CS_c_strand_1"
+q2d.modeler.create_coordinate_system(
+    origin=["c_strand_xy_coord", "c_strand_xy_coord", "0mm"], name="CS_c_strand_1"
 )
-mod2D.set_working_coordinate_system("CS_c_strand_1")
-c1_id = mod2D.create_circle(
+q2d.modeler.set_working_coordinate_system("CS_c_strand_1")
+c1_id = q2d.modeler.create_circle(
     ["0mm", "0mm", "0mm"], "c_strand_radius", name="c_strand_1", matname="copper"
 )
 c2_id = c1_id.duplicate_along_line(vector=["0mm", "2.0*c_strand_radius", "0mm"], nclones=2)
-mod2D.duplicate_around_axis(c2_id, cs_axis="Z", angle=360 / core_n_strands, nclones=6)
-c_unite_name = mod2D.unite(q2d.get_all_conductors_names())
+q2d.modeler.duplicate_around_axis(c2_id, cs_axis="Z", angle=360 / core_n_strands, nclones=6)
+c_unite_name = q2d.modeler.unite(q2d.get_all_conductors_names())
 
-fill_id = mod2D.create_circle(
+fill_id = q2d.modeler.create_circle(
     ["0mm", "0mm", "0mm"],
     "3*c_strand_radius",
     name="c_strand_fill",
     matname="plastic_pp_carbon_fiber",
 )
 fill_id.color = (255, 255, 0)
-xlpe_id = mod2D.create_circle(
+xlpe_id = q2d.modeler.create_circle(
     ["0mm", "0mm", "0mm"],
     "3*c_strand_radius+" + str(core_xlpe_ins_thickness) + "mm",
     name="c_strand_xlpe",
@@ -149,52 +148,52 @@ xlpe_id = mod2D.create_circle(
 )
 xlpe_id.color = (0, 128, 128)
 
-mod2D.set_working_coordinate_system("Global")
+q2d.modeler.set_working_coordinate_system("Global")
 all_obj_names = q2d.get_all_conductors_names() + q2d.get_all_dielectrics_names()
-mod2D.duplicate_around_axis(all_obj_names, cs_axis="Z", angle=360 / cable_n_cores, nclones=4)
+q2d.modeler.duplicate_around_axis(all_obj_names, cs_axis="Z", angle=360 / cable_n_cores, nclones=4)
 cond_names = q2d.get_all_conductors_names()
-# +
+# -
 
 # ## Create geometry for filling object
 
-filling_id = mod2D.create_circle(
+filling_id = q2d.modeler.create_circle(
     ["0mm", "0mm", "0mm"], "filling_radius", name="Filling", matname="plastic_pp_carbon_fiber"
 )
 filling_id.color = (255, 255, 180)
 
 # ## Create geometry for inner sheath object
 
-inner_sheath_id = mod2D.create_circle(
+inner_sheath_id = q2d.modeler.create_circle(
     ["0mm", "0mm", "0mm"], "inner_sheath_radius", name="InnerSheath", matname="PVC plastic"
 )
 inner_sheath_id.color = (0, 0, 0)
 
 # ## Create geometry for armature fill
 
-arm_fill_id = mod2D.create_circle(
+arm_fill_id = q2d.modeler.create_circle(
     ["0mm", "0mm", "0mm"], "armour_radius", name="ArmourFilling", matname="plastic_pp_carbon_fiber"
 )
 arm_fill_id.color = (255, 255, 255)
 
 # ## Create geometry for outer sheath
 
-outer_sheath_id = mod2D.create_circle(
+outer_sheath_id = q2d.modeler.create_circle(
     ["0mm", "0mm", "0mm"], "outer_sheath_radius", name="OuterSheath", matname="PVC plastic"
 )
 outer_sheath_id.color = (0, 0, 0)
 
 # ## Create geometry for armature steel strands
 
-arm_strand_1_id = mod2D.create_circle(
+arm_strand_1_id = q2d.modeler.create_circle(
     ["0mm", "armour_centre_pos", "0mm"], "1.1mm", name="arm_strand_1", matname="steel_stainless"
 )
 arm_strand_1_id.color = (128, 128, 64)
 arm_strand_1_id.duplicate_around_axis("Z", "360deg/n_arm_strands", nclones="n_arm_strands")
-arm_strand_names = mod2D.get_objects_w_string("arm_strand")
+arm_strand_names = q2d.modeler.get_objects_w_string("arm_strand")
 
 # ## Create region
 
-region = q2d.modeler.create_region([500, 500, 500, 500, 0, 0])
+region = q2d.modeler.create_region([500, 500, 500, 500])
 region.material_name = "vacuum"
 
 # ## Assign conductors and reference ground
@@ -208,7 +207,7 @@ obj = [q2d.modeler.get_object_from_name(i) for i in cond_names]
 ]
 obj = [q2d.modeler.get_object_from_name(i) for i in arm_strand_names]
 q2d.assign_single_conductor(name="gnd", target_objects=obj, conductor_type="ReferenceGround")
-mod2D.fit_all()
+q2d.modeler.fit_all()
 
 # ## Assign design settings
 
@@ -231,7 +230,11 @@ q2d_sweep.update()
 
 # ## Analyze setup
 
+# Uncomment line to analyze the model
+
+# +
 # q2d.analyze(setup_name=setup_name)
+# -
 
 # ## Add a Simplorer/Twin Builder design and the Q3D dynamic component
 
