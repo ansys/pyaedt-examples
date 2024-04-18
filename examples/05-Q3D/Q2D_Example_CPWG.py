@@ -7,27 +7,29 @@
 #
 # Perform required imports.
 
+# +
 import os
+import tempfile
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 
-# ## Set non-graphical mode
-#
-# Set non-graphical mode.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
+# -
 
-non_graphical = False
-desktop_version = AEDT_VERSION
+# ## Create temporary directory
+#
+# Create temporary directory.
+
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch AEDT and 2D Extractor
 #
-# Launch AEDT 2023 R2 in graphical mode and launch 2D Extractor. This example
+# Launch AEDT 2024.1 in graphical mode and launch 2D Extractor. This example
 # uses SI units.
 
 q2d = pyaedt.Q2d(
-    specified_version=desktop_version,
-    non_graphical=non_graphical,
+    specified_version=AEDT_VERSION,
+    non_graphical=False,
     new_desktop_session=True,
     projectname=pyaedt.generate_unique_name("pyaedt_q2d_example"),
     designname="coplanar_waveguide",
@@ -139,7 +141,7 @@ q2d.modeler.create_rectangle(
 # +
 sm_obj_list = []
 ids = [1, 2, 3]
-if desktop_version >= "2023.1":
+if AEDT_VERSION >= "2023.1":
     ids = [0, 1, 2]
 
 for obj_name in ["signal", "co_gnd_left", "co_gnd_right"]:
@@ -150,7 +152,7 @@ for obj_name in ["signal", "co_gnd_left", "co_gnd_right"]:
         e_obj_list.append(e_obj)
     e_obj_1 = e_obj_list[0]
     q2d.modeler.unite(e_obj_list)
-    new_obj = q2d.modeler.sweep_along_vector(e_obj_1.id, [0, sm_h, 0])
+    new_obj = q2d.modeler.sweep_along_vector(objid=e_obj_1.id, sweep_vector=[0, sm_h, 0])
     sm_obj_list.append(e_obj_1)
 
 new_obj = q2d.modeler.create_rectangle(
@@ -161,7 +163,7 @@ sm_obj_list.append(new_obj)
 new_obj = q2d.modeler.create_rectangle(
     position=[co_gnd_w, layer_2_lh, 0], dimension_list=[clearance, sm_h]
 )
-q2d.modeler.move([new_obj], [sig_bot_w + "+" + clearance, 0, 0])
+q2d.modeler.move(objid=[new_obj], vector=[sig_bot_w + "+" + clearance, 0, 0])
 sm_obj_list.append(new_obj)
 
 sm_obj = sm_obj_list[0]
@@ -232,6 +234,5 @@ a.plot()
 #
 # Save the project and close AEDT.
 
-home = os.path.expanduser("~")
-q2d.save_project(os.path.join(home, "Downloads", "pyaedt_example", q2d.project_name + ".aedt"))
+q2d.save_project(os.path.join(temp_dir.name, q2d.project_name + ".aedt"))
 q2d.release_desktop()
