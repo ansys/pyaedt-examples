@@ -82,41 +82,43 @@ layer_3_uh = layer_3_lh + "+" + cond_h
 #
 # Create a positive signal.
 
-base_line_obj = q2d.modeler.create_polyline(
-    [[0, layer_2_lh, 0], [sig_w, layer_2_lh, 0]], name="signal_p"
+signal_p_1 = q2d.modeler.create_polyline(
+    position_list=[[0, layer_2_lh, 0], [sig_w, layer_2_lh, 0]], name="signal_p_1"
 )
 
-top_line_obj = q2d.modeler.create_polyline([[0, layer_2_uh, 0], [sig_top_w, layer_2_uh, 0]])
-q2d.modeler.move([top_line_obj], [delta_w_half, 0, 0])
-q2d.modeler.connect([base_line_obj, top_line_obj])
-q2d.modeler.move([base_line_obj], ["{}+{}".format(co_gnd_w, clearance), 0, 0])
+signal_p_2 = q2d.modeler.create_polyline(
+    position_list=[[0, layer_2_uh, 0], [sig_top_w, layer_2_uh, 0]], name="signal_p_2"
+)
+q2d.modeler.move([signal_p_2], [delta_w_half, 0, 0])
+q2d.modeler.connect([signal_p_1, signal_p_2])
+q2d.modeler.move(objid=[signal_p_1], vector=["{}+{}".format(co_gnd_w, clearance), 0, 0])
 
 # ## Create negative signal
 #
 # Create a negative signal.
 
-base_line_obj = q2d.modeler.create_polyline(
-    position_list=[[0, layer_2_lh, 0], [sig_w, layer_2_lh, 0]], name="signal_n"
+signal_n_1 = q2d.modeler.create_polyline(
+    position_list=[[0, layer_2_lh, 0], [sig_w, layer_2_lh, 0]], name="signal_n_1"
 )
 
-top_line_obj = q2d.modeler.create_polyline(
-    position_list=[[0, layer_2_uh, 0], [sig_top_w, layer_2_uh, 0]]
+signal_n_2 = q2d.modeler.create_polyline(
+    position_list=[[0, layer_2_uh, 0], [sig_top_w, layer_2_uh, 0]], name="signal_n_2"
 )
 
-q2d.modeler.move(objid=[top_line_obj], vector=[delta_w_half, 0, 0])
-q2d.modeler.connect([base_line_obj, top_line_obj])
+q2d.modeler.move(objid=[signal_n_2], vector=[delta_w_half, 0, 0])
+q2d.modeler.connect([signal_n_1, signal_n_2])
 q2d.modeler.move(
-    objid=[base_line_obj], vector=["{}+{}+{}+{}".format(co_gnd_w, clearance, sig_w, sig_gap), 0, 0]
+    objid=[signal_n_1], vector=["{}+{}+{}+{}".format(co_gnd_w, clearance, sig_w, sig_gap), 0, 0]
 )
 
 # ## Create reference ground plane
 #
 # Create a reference ground plane.
 
-q2d.modeler.create_rectangle(
+ref_gnd_u = q2d.modeler.create_rectangle(
     position=[0, layer_1_lh, 0], dimension_list=[model_w, cond_h], name="ref_gnd_u"
 )
-q2d.modeler.create_rectangle(
+ref_gnd_l = q2d.modeler.create_rectangle(
     position=[0, layer_3_lh, 0], dimension_list=[model_w, cond_h], name="ref_gnd_l"
 )
 
@@ -142,19 +144,17 @@ q2d.modeler.create_rectangle(
 # Assign conductors to the signal.
 
 # +
-obj = q2d.modeler.get_object_from_name("signal_p")
 q2d.assign_single_conductor(
-    name=obj.name,
-    target_objects=[obj],
+    name=signal_p_1.name,
+    target_objects=[signal_p_1],
     conductor_type="SignalLine",
     solve_option="SolveOnBoundary",
     unit="mm",
 )
 
-obj = q2d.modeler.get_object_from_name("signal_n")
 q2d.assign_single_conductor(
-    name=obj.name,
-    target_objects=[obj],
+    name=signal_n_1.name,
+    target_objects=[signal_n_1],
     conductor_type="SignalLine",
     solve_option="SolveOnBoundary",
     unit="mm",
@@ -165,11 +165,9 @@ q2d.assign_single_conductor(
 #
 # Create a reference ground.
 
-obj = [q2d.modeler.get_object_from_name(i) for i in ["ref_gnd_u", "ref_gnd_l"]]
-
 q2d.assign_single_conductor(
     name="gnd",
-    target_objects=obj,
+    target_objects=[ref_gnd_u, ref_gnd_l],
     conductor_type="ReferenceGround",
     solve_option="SolveOnBoundary",
     unit="mm",
@@ -180,11 +178,13 @@ q2d.assign_single_conductor(
 # Assign the Huray model on the signals.
 
 # +
-obj = q2d.modeler.get_object_from_name("signal_p")
-q2d.assign_huray_finitecond_to_edges(obj.edges, radius="0.5um", ratio=3, name="b_" + obj.name)
+q2d.assign_huray_finitecond_to_edges(
+    signal_p_1.edges, radius="0.5um", ratio=3, name="b_" + signal_p_1.name
+)
 
-obj = q2d.modeler.get_object_from_name("signal_n")
-q2d.assign_huray_finitecond_to_edges(obj.edges, radius="0.5um", ratio=3, name="b_" + obj.name)
+q2d.assign_huray_finitecond_to_edges(
+    signal_n_1.edges, radius="0.5um", ratio=3, name="b_" + signal_n_1.name
+)
 # -
 
 # ## Define differential pair
@@ -193,7 +193,7 @@ q2d.assign_huray_finitecond_to_edges(obj.edges, radius="0.5um", ratio=3, name="b
 
 matrix = q2d.insert_reduced_matrix(
     operation_name=q2d.MATRIXOPERATIONS.DiffPair,
-    source_names=["signal_p", "signal_n"],
+    source_names=["signal_p_1", "signal_n_1"],
     rm_name="diff_pair",
 )
 
