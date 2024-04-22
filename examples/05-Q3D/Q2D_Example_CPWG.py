@@ -31,7 +31,7 @@ q2d = pyaedt.Q2d(
     specified_version=AEDT_VERSION,
     non_graphical=False,
     new_desktop_session=True,
-    projectname=pyaedt.generate_unique_name("pyaedt_q2d_example"),
+    projectname=os.path.join(temp_dir.name, "cpwg"),
     designname="coplanar_waveguide",
 )
 

@@ -7,21 +7,33 @@
 #
 # Perform required imports.
 
+# +
 import os
+import tempfile
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION, EDB_VERSION
+from ansys.pyaedt.examples.constants import AEDT_VERSION, EDB_VERSION, NUM_CORES
 import pyaedt
 import pyedb
+
+# -
+
+# ## Create temporary directory
+#
+# Create temporary directory.
+
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Setup project files and path
 #
 # Download of needed project file and setup of temporary project directory.
 
 # +
-project_dir = pyaedt.generate_unique_folder_name()
-aedb_project = pyaedt.downloads.download_file("edb/ANSYS-HSD_V1.aedb", destination=project_dir)
+project_dir = os.path.join(temp_dir.name, "edb")
+aedb_project = pyaedt.downloads.download_file(
+    source="edb/ANSYS-HSD_V1.aedb", destination=project_dir
+)
 
-project_name = pyaedt.generate_unique_name("HSD")
+project_name = os.path.join(temp_dir.name, "HSD")
 output_edb = os.path.join(project_dir, project_name + ".aedb")
 output_q3d = os.path.join(project_dir, project_name + "_q3d.aedt")
 # -
@@ -49,7 +61,6 @@ pin_u13_scl = [i for i in edb.components["U13"].pins.values() if i.net_name == "
 pin_u1_scl = [i for i in edb.components["U1"].pins.values() if i.net_name == "CLOCK_I2C_SCL"]
 pin_u13_sda = [i for i in edb.components["U13"].pins.values() if i.net_name == "CLOCK_I2C_SDA"]
 pin_u1_sda = [i for i in edb.components["U1"].pins.values() if i.net_name == "CLOCK_I2C_SDA"]
-
 
 # ## Append Z Positions
 #
@@ -99,7 +110,7 @@ q3d = pyaedt.Q3d(output_q3d)
 q3d.plot(
     show=False,
     objects=["CLOCK_I2C_SCL", "CLOCK_I2C_SDA"],
-    export_path=os.path.join(q3d.working_directory, "Q3D.jpg"),
+    export_path=os.path.join(temp_dir.name, "Q3D.jpg"),
     plot_air_objects=False,
 )
 
@@ -129,7 +140,7 @@ sweep = setup.add_sweep()
 sweep.add_subrange(
     "LinearStep", 0, end=2, count=0.05, unit="GHz", save_single_fields=False, clear=True
 )
-setup.analyze()
+setup.analyze(num_cores=NUM_CORES)
 
 # ## ACL Report
 #
@@ -153,3 +164,4 @@ solution2.plot()
 # ``release_desktop`` method. All methods provide for saving projects before closing.
 
 q3d.release_desktop()
+temp_dir.cleanup()

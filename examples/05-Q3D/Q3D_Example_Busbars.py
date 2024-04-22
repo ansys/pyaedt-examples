@@ -7,11 +7,14 @@
 #
 # Perform required imports.
 
+# +
 import os
 import tempfile
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION, NUM_CORES
 import pyaedt
+
+# -
 
 # ## Create temporary directory
 #
@@ -19,21 +22,12 @@ import pyaedt
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ## Set debugger mode
-#
-# PyAEDT allows to enable a debug logger which logs all methods called and argument passed.
-# This example shows how to enable it.
-
-pyaedt.settings.enable_debug_logger = True
-pyaedt.settings.enable_debug_methods_argument_logger = True
-pyaedt.settings.enable_debug_internal_methods_logger = False
-
 # ## Launch AEDT and Q3D Extractor
 #
-# Launch AEDT 2023 R2 in graphical mode and launch Q3D Extractor. This example uses SI units.
+# Launch AEDT 2024 R1 in graphical mode and launch Q3D Extractor. This example uses SI units.
 
 q3d = pyaedt.Q3d(
-    projectname=pyaedt.generate_unique_project_name(),
+    projectname=os.path.join(temp_dir.name, "busbar"),
     specified_version=AEDT_VERSION,
     non_graphical=False,
     new_desktop_session=True,
@@ -160,7 +154,5 @@ data.plot()
 # After the simulation completes, you can close AEDT or release it using the
 # ``release_desktop`` method. All methods provide for saving projects before closing.
 
-pyaedt.settings.enable_debug_logger = False
-pyaedt.settings.enable_debug_methods_argument_logger = False
 q3d.release_desktop(close_projects=True, close_desktop=True)
 temp_dir.cleanup()
