@@ -19,17 +19,17 @@ import tempfile
 # from pyaedt import Hfss3dLayout
 from pyedb import Edb
 from pyedb import Siwave
-from pyedb.misc.downloads import download_file
+from pyaedt.downloads import download_file
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 
 NG_MODE = False
-VERSION = "2024.1"
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # -
 
 # Download example board.
 
 aedb = download_file(
-    directory="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name
+    source="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name
 )
 
 # # Create a configuration file
@@ -64,6 +64,7 @@ cfg["package_definitions"] = [
 # ## Create Current Sources
 # Create current sources between net and pin group.
 
+# +
 cfg["pin_groups"] = [
     {
         "name": "J5_GND",
@@ -96,10 +97,12 @@ i_src_2 = {
         "pin_group": "J5_GND"  # Defined in "pin_groups" section.
     }
 }
+# -
 
 # ## Create a Voltage Source
 # Create a voltage source from net.
 
+# +
 v_src = {
         "name": "VSOURCE_5V",
         "reference_designator": "U4",
@@ -114,6 +117,7 @@ v_src = {
     }
 
 cfg["sources"] = [v_src, i_src_1, i_src_2]
+# -
 
 # ## Do cutout
 
@@ -140,16 +144,18 @@ cfg["setups"] = [
 
 # ## Save configuration as a JSON file
 
+# +
 pi_json = os.path.join(temp_folder.name, "pi.json")
 
 with open(pi_json, "w") as f:
     json.dump(cfg, f, indent=4, ensure_ascii=False)
+# -
 
 # # Load configuration into EDB
 
 # Load configuration from JSON
 
-edbapp = Edb(aedb, edbversion=VERSION)
+edbapp = Edb(aedb, edbversion=AEDT_VERSION)
 edbapp.configuration.load(config_file=pi_json)
 edbapp.configuration.run()
 edbapp.save()
@@ -161,13 +167,21 @@ print(temp_folder.name)
 
 # # Analyze in SIwave
 
-siwave = Siwave(specified_version=VERSION)
+# +
+siwave = Siwave(specified_version=AEDT_VERSION)
 
 siwave.open_project(proj_path=aedb)
 siwave.save_project(projectpath=temp_folder.name, projectName="ansys")
 siwave.run_dc_simulation()
 siwave.export_icepak_project(os.path.join(temp_folder.name, "from_siwave.aedt"), "siwave_dc")
+# -
 
 siwave.close_project()
-
 siwave.quit_application()
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notbook you 
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+
+temp_folder.cleanup()

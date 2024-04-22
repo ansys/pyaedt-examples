@@ -1,5 +1,5 @@
 # # HFSS 3D Layout: DC IR Analysis
-# This example shows how to configure EDB for DC IR analysis, and load EDB into HFSS 3D Layout for analysis and
+# This example shows how to configure EDB for DC IR analysis, and load EDB into the 3D Layout UI for analysis and
 # post-processing.
 # - Set up EDB
 #     - Edit via padstack
@@ -22,20 +22,21 @@ import json
 import tempfile
 from pyedb import Edb
 from pyaedt import Hfss3dLayout
-from pyedb.misc.downloads import download_file
+from pyaedt.downloads import download_file
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 
 NG_MODE = False
-VERSION = "2024.1"
+
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # -
 
 # Download example board.
 
 aedb = download_file(
-    directory="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name
+    source="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name
 )
 download_file(
-    directory="spice", filename="ferrite_bead_BLM15BX750SZ1.mod", destination=temp_folder.name
+    source="spice", name="ferrite_bead_BLM15BX750SZ1.mod", destination=temp_folder.name
 )
 
 # # Create a configuration file
@@ -185,7 +186,7 @@ with open(pi_json, "w") as f:
 
 # Load configuration from JSON
 
-edbapp = Edb(aedb, edbversion=VERSION)
+edbapp = Edb(aedb, edbversion=AEDT_VERSION)
 edbapp.configuration.load(config_file=pi_json)
 edbapp.configuration.run()
 edbapp.save()
@@ -195,25 +196,35 @@ edbapp.close()
 
 print(temp_folder.name)
 
-# # Analyze in HFSS 3D Layout
+# # Analyze DCIR with SIwave
+#
+# The 3D Layout interface to SIwave is used to open the EDB and run the DCIR analysis
+# using SIwave
 
-# ## Load edb into HFSS 3D Layout.
+# ## Load edb into 3D Layout.
 
-h3d = Hfss3dLayout(
+siw = Hfss3dLayout(
     aedb,
-    specified_version=VERSION,
+    specified_version=AEDT_VERSION,
     non_graphical=NG_MODE,
     new_desktop_session=True
 )
 
 # ## Analyze
 
-h3d.analyze()
+siw.analyze()
 
 # ## Get DC IR results
 
-h3d.get_dcir_element_data_current_source("siwave_dc")
+siw.get_dcir_element_data_current_source("siwave_dc")
 
-# ## Close
+# ## Shut Down Electronics Desktop
 
-h3d.close_desktop()
+siw.close_desktop()
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notbook you 
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+
+temp_folder.cleanup()

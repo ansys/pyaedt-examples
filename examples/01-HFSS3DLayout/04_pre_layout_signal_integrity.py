@@ -20,20 +20,16 @@ import os
 import tempfile
 from pyaedt import Edb
 from pyaedt import Hfss3dLayout
-from pyedb.misc.downloads import download_file
+from pyaedt.downloads import download_file
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # -
 
 # Download example board.
 
-sma_rf_connector = download_file(
-    "component_3d", filename="SMA_RF_SURFACE_MOUNT.a3dcomp", destination=temp_folder.name
+sma_rf_connector = download_file(source="component_3d", name="SMA_RF_SURFACE_MOUNT.a3dcomp", destination=temp_folder.name
 )
-
-# Specify AEDT version
-
-VERSION = "2024.1"
 
 # Set ``NG_MODE`` to ``True`` in order to run in non-graphical mode. The example is currently set up to run in graphical mode.
 
@@ -44,7 +40,7 @@ NG_MODE = False
 # ## Import example design
 
 aedb = os.path.join(temp_folder.name, "new_layout.aedb")
-edbapp = Edb(edbpath=aedb, edbversion=VERSION)
+edbapp = Edb(edbpath=aedb, edbversion=AEDT_VERSION)
 
 # ## Add material definitions
 
@@ -91,6 +87,7 @@ edbapp.stackup.plot(plot_definitions="svia")
 
 # ## Create ground planes
 
+# +
 board_width = "22mm"
 board_length = "18mm"
 board_center_point = [0, "5mm"]
@@ -124,6 +121,7 @@ gnd_bottom = edbapp.modeler.create_rectangle(
     corner_radius="0mm",
     rotation="0deg",
 )
+# -
 
 # ## Create a component
 
@@ -219,7 +217,6 @@ sig2_trace.create_edge_port(name="p1_wave_port",
 setup = edbapp.create_hfss_setup("Setup1")
 setup.set_solution_single_frequency("5GHz", max_num_passes=1, max_delta_s="0.02")
 setup.hfss_solver_settings.order_basis = "first"
-# -
 
 # Add a frequency sweep to setup.
 #
@@ -249,9 +246,10 @@ edbapp.close()
 
 # ## Load edb into HFSS 3D Layout.
 
+NG_MODE = False  # Open the UI to view the layout.
 h3d = Hfss3dLayout(
     aedb,
-    specified_version=VERSION,
+    specified_version=AEDT_VERSION,
     non_graphical=NG_MODE,
     new_desktop_session=True
 )
@@ -271,7 +269,7 @@ comp.angle = "90deg"
 
 # ## Analyze
 
-# h3d.analyze()
+h3d.analyze()
 
 # ## Plot results
 
@@ -284,3 +282,10 @@ solutions.plot(traces, math_formula="db20")
 # ## Close HFSS 3D Layout
 
 h3d.close_desktop()
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notbook you 
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+
+temp_folder.cleanup()

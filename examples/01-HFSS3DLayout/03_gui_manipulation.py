@@ -1,6 +1,6 @@
-# # HFSS 3D Layout: PCB and EDB in 3D layout
+# # HFSS 3D Layout UI
 #
-# This example shows how to manipulate HFSS 3D Layout user interface.
+# This example shows how to modify the 3D Layout user interface.
 
 # # Preparation
 # Import required packages
@@ -9,14 +9,11 @@
 import os
 import tempfile
 from pyaedt import Hfss3dLayout
-from pyedb.misc.downloads import download_file
+from pyaedt.downloads import download_file
+from ansys.pyaedt.examples.constants import AEDT_VERSION
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # -
-
-# Specify AEDT version
-
-VERSION = "2024.1"
 
 # Set ``NG_MODE`` to ``True`` in order to run in non-graphical mode. The example is currently set up to run in graphical mode.
 
@@ -25,14 +22,14 @@ NG_MODE = False
 # Download example board.
 
 aedb = download_file(
-    directory="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name
+    source="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name
 )
 
 # ## Launch HFSS 3D Layout
 #
 # Initialize AEDT and launch HFSS 3D Layout.
 
-h3d = Hfss3dLayout(aedb, specified_version=VERSION)
+h3d = Hfss3dLayout(aedb, specified_version=AEDT_VERSION)
 h3d.save_project()
 
 # ## Net visibility
@@ -75,4 +72,9 @@ h3d.modeler.fit_all()
 
 h3d.close_project(save_project=True)
 
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notbook you 
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
+temp_folder.cleanup()
