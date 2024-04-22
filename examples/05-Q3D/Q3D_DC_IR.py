@@ -7,11 +7,21 @@
 #
 # Perform required imports.
 
+# +
 import os
+import tempfile
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION, EDB_VERSION
+from ansys.pyaedt.examples.constants import AEDT_VERSION, EDB_VERSION, NUM_CORES
 import pyaedt
 import pyedb
+
+# -
+
+# ## Create temporary directory
+#
+# Create temporary directory.
+
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Set up project files and path
 #
@@ -116,16 +126,13 @@ q3d.delete_all_nets()
 
 # +
 q3d.modeler.create_coordinate_system(location_l2_1, name="L2")
-comp = q3d.modeler.insert_3d_component(coil, targetCS="L2")
+comp = q3d.modeler.insert_3d_component(coil, coordinate_system="L2")
 comp.rotate(q3d.AXIS.Z, -90)
 comp.parameters["n_turns"] = "3"
 comp.parameters["d_wire"] = "100um"
 q3d.modeler.set_working_coordinate_system("Global")
 q3d.modeler.create_coordinate_system(location_l4_1, name="L4")
-comp2 = q3d.modeler.insert_3d_component(
-    coil,
-    targetCS="L4",
-)
+comp2 = q3d.modeler.insert_3d_component(coil, coordinate_system="L4")
 comp2.rotate(q3d.AXIS.Z, -90)
 comp2.parameters["n_turns"] = "3"
 comp2.parameters["d_wire"] = "100um"
@@ -133,7 +140,9 @@ q3d.modeler.set_working_coordinate_system("Global")
 
 q3d.modeler.set_working_coordinate_system("Global")
 q3d.modeler.create_coordinate_system(location_r106_1, name="R106")
-comp3 = q3d.modeler.insert_3d_component(res, targetCS="R106", geo_params={"$Resistance": 2000})
+comp3 = q3d.modeler.insert_3d_component(
+    res, geometry_parameters={"$Resistance": 2000}, coordinate_system="R106"
+)
 comp3.rotate(q3d.AXIS.Z, -90)
 
 q3d.modeler.set_working_coordinate_system("Global")
@@ -155,7 +164,7 @@ q3d.plot(
     show=False,
     objects=objs_copper_names,
     plot_as_separate_objects=False,
-    export_path=os.path.join(q3d.working_directory, "Q3D.jpg"),
+    export_path=os.path.join(temp_dir.name, "Q3D.jpg"),
     plot_air_objects=False,
 )
 # -
@@ -203,7 +212,7 @@ setup.capacitance_enabled = False
 setup.ac_rl_enabled = False
 setup.props["SaveFields"] = True
 setup.props["DC"]["Cond"]["MaxPass"] = 3
-setup.analyze()
+setup.analyze(num_cores=NUM_CORES)
 
 # ## Field Calculator
 #
@@ -223,14 +232,12 @@ q3d.ofieldsreporter.AddNamedExpression(drop_name, "DC R/L Fields")
 
 # +
 plot1 = q3d.post.create_fieldplot_surface(
-    q3d.modeler.get_objects_by_material("copper"),
-    quantityName=drop_name,
-    intrinsincDict={"Freq": "1GHz"},
+    q3d.modeler.get_objects_by_material("copper"), quantity=drop_name
 )
 
 q3d.post.plot_field_from_fieldplot(
     plot1.name,
-    project_path=q3d.working_directory,
+    project_path=temp_dir.name,
     meshplot=False,
     imageformat="jpg",
     view="isometric",
@@ -271,8 +278,8 @@ for curve in curves:
 
 # ## Close AEDT
 #
-# After the simulation completes, you can close AEDT or release it using the
-# ``release_desktop`` method. All methods provide for saving projects before closing.
+# Save the project, release AEDT and remove both the project and temporary directory.
 
 q3d.save_project()
 q3d.release_desktop()
+temp_dir.cleanup()
