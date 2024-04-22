@@ -229,6 +229,7 @@ data.plot(snapshot_path=os.path.join(temp_dir.name, "plot.jpg"))
 
 # Add a parametric sweep and analyze.
 
+# +
 parametric = q2d.parametrics.add(
     sweep_var="sig_bot_w", start_point=75, end_point=100, step=5, variation_type="LinearStep"
 )
@@ -241,6 +242,7 @@ parametric.add_variation(
 )
 
 q2d.analyze_setup(name=parametric.name, num_cores=NUM_CORES)
+# -
 
 # ## Save project and release AEDT
 #
