@@ -31,9 +31,6 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 aedb = download_file(
     directory="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name
 )
-download_file(
-    directory="spice", filename="ferrite_bead_BLM15BX750SZ1.mod", destination=temp_folder.name
-)
 
 # # Create a configuration file
 # In this example, we are going to use a configure file to set up layout for analysis.
@@ -63,23 +60,6 @@ cfg["package_definitions"] = [
         "components": ["J5"]
     }
 ]
-# ## Create a Voltage Source
-# Create a voltage source from net.
-
-cfg["sources"] = [
-    {
-        "name": "VSOURCE_5V",
-        "reference_designator": "U4",
-        "type": "voltage",
-        "magnitude": 5,
-        "positive_terminal": {
-            "net": "5V"
-        },
-        "negative_terminal": {
-            "net": "GND"
-        }
-    }
-]
 
 # ## Create Current Sources
 # Create current sources between net and pin group.
@@ -92,31 +72,48 @@ cfg["pin_groups"] = [
     }
 ]
 
-i_src =     {
-        "name": "J5_VCCR",
-        "reference_designator": "J5",
-        "type": "current",
-        "magnitude": 0.5,
+i_src_1 = {
+    "name": "J5_VCCR",
+    "reference_designator": "J5",
+    "type": "current",
+    "magnitude": 0.5,
+    "positive_terminal": {
+        "net": "SFPA_VCCR"
+    },
+    "negative_terminal": {
+        "pin_group": "J5_GND"  # Defined in "pin_groups" section.
+    }
+}
+i_src_2 = {
+    "name": "J5_VCCT",
+    "reference_designator": "J5",
+    "type": "current",
+    "magnitude": 0.5,
+    "positive_terminal": {
+        "net": "SFPA_VCCT"
+    },
+    "negative_terminal": {
+        "pin_group": "J5_GND"  # Defined in "pin_groups" section.
+    }
+}
+
+# ## Create a Voltage Source
+# Create a voltage source from net.
+
+v_src = {
+        "name": "VSOURCE_5V",
+        "reference_designator": "U4",
+        "type": "voltage",
+        "magnitude": 5,
         "positive_terminal": {
-            "net": "SFPA_VCCR"
+            "net": "5V"
         },
         "negative_terminal": {
-            "pin_group": "J5_GND"  # Defined in "pin_groups" section.
+            "net": "GND"
         }
     }
-v_src =     {
-        "name": "J5_VCCT",
-        "reference_designator": "J5",
-        "type": "current",
-        "magnitude": 0.5,
-        "positive_terminal": {
-            "net": "SFPA_VCCT"
-        },
-        "negative_terminal": {
-            "pin_group": "J5_GND"  # Defined in "pin_groups" section.
-        }
-    }
-cfg["sources"] = [i_src, v_src]
+
+cfg["sources"] = [v_src, i_src_1, i_src_2]
 
 # ## Do cutout
 
@@ -125,26 +122,6 @@ cfg["operations"] = {
         "signal_list": ["SFPA_VCCR", "SFPA_VCCT", "5V"],
         "reference_list": ["GND"],
         "extent_type": "Bounding",
-        "expansion_size": 0.002,
-        "use_round_corner": False,
-        "output_aedb_path": "",
-        "open_cutout_at_end": True,
-        "use_pyaedt_cutout": True,
-        "number_of_threads": 4,
-        "use_pyaedt_extent_computing": True,
-        "extent_defeature": 0,
-        "remove_single_pin_components": False,
-        "custom_extent": "",
-        "custom_extent_units": "mm",
-        "include_partial_instances": False,
-        "keep_voids": True,
-        "check_terminals": False,
-        "include_pingroups": False,
-        "expansion_factor": 0,
-        "maximum_iterations": 10,
-        "preserve_components_with_model": False,
-        "simple_pad_check": True,
-        "keep_lines_as_path": False
     }
 }
 
@@ -164,6 +141,7 @@ cfg["setups"] = [
 # ## Save configuration as a JSON file
 
 pi_json = os.path.join(temp_folder.name, "pi.json")
+
 with open(pi_json, "w") as f:
     json.dump(cfg, f, indent=4, ensure_ascii=False)
 
