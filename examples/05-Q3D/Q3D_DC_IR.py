@@ -14,7 +14,6 @@ import tempfile
 from ansys.pyaedt.examples.constants import AEDT_VERSION, EDB_VERSION, NUM_CORES
 import pyaedt
 import pyedb
-
 # -
 
 # ## Create temporary directory
@@ -27,15 +26,12 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 #
 # Download needed project file and set up temporary project directory.
 
-project_dir = temp_dir.name
-aedb_project = pyaedt.downloads.download_file(source="edb/ANSYS-HSD_V1.aedb", 
-            destination=project_dir)
-coil = pyaedt.downloads.download_file(source="inductance_3d_component", 
-     "air_coil.a3dcomp")
-res = pyaedt.downloads.download_file("resistors", "Res_0402.a3dcomp")
-project_name = pyaedt.generate_unique_name("HSD")
-output_edb = os.path.join(project_dir, project_name + ".aedb")
-output_q3d = os.path.join(project_dir, project_name + "_q3d.aedt")
+aedb_project = pyaedt.downloads.download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
+coil = pyaedt.downloads.download_file(source="inductance_3d_component", name="air_coil.a3dcomp", destination=temp_dir.name)
+res = pyaedt.downloads.download_file(source="resistors", name="Res_0402.a3dcomp", destination=temp_dir.name)
+project_name = "HSD"
+output_edb = os.path.join(temp_dir.name, project_name + ".aedb")
+output_q3d = os.path.join(temp_dir.name, project_name + "_q3d.aedt")
 
 # ## Open EDB
 #
@@ -43,11 +39,11 @@ output_q3d = os.path.join(project_dir, project_name + "_q3d.aedt")
 # before exporting to Q3D.
 
 edb = pyedb.Edb(aedb_project, edbversion=EDB_VERSION)
-edb.cutout(
-    ["1.2V_AVDLL_PLL", "1.2V_AVDDL", "1.2V_DVDDL", "NetR106_1"],
-    ["GND"],
-    output_aedb_path=output_edb,
-    use_pyaedt_extent_computing=True,
+signal_nets = ["1.2V_AVDLL_PLL", "1.2V_AVDDL", "1.2V_DVDDL", "NetR106_1"]
+ground_nets = ["GND"]
+cutout_points = edb.cutout(signal_list=signal_nets,
+                           reference_list=ground_nets,
+                           output_aedb_path=output_edb,
 )
 
 # ## Identify pin positions
@@ -62,7 +58,8 @@ pin_u11_r106 = [i for i in edb.components["U11"].pins.values() if i.net_name == 
 
 # ## Append Z Positions
 #
-# Compute Q3D 3D position. The factor 1000 converts from "meters" to "mm".
+# Compute Q3D 3D position. The units in EDB are meters so the
+# factor 1000 converts from "meters" to "mm".
 
 # +
 location_u11_scl = [i * 1000 for i in pin_u11_scl[0].position]
@@ -107,7 +104,7 @@ h3d = pyaedt.Hfss3dLayout(
 
 # ## Export to Q3D
 #
-# Create a dummy setup and export the layout in Q3D.
+# Create a dummy setup and export the layout to Q3D.
 # The ``keep_net_name`` parameter reassigns Q3D net names from HFSS 3D Layout.
 
 setup = h3d.create_setup()
@@ -240,8 +237,8 @@ plot1 = q3d.post.create_fieldplot_surface(
 q3d.post.plot_field_from_fieldplot(
     plot1.name,
     project_path=temp_dir.name,
-    meshplot=False,
-    imageformat="jpg",
+    mesh_plot=False,
+    image_format="jpg",
     view="isometric",
     show=False,
     plot_cad_objs=False,
@@ -284,4 +281,10 @@ for curve in curves:
 
 q3d.save_project()
 q3d.release_desktop()
+
+# ## Cleanup
+#
+# If you are running this example as a Jupyter notebook you can retrieve all project files
+# from ``temp_dir.name``. The next cell cleans up the temporary directory and removes all project files.
+
 temp_dir.cleanup()
