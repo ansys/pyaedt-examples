@@ -14,6 +14,7 @@ import tempfile
 from ansys.pyaedt.examples.constants import AEDT_VERSION, EDB_VERSION, NUM_CORES
 import pyaedt
 import pyedb
+
 # -
 
 # ## Create temporary directory
@@ -27,8 +28,12 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 # Download needed project file and set up temporary project directory.
 
 aedb_project = pyaedt.downloads.download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
-coil = pyaedt.downloads.download_file(source="inductance_3d_component", name="air_coil.a3dcomp", destination=temp_dir.name)
-res = pyaedt.downloads.download_file(source="resistors", name="Res_0402.a3dcomp", destination=temp_dir.name)
+coil = pyaedt.downloads.download_file(
+    source="inductance_3d_component", name="air_coil.a3dcomp", destination=temp_dir.name
+)
+res = pyaedt.downloads.download_file(
+    source="resistors", name="Res_0402.a3dcomp", destination=temp_dir.name
+)
 project_name = "HSD"
 output_edb = os.path.join(temp_dir.name, project_name + ".aedb")
 output_q3d = os.path.join(temp_dir.name, project_name + "_q3d.aedt")
@@ -41,9 +46,10 @@ output_q3d = os.path.join(temp_dir.name, project_name + "_q3d.aedt")
 edb = pyedb.Edb(aedb_project, edbversion=EDB_VERSION)
 signal_nets = ["1.2V_AVDLL_PLL", "1.2V_AVDDL", "1.2V_DVDDL", "NetR106_1"]
 ground_nets = ["GND"]
-cutout_points = edb.cutout(signal_list=signal_nets,
-                           reference_list=ground_nets,
-                           output_aedb_path=output_edb,
+cutout_points = edb.cutout(
+    signal_list=signal_nets,
+    reference_list=ground_nets,
+    output_aedb_path=output_edb,
 )
 
 # ## Identify pin positions
@@ -231,7 +237,7 @@ q3d.ofieldsreporter.AddNamedExpression(drop_name, "DC R/L Fields")
 
 # +
 plot1 = q3d.post.create_fieldplot_surface(
-    q3d.modeler.get_objects_by_material("copper"), quantity=drop_name
+    q3d.modeler.get_objects_by_material("copper"), quantity=drop_name, intrinsics={"Freq": "1GHz"}
 )
 
 q3d.post.plot_field_from_fieldplot(
@@ -285,6 +291,7 @@ q3d.release_desktop()
 # ## Cleanup
 #
 # If you are running this example as a Jupyter notebook you can retrieve all project files
-# from ``temp_dir.name``. The next cell cleans up the temporary directory and removes all project files.
+# from ``temp_dir.name``.
+# The next cell cleans up the temporary directory and removes all project files.
 
 temp_dir.cleanup()
