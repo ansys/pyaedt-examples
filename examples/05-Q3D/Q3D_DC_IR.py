@@ -27,9 +27,11 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 #
 # Download needed project file and set up temporary project directory.
 
-project_dir = pyaedt.generate_unique_folder_name()
-aedb_project = pyaedt.downloads.download_file("edb/ANSYS-HSD_V1.aedb", destination=project_dir)
-coil = pyaedt.downloads.download_file("inductance_3d_component", "air_coil.a3dcomp")
+project_dir = temp_dir.name
+aedb_project = pyaedt.downloads.download_file(source="edb/ANSYS-HSD_V1.aedb", 
+            destination=project_dir)
+coil = pyaedt.downloads.download_file(source="inductance_3d_component", 
+     "air_coil.a3dcomp")
 res = pyaedt.downloads.download_file("resistors", "Res_0402.a3dcomp")
 project_name = pyaedt.generate_unique_name("HSD")
 output_edb = os.path.join(project_dir, project_name + ".aedb")
