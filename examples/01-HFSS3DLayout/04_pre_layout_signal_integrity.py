@@ -18,7 +18,7 @@
 # +
 import os
 import tempfile
-from pyaedt import Edb
+from pyedb import Edb
 from pyaedt import Hfss3dLayout
 from pyaedt.downloads import download_file
 from ansys.pyaedt.examples.constants import AEDT_VERSION
