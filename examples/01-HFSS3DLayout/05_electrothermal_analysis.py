@@ -1,44 +1,48 @@
-# Todo
-
 # # HFSS 3D Layout: Electrothermal Analysis
-# This example shows how to configure EDB for DC IR analysis.
+# This example shows how to use the electronics database (EDB) for DC IR analysis and 
+# electrotermal analysis. The EDB will be loaded into SIwave for analysis and post-processing.
+# In the end, an Icepak project is exported from SIwave.
 # - Set up EDB
-# Todo
-# - Import EDB into HFSS 3D Layout
-# Todo
+#   - Assign package and heatsink model to components
+#   - Create voltage and current sources
+#   - Create SIwave DC analysis
+#   - Define cutout
+# - Import EDB into SIwave
+#   - Analyze DC IR
+#   - Export Icepak project
 
 
-# # Preparation
+# ## Preparation
 # Import required packages
 
 # +
 import os
 import json
 import tempfile
-# from pyaedt import Edb
-# from pyaedt import Hfss3dLayout
 from pyedb import Edb
 from pyedb import Siwave
 from pyaedt.downloads import download_file
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 
 NG_MODE = False
-temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
+
 # -
 
-# Download example board.
+# Download the example PCB data.
 
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 aedb = download_file(
     source="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name
 )
 
-# # Create a configuration file
+# ## Create a configuration file
 # In this example, we are going to use a configure file to set up layout for analysis.
-# ## Initialize a dictionary
+# ### Initialize a dictionary
+# Create an empty dictionary to host all configurations.
 
 cfg = dict()
 
-# ## Add component thermal information and heatsink definition
+# ### Add component thermal information and heatsink definition
 
 cfg["package_definitions"] = [
     {
@@ -61,10 +65,9 @@ cfg["package_definitions"] = [
     }
 ]
 
-# ## Create Current Sources
-# Create current sources between net and pin group.
+# ## Create pin groups.
+# In this example, all pins on net "GND" on component J5 are grouped into one group. Pin groups can be assigned by net name using the "net" key as shown here:
 
-# +
 cfg["pin_groups"] = [
     {
         "name": "J5_GND",
@@ -72,6 +75,9 @@ cfg["pin_groups"] = [
         "net": "GND"
     }
 ]
+
+# ### Create Current Sources
+# In this example, two current sources are created on component J5. A current source is placed between postive and negative terminals. When keyword "net" is used, all pins on the specified net are grouped into a new pin group which is assigned as the positive terminal. Negative terminal can be assigned by pin group name by using the keyword "pin_group". The two current sources share the same pin group "J5_GND" as the negative terminal.
 
 i_src_1 = {
     "name": "J5_VCCR",
@@ -97,10 +103,9 @@ i_src_2 = {
         "pin_group": "J5_GND"  # Defined in "pin_groups" section.
     }
 }
-# -
 
-# ## Create a Voltage Source
-# Create a voltage source from net.
+# ### Create a Voltage Source
+# Create a voltage source on component U4 between two nets using keyword "net".
 
 # +
 v_src = {
@@ -119,7 +124,8 @@ v_src = {
 cfg["sources"] = [v_src, i_src_1, i_src_2]
 # -
 
-# ## Do cutout
+# ## Cutout
+# The following assignments will define the region of the PCB to be cut out for analysis.
 
 cfg["operations"] = {
     "cutout": {
@@ -143,6 +149,7 @@ cfg["setups"] = [
 ]
 
 # ## Save configuration as a JSON file
+# The configuration file can be saved in JSON format and applied to layout data using the EDB.
 
 # +
 pi_json = os.path.join(temp_folder.name, "pi.json")
@@ -165,18 +172,28 @@ edbapp.close()
 
 print(temp_folder.name)
 
-# # Analyze in SIwave
+# ## Analyze in SIwave
 
-# +
+# ### Load edb into HFSS 3D Layout.
+
 siwave = Siwave(specified_version=AEDT_VERSION)
-
 siwave.open_project(proj_path=aedb)
 siwave.save_project(projectpath=temp_folder.name, projectName="ansys")
+
+# ### Analyze
+
 siwave.run_dc_simulation()
+
+# ### Export Icepak project
+
 siwave.export_icepak_project(os.path.join(temp_folder.name, "from_siwave.aedt"), "siwave_dc")
-# -
+
+# ### Close SIwave project
 
 siwave.close_project()
+
+# ## Shut Down SIwave
+
 siwave.quit_application()
 
 # ## Cleanup

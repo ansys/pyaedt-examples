@@ -1,5 +1,5 @@
 # # HFSS 3D Layout: Power Integrity Analysis
-# This example shows how to use the elctronics database (EDB) for power integrity analysis. The 
+# This example shows how to use the electronics database (EDB) for power integrity analysis. The 
 # EDB will be loaded into HFSS 3D Layout for analysis and post-processing.
 # - Set up EDB
 #     - Assign S-parameter model to components
@@ -167,7 +167,7 @@ pi_json = os.path.join(temp_folder.name, "pi.json")
 with open(pi_json, "w") as f:
     json.dump(cfg, f, indent=4, ensure_ascii=False)
 
-# # Load configuration into EDB
+# ## Load configuration into EDB
 
 # Load configuration from JSON
 
@@ -181,9 +181,9 @@ edbapp.close()
 
 print(temp_folder.name)
 
-# # Analyze in HFSS 3D Layout
+# ## Analyze in HFSS 3D Layout
 
-# ## Load edb into HFSS 3D Layout.
+# ### Load edb into HFSS 3D Layout.
 
 h3d = Hfss3dLayout(
     aedb,
@@ -192,11 +192,11 @@ h3d = Hfss3dLayout(
     new_desktop_session=True
 )
 
-# ## Analyze
+# ### Analyze
 
 h3d.analyze()
 
-# ## Plot impedance
+# ### Plot impedance
 
 solutions = h3d.post.get_solution_data(expressions='Z(port1,port1)')
 solutions.plot()
