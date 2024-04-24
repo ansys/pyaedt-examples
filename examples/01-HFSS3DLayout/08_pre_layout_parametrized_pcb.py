@@ -26,10 +26,8 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch EDB
 
-# +
 aedb_path = os.path.join(temp_folder.name, "pcb.aedb")
 edb = Edb(edbpath=aedb_path, edbversion=AEDT_VERSION)
-# -
 
 # ## Create layout
 # ### Define the parameters.
@@ -273,7 +271,6 @@ void_shape = edb.modeler.Shape("polygon", points=void_poly)
 
 # Add ground conductors.
 
-# +
 for layer in layers[:-1:2]:
 
     # add void if the layer is the signal routing layer.
@@ -282,7 +279,6 @@ for layer in layers[:-1:2]:
     edb.modeler.create_polygon(
         main_shape=gnd_shape, layer_name=layer["name"], voids=void, net_name="gnd"
     )
-# -
 
 # Plot the layout.
 

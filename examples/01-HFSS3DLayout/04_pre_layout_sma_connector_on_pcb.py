@@ -15,6 +15,10 @@
 #     - Analysis
 #     - Plot return loss
 
+# Here is an image of the model that is created in this example.
+#
+# <img src="_static/pre_layout_sma_connector_on_pcb.png" width="600">
+
 # ## Preparation
 # Import the required packages
 
