@@ -45,7 +45,7 @@ non_graphical = False
 # Separate objects are used to selectively assign mesh operations
 # Material properties defined in  this project already contain electrical and thermal properties.
 
-project_path = downloads.download_file(directory="mri", destination=temp_dir.name)
+project_path = downloads.download_file(source="mri", destination=temp_dir.name)
 project_name = os.path.join(project_path, "background_SAR.aedt")
 hfss = Hfss(
     projectname=project_name,
@@ -86,7 +86,7 @@ hfss.setups[0].enable_expression_cache(
     conv_criteria=2.5,
     use_cache_for_freq=False,
 )
-hfss.setups[0].props["MaximumPasses"] = 2
+hfss.setups[0].props["MaximumPasses"] = 1
 # -
 
 # ## Edit Sources
@@ -104,7 +104,7 @@ hfss.edit_sources_from_file(os.path.join(project_path, "sources.csv"))
 # Save and analyze the project.
 
 hfss.save_project(project_file=os.path.join(project_path, "solved.aedt"))
-hfss.analyze(num_cores=NUM_CORES)
+hfss.analyze(cores=NUM_CORES)
 
 # ## Plot SAR on Cut Plane in Phantom
 #
@@ -114,10 +114,10 @@ hfss.analyze(num_cores=NUM_CORES)
 
 # +
 hfss.sar_setup(
-    Tissue_object_List_ID=-1,
-    Average_SAR_method=1,
-    TissueMass=1,
-    MaterialDensity=1,
+    assignment=-1,
+    average_sar_method=1,
+    tissue_mass=1,
+    material_density=1,
 )
 hfss.post.create_fieldplot_cutplane(
     assignment=["implant:YZ"], quantity="Average_SAR", filter_objects=["implant_box"]
@@ -126,12 +126,14 @@ hfss.post.create_fieldplot_cutplane(
 hfss.modeler.set_working_coordinate_system("implant")
 hfss.modeler.create_point(position=[0, 0, 0], name="Point1")
 
-hfss.post.plot_field(
+plot = hfss.post.plot_field(
     quantity="Average_SAR",
     assignment="implant:YZ",
     plot_type="CutPlane",
     show_legend=False,
     filter_objects=["implant_box"],
+    export_path=hfss.working_directory,
+    show=False,
 )
 # -
 
@@ -195,7 +197,7 @@ exc = mech.assign_em_losses(
     map_frequency=hfss.setups[0].props["Frequency"],
     surface_objects=mech.get_all_conductors_names(),
 )
-mech.assign_uniform_convection(objects_list=mech.modeler["Region"].faces, convection_value=1)
+mech.assign_uniform_convection(assignment=mech.modeler["Region"].faces, convection_value=1)
 
 # ## Create Setup
 #
@@ -209,7 +211,7 @@ setup = mech.create_setup()
 
 mech.modeler.set_working_coordinate_system("implant")
 mech.modeler.create_point(position=[0, 0, 0], name="Point1")
-setup.props["Stop Time"] = 60
+setup.props["Stop Time"] = 30
 setup.props["Time Step"] = "10s"
 setup.props["SaveFieldsType"] = "Every N Steps"
 setup.props["N Steps"] = "2"
@@ -249,7 +251,7 @@ mech.post.plot_animated_field(
     plot_type="CutPlane",
     intrinsics={"Time": "10s"},
     variation_variable="Time",
-    variation_list=["10s", "20s", "30s", "40s", "50s", "60s"],
+    variation_list=["10s", "20s", "30s"],
     filter_objects=["implant_box"],
 )
 # -
@@ -284,12 +286,12 @@ ipk.assign_em_losses(
 # ## Create Setup
 #
 # Create a new setup and edit properties.
-# Simulation will be for 60 seconds.
+# Simulation will be for 30 seconds.
 
 # +
 setup = ipk.create_setup()
 
-setup.props["Stop Time"] = 60
+setup.props["Stop Time"] = 30
 setup.props["N Steps"] = 2
 setup.props["Time Step"] = 5
 setup.props["Convergence Criteria - Energy"] = 1e-12

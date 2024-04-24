@@ -6,7 +6,7 @@
 
 # ## Perform required imports
 #
-# Perform required imports. Note that [Numpy](https://numpy.org/) 
+# Perform required imports. Note that [Numpy](https://numpy.org/)
 # and [Matplotlib](https://matplotlib.org/) are required to run this example.
 
 # +
@@ -17,12 +17,13 @@ from ansys.pyaedt.examples.constants import AEDT_VERSION
 from matplotlib import pyplot as plt
 import numpy as np
 import pyaedt
+
 # -
 
 # ## Download Example Data
 #
 # The ``download_file()`` method retrieves example
-# data from the PyAnsys 
+# data from the PyAnsys
 # [example-data](https://github.com/ansys/example-data/tree/master/pyaedt) repository.
 #
 # - The fist argument is the folder name where
@@ -33,7 +34,9 @@ import pyaedt
 # Files are placed in the destination folder.
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-project_path = pyaedt.downloads.download_file("ami", filename="ami_usb.aedtz", destination=temp_dir.name)
+project_path = pyaedt.downloads.download_file(
+    "ami", filename="ami_usb.aedtz", destination=temp_dir.name
+)
 
 # ## Launch AEDT
 #
@@ -53,7 +56,7 @@ NewThread = True
 
 # ## Launch AEDT with Circuit and enable Pandas as the output format
 #
-# All outputs obtained with the `get_solution_data` method will have the 
+# All outputs obtained with the `get_solution_data` method will have the
 # [Pandas](https://pandas.pydata.org/docs/user_guide/index.html) format.
 # Launch AEDT with Circuit. The `pyaedt.Desktop` class initializes AEDT
 # and starts the specified version in the specified mode.
@@ -108,9 +111,9 @@ setup_name = "AMIAnalysis"
 ignore_bits = 100
 unit_interval = 0.1e-9
 sample_waveform = cir.post.sample_ami_waveform(
-    setupname=setup_name,
-    probe_name=probe_name,
-    source_name=source_name,
+    name=setup_name,
+    probe=probe_name,
+    source=source_name,
     variation_list_w_value=cir.available_variations.nominal,
     unit_interval=unit_interval,
     ignore_bits=ignore_bits,
