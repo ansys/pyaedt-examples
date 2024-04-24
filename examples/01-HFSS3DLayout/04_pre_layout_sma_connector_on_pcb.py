@@ -15,6 +15,9 @@
 #     - Analysis
 #     - Plot return loss
 
+# ## Preparation
+# Import the required packages
+
 # +
 import os
 import tempfile
