@@ -49,6 +49,9 @@ NG_MODE = False
 aedb = os.path.join(temp_folder.name, "new_layout.aedb")
 edbapp = Edb(edbpath=aedb, edbversion=AEDT_VERSION)
 
+# Set antipad always on.
+edbapp.design_options.antipads_always_on = True
+
 # ## Add material definitions
 
 edbapp.materials.add_conductor_material(name="copper", conductivity=58000000)
@@ -101,6 +104,7 @@ board_center_point = [0, "5mm"]
 
 gnd_l2 = edbapp.modeler.create_rectangle(
     layer_name="L2",
+    net_name="GND",
     center_point=board_center_point,
     width=board_width,
     height=board_length,
@@ -111,6 +115,7 @@ gnd_l2 = edbapp.modeler.create_rectangle(
 
 gnd_l3 = edbapp.modeler.create_rectangle(
     layer_name="L3",
+net_name="GND",
     center_point=board_center_point,
     width=board_width,
     height=board_length,
@@ -121,6 +126,7 @@ gnd_l3 = edbapp.modeler.create_rectangle(
 
 gnd_bottom = edbapp.modeler.create_rectangle(
     layer_name="BOT",
+net_name="GND",
     center_point=board_center_point,
     width=board_width,
     height=board_length,
@@ -194,7 +200,7 @@ sig2_trace.add_point(x=0, y="1mm", incremental=True)
 
 # Create trace-to-ground clearance
 
-sig2_path = sig_trace.get_center_line()
+sig2_path = sig2_trace.get_center_line()
 path_list = [sig_path, sig2_path]
 for i in path_list:
     void = edbapp.modeler.create_trace(path_list=i, layer_name="BOT", width="width+gap*2",
@@ -238,8 +244,7 @@ setup.hfss_solver_settings.order_basis = "first"
 setup.add_frequency_sweep(
     "Sweep1",
     frequency_sweep=[
-        ["linear count", "0", "1KHz", 1],
-        ["log scale", "1KHz", "100MHz", 3],
+        ["log scale", "10MHz", "100MHz", 3],
         ["linear scale", "0.1GHz", "5GHz", "0.2GHz"],
     ],
 )
@@ -292,7 +297,7 @@ h3d.close_desktop()
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notbook you 
+# All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notebook you
 # can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 temp_folder.cleanup()
