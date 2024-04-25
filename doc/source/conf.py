@@ -238,10 +238,36 @@ def check_pandoc_installed(app):
         logger.error("Pandoc was not found, please add it to your path or install pypandoc-binary")
 
 
+# NOTE: The list of skipped files requires to be updated every time a new example
+# with GIF content is created or removed.
+def skip_gif_examples_to_build_pdf(app):
+    """Callback function for builder-inited event.
+
+    Add examples showing GIF to the list of excluded files when building PDF files.
+
+    Parameters
+    ----------
+    app :
+        The application object representing the Sphinx process.
+    """
+    if app.builder.name == "latex":
+        logger.info("Examples with animations are skipped when building with latex.")
+        app.config.exclude_patterns.extend(
+            [
+                r".*Maxwell2D_Transient\.py",
+                r".*Maxwell2D_DCConduction\.py",
+                r".*Hfss_Icepak_Coupling\.py",
+                r".*SBR_Time_Plot\.py",
+            ]
+        )
+    logger.info(app.config.exclude_patterns)
+
+
 def setup(app):
     app.add_directive("pprint", PrettyPrintDirective)
     app.connect("builder-inited", copy_examples)
     app.connect("builder-inited", check_pandoc_installed)
+    app.connect("builder-inited", skip_gif_examples_to_build_pdf)
     # app.connect("source-read", add_ipython_time)
     app.connect("source-read", adjust_image_path)
     # app.connect("html-page-context", remove_ipython_time_from_html)
