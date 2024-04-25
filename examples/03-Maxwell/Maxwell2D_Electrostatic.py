@@ -28,9 +28,7 @@ non_graphical = False
 #
 # Set local temporary folder to export the .xlsx file to.
 
-file_name_xlsx = pyaedt.downloads.download_file(
-    directory="field_line_traces", filename="my_copper.xlsx"
-)
+file_name_xlsx = pyaedt.downloads.download_file(source="field_line_traces", name="my_copper.xlsx")
 
 # ## Initialize dictionaries
 #
@@ -98,31 +96,31 @@ mats = m2d.materials.import_materials_from_excel(file_name_xlsx)
 
 # +
 rect = mod_2d.create_rectangle(
-    position=["r_x0", "r_y0", "r_z0"],
-    dimension_list=["r_dx", "r_dy", 0],
+    origin=["r_x0", "r_y0", "r_z0"],
+    sizes=["r_dx", "r_dy", 0],
     name="Ground",
-    matname=mats[0],
+    material=mats[0],
 )
 rect.color = (0, 0, 255)  # rgb
 rect.solve_inside = False
 
 circle = mod_2d.create_circle(
-    position=["circle_x0", "circle_y0", "circle_z0"],
+    origin=["circle_x0", "circle_y0", "circle_z0"],
     radius="circle_radius",
     num_sides="0",
     is_covered=True,
     name="Electrode",
-    matname=mats[0],
+    material=mats[0],
 )
 circle.color = (0, 0, 255)  # rgb
 circle.solve_inside = False
 
 poly1_points = [[-9, 2, 0], [-4, 2, 0], [2, -2, 0], [8, 2, 0]]
 poly2_points = [[-9, 0, 0], [9, 0, 0]]
-poly1_id = mod_2d.create_polyline(position_list=poly1_points, segment_type="Spline", name="Poly1")
-poly2_id = mod_2d.create_polyline(position_list=poly2_points, name="Poly2")
-mod_2d.split(objects=[poly1_id, poly2_id], plane="YZ", sides="NegativeOnly")
-mod_2d.create_region(pad_percent=[20, 100, 20, 100])
+poly1_id = mod_2d.create_polyline(points=poly1_points, segment_type="Spline", name="Poly1")
+poly2_id = mod_2d.create_polyline(points=poly2_points, name="Poly2")
+mod_2d.split(assignment=[poly1_id, poly2_id], plane="YZ", sides="NegativeOnly")
+mod_2d.create_region(pad_value=[20, 100, 20, 100])
 # -
 
 # ## Define excitations
@@ -136,13 +134,13 @@ m2d.assign_voltage(circle.id, amplitude=50e6, name="50kV")
 #
 # Assign a surface mesh to the rectangle.
 
-m2d.mesh.assign_surface_mesh_manual(names=["Ground"], surf_dev=0.001)
+m2d.mesh.assign_surface_mesh_manual(assignment=["Ground"], surf_dev=0.001)
 
 # ## Create, validate and analyze the setup
 #
 # Create, update, validate and analyze the setup.
 
-setup = m2d.create_setup(setupname=setup_name)
+setup = m2d.create_setup(name=setup_name)
 setup.props["PercentError"] = 0.5
 setup.update()
 m2d.validate_simple()
@@ -194,7 +192,7 @@ plot.update()
 # For field lint traces plot, the export file format is ``.fldplt``.
 
 m2d.post.export_field_plot(
-    plotname="LineTracesTest", filepath=m2d.toolkit_directory, file_format="fldplt"
+    plot_name="LineTracesTest", output_dir=m2d.toolkit_directory, file_format="fldplt"
 )
 
 # ## Export a field plot to an image file

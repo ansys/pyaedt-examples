@@ -1,6 +1,6 @@
 # # Circuit: Simulate multi-zone layout with SIwave
 #
-# This example demonstates simulation of multiple zones with SIwave.
+# This example demonstrates simulation of multiple zones with SIwave.
 
 # ## Perform required imports
 #
@@ -13,6 +13,7 @@ import tempfile
 from ansys.pyaedt.examples.constants import EDB_VERSION
 import pyaedt
 from pyaedt import Circuit, Edb
+
 # -
 
 # ## Download file
@@ -20,8 +21,9 @@ from pyaedt import Circuit, Edb
 # Download the EDB folder.
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-edb_file = pyaedt.downloads.download_file(directory="edb/siwave_multi_zones.aedb",
-                                          destination=temp_dir.name)
+edb_file = pyaedt.downloads.download_file(
+    directory="edb/siwave_multi_zones.aedb", destination=temp_dir.name
+)
 work_folder = os.path.join(temp_dir.name, "work")
 aedt_file = os.path.splitext(edb_file)[0] + ".aedt"
 circuit_project_file = os.path.join(temp_dir.name, "multizone_clipped_circuit.aedt")
@@ -95,10 +97,10 @@ circuit.analyze()
 # Define differential pairs
 
 circuit.set_differential_pair(
-    diff_name="U0", positive_terminal="U0.via_38.B2B_SIGP", negative_terminal="U0.via_39.B2B_SIGN"
+    differential_mode="U0", assignment="U0.via_38.B2B_SIGP", reference="U0.via_39.B2B_SIGN"
 )
 circuit.set_differential_pair(
-    diff_name="U1", positive_terminal="U1.via_32.B2B_SIGP", negative_terminal="U1.via_33.B2B_SIGN"
+    differential_mode="U1", assignment="U1.via_32.B2B_SIGP", reference="U1.via_33.B2B_SIGN"
 )
 
 # Plot results

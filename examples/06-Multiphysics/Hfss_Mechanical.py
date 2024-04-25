@@ -95,7 +95,7 @@ source.phase = 0
 # Create a setup.
 
 setup_name = "MySetup"
-LNA_setup = circuit.create_setup(setupname=setup_name)
+LNA_setup = circuit.create_setup(name=setup_name)
 sweep_list = ["LINC", str(4.3) + "GHz", str(4.4) + "GHz", str(1001)]
 LNA_setup.props["SweepDefinition"]["Data"] = " ".join(sweep_list)
 
@@ -104,8 +104,8 @@ LNA_setup.props["SweepDefinition"]["Data"] = " ".join(sweep_list)
 # Solve the circuit and push excitations to the HFSS model to calculate the
 # correct value of losses.
 
-circuit.analyze(num_cores=NUM_CORES)
-circuit.push_excitations(instance_name="S1", setup_name=setup_name)
+circuit.analyze(cores=NUM_CORES)
+circuit.push_excitations(instance="S1", setup=setup_name)
 
 # ## Start Mechanical
 #
@@ -145,11 +145,11 @@ mech.plot(show=False, export_path=os.path.join(temp_dir.name, "Mech.jpg"), plot_
 
 mech.create_setup()
 mech.save_project()
-mech.analyze(num_cores=NUM_CORES)
+mech.analyze(cores=NUM_CORES)
 surfaces = []
 for name in mech.get_all_conductors_names():
     surfaces.extend(mech.modeler.get_object_faces(name))
-mech.post.create_fieldplot_surface(objlist=surfaces, quantityName="Temperature")
+mech.post.create_fieldplot_surface(assignment=surfaces, quantity="Temperature")
 
 # ## Release AEDT and clean up temporary directory
 #
