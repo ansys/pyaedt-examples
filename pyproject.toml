@@ -26,7 +26,7 @@ classifiers = [
 dependencies = [
     "build==1.0.3",
     "numpy",
-    "pyaedt==0.8.2",
+    "pyaedt@git+https://github.com/ansys/pyaedt.git",
     "twine==5.0.0",
     "pydantic",
     "pyvista",
