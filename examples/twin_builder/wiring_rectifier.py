@@ -133,7 +133,7 @@ tb.analyze_setup("TR")
 # voltage on the capacitor in the RC circuit.
 
 src_name = source.InstanceName + ".V"
-x = tb.post.get_solution_data(src_name, tb.analysis_setup, "Time")
+x = tb.post.get_solution_data(src_name, "TR", "Time")
 plt.plot(x.intrinsics["Time"], x.data_real(src_name))
 plt.grid()
 plt.xlabel("Time")
@@ -141,7 +141,7 @@ plt.ylabel("AC Voltage")
 plt.show()
 
 r_voltage = resistor.InstanceName + ".V"
-x = tb.post.get_solution_data(r_voltage, tb.analysis_setup, "Time")
+x = tb.post.get_solution_data(r_voltage, "TR", "Time")
 plt.plot(x.intrinsics["Time"], x.data_real(r_voltage))
 plt.grid()
 plt.xlabel("Time")
