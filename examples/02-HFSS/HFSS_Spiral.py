@@ -39,6 +39,7 @@ hfss = pyaedt.Hfss(
     non_graphical=non_graphical,
     designname="A1",
     new_desktop_session=True,
+    solution_type="Modal"
 )
 hfss.modeler.model_units = "um"
 
@@ -194,7 +195,7 @@ hfss.create_linear_count_sweep(
     sweep_type="Interpolating",
 )
 hfss.save_project()
-hfss.analyze(num_cores=NUM_CORES)
+hfss.analyze(cores=NUM_CORES)
 
 # ## Get report data
 #
