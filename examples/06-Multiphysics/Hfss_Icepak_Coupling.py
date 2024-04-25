@@ -46,6 +46,7 @@ hfss = pyaedt.Hfss(
     specified_version=AEDT_VERSION,
     non_graphical=non_graphical,
     new_desktop_session=True,
+    solution_type="Modal",
 )
 
 # ## Parameters
@@ -177,10 +178,10 @@ setup.props["MaximumPasses"] = 1
 # injected into the structure.
 
 sweepname = hfss.create_linear_count_sweep(
-    setupname="MySetup",
+    setup="MySetup",
     unit="GHz",
-    freqstart=0.8,
-    freqstop=1.2,
+    start_frequency=0.8,
+    stop_frequency=1.2,
     num_of_freq_points=401,
     sweep_type="Interpolating",
 )
@@ -200,12 +201,12 @@ ipk.copy_solid_bodies_from(hfss)
 
 surfaceobj = ["inner", "outer"]
 ipk.assign_em_losses(
-    designname=hfss.design_name,
-    setupname="MySetup",
-    sweepname="LastAdaptive",
+    design=hfss.design_name,
+    setup="MySetup",
+    sweep="LastAdaptive",
     map_frequency="1GHz",
     surface_objects=surfaceobj,
-    paramlist=["$coax_dimension", "inner"],
+    parameters=["$coax_dimension", "inner"],
 )
 
 # ## Assign the Direction of Gravity
@@ -276,10 +277,10 @@ quantity_name = "ComplexMag_H"
 intrinsic = {"Freq": hfss.setups[0].props["Frequency"], "Phase": "0deg"}
 surface_list = hfss.modeler.get_object_faces("outer")
 plot1 = hfss.post.create_fieldplot_surface(
-    objlist=surface_list,
-    quantityName=quantity_name,
-    setup_name=hfss.nominal_adaptive,
-    intrinsincDict=intrinsic,
+    assignment=surface_list,
+    quantity=quantity_name,
+    setup=hfss.nominal_adaptive,
+    intrinsics=intrinsic,
 )
 
 hfss.post.plot_field_from_fieldplot(
@@ -352,9 +353,9 @@ families = ["Freq:=", ["All"]]
 my_data = hfss.post.get_solution_data(expressions=trace_names)
 my_data.plot(
     trace_names,
-    math_formula="db20",
-    xlabel="Frequency (Ghz)",
-    ylabel="SParameters(dB)",
+    formula="db20",
+    x_label="Frequency (Ghz)",
+    y_label="SParameters(dB)",
     title="Scattering Chart",
     snapshot_path=os.path.join(temp_dir.name, "Touchstone_from_matplotlib.jpg"),
 )

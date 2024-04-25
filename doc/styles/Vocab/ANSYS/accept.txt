@@ -32,6 +32,7 @@ FE-BI
 getters
 globals
 [Gg]gRPC
+hist
 HFSS
 Huray
 Icepak
