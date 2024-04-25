@@ -10,6 +10,7 @@
    02-HFSS/index
    03-Maxwell/index
    06-Multiphysics/index
+   07-Circuit/index
    07-EMIT/index
    EDB/index
 
