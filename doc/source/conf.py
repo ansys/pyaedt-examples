@@ -260,7 +260,6 @@ def skip_gif_examples_to_build_pdf(app):
                 r".*SBR_Time_Plot\.py",
             ]
         )
-    logger.info(app.config.exclude_patterns)
 
 
 def setup(app):
