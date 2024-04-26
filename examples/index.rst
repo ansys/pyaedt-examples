@@ -13,6 +13,7 @@
    07-Circuit/index
    07-EMIT/index
    EDB/index
+   general/index
 
 Examples
 ========
