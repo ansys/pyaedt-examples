@@ -16,6 +16,7 @@ from ansys.pyaedt.examples.constants import AEDT_VERSION
 from matplotlib import pyplot as plt
 import numpy as np
 import pyaedt
+
 # -
 
 # ## Set non-graphical mode
@@ -58,7 +59,7 @@ tr1.parameters["P"] = "50mm"
 #
 # Create a resistor and ground in the schematic.
 
-res = cir.modeler.components.create_resistor(compname="R1", value="1Meg")
+res = cir.modeler.components.create_resistor(name="R1", value="1Meg")
 gnd1 = cir.modeler.components.create_gnd()
 
 # ## Connect Componennts
@@ -84,7 +85,7 @@ pr2.pins[0].connect_to_component(ibs.pins[0])
 #
 # Create a transient analysis setup and analyze it.
 
-trans_setup = cir.create_setup(setupname="TransientRun", setuptype="NexximTransient")
+trans_setup = cir.create_setup(name="TransientRun", setup_type="NexximTransient")
 trans_setup.props["TransientData"] = ["0.01ns", "200ns"]
 cir.analyze_setup("TransientRun")
 
@@ -92,7 +93,7 @@ cir.analyze_setup("TransientRun")
 #
 # Create a report using the ``get_solution_data()`` method. This
 # method allows you to view and post-process results using Python packages.
-# The ``solutions.plot()`` method uses 
+# The ``solutions.plot()`` method uses
 # [Matplotlib](https://matplotlib.org/).
 
 report = cir.post.create_report("V(Vout)", domain="Time")

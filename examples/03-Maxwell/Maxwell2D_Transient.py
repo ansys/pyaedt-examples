@@ -63,13 +63,13 @@ rect2 = m2d.modeler[added[0]]
 #
 # Create an air region.
 
-region = m2d.modeler.create_region([100, 100, 100, 100, 100, 100])
+region = m2d.modeler.create_region([100, 100, 100, 100])
 
 # ## Assign windings and balloon
 #
 # Assigns windings to the sheets and a balloon to the air region.
 
-m2d.assign_winding(coil_terminals=[rect1.name, rect2.name], name="PHA")
+m2d.assign_winding(assignment=[rect1.name, rect2.name], name="PHA")
 m2d.assign_balloon(region.edges)
 
 # ## Plot model
