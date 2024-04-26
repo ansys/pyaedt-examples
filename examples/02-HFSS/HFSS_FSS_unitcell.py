@@ -91,12 +91,12 @@ hfss.auto_assign_lattice_pairs(object_to_assign=region.name)
 
 id_z_pos = region.top_face_z
 hfss.create_floquet_port(
-    id_z_pos,
-    [0, 0, z_max],
-    [0, y_max, z_max],
-    [x_max, 0, z_max],
+    assignment=id_z_pos,
+    lattice_origin=[0, 0, z_max],
+    lattice_a_end=[0, y_max, z_max],
+    lattice_b_end=[x_max, 0, z_max],
     portname="port_z_max",
-    deembed_dist=10 * bounding_dimensions[2],
+    deembed_distance=10 * bounding_dimensions[2],
 )
 
 # ## Create setup
