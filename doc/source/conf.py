@@ -13,8 +13,6 @@ import shutil
 import sys
 import warnings
 
-from ansys.pyaedt.examples import __version__
-
 # from sphinx_gallery.sorting import FileNameSortKey
 from ansys_sphinx_theme import (
     ansys_favicon,
