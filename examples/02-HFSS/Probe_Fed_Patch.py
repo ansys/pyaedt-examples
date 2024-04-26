@@ -39,6 +39,7 @@ hfss = pyaedt.Hfss(
     solution_type="Terminal",
     designname="patch",
     non_graphical=non_graphical,
+    new_desktop_session=True,
     specified_version=AEDT_VERSION,
 )
 
