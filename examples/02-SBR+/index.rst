@@ -10,7 +10,3 @@ This includes model generation, setup, meshing, and postprocessing.
     SBR_Example.py
     SBR_Time_Plot.py
 
-.. only:: latex
-
-    Example SBR_Time_Plot.py contains animated GIF.
-    `View online <TBD>`_ if you are reading the PDF version of this documentation.
