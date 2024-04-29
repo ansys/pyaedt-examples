@@ -8,8 +8,7 @@ This includes model generation, setup, meshing, and postprocessing.
     SBR_City_Import.py
     SBR_Doppler_Example.py
     SBR_Example.py
-    .. only:: html
-        SBR_Time_Plot.py
+    SBR_Time_Plot.py
 
 .. only:: latex
 
