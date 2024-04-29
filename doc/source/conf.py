@@ -257,7 +257,6 @@ def skip_gif_examples_to_build_pdf(app):
                 r".*Maxwell2D_Transient\.py",
                 r".*Maxwell2D_DCConduction\.py",
                 r".*Hfss_Icepak_Coupling\.py",
-                r".*SBR_Time_Plot\.py",
             ]
         )
 
