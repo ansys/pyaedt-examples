@@ -5,16 +5,6 @@
    :maxdepth: 2
 
 
-   twin_builder/index
-   general/index
-   01-Modeling-Setup/index
-   02-HFSS/index
-   02-SBR+/index
-   03-Maxwell/index
-   06-Multiphysics/index
-   07-Circuit/index
-   07-EMIT/index
-   EDB/index
    05-Q3D/index
 
 
