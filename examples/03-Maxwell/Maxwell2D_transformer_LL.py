@@ -223,5 +223,6 @@ energy_field_overlay = m2d.post.create_fieldplot_surface(
     plot_name="Energy",
 )
 
+
 m2d.save_project()
 m2d.release_desktop()
