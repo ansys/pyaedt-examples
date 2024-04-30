@@ -106,7 +106,7 @@ coefficients = m3d.materials[mat.name].get_core_loss_coefficients(
 
 # ## Release AEDT and clean up temporary directory
 #
-# Release AEDT and remove both the project and temporary directories.
+# Release AEDT and remove both the project and temporary directory.
 
 m3d.release_desktop()
 temp_dir.cleanup()

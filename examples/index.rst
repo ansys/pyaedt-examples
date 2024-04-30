@@ -14,6 +14,7 @@
    06-Multiphysics/index
    07-Circuit/index
    07-EMIT/index
+   05-Q3D/index
    EDB/index
 
 
