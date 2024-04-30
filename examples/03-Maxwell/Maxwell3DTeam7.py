@@ -496,7 +496,7 @@ m3d.post.create_fieldplot_surface(
 
 # ## Release AEDT and clean up temporary directory
 #
-# Release AEDT and remove both the project and temporary directories.
+# Release AEDT and remove both the project and temporary directory.
 
 m3d.release_desktop(True, True)
 temp_dir.cleanup()

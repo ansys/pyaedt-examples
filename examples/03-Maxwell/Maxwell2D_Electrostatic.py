@@ -195,12 +195,6 @@ m2d.post.export_field_plot(
     plot_name="LineTracesTest", output_dir=m2d.toolkit_directory, file_format="fldplt"
 )
 
-# ## Export a field plot to an image file
-#
-# Export the flux lines plot to an image file using PyVista Python package.
-
-m2d.post.plot_field_from_fieldplot(plot.name, show=False)
-
 # ## Export the mesh field plot
 #
 # Export the mesh in ``aedtplt`` format.
