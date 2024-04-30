@@ -20,7 +20,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 # Initialize and launch Maxwell 2D, providing the version, path to the project, and the design
 # name and type.
 
-non_graphical = False
+non_graphical = True
 
 project_name = "Transformer_leakage_inductance"
 design_name = "1 Magnetostatic"
