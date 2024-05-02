@@ -116,7 +116,7 @@ cs1 = m3d.modeler.create_coordinate_system(
 
 # ## Release AEDT and clean up temporary directory
 #
-# Release AEDT and remove both the project and temporary directories.
+# Release AEDT and remove both the project and temporary directory.
 
 m3d.release_desktop(close_projects=True, close_desktop=True)
 temp_dir.cleanup()
