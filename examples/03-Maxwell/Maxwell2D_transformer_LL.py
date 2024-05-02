@@ -14,7 +14,6 @@ from pyaedt import Maxwell2d
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
-
 # ## Initialize and launch Maxwell 2D
 #
 # Initialize and launch Maxwell 2D, providing the version, path to the project, and the design
@@ -44,7 +43,6 @@ mod.model_units = "mm"
 dimensions = {
     "core_width": "1097mm",
     "core_height": "2880mm",
-    "core_depth": "540mm",
     "core_opening_x1": "270mm",
     "core_opening_x2": "557mm",
     "core_opening_y1": "540mm",
@@ -125,34 +123,57 @@ hv_id = mod.create_rectangle(
     matname="copper",
 )
 
-region_id = mod.create_region(pad_percent=[20, 10, 0, 10])
+# Very small region is enough, because all the flux is concentrated in the core
+region_id = mod.create_region(
+    pad_percent=[20, 10, 0, 10]
+)
 
 # ## Assign boundary condition
 #
 # Assign vector potential to zero on all region boundaries. This makes x=0 edge a symmetry boundary.
 
 region_edges = region_id.edges
-m2d.assign_vector_potential(input_edge=region_edges, bound_name="VectorPotential1")
-m2d.model_depth = "core_depth"
+
+m2d.assign_vector_potential(
+    input_edge=region_edges,
+    bound_name="VectorPotential1"
+)
 
 # ## Create initial mesh settings
 #
 # Assign a relatively dense mesh to all objects to ensure that the energy is calculated accurately.
 
-m2d.mesh.assign_length_mesh(names=["core", "Region", "LV", "HV"], maxlength=50, maxel=None, meshop_name="all_objects")
+m2d.mesh.assign_length_mesh(
+    names=["core", "Region", "LV", "HV"],
+    maxlength=50,
+    maxel=None,
+    meshop_name="all_objects"
+)
 
 # ## Define excitations
 #
 # Assign the same current in amp-turns but in opposite directions to HV and LV windings.
 
-m2d.assign_current(object_list=lv_id, amplitude="Amp_turns", name="LV")
-m2d.assign_current(object_list=hv_id, amplitude="Amp_turns", name="HV", swap_direction=True)
+m2d.assign_current(
+    object_list=lv_id,
+    amplitude="Amp_turns",
+    name="LV"
+)
+m2d.assign_current(
+    object_list=hv_id,
+    amplitude="Amp_turns",
+    name="HV",
+    swap_direction=True
+)
 
 # ## Create and analyze the setup
 #
 # Create and analyze the setup. Setu no. of minimum passes to 3 to ensure accuracy.
 
-m2d.create_setup(setupname="Setup1", MinimumPasses=3)
+m2d.create_setup(
+    setupname="Setup1",
+    MinimumPasses=3
+)
 m2d.analyze_setup()
 
 
@@ -208,14 +229,23 @@ m2d.post.create_report(
     plotname="Transformer Leakage Inductance",
 )
 
+# ## Print leakage inductance and reactance values in the Message Manager
+
+m2d.logger.clear_messages()
+m2d.logger.info(
+    "Leakage_inductance =  {:.4f}H".format(m2d.post.get_scalar_field_value(quantity_name="Leakage_inductance"))
+)
+m2d.logger.info(
+    "Leakage_reactance =  {:.2f}Ohm".format(m2d.post.get_scalar_field_value(quantity_name="Leakage_reactance"))
+)
+
 # ## Plot energy in the simulation domain
 #
 # Most of the energy is confined in the air between the HV and LV windings.
 
-object_faces = mod.get_object_faces("Region")
-object_faces += mod.get_object_faces("HV")
-object_faces += mod.get_object_faces("LV")
-object_faces += mod.get_object_faces("core")
+object_faces = []
+for name in mod.object_names:
+    object_faces.extend(m2d.modeler.get_object_faces(name))
 
 energy_field_overlay = m2d.post.create_fieldplot_surface(
     objlist=object_faces,
@@ -223,6 +253,6 @@ energy_field_overlay = m2d.post.create_fieldplot_surface(
     plot_name="Energy",
 )
 
-
 m2d.save_project()
 m2d.release_desktop()
+temp_dir.cleanup()
