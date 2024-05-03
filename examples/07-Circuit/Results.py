@@ -1,0 +1,123 @@
+# # Circuit: automatic report creation
+#
+# This example demonstrates how to create reports from a JSON template file.
+#
+# ## Perform required imports
+#
+# Perform required imports and set the local path to the path for PyAEDT. This example uses
+# data from the [example-data repository](https://github.com/ansys/example-data/tree/master)
+# located in ``pyaedt\custom_reports``.
+
+# +
+import os
+import tempfile
+from IPython.display import Image
+import pyaedt
+
+# Set local path to path for the project data.
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+
+project_path = pyaedt.downloads.download_file(source="custom_reports/", destination=temp_dir.name)
+aedt_version = "2024.1"
+# -
+
+# ## Launch AEDT with the Circuit Interface
+#
+# ### Application keyword arguments:
+#
+# The application is started by instantiating an instance of
+# [pyaedt.Circuit](https://aedt.docs.pyansys.com/version/stable/API/_autosummary/pyaedt.circuit.Circuit.html).
+#
+# - The argument ``non_graphical`` specifies whether or not an interactive session will be launched or if
+#   AEDT runs in non-graphical mode.
+# - The Boolean parameter ``new_thread`` specifies if a new instance
+#   of AEDT will be launched. If it is set to ``False`` the API will try to connect to a running session.
+#
+# This example extracts an archieved project. The full path
+# to the extracted project is accessible from the ``cir.project_file`` property.
+
+# +
+non_graphical = True
+NewThread = True
+
+cir = pyaedt.Circuit(projectname=os.path.join(project_path, 'CISPR25_Radiated_Emissions_Example23R1.aedtz'),
+                     non_graphical=non_graphical,
+                     specified_version=aedt_version,
+                     new_desktop_session=True
+                     )
+cir.analyze()  # Run the circuit analysis.
+# -
+
+# ## Create a Spectral Report
+#
+# The JSON file is used to customize the report. In a spectral report, you can add Limit lines, and
+# notes can be added to the report. The report axes, grid, and the legend can also be modified. The custom reports
+# can be created in AEDT in non-graphical mode using version 2023 R2 and later.
+
+report1 = cir.post.create_report_from_configuration(os.path.join(project_path, 'Spectrum_CISPR_Basic.json'))
+out = cir.post.export_report_to_jpg(project_path=cir.working_directory, plot_name=report1.plot_name)
+
+# Now render the image.
+
+Image(os.path.join(cir.working_directory, report1.plot_name + ".jpg"))
+
+# Every aspect of the report can be customized. The method ``crate_report_from_configuration`` reads the
+# report configuration from a ``*.json`` file and generates the custom report.
+
+report1_full = cir.post.create_report_from_configuration(os.path.join(project_path, 'Spectrum_CISPR_Custom.json'))
+out = cir.post.export_report_to_jpg(cir.working_directory, report1_full.plot_name)
+Image(os.path.join(cir.working_directory, report1_full.plot_name + ".jpg"))
+
+# ## Transient Report
+#
+# The JSON configuration file can be read and modified from the API prior to creating the report.
+# The following code modifies the trace rendering
+# prior to creating the report.
+
+# +
+props = pyaedt.general_methods.read_json(os.path.join(project_path, 'Transient_CISPR_Custom.json'))
+
+report2 = cir.post.create_report_from_configuration(report_settings=props, solution_name="NexximTransient")
+out = cir.post.export_report_to_jpg(cir.working_directory, report2.plot_name)
+Image(os.path.join(cir.working_directory, report2.plot_name + ".jpg"))
+# -
+
+# The ``props`` dictionary can be used to customize any aspect of an existing report or generate a new report.
+# In this example the name of the curve is customized.
+
+props["expressions"] = {"V(Battery)": {}, "V(U1_VDD)": {}}
+props["plot_name"] = "Battery Voltage"
+report3 = cir.post.create_report_from_configuration(report_settings=props, solution_name="NexximTransient")
+out = cir.post.export_report_to_jpg(cir.working_directory, report3.plot_name)
+Image(os.path.join(cir.working_directory, report3.plot_name + ".jpg"))
+
+# ## Eye Diagram
+#
+# Create an eye diagram. the JSON file can be used to create an eye diagram, including the eye mask as demonsrated here.
+
+report4 = cir.post.create_report_from_configuration(os.path.join(project_path, 'EyeDiagram_CISPR_Basic.json'))
+out = cir.post.export_report_to_jpg(cir.working_directory, report4.plot_name)
+Image(os.path.join(cir.working_directory, report4.plot_name + ".jpg"))
+
+# +
+report4_full = cir.post.create_report_from_configuration(os.path.join(project_path, 'EyeDiagram_CISPR_Custom.json'))
+
+out = cir.post.export_report_to_jpg(cir.working_directory, report4_full.plot_name)
+Image(os.path.join(cir.working_directory, report4_full.plot_name + ".jpg"))
+# -
+
+# ## Save project and close AEDT
+#
+# Save the project and close AEDT. The example has finished running. Project files can be retrieved
+# from ``temp_dir.name``.
+
+cir.save_project()
+print("Project Saved in {}".format(cir.project_path))
+cir.release_desktop()
+
+# ## Cleanup
+#
+# The following cell cleans up the temporary directory and
+# removes all project files.
+
+temp_dir.cleanup()

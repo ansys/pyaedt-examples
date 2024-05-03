@@ -241,7 +241,7 @@ m3d.plot(show=False, export_path=os.path.join(temp_dir.name, "Image.jpg"), plot_
 
 # ## Release AEDT and clean up temporary directory
 #
-# Release AEDT and remove both the project and temporary directories.
+# Release AEDT and remove both the project and temporary directory.
 
 m3d.release_desktop()
 temp_dir.cleanup()

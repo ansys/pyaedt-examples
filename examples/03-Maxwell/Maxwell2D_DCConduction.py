@@ -274,7 +274,7 @@ pdf_report.save_pdf(temp_dir.name, "AEDT_Results.pdf")
 
 # ## Release AEDT and clean up temporary directory
 #
-# Release AEDT and remove both the project and temporary directories.
+# Release AEDT and remove both the project and temporary directory.
 
 m2d.release_desktop()
 temp_dir.cleanup()
