@@ -11,6 +11,7 @@
 
 import csv
 import os
+import tempfile
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
@@ -27,10 +28,10 @@ non_graphical = False
 # Download the project, open it, and save it to the temporary folder.
 
 # +
-temp_folder = pyaedt.generate_unique_folder_name()
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 ipk = pyaedt.Icepak(
-    projectname=os.path.join(temp_folder, "Icepak_CSV_Import.aedt"),
+    projectname=os.path.join(temp_folder.name, "Icepak_CSV_Import.aedt"),
     specified_version=AEDT_VERSION,
     new_desktop_session=True,
     non_graphical=non_graphical,
@@ -40,7 +41,10 @@ ipk = pyaedt.Icepak(
 # Create the PCB as a simple block.
 
 board = ipk.modeler.create_box(
-    origin=[-30.48, -27.305, 0], sizes=[146.685, 71.755, 0.4064], name="board_outline", material="FR-4_Ref"
+    origin=[-30.48, -27.305, 0],
+    sizes=[146.685, 71.755, 0.4064],
+    name="board_outline",
+    material="FR-4_Ref",
 )
 
 # ## Blocks creation with a CSV file
@@ -55,16 +59,16 @@ board = ipk.modeler.create_box(
 #
 # The following table does not show the entire rows and data and only serves as a sample.
 #
-#+------------+------+--------+---------+--------+-------+-------+--------+------------------+-------+-----+-----+---------------+
-#| block_type | name | xs     | ys      | zs     | xd    | yd    | zd     | matname          | power | Rjb | Rjc | Monitor_point |
-#+============+======+========+=========+========+=======+=======+========+==================+=======+=====+=====+===============+
-#| hollow     | R8   | 31.75  | -20.32  | 0.4064 | 15.24 | 2.54  | 2.54   |                  | 1     |     |     | 0             |
-#| solid      | U1   | 16.551 | 10.2035 | 0.4064 | 10.16 | 20.32 | 5.08   | Ceramic_material | 0.2   |     |     | 1             |
-#| solid      | U2   | -16.51 | 10.16   | 0.4064 | 10.16 | 27.94 | 5.08   | Ceramic_material | 0.1   |     |     | 1             |
-#| network    | C180 | 47.625 | 19.05   | 0.4064 | 3.81  | 2.54  | 2.4384 |                  | 1.13  | 2   | 3   | 0             |
-#| network    | C10  | 65.405 | -1.27   | 0.4064 | 3.81  | 2.54  | 2.4384 |                  | 0.562 | 2   | 3   | 0             |
-#| network    | C20  | 113.03 | -0.635  | 0.4064 | 2.54  | 3.81  | 2.4384 |                  | 0.445 | 2   | 3   | 0             |
-#+------------+------+--------+---------+--------+-------+-------+--------+------------------+-------+-----+-----+---------------+
+# +------------+------+--------+---------+--------+-------+-------+--------+------------------+-------+-----+-----+---------------+
+# | block_type | name | xs     | ys      | zs     | xd    | yd    | zd     | matname          | power | Rjb | Rjc | Monitor_point |
+# +============+======+========+=========+========+=======+=======+========+==================+=======+=====+=====+===============+
+# | hollow     | R8   | 31.75  | -20.32  | 0.4064 | 15.24 | 2.54  | 2.54   |                  | 1     |     |     | 0             |
+# | solid      | U1   | 16.551 | 10.2035 | 0.4064 | 10.16 | 20.32 | 5.08   | Ceramic_material | 0.2   |     |     | 1             |
+# | solid      | U2   | -16.51 | 10.16   | 0.4064 | 10.16 | 27.94 | 5.08   | Ceramic_material | 0.1   |     |     | 1             |
+# | network    | C180 | 47.625 | 19.05   | 0.4064 | 3.81  | 2.54  | 2.4384 |                  | 1.13  | 2   | 3   | 0             |
+# | network    | C10  | 65.405 | -1.27   | 0.4064 | 3.81  | 2.54  | 2.4384 |                  | 0.562 | 2   | 3   | 0             |
+# | network    | C20  | 113.03 | -0.635  | 0.4064 | 2.54  | 3.81  | 2.4384 |                  | 0.445 | 2   | 3   | 0             |
+# +------------+------+--------+---------+--------+-------+-------+--------+------------------+-------+-----+-----+---------------+
 #
 #
 #
@@ -94,14 +98,24 @@ with open(filename, "r") as csv_file:
             material_name = "copper"
 
         # creates the block with the given name, coordinates, material, and type
-        block = ipk.modeler.create_box(origin=origin, sizes=dimensions, name=block_name, material=material_name)
+        block = ipk.modeler.create_box(
+            origin=origin, sizes=dimensions, name=block_name, material=material_name
+        )
 
         # Assign boundary conditions
         if row["block_type"] == "solid":
-            ipk.assign_solid_block(object_name=block_name, power_assignment=row["power"] + "W", boundary_name=block_name)
+            ipk.assign_solid_block(
+                object_name=block_name,
+                power_assignment=row["power"] + "W",
+                boundary_name=block_name,
+            )
         elif row["block_type"] == "network":
             ipk.create_two_resistor_network_block(
-                object_name=block_name, pcb=board.name, power=row["power"] + "W", rjb=row["Rjb"], rjc=row["Rjc"]
+                object_name=block_name,
+                pcb=board.name,
+                power=row["power"] + "W",
+                rjb=row["Rjb"],
+                rjc=row["Rjc"],
             )
         else:
             ipk.modeler[block.name].solve_inside = False
@@ -124,3 +138,4 @@ with open(filename, "r") as csv_file:
 # Release AEDT.
 
 ipk.release_desktop(True, True)
+temp_folder.cleanup()

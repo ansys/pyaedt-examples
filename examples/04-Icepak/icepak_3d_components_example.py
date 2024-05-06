@@ -13,12 +13,15 @@ import tempfile
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 from pyaedt import Icepak, downloads
+
 # -
 
 # Download needed files in a temporary folder
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
-package_temp_name, qfp_temp_name = downloads.download_icepak_3d_component(destination=temp_folder.name)
+package_temp_name, qfp_temp_name = downloads.download_icepak_3d_component(
+    destination=temp_folder.name
+)
 
 # ## Set AEDT version
 # Set AEDT version.
@@ -49,9 +52,7 @@ ipk.modeler["Region"].delete()
 
 # Define the heatsink using multiple boxes
 
-hs_base = ipk.modeler.create_box(
-    origin=[0, 0, 0], sizes=[37.5, 37.5, 2], name="HS_Base"
-)
+hs_base = ipk.modeler.create_box(origin=[0, 0, 0], sizes=[37.5, 37.5, 2], name="HS_Base")
 hs_base.material_name = "Al-Extruded"
 hs_fin = ipk.modeler.create_box(origin=[0, 0, 2], sizes=[37.5, 1, 18], name="HS_Fin1")
 hs_fin.material_name = "Al-Extruded"
@@ -76,12 +77,14 @@ mesh_region.update()
 
 hs_middle_fin = ipk.modeler.get_object_from_name(assignment=hs_fins[n_fins // 2])
 point_monitor_position = [
-                             0.5 * (hs_base.bounding_box[i] + hs_base.bounding_box[i + 3]) for i in range(2)
-                         ] + [
-                             hs_middle_fin.bounding_box[-1]
-                         ]  # average x,y, top z
+    0.5 * (hs_base.bounding_box[i] + hs_base.bounding_box[i + 3]) for i in range(2)
+] + [
+    hs_middle_fin.bounding_box[-1]
+]  # average x,y, top z
 ipk.monitor.assign_point_monitor(
-    point_position=point_monitor_position, monitor_quantity=["Temperature", "HeatFlux"], monitor_name="TopPoint"
+    point_position=point_monitor_position,
+    monitor_quantity=["Temperature", "HeatFlux"],
+    monitor_name="TopPoint",
 )
 ipk.monitor.assign_face_monitor(
     face_id=hs_base.bottom_face_z.id, monitor_quantity="Temperature", monitor_name="Bottom"
@@ -123,7 +126,9 @@ ipk.create_dataset(
 # Assign source power condition to the die.
 
 ipk.create_source_power(
-    face_id="DieSource", thermal_dependent_dataset="PowerDissipationDataset", source_name="DieSource"
+    face_id="DieSource",
+    thermal_dependent_dataset="PowerDissipationDataset",
+    source_name="DieSource",
 )
 
 # Assign thickness to the die attach surface.
@@ -145,8 +150,9 @@ ipk.monitor.assign_surface_monitor(
     surface_name="Die_Attach", monitor_quantity="Temperature", monitor_name="DieAttach"
 )
 
-# Export the QFP 3D component in the ``"componentLibrary"`` folder and close project. Here the auxiliary dictionary
-# allows exporting not only the monitor objects but also the dataset used for the power source assignment.
+# Export the QFP 3D component in the ``"componentLibrary"`` folder and close project.
+# Here the auxiliary dictionary allows exporting not only the monitor objects but also the dataset
+# used for the power source assignment.
 
 ipk.modeler.create_3dcomponent(
     component_file=os.path.join(temp_folder.name, "componentLibrary", "QFP.a3dcomp"),
@@ -162,7 +168,9 @@ ipk.release_desktop(close_projects=False, close_desktop=False)
 ipk = Icepak(
     projectname=package_temp_name, specified_version=aedt_version, non_graphical=non_graphical
 )
-ipk.plot(show=False, export_path=os.path.join(temp_folder.name, "electronic_package_missing_obj.jpg"))
+ipk.plot(
+    show=False, export_path=os.path.join(temp_folder.name, "electronic_package_missing_obj.jpg")
+)
 
 # The heatsink and the QFP are missing. They can be inserted as 3d components.
 # The auxiliary files are needed since the aim is to import also monitor objects and datasets.

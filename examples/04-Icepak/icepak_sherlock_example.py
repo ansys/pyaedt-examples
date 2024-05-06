@@ -7,17 +7,16 @@
 #
 # Perform required imports and set paths.
 
-import datetime
 import os
-from IPython.display import Image
+import tempfile
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
+from IPython.display import Image
 import pyaedt
 
 # Set paths
 
-project_folder = pyaedt.generate_unique_folder_name()
-input_dir = pyaedt.downloads.download_sherlock(destination=project_folder)
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
+input_dir = pyaedt.downloads.download_sherlock(destination=temp_folder.name)
 
 # ## Set non-graphical mode
 #
@@ -37,9 +36,9 @@ outline_polygon_name = "poly_14188"
 
 material_list = os.path.join(input_dir, material_name)
 component_list = os.path.join(input_dir, component_properties)
-validation = os.path.join(project_folder, "validation.log")
+validation = os.path.join(temp_folder.name, "validation.log")
 file_path = os.path.join(input_dir, component_step)
-project_name = os.path.join(project_folder, component_step[:-3] + "aedt")
+project_name = os.path.join(temp_folder.name, component_step[:-3] + "aedt")
 
 # ## Create Icepak project
 
@@ -55,17 +54,16 @@ ipk.modeler["Region"].delete()
 # Import a PCB from an AEDB file.
 odb_path = os.path.join(input_dir, aedt_odb_project)
 ipk.create_pcb_from_3dlayout(
-    component_name="Board",
-    project_name=odb_path,
-    design_name=aedt_odb_design_name
+    component_name="Board", project_name=odb_path, design_name=aedt_odb_design_name
 )
 
 # ## Create offset coordinate system
 #
 # Create an offset coordinate system to match ODB++ with the
 # Sherlock STEP file.
-bb=ipk.modeler.user_defined_components["Board1"].bounding_box
-stackup_thickness=bb[-1]-bb[2]
+
+bb = ipk.modeler.user_defined_components["Board1"].bounding_box
+stackup_thickness = bb[-1] - bb[2]
 ipk.modeler.create_coordinate_system(origin=[0, 0, stackup_thickness / 2], mode="view", view="XY")
 
 # ## Import CAD file
@@ -86,7 +84,7 @@ ipk.save_project(refresh_obj_ids_after_save=True)
 
 ipk.plot(
     show=False,
-    export_path=os.path.join(project_folder, "Sherlock_Example.jpg"),
+    export_path=os.path.join(temp_folder.name, "Sherlock_Example.jpg"),
     plot_air_objects=False,
 )
 
@@ -100,12 +98,14 @@ ipk.modeler.delete_objects_containing("pcb", False)
 #
 # Create an air region.
 
-x_pos, y_pos, z_pos, x_neg, y_neg, z_neg =[20, 20, 300, 20, 20, 300]
-ipk.modeler.create_air_region(x_pos=x_pos, y_pos=y_pos, z_pos=z_pos, x_neg=x_neg, y_neg=y_neg, z_neg=z_neg)
+x_pos, y_pos, z_pos, x_neg, y_neg, z_neg = [20, 20, 300, 20, 20, 300]
+ipk.modeler.create_air_region(
+    x_pos=x_pos, y_pos=y_pos, z_pos=z_pos, x_neg=x_neg, y_neg=y_neg, z_neg=z_neg
+)
 
 # ## Assign materials
 #
-# Assign materials from Sherlock file.
+# Use Sherlock file to assign materials.
 
 ipk.assignmaterial_from_sherlock_files(csv_component=component_list, csv_material=material_list)
 
@@ -129,16 +129,16 @@ total_power = ipk.assign_block_from_sherlock_file(csv_name=component_list)
 
 ipk.plot(
     show=False,
-    export_path=os.path.join(project_folder, "Sherlock_Example.jpg"),
+    export_path=os.path.join(temp_folder.name, "Sherlock_Example.jpg"),
     plot_air_objects=False,
 )
 
 # ## Set global mesh settings
-ipk.mesh.global_mesh_region.manual_settings=True
-ipk.mesh.global_mesh_region.settings['EnableMLM']=True
-ipk.mesh.global_mesh_region.settings['EnforeMLMType']='2D'
-ipk.mesh.global_mesh_region.settings['2DMLMType']='2DMLM_Auto'
-ipk.mesh.global_mesh_region.settings['NoOGrids']=True
+ipk.mesh.global_mesh_region.manual_settings = True
+ipk.mesh.global_mesh_region.settings["EnableMLM"] = True
+ipk.mesh.global_mesh_region.settings["EnforeMLMType"] = "2D"
+ipk.mesh.global_mesh_region.settings["2DMLMType"] = "2DMLM_Auto"
+ipk.mesh.global_mesh_region.settings["NoOGrids"] = True
 ipk.mesh.global_mesh_region.update()
 
 # ## Set Boundary Conditions
@@ -163,8 +163,9 @@ point1 = ipk.monitor.assign_point_monitor(
 )
 
 # Create line for report
+
 line = ipk.modeler.create_polyline(
-    [
+    points=[
         ipk.modeler["COMP_U10"].top_face_z.vertices[0].position,
         ipk.modeler["COMP_U10"].top_face_z.vertices[2].position,
     ],
@@ -188,21 +189,26 @@ ipk.save_project()
 # ## Get solution data and plots
 # The plot can be performed within AEDT...
 
-plot1 = ipk.post.create_fieldplot_surface(ipk.modeler["COMP_U10"].faces, "SurfTemperature")
-path = plot1.export_image("temperature.png")
+plot1 = ipk.post.create_fieldplot_surface(
+    assignment=ipk.modeler["COMP_U10"].faces, quantity="SurfTemperature"
+)
+path = plot1.export_image(full_path=os.path.join(temp_folder.name, "temperature.png"))
 Image(filename=path)  # Display the image
 
 # ... or using pyvista integration
 
 ipk.post.plot_field(
-    "SurfPressure", ipk.modeler["COMP_U10"].faces, export_path=ipk.working_directory, show=False
+    quantity="SurfPressure",
+    assignment=ipk.modeler["COMP_U10"].faces,
+    export_path=ipk.working_directory,
+    show=False,
 )
-
 
 # ## Save project and release AEDT
 
 # +
 ipk.save_project()
-
 ipk.release_desktop()
+
+temp_folder.cleanup()
 # -

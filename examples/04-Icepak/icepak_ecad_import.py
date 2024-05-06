@@ -10,6 +10,7 @@
 # Generic Python packages
 
 import os
+import tempfile
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
@@ -31,10 +32,10 @@ non_graphical = False
 # Download the project, open it, and save it to the temporary folder.
 
 # +
-temp_folder = pyaedt.generate_unique_folder_name()
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 ipk = pyaedt.Icepak(
-    projectname=os.path.join(temp_folder, "Icepak_ECAD_Import.aedt"),
+    projectname=os.path.join(temp_folder.name, "Icepak_ECAD_Import.aedt"),
     specified_version=AEDT_VERSION,
     new_desktop_session=True,
     non_graphical=non_graphical,
@@ -58,11 +59,13 @@ ipk = pyaedt.Icepak(
 
 # +
 def_path = pyaedt.downloads.download_file(
-    source="icepak/Icepak_ECAD_Import/A1_uprev.aedb", name="edb.def", destination=temp_folder
+    source="icepak/Icepak_ECAD_Import/A1_uprev.aedb", name="edb.def", destination=temp_folder.name
 )
-board_path = pyaedt.downloads.download_file(source="icepak/Icepak_ECAD_Import/", name="A1.bdf", destination=temp_folder)
+board_path = pyaedt.downloads.download_file(
+    source="icepak/Icepak_ECAD_Import/", name="A1.bdf", destination=temp_folder.name
+)
 library_path = pyaedt.downloads.download_file(
-    source="icepak/Icepak_ECAD_Import/", name="A1.ldf", destination=temp_folder
+    source="icepak/Icepak_ECAD_Import/", name="A1.ldf", destination=temp_folder.name
 )
 
 ipk.import_idf(board_path=board_path)
@@ -77,8 +80,9 @@ ipk.save_project()
 hfss3d_lo = Hfss3dLayout(projectname=def_path)
 hfss3d_lo.save_project()
 
-# Create a PCB component in Icepak linked to the 3D Layout project. The poly_0 polygon is used as the outline of the PCB
-# and a dissipation od "1W" is applied to the PCB.
+# Create a PCB component in Icepak linked to the 3D Layout project. The poly_0 polygon is used as
+# the outline of the PCB and a dissipation od "1W" is applied to the PCB.
+
 ipk.create_pcb_from_3dlayout(
     component_name="PCB_pyAEDT",
     project_name=hfss3d_lo.project_name,
@@ -94,13 +98,13 @@ ipk.modeler.delete_objects_containing(contained_string="IDF_BoardOutline", case_
 
 # ## Compute power budget
 #
-
 # Creates a setup to be able to calculate the power
-ipk.create_setup(name="setup1")
 
+ipk.create_setup(name="setup1")
 power_budget, total_power = ipk.post.power_budget(units="W")
 
 # Print the total power and the power_budget dictionary
+
 print(f"The total power is {total_power}.")
 print(power_budget)
 
@@ -109,3 +113,4 @@ print(power_budget)
 # Release AEDT.
 
 ipk.release_desktop(close_projects=True, close_desktop=True)
+temp_folder.cleanup()
