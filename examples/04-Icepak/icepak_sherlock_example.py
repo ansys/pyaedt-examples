@@ -11,6 +11,7 @@ import os
 import tempfile
 
 from IPython.display import Image
+import matplotlib.pyplot as plt
 import pyaedt
 
 # Set paths
@@ -40,92 +41,57 @@ validation = os.path.join(temp_folder.name, "validation.log")
 file_path = os.path.join(input_dir, component_step)
 project_name = os.path.join(temp_folder.name, component_step[:-3] + "aedt")
 
-# ## Create Icepak project
+# ## Create Icepak model
 
 ipk = pyaedt.Icepak(projectname=project_name)
 
-# Delete the region and disable autosave to speed up the import.
+# Disable autosave to speed up the import.
 
 ipk.autosave_disable()
-ipk.modeler["Region"].delete()
 
-# ## Import PCB from AEDB file
-#
+
 # Import a PCB from an AEDB file.
+
 odb_path = os.path.join(input_dir, aedt_odb_project)
 ipk.create_pcb_from_3dlayout(
     component_name="Board", project_name=odb_path, design_name=aedt_odb_design_name
 )
 
-# ## Create offset coordinate system
-#
-# Create an offset coordinate system to match ODB++ with the
-# Sherlock STEP file.
+# Create an offset coordinate system to match ODB++ with the Sherlock STEP file.
+# The thickness is computed from the ``"Board"`` component (``"Board1"`` is the
+# instance name of the ``"Board"`` native component) and used to offset the coordinate system.
 
 bb = ipk.modeler.user_defined_components["Board1"].bounding_box
 stackup_thickness = bb[-1] - bb[2]
 ipk.modeler.create_coordinate_system(origin=[0, 0, stackup_thickness / 2], mode="view", view="XY")
 
-# ## Import CAD file
-#
-# Import a CAD file.
+# Import the board components from a MCAD file and remove the PCB object as it is already
+# imported with the ECAD.
 
 ipk.modeler.import_3d_cad(file_path, refresh_all_ids=False)
-
-# ## Save CAD file
-#
-# Save the CAD file and refresh the properties from the parsing of the AEDT file.
-
-ipk.save_project(refresh_obj_ids_after_save=True)
-
-# ## Plot model
-#
-# Plot the model.
-
-ipk.plot(
-    show=False,
-    export_path=os.path.join(temp_folder.name, "Sherlock_Example.jpg"),
-    plot_air_objects=False,
-)
-
-# ## Delete PCB objects
-#
-# Delete the PCB objects.
-
 ipk.modeler.delete_objects_containing("pcb", False)
 
-# ## Create region
-#
-# Create an air region.
+# Modify the air region. Padding values are passed in this order: [+X, -X, +Y, -Y, +Z, -Z]
 
-x_pos, y_pos, z_pos, x_neg, y_neg, z_neg = [20, 20, 300, 20, 20, 300]
-ipk.modeler.create_air_region(
-    x_pos=x_pos, y_pos=y_pos, z_pos=z_pos, x_neg=x_neg, y_neg=y_neg, z_neg=z_neg
-)
+ipk.mesh.global_mesh_region.global_region.padding_values = [20, 20, 20, 20, 300, 300]
 
-# ## Assign materials
+# ## Assign materials and power dissipation conditions from Sherlock
 #
 # Use Sherlock file to assign materials.
 
 ipk.assignmaterial_from_sherlock_files(csv_component=component_list, csv_material=material_list)
 
-# ## Delete objects with no material assignments
-#
 # Delete objects with no materials assignments.
 
 no_material_objs = ipk.modeler.get_objects_by_material(material="")
 ipk.modeler.delete(assignment=no_material_objs)
 ipk.save_project()
 
-# ## Assign power to component blocks
-#
 # Assign power blocks from the Sherlock file.
 
 total_power = ipk.assign_block_from_sherlock_file(csv_name=component_list)
 
 # ## Plot model
-#
-# Plot the model again now that materials are assigned.
 
 ipk.plot(
     show=False,
@@ -133,36 +99,48 @@ ipk.plot(
     plot_air_objects=False,
 )
 
-# ## Set global mesh settings
+# ## Create simulation setup
+# ### Mesh settings
+# Set global mesh settings
+
 ipk.mesh.global_mesh_region.manual_settings = True
+ipk.mesh.global_mesh_region.settings["MaxElementSizeX"] = 10
+ipk.mesh.global_mesh_region.settings["MaxElementSizeY"] = 10
+ipk.mesh.global_mesh_region.settings["MaxElementSizeZ"] = 10
+ipk.mesh.global_mesh_region.settings["BufferLayers"] = 2
 ipk.mesh.global_mesh_region.settings["EnableMLM"] = True
-ipk.mesh.global_mesh_region.settings["EnforeMLMType"] = "2D"
-ipk.mesh.global_mesh_region.settings["2DMLMType"] = "2DMLM_Auto"
-ipk.mesh.global_mesh_region.settings["NoOGrids"] = True
+ipk.mesh.global_mesh_region.settings["UniformMeshParametersType"] = "Average"
+ipk.mesh.global_mesh_region.settings["MaxLevels"] = 3
 ipk.mesh.global_mesh_region.update()
 
-# ## Set Boundary Conditions
-# Assign free opening at all the region faces
+# Add PCB mesh with 2D multi-level meshing
+
+mesh_region = ipk.mesh.assign_mesh_region(assignment="Board1")
+mesh_region.manual_settings = True
+mesh_region.settings["MaxElementSizeX"] = 1
+mesh_region.settings["MaxElementSizeY"] = 1
+mesh_region.settings["MaxElementSizeZ"] = 1
+mesh_region.settings["EnableMLM"] = True
+mesh_region.settings["UniformMeshParametersType"] = "Average"
+mesh_region.settings["EnforeMLMType"] = "2D"
+mesh_region.settings["2DMLMType"] = "2DMLM_Auto"
+mesh_region.settings["MaxLevels"] = 1
+mesh_region.update()
+
+
+# ### Boundary conditions
+# assign free opening at all the region faces
+
 ipk.assign_pressure_free_opening(assignment=ipk.modeler.get_object_faces("Region"))
 
-# ## Solve setup
-# Max iterations is set to 20 for quick demonstration, please increase to at
-# least 100 for better accuracy.
-setup1 = ipk.create_setup()
-setup1.props["Solution Initialization - Y Velocity"] = "1m_per_sec"
-setup1.props["Radiation Model"] = "Discrete Ordinates Model"
-setup1.props["Include Gravity"] = True
-setup1.props["Secondary Gradient"] = True
-setup1.props["Convergence Criteria - Max Iterations"] = 10
-
-# ## Create Post-processing objects
+# ### Add post-processing object
 # Create point monitor
 
 point1 = ipk.monitor.assign_point_monitor(
     point_position=ipk.modeler["COMP_U10"].top_face_z.center, monitor_name="Point1"
 )
 
-# Create line for report
+# Create line for reporting after the simulation
 
 line = ipk.modeler.create_polyline(
     points=[
@@ -171,28 +149,66 @@ line = ipk.modeler.create_polyline(
     ],
     non_model=True,
 )
-ipk.post.create_report(expressions="Point1.Temperature", primary_sweep_variable="X")
 
-# ## Check for intersections
-#
+# ### Solve
+# Max iterations are set to 20 for quick demonstration, please increase to at
+# least 100 for better accuracy.
+
+setup1 = ipk.create_setup()
+setup1.props["Solution Initialization - Y Velocity"] = "1m_per_sec"
+setup1.props["Radiation Model"] = "Discrete Ordinates Model"
+setup1.props["Include Gravity"] = True
+setup1.props["Secondary Gradient"] = True
+setup1.props["Convergence Criteria - Max Iterations"] = 10
+
 # Check for intersections using validation and fix them by
 # assigning priorities.
 
 ipk.assign_priority_on_intersections()
 
-# ## Analyze the model
-#
+# Analyze the model
 
-ipk.analyze(num_cores=4, num_tasks=4)
+ipk.analyze(cores=4, tasks=4)
 ipk.save_project()
 
-# ## Get solution data and plots
-# The plot can be performed within AEDT...
+# ## Post-Processing
+# Get monitor point result
+
+pt_monitor_result = ipk.monitor.all_monitors[point1].value()
+print(pt_monitor_result)
+
+# Create a report on the previously defined line and get data from it
+
+report = ipk.post.create_report(
+    expressions=["Temperature", "Speed"],
+    context=line.name,
+    primary_sweep_variable="Distance",
+    report_category="Fields",
+    polyline_points=500,
+)
+report_data = report.get_solution_data()
+distance = [k[0] for k, _ in report_data.full_matrix_mag_phase[0]["Temperature"].items()]
+temperature = [v for _, v in report_data.full_matrix_mag_phase[0]["Temperature"].items()]
+speed = [v for _, v in report_data.full_matrix_mag_phase[0]["Speed"].items()]
+
+# Plot the data
+
+fig, ax = plt.subplots(1, 1)
+sc = ax.scatter(distance, speed, c=temperature)
+ax.grid()
+ax.set_xlabel("Distance [mm]")
+ax.set_ylabel("Speed [m/s]")
+cbar = fig.colorbar(sc)
+cbar.set_label("Temperature [cel]")
+
+# Plot contours. The plot can be performed within AEDT...
 
 plot1 = ipk.post.create_fieldplot_surface(
     assignment=ipk.modeler["COMP_U10"].faces, quantity="SurfTemperature"
 )
-path = plot1.export_image(full_path=os.path.join(temp_folder.name, "temperature.png"))
+path = plot1.export_image(
+    full_path=os.path.join(temp_folder.name, "temperature.png"), show_region=False
+)
 Image(filename=path)  # Display the image
 
 # ... or using pyvista integration

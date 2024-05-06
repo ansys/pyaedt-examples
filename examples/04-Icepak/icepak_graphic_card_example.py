@@ -94,6 +94,7 @@ mesh_region.settings
 mesh_region.settings["MaxElementSizeX"] = "3.35mm"
 mesh_region.settings["MaxElementSizeY"] = "1.75mm"
 mesh_region.settings["MaxElementSizeZ"] = "2.65mm"
+mesh_region.settings["EnableMLM"] = True
 mesh_region.settings["MaxLevels"] = "2"
 mesh_region.update()
 

@@ -71,7 +71,8 @@ library_path = pyaedt.downloads.download_file(
 ipk.import_idf(board_path=board_path)
 # -
 
-# ## Save the project
+# Save the project
+
 ipk.save_project()
 
 # ## Import ECAD
@@ -85,7 +86,7 @@ hfss3d_lo.save_project()
 
 ipk.create_pcb_from_3dlayout(
     component_name="PCB_pyAEDT",
-    project_name=hfss3d_lo.project_name,
+    project_name=hfss3d_lo.project_file,
     design_name=hfss3d_lo.design_name,
     extenttype="Polygon",
     outlinepolygon="poly_0",
