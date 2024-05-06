@@ -9,7 +9,7 @@
 
 import datetime
 import os
-import time
+from IPython.display import Image
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
@@ -26,67 +26,46 @@ input_dir = pyaedt.downloads.download_sherlock(destination=project_folder)
 
 non_graphical = False
 
-# ## Define variables
-#
-# Define input variables. The following code creates all input variables that are needed
-# to run this example.
+# ## Define input files and variables.
 
 material_name = "MaterialExport.csv"
 component_properties = "TutorialBoardPartsList.csv"
 component_step = "TutorialBoard.stp"
 aedt_odb_project = "SherlockTutorial.aedt"
 aedt_odb_design_name = "PCB"
-stackup_thickness = 2.11836
 outline_polygon_name = "poly_14188"
 
-# ## Launch AEDT
-#
-# Launch AEDT 2023 R2 in graphical mode.
-
-# +
-d = pyaedt.launch_desktop(
-    specified_version=AEDT_VERSION, non_graphical=non_graphical, new_desktop_session=True
-)
-
-start = time.time()
 material_list = os.path.join(input_dir, material_name)
 component_list = os.path.join(input_dir, component_properties)
 validation = os.path.join(project_folder, "validation.log")
 file_path = os.path.join(input_dir, component_step)
 project_name = os.path.join(project_folder, component_step[:-3] + "aedt")
-# -
 
 # ## Create Icepak project
-#
-# Create an Icepak project.
 
-ipk = pyaedt.Icepak(project_name)
+ipk = pyaedt.Icepak(projectname=project_name)
 
-# ## Delete region to speed up import
-#
 # Delete the region and disable autosave to speed up the import.
 
-d.disable_autosave()
-ipk.modeler.delete("Region")
-component_name = "from_ODB"
+ipk.autosave_disable()
+ipk.modeler["Region"].delete()
 
 # ## Import PCB from AEDB file
 #
 # Import a PCB from an AEDB file.
-
 odb_path = os.path.join(input_dir, aedt_odb_project)
 ipk.create_pcb_from_3dlayout(
-    component_name=component_name,
+    component_name="Board",
     project_name=odb_path,
-    design_name=aedt_odb_design_name,
-    extenttype="Polygon",
+    design_name=aedt_odb_design_name
 )
 
 # ## Create offset coordinate system
 #
 # Create an offset coordinate system to match ODB++ with the
 # Sherlock STEP file.
-
+bb=ipk.modeler.user_defined_components["Board1"].bounding_box
+stackup_thickness=bb[-1]-bb[2]
 ipk.modeler.create_coordinate_system(origin=[0, 0, stackup_thickness / 2], mode="view", view="XY")
 
 # ## Import CAD file
@@ -121,29 +100,24 @@ ipk.modeler.delete_objects_containing("pcb", False)
 #
 # Create an air region.
 
-ipk.modeler.create_air_region(*[20, 20, 300, 20, 20, 300])
+x_pos, y_pos, z_pos, x_neg, y_neg, z_neg =[20, 20, 300, 20, 20, 300]
+ipk.modeler.create_air_region(x_pos=x_pos, y_pos=y_pos, z_pos=z_pos, x_neg=x_neg, y_neg=y_neg, z_neg=z_neg)
 
 # ## Assign materials
 #
 # Assign materials from Sherlock file.
 
-ipk.assignmaterial_from_sherlock_files(component_list, material_list)
+ipk.assignmaterial_from_sherlock_files(csv_component=component_list, csv_material=material_list)
 
 # ## Delete objects with no material assignments
 #
 # Delete objects with no materials assignments.
 
-no_material_objs = ipk.modeler.get_objects_by_material("")
-ipk.modeler.delete(no_material_objs)
+no_material_objs = ipk.modeler.get_objects_by_material(material="")
+ipk.modeler.delete(assignment=no_material_objs)
 ipk.save_project()
 
 # ## Assign power to component blocks
-#
-# Assign power to component blocks.
-
-all_objects = ipk.modeler.object_names
-
-# ## Assign power blocks
 #
 # Assign power blocks from the Sherlock file.
 
@@ -159,39 +133,36 @@ ipk.plot(
     plot_air_objects=False,
 )
 
-# ## Set up boundaries
-#
-# Set up boundaries.
+# ## Set global mesh settings
+ipk.mesh.global_mesh_region.manual_settings=True
+ipk.mesh.global_mesh_region.settings['EnableMLM']=True
+ipk.mesh.global_mesh_region.settings['EnforeMLMType']='2D'
+ipk.mesh.global_mesh_region.settings['2DMLMType']='2DMLM_Auto'
+ipk.mesh.global_mesh_region.settings['NoOGrids']=True
+ipk.mesh.global_mesh_region.update()
 
-# Mesh settings that is tailored for PCB
+# ## Set Boundary Conditions
+# Assign free opening at all the region faces
+ipk.assign_pressure_free_opening(assignment=ipk.modeler.get_object_faces("Region"))
+
+# ## Solve setup
 # Max iterations is set to 20 for quick demonstration, please increase to at
 # least 100 for better accuracy.
-
-# +
-ipk.globalMeshSettings(
-    3,
-    gap_min_elements="1",
-    noOgrids=True,
-    MLM_en=True,
-    MLM_Type="2D",
-    edge_min_elements="2",
-    object="Region",
-)
-
 setup1 = ipk.create_setup()
 setup1.props["Solution Initialization - Y Velocity"] = "1m_per_sec"
 setup1.props["Radiation Model"] = "Discrete Ordinates Model"
 setup1.props["Include Gravity"] = True
 setup1.props["Secondary Gradient"] = True
 setup1.props["Convergence Criteria - Max Iterations"] = 10
-ipk.assign_openings(ipk.modeler.get_object_faces("Region"))
-# -
 
-# ## Create point monitor
-#
+# ## Create Post-processing objects
+# Create point monitor
 
-point1 = ipk.assign_point_monitor(ipk.modeler["COMP_U10"].top_face_z.center, monitor_name="Point1")
-ipk.modeler.set_working_coordinate_system("Global")
+point1 = ipk.monitor.assign_point_monitor(
+    point_position=ipk.modeler["COMP_U10"].top_face_z.center, monitor_name="Point1"
+)
+
+# Create line for report
 line = ipk.modeler.create_polyline(
     [
         ipk.modeler["COMP_U10"].top_face_z.vertices[0].position,
@@ -208,12 +179,6 @@ ipk.post.create_report(expressions="Point1.Temperature", primary_sweep_variable=
 
 ipk.assign_priority_on_intersections()
 
-# ## Compute power budget
-#
-
-power_budget, total = ipk.post.power_budget("W")
-print(total)
-
 # ## Analyze the model
 #
 
@@ -221,23 +186,23 @@ ipk.analyze(num_cores=4, num_tasks=4)
 ipk.save_project()
 
 # ## Get solution data and plots
-#
+# The plot can be performed within AEDT...
 
 plot1 = ipk.post.create_fieldplot_surface(ipk.modeler["COMP_U10"].faces, "SurfTemperature")
+path = plot1.export_image("temperature.png")
+Image(filename=path)  # Display the image
+
+# ... or using pyvista integration
+
 ipk.post.plot_field(
     "SurfPressure", ipk.modeler["COMP_U10"].faces, export_path=ipk.working_directory, show=False
 )
 
 
 # ## Save project and release AEDT
-#
-# Save the project and release AEDT.
 
 # +
 ipk.save_project()
 
-end = time.time() - start
-print("Elapsed time: {}".format(datetime.timedelta(seconds=end)))
-print("Project Saved in {} ".format(ipk.project_file))
 ipk.release_desktop()
 # -
