@@ -39,8 +39,6 @@ ipk = pyaedt.Icepak(
     new_desktop_session=True,
     non_graphical=non_graphical,
 )
-
-ipk.autosave_disable()
 # -
 
 # ## Import the IDF files
@@ -60,95 +58,54 @@ ipk.autosave_disable()
 
 # +
 def_path = pyaedt.downloads.download_file(
-    "icepak/Icepak_ECAD_Import/A1_uprev.aedb", "edb.def", temp_folder
+    source="icepak/Icepak_ECAD_Import/A1_uprev.aedb", name="edb.def", destination=temp_folder
 )
-board_path = pyaedt.downloads.download_file("icepak/Icepak_ECAD_Import/", "A1.bdf", temp_folder)
-library_path = pyaedt.downloads.download_file("icepak/Icepak_ECAD_Import/", "A1.ldf", temp_folder)
-
-ipk.import_idf(
-    board_path,
-    library_path=None,
-    control_path=None,
-    filter_cap=False,
-    filter_ind=False,
-    filter_res=False,
-    filter_height_under=None,
-    filter_height_exclude_2d=False,
-    power_under=None,
-    create_filtered_as_non_model=False,
-    high_surface_thick="0.07mm",
-    low_surface_thick="0.07mm",
-    internal_thick="0.07mm",
-    internal_layer_number=2,
-    high_surface_coverage=30,
-    low_surface_coverage=30,
-    internal_layer_coverage=30,
-    trace_material="Cu-Pure",
-    substrate_material="FR-4",
-    create_board=True,
-    model_board_as_rect=False,
-    model_device_as_rect=True,
-    cutoff_height="5mm",
-    component_lib="",
+board_path = pyaedt.downloads.download_file(source="icepak/Icepak_ECAD_Import/", name="A1.bdf", destination=temp_folder)
+library_path = pyaedt.downloads.download_file(
+    source="icepak/Icepak_ECAD_Import/", name="A1.ldf", destination=temp_folder
 )
 
-# ## Fit to scale, save the project
-#
-
-ipk.modeler.fit_all()  # scales to fit all objects in AEDT
-ipk.save_project()  # saves the project
-
-# ## Add an HFSS 3D Layout design with the layout information of the PCB
-#
-
-# 3D layout name available for import, the extension of .aedb should not be listed here
-Layout_name = "A1_uprev"
-# Adding a dummy HFSS 3D layout to the current project
-hfss3dLO = Hfss3dLayout("Icepak_ECAD_Import", "PCB_temp")
-# Importing the EDB file
-hfss3dLO.import_edb(def_path)
-# Save the new project so files are stored in the path
-hfss3dLO.save_project()
-# Deleting the dummy layout from the original project
-ipk.delete_design(name="PCB_temp", fallback_design=None)
-
-# This part creates a 3D component PCB in Icepak from the imported EDB file
-# 1 watt is assigned to the PCB as power input
-
-# +
-component_name = "PCB_ECAD"
-
-odb_path = os.path.join(temp_folder, "icepak/Icepak_ECAD_Import/" + Layout_name + ".aedt")
-ipk.create_pcb_from_3dlayout(
-    component_name,
-    odb_path,
-    Layout_name,
-    resolution=2,
-    extenttype="Polygon",
-    outlinepolygon="poly_0",
-    custom_x_resolution=None,
-    custom_y_resolution=None,
-    power_in=1,
-)
+ipk.import_idf(board_path=board_path)
 # -
 
-# ## Delete PCB objects
-#
-# Delete the PCB object from IDF import.
+# ## Save the project
+ipk.save_project()
 
-ipk.modeler.delete_objects_containing("IDF_BoardOutline", False)
+# ## Import ECAD
+# Add an HFSS 3D Layout design with the layout information of the PCB
+
+hfss3d_lo = Hfss3dLayout(projectname=def_path)
+hfss3d_lo.save_project()
+
+# Create a PCB component in Icepak linked to the 3D Layout project. The poly_0 polygon is used as the outline of the PCB
+# and a dissipation od "1W" is applied to the PCB.
+ipk.create_pcb_from_3dlayout(
+    component_name="PCB_pyAEDT",
+    project_name=hfss3d_lo.project_name,
+    design_name=hfss3d_lo.design_name,
+    extenttype="Polygon",
+    outlinepolygon="poly_0",
+    power_in=1,
+)
+
+# Delete the simplified PCB object coming from IDF import.
+
+ipk.modeler.delete_objects_containing(contained_string="IDF_BoardOutline", case_sensitive=False)
 
 # ## Compute power budget
 #
 
 # Creates a setup to be able to calculate the power
-ipk.create_setup("setup1")
+ipk.create_setup(name="setup1")
 
-power_budget, total = ipk.post.power_budget("W")
-print(total)
+power_budget, total_power = ipk.post.power_budget(units="W")
+
+# Print the total power and the power_budget dictionary
+print(f"The total power is {total_power}.")
+print(power_budget)
 
 # ## Release AEDT
 #
 # Release AEDT.
 
-ipk.release_desktop(True, True)
+ipk.release_desktop(close_projects=True, close_desktop=True)
