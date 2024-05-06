@@ -185,7 +185,7 @@ heatsink_obj = ipk.modeler.insert_3d_component(
 )
 
 QFP2_obj = ipk.modeler.insert_3d_component(
-    comp_file=os.path.join(temp_folder.name, "componentLibrary", "QFP.a3dcomp"),
+    input_file=os.path.join(temp_folder.name, "componentLibrary", "QFP.a3dcomp"),
     coordinate_system="Global",
     auxiliary_parameters=True,
 )
