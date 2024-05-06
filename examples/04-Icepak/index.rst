@@ -9,4 +9,4 @@ schematic generation, setup, and thermal postprocessing.
     icepak_csv_import.py
     icepak_ecad_import.py
     icepak_graphic_card_example.py
-    sherlock_example.py
+    icepak_sherlock_example.py
