@@ -45,23 +45,24 @@ ipk = Icepak(
 # Remove air region (which is present by default) because it is not needed as the heatsink will
 # be exported as a 3DComponent.
 
-ipk.modeler.get_object_from_name(objname="Region").delete()
+ipk.modeler["Region"].delete()
 
 # Define the heatsink using multiple boxes
 
 hs_base = ipk.modeler.create_box(
-    position=[0, 0, 0], dimensions_list=[37.5, 37.5, 2], name="HS_Base"
+    origin=[0, 0, 0], sizes=[37.5, 37.5, 2], name="HS_Base"
 )
 hs_base.material_name = "Al-Extruded"
-hs_fin = ipk.modeler.create_box(position=[0, 0, 2], dimensions_list=[37.5, 1, 18], name="HS_Fin1")
+hs_fin = ipk.modeler.create_box(origin=[0, 0, 2], sizes=[37.5, 1, 18], name="HS_Fin1")
 hs_fin.material_name = "Al-Extruded"
 n_fins = 11
-hs_fins = hs_fin.duplicate_along_line(vector=[0, 3.65, 0], nclones=n_fins)
+hs_fins = hs_fin.duplicate_along_line(vector=[0, 3.65, 0], clones=n_fins)
 
 ipk.plot(show=False, export_path=os.path.join(temp_folder.name, "Heatsink.jpg"))
 
 # Definition of a mesh region around the heatsink
-mesh_region = ipk.mesh.assign_mesh_region(objectlist=[hs_base.name, hs_fin.name] + hs_fins)
+
+mesh_region = ipk.mesh.assign_mesh_region(assignment=[hs_base.name, hs_fin.name] + hs_fins)
 mesh_region.manual_settings = True
 mesh_region.settings["MaxElementSizeX"] = "5mm"
 mesh_region.settings["MaxElementSizeY"] = "5mm"
@@ -73,17 +74,17 @@ mesh_region.update()
 
 # Assignment of monitor objects.
 
-hs_middle_fin = ipk.modeler.get_object_from_name(objname=hs_fins[n_fins // 2])
+hs_middle_fin = ipk.modeler.get_object_from_name(assignment=hs_fins[n_fins // 2])
 point_monitor_position = [
                              0.5 * (hs_base.bounding_box[i] + hs_base.bounding_box[i + 3]) for i in range(2)
                          ] + [
                              hs_middle_fin.bounding_box[-1]
                          ]  # average x,y, top z
 ipk.monitor.assign_point_monitor(
-    name=point_monitor_position, monitor_quantity=["Temperature", "HeatFlux"], monitor_name="TopPoint"
+    point_position=point_monitor_position, monitor_quantity=["Temperature", "HeatFlux"], monitor_name="TopPoint"
 )
 ipk.monitor.assign_face_monitor(
-    name=hs_base.bottom_face_z.id, monitor_quantity="Temperature", monitor_name="Bottom"
+    face_id=hs_base.bottom_face_z.id, monitor_quantity="Temperature", monitor_name="Bottom"
 )
 ipk.monitor.assign_point_monitor_in_object(
     name=hs_middle_fin.name, monitor_quantity="Temperature", monitor_name="MiddleFinCenter"
@@ -111,7 +112,7 @@ ipk.plot(show=False, export_path=os.path.join(temp_folder.name, "QFP2.jpg"))
 x_datalist = [45, 53, 60, 70]
 y_datalist = [0.5, 3, 6, 9]
 ipk.create_dataset(
-    ds_name="PowerDissipationDataset",
+    dsname="PowerDissipationDataset",
     xlist=x_datalist,
     ylist=y_datalist,
     is_project_dataset=False,
@@ -157,6 +158,7 @@ ipk.release_desktop(close_projects=False, close_desktop=False)
 
 # ## Create complete electronic package
 # Download and open a project containing the electronic package.
+
 ipk = Icepak(
     projectname=package_temp_name, specified_version=aedt_version, non_graphical=non_graphical
 )
@@ -168,7 +170,7 @@ ipk.plot(show=False, export_path=os.path.join(temp_folder.name, "electronic_pack
 # A coordinate system is created for the heatsink so that it is placed on top of the AGP.
 
 # +
-agp = ipk.modeler.get_object_from_name(objname="AGP_IDF")
+agp = ipk.modeler.get_object_from_name(assignment="AGP_IDF")
 cs = ipk.modeler.create_coordinate_system(
     origin=[agp.bounding_box[0], agp.bounding_box[1], agp.bounding_box[-1]],
     name="HeatsinkCS",
@@ -177,15 +179,15 @@ cs = ipk.modeler.create_coordinate_system(
     y_pointing=[0, 1, 0],
 )
 heatsink_obj = ipk.modeler.insert_3d_component(
-    comp_file=os.path.join(temp_folder.name, "componentLibrary", "Heatsink.a3dcomp"),
-    targetCS="HeatsinkCS",
-    auxiliary_dict=True,
+    input_file=os.path.join(temp_folder.name, "componentLibrary", "Heatsink.a3dcomp"),
+    coordinate_system="HeatsinkCS",
+    auxiliary_parameters=True,
 )
 
 QFP2_obj = ipk.modeler.insert_3d_component(
     comp_file=os.path.join(temp_folder.name, "componentLibrary", "QFP.a3dcomp"),
-    targetCS="Global",
-    auxiliary_dict=True,
+    coordinate_system="Global",
+    auxiliary_parameters=True,
 )
 
 ipk.plot(show=False, export_path=os.path.join(temp_folder.name, "electronic_package.jpg"))
