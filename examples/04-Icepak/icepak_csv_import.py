@@ -78,7 +78,7 @@ board = ipk.modeler.create_box(
 # Every row of the csv has information of a particular block.
 
 # +
-filename = pyaedt.downloads.download_file("icepak", "blocks-list.csv", destination=temp_folder)
+filename = pyaedt.downloads.download_file("icepak", "blocks-list.csv", destination=temp_folder.name)
 
 with open(filename, "r") as csv_file:
     csv_reader = csv.DictReader(csv_file)
