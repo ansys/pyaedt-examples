@@ -7,17 +7,12 @@
 #
 # Perform required imports including the operating system, Ansys PyAEDT packages.
 
-# Generic Python packages
-
 import os
 import tempfile
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 from pyaedt import Hfss3dLayout
-
-# PyAEDT Packages
-
 
 # ## Set non-graphical mode
 #
@@ -51,11 +46,11 @@ ipk = pyaedt.Icepak(
 # <img src="_static\ldf.png" width="400">
 #
 # Imports the idf files with several filtering options including caps, resistors,
-# inductors, power, size, ...
+# inductors, power, specific power, size...
 # There are also options for the PCB creation (number o flayers, copper percentages, layer sizes).
 # In this example, the default values are used for the PCB.
-# The imported PCB here will be deleted later and replaced by a PCB that has the trace
-# information for higher accuracy.
+# The imported PCB (from IDF) here will be deleted later and replaced by a PCB that has the trace
+# information (from ECAD) for higher accuracy.
 
 # +
 def_path = pyaedt.downloads.download_file(
@@ -81,8 +76,8 @@ ipk.save_project()
 hfss3d_lo = Hfss3dLayout(projectname=def_path)
 hfss3d_lo.save_project()
 
-# Create a PCB component in Icepak linked to the 3D Layout project. The poly_0 polygon is used as
-# the outline of the PCB and a dissipation od "1W" is applied to the PCB.
+# Create a PCB component in Icepak linked to the 3D Layout project. The polygon ``"poly_0"``
+# is used as the outline of the PCB and a dissipation of ``"1W"`` is applied to the PCB.
 
 ipk.create_pcb_from_3dlayout(
     component_name="PCB_pyAEDT",
@@ -104,10 +99,14 @@ ipk.modeler.delete_objects_containing(contained_string="IDF_BoardOutline", case_
 ipk.create_setup(name="setup1")
 power_budget, total_power = ipk.post.power_budget(units="W")
 
-# Print the total power and the power_budget dictionary
+# Print the total power and the ``power_budget`` dictionary.
 
 print(f"The total power is {total_power}.")
 print(power_budget)
+
+# As expected, only the PCB has an assigned power of 1W. In the presence of many components,
+# the power budget function allows for a quick analysis to determine if the dissipation sources
+# have been set correctly.
 
 # ## Release AEDT
 #
