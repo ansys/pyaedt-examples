@@ -23,10 +23,6 @@ package_temp_name, qfp_temp_name = downloads.download_icepak_3d_component(
     destination=temp_folder.name
 )
 
-# ## Set AEDT version
-# Set AEDT version.
-
-aedt_version = AEDT_VERSION
 
 # ## Set non-graphical mode
 # Set non-graphical mode.
@@ -39,7 +35,7 @@ non_graphical = False
 
 ipk = Icepak(
     projectname=os.path.join(temp_folder.name, "Heatsink.aedt"),
-    specified_version=aedt_version,
+    specified_version=AEDT_VERSION,
     non_graphical=non_graphical,
     close_on_exit=True,
     new_desktop_session=True,
