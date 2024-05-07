@@ -92,21 +92,13 @@ ipk.create_pcb_from_3dlayout(
 
 ipk.modeler.delete_objects_containing(contained_string="IDF_BoardOutline", case_sensitive=False)
 
-# ## Compute power budget
-#
-# Creates a setup to be able to calculate the power
+# ## Plot model
 
-ipk.create_setup(name="setup1")
-power_budget, total_power = ipk.post.power_budget(units="W")
-
-# Print the total power and the ``power_budget`` dictionary.
-
-print(f"The total power is {total_power}.")
-print(power_budget)
-
-# As expected, only the PCB has an assigned power of 1W. In the presence of many components,
-# the power budget function allows for a quick analysis to determine if the dissipation sources
-# have been set correctly.
+ipk.plot(
+    show=False,
+    export_path=os.path.join(temp_folder.name, "ECAD_import.jpg"),
+    plot_air_objects=False,
+)
 
 # ## Release AEDT
 #

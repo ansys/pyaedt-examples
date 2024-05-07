@@ -120,7 +120,7 @@ subregion.negative_z_padding = "10mm"
 # ### Global Mesh
 # Set global mesh resolution (using automatic settings) to 4.
 
-ipk.mesh.global_mesh_region.settings["MeshRegionResolution"]=4
+ipk.mesh.global_mesh_region.settings["MeshRegionResolution"] = 4
 ipk.mesh.global_mesh_region.update()
 
 
@@ -249,13 +249,15 @@ surflist += [i.id for i in ipk.modeler["MEMORY1"].faces]
 surflist += [i.id for i in ipk.modeler["MEMORY1_1"].faces]
 plot3 = ipk.post.create_fieldplot_surface(assignment=surflist, quantity="SurfTemperature")
 path = plot3.export_image(
-    full_path=os.path.join(temp_folder.name, "temperature.png"), orientation="top", show_region=False
+    full_path=os.path.join(temp_folder.name, "temperature.png"),
+    orientation="top",
+    show_region=False,
 )
 Image(filename=path)  # Display the image
 
 # pyVista can be used too.
 
-plot4=ipk.post.plot_field(
+plot4 = ipk.post.plot_field(
     quantity="Temperature",
     assignment=[
         "SERIAL_PORT",
@@ -270,7 +272,7 @@ plot4=ipk.post.plot_field(
     ],
     plot_cad_objs=False,
     show=False,
-    export_path=temp_folder.name
+    export_path=temp_folder.name,
 )
 
 # ## Release AEDT

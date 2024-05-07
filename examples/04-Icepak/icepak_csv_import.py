@@ -13,7 +13,11 @@ import csv
 import os
 import tempfile
 
+from IPython.display import Image
 from ansys.pyaedt.examples.constants import AEDT_VERSION
+import matplotlib as mpl
+from matplotlib import cm
+from matplotlib import pyplot as plt
 import pyaedt
 
 # ## Set non-graphical mode
@@ -135,6 +139,40 @@ with open(filename, "r") as csv_file:
                 name=row["name"], monitor_quantity="Temperature", monitor_name=row["name"]
             )
 # -
+
+
+# ## Compute power budget
+#
+# Calculate the power assigned to all the components
+power_budget, total_power = ipk.post.power_budget(units="W")
+
+# ## Plot model
+#
+# Plot the model and color each component depending on the power.
+# Instantiate the plotter object.
+
+pyvista_plot = ipk.plot(show=False, plot_air_objects=False, force_opacity_value=0.2)
+pyvista_plot.show_legend = False
+
+# Set the colormap to use
+
+cmap = plt.get_cmap("viridis")
+norm = mpl.colors.Normalize(vmin=min(power_budget.values()), vmax=max(power_budget.values()))
+scalarMap = cm.ScalarMappable(norm=norm, cmap=cmap)
+
+# Apply the color based on the power assigned and the colormap
+
+for actor in pyvista_plot.objects:
+    if actor.name in power_budget:
+        actor.color = [int(i * 255) for i in scalarMap.to_rgba(power_budget[actor.name])[0:3]]
+        actor.opacity = 1
+
+# Generate the plot and export
+
+mesh = pyvista_plot.generate_geometry_mesh()
+p = pyvista_plot.pv
+output = p.screenshot(os.path.join(temp_folder.name, "object_power.jpg"), scale=10)
+Image(os.path.join(temp_folder.name, "object_power.jpg"))
 
 # ## Release AEDT
 #

@@ -196,7 +196,13 @@ QFP2_obj = ipk.modeler.insert_3d_component(
     auxiliary_parameters=True,
 )
 
-ipk.plot(show=False, export_path=os.path.join(temp_folder.name, "electronic_package.jpg"))
+ipk.plot(
+    objects=[o for o in ipk.modeler.object_names if not o.startswith("DomainBox")],
+    show=False,
+    plot_air_objects=False,
+    export_path=os.path.join(temp_folder.name, "electronic_package.jpg"),
+    force_opacity_value=0.5,
+)
 # -
 
 # Create a coordinate system at the xmin, ymin, zmin of the model
