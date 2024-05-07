@@ -68,12 +68,11 @@ mesh_region.manual_settings = True
 mesh_region.settings["MaxElementSizeX"] = "5mm"
 mesh_region.settings["MaxElementSizeY"] = "5mm"
 mesh_region.settings["MaxElementSizeZ"] = "1mm"
-mesh_region.settings["MinElementsInGap"] = "4"
+mesh_region.settings["MinElementsInGap"] = 4
 mesh_region.settings["MaxLevels"] = 2
-mesh_region.settings["BufferLayers"] = 1
-ipk.mesh.global_mesh_region.settings["BufferLayers"] = 2
-ipk.mesh.global_mesh_region.settings["EnableMLM"] = True
-ipk.mesh.global_mesh_region.settings["UniformMeshParametersType"] = "Average"
+mesh_region.settings["BufferLayers"] = 2
+mesh_region.settings["EnableMLM"] = True
+mesh_region.settings["UniformMeshParametersType"] = "Average"
 mesh_region.update()
 
 # Assignment of monitor objects.
