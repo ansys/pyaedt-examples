@@ -21,13 +21,8 @@ import pyaedt
 
 # -
 
-# ## Set non-graphical mode
-#
-
-
 # ## Open project
 #
-# ### Download model
 # Download the project to a temporary folder.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")

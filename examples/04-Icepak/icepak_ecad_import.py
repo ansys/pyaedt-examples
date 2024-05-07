@@ -14,17 +14,9 @@ from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 from pyaedt import Hfss3dLayout
 
-# ## Set non-graphical mode
+# ## Open project
 #
-# Set non-graphical mode.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
-
-non_graphical = False
-
-
-# ## Download and open project
-#
-# Download the project, open it, and save it to the temporary folder.
+# Open an empty project in non-graphical mode, using a temporary folder.
 
 # +
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
@@ -33,7 +25,7 @@ ipk = pyaedt.Icepak(
     projectname=os.path.join(temp_folder.name, "Icepak_ECAD_Import.aedt"),
     specified_version=AEDT_VERSION,
     new_desktop_session=True,
-    non_graphical=non_graphical,
+    non_graphical=True,
 )
 # -
 
@@ -52,7 +44,8 @@ ipk = pyaedt.Icepak(
 # The imported PCB (from IDF) here will be deleted later and replaced by a PCB that has the trace
 # information (from ECAD) for higher accuracy.
 
-# +
+# Download ECAD and IDF files
+
 def_path = pyaedt.downloads.download_file(
     source="icepak/Icepak_ECAD_Import/A1_uprev.aedb", name="edb.def", destination=temp_folder.name
 )
@@ -63,8 +56,9 @@ library_path = pyaedt.downloads.download_file(
     source="icepak/Icepak_ECAD_Import/", name="A1.ldf", destination=temp_folder.name
 )
 
+# Import IDF
+
 ipk.import_idf(board_path=board_path)
-# -
 
 # Save the project
 
@@ -90,7 +84,7 @@ ipk.create_pcb_from_3dlayout(
 
 # Delete the simplified PCB object coming from IDF import.
 
-ipk.modeler.delete_objects_containing(contained_string="IDF_BoardOutline", case_sensitive=False)
+ipk.modeler["IDF_BoardOutline"].delete()
 
 # ## Plot model
 
@@ -98,6 +92,7 @@ ipk.plot(
     show=False,
     export_path=os.path.join(temp_folder.name, "ECAD_import.jpg"),
     plot_air_objects=False,
+    force_opacity_value=1,
 )
 
 # ## Release AEDT

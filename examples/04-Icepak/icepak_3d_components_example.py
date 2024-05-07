@@ -167,7 +167,9 @@ ipk = Icepak(
     projectname=package_temp_name, specified_version=AEDT_VERSION, non_graphical=non_graphical
 )
 ipk.plot(
-    show=False, export_path=os.path.join(temp_folder.name, "electronic_package_missing_obj.jpg")
+    objects=[o for o in ipk.modeler.object_names if not o.startswith("DomainBox")],
+    show=False,
+    export_path=os.path.join(temp_folder.name, "electronic_package_missing_obj.jpg"),
 )
 
 # The heatsink and the QFP are missing. They can be inserted as 3d components.

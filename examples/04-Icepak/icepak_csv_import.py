@@ -20,16 +20,9 @@ from matplotlib import cm
 from matplotlib import pyplot as plt
 import pyaedt
 
-# ## Set non-graphical mode
-#
-# Set non-graphical mode.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
-
-non_graphical = False
-
 # ## Download and open project
 #
-# Download the project, open it, and save it to the temporary folder.
+# Download the project and open it in non-graphical mode, using a temporary folder.
 
 # +
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
@@ -38,7 +31,7 @@ ipk = pyaedt.Icepak(
     projectname=os.path.join(temp_folder.name, "Icepak_CSV_Import.aedt"),
     specified_version=AEDT_VERSION,
     new_desktop_session=True,
-    non_graphical=non_graphical,
+    non_graphical=False,
 )
 # -
 
