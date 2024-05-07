@@ -164,7 +164,7 @@ ipk.release_desktop(close_projects=False, close_desktop=False)
 # Download and open a project containing the electronic package.
 
 ipk = Icepak(
-    projectname=package_temp_name, specified_version=aedt_version, non_graphical=non_graphical
+    projectname=package_temp_name, specified_version=AEDT_VERSION, non_graphical=non_graphical
 )
 ipk.plot(
     show=False, export_path=os.path.join(temp_folder.name, "electronic_package_missing_obj.jpg")
