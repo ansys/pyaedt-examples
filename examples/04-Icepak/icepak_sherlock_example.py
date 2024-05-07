@@ -7,6 +7,7 @@
 #
 # Perform required imports and set paths.
 
+# +
 import os
 import tempfile
 
@@ -14,26 +15,28 @@ from IPython.display import Image
 import matplotlib.pyplot as plt
 import pyaedt
 
-# Set paths
+# -
+
+# ## Define input files and variables.
+#
+# Set paths.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 input_dir = pyaedt.downloads.download_sherlock(destination=temp_folder.name)
 
-# ## Set non-graphical mode
-#
-# Set non-graphical mode.
-# You can set ``non_graphical`` value either to ``True`` or ``False``.
-
-non_graphical = False
-
-# ## Define input files and variables.
+# Define input files names.
 
 material_name = "MaterialExport.csv"
 component_properties = "TutorialBoardPartsList.csv"
 component_step = "TutorialBoard.stp"
 aedt_odb_project = "SherlockTutorial.aedt"
+
+# Define variables that will be needed later.
+
 aedt_odb_design_name = "PCB"
 outline_polygon_name = "poly_14188"
+
+# Define input files with path
 
 material_list = os.path.join(input_dir, material_name)
 component_list = os.path.join(input_dir, component_properties)
@@ -42,6 +45,13 @@ file_path = os.path.join(input_dir, component_step)
 project_name = os.path.join(temp_folder.name, component_step[:-3] + "aedt")
 
 # ## Create Icepak model
+
+# Set non-graphical mode to ``False`` so that AEDT will run without GUI.
+# You can set ``non_graphical`` value either to ``True`` or ``False``.
+
+non_graphical = False
+
+# Open the project
 
 ipk = pyaedt.Icepak(projectname=project_name)
 
