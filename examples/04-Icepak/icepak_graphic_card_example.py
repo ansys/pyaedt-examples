@@ -1,10 +1,10 @@
 # # Icepak: graphic card thermal analysis
 
-# This example shows how you can use PyAEDT to create a graphic card setup in
-# Icepak and postprocess results.
+# This example shows how you can use pyAEDT to create a graphic card setup in
+# Icepak and post-process results.
 # The example file is an Icepak project with a model that is already created and
 # has materials assigned.
-# Keywords: boundary conditions, 3D components
+# Keywords: boundary conditions, postprocessing, monitors
 
 # ## Perform required imports
 #
@@ -23,46 +23,53 @@ import pyaedt
 
 # ## Set non-graphical mode
 #
-# Set non-graphical mode, so that pyAEDT code runs in AEDT without opening the GUI.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
 
-non_graphical = True
 
-# ## Download and open project
+# ## Open project
 #
-# Download the project, open it, and save it to the temporary folder.
+# ### Download model
+# Download the project to a temporary folder.
 
-# +
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 project_temp_name = pyaedt.downloads.download_icepak(destination=temp_folder.name)
+
+# Open the project in without the GUI.
 
 ipk = pyaedt.Icepak(
     projectname=project_temp_name,
     specified_version=AEDT_VERSION,
     new_desktop_session=True,
-    non_graphical=non_graphical,
+    non_graphical=True,
 )
-# -
 
-# ## Plot model
+# ## Plot model and rotate
 #
-# Plot the model using the pyAEDT-pyVista integration.
+# Plot the model using the pyAEDT-pyVista integration and save the result to a file.
+# Rotate the model and plot again the rotated model.
 
-ipk.plot(
+# +
+plot1 = ipk.plot(
     show=False,
-    export_path=os.path.join(temp_folder.name, "Graphics_card.jpg"),
+    export_path=os.path.join(temp_folder.name, "Graphics_card_1.jpg"),
     plot_air_objects=False,
 )
 
-# ## Create source blocks
+ipk.modeler.rotate(ipk.modeler.object_names, "X")
+
+plot2 = ipk.plot(
+    show=False,
+    export_path=os.path.join(temp_folder.name, "Graphics_card_2.jpg"),
+    plot_air_objects=False,
+)
+# -
+
+# ## Boundary conditions
 #
 # Create source blocks on the CPU and memories.
 
 ipk.create_source_block(object_name="CPU", input_power="25W")
 ipk.create_source_block(object_name=["MEMORY1", "MEMORY1_1"], input_power="5W")
 
-# ## Assign openings and grille
-#
 # The air region object handler is used to specify the inlet (fixed velocity condition) and outlet
 # (fixed pressure condition) at x_max and x_min.
 
@@ -74,9 +81,10 @@ ipk.assign_velocity_free_opening(
     velocity=["1m_per_sec", "0m_per_sec", "0m_per_sec"],
 )
 
-# ## Assign mesh regions
+# ## Mesh Settings
 #
-# Assign a mesh region to the heat sink and CPU.
+# ### Mesh Region
+# Assign a mesh region around the heat sink and CPU.
 
 mesh_region = ipk.mesh.assign_mesh_region(assignment=["HEAT_SINK", "CPU"])
 
@@ -91,14 +99,32 @@ mesh_region.settings
 
 # Modify settings and update
 
-mesh_region.settings["MaxElementSizeX"] = "3.35mm"
-mesh_region.settings["MaxElementSizeY"] = "1.75mm"
-mesh_region.settings["MaxElementSizeZ"] = "2.65mm"
+mesh_region.settings["MaxElementSizeX"] = "2mm"
+mesh_region.settings["MaxElementSizeY"] = "2mm"
+mesh_region.settings["MaxElementSizeZ"] = "2mm"
 mesh_region.settings["EnableMLM"] = True
 mesh_region.settings["MaxLevels"] = "2"
+mesh_region.settings["MinElementsInGap"] = 4
 mesh_region.update()
 
-# ## Assign point monitor
+# Modify the slack of the subregion around the objects
+
+subregion = mesh_region.assignment
+subregion.positive_x_padding = "20mm"
+subregion.positive_y_padding = "5mm"
+subregion.positive_z_padding = "5mm"
+subregion.negative_x_padding = "5mm"
+subregion.negative_y_padding = "5mm"
+subregion.negative_z_padding = "10mm"
+
+# ### Global Mesh
+# Set global mesh resolution (using automatic settings) to 4.
+
+ipk.mesh.global_mesh_region.settings["MeshRegionResolution"]=4
+ipk.mesh.global_mesh_region.update()
+
+
+# ## Point monitors
 #
 # Assign a temperature face monitor to the CPU face in contact with the heatsink.
 
@@ -112,7 +138,7 @@ m1 = ipk.monitor.assign_face_monitor(
 speed_monitors = []
 for x_pos in range(0, 82, 2):
     m = ipk.monitor.assign_point_monitor(
-        point_position=[f"{x_pos}mm", "14.243mm", "-55mm"], monitor_quantity="Speed"
+        point_position=[f"{x_pos}mm", "40mm", "15mm"], monitor_quantity="Speed"
     )
     speed_monitors.append(m)
 
@@ -130,23 +156,13 @@ ipk.analyze()
 
 # ## PostProcess
 #
-# Create a temperature plot on main components and export it to a png file.
-
-surflist = [i.id for i in ipk.modeler["CPU"].faces]
-surflist += [i.id for i in ipk.modeler["MEMORY1"].faces]
-surflist += [i.id for i in ipk.modeler["MEMORY1_1"].faces]
-plot5 = ipk.post.create_fieldplot_surface(assignment=surflist, quantity="SurfTemperature")
-path = plot5.export_image(
-    full_path=os.path.join(temp_folder.name, "temperature.png"), orientation="back"
-)
-Image(filename=path)  # Display the image
+# ### Quantitative post-processing
 
 # Get the point monitor data. A dictionary is returned with 'Min', 'Max' and 'Mean' keys.
 
 temperature_data = ipk.post.evaluate_monitor_quantity(monitor=m1, quantity="Temperature")
 temperature_data
 
-# ## Advanced analysis with pandas
 # It is also possible to get the data as pandas dataframe for advanced post-processing.
 
 speed_fs = ipk.post.create_field_summary()
@@ -224,6 +240,38 @@ ax.set_title(f"Correlation between Temperature and Velocity: {correlation:.2f}")
 # The further away from the assembly, the faster and colder the air due to mixing.
 # Despite being extremely simple, this example should demonstrate the potential of importing field
 # summary data into pandas.
+
+# ### Qualitative Post-Processing
+# Create a temperature plot on main components and export it to a png file.
+
+surflist = [i.id for i in ipk.modeler["CPU"].faces]
+surflist += [i.id for i in ipk.modeler["MEMORY1"].faces]
+surflist += [i.id for i in ipk.modeler["MEMORY1_1"].faces]
+plot3 = ipk.post.create_fieldplot_surface(assignment=surflist, quantity="SurfTemperature")
+path = plot3.export_image(
+    full_path=os.path.join(temp_folder.name, "temperature.png"), orientation="top", show_region=False
+)
+Image(filename=path)  # Display the image
+
+# pyVista can be used too.
+
+plot4=ipk.post.plot_field(
+    quantity="Temperature",
+    assignment=[
+        "SERIAL_PORT",
+        "MEMORY1",
+        "MEMORY1_1",
+        "CAPACITOR",
+        "CAPACITOR_1",
+        "KB",
+        "HEAT_SINK",
+        "CPU",
+        "ALPHA_MAIN_PCB",
+    ],
+    plot_cad_objs=False,
+    show=False,
+    export_path=temp_folder.name
+)
 
 # ## Release AEDT
 
