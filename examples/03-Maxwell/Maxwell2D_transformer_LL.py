@@ -9,14 +9,19 @@
 # ## Perform required imports
 
 import tempfile
+
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 from pyaedt import Maxwell2d
+
+# ## Create temporary directory
+#
+# Create temporary directory.
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Initialize and launch Maxwell 2D
 #
-# Initialize and launch Maxwell 2D, providing the version, path to the project, and the design
+# Initialize and launch Maxwell 2D, providing the version, path to the project, the design
 # name and type.
 
 non_graphical = True
@@ -26,19 +31,20 @@ design_name = "1 Magnetostatic"
 solver = "MagnetostaticXY"
 desktop_version = AEDT_VERSION
 
-m2d = Maxwell2d(specified_version=desktop_version,
-                new_desktop_session=False,
-                designname=design_name,
-                projectname=project_name,
-                solution_type=solver,
-                non_graphical=non_graphical)
+m2d = Maxwell2d(
+    specified_version=desktop_version,
+    new_desktop_session=False,
+    designname=design_name,
+    projectname=project_name,
+    solution_type=solver,
+    non_graphical=non_graphical,
+)
 
 # ## Initialize dictionaries
 #
 # Initialize dictionaries that contain all the definitions for the design variables.
 
-mod = m2d.modeler
-mod.model_units = "mm"
+m2d.modeler.model_units = "mm"
 
 dimensions = {
     "core_width": "1097mm",
@@ -94,29 +100,29 @@ for k, v in specifications.items():
 #
 # Create transformer core, HV and LV windings, and the region.
 
-core_id = mod.create_rectangle(
+core = m2d.modeler.create_rectangle(
     position=[0, 0, 0],
     dimension_list=["core_width", "core_height", 0],
     name="core",
     matname="steel_1008",
 )
 
-core_hole_id = mod.create_rectangle(
+core_hole = m2d.modeler.create_rectangle(
     position=["core_opening_x1", "core_opening_y1", 0],
     dimension_list=["core_opening_width", "core_opening_height", 0],
     name="core_hole",
 )
 
-mod.subtract(blank_list=[core_id], tool_list=[core_hole_id], keep_originals=False)
+m2d.modeler.subtract(blank_list=[core], tool_list=[core_hole], keep_originals=False)
 
-lv_id = mod.create_rectangle(
+lv = m2d.modeler.create_rectangle(
     position=["LV_x1", "LV_y1", 0],
     dimension_list=["LV_width", "LV_height", 0],
     name="LV",
     matname="copper",
 )
 
-hv_id = mod.create_rectangle(
+hv = m2d.modeler.create_rectangle(
     position=["HV_x1", "HV_y1", 0],
     dimension_list=["HV_width", "HV_height", 0],
     name="HV",
@@ -124,58 +130,35 @@ hv_id = mod.create_rectangle(
 )
 
 # Very small region is enough, because all the flux is concentrated in the core
-region_id = mod.create_region(
-    pad_percent=[20, 10, 0, 10]
-)
+region = m2d.modeler.create_region(pad_percent=[20, 10, 0, 10])
 
 # ## Assign boundary condition
 #
 # Assign vector potential to zero on all region boundaries. This makes x=0 edge a symmetry boundary.
 
-region_edges = region_id.edges
-
-m2d.assign_vector_potential(
-    input_edge=region_edges,
-    bound_name="VectorPotential1"
-)
+m2d.assign_vector_potential(input_edge=region.edges, bound_name="VectorPotential1")
 
 # ## Create initial mesh settings
 #
 # Assign a relatively dense mesh to all objects to ensure that the energy is calculated accurately.
 
 m2d.mesh.assign_length_mesh(
-    names=["core", "Region", "LV", "HV"],
-    maxlength=50,
-    maxel=None,
-    meshop_name="all_objects"
+    names=["core", "Region", "LV", "HV"], maxlength=50, maxel=None, meshop_name="all_objects"
 )
 
 # ## Define excitations
 #
 # Assign the same current in amp-turns but in opposite directions to HV and LV windings.
 
-m2d.assign_current(
-    object_list=lv_id,
-    amplitude="Amp_turns",
-    name="LV"
-)
-m2d.assign_current(
-    object_list=hv_id,
-    amplitude="Amp_turns",
-    name="HV",
-    swap_direction=True
-)
+m2d.assign_current(object_list=lv, amplitude="Amp_turns", name="LV")
+m2d.assign_current(object_list=hv, amplitude="Amp_turns", name="HV", swap_direction=True)
 
 # ## Create and analyze the setup
 #
 # Create and analyze the setup. Setu no. of minimum passes to 3 to ensure accuracy.
 
-m2d.create_setup(
-    setupname="Setup1",
-    MinimumPasses=3
-)
+m2d.create_setup(setupname="Setup1", MinimumPasses=3)
 m2d.analyze_setup()
-
 
 # ## Calculate transformer leakage inductance and reactance
 #
@@ -233,25 +216,29 @@ m2d.post.create_report(
 
 m2d.logger.clear_messages()
 m2d.logger.info(
-    "Leakage_inductance =  {:.4f}H".format(m2d.post.get_scalar_field_value(quantity_name="Leakage_inductance"))
+    "Leakage_inductance =  {:.4f}H".format(
+        m2d.post.get_scalar_field_value(quantity_name="Leakage_inductance")
+    )
 )
 m2d.logger.info(
-    "Leakage_reactance =  {:.2f}Ohm".format(m2d.post.get_scalar_field_value(quantity_name="Leakage_reactance"))
+    "Leakage_reactance =  {:.2f}Ohm".format(
+        m2d.post.get_scalar_field_value(quantity_name="Leakage_reactance")
+    )
 )
 
 # ## Plot energy in the simulation domain
 #
 # Most of the energy is confined in the air between the HV and LV windings.
 
-object_faces = []
-for name in mod.object_names:
-    object_faces.extend(m2d.modeler.get_object_faces(name))
-
 energy_field_overlay = m2d.post.create_fieldplot_surface(
-    objlist=object_faces,
+    objlist=m2d.modeler.object_names,
     quantityName="energy",
     plot_name="Energy",
 )
+
+# ## Release AEDT and clean up temporary directory
+#
+# Release AEDT and remove both the project and temporary directory.
 
 m2d.save_project()
 m2d.release_desktop()
