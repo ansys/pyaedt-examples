@@ -142,7 +142,7 @@ hv = m2d.modeler.create_rectangle(
 region = m2d.modeler.create_region(pad_percent=[20, 10, 0, 10])
 
 # ## Assign boundary condition
-
+#
 # Assign vector potential to zero on all region boundaries. This makes x=0 edge a symmetry boundary.
 
 m2d.assign_vector_potential(input_edge=region.edges, bound_name="VectorPotential1")
