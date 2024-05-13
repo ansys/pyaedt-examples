@@ -6,12 +6,10 @@
 #
 # Perform required imports.
 
-import os
 import tempfile
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 from pyaedt import Maxwell3d
-
 
 # ## Create temporary directory
 #
@@ -28,9 +26,9 @@ non_graphical = False
 
 # ## Launch AEDT and Maxwell 3D
 #
-# Launch AEDT and Maxwell 3D. The following code sets up the project and
-# design names, the solver, and
-# the version. It also creates an instance of the ``Maxwell3d`` class named ``m3d``.
+# Launch AEDT and Maxwell 3D. The following code sets up the project,
+# design names, the solver, and the version.
+# It also creates an instance of the ``Maxwell3d`` class named ``m3d``.
 
 # +
 project_name = "Busbars"
@@ -64,17 +62,11 @@ setup.props["TimeStep"] = "1ms"
 
 # -
 bar1 = m3d.modeler.create_box(
-    position=[0, 0, 0],
-    dimensions_list=[5, 20, 1],
-    matname="copper",
-    name="bar1"
+    position=[0, 0, 0], dimensions_list=[5, 20, 1], matname="copper", name="bar1"
 )
 
 bar2 = m3d.modeler.create_box(
-    position=[0, 0, 5],
-    dimensions_list=[5, 20, 1],
-    matname="copper",
-    name="bar2"
+    position=[0, 0, 5], dimensions_list=[5, 20, 1], matname="copper", name="bar2"
 )
 
 m3d.modeler.create_region(pad_percent=[300, 0, 300])

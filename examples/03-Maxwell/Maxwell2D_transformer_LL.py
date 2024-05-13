@@ -8,10 +8,13 @@
 
 # ## Perform required imports
 
+# +
 import tempfile
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 from pyaedt import Maxwell2d
+
+# -
 
 # ## Create temporary directory
 #
@@ -24,6 +27,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 # Initialize and launch Maxwell 2D, providing the version, path to the project, the design
 # name and type.
 
+# +
 non_graphical = False
 
 project_name = "Transformer_leakage_inductance"
@@ -39,11 +43,13 @@ m2d = Maxwell2d(
     solution_type=solver,
     non_graphical=non_graphical,
 )
+# -
 
 # ## Initialize dictionaries
 #
 # Initialize dictionaries that contain all the definitions for the design variables.
 
+# +
 m2d.modeler.model_units = "mm"
 
 dimensions = {
@@ -81,11 +87,13 @@ specifications = {
     "HV_turns": "980",
     "HV_current": "Amp_turns/HV_turns",
 }
+# -
 
 # ## Define variables from dictionaries
 #
 # Define design variables from the created dictionaries.
 
+# +
 m2d.variable_manager.set_variable(variable_name="Dimensions")
 
 for k, v in dimensions.items():
@@ -95,11 +103,13 @@ m2d.variable_manager.set_variable(variable_name="Windings")
 
 for k, v in specifications.items():
     m2d[k] = v
+# -
 
 # ## Create design geometries
 #
 # Create transformer core, HV and LV windings, and the region.
 
+# +
 core = m2d.modeler.create_rectangle(
     position=[0, 0, 0],
     dimension_list=["core_width", "core_height", 0],
@@ -129,14 +139,14 @@ hv = m2d.modeler.create_rectangle(
     matname="copper",
 )
 
-# Very small region is enough, because all the flux is concentrated in the core
 region = m2d.modeler.create_region(pad_percent=[20, 10, 0, 10])
 
 # ## Assign boundary condition
-#
+
 # Assign vector potential to zero on all region boundaries. This makes x=0 edge a symmetry boundary.
 
 m2d.assign_vector_potential(input_edge=region.edges, bound_name="VectorPotential1")
+# -
 
 # ## Create initial mesh settings
 #
@@ -164,6 +174,7 @@ m2d.analyze_setup()
 #
 # Calculate transformer leakage inductance from the magnetic energy.
 
+# +
 field_calculator = m2d.ofieldsreporter
 
 field_calculator.EnterQty("Energy")
@@ -211,6 +222,7 @@ m2d.post.create_report(
     plot_type="Data Table",
     plotname="Transformer Leakage Inductance",
 )
+# -
 
 # ## Print leakage inductance and reactance values in the Message Manager
 
