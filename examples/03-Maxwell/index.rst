@@ -18,3 +18,4 @@ and Transient).
     Maxwell_Control_Program.py
     Maxwell_Magnet.py
     Maxwell_Transformer_Coreloss.py
+    Maxwell2D_transformer_LL.py
