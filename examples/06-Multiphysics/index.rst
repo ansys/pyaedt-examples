@@ -9,4 +9,3 @@ like Icepak or Mechanical.
     Hfss_Icepak_Coupling.py
     Hfss_Mechanical.py
     MRI.py
-    Maxwell-Mechanical.py
