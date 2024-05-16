@@ -55,7 +55,7 @@ edbapp.design_options.antipads_always_on = True
 # ## Add material definitions
 
 edbapp.materials.add_conductor_material(name="copper", conductivity=58000000)
-edbapp.materials.add_dielectric_material(name="fr4_epoxy", permittivity=4, dielectric_loss_tangent=0.02)
+edbapp.materials.add_dielectric_material(name="FR4_epoxy", permittivity=4, dielectric_loss_tangent=0.02)
 edbapp.materials.add_dielectric_material(name="solder_mask", permittivity=3.1, dielectric_loss_tangent=0.035)
 
 # ## Create stackup
@@ -65,7 +65,7 @@ edbapp.stackup.create_symmetric_stackup(
     inner_layer_thickness="18um",
     outer_layer_thickness="50um",
     dielectric_thickness="100um",
-    dielectric_material="fr4_epoxy",
+    dielectric_material="FR4_epoxy",
     soldermask=True,
     soldermask_thickness="20um",
 )
