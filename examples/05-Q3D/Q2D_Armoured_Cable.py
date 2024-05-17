@@ -212,7 +212,7 @@ q2d.modeler.fit_all()
 # ## Assign design settings
 
 lumped_length = "100m"
-q2d_des_settings = q2d.design_settings()
+q2d_des_settings = q2d.design_settings
 q2d_des_settings["LumpedLength"] = lumped_length
 q2d.change_design_settings(q2d_des_settings)
 
