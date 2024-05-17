@@ -186,7 +186,7 @@ siwave.run_dc_simulation()
 
 # ### Export Icepak project
 
-siwave.export_icepak_project(os.path.join(temp_folder.name, "from_siwave.aedt"), "siwave_dc")
+# siwave.export_icepak_project(os.path.join(temp_folder.name, "from_siwave.aedt"), "siwave_dc")
 
 # ### Close SIwave project
 
