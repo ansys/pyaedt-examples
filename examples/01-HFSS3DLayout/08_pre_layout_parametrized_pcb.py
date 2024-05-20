@@ -16,6 +16,8 @@
 # +
 import os
 import tempfile
+import time
+
 from pyedb import Edb
 from pyaedt import Hfss3dLayout
 from pyaedt.downloads import download_file
@@ -296,8 +298,8 @@ edb.close_edb()
 
 h3d = Hfss3dLayout(
     projectname=aedb_path,
-    specified_version="2024.1",
-    non_graphical=False,
+    specified_version=AEDT_VERSION,
+    non_graphical=True,
     new_desktop_session=True,
 )
 
@@ -308,12 +310,12 @@ setup = h3d.create_setup()
 setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = 3
 
 h3d.create_linear_count_sweep(
-    setupname=setup.name,
+    setup=setup.name,
     unit="GHz",
-    freqstart=0,
-    freqstop=10,
+    start_frequency=0,
+    stop_frequency=10,
     num_of_freq_points=1001,
-    sweepname="sweep1",
+    name="sweep1",
     sweep_type="Interpolating",
     interpolation_tol_percent=1,
     interpolation_max_solutions=255,
@@ -325,10 +327,10 @@ h3d.create_linear_count_sweep(
 # ### Define the differential pairs to used to calculate differential and common mode  s-parameters
 
 h3d.set_differential_pair(
-    diff_name="In", positive_terminal="wave_port_1:T1", negative_terminal="wave_port_1:T2"
+    differential_mode="In", assignment="wave_port_1:T1", reference="wave_port_1:T2"
 )
 h3d.set_differential_pair(
-    diff_name="Out", positive_terminal="wave_port_2:T1", negative_terminal="wave_port_2:T2"
+    differential_mode="Out", assignment="wave_port_2:T1", reference="wave_port_2:T2"
 )
 
 # Solve the project.
@@ -338,7 +340,7 @@ h3d.analyze()
 # Plot the results and shut down AEDT.
 
 solutions = h3d.post.get_solution_data(
-    expression=["dB(S(In,In))", "dB(S(In,Out))"], context="Differential Pairs"
+    expressions=["dB(S(In,In))", "dB(S(In,Out))"], context="Differential Pairs"
 )
 solutions.plot()
 h3d.release_desktop()
@@ -350,4 +352,5 @@ h3d.release_desktop()
 #
 # The final cell cleans up the temporary directory, removing all files.
 
+time.sleep(3)
 temp_folder.cleanup()
