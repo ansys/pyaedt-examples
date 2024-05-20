@@ -7,6 +7,7 @@
 
 import os
 import tempfile
+import time
 from pyaedt import Edb
 from pyaedt.downloads import download_file
 try:
@@ -54,4 +55,5 @@ edbapp.close_edb()
 
 # ## Clean up the temporary directory
 
+time.sleep(3)
 temp_folder.cleanup()

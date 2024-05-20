@@ -18,6 +18,7 @@
 import os
 import json
 import tempfile
+import time
 from pyaedt import Edb
 from pyaedt import Hfss3dLayout
 from pyaedt.downloads import download_file
@@ -216,4 +217,5 @@ h3d.close_desktop()
 # All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notbook you 
 # can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
+time.sleep(3)
 temp_folder.cleanup()
