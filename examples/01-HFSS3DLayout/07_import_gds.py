@@ -15,11 +15,13 @@
 import os
 import tempfile
 
-from ansys.pyaedt.examples.constants import EDB_VERSION
 from pyaedt.downloads import download_file
 from pyedb.dotnet.edb_core.edb_data.control_file import ControlFile
 from pyedb import Edb
-
+try:
+    from ansys.pyaedt.examples.constants import EDB_VERSION
+except:
+    EDB_VERSION = "2024.1"
 
 # Download the example data.
 

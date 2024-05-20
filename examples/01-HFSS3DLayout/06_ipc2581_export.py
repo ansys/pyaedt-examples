@@ -9,7 +9,10 @@ import os
 import tempfile
 from pyaedt import Edb
 from pyaedt.downloads import download_file
-from ansys.pyaedt.examples.constants import EDB_VERSION
+try:
+    from ansys.pyaedt.examples.constants import EDB_VERSION
+except:
+    EDB_VERSION = "2024.1"
 
 # Download the example PCB data.
 
