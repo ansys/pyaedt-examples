@@ -10,7 +10,7 @@ pre-layout design creation.
     02_dc_ir_analysis.py
     03_gui_manipulation.py
     04_pre_layout_sma_connector_on_pcb.py
-    05_electrothermal_analysis.py
     06_ipc2581_export.py
     07_import_gds.py
     08_pre_layout_parametrized_pcb.py
+    .. 05_electrothermal_analysis.py
