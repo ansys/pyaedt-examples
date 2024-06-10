@@ -177,13 +177,13 @@ print(temp_folder.name)
 
 # ### Load edb into HFSS 3D Layout.
 
-siwave = Siwave(specified_version=AEDT_VERSION)
-siwave.open_project(proj_path=aedb)
-siwave.save_project(projectpath=temp_folder.name, projectName="ansys")
+# siwave = Siwave(specified_version=AEDT_VERSION)
+# siwave.open_project(proj_path=aedb)
+# siwave.save_project(projectpath=temp_folder.name, projectName="ansys")
 
 # ### Analyze
 
-siwave.run_dc_simulation()
+# siwave.run_dc_simulation()
 
 # ### Export Icepak project
 
@@ -191,11 +191,11 @@ siwave.run_dc_simulation()
 
 # ### Close SIwave project
 
-siwave.close_project()
+# siwave.close_project()
 
 # ## Shut Down SIwave
 
-siwave.quit_application()
+# siwave.quit_application()
 
 # ## Cleanup
 #
