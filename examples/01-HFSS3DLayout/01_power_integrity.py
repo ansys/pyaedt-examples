@@ -207,7 +207,7 @@ solutions.plot()
 
 # ## Shut Down Electronics Desktop
 
-h3d.close_desktop()
+h3d.release_desktop()
 
 # All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notbook you 
 # can retrieve those project files. The following cell removes all temporary files, including the project folder.

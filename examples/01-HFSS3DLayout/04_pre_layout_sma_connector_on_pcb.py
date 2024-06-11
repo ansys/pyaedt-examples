@@ -297,7 +297,7 @@ solutions.plot(traces, math_formula="db20")
 
 # ## Close HFSS 3D Layout
 
-h3d.close_desktop()
+h3d.release_desktop()
 
 # ## Cleanup
 #

@@ -73,7 +73,7 @@ h3d.modeler.fit_all()
 
 # ## Close AEDT
 
-h3d.close_project(save_project=True)
+h3d.release_desktop()
 
 # ## Cleanup
 #

@@ -224,7 +224,7 @@ siw.get_dcir_element_data_current_source("siwave_dc")
 
 # ## Shut Down Electronics Desktop
 
-siw.close_desktop()
+siw.release_desktop()
 
 # ## Cleanup
 #

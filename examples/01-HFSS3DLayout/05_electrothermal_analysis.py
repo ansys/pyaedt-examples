@@ -25,6 +25,7 @@ import time
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 from pyaedt.downloads import download_file
 from pyedb import Edb, Siwave
+from pyedb.generic.process import SiwaveSolve
 
 NG_MODE = False
 
@@ -147,6 +148,7 @@ edbapp.configuration.load(config_file=pi_json)
 edbapp.configuration.run()
 edbapp.save()
 edbapp.close()
+time.sleep(3)
 
 # The configured EDB file is saved in a temp folder.
 
@@ -158,7 +160,6 @@ print(temp_folder.name)
 
 siwave = Siwave(specified_version=AEDT_VERSION)
 time.sleep(10)
-siwave.close_project()
 siwave.open_project(proj_path=aedb)
 siwave.save_project(projectpath=temp_folder.name, projectName="ansys")
 
