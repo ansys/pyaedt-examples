@@ -1,11 +1,11 @@
 # # HFSS 3D Layout: Power Integrity Analysis
-# This example shows how to use the electronics database (EDB) for power integrity analysis. The 
+# This example shows how to use the electronics database (EDB) for power integrity analysis. The
 # EDB will be loaded into HFSS 3D Layout for analysis and post-processing.
 # - Set up EDB
 #     - Assign S-parameter model to components
 #     - Create pin groups
 #     - Create ports
-#     - Create SIwave SYZ anaylsis
+#     - Create SIwave SYZ analysis
 #     - Create cutout
 # - Import EDB into HFSS 3D Layout
 #     - Analyze
@@ -14,14 +14,16 @@
 # ## Preparation
 # Import the required packages
 
+import json
+
 # +
 import os
-import json
 import tempfile
 import time
-from pyaedt import Edb
-from pyaedt import Hfss3dLayout
+
+from pyaedt import Edb, Hfss3dLayout
 from pyaedt.downloads import download_file
+
 try:
     from ansys.pyaedt.examples.constants import AEDT_VERSION
 except:
@@ -34,9 +36,7 @@ NG_MODE = True
 # Download the example PCB data.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
-aedb = download_file(
-    source="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name
-)
+aedb = download_file(source="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name)
 download_file(
     source="touchstone", name="GRM32_DC0V_25degC_series.s2p", destination=temp_folder.name
 )
@@ -48,16 +48,14 @@ download_file(
 
 cfg = dict()
 
-# In this example, we are going to assign S-parameter models to capacitors. 
+# In this example, we are going to assign S-parameter models to capacitors.
 # The first step is to use the "general" key to specify where the S-parameter files can be found.
 
-cfg["general"] = {
-    "s_parameter_library": os.path.join(temp_folder.name, "touchstone")
-}
+cfg["general"] = {"s_parameter_library": os.path.join(temp_folder.name, "touchstone")}
 
-# ## Assign model to capactitors. 
+# ## Assign model to capactitors.
 # In this example, the model "GRM32_DC0V_25degC_series.s2p" is assigned to capacitors C3 and C4, which share the same component part number.
-# When "apply_to_all" is ``True``, all components having the part number "CAPC3216X180X20ML20" will be assigned the S-parameter model. 
+# When "apply_to_all" is ``True``, all components having the part number "CAPC3216X180X20ML20" will be assigned the S-parameter model.
 
 cfg["s_parameters"] = [
     {
@@ -67,27 +65,17 @@ cfg["s_parameters"] = [
         "apply_to_all": False,
         "components": ["C110", "C206"],
         "reference_net": "GND",
-        "reference_net_per_component": {
-            "C110": "GND"
-        }
+        "reference_net_per_component": {"C110": "GND"},
     }
 ]
 
 # ## Create pin groups.
-# In this example, the listed pins on component U2 are combined into two pin groups. 
+# In this example, the listed pins on component U2 are combined into two pin groups.
 # Pins can be grouped explicitly by the pin name or pin groups can be assigned by net name using the "net" key as shown here:
 
 cfg["pin_groups"] = [
-    {
-        "name": "PIN_GROUP_1",
-        "reference_designator": "U1",
-        "pins": ["AD14", "AD15", "AD16", "AD17"]
-    },
-    {
-        "name": "PIN_GROUP_2",
-        "reference_designator": "U1",
-        "net": "GND"
-    }
+    {"name": "PIN_GROUP_1", "reference_designator": "U1", "pins": ["AD14", "AD15", "AD16", "AD17"]},
+    {"name": "PIN_GROUP_2", "reference_designator": "U1", "net": "GND"},
 ]
 
 # ## Create ports
@@ -98,12 +86,8 @@ cfg["ports"] = [
         "name": "port1",
         "reference_designator": "U1",
         "type": "circuit",
-        "positive_terminal": {
-            "pin_group": "PIN_GROUP_1"
-        },
-        "negative_terminal": {
-            "pin_group": "PIN_GROUP_2"
-        }
+        "positive_terminal": {"pin_group": "PIN_GROUP_1"},
+        "negative_terminal": {"pin_group": "PIN_GROUP_2"},
     }
 ]
 
@@ -120,15 +104,10 @@ cfg["setups"] = [
                 "name": "Sweep1",
                 "type": "Interpolation",
                 "frequencies": [
-                    {
-                        "distribution": "log scale",
-                        "start": 1e6,
-                        "stop": 1e9,
-                        "samples": 20
-                    }
-                ]
+                    {"distribution": "log scale", "start": 1e6, "stop": 1e9, "samples": 20}
+                ],
             }
-        ]
+        ],
     }
 ]
 
@@ -159,7 +138,7 @@ cfg["operations"] = {
         "maximum_iterations": 10,
         "preserve_components_with_model": False,
         "simple_pad_check": True,
-        "keep_lines_as_path": False
+        "keep_lines_as_path": False,
     }
 }
 
@@ -190,10 +169,7 @@ print(temp_folder.name)
 # ### Load edb into HFSS 3D Layout.
 
 h3d = Hfss3dLayout(
-    aedb,
-    specified_version=AEDT_VERSION,
-    non_graphical=NG_MODE,
-    new_desktop_session=True
+    aedb, specified_version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop_session=True
 )
 
 # ### Analyze
@@ -202,19 +178,19 @@ h3d.analyze()
 
 # ### Plot impedance
 
-solutions = h3d.post.get_solution_data(expressions='Z(port1,port1)')
+solutions = h3d.post.get_solution_data(expressions="Z(port1,port1)")
 solutions.plot()
 
 # ## Shut Down Electronics Desktop
 
 h3d.release_desktop()
 
-# All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notbook you 
+# All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notbook you
 # can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notbook you 
+# All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notbook you
 # can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 time.sleep(3)

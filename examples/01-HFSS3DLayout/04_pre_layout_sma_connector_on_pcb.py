@@ -26,9 +26,11 @@
 import os
 import tempfile
 import time
-from pyedb import Edb
+
 from pyaedt import Hfss3dLayout
 from pyaedt.downloads import download_file
+from pyedb import Edb
+
 try:
     from ansys.pyaedt.examples.constants import AEDT_VERSION
 except:
@@ -39,7 +41,8 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # Download example board.
 
-sma_rf_connector = download_file(source="component_3d", name="SMA_RF_SURFACE_MOUNT.a3dcomp", destination=temp_folder.name
+sma_rf_connector = download_file(
+    source="component_3d", name="SMA_RF_SURFACE_MOUNT.a3dcomp", destination=temp_folder.name
 )
 
 # Set ``NG_MODE`` to ``True`` in order to run in non-graphical mode. The example is currently set up to run in graphical mode.
@@ -59,8 +62,12 @@ edbapp.design_options.antipads_always_on = True
 # ## Add material definitions
 
 edbapp.materials.add_conductor_material(name="copper", conductivity=58000000)
-edbapp.materials.add_dielectric_material(name="FR4_epoxy", permittivity=4, dielectric_loss_tangent=0.02)
-edbapp.materials.add_dielectric_material(name="solder_mask", permittivity=3.1, dielectric_loss_tangent=0.035)
+edbapp.materials.add_dielectric_material(
+    name="FR4_epoxy", permittivity=4, dielectric_loss_tangent=0.02
+)
+edbapp.materials.add_dielectric_material(
+    name="solder_mask", permittivity=3.1, dielectric_loss_tangent=0.035
+)
 
 # ## Create stackup
 
@@ -119,7 +126,7 @@ gnd_l2 = edbapp.modeler.create_rectangle(
 
 gnd_l3 = edbapp.modeler.create_rectangle(
     layer_name="L3",
-net_name="GND",
+    net_name="GND",
     center_point=board_center_point,
     width=board_width,
     height=board_length,
@@ -130,7 +137,7 @@ net_name="GND",
 
 gnd_bottom = edbapp.modeler.create_rectangle(
     layer_name="BOT",
-net_name="GND",
+    net_name="GND",
     center_point=board_center_point,
     width=board_width,
     height=board_length,
@@ -142,14 +149,22 @@ net_name="GND",
 
 # ## Create a component
 
-edbapp.padstacks.place(position=[0, 0], definition_name="comp_pin", net_name="SIG", is_pin=True, via_name="1")
+edbapp.padstacks.place(
+    position=[0, 0], definition_name="comp_pin", net_name="SIG", is_pin=True, via_name="1"
+)
 
 comp_pins = [
-    edbapp.padstacks.place(position=["-6mm", 0], definition_name="comp_pin", net_name="GND", is_pin=True, via_name="2"),
-    edbapp.padstacks.place(position=["6mm", 0], definition_name="comp_pin", net_name="GND", is_pin=True, via_name="3"),
+    edbapp.padstacks.place(
+        position=["-6mm", 0], definition_name="comp_pin", net_name="GND", is_pin=True, via_name="2"
+    ),
+    edbapp.padstacks.place(
+        position=["6mm", 0], definition_name="comp_pin", net_name="GND", is_pin=True, via_name="3"
+    ),
 ]
 
-comp_u1 = edbapp.components.create(pins=comp_pins, component_name="U1", component_part_name="BGA", placement_layer="TOP")
+comp_u1 = edbapp.components.create(
+    pins=comp_pins, component_name="U1", component_part_name="BGA", placement_layer="TOP"
+)
 comp_u1.create_clearance_on_component(extra_soldermask_clearance=3.5e-3)
 
 
@@ -173,14 +188,15 @@ edbapp["gap"] = "0.1mm"
 
 # Signal fanout
 
-sig_trace = edbapp.modeler.create_trace(path_list=[[0, 0]],
-                                        layer_name="BOT",
-                                        width="width",
-                                        net_name="SIG",
-                                        start_cap_style="Round",
-                                        end_cap_style="Round",
-                                        corner_style="Round",
-                                        )
+sig_trace = edbapp.modeler.create_trace(
+    path_list=[[0, 0]],
+    layer_name="BOT",
+    width="width",
+    net_name="SIG",
+    start_cap_style="Round",
+    end_cap_style="Round",
+    corner_style="Round",
+)
 
 sig_trace.add_point(x="0.5mm", y="0.5mm", incremental=True)
 sig_trace.add_point(x=0, y="1mm", incremental=True)
@@ -190,14 +206,15 @@ sig_path = sig_trace.get_center_line()
 
 # Coplanar waveguide with ground with ground stitching vias
 
-sig2_trace = edbapp.modeler.create_trace(path_list=[sig_path[-1]],
-                                         layer_name="BOT",
-                                         width="width",
-                                         net_name="SIG",
-                                         start_cap_style="Round",
-                                         end_cap_style="Flat",
-                                         corner_style="Round",
-                                         )
+sig2_trace = edbapp.modeler.create_trace(
+    path_list=[sig_path[-1]],
+    layer_name="BOT",
+    width="width",
+    net_name="SIG",
+    start_cap_style="Round",
+    end_cap_style="Flat",
+    corner_style="Round",
+)
 sig2_trace.add_point(x=0, y="6mm", incremental=True)
 sig2_trace.create_via_fence(distance="0.5mm", gap="1mm", padstack_name="svia")
 sig2_trace.add_point(x=0, y="1mm", incremental=True)
@@ -207,10 +224,14 @@ sig2_trace.add_point(x=0, y="1mm", incremental=True)
 sig2_path = sig2_trace.get_center_line()
 path_list = [sig_path, sig2_path]
 for i in path_list:
-    void = edbapp.modeler.create_trace(path_list=i, layer_name="BOT", width="width+gap*2",
-                                       start_cap_style="Round",
-                                       end_cap_style="Round",
-                                       corner_style="Round")
+    void = edbapp.modeler.create_trace(
+        path_list=i,
+        layer_name="BOT",
+        width="width+gap*2",
+        start_cap_style="Round",
+        end_cap_style="Round",
+        corner_style="Round",
+    )
     edbapp.modeler.add_void(shape=gnd_bottom, void_shape=void)
 
 # Review
@@ -221,13 +242,15 @@ edbapp.nets.plot()
 
 # Create a Wave port
 
-sig2_trace.create_edge_port(name="p1_wave_port",
-                            position="End",
-                            port_type="Wave",
-                            reference_layer=None,
-                            horizontal_extent_factor=10,
-                            vertical_extent_factor=10,
-                            pec_launch_width="0.01mm")
+sig2_trace.create_edge_port(
+    name="p1_wave_port",
+    position="End",
+    port_type="Wave",
+    reference_layer=None,
+    horizontal_extent_factor=10,
+    vertical_extent_factor=10,
+    pec_launch_width="0.01mm",
+)
 
 # ## Create HFSS analysis setup
 
@@ -264,10 +287,7 @@ edbapp.close()
 
 NG_MODE = False  # Open the UI to view the layout.
 h3d = Hfss3dLayout(
-    aedb,
-    specified_version=AEDT_VERSION,
-    non_graphical=NG_MODE,
-    new_desktop_session=True
+    aedb, specified_version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop_session=True
 )
 
 # ## Place SMA RF connector
