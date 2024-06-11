@@ -218,7 +218,8 @@ def check_example_error(app, pagename, templatename, context, doctree):
 def check_build_finished_without_error(app, exception):
     """Check that no error is detected along the documentation build process."""
     if app.builder.config.html_context.get("build_error", False):
-        raise Exception("Build failed due to an error in html-page-context")
+        logger.info("Build failed due to an error in html-page-context")
+        exit(1)
 
 
 def check_pandoc_installed(app):
