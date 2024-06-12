@@ -12,6 +12,7 @@
 # +
 import os
 import tempfile
+import time
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
@@ -131,4 +132,5 @@ fig = solutions.plot()
 
 desktop.release_desktop()
 
+time.sleep(3)
 temp_dir.cleanup()  # Remove project data and temporary working directory.
