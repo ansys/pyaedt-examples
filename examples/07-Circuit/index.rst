@@ -11,5 +11,5 @@ This includes schematic generation, setup, and postprocessing.
     Circuit_Subcircuit_Example.py
     Circuit_Transient.py
     Create_Netlist.py
-    Reports.py
+    Results.py
     Touchstone_Management.py
