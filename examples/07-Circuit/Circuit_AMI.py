@@ -12,6 +12,7 @@
 # +
 import os
 import tempfile
+import time
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 from matplotlib import pyplot as plt
@@ -62,30 +63,30 @@ NewThread = True
 # and starts the specified version in the specified mode.
 
 pyaedt.settings.enable_pandas_output = True
-cir = pyaedt.Circuit(
-    projectname=os.path.join(project_path),
+circuit = pyaedt.Circuit(
+    project=os.path.join(project_path),
     non_graphical=non_graphical,
-    specified_version=desktopVersion,
-    new_desktop_session=NewThread,
+    version=desktopVersion,
+    new_desktop=NewThread,
 )
 
 # ## Solve AMI setup
 #
 # Solve the transient setup.
 
-cir.analyze()
+circuit.analyze()
 
 # ## Get AMI report
 #
 # Get AMI report data
 
 plot_name = "WaveAfterProbe<b_input_43.int_ami_rx>"
-cir.solution_type = "NexximAMI"
-original_data = cir.post.get_solution_data(
+circuit.solution_type = "NexximAMI"
+original_data = circuit.post.get_solution_data(
     expressions=plot_name,
     setup_sweep_name="AMIAnalysis",
     domain="Time",
-    variations=cir.available_variations.nominal,
+    variations=circuit.available_variations.nominal,
 )
 original_data_value = original_data.full_matrix_real_imag[0]
 original_data_sweep = original_data.primary_sweep_values
@@ -110,11 +111,11 @@ plot_type = "WaveAfterProbe"
 setup_name = "AMIAnalysis"
 ignore_bits = 100
 unit_interval = 0.1e-9
-sample_waveform = cir.post.sample_ami_waveform(
+sample_waveform = circuit.post.sample_ami_waveform(
     setup=setup_name,
     probe=probe_name,
     source=source_name,
-    variation_list_w_value=cir.available_variations.nominal,
+    variation_list_w_value=circuit.available_variations.nominal,
     unit_interval=unit_interval,
     ignore_bits=ignore_bits,
     plot_type=plot_type,
@@ -137,22 +138,22 @@ scale_data = pyaedt.constants.unit_converter(
 tstop_ns = scale_time * tstop
 tstart_ns = scale_time * tstart
 
-for time in original_data_value[plot_name].index:
-    if tstart_ns <= time[0]:
-        start_index_original_data = time[0]
+for time_value in original_data_value[plot_name].index:
+    if tstart_ns <= time_value[0]:
+        start_index_original_data = time_value[0]
         break
-for time in original_data_value[plot_name][start_index_original_data:].index:
-    if time[0] >= tstop_ns:
-        stop_index_original_data = time[0]
+for time_value in original_data_value[plot_name][start_index_original_data:].index:
+    if time_value[0] >= tstop_ns:
+        stop_index_original_data = time_value[0]
         break
-for time in sample_waveform[0].index:
-    if tstart <= time:
-        sample_index = sample_waveform[0].index == time
+for time_value in sample_waveform[0].index:
+    if tstart <= time_value:
+        sample_index = sample_waveform[0].index == time_value
         start_index_waveform = sample_index.tolist().index(True)
         break
-for time in sample_waveform[0].index:
-    if time >= tstop:
-        sample_index = sample_waveform[0].index == time
+for time_value in sample_waveform[0].index:
+    if time_value >= tstop:
+        sample_index = sample_waveform[0].index == time_value
         stop_index_waveform = sample_index.tolist().index(True)
         break
 
@@ -196,12 +197,12 @@ plt.show()
 # Get Transient report data
 
 plot_name = "V(b_input_43.int_ami_rx.eye_probe.out)"
-cir.solution_type = "NexximTransient"
-original_data = cir.post.get_solution_data(
+circuit.solution_type = "NexximTransient"
+original_data = circuit.post.get_solution_data(
     expressions=plot_name,
     setup_sweep_name="NexximTransient",
     domain="Time",
-    variations=cir.available_variations.nominal,
+    variations=circuit.available_variations.nominal,
 )
 
 # ## Sample Waveform
@@ -216,7 +217,7 @@ waveform_unit = original_data.units_data[plot_name]
 waveform_sweep_unit = original_data.units_sweeps["Time"]
 tics = np.arange(20e-9, 100e-9, 1e-10, dtype=float)
 
-sample_waveform = cir.post.sample_waveform(
+sample_waveform = circuit.post.sample_waveform(
     waveform_data=original_data_value,
     waveform_sweep=original_data_sweep,
     waveform_unit=waveform_unit,
@@ -244,13 +245,13 @@ scale_data = pyaedt.constants.unit_converter(
 tstop_ns = scale_time * tstop
 tstart_ns = scale_time * tstart
 
-for time in original_data_sweep:
-    if tstart_ns <= time:
-        start_index_original_data = original_data_sweep.index(time)
+for time_value in original_data_sweep:
+    if tstart_ns <= time_value:
+        start_index_original_data = original_data_sweep.index(time_value)
         break
-for time in original_data_sweep[start_index_original_data:]:
-    if time >= tstop_ns:
-        stop_index_original_data = original_data_sweep.index(time)
+for time_value in original_data_sweep[start_index_original_data:]:
+    if time_value >= tstop_ns:
+        stop_index_original_data = original_data_sweep.index(time_value)
         break
 cont = 0
 for frame in sample_waveform:
@@ -297,8 +298,10 @@ plt.show()
 #
 # Save the project and close AEDT.
 
-cir.save_project()
-print("Project Saved in {}".format(cir.project_path))
-cir.release_desktop()
+circuit.save_project()
+print("Project Saved in {}".format(circuit.project_path))
+
+circuit.release_desktop()
+time.sleep(3)
 
 temp_dir.cleanup()  # Remove project folder and temporary files.

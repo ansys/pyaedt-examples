@@ -11,6 +11,7 @@
 # +
 import os
 import tempfile
+import time
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 from matplotlib import pyplot as plt
@@ -30,12 +31,12 @@ import pyaedt
 # Launch AEDT in graphical mode with the Circuit schematic editor.
 
 non_graphical = False
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-cir = pyaedt.Circuit(
-    projectname=os.path.join(temp_dir.name, "CktTransient"),
-    designname="Circuit Examples",
-    specified_version=AEDT_VERSION,
-    new_desktop_session=True,
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys", ignore_cleanup_errors=True)
+circuit = pyaedt.Circuit(
+    project=os.path.join(temp_dir.name, "CktTransient"),
+    design="Circuit Examples",
+    version=AEDT_VERSION,
+    new_desktop=True,
     non_graphical=non_graphical,
 )
 
@@ -43,8 +44,8 @@ cir = pyaedt.Circuit(
 #
 # Read an IBIS file and place a buffer in the schematic editor.
 
-ibis = cir.get_ibis_model_from_file(
-    os.path.join(cir.desktop_install_dir, "buflib", "IBIS", "u26a_800.ibs")
+ibis = circuit.get_ibis_model_from_file(
+    os.path.join(circuit.desktop_install_dir, "buflib", "IBIS", "u26a_800.ibs")
 )
 ibs = ibis.buffers["DQ_u26a_800"].insert(0, 0)
 
@@ -52,15 +53,15 @@ ibs = ibis.buffers["DQ_u26a_800"].insert(0, 0)
 #
 # Place an ideal transmission line in the schematic and parametrize it.
 
-tr1 = cir.modeler.components.components_catalog["Ideal Distributed:TRLK_NX"].place("tr1")
+tr1 = circuit.modeler.components.components_catalog["Ideal Distributed:TRLK_NX"].place("tr1")
 tr1.parameters["P"] = "50mm"
 
 # ## Component Placement
 #
 # Create a resistor and ground in the schematic.
 
-res = cir.modeler.components.create_resistor(name="R1", value="1Meg")
-gnd1 = cir.modeler.components.create_gnd()
+res = circuit.modeler.components.create_resistor(name="R1", value="1Meg")
+gnd1 = circuit.modeler.components.create_gnd()
 
 # ## Connect Componennts
 #
@@ -74,10 +75,10 @@ res.pins[1].connect_to_component(gnd1.pins[0])
 #
 # Place a probe and rename it to ``Vout``.
 
-pr1 = cir.modeler.components.components_catalog["Probes:VPROBE"].place("vout")
+pr1 = circuit.modeler.components.components_catalog["Probes:VPROBE"].place("vout")
 pr1.parameters["Name"] = "Vout"
 pr1.pins[0].connect_to_component(res.pins[0])
-pr2 = cir.modeler.components.components_catalog["Probes:VPROBE"].place("Vin")
+pr2 = circuit.modeler.components.components_catalog["Probes:VPROBE"].place("Vin")
 pr2.parameters["Name"] = "Vin"
 pr2.pins[0].connect_to_component(ibs.pins[0])
 
@@ -85,9 +86,9 @@ pr2.pins[0].connect_to_component(ibs.pins[0])
 #
 # Create a transient analysis setup and analyze it.
 
-trans_setup = cir.create_setup(name="TransientRun", setup_type="NexximTransient")
+trans_setup = circuit.create_setup(name="TransientRun", setup_type="NexximTransient")
 trans_setup.props["TransientData"] = ["0.01ns", "200ns"]
-cir.analyze_setup("TransientRun")
+circuit.analyze_setup("TransientRun")
 
 # ## Results
 #
@@ -96,10 +97,10 @@ cir.analyze_setup("TransientRun")
 # The ``solutions.plot()`` method uses
 # [Matplotlib](https://matplotlib.org/).
 
-report = cir.post.create_report("V(Vout)", domain="Time")
+report = circuit.post.create_report("V(Vout)", domain="Time")
 if not non_graphical:
     report.add_cartesian_y_marker(0)
-solutions = cir.post.get_solution_data(domain="Time")
+solutions = circuit.post.get_solution_data(domain="Time")
 solutions.plot("V(Vout)")
 
 # ## Visualize Results
@@ -108,7 +109,7 @@ solutions.plot("V(Vout)")
 # fully customizable and usable with most of the reports available in AEDT.
 # The standard report is the main one used in Circuit and Twin Builder.
 
-new_report = cir.post.reports_by_category.standard("V(Vout)")
+new_report = circuit.post.reports_by_category.standard("V(Vout)")
 new_report.domain = "Time"
 new_report.create()
 if not non_graphical:
@@ -140,7 +141,7 @@ sol.plot()
 #
 # Create an eye diagram inside AEDT using the ``new_eye`` object.
 
-new_eye = cir.post.reports_by_category.eye_diagram("V(Vout)")
+new_eye = circuit.post.reports_by_category.eye_diagram("V(Vout)")
 new_eye.unit_interval = "1e-9s"
 new_eye.time_stop = "100ns"
 new_eye.create()
@@ -187,7 +188,10 @@ plt.show()
 #
 # Release AEDT.
 
-cir.save_project()
-cir.release_desktop()
+circuit.save_project()
+print("Project Saved in {}".format(circuit.project_path))
 
-temp_dir.cleanup()  # Clean up temporary working folder and project files.
+circuit.release_desktop()
+time.sleep(3)
+
+temp_dir.cleanup()  # Remove project folder and temporary files.

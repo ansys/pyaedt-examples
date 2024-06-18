@@ -8,6 +8,7 @@
 
 # +
 import os.path
+import time
 import tempfile
 
 from ansys.pyaedt.examples.constants import EDB_VERSION
@@ -20,7 +21,7 @@ from pyaedt import Circuit, Edb
 #
 # Download the EDB folder.
 
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys", ignore_cleanup_errors=True)
 edb_file = pyaedt.downloads.download_file(
     directory="edb/siwave_multi_zones.aedb", destination=temp_dir.name
 )
@@ -68,7 +69,7 @@ defined_ports, project_connexions = edb.cutout_multizone_layout(edb_zones, commo
 # Create circuit design, import all sub-project as EM model and connect
 # all corresponding pins in circuit.
 
-circuit = Circuit(specified_version=edb_version, projectname=circuit_project_file)
+circuit = Circuit(version=edb_version, project=circuit_project_file)
 circuit.connect_circuit_models_from_multi_zone_cutout(
     project_connections=project_connexions,
     edb_zones_dict=edb_zones,
@@ -112,6 +113,10 @@ circuit.post.create_report(
 # ## Release AEDT desktop
 #
 
+circuit.save_project()
+print("Project Saved in {}".format(circuit.project_path))
+
 circuit.release_desktop()
+time.sleep(3)
 
 temp_dir.cleanup()  # Remove the temporary working folder and all project files

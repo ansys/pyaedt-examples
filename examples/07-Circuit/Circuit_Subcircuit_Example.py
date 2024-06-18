@@ -10,6 +10,7 @@
 
 import os
 import tempfile
+import time
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
@@ -24,13 +25,13 @@ import pyaedt
 # Launch AEDT in graphical mode. Instantite an instance of the ``Circuit`` class.
 
 non_graphical = False
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys", ignore_cleanup_errors=True)
 circuit = pyaedt.Circuit(
-    projectname=os.path.join(temp_dir.name, "SubcircuitExample"),
-    designname="SimpleExample",
-    specified_version=AEDT_VERSION,
+    project=os.path.join(temp_dir.name, "SubcircuitExample"),
+    design="SimpleExample",
+    version=AEDT_VERSION,
     non_graphical=non_graphical,
-    new_desktop_session=True,
+    new_desktop=True,
 )
 circuit.modeler.schematic_units = "mil"
 
@@ -69,6 +70,10 @@ circuit.pop_up()
 # Release AEDT and clean up the temporary files. If you run this example locally and
 # want to keep the files, the project folder name can be retrieved from ``temp_file.name``.
 
-circuit.release_desktop(True, True)
+circuit.save_project()
+print("Project Saved in {}".format(circuit.project_path))
 
-temp_dir.cleanup()  # Clean up temporary folder and remove project data.
+circuit.release_desktop()
+time.sleep(3)
+
+temp_dir.cleanup()  # Remove project folder and temporary files.
