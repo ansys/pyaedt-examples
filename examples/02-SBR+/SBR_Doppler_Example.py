@@ -37,10 +37,10 @@ library_path = pyaedt.downloads.download_multiparts(destination=temp_dir.name)
 
 project_name = pyaedt.generate_unique_project_name(rootname=temp_dir.name, project_name="doppler")
 app = pyaedt.Hfss(
-    specified_version=AEDT_VERSION,
+    version=AEDT_VERSION,
     solution_type="SBR+",
-    new_desktop_session=True,
-    projectname=project_name,
+    new_desktop=True,
+    project=project_name,
     close_on_exit=True,
     non_graphical=non_graphical,
 )
