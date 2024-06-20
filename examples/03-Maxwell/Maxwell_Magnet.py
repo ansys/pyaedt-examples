@@ -31,9 +31,9 @@ non_graphical = False
 # Launch AEDT in graphical mode.
 
 m3d = Maxwell3d(
-    projectname=generate_unique_project_name(),
-    specified_version=AEDT_VERSION,
-    new_desktop_session=True,
+    project=generate_unique_project_name(),
+    version=AEDT_VERSION,
+    new_desktop=True,
     non_graphical=non_graphical,
 )
 

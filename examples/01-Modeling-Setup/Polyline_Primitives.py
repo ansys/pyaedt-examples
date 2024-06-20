@@ -29,11 +29,11 @@ temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 
 project_name = pyaedt.generate_unique_project_name(rootname=temp_dir.name, project_name="polyline")
 maxwell = pyaedt.Maxwell3d(
-    projectname=project_name,
+    project=project_name,
     solution_type="Transient",
-    designname="test_polyline_3D",
-    specified_version=AEDT_VERSION,
-    new_desktop_session=True,
+    design="test_polyline_3D",
+    version=AEDT_VERSION,
+    new_desktop=True,
     non_graphical=non_graphical,
 )
 maxwell.modeler.model_units = "mm"

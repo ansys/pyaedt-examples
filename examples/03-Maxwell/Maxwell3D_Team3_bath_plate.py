@@ -40,12 +40,12 @@ solver = "EddyCurrent"
 desktop_version = AEDT_VERSION
 
 m3d = pyaedt.Maxwell3d(
-    projectname=project_name,
-    designname=design_name,
+    project=project_name,
+    design=design_name,
     solution_type=solver,
-    specified_version=desktop_version,
+    version=desktop_version,
     non_graphical=non_graphical,
-    new_desktop_session=True,
+    new_desktop=True,
 )
 uom = m3d.modeler.model_units = "mm"
 

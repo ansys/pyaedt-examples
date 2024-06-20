@@ -51,9 +51,9 @@ project_full_name = pyaedt.downloads.download_icepak(destination=temp_dir.name)
 # Open the project, and save it to the temporary folder.
 
 ipk = pyaedt.Icepak(
-    projectname=project_full_name,
-    specified_version=AEDT_VERSION,
-    new_desktop_session=True,
+    project=project_full_name,
+    version=AEDT_VERSION,
+    new_desktop=True,
     non_graphical=non_graphical,
 )
 ipk.autosave_disable()
@@ -113,7 +113,7 @@ ipk.close_project()
 # Create an Icepak project and import the step.
 
 new_project = os.path.join(temp_dir.name, generate_unique_name("example") + ".aedt")
-app = pyaedt.Icepak(projectname=new_project)
+app = pyaedt.Icepak(project=new_project)
 app.modeler.import_3d_cad(file_path)
 
 # ## Import and apply configuration file

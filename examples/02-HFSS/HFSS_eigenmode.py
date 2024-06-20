@@ -54,13 +54,13 @@ project_path = pyaedt.downloads.download_file("eigenmode", "emi_PCB_house.aedt",
 
 # ## Launch AEDT
 
-d = pyaedt.launch_desktop(AEDT_VERSION, non_graphical=non_graphical, new_desktop_session=True)
+d = pyaedt.launch_desktop(AEDT_VERSION, non_graphical=non_graphical, new_desktop=True)
 
 # ## Launch HFSS
 #
 # Create a new HFSS design.
 
-hfss = pyaedt.Hfss(projectname=project_path, non_graphical=non_graphical)
+hfss = pyaedt.Hfss(project=project_path, non_graphical=non_graphical)
 
 # ## Input parameters for eigenmode solver
 #

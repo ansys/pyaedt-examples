@@ -58,11 +58,11 @@ geom_params_rectangle = {
 # Launch Maxwell 2D and save the project.
 
 m2d = pyaedt.Maxwell2d(
-    projectname=project_name,
-    specified_version=aedt_version,
-    designname=design_name,
+    project=project_name,
+    version=aedt_version,
+    design=design_name,
     solution_type=solver,
-    new_desktop_session=True,
+    new_desktop=True,
     non_graphical=non_graphical,
 )
 

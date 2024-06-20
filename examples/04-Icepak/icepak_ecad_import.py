@@ -22,9 +22,9 @@ from pyaedt import Hfss3dLayout
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 ipk = pyaedt.Icepak(
-    projectname=os.path.join(temp_folder.name, "Icepak_ECAD_Import.aedt"),
-    specified_version=AEDT_VERSION,
-    new_desktop_session=True,
+    project=os.path.join(temp_folder.name, "Icepak_ECAD_Import.aedt"),
+    version=AEDT_VERSION,
+    new_desktop=True,
     non_graphical=True,
 )
 # -
@@ -67,7 +67,7 @@ ipk.save_project()
 # ## Import ECAD
 # Add an HFSS 3D Layout design with the layout information of the PCB
 
-hfss3d_lo = Hfss3dLayout(projectname=def_path)
+hfss3d_lo = Hfss3dLayout(project=def_path)
 hfss3d_lo.save_project()
 
 # Create a PCB component in Icepak linked to the 3D Layout project. The polygon ``"poly_0"``

@@ -65,10 +65,10 @@ shutil.copyfile(
 # a default setup for building the dynamic ROM component.
 
 tb = TwinBuilder(
-    projectname=generate_unique_project_name(),
-    specified_version=desktop_version,
+    project=generate_unique_project_name(),
+    version=desktop_version,
     non_graphical=non_graphical,
-    new_desktop_session=new_thread,
+    new_desktop=new_thread,
 )
 
 # ## Desktop Configuration

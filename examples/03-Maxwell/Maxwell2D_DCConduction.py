@@ -18,12 +18,12 @@ from pyaedt.generic.pdf import AnsysReport
 # ``Maxwell2d`` class named ``m2d``.
 
 m2d = pyaedt.Maxwell2d(
-    specified_version=AEDT_VERSION,
-    new_desktop_session=True,
+    version=AEDT_VERSION,
+    new_desktop=True,
     close_on_exit=True,
     solution_type="DCConduction",
-    projectname="M2D_DC_Conduction",
-    designname="Ansys_resistor",
+    project="M2D_DC_Conduction",
+    design="Ansys_resistor",
 )
 
 # ## Create temporary directory

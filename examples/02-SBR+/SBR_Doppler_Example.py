@@ -51,8 +51,8 @@ app.autosave_disable()
 #
 # Save the project to the temporary folder and rename the design.
 
-designname = "doppler_sbr"
-app.rename_design(designname)
+design = "doppler_sbr"
+app.rename_design(design)
 app.save_project()
 
 # ## Set up library paths

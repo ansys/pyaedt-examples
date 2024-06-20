@@ -30,10 +30,10 @@ temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 
 project_name = pyaedt.generate_unique_project_name(rootname=temp_dir.name, project_name="choke")
 hfss = pyaedt.Hfss(
-    projectname=project_name,
-    specified_version=AEDT_VERSION,
+    project=project_name,
+    version=AEDT_VERSION,
     non_graphical=non_graphical,
-    new_desktop_session=True,
+    new_desktop=True,
     solution_type="Terminal",
 )
 

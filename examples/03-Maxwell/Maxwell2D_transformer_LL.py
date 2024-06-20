@@ -36,10 +36,10 @@ solver = "MagnetostaticXY"
 desktop_version = AEDT_VERSION
 
 m2d = Maxwell2d(
-    specified_version=desktop_version,
-    new_desktop_session=False,
-    designname=design_name,
-    projectname=project_name,
+    version=desktop_version,
+    new_desktop=False,
+    design=design_name,
+    project=project_name,
     solution_type=solver,
     non_graphical=non_graphical,
 )

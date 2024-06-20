@@ -104,7 +104,7 @@ edb.save_edb()
 edb.close_edb()
 
 h3d = pyaedt.Hfss3dLayout(
-    output_edb, specified_version=AEDT_VERSION, non_graphical=False, new_desktop_session=True
+    output_edb, version=AEDT_VERSION, non_graphical=False, new_desktop=True
 )
 # -
 

@@ -25,7 +25,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 # ## Launch AEDT
 
 d = pyaedt.launch_desktop(
-    specified_version=AEDT_VERSION, non_graphical=non_graphical, new_desktop_session=True
+    version=AEDT_VERSION, non_graphical=non_graphical, new_desktop=True
 )
 
 # ## Insert HFSS design
@@ -35,7 +35,7 @@ d = pyaedt.launch_desktop(
 project_name = pyaedt.generate_unique_project_name(
     rootname=temp_dir.name, project_name="CoordSysDemo"
 )
-hfss = pyaedt.Hfss(projectname=project_name)
+hfss = pyaedt.Hfss(project=project_name)
 
 # ## Create coordinate system
 #

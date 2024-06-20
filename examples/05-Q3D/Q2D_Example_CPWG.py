@@ -28,11 +28,11 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 # uses SI units.
 
 q2d = pyaedt.Q2d(
-    specified_version=AEDT_VERSION,
+    version=AEDT_VERSION,
     non_graphical=False,
-    new_desktop_session=True,
-    projectname=os.path.join(temp_dir.name, "cpwg"),
-    designname="coplanar_waveguide",
+    new_desktop=True,
+    project=os.path.join(temp_dir.name, "cpwg"),
+    design="coplanar_waveguide",
 )
 
 # ## Define variables

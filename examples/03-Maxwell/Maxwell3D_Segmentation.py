@@ -39,9 +39,9 @@ aedt_file = downloads.download_file(
 # Launch Maxwell 3D.
 
 m3d = Maxwell3d(
-    projectname=aedt_file,
-    specified_version=AEDT_VERSION,
-    new_desktop_session=True,
+    project=aedt_file,
+    version=AEDT_VERSION,
+    new_desktop=True,
     non_graphical=non_graphical,
 )
 

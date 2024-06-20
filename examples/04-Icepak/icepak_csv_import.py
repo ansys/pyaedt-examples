@@ -28,9 +28,9 @@ import pyaedt
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 ipk = pyaedt.Icepak(
-    projectname=os.path.join(temp_folder.name, "Icepak_CSV_Import.aedt"),
-    specified_version=AEDT_VERSION,
-    new_desktop_session=True,
+    project=os.path.join(temp_folder.name, "Icepak_CSV_Import.aedt"),
+    version=AEDT_VERSION,
+    new_desktop=True,
     non_graphical=False,
 )
 # -

@@ -41,11 +41,11 @@ example_path = pyaedt.downloads.download_3dcomponent(destination=temp_dir.name)
 
 project_name = pyaedt.generate_unique_project_name(rootname=temp_dir.name, project_name="array")
 hfss = pyaedt.Hfss(
-    projectname=project_name,
-    specified_version=AEDT_VERSION,
-    designname="Array_Simple",
+    project=project_name,
+    version=AEDT_VERSION,
+    design="Array_Simple",
     non_graphical=non_graphical,
-    new_desktop_session=True,
+    new_desktop=True,
 )
 
 print("Project name " + project_name)

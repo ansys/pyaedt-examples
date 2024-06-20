@@ -53,12 +53,12 @@ project_name = pyaedt.generate_unique_project_name(rootname=temp_dir.name, proje
 # ### Create the HFSS design
 
 hfss = pyaedt.Hfss(
-    projectname=project_name,
-    specified_version=AEDT_VERSION,
-    designname="filter",
+    project=project_name,
+    version=AEDT_VERSION,
+    design="filter",
     solution_type="Modal",
     non_graphical=non_graphical,
-    new_desktop_session=True,
+    new_desktop=True,
     close_on_exit=True,
 )
 

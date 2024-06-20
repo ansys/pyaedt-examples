@@ -28,11 +28,11 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 # uses SI units.
 
 q2d = pyaedt.Q2d(
-    projectname=os.path.join(temp_dir.name, "stripline"),
-    designname="differential_stripline",
-    specified_version=AEDT_VERSION,
+    project=os.path.join(temp_dir.name, "stripline"),
+    design="differential_stripline",
+    version=AEDT_VERSION,
     non_graphical=False,
-    new_desktop_session=True,
+    new_desktop=True,
 )
 
 # ## Define variables

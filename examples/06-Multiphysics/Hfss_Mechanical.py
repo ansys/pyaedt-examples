@@ -39,10 +39,10 @@ project_name = pyaedt.downloads.download_via_wizard(destination=temp_dir.name)
 # Initialize HFSS.
 
 hfss = pyaedt.Hfss(
-    projectname=project_name,
-    specified_version=AEDT_VERSION,
+    project=project_name,
+    version=AEDT_VERSION,
     non_graphical=non_graphical,
-    new_desktop_session=True,
+    new_desktop=True,
 )
 hfss.change_material_override(True)
 
@@ -120,7 +120,7 @@ mech.change_material_override(True)
 # Get losses from HFSS and assign the convection to Mechanical.
 
 mech.assign_em_losses(
-    designname=hfss.design_name,
+    design=hfss.design_name,
     setupname=hfss.setups[0].name,
     sweepname="LastAdaptive",
     map_frequency=hfss.setups[0].props["Frequency"],

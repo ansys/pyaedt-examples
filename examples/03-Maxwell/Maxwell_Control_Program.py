@@ -46,9 +46,9 @@ ctrl_prg_file = downloads.download_file(
 # Launch Maxwell 2D.
 
 m2d = Maxwell2d(
-    projectname=aedt_file,
-    specified_version=AEDT_VERSION,
-    new_desktop_session=True,
+    project=aedt_file,
+    version=AEDT_VERSION,
+    new_desktop=True,
     non_graphical=non_graphical,
 )
 

@@ -32,7 +32,7 @@ aedb = download_file(
 #
 # Initialize AEDT and launch HFSS 3D Layout.
 
-h3d = Hfss3dLayout(aedb, specified_version=AEDT_VERSION)
+h3d = Hfss3dLayout(aedb, version=AEDT_VERSION)
 h3d.save_project()
 
 # ## Net visibility

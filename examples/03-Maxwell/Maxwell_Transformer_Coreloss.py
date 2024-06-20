@@ -69,10 +69,10 @@ curves_csv_1MHz = list(zip(data[data.columns[0]], data[data.columns[1]]))
 # Launch AEDT 2023 R2 in graphical mode.
 
 m3d = Maxwell3d(
-    projectname=aedt_file,
-    designname="02_3D eddycurrent_CmXY_for_thermal",
-    specified_version=AEDT_VERSION,
-    new_desktop_session=True,
+    project=aedt_file,
+    design="02_3D eddycurrent_CmXY_for_thermal",
+    version=AEDT_VERSION,
+    new_desktop=True,
     non_graphical=False,
 )
 
