@@ -34,7 +34,7 @@ non_graphical = False
 # ``Maxwell3d`` class named ``m3d``.
 
 # +
-project_name = "COMPUMAG"
+project_name = os.path.join(temp_dir.name, "COMPUMAG.aedt")
 design_name = "TEAM 3 Bath Plate"
 solver = "EddyCurrent"
 desktop_version = AEDT_VERSION
@@ -248,5 +248,5 @@ m3d.post.create_fieldplot_surface(
 #
 # Release AEDT and remove both the project and temporary directory.
 
-m3d.release_desktop(True, True)
+m3d.release_desktop()
 temp_dir.cleanup()
