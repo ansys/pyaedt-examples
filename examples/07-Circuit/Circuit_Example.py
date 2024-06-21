@@ -12,6 +12,7 @@
 # +
 import os
 import tempfile
+import time
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
@@ -39,20 +40,24 @@ import pyaedt
 desktop_version = AEDT_VERSION
 non_graphical = False
 new_thread = True
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys", ignore_cleanup_errors=True)
 
-desktop = pyaedt.launch_desktop(desktop_version, non_graphical, new_thread)
-aedt_app = pyaedt.Circuit(
-    projectname=os.path.join(temp_dir.name, "CircuitExample"), designname="Simple"
+circuit = pyaedt.Circuit(
+    project=os.path.join(temp_dir.name, "CircuitExample"),
+    design="Simple",
+    version=desktop_version,
+    non_graphical=non_graphical,
+    new_desktop=new_thread,
 )
-aedt_app.modeler.schematic.schematic_units = "mil"
+
+circuit.modeler.schematic.schematic_units = "mil"
 # -
 
 # ## Create circuit setup
 #
 # Create and customize an linear network analysis (LNA) setup.
 
-setup1 = aedt_app.create_setup("MyLNA")
+setup1 = circuit.create_setup("MyLNA")
 setup1.props["SweepDefinition"]["Data"] = "LINC 0GHz 4GHz 10001"
 
 # ## Place Components
@@ -60,9 +65,9 @@ setup1.props["SweepDefinition"]["Data"] = "LINC 0GHz 4GHz 10001"
 # Place components such as an inductor, resistor, and capacitor. The ``location`` argument
 # provides the ``[x, y]`` coordinates to place the component.
 
-inductor = aedt_app.modeler.schematic.create_inductor(name="L1", value=1e-9, location=[0, 0])
-resistor = aedt_app.modeler.schematic.create_resistor(name="R1", value=50, location=[500, 0])
-capacitor = aedt_app.modeler.schematic.create_capacitor(name="C1", value=1e-12, location=[1000, 0])
+inductor = circuit.modeler.schematic.create_inductor(name="L1", value=1e-9, location=[0, 0])
+resistor = circuit.modeler.schematic.create_resistor(name="R1", value=50, location=[500, 0])
+capacitor = circuit.modeler.schematic.create_capacitor(name="C1", value=1e-12, location=[1000, 0])
 
 #  ## Get all pins
 #
@@ -78,8 +83,8 @@ capacitor = aedt_app.modeler.schematic.create_capacitor(name="C1", value=1e-12, 
 #
 # Place a port and a ground in the schematic.
 
-port = aedt_app.modeler.components.create_interface_port(name="myport", location=[-300, 50])
-gnd = aedt_app.modeler.components.create_gnd(location=[1200, -100])
+port = circuit.modeler.components.create_interface_port(name="myport", location=[-300, 50])
+gnd = circuit.modeler.components.create_gnd(location=[1200, -100])
 
 # ## Connect components
 #
@@ -95,23 +100,23 @@ capacitor.pins[1].connect_to_component(assignment=gnd.pins[0], use_wire=True)
 #
 # Create a transient setup.
 
-setup2 = aedt_app.create_setup(name="MyTransient", setup_type=aedt_app.SETUPS.NexximTransient)
+setup2 = circuit.create_setup(name="MyTransient", setup_type=circuit.SETUPS.NexximTransient)
 setup2.props["TransientData"] = ["0.01ns", "200ns"]
-setup3 = aedt_app.create_setup(name="MyDC", setup_type=aedt_app.SETUPS.NexximDC)
+setup3 = circuit.create_setup(name="MyDC", setup_type=circuit.SETUPS.NexximDC)
 
 # ## Solve transient setup
 #
 # Solve the transient setup.
 
-aedt_app.analyze_setup("MyLNA")
-aedt_app.export_fullwave_spice()
+circuit.analyze_setup("MyLNA")
+circuit.export_fullwave_spice()
 
 # ## Create report
 #
 # Display the scattering parameters.
 
-solutions = aedt_app.post.get_solution_data(
-    expressions=aedt_app.get_traces_for_plot(category="S"),
+solutions = circuit.post.get_solution_data(
+    expressions=circuit.get_traces_for_plot(category="S"),
 )
 solutions.enable_pandas_output = True
 real, imag = solutions.full_matrix_real_imag
@@ -129,6 +134,10 @@ fig = solutions.plot()
 # `pyaedt.Desktop.force_close_desktop` method.
 # All methods provide for saving the project before closing.
 
-desktop.release_desktop()
+circuit.save_project()
+print("Project Saved in {}".format(circuit.project_path))
 
-temp_dir.cleanup()  # Remove project data and temporary working directory.
+circuit.release_desktop()
+time.sleep(3)
+
+temp_dir.cleanup()  # Remove project folder and temporary files.

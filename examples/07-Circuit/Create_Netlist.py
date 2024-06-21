@@ -12,11 +12,12 @@
 # +
 import os
 import tempfile
+import time
 
 from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys", ignore_cleanup_errors=True)
 netlist = pyaedt.downloads.download_netlist(destination=temp_dir.name)
 # -
 
@@ -32,7 +33,6 @@ netlist = pyaedt.downloads.download_netlist(destination=temp_dir.name)
 # The Boolean parameter ``new_thread`` defines whether to create a new instance
 # of AEDT or try to connect to an existing instance of it.
 
-desktopVersion = AEDT_VERSION
 non_graphical = False
 new_thread = True
 
@@ -41,14 +41,18 @@ new_thread = True
 # Launch AEDT with Circuit. The `pyaedt.Desktop` class initializes AEDT
 # and starts it on the specified version in the specified graphical mode.
 
-desktop = pyaedt.launch_desktop(desktopVersion, non_graphical, new_thread)
-aedtapp = pyaedt.Circuit(projectname=os.path.join(temp_dir.name, "NetlistExample"))
+circuit = pyaedt.Circuit(
+    project=os.path.join(temp_dir.name, "NetlistExample"),
+    version=AEDT_VERSION,
+    non_graphical=non_graphical,
+    new_desktop=new_thread
+)
 
 # ## Define a Parameter
 #
 # Specify the voltage as a parameter.
 
-aedtapp["Voltage"] = "5"
+circuit["Voltage"] = "5"
 
 # ## Create schematic from netlist file
 #
@@ -56,13 +60,18 @@ aedtapp["Voltage"] = "5"
 # method reads the netlist file and parses it. All components are parsed
 # but only these categories are mapped: R, L, C, Q, U, J, V, and I.
 
-aedtapp.create_schematic_from_netlist(netlist)
+circuit.create_schematic_from_netlist(netlist)
 
 # ## Finish
 #
 # After adding any other desired functionalities, close the project and release
 # AEDT.
 
-desktop.release_desktop()
 
-temp_dir.cleanup()  # Clean up temporary directory and project data.
+circuit.save_project()
+print("Project Saved in {}".format(circuit.project_path))
+
+circuit.release_desktop()
+time.sleep(3)
+
+temp_dir.cleanup()  # Remove project folder and temporary files.

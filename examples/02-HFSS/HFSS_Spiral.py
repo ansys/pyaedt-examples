@@ -34,11 +34,11 @@ temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 
 project_name = pyaedt.generate_unique_project_name(rootname=temp_dir.name, project_name="spiral")
 hfss = pyaedt.Hfss(
-    projectname=project_name,
-    specified_version=AEDT_VERSION,
+    project=project_name,
+    version=AEDT_VERSION,
     non_graphical=non_graphical,
-    designname="A1",
-    new_desktop_session=True,
+    design="A1",
+    new_desktop=True,
     solution_type="Modal"
 )
 hfss.modeler.model_units = "um"

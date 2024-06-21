@@ -35,12 +35,12 @@ temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 
 project_name = pyaedt.generate_unique_project_name(rootname=temp_dir.name, project_name="patch")
 hfss = pyaedt.Hfss(
-    projectname=project_name,
+    project=project_name,
     solution_type="Terminal",
-    designname="patch",
+    design="patch",
     non_graphical=non_graphical,
-    new_desktop_session=True,
-    specified_version=AEDT_VERSION,
+    new_desktop=True,
+    version=AEDT_VERSION,
 )
 
 length_units = "mm"

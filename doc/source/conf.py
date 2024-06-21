@@ -92,7 +92,7 @@ def copy_examples(app):
     if os.path.exists(destination_dir):
         size = directory_size(destination_dir)
         logger.info(f"Directory {destination_dir} ({size} MB) already exist, removing it.")
-        shutil.rmtree(destination_dir)
+        shutil.rmtree(destination_dir, ignore_errors=True)
         logger.info(f"Directory removed.")
 
     shutil.copytree(EXAMPLES_DIRECTORY, destination_dir)

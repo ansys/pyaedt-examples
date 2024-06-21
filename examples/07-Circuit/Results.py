@@ -11,11 +11,12 @@
 # +
 import os
 import tempfile
+import time
 from IPython.display import Image
 import pyaedt
 
 # Set local path to path for the project data.
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys", ignore_cleanup_errors=True)
 
 project_path = pyaedt.downloads.download_file(source="custom_reports/", destination=temp_dir.name)
 aedt_version = "2024.1"
@@ -40,12 +41,13 @@ aedt_version = "2024.1"
 non_graphical = True
 NewThread = True
 
-cir = pyaedt.Circuit(projectname=os.path.join(project_path, 'CISPR25_Radiated_Emissions_Example23R1.aedtz'),
-                     non_graphical=non_graphical,
-                     specified_version=aedt_version,
-                     new_desktop_session=True
-                     )
-cir.analyze()  # Run the circuit analysis.
+circuit = pyaedt.Circuit(
+    project=os.path.join(project_path, 'CISPR25_Radiated_Emissions_Example23R1.aedtz'),
+    non_graphical=non_graphical,
+    version=aedt_version,
+    new_desktop=True
+)
+circuit.analyze()  # Run the circuit analysis.
 # -
 
 # ## Create a Spectral Report
@@ -54,19 +56,19 @@ cir.analyze()  # Run the circuit analysis.
 # notes can be added to the report. The report axes, grid, and the legend can also be modified. The custom reports
 # can be created in AEDT in non-graphical mode using version 2023 R2 and later.
 
-report1 = cir.post.create_report_from_configuration(os.path.join(project_path, 'Spectrum_CISPR_Basic.json'))
-out = cir.post.export_report_to_jpg(project_path=cir.working_directory, plot_name=report1.plot_name)
+report1 = circuit.post.create_report_from_configuration(os.path.join(project_path, 'Spectrum_CISPR_Basic.json'))
+out = circuit.post.export_report_to_jpg(project_path=circuit.working_directory, plot_name=report1.plot_name)
 
 # Now render the image.
 
-Image(os.path.join(cir.working_directory, report1.plot_name + ".jpg"))
+Image(os.path.join(circuit.working_directory, report1.plot_name + ".jpg"))
 
 # Every aspect of the report can be customized. The method ``crate_report_from_configuration`` reads the
 # report configuration from a ``*.json`` file and generates the custom report.
 
-report1_full = cir.post.create_report_from_configuration(os.path.join(project_path, 'Spectrum_CISPR_Custom.json'))
-out = cir.post.export_report_to_jpg(cir.working_directory, report1_full.plot_name)
-Image(os.path.join(cir.working_directory, report1_full.plot_name + ".jpg"))
+report1_full = circuit.post.create_report_from_configuration(os.path.join(project_path, 'Spectrum_CISPR_Custom.json'))
+out = circuit.post.export_report_to_jpg(circuit.working_directory, report1_full.plot_name)
+Image(os.path.join(circuit.working_directory, report1_full.plot_name + ".jpg"))
 
 # ## Transient Report
 #
@@ -77,9 +79,9 @@ Image(os.path.join(cir.working_directory, report1_full.plot_name + ".jpg"))
 # +
 props = pyaedt.general_methods.read_json(os.path.join(project_path, 'Transient_CISPR_Custom.json'))
 
-report2 = cir.post.create_report_from_configuration(report_settings=props, solution_name="NexximTransient")
-out = cir.post.export_report_to_jpg(cir.working_directory, report2.plot_name)
-Image(os.path.join(cir.working_directory, report2.plot_name + ".jpg"))
+report2 = circuit.post.create_report_from_configuration(report_settings=props, solution_name="NexximTransient")
+out = circuit.post.export_report_to_jpg(circuit.working_directory, report2.plot_name)
+Image(os.path.join(circuit.working_directory, report2.plot_name + ".jpg"))
 # -
 
 # The ``props`` dictionary can be used to customize any aspect of an existing report or generate a new report.
@@ -87,23 +89,23 @@ Image(os.path.join(cir.working_directory, report2.plot_name + ".jpg"))
 
 props["expressions"] = {"V(Battery)": {}, "V(U1_VDD)": {}}
 props["plot_name"] = "Battery Voltage"
-report3 = cir.post.create_report_from_configuration(report_settings=props, solution_name="NexximTransient")
-out = cir.post.export_report_to_jpg(cir.working_directory, report3.plot_name)
-Image(os.path.join(cir.working_directory, report3.plot_name + ".jpg"))
+report3 = circuit.post.create_report_from_configuration(report_settings=props, solution_name="NexximTransient")
+out = circuit.post.export_report_to_jpg(circuit.working_directory, report3.plot_name)
+Image(os.path.join(circuit.working_directory, report3.plot_name + ".jpg"))
 
 # ## Eye Diagram
 #
 # Create an eye diagram. the JSON file can be used to create an eye diagram, including the eye mask as demonsrated here.
 
-report4 = cir.post.create_report_from_configuration(os.path.join(project_path, 'EyeDiagram_CISPR_Basic.json'))
-out = cir.post.export_report_to_jpg(cir.working_directory, report4.plot_name)
-Image(os.path.join(cir.working_directory, report4.plot_name + ".jpg"))
+report4 = circuit.post.create_report_from_configuration(os.path.join(project_path, 'EyeDiagram_CISPR_Basic.json'))
+out = circuit.post.export_report_to_jpg(circuit.working_directory, report4.plot_name)
+Image(os.path.join(circuit.working_directory, report4.plot_name + ".jpg"))
 
 # +
-report4_full = cir.post.create_report_from_configuration(os.path.join(project_path, 'EyeDiagram_CISPR_Custom.json'))
+report4_full = circuit.post.create_report_from_configuration(os.path.join(project_path, 'EyeDiagram_CISPR_Custom.json'))
 
-out = cir.post.export_report_to_jpg(cir.working_directory, report4_full.plot_name)
-Image(os.path.join(cir.working_directory, report4_full.plot_name + ".jpg"))
+out = circuit.post.export_report_to_jpg(circuit.working_directory, report4_full.plot_name)
+Image(os.path.join(circuit.working_directory, report4_full.plot_name + ".jpg"))
 # -
 
 # ## Save project and close AEDT
@@ -111,9 +113,11 @@ Image(os.path.join(cir.working_directory, report4_full.plot_name + ".jpg"))
 # Save the project and close AEDT. The example has finished running. Project files can be retrieved
 # from ``temp_dir.name``.
 
-cir.save_project()
-print("Project Saved in {}".format(cir.project_path))
-cir.release_desktop()
+circuit.save_project()
+print("Project Saved in {}".format(circuit.project_path))
+
+circuit.release_desktop()
+time.sleep(3)
 
 # ## Cleanup
 #

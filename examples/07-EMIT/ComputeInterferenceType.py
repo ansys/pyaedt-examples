@@ -66,7 +66,7 @@ if desktop_version <= "2023.1":
 non_graphical = False
 new_thread = True
 desktop = pyaedt.launch_desktop(
-    desktop_version, non_graphical=non_graphical, new_desktop_session=new_thread)
+    desktop_version, non_graphical=non_graphical, new_desktop=new_thread)
 
 
 # ## Download project
@@ -78,7 +78,7 @@ path_to_desktop_project
 
 # ## Launch EMIT and open project
 
-emitapp = Emit(non_graphical=False, new_desktop_session=False, projectname=path_to_desktop_project)
+emitapp = Emit(non_graphical=False, new_desktop=False, project=path_to_desktop_project)
 
 # ## Get a List of Transmitters
 #

@@ -41,11 +41,11 @@ non_graphical = False
 # object is linked to it. Otherwise, a new design is created.
 
 hfss = pyaedt.Hfss(
-    projectname=os.path.join(temp_dir.name, "Icepak_HFSS_Coupling"),
-    designname="RF",
-    specified_version=AEDT_VERSION,
+    project=os.path.join(temp_dir.name, "Icepak_HFSS_Coupling"),
+    design="RF",
+    version=AEDT_VERSION,
     non_graphical=non_graphical,
-    new_desktop_session=True,
+    new_desktop=True,
     solution_type="Modal",
 )
 
@@ -192,7 +192,7 @@ sweepname = hfss.create_linear_count_sweep(
 # design and the coupled physics analysis can be run. The `FieldAnalysis3D.copy_solid_bodies_from()`
 # method imports a model from HFSS into Icepak including all material definitions.
 
-ipk = pyaedt.Icepak(designname="CalcTemp")
+ipk = pyaedt.Icepak(design="CalcTemp")
 ipk.copy_solid_bodies_from(hfss)
 
 # ## Link RF Thermal Source

@@ -33,11 +33,11 @@ temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 
 project_name = pyaedt.generate_unique_project_name(rootname=temp_dir.name, project_name="city")
 app = pyaedt.Hfss(
-    projectname=project_name,
-    designname="Ansys",
+    project=project_name,
+    design="Ansys",
     solution_type="SBR+",
-    specified_version=AEDT_VERSION,
-    new_desktop_session=True,
+    version=AEDT_VERSION,
+    new_desktop=True,
     non_graphical=non_graphical,
 )
 

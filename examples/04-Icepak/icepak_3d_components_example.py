@@ -34,11 +34,11 @@ non_graphical = False
 # Create new empty project in non-graphical mode.
 
 ipk = Icepak(
-    projectname=os.path.join(temp_folder.name, "Heatsink.aedt"),
-    specified_version=AEDT_VERSION,
+    project=os.path.join(temp_folder.name, "Heatsink.aedt"),
+    version=AEDT_VERSION,
     non_graphical=non_graphical,
     close_on_exit=True,
-    new_desktop_session=True,
+    new_desktop=True,
 )
 
 # Remove air region (which is present by default) because it is not needed as the heatsink will
@@ -105,7 +105,7 @@ ipk.close_project(save_project=False)
 # ## Create QFP
 # Open the previously downloaded project containing a QPF.
 
-ipk = Icepak(projectname=qfp_temp_name)
+ipk = Icepak(project=qfp_temp_name)
 ipk.plot(show=False, export_path=os.path.join(temp_folder.name, "QFP2.jpg"))
 
 # Create dataset for power dissipation.
@@ -164,7 +164,7 @@ ipk.release_desktop(close_projects=False, close_desktop=False)
 # Download and open a project containing the electronic package.
 
 ipk = Icepak(
-    projectname=package_temp_name, specified_version=AEDT_VERSION, non_graphical=non_graphical
+    project=package_temp_name, version=AEDT_VERSION, non_graphical=non_graphical
 )
 ipk.plot(
     objects=[o for o in ipk.modeler.object_names if not o.startswith("DomainBox")],

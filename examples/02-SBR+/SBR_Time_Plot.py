@@ -34,10 +34,10 @@ project_file = downloads.download_sbr_time(destination=temp_dir.name)
 # ## Launch HFSS and analyze
 
 hfss = Hfss(
-    projectname=project_file,
-    specified_version=AEDT_VERSION,
+    project=project_file,
+    version=AEDT_VERSION,
     non_graphical=non_graphical,
-    new_desktop_session=True,
+    new_desktop=True,
 )
 
 hfss.analyze(num_cores=NUM_CORES)

@@ -27,10 +27,10 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 # Launch AEDT 2024 R1 in graphical mode and launch Q3D Extractor. This example uses SI units.
 
 q3d = pyaedt.Q3d(
-    projectname=os.path.join(temp_dir.name, "busbar"),
-    specified_version=AEDT_VERSION,
+    project=os.path.join(temp_dir.name, "busbar"),
+    version=AEDT_VERSION,
     non_graphical=False,
-    new_desktop_session=True,
+    new_desktop=True,
 )
 
 # ## Create primitives

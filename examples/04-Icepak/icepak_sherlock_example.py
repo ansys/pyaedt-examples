@@ -53,7 +53,7 @@ non_graphical = False
 
 # Open the project
 
-ipk = pyaedt.Icepak(projectname=project_name)
+ipk = pyaedt.Icepak(project=project_name)
 
 # Disable autosave to speed up the import.
 

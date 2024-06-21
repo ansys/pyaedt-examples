@@ -37,10 +37,10 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 # a default setup.
 
 tb = pyaedt.TwinBuilder(
-    projectname=os.path.join(temp_dir.name, "TB_Rectifier_Demo"),
-    specified_version=desktop_version,
+    project=os.path.join(temp_dir.name, "TB_Rectifier_Demo"),
+    version=desktop_version,
     non_graphical=non_graphical,
-    new_desktop_session=new_thread,
+    new_desktop=new_thread,
 )
 
 # ## Create components for bridge rectifier

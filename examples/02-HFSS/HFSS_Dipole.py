@@ -28,14 +28,14 @@ temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 
 # ## Launch AEDT
 
-d = pyaedt.launch_desktop(AEDT_VERSION, non_graphical=non_graphical, new_desktop_session=True)
+d = pyaedt.launch_desktop(AEDT_VERSION, non_graphical=non_graphical, new_desktop=True)
 
 # ## Launch HFSS
 #
 # Create a new HFSS design.
 
 project_name = pyaedt.generate_unique_project_name(rootname=temp_dir.name, project_name="dipole")
-hfss = pyaedt.Hfss(projectname=project_name, solution_type="Modal")
+hfss = pyaedt.Hfss(project=project_name, solution_type="Modal")
 
 # ## Define variable
 #

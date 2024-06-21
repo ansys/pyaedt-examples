@@ -33,9 +33,9 @@ temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 # Launch AEDT, create an HFSS design, and save the project.
 
 hfss = pyaedt.Hfss(
-    specified_version=AEDT_VERSION,
+    version=AEDT_VERSION,
     solution_type="DrivenTerminal",
-    new_desktop_session=True,
+    new_desktop=True,
     non_graphical=non_graphical,
 )
 hfss.save_project(os.path.join(temp_dir.name, generate_unique_name("example") + ".aedt"))

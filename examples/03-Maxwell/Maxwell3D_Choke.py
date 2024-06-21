@@ -32,11 +32,11 @@ version = AEDT_VERSION
 # Launch Maxwell 3D 2023 R2 in graphical mode.
 
 m3d = pyaedt.Maxwell3d(
-    projectname=pyaedt.generate_unique_project_name(),
+    project=pyaedt.generate_unique_project_name(),
     solution_type="EddyCurrent",
-    specified_version=version,
+    version=version,
     non_graphical=non_graphical,
-    new_desktop_session=True,
+    new_desktop=True,
 )
 
 # ## Rules and information of use

@@ -32,10 +32,10 @@ new_thread = True
 # a default setup.
 
 tb = pyaedt.TwinBuilder(
-    projectname=pyaedt.generate_unique_project_name(),
-    specified_version=desktop_version,
+    project=pyaedt.generate_unique_project_name(),
+    version=desktop_version,
     non_graphical=non_graphical,
-    new_desktop_session=new_thread,
+    new_desktop=new_thread,
 )
 tb.modeler.schematic_units = "mil"
 

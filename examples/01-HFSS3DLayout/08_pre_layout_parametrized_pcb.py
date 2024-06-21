@@ -297,10 +297,10 @@ edb.close_edb()
 # ## Open the project in HFSS 3D Layout.
 
 h3d = Hfss3dLayout(
-    projectname=aedb_path,
-    specified_version=AEDT_VERSION,
+    project=aedb_path,
+    version=AEDT_VERSION,
     non_graphical=True,
-    new_desktop_session=True,
+    new_desktop=True,
 )
 
 # ### Add a HFSS simulation setup

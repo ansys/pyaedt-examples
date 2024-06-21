@@ -45,10 +45,10 @@ non_graphical = False
 
 m2d = pyaedt.Maxwell2d(
     solution_type="TransientXY",
-    specified_version=AEDT_VERSION,
+    version=AEDT_VERSION,
     non_graphical=non_graphical,
-    new_desktop_session=True,
-    projectname=pyaedt.generate_unique_project_name(),
+    new_desktop=True,
+    project=pyaedt.generate_unique_project_name(),
 )
 
 # ## Create rectangle and duplicate it

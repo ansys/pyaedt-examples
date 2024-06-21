@@ -34,9 +34,9 @@ project_name = pyaedt.generate_unique_project_name(
     rootname=temp_dir.name, project_name="optimetrics"
 )
 hfss = pyaedt.Hfss(
-    projectname=project_name,
-    specified_version=AEDT_VERSION,
-    new_desktop_session=True,
+    project=project_name,
+    version=AEDT_VERSION,
+    new_desktop=True,
     non_graphical=non_graphical,
 )
 hfss["w1"] = "1mm"

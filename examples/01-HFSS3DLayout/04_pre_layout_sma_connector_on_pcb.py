@@ -265,9 +265,9 @@ edbapp.close()
 NG_MODE = False  # Open the UI to view the layout.
 h3d = Hfss3dLayout(
     aedb,
-    specified_version=AEDT_VERSION,
+    version=AEDT_VERSION,
     non_graphical=NG_MODE,
-    new_desktop_session=True
+    new_desktop=True
 )
 
 # ## Place SMA RF connector

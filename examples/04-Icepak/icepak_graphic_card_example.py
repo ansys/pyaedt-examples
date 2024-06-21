@@ -31,9 +31,9 @@ project_temp_name = pyaedt.downloads.download_icepak(destination=temp_folder.nam
 # Open the project in without the GUI.
 
 ipk = pyaedt.Icepak(
-    projectname=project_temp_name,
-    specified_version=AEDT_VERSION,
-    new_desktop_session=True,
+    project=project_temp_name,
+    version=AEDT_VERSION,
+    new_desktop=True,
     non_graphical=True,
 )
 

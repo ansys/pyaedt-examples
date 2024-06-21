@@ -209,9 +209,9 @@ print(temp_folder.name)
 
 siw = Hfss3dLayout(
     aedb,
-    specified_version=AEDT_VERSION,
+    version=AEDT_VERSION,
     non_graphical=NG_MODE,
-    new_desktop_session=True
+    new_desktop=True
 )
 
 # ## Analyze

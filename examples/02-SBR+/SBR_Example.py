@@ -38,18 +38,18 @@ project_full_name = pyaedt.downloads.download_sbr(destination=temp_dir.name)
 
 # +
 target = pyaedt.Hfss(
-    projectname=project_full_name,
-    designname="Cassegrain_",
+    project=project_full_name,
+    design="Cassegrain_",
     solution_type="SBR+",
-    specified_version=AEDT_VERSION,
-    new_desktop_session=True,
+    version=AEDT_VERSION,
+    new_desktop=True,
     non_graphical=non_graphical,
 )
 
 source = pyaedt.Hfss(
-    projectname=target.project_name,
-    designname="feeder",
-    specified_version=AEDT_VERSION,
+    project=target.project_name,
+    design="feeder",
+    version=AEDT_VERSION,
 )
 # -
 
