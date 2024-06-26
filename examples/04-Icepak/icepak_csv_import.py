@@ -14,11 +14,14 @@ import os
 import tempfile
 
 from IPython.display import Image
-from ansys.pyaedt.examples.constants import AEDT_VERSION
 import matplotlib as mpl
 from matplotlib import cm
 from matplotlib import pyplot as plt
 import pyaedt
+
+# Set constant values
+
+AEDT_VERSION = "2024.1"
 
 # ## Download and open project
 #

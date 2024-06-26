@@ -9,8 +9,11 @@
 #
 # Perform required imports.
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
+
+# Set constant values
+
+AEDT_VERSION = "2024.1"
 
 # ## Initialize Maxwell 2D
 #

@@ -9,10 +9,13 @@
 
 import tempfile
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
 from pyaedt import Maxwell3d, downloads
 from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.general_methods import read_csv_pandas
+
+# Set constant values
+
+AEDT_VERSION = "2024.1"
 
 # ## Create temporary directory
 #

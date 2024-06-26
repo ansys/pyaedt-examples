@@ -19,10 +19,13 @@ import os
 import shutil
 import tempfile
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 from pyaedt.emit_core.emit_constants import ResultType, TxRxMode
 # -
+
+# Set constant values
+
+AEDT_VERSION = "2024.1"
 
 # ## Set non-graphical mode
 #

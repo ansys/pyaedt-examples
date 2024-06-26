@@ -23,8 +23,11 @@
 import os
 import tempfile
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
+
+# Set constant values
+
+AEDT_VERSION = "2024.1"
 
 # ## Create temporary directory
 #

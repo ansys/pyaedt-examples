@@ -16,11 +16,14 @@ import subprocess
 import sys
 import tempfile
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 from pyaedt import Emit
 from pyaedt.emit_core.emit_constants import InterfererType
 # -
+
+# Set constant values
+
+AEDT_VERSION = "2024.1"
 
 # ## Python Dependencies
 #

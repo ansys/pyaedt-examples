@@ -10,8 +10,11 @@
 import os
 import tempfile
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
 from pyaedt import Maxwell3d, generate_unique_project_name
+
+# Set constant values
+
+AEDT_VERSION = "2024.1"
 
 # ## Create temporary directory
 #
