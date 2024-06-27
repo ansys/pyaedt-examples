@@ -300,7 +300,6 @@ extensions = [
     "nbsphinx",
     "recommonmark",
     "numpydoc",
-    "ansys_sphinx_theme.extension.linkcode",
 ]
 
 # Intersphinx mapping
