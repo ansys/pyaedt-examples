@@ -39,8 +39,6 @@ LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml"]
 logger = logging.getLogger(__name__)
 path = Path(__file__).parent.parent.parent / "examples"
 EXAMPLES_DIRECTORY = path.resolve()
-AEDT_VERSION = "2024.1"
-EDB_VERSION = "2024.1"
 REPOSITORY_NAME = "pyaedt-examples"
 USERNAME = "ansys"
 BRANCH = "main"
@@ -299,7 +297,6 @@ extensions = [
     "sphinx.ext.coverage",
     "sphinx_copybutton",
     "sphinx_design",
-    "sphinx_jinja",
     "nbsphinx",
     "recommonmark",
     "numpydoc",
