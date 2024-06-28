@@ -457,6 +457,14 @@ html_theme = "ansys_sphinx_theme"
 html_logo = pyansys_logo_black
 html_favicon = ansys_favicon
 
+html_context = {
+    "display_github": True,  # Integrate GitHub
+    "github_user": USERNAME,
+    "github_repo": REPOSITORY_NAME,
+    "github_version": BRANCH,
+    "doc_path": DOC_PATH,
+}
+
 # specify the location of your github repo
 html_theme_options = {
     "github_url": f"https://github.com/{USERNAME}/{REPOSITORY_NAME}",
