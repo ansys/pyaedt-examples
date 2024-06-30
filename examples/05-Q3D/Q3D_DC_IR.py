@@ -11,11 +11,16 @@
 import os
 import tempfile
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION, EDB_VERSION, NUM_CORES
 import pyaedt
 import pyedb
 
 # -
+
+# Set constant values
+
+AEDT_VERSION = "2024.1"
+EDB_VERSION = "2024.1"
+NUM_CORES = 4
 
 # ## Create temporary directory
 #

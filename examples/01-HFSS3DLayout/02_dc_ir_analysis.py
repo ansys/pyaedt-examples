@@ -24,18 +24,16 @@ import time
 from pyedb import Edb
 from pyaedt import Hfss3dLayout
 from pyaedt.downloads import download_file
-try:
-    from ansys.pyaedt.examples.constants import AEDT_VERSION
-except:
-    AEDT_VERSION = "2024.1"
-
-NG_MODE = False
-
-temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # -
+
+# Set constant values
+
+AEDT_VERSION = "2024.1"
+NG_MODE = False
 
 # Download example board.
 
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 aedb = download_file(
     source="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name
 )

@@ -12,10 +12,13 @@
 # +
 import tempfile
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
 from pyaedt import Maxwell2d, downloads
-
 # -
+
+# Set constant values
+
+AEDT_VERSION = "2024.1"
+
 
 # ## Create temporary directory
 #

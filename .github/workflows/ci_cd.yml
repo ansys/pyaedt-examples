@@ -16,6 +16,8 @@ env:
   PACKAGE_NAME: 'pyaedt-examples'
   ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
   ON_CI: True
+  PYAEDT_NON_GRAPHICAL: '1'
+  PYAEDT_DOC_GENERATION: '1'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -23,34 +25,6 @@ concurrency:
 
 jobs:
   
-  #TODO: Update to use code-style
-  # code-style:
-  #   name: Code style
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: ansys/actions/code-style@v4
-  #       with:
-  #         python-version: ${{ env.MAIN_PYTHON_VERSION }}
-  #         use-python-cache: false
-
-  smoke-tests:
-    name: Build and Smoke tests
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-        python-version: ['3.9', '3.10', '3.11']
-        should-release:
-          - ${{ github.event_name == 'push' && contains(github.ref, 'refs/tags') }}
-    steps:
-      - name: Build wheelhouse and perform smoke test
-        uses: ansys/actions/build-wheelhouse@v5
-        with:
-          library-name: ${{ env.PACKAGE_NAME }}
-          operating-system: ${{ matrix.os }}
-          python-version: ${{ matrix.python-version }}
-
   doc-style:
     name: Documentation style
     runs-on: ubuntu-latest
@@ -58,22 +32,6 @@ jobs:
       - uses: ansys/actions/doc-style@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-
-  tests:
-    name: Test and coverage
-    runs-on: ubuntu-latest
-    steps:
-      - uses: ansys/actions/tests-pytest@v5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload Coverage Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-html
-          path: .cov/html
-          retention-days: 7
 
 # =================================================================================================
 # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
@@ -102,8 +60,7 @@ jobs:
       - name: Install project and documentation dependencies
         run: |
           .venv\Scripts\Activate.ps1
-          pip install .
-          pip install .[doc]
+          pip install -r requirements/requirements_doc.txt
 
       # Use environment variable to keep the doctree and avoid redundant build for PDF pages
       - name: Create HTML documentation
@@ -136,23 +93,28 @@ jobs:
           path: doc/_build/latex
           retention-days: 7
 
-  #TODO: Update to use code-style
   release:
-    name: Release project
-    if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
-    # needs: [code-style, doc-build]
-    needs: [doc-build]
+    if: github.event_name == 'refs/heads/main' && !contains(github.ref, 'refs/tags')
+    needs: [doc-build, doc-style]
     runs-on: ubuntu-latest
     steps:
-      # TODO: update if ever public
-      # - name: Release to the public PyPI repository
-      #   uses: ansys/actions/release-pypi-public@v5
-      #   with:
-      #     library-name: ${{ env.PACKAGE_NAME }}
-      #     twine-username: "__token__"
-      #     twine-token: ${{ secrets.PYPI_TOKEN }}
+      - uses: actions/checkout@v4
 
-      - name: Release to GitHub
-        uses: ansys/actions/release-github@v5
+      - uses: actions/download-artifact@v4
+
+      - name: Display structure of downloaded files
+        run: ls -R
+
+      - name: Zip HTML documentation
+        uses: vimtor/action-zip@v1.2
         with:
-          library-name: ${{ env.PACKAGE_NAME }}
+          files: documentation-html
+          dest: documentation-html.zip
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            ./documentation-html.zip
+            ./documentation-pdf/*.pdf

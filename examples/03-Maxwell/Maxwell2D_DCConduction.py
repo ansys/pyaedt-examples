@@ -7,9 +7,12 @@
 import os.path
 import tempfile
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 from pyaedt.generic.pdf import AnsysReport
+
+# Set constant values
+
+AEDT_VERSION = "2024.1"
 
 # ## Launch AEDT and Maxwell 2D
 #

@@ -19,8 +19,11 @@ import pyaedt
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys", ignore_cleanup_errors=True)
 
 project_path = pyaedt.downloads.download_file(source="custom_reports/", destination=temp_dir.name)
-aedt_version = "2024.1"
 # -
+
+# Set constant values
+
+AEDT_VERSION = "2024.1"
 
 # ## Launch AEDT with the Circuit Interface
 #
@@ -44,7 +47,7 @@ NewThread = True
 circuit = pyaedt.Circuit(
     project=os.path.join(project_path, 'CISPR25_Radiated_Emissions_Example23R1.aedtz'),
     non_graphical=non_graphical,
-    version=aedt_version,
+    version=AEDT_VERSION,
     new_desktop=True
 )
 circuit.analyze()  # Run the circuit analysis.

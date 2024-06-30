@@ -10,9 +10,12 @@
 import os
 import tempfile
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 from pyaedt import Hfss3dLayout
+
+# Set constant values
+
+AEDT_VERSION = "2024.1"
 
 # ## Open project
 #

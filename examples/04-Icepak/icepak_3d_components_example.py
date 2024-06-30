@@ -11,10 +11,12 @@
 import os
 import tempfile
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
 from pyaedt import Icepak, downloads
-
 # -
+
+# Set constant values
+
+AEDT_VERSION = "2024.1"
 
 # Download needed files in a temporary folder
 

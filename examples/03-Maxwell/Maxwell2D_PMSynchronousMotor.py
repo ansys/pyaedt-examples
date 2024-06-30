@@ -11,8 +11,12 @@ import csv
 from operator import attrgetter
 import os
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
+
+# Set constant values
+
+AEDT_VERSION = "2024.1"
+
 
 # ## Initialize Maxwell 2D
 #
