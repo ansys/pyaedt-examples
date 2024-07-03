@@ -1,4 +1,5 @@
 # # HFSS 3D Layout: Power Integrity Analysis
+
 # This example shows how to use the electronics database (EDB) for power integrity analysis. The 
 # EDB will be loaded into HFSS 3D Layout for analysis and post-processing.
 # - Set up EDB
@@ -11,10 +12,10 @@
 #     - Analyze
 #     - Plot $Z_{11}$
 
-# ## Preparation
-# Import the required packages
+# ## Perform required imports
+#
+# Perform required imports.
 
-# +
 import os
 import json
 import tempfile
@@ -22,18 +23,23 @@ import time
 from pyaedt import Edb
 from pyaedt import Hfss3dLayout
 from pyaedt.downloads import download_file
-try:
-    from ansys.pyaedt.examples.constants import AEDT_VERSION
-except:
-    AEDT_VERSION = "2024.1"
 
+# ## Define constants
+#
+# Define constant values used in this example 
+
+AEDT_VERSION = "2024.1"
 NG_MODE = True
 
-# -
+# ## Create temporary directory and download files
+#
+# Create a temporary directory where we store downloaded data or
+# dumped data.
+
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # Download the example PCB data.
 
-temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 aedb = download_file(
     source="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name
 )
@@ -41,22 +47,26 @@ download_file(
     source="touchstone", name="GRM32_DC0V_25degC_series.s2p", destination=temp_folder.name
 )
 
-# ## Create a configuration file
-# In this example, we are going to use a configuration file to set up the layout for analysis.
-# ### Initialize a dictionary
+# ## Create a configuration file to set up the layout for analysis
+#
 # Create an empty dictionary to host all configurations.
 
 cfg = dict()
 
-# In this example, we are going to assign S-parameter models to capacitors. 
-# The first step is to use the "general" key to specify where the S-parameter files can be found.
+# > **Note:** In the following, we are going to assign S-parameter
+# > models to capacitors. 
+
+# ### Define the S-parameter files
+#
+# Define where the S-parameter files can be found.
 
 cfg["general"] = {
     "s_parameter_library": os.path.join(temp_folder.name, "touchstone")
 }
 
-# ## Assign model to capactitors. 
-# In this example, the model "GRM32_DC0V_25degC_series.s2p" is assigned to capacitors C3 and C4, which share the same component part number.
+# ### Assign model to capactitors
+#
+# Assign the model "GRM32_DC0V_25degC_series.s2p" to capacitors C3 and C4, which share the same component part number.
 # When "apply_to_all" is ``True``, all components having the part number "CAPC3216X180X20ML20" will be assigned the S-parameter model. 
 
 cfg["s_parameters"] = [
@@ -73,9 +83,11 @@ cfg["s_parameters"] = [
     }
 ]
 
-# ## Create pin groups.
-# In this example, the listed pins on component U2 are combined into two pin groups. 
-# Pins can be grouped explicitly by the pin name or pin groups can be assigned by net name using the "net" key as shown here:
+# ### Define pin groups
+#
+# Combine the listed pins on component U1 into pin groups:
+# - the first group is defined explicitly by the pins name;
+# - the second group is assigned by net name using the "net" key.
 
 cfg["pin_groups"] = [
     {
@@ -90,8 +102,9 @@ cfg["pin_groups"] = [
     }
 ]
 
-# ## Create ports
-# Create a circuit port between the two pin groups just created.
+# ### Create ports
+#
+# Create a circuit port between the two pin groups previously created.
 
 cfg["ports"] = [
     {
@@ -107,8 +120,12 @@ cfg["ports"] = [
     }
 ]
 
-# ## Create SIwave SYZ analysis setup
-# Both SIwave and HFSS can be used to run an analysis in the 3D Layout user interface.
+# ### Create SIwave SYZ analysis setup
+#
+# Create SIwave SYZ analysis setup.
+# 
+# > **Note:** Both SIwave and HFSS can be used to run an analysis in the
+# > 3D Layout user interface.
 
 cfg["setups"] = [
     {
@@ -132,8 +149,9 @@ cfg["setups"] = [
     }
 ]
 
-# ## Cutout
-# The following assignments will define the region of the PCB to be cut out for analysis.
+# ### Cutout
+#
+# Define the the region of the PCB to cutout for analysis.
 
 cfg["operations"] = {
     "cutout": {
@@ -163,17 +181,17 @@ cfg["operations"] = {
     }
 }
 
-# ## Save the configuration
+# ### Save the configuration
 #
-# The configuration file can be saved in JSON format and applied to layout data using the EDB.
+# Save the configuration file in JSON format.
 
 pi_json = os.path.join(temp_folder.name, "pi.json")
 with open(pi_json, "w") as f:
     json.dump(cfg, f, indent=4, ensure_ascii=False)
 
 # ## Load configuration into EDB
-
-# Load configuration from JSON
+#
+# Load configuration from the JSON file.
 
 edbapp = Edb(aedb, edbversion=AEDT_VERSION)
 edbapp.configuration.load(config_file=pi_json)
@@ -187,7 +205,7 @@ print(temp_folder.name)
 
 # ## Analyze in HFSS 3D Layout
 
-# ### Load edb into HFSS 3D Layout.
+# ### Load edb into HFSS 3D Layout
 
 h3d = Hfss3dLayout(
     aedb,
@@ -205,17 +223,18 @@ h3d.analyze()
 solutions = h3d.post.get_solution_data(expressions='Z(port1,port1)')
 solutions.plot()
 
-# ## Shut Down Electronics Desktop
-
-h3d.close_desktop()
-
-# All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notbook you 
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
-
-# ## Cleanup
+# ## Save project and close AEDT
 #
-# All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notbook you 
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# Save the project, release AEDT and remove both the project and temporary directory.
+
+# > **Note:** All project files are saved in the folder ``temp_file.dir``.
+# > If you've run this example as a Jupyter notbook you  can retrieve those project files.
+# > The following cell removes all temporary files, including the project folder.
+
+# +
+h3d.save_project()
+h3d.release_desktop()
 
 time.sleep(3)
 temp_folder.cleanup()
+# -
