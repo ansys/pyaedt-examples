@@ -5,7 +5,6 @@ maintenance:
 - changed-files:
   - any-glob-to-any-file: .github/**/*
   - any-glob-to-any-file: .flake8
-  - any-glob-to-any-file: pyproject.toml
 dependencies:
 - changed-files:
   - any-glob-to-any-file: requirements/*
