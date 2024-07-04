@@ -14,12 +14,15 @@ import os
 import tempfile
 import time
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys", ignore_cleanup_errors=True)
 netlist = pyaedt.downloads.download_netlist(destination=temp_dir.name)
 # -
+
+# Set constant values
+
+AEDT_VERSION = "2024.1"
 
 # ## Launch AEDT
 #

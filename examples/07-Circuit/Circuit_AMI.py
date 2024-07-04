@@ -14,12 +14,15 @@ import os
 import tempfile
 import time
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
 from matplotlib import pyplot as plt
 import numpy as np
 import pyaedt
 
 # -
+
+# Set constant values
+
+AEDT_VERSION = "2024.1"
 
 # ## Download Example Data
 #

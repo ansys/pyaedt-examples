@@ -12,9 +12,12 @@
 import os
 import tempfile
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
 import matplotlib.pyplot as plt
 import pyaedt
+
+# Set constant values
+
+AEDT_VERSION = "2024.1"
 
 # ## Select version and set launch options
 #

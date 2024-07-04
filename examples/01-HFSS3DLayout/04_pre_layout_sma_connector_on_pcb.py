@@ -29,22 +29,21 @@ import time
 from pyedb import Edb
 from pyaedt import Hfss3dLayout
 from pyaedt.downloads import download_file
-try:
-    from ansys.pyaedt.examples.constants import AEDT_VERSION
-except:
-    AEDT_VERSION = "2024.1"
-
-temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # -
+
+# Set constant values
+
+AEDT_VERSION = "2024.1"
+# Set ``NG_MODE`` to ``True`` in order to run in non-graphical mode.
+# The example is currently set up to run in graphical mode.
+NG_MODE = False
 
 # Download example board.
 
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 sma_rf_connector = download_file(source="component_3d", name="SMA_RF_SURFACE_MOUNT.a3dcomp", destination=temp_folder.name
 )
 
-# Set ``NG_MODE`` to ``True`` in order to run in non-graphical mode. The example is currently set up to run in graphical mode.
-
-NG_MODE = False
 
 # # Create a layout design
 
