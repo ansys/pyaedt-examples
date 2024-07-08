@@ -10,8 +10,11 @@ The method is valid and usable for any object the user would like to segment.
 
 import tempfile
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
 from pyaedt import Maxwell3d, downloads
+
+# Set constant values
+
+AEDT_VERSION = "2024.1"
 
 # ## Create temporary directory
 #

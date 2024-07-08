@@ -14,9 +14,12 @@
 import os
 import shutil
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
 import matplotlib.pyplot as plt
 from pyaedt import TwinBuilder, downloads, generate_unique_folder_name, generate_unique_project_name
+
+# Set constant values
+
+AEDT_VERSION = "2024.1"
 
 # ## Select version and set launch options
 #

@@ -11,11 +11,13 @@ import os.path
 import time
 import tempfile
 
-from ansys.pyaedt.examples.constants import EDB_VERSION
 import pyaedt
 from pyaedt import Circuit, Edb
-
 # -
+
+# Set constant values
+
+EDB_VERSION = "2024.1"
 
 # ## Download file
 #

@@ -14,9 +14,13 @@
 
 import tempfile
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION, NUM_CORES
 import pyaedt
 from pyaedt.modeler.advanced_cad.stackup_3d import Stackup3D
+
+# Set constant values
+
+AEDT_VERSION = "2024.1"
+NUM_CORES = 4
 
 # ## Set non-graphical mode
 #

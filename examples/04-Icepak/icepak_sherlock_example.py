@@ -17,6 +17,11 @@ import pyaedt
 
 # -
 
+# Set constant values
+
+AEDT_VERSION = "2024.1"
+
+
 # ## Define input files and variables.
 #
 # Set paths.
@@ -53,7 +58,7 @@ non_graphical = False
 
 # Open the project
 
-ipk = pyaedt.Icepak(project=project_name)
+ipk = pyaedt.Icepak(project=project_name, version=AEDT_VERSION)
 
 # Disable autosave to speed up the import.
 

@@ -13,9 +13,12 @@ from math import cos, radians, sin, sqrt
 import os
 import tempfile
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 from pyaedt.generic.general_methods import generate_unique_name
+
+# Set constant values
+
+AEDT_VERSION = "2024.1"
 
 # ## Set non-graphical mode
 #

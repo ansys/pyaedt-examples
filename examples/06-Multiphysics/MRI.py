@@ -19,10 +19,14 @@
 import os.path
 import tempfile
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION, NUM_CORES
 from pyaedt import Hfss, Icepak, Mechanical, downloads
-
 # -
+
+# Set constant values
+
+AEDT_VERSION = "2024.1"
+NUM_CORES = 4
+
 
 # ## Create temporary directory
 #

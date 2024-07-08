@@ -5,11 +5,14 @@ import datetime
 from importlib import import_module
 import json
 import os
-import pathlib
+from pathlib import Path
 from pprint import pformat
+from docutils.nodes import document
 
 # import re
 import shutil
+from typing import Any
+from sphinx.application import Sphinx
 import sys
 import warnings
 
@@ -18,7 +21,7 @@ from ansys_sphinx_theme import (
     ansys_favicon,
     ansys_logo_white,
     ansys_logo_white_cropped,
-    get_version_match,
+    # get_version_match,
     latex,
     pyansys_logo_black,
     watermark,
@@ -31,12 +34,27 @@ from sphinx import addnodes
 from sphinx.builders.latex import LaTeXBuilder
 from sphinx.util import logging
 
-LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml", "image/webp"]
+LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml"]
 
 logger = logging.getLogger(__name__)
-path = pathlib.Path(__file__).parent.parent.parent / "examples"
+path = Path(__file__).parent.parent.parent / "examples"
 EXAMPLES_DIRECTORY = path.resolve()
+REPOSITORY_NAME = "pyaedt-examples"
+USERNAME = "ansys"
+BRANCH = "main"
+DOC_PATH = "doc/source"
 
+
+project = "pyaedt-examples"
+copyright = f"(c) 2021 - {datetime.datetime.now().year} ANSYS, Inc. All rights reserved"
+author = "Ansys Inc."
+cname = os.getenv("DOCUMENTATION_CNAME", "nocname.com")
+release = version = "0.1.dev0"
+
+# os.environ["PYAEDT_NON_GRAPHICAL"] = "1"
+# os.environ["PYAEDT_DOC_GENERATION"] = "1"
+
+# -- Connect functions (hooks) to Sphinx events  -----------------------------
 
 class PrettyPrintDirective(Directive):
     """Renders a constant using ``pprint.pformat`` and inserts into the document."""
@@ -55,143 +73,10 @@ class PrettyPrintDirective(Directive):
         return [addnodes.desc_name(text=member_name), addnodes.desc_content("", literal)]
 
 
-# Sphinx event hooks
+# Sphinx builder specific events hook
 
 
-def directory_size(directory_path):
-    """Compute the size (in mega bytes) of a directory."""
-    res = 0
-    for path, _, files in os.walk(directory_path):
-        for f in files:
-            fp = os.path.join(path, f)
-            res += os.stat(fp).st_size
-    # Convert in mega bytes
-    res /= 1e6
-    return res
-
-
-def remove_doctree(app, exception):
-    """Remove the .doctree directory created during the documentation build."""
-
-    # Keep the doctree to avoid creating it twice. This is typically helpful in CI/CD
-    # where we want to build both HTML and PDF pages.
-    if bool(int(os.getenv("SPHINXBUILD_KEEP_DOCTREEDIR", "0"))):
-        logger.info(f"Keeping directory {app.doctreedir}.")
-    else:
-        size = directory_size(app.doctreedir)
-        logger.info(f"Removing doctree {app.doctreedir} ({size} MB).")
-        shutil.rmtree(app.doctreedir, ignore_errors=True)
-        logger.info(f"Doctree removed.")
-
-
-def copy_examples(app):
-    """Copy directory examples (root directory) files into the doc/source/examples directory."""
-    destination_dir = pathlib.Path(app.srcdir, "examples").resolve()
-    logger.info(f"Copying examples from {EXAMPLES_DIRECTORY} to {destination_dir}.")
-
-    if os.path.exists(destination_dir):
-        size = directory_size(destination_dir)
-        logger.info(f"Directory {destination_dir} ({size} MB) already exist, removing it.")
-        shutil.rmtree(destination_dir, ignore_errors=True)
-        logger.info(f"Directory removed.")
-
-    shutil.copytree(EXAMPLES_DIRECTORY, destination_dir)
-    logger.info(f"Copy performed")
-
-
-def remove_examples(app, exception):
-    """Remove the doc/source/examples directory created during the documentation build."""
-    destination_dir = pathlib.Path(app.srcdir) / "examples"
-
-    size = directory_size(destination_dir)
-    logger.info(f"Removing directory {destination_dir} ({size} MB).")
-    shutil.rmtree(destination_dir, ignore_errors=True)
-    logger.info(f"Directory removed.")
-
-
-# def add_ipython_time(app, docname, source):
-#     """Add '# %%time' to every code cell in an example Python script."""
-#     # Get the full path to the document
-#     docpath = os.path.join(app.srcdir, docname)
-
-#     # Check if this is a .py example file
-#     if not os.path.exists(docpath + ".py") or not docname.startswith("examples"):
-#         return
-
-#     logger.info(f"Adding '# %%time' to file {docname}.py")
-#     lines = source[0].split("\n")
-#     modified_lines = []
-#     in_code_cell = False
-#     in_code_cell_plus = False
-
-#     for line in lines:
-#         stripped_line = line.strip()
-#         # Detect the start of a new code cell
-#         if stripped_line.startswith("# +"):
-#             in_code_cell = True
-#             in_code_cell_plus = True
-#             modified_lines.append(line)
-#             modified_lines.append("# %%time")
-#         # Detect the end of a code cell
-#         elif stripped_line.startswith("# -"):
-#             in_code_cell = False
-#             in_code_cell_plus = False
-#             modified_lines.append(line)
-#         # Detect already being in a code cell
-#         elif in_code_cell and in_code_cell_plus:
-#             modified_lines.append(line)
-#         elif in_code_cell and not in_code_cell_plus:
-#             # Detect being out of a code cell
-#             if stripped_line == "":
-#                 in_code_cell = False
-#             modified_lines.append(line)
-#         elif not in_code_cell:
-#             # Detect the start of a new code cell
-#             if not stripped_line.startswith("# ") and stripped_line not in ("", "#"):
-#                 in_code_cell = True
-#                 modified_lines.append("# %%time")
-#                 modified_lines.append(line)
-#             # Detect already being out of a code cell
-#             else:
-#                 modified_lines.append(line)
-#         else:
-#             raise Exception("not handled")
-
-#     # Update the source
-#     source[0] = "\n".join(modified_lines)
-#     # logger.info(source[0])
-
-
-def adjust_image_path(app, docname, source):
-    """Adjust the HTML label used to insert images in the examples.
-
-    The following path makes the examples in the root directory work:
-    # <img src="../../doc/source/_static/diff_via.png" width="500">
-    However, examples fail when used through the documentation build because
-    reaching the associated path should be "../../_static/diff_via.png".
-    Indeed, the directory ``_static`` is automatically copied into the output directory
-    ``_build/html/_static``.
-    """
-    # Get the full path to the document
-    docpath = os.path.join(app.srcdir, docname)
-
-    # Check if this is a PY example file
-    if not os.path.exists(docpath + ".py") or not docname.startswith("examples"):
-        return
-
-    logger.info(f"Changing HTML image path in '{docname}.py' file.")
-    source[0] = source[0].replace("../../doc/source/_static", "../../_static")
-
-
-# def remove_ipython_time_from_html(app, pagename, templatename, context, doctree):
-#     """Remove '# %%time' from examples generated HTML files."""
-#     if pagename.startswith("examples") and not pagename.endswith("/index"):
-#         logger.info(f"Removing '# %%time' from file {pagename}")
-#         pattern = r'<span class="o">%%time<\/span>\n'
-#         context["body"] = re.sub(pattern, "", context["body"])
-
-
-def check_example_error(app, pagename, templatename, context, doctree):
+def check_example_error(app: Sphinx, pagename: str, templatename:str , context:dict[str, Any], doctree: document):
     """Log an error if the execution of an example as a notebook triggered an error.
 
     Since the documentation build might not stop if the execution of a notebook triggered
@@ -215,15 +100,82 @@ def check_example_error(app, pagename, templatename, context, doctree):
             app.builder.config.html_context["build_error"] = True
 
 
-def check_build_finished_without_error(app, exception):
-    """Check that no error is detected along the documentation build process."""
-    if app.builder.config.html_context.get("build_error", False):
-        logger.info("Build failed due to an error in html-page-context")
-        exit(1)
+# Sphinx generic event hooks
 
 
-def check_pandoc_installed(app):
-    """Ensure that pandoc is installed"""
+def directory_size(directory_path: Path):
+    """Compute the size (in mega bytes) of a directory.
+    
+    Parameters
+    ----------
+    directory_path : pathlib.Path
+        Path to the directory to evaluate.
+    """
+    res = 0
+    for path, _, files in os.walk(directory_path):
+        for f in files:
+            fp = os.path.join(path, f)
+            res += os.stat(fp).st_size
+    # Convert in mega bytes
+    res /= 1e6
+    return res
+
+
+def copy_examples(app: Sphinx):
+    """Copy root directory examples files into the doc/source/examples directory.
+    
+    Parameters
+    ----------
+    app : sphinx.application.Sphinx
+        Sphinx instance containing all the configuration for the documentation build.
+    """
+    destination_dir = Path(app.srcdir, "examples").resolve()
+    logger.info(f"Copying examples from {EXAMPLES_DIRECTORY} to {destination_dir}.")
+
+    if os.path.exists(destination_dir):
+        size = directory_size(destination_dir)
+        logger.info(f"Directory {destination_dir} ({size} MB) already exist, removing it.")
+        shutil.rmtree(destination_dir, ignore_errors=True)
+        logger.info(f"Directory removed.")
+
+    shutil.copytree(EXAMPLES_DIRECTORY, destination_dir)
+    logger.info(f"Copy performed")
+
+
+def adjust_image_path(app: Sphinx, docname, source):
+    """Adjust the HTML label used to insert images in the examples.
+
+    The following path makes the examples in the root directory work:
+    # <img src="../../doc/source/_static/diff_via.png" width="500">
+    However, examples fail when used through the documentation build because
+    reaching the associated path should be "../../_static/diff_via.png".
+    Indeed, the directory ``_static`` is automatically copied into the output directory
+    ``_build/html/_static``.
+
+    Parameters
+    ----------
+    app : sphinx.application.Sphinx
+        Sphinx instance containing all the configuration for the documentation build.
+    """
+    # Get the full path to the document
+    docpath = os.path.join(app.srcdir, docname)
+
+    # Check if this is a PY example file
+    if not os.path.exists(docpath + ".py") or not docname.startswith("examples"):
+        return
+
+    logger.info(f"Changing HTML image path in '{docname}.py' file.")
+    source[0] = source[0].replace("../../doc/source/_static", "../../_static")
+
+
+def check_pandoc_installed(app: Sphinx):
+    """Ensure that pandoc is installed
+    
+    Parameters
+    ----------
+    app : sphinx.application.Sphinx
+        Sphinx instance containing all the configuration for the documentation build.
+    """
     import pypandoc
 
     try:
@@ -239,7 +191,7 @@ def check_pandoc_installed(app):
 
 # NOTE: The list of skipped files requires to be updated every time a new example
 # with GIF content is created or removed.
-def skip_gif_examples_to_build_pdf(app):
+def skip_gif_examples_to_build_pdf(app: Sphinx):
     """Callback function for builder-inited event.
 
     Add examples showing GIF to the list of excluded files when building PDF files.
@@ -259,57 +211,81 @@ def skip_gif_examples_to_build_pdf(app):
             ]
         )
 
+def remove_examples(app: Sphinx, exception: None | Exception):
+    """Remove the doc/source/examples directory created during documentation build.
+    
+    Parameters
+    ----------
+    app : sphinx.application.Sphinx
+        Sphinx instance containing all the configuration for the documentation build.
+    """
+    destination_dir = Path(app.srcdir) / "examples"
+
+    size = directory_size(destination_dir)
+    logger.info(f"Removing directory {destination_dir} ({size} MB).")
+    shutil.rmtree(destination_dir, ignore_errors=True)
+    logger.info(f"Directory removed.")
+
+def check_build_finished_without_error(app: Sphinx, exception: None | Exception):
+    """Check that no error is detected along the documentation build process.
+
+    Parameters
+    ----------
+    app : sphinx.application.Sphinx
+        Sphinx instance containing all the configuration for the documentation build.
+    exception : None or Exception
+        Exception raised during the build process.
+    """
+    if app.builder.config.html_context.get("build_error", False):
+        logger.info("Build failed due to an error in html-page-context")
+        exit(1)
+
+def remove_doctree(app: Sphinx, exception: None | Exception):
+    """Remove the .doctree directory created during the documentation build.
+
+    Parameters
+    ----------
+    app : sphinx.application.Sphinx
+        Sphinx instance containing all the configuration for the documentation build.
+    exception : None or Exception
+        Exception raised during the build process.
+    """
+    # Keep the doctree to avoid creating it twice. This is typically helpful in CI/CD
+    # where we want to build both HTML and PDF pages.
+    if bool(int(os.getenv("SPHINXBUILD_KEEP_DOCTREEDIR", "0"))):
+        logger.info(f"Keeping directory {app.doctreedir}.")
+    else:
+        size = directory_size(app.doctreedir)
+        logger.info(f"Removing doctree {app.doctreedir} ({size} MB).")
+        shutil.rmtree(app.doctreedir, ignore_errors=True)
+        logger.info(f"Doctree removed.")
+
 
 def setup(app):
+    """Run different hook functions during the documentation build.
+
+    Parameters
+    ----------
+    app : sphinx.application.Sphinx
+        Sphinx instance containing all the configuration for the documentation build.
+    """
     app.add_directive("pprint", PrettyPrintDirective)
+    # Builder specific hook
+    app.connect("html-page-context", check_example_error)
+    # Builder inited hooks
     app.connect("builder-inited", copy_examples)
     app.connect("builder-inited", check_pandoc_installed)
     app.connect("builder-inited", skip_gif_examples_to_build_pdf)
-    # app.connect("source-read", add_ipython_time)
+    # Source read hook
     app.connect("source-read", adjust_image_path)
-    # app.connect("html-page-context", remove_ipython_time_from_html)
-    app.connect("html-page-context", check_example_error)
+    # Build finished hooks
     app.connect("build-finished", remove_examples)
     app.connect("build-finished", remove_doctree)
     app.connect("build-finished", check_build_finished_without_error)
 
-
-local_path = os.path.dirname(os.path.realpath(__file__))
-module_path = pathlib.Path(local_path)
-root_path = module_path.parent.parent
-try:
-    from pyaedt import __version__
-except ImportError:
-
-    sys.path.append(os.path.abspath(os.path.join(local_path)))
-    sys.path.append(os.path.join(root_path))
-    from pyaedt import __version__
-
-from pyaedt import is_windows
-
-project = "pyaedt-examples"
-copyright = f"(c) {datetime.datetime.now().year} ANSYS, Inc. All rights reserved"
-author = "Ansys Inc."
-cname = os.getenv("DOCUMENTATION_CNAME", "nocname.com")
-
-# Check for the local config file, otherwise use default desktop configuration
-local_config_file = os.path.join(local_path, "local_config.json")
-if os.path.exists(local_config_file):
-    with open(local_config_file) as f:
-        config = json.load(f)
-else:
-    config = {"run_examples": True}
-
-release = version = __version__
-
-os.environ["PYAEDT_NON_GRAPHICAL"] = "1"
-os.environ["PYAEDT_DOC_GENERATION"] = "1"
-
 # -- General configuration ---------------------------------------------------
 
-# Add any Sphinx_PyAEDT extension module names here as strings. They can be
-# extensions coming with Sphinx_PyAEDT (named 'sphinx.ext.*') or your custom
-# ones.
+# Add any extension module names here as strings.
 extensions = [
     "sphinx.ext.graphviz",
     "sphinx.ext.mathjax",
@@ -321,15 +297,10 @@ extensions = [
     "sphinx.ext.coverage",
     "sphinx_copybutton",
     "sphinx_design",
-    "sphinx_jinja",
     "nbsphinx",
     "recommonmark",
     "numpydoc",
-    "ansys_sphinx_theme.extension.linkcode",
 ]
-
-# MathJax config
-# myst_update_mathjax = False
 
 # Intersphinx mapping
 intersphinx_mapping = {
@@ -341,7 +312,6 @@ intersphinx_mapping = {
     "pandas": ("https://pandas.pydata.org/pandas-docs/stable", None),
     "pytest": ("https://docs.pytest.org/en/stable", None),
 }
-
 
 toc_object_entries_show_parents = "hide"
 
@@ -373,21 +343,18 @@ numpydoc_validation_checks = {
     # separating the parameter name and type",
 }
 
-numpydoc_validation_exclude = {  # set of regex
-    r"\.AEDTMessageManager.add_message$",  # bad SS05
-    r"\.Modeler3D\.create_choke$",  # bad RT05
-    r"HistoryProps.",  # bad RT05 because of the base class named OrderedDict
-}
+# numpydoc_validation_exclude = {  # set of regex
+#     r"\.AEDTMessageManager.add_message$",  # bad SS05
+#     r"\.Modeler3D\.create_choke$",  # bad RT05
+#     r"HistoryProps.",  # bad RT05 because of the base class named OrderedDict
+# }
 
-# Favicon
-html_favicon = ansys_favicon
+# # Add any paths that contain templates here, relative to this directory.
+# templates_path = ["_templates"]
 
-# Add any paths that contain templates here, relative to this directory.
-templates_path = ["_templates"]
-
-# disable generating the sphinx nested documentation
-if "PYAEDT_CI_NO_AUTODOC" in os.environ:
-    templates_path.clear()
+# # disable generating the sphinx nested documentation
+# if "PYAEDT_CI_NO_AUTODOC" in os.environ:
+#     templates_path.clear()
 
 
 # Copy button customization ---------------------------------------------------
@@ -396,41 +363,29 @@ copybutton_prompt_text = r">>> ?|\.\.\. "
 copybutton_prompt_is_regexp = True
 
 
-# The language for content autogenerated by Sphinx_PyAEDT. Refer to documentation
-# for a list of supported languages.
-#
-# This is also used if you do content translation via gettext catalogs.
-# Usually you set "language" from the command line for these cases.
+# The language for content autogenerated.
 language = "en"
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = [
-    "_build",
-    "sphinx_boogergreen_theme_1",
-    "Thumbs.db",
-    ".DS_Store",
-    "*.txt",
+    # "_build",
+    # "sphinx_boogergreen_theme_1",
+    # "Thumbs.db",
+    # ".DS_Store",
+    # "*.txt",
     "conf.py",
-    "constants.py",
+    # "constants.py",
 ]
 
-inheritance_graph_attrs = dict(rankdir="RL", size='"8.0, 10.0"', fontsize=14, ratio="compress")
-inheritance_node_attrs = dict(
-    shape="ellipse", fontsize=14, height=0.75, color="dodgerblue1", style="filled"
-)
+# inheritance_graph_attrs = dict(rankdir="RL", size='"8.0, 10.0"', fontsize=14, ratio="compress")
+# inheritance_node_attrs = dict(
+#     shape="ellipse", fontsize=14, height=0.75, color="dodgerblue1", style="filled"
+# )
 
 
 # -- Options for HTML output -------------------------------------------------
-
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-#
-# Add any paths that contain custom static files (such as style sheets) here,
-# relative to this directory. They are copied after the builtin static files,
-# so a file named "default.css" will overwrite the builtin "default.css".
-# html_static_path = ['_static']
 
 source_suffix = {".rst": "restructuredtext", ".md": "markdown"}
 
@@ -441,31 +396,25 @@ master_doc = "index"
 pygments_style = "sphinx"
 
 # Execute notebooks before conversion
-nbsphinx_execute = "auto"
+nbsphinx_execute = "always"
 
 # Allow errors to help debug.
 nbsphinx_allow_errors = False
 
-# Sphinx gallery customization
-
+# NbSphinx customization
 nbsphinx_thumbnails = {
     "examples/00-EDB/00_EDB_Create_VIA": "_static/thumbnails/diff_via.png",
 }
-
 nbsphinx_custom_formats = {
-    # ".py": ["jupytext.reads", {"fmt": "",  "cell_metadata_filter": "ExecuteTime"}],
     ".py": ["jupytext.reads", {"fmt": ""}],
 }
 
-# Manage errors
-pyvista.set_error_output_file("errors.txt")
-
+# Pyvista customization
+# pyvista.set_error_output_file("errors.txt")
 # Ensure that offscreen rendering is used for docs generation
-pyvista.OFF_SCREEN = True
-
+# pyvista.OFF_SCREEN = True
 # Preferred plotting style for documentation
 # pyvista.set_plot_theme('document')
-
 # must be less than or equal to the XVFB window size
 pyvista.global_theme["window_size"] = np.array([1024, 768])
 
@@ -474,52 +423,21 @@ pyvista.FIGURE_PATH = os.path.join(os.path.abspath("./images/"), "auto-generated
 if not os.path.exists(pyvista.FIGURE_PATH):
     os.makedirs(pyvista.FIGURE_PATH)
 
-# gallery build requires AEDT install
-if is_windows and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
+# # suppress annoying matplotlib bug
+# warnings.filterwarnings(
+#     "ignore",
+#     category=UserWarning,
+#     message="Matplotlib is currently using agg so figures are not shown.",
+# )
 
-    # suppress annoying matplotlib bug
-    warnings.filterwarnings(
-        "ignore",
-        category=UserWarning,
-        message="Matplotlib is currently using agg so figures are not shown.",
-    )
+# necessary for pyvista when building the sphinx gallery
+# pyvista.BUILDING_GALLERY = True
 
-    # necessary for pyvista when building the sphinx gallery
-    pyvista.BUILDING_GALLERY = True
-
-    # if config["run_examples"]:
-    #     extensions.append("sphinx_gallery.gen_gallery")
-
-    #     sphinx_gallery_conf = {
-    #         # convert rst to md for ipynb
-    #         "pypandoc": True,
-    #         # path to your examples scripts
-    #         "examples_dirs": ["../../examples/"],
-    #         # path where to save gallery generated examples
-    #         "gallery_dirs": ["examples"],
-    #         # Pattern to search for examples files
-    #         "filename_pattern": r"\.py",
-    #         # Remove the "Download all examples" button from the top level gallery
-    #         "download_all_examples": False,
-    #         # Sort gallery examples by file name instead of number of lines (default)
-    #         "within_subsection_order": FileNameSortKey,
-    #         # directory where function granular galleries are stored
-    #         "backreferences_dir": None,
-    #         # Modules for which function level galleries are created.  In
-    #         "doc_module": "ansys-pyaedt",
-    #         "image_scrapers": ("pyvista", "matplotlib"),
-    #         "ignore_pattern": "flycheck*",
-    #         "thumbnail_size": (350, 350),
-    #         # 'first_notebook_cell': ("%matplotlib inline\n"
-    #         #                         "from pyvista import set_plot_theme\n"
-    #         #                         "set_plot_theme('document')"),
-    #     }
-
-jinja_contexts = {
-    "main_toctree": {
-        "run_examples": config["run_examples"],
-    },
-}
+# jinja_contexts = {
+#     "main_toctree": {
+#         "run_examples": config["run_examples"],
+#     },
+# }
 # def prepare_jinja_env(jinja_env) -> None:
 #     """
 #     Customize the jinja env.
@@ -534,47 +452,37 @@ jinja_contexts = {
 # autoapi_prepare_jinja_env = prepare_jinja_env
 
 # -- Options for HTML output -------------------------------------------------
-html_short_title = html_title = "PyAEDT"
+html_short_title = html_title = "PyAEDT Examples"
 html_theme = "ansys_sphinx_theme"
 html_logo = pyansys_logo_black
+html_favicon = ansys_favicon
+
 html_context = {
-    "github_user": "ansys",
-    "github_repo": "pyaedt",
-    "github_version": "main",
-    "doc_path": "doc/source",
+    "display_github": True,  # Integrate GitHub
+    "github_user": USERNAME,
+    "github_repo": REPOSITORY_NAME,
+    "github_version": BRANCH,
+    "doc_path": DOC_PATH,
 }
 
 # specify the location of your github repo
 html_theme_options = {
-    "github_url": "https://github.com/ansys/pyaedt",
-    "navigation_with_keys": False,
+    "github_url": f"https://github.com/{USERNAME}/{REPOSITORY_NAME}",
     "show_prev_next": False,
-    "show_breadcrumbs": True,
     "collapse_navigation": True,
     "use_edit_page_button": True,
+    "show_breadcrumbs": True,
     "additional_breadcrumbs": [
         ("PyAnsys", "https://docs.pyansys.com/"),
+        ("PyAEDT", "https://aedt.docs.pyansys.com/"),
     ],
     "icon_links": [
         {
             "name": "Support",
-            "url": "https://github.com/ansys/pyaedt/discussions",
+            "url": f"https://github.com/{USERNAME}/{REPOSITORY_NAME}/discussions",
             "icon": "fa fa-comment fa-fw",
         },
     ],
-    "switcher": {
-        "json_url": f"https://{cname}/versions.json",
-        "version_match": get_version_match(__version__),
-    },
-    "collapse_navigation": True,
-    "navigation_with_keys": True,
-    "use_meilisearch": {
-        "api_key": os.getenv("MEILISEARCH_PUBLIC_API_KEY", ""),
-        "index_uids": {
-            f"pyaedt-v{get_version_match(__version__).replace('.', '-')}": "PyAEDT",
-            f"pyedb-v{get_version_match(__version__).replace('.', '-')}": "EDB API",
-        },
-    },
 }
 
 html_static_path = ["_static"]
@@ -585,12 +493,6 @@ html_css_files = [
     "css/custom.css",
     "css/highlight.css",
 ]
-
-
-# -- Options for HTMLHelp output ---------------------------------------------
-
-# Output file base name for HTML help builder.
-htmlhelp_basename = "pyaedtdoc"
 
 # -- Options for LaTeX output ------------------------------------------------
 # additional logos for the latex coverpage

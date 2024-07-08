@@ -21,16 +21,15 @@ import time
 from pyedb import Edb
 from pyaedt import Hfss3dLayout
 from pyaedt.downloads import download_file
-try:
-    from ansys.pyaedt.examples.constants import AEDT_VERSION
-except:
-    AEDT_VERSION = "2024.1"
-
-temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # -
+
+# Set constant values
+
+AEDT_VERSION = "2024.1"
 
 # ## Launch EDB
 
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 aedb_path = os.path.join(temp_folder.name, "pcb.aedb")
 edb = Edb(edbpath=aedb_path, edbversion=AEDT_VERSION)
 
