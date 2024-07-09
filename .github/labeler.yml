@@ -1,8 +1,10 @@
 documentation:
-- doc/source/**/*
+- changed-files:
+  - any-glob-to-any-file: doc/source/**/*
 maintenance:
-- .github/**/*
-- .flake8
-- pyproject.toml
+- changed-files:
+  - any-glob-to-any-file: .github/**/*
+  - any-glob-to-any-file: .flake8
 dependencies:
-- requirements/*
+- changed-files:
+  - any-glob-to-any-file: requirements/*
