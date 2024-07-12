@@ -1,6 +1,7 @@
 # # Channel Operating Margin (COM)
 # This example shows how you can use pyaedt for COM analysis.
 # Supported standards are as below:
+#
 # - 50GAUI_1_C2C
 # - 100GAUI_2_C2C
 # - 200GAUI_4
@@ -11,6 +12,7 @@
 # <img src="_static\com_eye.png" width="500">
 
 # ## What is COM
+#
 # - COM was developed as part of IEEE 802.3bj, 100GBASE Ethernet.
 # - COM is a figure of merit for an S-parameter representing a high speed SerDes channel.
 # - COM is the ratio between eye height and noise
@@ -79,6 +81,7 @@ com_results = spi_sim.compute_com(
 
 # ## Print COM values
 # There are two COM values reported by the definition of the standard.
+#
 # - Case 0. COM value in dB when big package is used.
 # - Case 1. COM value in dB when small package is used.
 
