@@ -12,10 +12,11 @@ on:
     - cron: "0 3 * * *"
 
 env:
-  MAIN_PYTHON_VERSION: '3.10'
-  PACKAGE_NAME: 'pyaedt-examples'
   ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
+  DOCUMENTATION_CNAME: 'examples.aedt.docs.pyansys.com'
+  MAIN_PYTHON_VERSION: '3.10'
   ON_CI: True
+  PACKAGE_NAME: 'pyaedt-examples'
   PYAEDT_NON_GRAPHICAL: '1'
   PYAEDT_DOC_GENERATION: '1'
 
@@ -95,10 +96,8 @@ jobs:
 
       - name: Deploy
         if: contains(github.ref, 'refs/heads/main')
-        uses: JamesIves/github-pages-deploy-action@v4.6.3
+        uses: ansys/actions/doc-deploy-dev@v4
         with:
+          cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch: gh-pages
-          folder: doc/_build/html
-          clean: true
-          single-commit: true
+          doc-artifact-name: 'documentation-html'
