@@ -22,7 +22,7 @@ if NOT "%is_vtk_osmesa_installed%" == "vtk-osmesa" if "%ON_CI%" == "true" (
 	@ECHO ON
 	echo "Installing vtk-osmesa"
 	@ECHO OFF
-	pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0)
+	pip install --extra-index-url https://wheels.vtk.org vtk-osmesa)
 for /f %%i in ('pip freeze ^| findstr /c:"pypandoc_binary"') do set is_pypandoc_binary_installed=%%i
 if NOT "%is_pypandoc_binary_installed%" == "pypandoc_binary" if "%ON_CI%" == "true" (
 	@ECHO ON
