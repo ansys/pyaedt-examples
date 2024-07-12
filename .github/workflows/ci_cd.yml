@@ -93,28 +93,12 @@ jobs:
           path: doc/_build/latex
           retention-days: 7
 
-  release:
-    if: github.event_name == 'refs/heads/main' && !contains(github.ref, 'refs/tags')
-    needs: [doc-build, doc-style]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/download-artifact@v4
-
-      - name: Display structure of downloaded files
-        run: ls -R
-
-      - name: Zip HTML documentation
-        uses: vimtor/action-zip@v1.2
+      - name: Deploy
+        if: contains(github.ref, 'refs/heads/main')
+        uses: JamesIves/github-pages-deploy-action@v4.6.3
         with:
-          files: documentation-html
-          dest: documentation-html.zip
-
-      - name: Release
-        uses: softprops/action-gh-release@v2
-        with:
-          generate_release_notes: true
-          files: |
-            ./documentation-html.zip
-            ./documentation-pdf/*.pdf
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: gh-pages
+          folder: doc/_build/html
+          clean: true
+          single-commit: true
