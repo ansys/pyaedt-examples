@@ -1,14 +1,18 @@
 # # HFSS 3D Layout: DC IR Analysis
 # This example shows how to configure EDB for DC IR analysis, and load EDB into the 3D Layout UI for analysis and
 # post-processing.
+#
 # - Set up EDB
+#
 #     - Edit via padstack
 #     - Assign SPICE model to components
 #     - Create pin groups
 #     - Create voltage and current sources
 #     - Create SIwave DC anaylsis
 #     - Create cutout
+#
 # - Import EDB into HFSS 3D Layout
+#
 #     - Analyze
 #     - Get DC IR analysis results
 
