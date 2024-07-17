@@ -4,13 +4,20 @@
 # and solve it using the Maxwell 2D DCConduction solver.
 # Keywords: DXF import, material sweep, expression cache
 
+# ## Perform required imports
+#
+# Perform required imports.
+
 import os.path
 import tempfile
+import time
 
 import pyaedt
 from pyaedt.generic.pdf import AnsysReport
 
-# Set constant values
+# ## Define constants
+#
+# Define constant values used in this example
 
 AEDT_VERSION = "2024.1"
 
@@ -29,11 +36,12 @@ m2d = pyaedt.Maxwell2d(
     design="Ansys_resistor",
 )
 
-# ## Create temporary directory
+# ## Create temporary directory and download files
 #
-# Create temporary directory.
+# Create a temporary directory where we store downloaded data or
+# dumped data.
 
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Import geometry as a DXF file
 #
@@ -47,7 +55,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 # m2d.import_dxf(DXFPath, dxf_layers, scale=1E-05)
 
 parasolid_path = pyaedt.downloads.download_file(
-    directory="x_t", filename="Ansys_logo_2D.x_t", destination=temp_dir.name
+    directory="x_t", filename="Ansys_logo_2D.x_t", destination=temp_folder.name
 )
 m2d.modeler.import_3d_cad(parasolid_path)
 # -
@@ -59,8 +67,8 @@ m2d.modeler.import_3d_cad(parasolid_path)
 
 m2d["MaterialThickness"] = "5mm"
 m2d["ConductorMaterial"] = '["Copper", "Aluminum", "silver", "gold"]'
-MaterialIndex = 0
-m2d["MaterialIndex"] = str(MaterialIndex)
+material_index = 0
+m2d["MaterialIndex"] = str(material_index)
 no_materials = 4
 
 # ## Assign materials
@@ -75,21 +83,24 @@ m2d.modeler["ANSYS_LOGO_2D_3"].material_name = "ConductorMaterial[MaterialIndex]
 #
 # 1V and 0V.
 
-m2d.assign_voltage(face_list=["ANSYS_LOGO_2D_1"], amplitude=1, name="1V")
-m2d.assign_voltage(face_list=["ANSYS_LOGO_2D_2"], amplitude=0, name="0V")
+m2d.assign_voltage(assignment=["ANSYS_LOGO_2D_1"], amplitude=1, name="1V")
+m2d.assign_voltage(assignment=["ANSYS_LOGO_2D_2"], amplitude=0, name="0V")
 
-# ## setup conductance calculation
+# ## Setup conductance calculation
 #
 # 1V is the source, 0V ground.
 
-m2d.assign_matrix(sources=["1V"], group_sources=["0V"], matrix_name="Matrix1")
+m2d.assign_matrix(assignment=["1V"], group_sources=["0V"], matrix_name="Matrix1")
 
 # ## Assign mesh operation
 #
 # 3mm on the .
 
 m2d.mesh.assign_length_mesh(
-    names=["ANSYS_LOGO_2D_3"], meshop_name="conductor", maxlength=3, maxel=None
+    assignment=["ANSYS_LOGO_2D_3"],
+    name="conductor",
+    maximum_length=3,
+    maximum_elements=None,
 )
 
 # ## Create simulation setup and enable expression cache
@@ -97,28 +108,33 @@ m2d.mesh.assign_length_mesh(
 # Create simulation setup with minimum 4 adaptive passes to ensure convergence.
 # Enable expression cache to observe the convergence.
 
-setup1 = m2d.create_setup(setupname="Setup1", MinimumPasses=4)
-setup1.enable_expression_cache(  # doesn't work?
+setup = m2d.create_setup(setupname="Setup1", MinimumPasses=4)
+setup.enable_expression_cache(
     report_type="DCConduction",
     expressions="1/Matrix1.G(1V,1V)/MaterialThickness",
     isconvergence=True,
     conv_criteria=1,
     use_cache_for_freq=False,
 )
-setup1.analyze()
+setup.analyze()
 
 # ## Create parametric sweep
 #
 # Create parametric sweep to sweep all the entries in the material array.
 # Save fields and mesh and use the mesh for all the materials.
 
-param_sweep = m2d.parametrics.add(
-    "MaterialIndex", 0, no_materials - 1, 1, "LinearStep", parametricname="MaterialSweep"
+sweep = m2d.parametrics.add(
+    sweep_var="MaterialIndex",
+    start_point=0,
+    end_point=no_materials - 1,
+    step=1,
+    variation_type="LinearStep",
+    parametricname="MaterialSweep",
 )
-param_sweep["SaveFields"] = True
-param_sweep["CopyMesh"] = True
-param_sweep["SolveWithCopiedMeshOnly"] = True
-param_sweep.analyze()
+sweep["SaveFields"] = True
+sweep["CopyMesh"] = True
+sweep["SolveWithCopiedMeshOnly"] = True
+sweep.analyze()
 
 # ## Create resistance report
 #
@@ -132,7 +148,7 @@ report = m2d.post.create_report(
     report_category="DCConduction",
     plot_type="Data Table",
     variations=variations,
-    plotname="Resistance vs. Material",
+    plot_name="Resistance vs. Material",
 )
 
 # ## Get solution data
@@ -140,11 +156,11 @@ report = m2d.post.create_report(
 # Get solution data using the object ``report``` to get resistance values
 # and plot data outside AEDT.
 
-d = report.get_solution_data()
-resistance = d.data_magnitude()
-material_index = d.primary_sweep_values
-d.primary_sweep = "MaterialIndex"
-d.plot(snapshot_path=os.path.join(temp_dir.name, "M2D_DCConduction.jpg"))
+data = report.get_solution_data()
+resistance = data.data_magnitude()
+material_index = data.primary_sweep_values
+data.primary_sweep = "MaterialIndex"
+data.plot(snapshot_path=os.path.join(temp_folder.name, "M2D_DCConduction.jpg"))
 
 # ## Create material index vs resistance table
 #
@@ -153,8 +169,10 @@ d.plot(snapshot_path=os.path.join(temp_dir.name, "M2D_DCConduction.jpg"))
 
 material_index_vs_resistance = [["Material", "Resistance"]]
 colors = [[(255, 255, 255), (0, 255, 0)]]
-for i in range(len(d.primary_sweep_values)):
-    material_index_vs_resistance.append([str(d.primary_sweep_values[i]), str(resistance[i])])
+for i in range(len(data.primary_sweep_values)):
+    material_index_vs_resistance.append(
+        [str(data.primary_sweep_values[i]), str(resistance[i])]
+    )
     colors.append([None, None])
 # -
 
@@ -164,10 +182,10 @@ for i in range(len(d.primary_sweep_values)):
 
 conductor_surface = m2d.modeler["ANSYS_LOGO_2D_3"].faces
 plot1 = m2d.post.create_fieldplot_surface(
-    objlist=conductor_surface, quantityName="Mag_E", plot_name="Electric Field"
+    assignment=conductor_surface, quantity="Mag_E", plot_name="Electric Field"
 )
 plot2 = m2d.post.create_fieldplot_surface(
-    objlist=conductor_surface, quantityName="Mag_J", plot_name="Current Density"
+    assignment=conductor_surface, quantity="Mag_J", plot_name="Current Density"
 )
 
 # ## Field overlay
@@ -175,7 +193,7 @@ plot2 = m2d.post.create_fieldplot_surface(
 # Plot electric field using pyvista and saving to an image.
 
 py_vista_plot = m2d.post.plot_field(
-    quantity="Mag_E", object_list=conductor_surface, plot_cad_objs=False, show=False
+    quantity="Mag_E", assignment=conductor_surface, plot_cad_objs=False, show=False
 )
 py_vista_plot.isometric_view = False
 py_vista_plot.camera_position = [0, 0, 7]
@@ -183,29 +201,29 @@ py_vista_plot.focal_point = [0, 0, 0]
 py_vista_plot.roll_angle = 0
 py_vista_plot.elevation_angle = 0
 py_vista_plot.azimuth_angle = 0
-py_vista_plot.plot(os.path.join(temp_dir.name, "mag_E.jpg"))
+py_vista_plot.plot(os.path.join(temp_folder.name, "mag_E.jpg"))
 
 # ## Field animation
 #
 # Plot current density vs the Material index.
 
-animated = m2d.post.plot_animated_field(
+animated_plot = m2d.post.plot_animated_field(
     quantity="Mag_J",
-    object_list=conductor_surface,
-    export_path=temp_dir.name,
+    assignment=conductor_surface,
+    export_path=temp_folder.name,
     variation_variable="MaterialIndex",
-    variation_list=[0, 1, 2, 3],
+    variations=[0, 1, 2, 3],
     show=False,
     export_gif=False,
     log_scale=True,
 )
-animated.isometric_view = False
-animated.camera_position = [0, 0, 7]
-animated.focal_point = [0, 0, 0]
-animated.roll_angle = 0
-animated.elevation_angle = 0
-animated.azimuth_angle = 0
-animated.animate()
+animated_plot.isometric_view = False
+animated_plot.camera_position = [0, 0, 7]
+animated_plot.focal_point = [0, 0, 0]
+animated_plot.roll_angle = 0
+animated_plot.elevation_angle = 0
+animated_plot.azimuth_angle = 0
+animated_plot.animate()
 
 # ## Export model picture
 #
@@ -246,7 +264,7 @@ pdf_report.add_chapter("Field overlay")
 pdf_report.add_sub_chapter("Plots")
 pdf_report.add_text("This section contains the fields overlay.")
 pdf_report.add_image(
-    os.path.join(temp_dir.name, "mag_E.jpg"), caption="Mag E", width=120, height=80
+    os.path.join(temp_folder.name, "mag_E.jpg"), caption="Mag E", width=120, height=80
 )
 pdf_report.add_page_break()
 
@@ -257,7 +275,7 @@ pdf_report.add_chapter("Results")
 pdf_report.add_sub_chapter("Resistance vs. Material")
 pdf_report.add_text("This section contains resistance vs material data.")
 # Aspect ratio is automatically calculated if only width is provided
-pdf_report.add_image(os.path.join(temp_dir.name, "M2D_DCConduction.jpg"), width=130)
+pdf_report.add_image(os.path.join(temp_folder.name, "M2D_DCConduction.jpg"), width=130)
 
 # Add a new subchapter to display resistance data from previously created table.
 
@@ -273,11 +291,13 @@ pdf_report.add_table(
 # Add table of content and save PDF.
 
 pdf_report.add_toc()
-pdf_report.save_pdf(temp_dir.name, "AEDT_Results.pdf")
+pdf_report.save_pdf(temp_folder.name, "AEDT_Results.pdf")
 
 # ## Release AEDT and clean up temporary directory
 #
 # Release AEDT and remove both the project and temporary directory.
 
 m2d.release_desktop()
-temp_dir.cleanup()
+
+time.sleep(3)
+temp_folder.cleanup()

@@ -9,35 +9,31 @@
 
 import os
 import tempfile
+import time
 
 from pyaedt import Maxwell3d, generate_unique_project_name
 
 # Set constant values
 
 AEDT_VERSION = "2024.1"
+NG_MODE = False
 
 # ## Create temporary directory
 #
 # Create temporary directory.
 
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-
-# ## Set non-graphical mode
-#
-# Set non-graphical mode.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
-
-non_graphical = False
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch AEDT
 #
-# Launch AEDT in graphical mode.
+# Create an instance of the ``Maxwell3d`` class named ``m3d`` by providing
+# the project name, the version and the graphical mode.
 
 m3d = Maxwell3d(
     project=generate_unique_project_name(),
     version=AEDT_VERSION,
     new_desktop=True,
-    non_graphical=non_graphical,
+    non_graphical=NG_MODE,
 )
 
 # ## Set up Maxwell solution
@@ -51,21 +47,25 @@ m3d.solution_type = m3d.SOLUTIONS.Maxwell3d.ElectroDCConduction
 # Create a magnet.
 
 magnet = m3d.modeler.create_box(
-    position=[7, 4, 22], dimensions_list=[10, 5, 30], name="Magnet", matname="copper"
+    origin=[7, 4, 22], sizes=[10, 5, 30], name="Magnet", material="copper"
 )
 
 # ## Create setup and assign voltage
 #
 # Create the setup and assign a voltage.
 
-m3d.assign_voltage(face_list=magnet.faces, amplitude=0)
+m3d.assign_voltage(assignment=magnet.faces, amplitude=0)
 m3d.create_setup()
 
 # ## Plot model
 #
 # Plot the model.
 
-m3d.plot(show=False, export_path=os.path.join(temp_dir.name, "Image.jpg"), plot_air_objects=True)
+m3d.plot(
+    show=False,
+    export_path=os.path.join(temp_folder.name, "Image.jpg"),
+    plot_air_objects=True,
+)
 
 # ## Solve setup
 #
@@ -95,9 +95,9 @@ m3d.post.ofieldsreporter.CalcStack("clear")
 #
 # Get mass center using the fields calculator.
 
-xval = m3d.post.get_scalar_field_value(quantity_name="CM_X")
-yval = m3d.post.get_scalar_field_value(quantity_name="CM_Y")
-zval = m3d.post.get_scalar_field_value(quantity_name="CM_Z")
+xval = m3d.post.get_scalar_field_value(quantity="CM_X")
+yval = m3d.post.get_scalar_field_value(quantity="CM_Y")
+zval = m3d.post.get_scalar_field_value(quantity="CM_Z")
 
 # ## Create variables
 #
@@ -122,4 +122,6 @@ cs1 = m3d.modeler.create_coordinate_system(
 # Release AEDT and remove both the project and temporary directory.
 
 m3d.release_desktop(close_projects=True, close_desktop=True)
-temp_dir.cleanup()
+
+time.sleep(3)
+temp_folder.cleanup()

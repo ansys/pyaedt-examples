@@ -7,7 +7,7 @@
 # used in this example:
 #
 # - `Matplotlib <https://pypi.org/project/matplotlib/>`_
-# - `Numpty <https://pypi.org/project/numpy/>`_
+# - `Numpy <https://pypi.org/project/numpy/>`_
 # - `PyVista <https://pypi.org/project/pyvista/>`_
 #
 # Install these libraries with:
@@ -22,34 +22,30 @@
 
 import os
 import tempfile
+import time
 
 import pyaedt
 
 # Set constant values
 
 AEDT_VERSION = "2024.1"
+NG_MODE = False
 
-# ## Create temporary directory
+# ## Create temporary directory and download files
 #
-# Create temporary directory.
+# Create a temporary directory where we store downloaded data or
+# dumped data.
 
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ## Set non-graphical mode
+# ## Insert Maxwell 2D design
 #
-# Set non-graphical mode.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
-
-non_graphical = False
-
-# ## Insert Maxwell 2D design and save project
-#
-# Insert a Maxwell 2D design and save the project.
+# Insert a Maxwell 2D design.
 
 m2d = pyaedt.Maxwell2d(
     solution_type="TransientXY",
     version=AEDT_VERSION,
-    non_graphical=non_graphical,
+    non_graphical=NG_MODE,
     new_desktop=True,
     project=pyaedt.generate_unique_project_name(),
 )
@@ -58,9 +54,11 @@ m2d = pyaedt.Maxwell2d(
 #
 # Create a rectangle and duplicate it.
 
-rect1 = m2d.modeler.create_rectangle([0, 0, 0], [10, 20], name="winding", matname="copper")
-added = rect1.duplicate_along_line([14, 0, 0])
-rect2 = m2d.modeler[added[0]]
+rect1 = m2d.modeler.create_rectangle(
+    origin=[0, 0, 0], sizes=[10, 20], name="winding", matname="copper"
+)
+duplicate = rect1.duplicate_along_line(vector=[14, 0, 0])
+rect2 = m2d.modeler[duplicate[0]]
 
 # ## Create air region
 #
@@ -73,7 +71,7 @@ region = m2d.modeler.create_region([100, 100, 100, 100])
 # Assigns windings to the sheets and a balloon to the air region.
 
 m2d.assign_winding(assignment=[rect1.name, rect2.name], name="PHA")
-m2d.assign_balloon(region.edges)
+m2d.assign_balloon(assignment=region.edges)
 
 # ## Plot model
 #
@@ -81,7 +79,7 @@ m2d.assign_balloon(region.edges)
 
 m2d.plot(
     show=False,
-    export_path=os.path.join(temp_dir.name, "Image.jpg"),
+    output_file=os.path.join(temp_folder.name, "Image.jpg"),
     plot_air_objects=True,
 )
 
@@ -105,7 +103,7 @@ m2d.post.create_report(
     expressions="InputCurrent(PHA)",
     domain="Time",
     primary_sweep_variable="Time",
-    plotname="Winding Plot 1",
+    plot_name="Winding Plot 1",
 )
 
 # ## Solve model
@@ -127,11 +125,11 @@ id_list = [f.id for f in face_lists]
 
 gif = m2d.post.plot_animated_field(
     quantity="Mag_B",
-    object_list=id_list,
+    assignment=id_list,
     plot_type="Surface",
     intrinsics={"Time": "0s"},
     variation_variable="Time",
-    variation_list=timesteps,
+    variations=timesteps,
     show=False,
     export_gif=False,
 )
@@ -151,7 +149,9 @@ gif.animate()
 #
 # Generate the same plot outside AEDT.
 
-solutions = m2d.post.get_solution_data("InputCurrent(PHA)", primary_sweep_variable="Time")
+solutions = m2d.post.get_solution_data(
+    expressions="InputCurrent(PHA)", primary_sweep_variable="Time"
+)
 solutions.plot()
 
 # ## Release AEDT and clean up temporary directory
@@ -159,4 +159,6 @@ solutions.plot()
 # Release AEDT and remove both the project and temporary directory.
 
 m2d.release_desktop()
-temp_dir.cleanup()
+
+time.sleep(3)
+temp_folder.cleanup()

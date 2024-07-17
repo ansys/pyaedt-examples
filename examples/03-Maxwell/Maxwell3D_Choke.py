@@ -9,26 +9,20 @@
 import json
 import os
 import tempfile
+import time
 
 import pyaedt
 
 # Set constant values
 
 AEDT_VERSION = "2024.1"
+NG_MODE = False
 
 # ## Create temporary directory
 #
 # Create temporary directory.
 
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-
-# ## Set non-graphical mode
-#
-# Set non-graphical mode.
-# You can define ``non_graphical`` either to ``True`` or ``False``.
-
-non_graphical = False
-version = AEDT_VERSION
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch Maxwell3D
 #
@@ -37,8 +31,8 @@ version = AEDT_VERSION
 m3d = pyaedt.Maxwell3d(
     project=pyaedt.generate_unique_project_name(),
     solution_type="EddyCurrent",
-    version=version,
-    non_graphical=non_graphical,
+    version=AEDT_VERSION,
+    non_graphical=NG_MODE,
     new_desktop=True,
 )
 
@@ -116,7 +110,7 @@ values = {
 # JSON file as an argument. You can convert a dictionary to a JSON file.
 
 # +
-json_path = os.path.join(temp_dir.name, "choke_example.json")
+json_path = os.path.join(temp_folder.name, "choke_example.json")
 
 with open(json_path, "w") as outfile:
     json.dump(values, outfile)
@@ -130,7 +124,9 @@ with open(json_path, "w") as outfile:
 # - Checks if the JSON file is correctly written (as explained in the rules)
 # - Checks inequations on windings parameters to avoid having unintended intersections
 
-dictionary_values = m3d.modeler.check_choke_values(json_path, create_another_file=False)
+dictionary_values = m3d.modeler.check_choke_values(
+    input_dir=json_path, create_another_file=False
+)
 print(dictionary_values)
 
 # ## Create choke
@@ -138,7 +134,7 @@ print(dictionary_values)
 # Create the choke. The ``create_choke`` method takes the JSON file path as an
 # argument.
 
-list_object = m3d.modeler.create_choke(json_path)
+list_object = m3d.modeler.create_choke(input_file=json_path)
 print(list_object)
 core = list_object[1]
 first_winding_list = list_object[2]
@@ -149,38 +145,52 @@ third_winding_list = list_object[4]
 #
 # Assign excitations.
 
-first_winding_faces = m3d.modeler.get_object_faces(first_winding_list[0].name)
-second_winding_faces = m3d.modeler.get_object_faces(second_winding_list[0].name)
-third_winding_faces = m3d.modeler.get_object_faces(third_winding_list[0].name)
-m3d.assign_current(
-    [first_winding_faces[-1]], amplitude=1000, phase="0deg", swap_direction=False, name="phase_1_in"
+first_winding_faces = m3d.modeler.get_object_faces(
+    assignment=first_winding_list[0].name
+)
+second_winding_faces = m3d.modeler.get_object_faces(
+    assignment=second_winding_list[0].name
+)
+third_winding_faces = m3d.modeler.get_object_faces(
+    assignment=third_winding_list[0].name
 )
 m3d.assign_current(
-    [first_winding_faces[-2]], amplitude=1000, phase="0deg", swap_direction=True, name="phase_1_out"
+    assignment=[first_winding_faces[-1]],
+    amplitude=1000,
+    phase="0deg",
+    swap_direction=False,
+    name="phase_1_in",
 )
 m3d.assign_current(
-    [second_winding_faces[-1]],
+    assignment=[first_winding_faces[-2]],
+    amplitude=1000,
+    phase="0deg",
+    swap_direction=True,
+    name="phase_1_out",
+)
+m3d.assign_current(
+    assignment=[second_winding_faces[-1]],
     amplitude=1000,
     phase="120deg",
     swap_direction=False,
     name="phase_2_in",
 )
 m3d.assign_current(
-    [second_winding_faces[-2]],
+    assignment=[second_winding_faces[-2]],
     amplitude=1000,
     phase="120deg",
     swap_direction=True,
     name="phase_2_out",
 )
 m3d.assign_current(
-    [third_winding_faces[-1]],
+    assignment=[third_winding_faces[-1]],
     amplitude=1000,
     phase="240deg",
     swap_direction=False,
     name="phase_3_in",
 )
 m3d.assign_current(
-    [third_winding_faces[-2]],
+    assignment=[third_winding_faces[-2]],
     amplitude=1000,
     phase="240deg",
     swap_direction=True,
@@ -191,7 +201,9 @@ m3d.assign_current(
 #
 # Assign the matrix.
 
-m3d.assign_matrix(["phase_1_in", "phase_2_in", "phase_3_in"], matrix_name="current_matrix")
+m3d.assign_matrix(
+    assignment=["phase_1_in", "phase_2_in", "phase_3_in"], matrix_name="current_matrix"
+)
 
 # ## Create mesh operation
 #
@@ -199,16 +211,16 @@ m3d.assign_matrix(["phase_1_in", "phase_2_in", "phase_3_in"], matrix_name="curre
 
 mesh = m3d.mesh
 mesh.assign_skin_depth(
-    names=[first_winding_list[0], second_winding_list[0], third_winding_list[0]],
-    skindepth=0.20,
+    assignment=[first_winding_list[0], second_winding_list[0], third_winding_list[0]],
+    skin_depth=0.20,
     triangulation_max_length="10mm",
-    meshop_name="skin_depth",
+    name="skin_depth",
 )
 mesh.assign_surface_mesh_manual(
-    names=[first_winding_list[0], second_winding_list[0], third_winding_list[0]],
-    surf_dev=None,
+    assignment=[first_winding_list[0], second_winding_list[0], third_winding_list[0]],
+    surface_deviation=None,
     normal_dev="30deg",
-    meshop_name="surface_approx",
+    name="surface_approx",
 )
 
 # ## Create boundaries
@@ -240,11 +252,17 @@ setup.add_eddy_current_sweep(
 
 m3d.save_project()
 m3d.modeler.fit_all()
-m3d.plot(show=False, export_path=os.path.join(temp_dir.name, "Image.jpg"), plot_air_objects=True)
+m3d.plot(
+    show=False,
+    output_file=os.path.join(temp_folder.name, "Image.jpg"),
+    plot_air_objects=True,
+)
 
 # ## Release AEDT and clean up temporary directory
 #
 # Release AEDT and remove both the project and temporary directory.
 
 m3d.release_desktop()
-temp_dir.cleanup()
+
+time.sleep(3)
+temp_folder.cleanup()

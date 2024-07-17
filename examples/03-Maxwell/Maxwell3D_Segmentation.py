@@ -9,50 +9,41 @@ The method is valid and usable for any object the user would like to segment.
 # Perform required imports.
 
 import tempfile
+import time
 
 from pyaedt import Maxwell3d, downloads
 
 # Set constant values
 
 AEDT_VERSION = "2024.1"
+NG_MODE = False
 
 # ## Create temporary directory
 #
 # Create temporary directory.
 
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-
-# ## Set non-graphical mode
-#
-# Set non-graphical mode.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
-
-non_graphical = False
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Download .aedt file example
 #
 # Set local temporary folder to export the .aedt file to.
 
 aedt_file = downloads.download_file(
-    directory="object_segmentation", filename="Motor3D_obj_segments.aedt", destination=temp_dir.name
+    source="object_segmentation",
+    name="Motor3D_obj_segments.aedt",
+    destination=temp_folder.name,
 )
 
 # ## Launch Maxwell 3D
 #
-# Launch Maxwell 3D.
+# Launch Maxwell 3D, providing the version, path to the project and the graphical mode.
 
 m3d = Maxwell3d(
     project=aedt_file,
     version=AEDT_VERSION,
     new_desktop=True,
-    non_graphical=non_graphical,
+    non_graphical=NG_MODE,
 )
-
-# ## Create object to access 3D modeler
-#
-# Create the object ``modeler`` to access the 3D modeler easily.
-
-modeler = m3d.modeler
 
 # ## Segment first magnet by specifying the number of segments
 #
@@ -65,8 +56,11 @@ modeler = m3d.modeler
 
 segments_number = 2
 object_name = "PM_I1"
-sheets_1 = modeler.objects_segmentation(
-    object_name, segments_number=segments_number, apply_mesh_sheets=True, mesh_sheets_number=3
+sheets_1 = m3d.modeler.objects_segmentation(
+    object_name,
+    segments_number=segments_number,
+    apply_mesh_sheets=True,
+    mesh_sheets_number=3,
 )
 
 # ## Segment second magnet by specifying the number of segments
@@ -76,8 +70,8 @@ sheets_1 = modeler.objects_segmentation(
 
 segments_number = 2
 object_name = "PM_I1_1"
-magnet_id = [obj.id for obj in modeler.object_list if obj.name == object_name][0]
-sheets_2 = modeler.objects_segmentation(
+magnet_id = [obj.id for obj in m3d.modeler.object_list if obj.name == object_name][0]
+sheets_2 = m3d.modeler.objects_segmentation(
     magnet_id, segments_number=segments_number, apply_mesh_sheets=True
 )
 
@@ -89,8 +83,8 @@ sheets_2 = modeler.objects_segmentation(
 
 segmentation_thickness = 1
 object_name = "PM_O1"
-magnet = [obj for obj in modeler.object_list if obj.name == object_name][0]
-sheets_3 = modeler.objects_segmentation(
+magnet = [obj for obj in m3d.modeler.object_list if obj.name == object_name][0]
+sheets_3 = m3d.modeler.objects_segmentation(
     magnet, segmentation_thickness=segmentation_thickness, apply_mesh_sheets=True
 )
 
@@ -101,11 +95,15 @@ sheets_3 = modeler.objects_segmentation(
 
 object_name = "PM_O1_1"
 segments_number = 2
-sheets_4 = modeler.objects_segmentation(object_name, segments_number=segments_number)
+sheets_4 = m3d.modeler.objects_segmentation(
+    object_name, segments_number=segments_number
+)
 
 # ## Release AEDT and clean up temporary directory
 #
 # Release AEDT and remove both the project and temporary directory.
 
 m3d.release_desktop()
-temp_dir.cleanup()
+
+time.sleep(3)
+temp_folder.cleanup()
