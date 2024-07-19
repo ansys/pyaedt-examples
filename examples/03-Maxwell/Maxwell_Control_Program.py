@@ -79,13 +79,14 @@ setup.analyze()
 # ## Plot results
 #
 # Plot Solved Results.
+# Uncomment to plot.
 
 sols = m2d.post.get_solution_data(
     expressions="FluxLinkage(Winding1)",
     variations={"Time": ["All"]},
     primary_sweep_variable="Time",
 )
-sols.plot()
+# sols.plot()
 
 # ## Release AEDT and clean up temporary directory
 #

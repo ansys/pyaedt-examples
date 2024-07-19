@@ -256,9 +256,10 @@ solutions.plot()
 # ## Change sweep value and plot solution
 #
 # Change the sweep value and plot the solution again.
+# Unccomment to show plots.
 
 solutions.active_variation["Coil_Position"] = 0
-solutions.plot()
+# solutions.plot()
 
 # ## Plot induced current density on surface of ladder plate
 #
