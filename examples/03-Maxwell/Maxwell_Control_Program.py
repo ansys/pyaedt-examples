@@ -9,28 +9,28 @@
 #
 # Perform required imports.
 
-# +
 import tempfile
 import time
-
 from pyaedt import Maxwell2d, downloads
 
-# -
-
-# Set constant values
+# ## Define constants
+# Define constants for use in this example.
 
 AEDT_VERSION = "2024.1"
 NG_MODE = False
 
 # ## Create temporary directory
 #
-# Create temporary directory.
+# The temporary directory is used to run the example and save simulation data. If you run
+# this example as a Jupyter Notebook you can recover the project data and results by copying
+# the contents of the temporary folder to a local drive prior to executing the final cell of this
+# notebook.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ## Download .aedt file example
+# ## Download the project file
 #
-# Set local temporary folder to export the .aedt file to.
+# The files required to run this example will be downloaded to the temporary working folder.
 
 aedt_file = downloads.download_file(
     source="maxwell_ctrl_prg",
@@ -54,13 +54,13 @@ m2d = Maxwell2d(
 
 # ## Set active design
 #
-# Set active design.
+# Set the active design.
 
 m2d.set_active_design("1 time step control")
 
-# ## Get design setup
+# ## Retrieve the setup
 #
-# Get design setup to enable the control program to.
+# Get the simulation setup for this design so that the "control program" can be enabled.
 
 setup = m2d.setups[0]
 
@@ -72,13 +72,13 @@ setup.enable_control_program(control_program_path=ctrl_prg_file)
 
 # ## Analyze setup
 #
-# Analyze setup.
+# Run the analysis.
 
 setup.analyze()
 
 # ## Plot results
 #
-# Plot Solved Results.
+# Display the simulation results.
 
 sols = m2d.post.get_solution_data(
     expressions="FluxLinkage(Winding1)",
@@ -89,9 +89,10 @@ sols.plot()
 
 # ## Release AEDT and clean up temporary directory
 #
-# Release AEDT and remove both the project and temporary directory.
+# Release AEDT and remove both the project and temporary directory. If you'd like to retrieve the project data for subsequent use, the temporary folder name is given by ``temp_folder.name``.
 
 m2d.release_desktop()
-
-time.sleep(3)
+time.sleep(3)  # Allow sufficient time for AEDT to close before cleaning the temporary folder.
 temp_folder.cleanup()
+
+
