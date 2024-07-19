@@ -58,7 +58,7 @@ cfg = dict()
 
 # ### Define the S-parameter files
 #
-# Define where the S-parameter files can be found.
+# Specify the location of the S-parameter files.
 
 cfg["general"] = {
     "s_parameter_library": os.path.join(temp_folder.name, "touchstone")
@@ -123,7 +123,7 @@ cfg["ports"] = [
 # ### Create SIwave SYZ analysis setup
 #
 # Create SIwave SYZ analysis setup.
-# 
+#
 # > **Note:** Both SIwave and HFSS can be used to run an analysis in the
 # > 3D Layout user interface.
 
@@ -205,7 +205,7 @@ print(temp_folder.name)
 
 # ## Analyze in HFSS 3D Layout
 
-# ### Load edb into HFSS 3D Layout
+# ### Load EDB into HFSS 3D Layout
 
 h3d = Hfss3dLayout(
     aedb,
@@ -237,4 +237,3 @@ h3d.release_desktop()
 
 time.sleep(3)
 temp_folder.cleanup()
-# -
