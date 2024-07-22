@@ -230,8 +230,6 @@ tb = pyaedt.TwinBuilder(design=tb_design_name)
 
 # Add a Q2D dynamic component.
 
-q2d_setup.name
-
 tb.add_q3d_dynamic_component(
     project_name,
     q2d_design_name,

@@ -133,13 +133,13 @@ q3d.post.create_report(expressions=data_plot_mutual, context="Original", plot_ty
 q3d.analyze(num_cores=NUM_CORES)
 q3d.save_project()
 
-# Retrieve solution data for processing in Py.
+# Retrieve solution data for processing in Python.
 
 data = q3d.post.get_solution_data(expressions=data_plot_self, context="Original")
 data.data_magnitude()
 data.plot()
 
-# ## Close AEDT
+# ## Close the application.
 #
 # After the simulation completes, you can close AEDT or release it using the
 # ``release_desktop`` method. All methods provide for saving projects before closing.

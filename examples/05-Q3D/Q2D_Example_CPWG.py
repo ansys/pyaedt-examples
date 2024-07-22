@@ -7,17 +7,15 @@
 #
 # Perform required imports.
 
-# +
 import os
 import tempfile
-
 import pyaedt
-# -
 
 # Set constant values
 
 AEDT_VERSION = "2024.1"
 NUM_CORES = 4
+NG_MODE = False  # Run the example without opening the UI.
 
 
 # ## Create temporary directory
@@ -33,13 +31,13 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 q2d = pyaedt.Q2d(
     version=AEDT_VERSION,
-    non_graphical=False,
+    non_graphical=NG_MODE,
     new_desktop=True,
     project=os.path.join(temp_dir.name, "cpwg"),
     design="coplanar_waveguide",
 )
 
-# ## Define variables
+# ## Create the model
 #
 # Define variables.
 
@@ -69,8 +67,6 @@ co_gnd_top_w = "({1}-{0}*2)".format(delta_w_half, co_gnd_w)
 model_w = "{}*2+{}*2+{}".format(co_gnd_w, clearance, sig_bot_w)
 # -
 
-# ## Create primitives
-#
 # Create primitives and define the layer heights.
 
 layer_1_lh = 0
@@ -78,58 +74,50 @@ layer_1_uh = cond_h
 layer_2_lh = layer_1_uh + "+" + d_h
 layer_2_uh = layer_2_lh + "+" + cond_h
 
-# ## Create signal
-#
-# Create a signal.
+# Create a signal conductor.
 
 base_line_obj = q2d.modeler.create_polyline(
-    position_list=[[0, layer_2_lh, 0], [sig_bot_w, layer_2_lh, 0]], name="signal"
+    points=[[0, layer_2_lh, 0], [sig_bot_w, layer_2_lh, 0]], name="signal"
 )
 top_line_obj = q2d.modeler.create_polyline(
-    position_list=[[0, layer_2_uh, 0], [sig_top_w, layer_2_uh, 0]]
+    points=[[0, layer_2_uh, 0], [sig_top_w, layer_2_uh, 0]]
 )
-q2d.modeler.move(objid=[top_line_obj], vector=[delta_w_half, 0, 0])
+q2d.modeler.move(assignment=[top_line_obj], vector=[delta_w_half, 0, 0])
 q2d.modeler.connect([base_line_obj, top_line_obj])
-q2d.modeler.move(objid=[base_line_obj], vector=["{}+{}".format(co_gnd_w, clearance), 0, 0])
+q2d.modeler.move(assignment=[base_line_obj], vector=["{}+{}".format(co_gnd_w, clearance), 0, 0])
 
-# ## Create coplanar ground
-#
 # Create a coplanar ground.
 
 # +
 base_line_obj = q2d.modeler.create_polyline(
-    position_list=[[0, layer_2_lh, 0], [co_gnd_w, layer_2_lh, 0]], name="co_gnd_left"
+    points=[[0, layer_2_lh, 0], [co_gnd_w, layer_2_lh, 0]], name="co_gnd_left"
 )
 top_line_obj = q2d.modeler.create_polyline(
-    position_list=[[0, layer_2_uh, 0], [co_gnd_top_w, layer_2_uh, 0]]
+    points=[[0, layer_2_uh, 0], [co_gnd_top_w, layer_2_uh, 0]]
 )
 q2d.modeler.move(objid=[top_line_obj], vector=[delta_w_half, 0, 0])
 q2d.modeler.connect([base_line_obj, top_line_obj])
 
 base_line_obj = q2d.modeler.create_polyline(
-    position_list=[[0, layer_2_lh, 0], [co_gnd_w, layer_2_lh, 0]], name="co_gnd_right"
+    points=[[0, layer_2_lh, 0], [co_gnd_w, layer_2_lh, 0]], name="co_gnd_right"
 )
 top_line_obj = q2d.modeler.create_polyline(
-    position_list=[[0, layer_2_uh, 0], [co_gnd_top_w, layer_2_uh, 0]]
+    points=[[0, layer_2_uh, 0], [co_gnd_top_w, layer_2_uh, 0]]
 )
 q2d.modeler.move(objid=[top_line_obj], vector=[delta_w_half, 0, 0])
 q2d.modeler.connect([base_line_obj, top_line_obj])
 q2d.modeler.move(
-    objid=[base_line_obj], vector=["{}+{}*2+{}".format(co_gnd_w, clearance, sig_bot_w), 0, 0]
+    assignment=[base_line_obj], vector=["{}+{}*2+{}".format(co_gnd_w, clearance, sig_bot_w), 0, 0]
 )
 # -
 
-# ## Create reference ground plane
-#
 # Create a reference ground plane.
 
 q2d.modeler.create_rectangle(
-    position=[0, layer_1_lh, 0], dimension_list=[model_w, cond_h], name="ref_gnd"
+    origin=[0, layer_1_lh, 0], sizes=[model_w, cond_h], name="ref_gnd"
 )
 
-# ## Create dielectric
-#
-# Create a dielectric.
+# Define the substrate.
 
 q2d.modeler.create_rectangle(
     position=[0, layer_1_uh, 0],
@@ -138,9 +126,7 @@ q2d.modeler.create_rectangle(
     matname="FR4_epoxy",
 )
 
-# ## Create conformal coating
-#
-# Create a conformal coating.
+# Assign a conformal coating.
 
 # +
 sm_obj_list = []
@@ -156,18 +142,18 @@ for obj_name in ["signal", "co_gnd_left", "co_gnd_right"]:
         e_obj_list.append(e_obj)
     e_obj_1 = e_obj_list[0]
     q2d.modeler.unite(e_obj_list)
-    new_obj = q2d.modeler.sweep_along_vector(objid=e_obj_1.id, sweep_vector=[0, sm_h, 0])
+    new_obj = q2d.modeler.sweep_along_vector(assignment=e_obj_1.id, sweep_vector=[0, sm_h, 0])
     sm_obj_list.append(e_obj_1)
 
 new_obj = q2d.modeler.create_rectangle(
-    position=[co_gnd_w, layer_2_lh, 0], dimension_list=[clearance, sm_h]
+    origin=[co_gnd_w, layer_2_lh, 0], sizes=[clearance, sm_h]
 )
 sm_obj_list.append(new_obj)
 
 new_obj = q2d.modeler.create_rectangle(
-    position=[co_gnd_w, layer_2_lh, 0], dimension_list=[clearance, sm_h]
+    origin=[co_gnd_w, layer_2_lh, 0], sizes=[clearance, sm_h]
 )
-q2d.modeler.move(objid=[new_obj], vector=[sig_bot_w + "+" + clearance, 0, 0])
+q2d.modeler.move(assignment=[new_obj], vector=[sig_bot_w + "+" + clearance, 0, 0])
 sm_obj_list.append(new_obj)
 
 sm_obj = sm_obj_list[0]
@@ -177,47 +163,41 @@ sm_obj.color = (0, 150, 100)
 sm_obj.name = "solder_mask"
 # -
 
-# ## Assign conductor
-#
 # Assign a conductor to the signal.
 
 obj = q2d.modeler.get_object_from_name("signal")
 q2d.assign_single_conductor(
     name=obj.name,
-    target_objects=[obj],
+    assignment=[obj],
     conductor_type="SignalLine",
     solve_option="SolveOnBoundary",
-    unit="mm",
+    units="mm",
 )
 
-# ## Create reference ground
-#
-# Create a reference ground.
+# Assign the reference ground.
 
 obj = [q2d.modeler.get_object_from_name(i) for i in ["co_gnd_left", "co_gnd_right", "ref_gnd"]]
 q2d.assign_single_conductor(
     name="gnd",
-    target_objects=obj,
+    assignment=obj,
     conductor_type="ReferenceGround",
     solve_option="SolveOnBoundary",
-    unit="mm",
+    units="mm",
 )
 
-# ## Assign Huray model on signal
-#
-# Assign the Huray model on the signal.
+# Assign the Huray model for conductive losses on the signal trace.
 
 obj = q2d.modeler.get_object_from_name("signal")
 q2d.assign_huray_finitecond_to_edges(obj.edges, radius="0.5um", ratio=3, name="b_" + obj.name)
 
-# ## Create setup, analyze, and plot
+# ## Create the simulation setup
 #
 # Create the setup, analyze it, and plot solution data.
 
 # +
 setup = q2d.create_setup(setupname="new_setup")
 
-sweep = setup.add_sweep(sweepname="sweep1", sweeptype="Discrete")
+sweep = setup.add_sweep(name="sweep1", sweep_type="Discrete")
 sweep.props["RangeType"] = "LinearStep"
 sweep.props["RangeStart"] = "1GHz"
 sweep.props["RangeStep"] = "100MHz"
@@ -228,7 +208,7 @@ sweep.props["Type"] = "Interpolating"
 
 sweep.update()
 
-q2d.analyze(num_cores=NUM_CORES)
+q2d.analyze(cores=NUM_CORES)
 
 data = q2d.post.get_solution_data(expressions="Z0(signal,signal)", context="Original")
 data.plot()
@@ -240,4 +220,10 @@ data.plot()
 
 q2d.save_project(os.path.join(temp_dir.name, q2d.project_name + ".aedt"))
 q2d.release_desktop()
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+
 temp_dir.cleanup()
