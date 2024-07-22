@@ -114,3 +114,6 @@ venv.bak/
 
 # Generated example
 src/ansys/pyaedt/examples/simple_example.py
+
+# Temporary working files
+.ignore/*
