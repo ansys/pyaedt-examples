@@ -10,19 +10,16 @@
 #
 # Perform required imports.
 
-# +
 import os
 import tempfile
-
 from IPython.display import Image
 import pandas as pd
 import pyaedt
 
-# -
-
 # Set constant values
 
 AEDT_VERSION = "2024.1"
+NG_MODE = True  # Do not show the graphical user-interface.
 
 
 # ## Open project
@@ -38,7 +35,7 @@ ipk = pyaedt.Icepak(
     project=project_temp_name,
     version=AEDT_VERSION,
     new_desktop=True,
-    non_graphical=True,
+    non_graphical=NG_MODE,
 )
 
 # ## Plot model and rotate
@@ -254,7 +251,7 @@ path = plot3.export_image(
 )
 Image(filename=path)  # Display the image
 
-# pyVista can be used too.
+# pyVista can be used to display the temperature map.
 
 plot4 = ipk.post.plot_field(
     quantity="Temperature",
@@ -276,5 +273,12 @@ plot4 = ipk.post.plot_field(
 
 # ## Release AEDT
 
+ipk.save_project()
 ipk.release_desktop(True, True)
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+
 temp_folder.cleanup()

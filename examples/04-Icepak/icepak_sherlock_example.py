@@ -20,6 +20,7 @@ import pyaedt
 # Set constant values
 
 AEDT_VERSION = "2024.1"
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 
 # ## Define input files and variables.
@@ -51,14 +52,7 @@ project_name = os.path.join(temp_folder.name, component_step[:-3] + "aedt")
 
 # ## Create Icepak model
 
-# Set non-graphical mode to ``False`` so that AEDT will run without GUI.
-# You can set ``non_graphical`` value either to ``True`` or ``False``.
-
-non_graphical = False
-
-# Open the project
-
-ipk = pyaedt.Icepak(project=project_name, version=AEDT_VERSION)
+ipk = pyaedt.Icepak(project=project_name, version=AEDT_VERSION, non_graphical=NG_MODE)
 
 # Disable autosave to speed up the import.
 
@@ -237,9 +231,12 @@ ipk.post.plot_field(
 
 # ## Save project and release AEDT
 
-# +
 ipk.save_project()
 ipk.release_desktop()
 
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+
 temp_folder.cleanup()
-# -

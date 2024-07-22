@@ -26,14 +26,12 @@
 # ## Preparation
 # Import the required packages
 
-# +
 import os
 import tempfile
 import time
 from pyedb import Edb
 from pyaedt import Hfss3dLayout
 from pyaedt.downloads import download_file
-# -
 
 # Set constant values
 
@@ -145,6 +143,7 @@ net_name="GND",
 
 # ## Create a component
 
+# +
 edbapp.padstacks.place(position=[0, 0], definition_name="comp_pin", net_name="SIG", is_pin=True, via_name="1")
 
 comp_pins = [
@@ -154,6 +153,7 @@ comp_pins = [
 
 comp_u1 = edbapp.components.create(pins=comp_pins, component_name="U1", component_part_name="BGA", placement_layer="TOP")
 comp_u1.create_clearance_on_component(extra_soldermask_clearance=3.5e-3)
+# -
 
 
 # ## Place vias
@@ -176,6 +176,7 @@ edbapp["gap"] = "0.1mm"
 
 # Signal fanout
 
+# +
 sig_trace = edbapp.modeler.create_trace(path_list=[[0, 0]],
                                         layer_name="BOT",
                                         width="width",
@@ -190,6 +191,7 @@ sig_trace.add_point(x=0, y="1mm", incremental=True)
 sig_trace.add_point(x="-0.5mm", y="0.5mm", incremental=True)
 sig_trace.add_point(x=0, y="1mm", incremental=True)
 sig_path = sig_trace.get_center_line()
+# -
 
 # Coplanar waveguide with ground with ground stitching vias
 
@@ -238,7 +240,7 @@ setup = edbapp.create_hfss_setup("Setup1")
 setup.set_solution_single_frequency("5GHz", max_num_passes=1, max_delta_s="0.02")
 setup.hfss_solver_settings.order_basis = "first"
 
-# Add a frequency sweep to setup.
+# Add a frequency sweep to the setup.
 #
 # When the simulation results are to
 # be used for transient SPICE analysis, you should
@@ -263,7 +265,7 @@ edbapp.close()
 
 # # Analyze in HFSS 3D Layout
 
-# ## Load edb into HFSS 3D Layout.
+# ## Load EDB into HFSS 3D Layout.
 
 NG_MODE = False  # Open the UI to view the layout.
 h3d = Hfss3dLayout(
@@ -293,7 +295,6 @@ h3d.analyze()
 # ## Plot results
 
 h3d.post.create_report("dB(S(port_1, port_1))")
-
 traces = h3d.get_traces_for_plot(category="S")
 solutions = h3d.post.get_solution_data(traces)
 solutions.plot(traces, math_formula="db20")
@@ -301,11 +302,11 @@ solutions.plot(traces, math_formula="db20")
 # ## Close HFSS 3D Layout
 
 h3d.close_desktop()
+time.sleep(3)  # Allow Elctronics Desktop to shut down before cleaning the temporary project folder.
 
 # ## Cleanup
 #
 # All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notebook you
 # can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
-time.sleep(3)
 temp_folder.cleanup()

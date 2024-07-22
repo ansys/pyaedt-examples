@@ -12,20 +12,13 @@
 
 import os
 import tempfile
-
 import pyaedt
 
 # Set constant values
 
 AEDT_VERSION = "2024.1"
 NUM_CORES = 4
-
-# ## Set non-graphical mode
-#
-# Set non-graphical mode.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
-
-non_graphical = False
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary directory
 
@@ -47,7 +40,7 @@ target = pyaedt.Hfss(
     solution_type="SBR+",
     version=AEDT_VERSION,
     new_desktop=True,
-    non_graphical=non_graphical,
+    non_graphical=NG_MODE,
 )
 
 source = pyaedt.Hfss(
@@ -98,9 +91,9 @@ setup1["RangeType"] = "SinglePoints"
 setup1["RangeStart"] = "10GHz"
 target.analyze(num_cores=NUM_CORES)
 
-# ## Plot results
+# ## Post-processing
 #
-# Plot results.
+# Plot results in Electronics Desktop.
 
 variations = target.available_variations.nominal_w_values_dict
 variations["Freq"] = ["10GHz"]
@@ -115,8 +108,6 @@ target.post.create_report(
     report_category="Far Fields",
 )
 
-# ## Plot results outside AEDT
-#
 # Plot results using Matplotlib.
 
 solution = target.post.get_solution_data(
@@ -135,6 +126,9 @@ solution.plot()
 
 target.release_desktop()
 
-# ## Clean temporary directory
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 temp_dir.cleanup()

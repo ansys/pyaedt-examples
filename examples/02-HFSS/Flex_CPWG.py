@@ -12,24 +12,17 @@
 from math import cos, radians, sin, sqrt
 import os
 import tempfile
-
 import pyaedt
-from pyaedt.generic.general_methods import generate_unique_name
+import time
 
 # Set constant values
 
 AEDT_VERSION = "2024.1"
-
-# ## Set non-graphical mode
-#
-# Set non-graphical mode.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
-
-non_graphical = False
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary directory
 
-temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch AEDT
 #
@@ -39,9 +32,9 @@ hfss = pyaedt.Hfss(
     version=AEDT_VERSION,
     solution_type="DrivenTerminal",
     new_desktop=True,
-    non_graphical=non_graphical,
+    non_graphical=NG_MODE,
 )
-hfss.save_project(os.path.join(temp_dir.name, generate_unique_name("example") + ".aedt"))
+hfss.save_project(os.path.join(temp_dir.name, "example.aedt"))
 
 # ## Design settings
 #
@@ -57,7 +50,6 @@ hfss.mesh.assign_initial_mesh_from_slider(applycurvilinear=True)
 #
 # Create input variables for creating the flex cable CPWG.
 
-# +
 total_length = 300
 theta = 120
 r = 100
@@ -66,9 +58,7 @@ height = 0.1
 spacing = 1.53
 gnd_width = 10
 gnd_thickness = 2
-
 xt = (total_length - r * radians(theta)) / 2
-# -
 
 # ## Create bend
 #
@@ -142,9 +132,9 @@ fr4 = hfss.modeler.create_polyline(
 )
 # -
 
-# ## Create bottom metals
+# ## Create bottom metal
 #
-# Create the bottom metals.
+# Create the bottom metal.
 
 # +
 position_list = create_bending(r + height + gnd_thickness, 1)
@@ -238,8 +228,13 @@ my_plot.plot(
 
 # ## Release AEDT
 
+hfss.save_project()
 hfss.release_desktop()
+time.sleep(3)  # Allow Elctronics Desktop to shut down before cleaning the temporary project folder.
 
-# ## Clean temporary directory
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 temp_dir.cleanup()

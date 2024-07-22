@@ -20,7 +20,6 @@
 # # Preparation
 # Import required packages
 
-# +
 import os
 import json
 import tempfile
@@ -28,14 +27,15 @@ import time
 from pyedb import Edb
 from pyaedt import Hfss3dLayout
 from pyaedt.downloads import download_file
-# -
 
 # Set constant values
 
 AEDT_VERSION = "2024.1"
 NG_MODE = False
 
-# Download example board.
+# ## Download the project file
+#
+# The files required to run this example will be downloaded to the temporary working folder.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 aedb = download_file(
@@ -105,6 +105,7 @@ cfg["sources"] = [
 # ## Create Current Sources
 # Create current sources between net and pin group.
 
+# +
 cfg["pin_groups"] = [
     {
         "name": "J5_GND",
@@ -141,6 +142,7 @@ cfg["sources"].append(
         }
     }
 )
+# -
 
 # ## Create SIwave DC analysis
 

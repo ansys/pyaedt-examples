@@ -23,7 +23,7 @@ from pyaedt import Hfss3dLayout
 from pyaedt.downloads import download_file
 # -
 
-# Set constant values
+# Specify the version of Electronics Destkop to use for this example.
 
 AEDT_VERSION = "2024.1"
 
@@ -107,6 +107,7 @@ net_n = "n"
 
 # Place the signal vias.
 
+# +
 edb.padstacks.place(
     position=["$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing)/2"],
     definition_name=signal_via_padstack,
@@ -138,6 +139,7 @@ edb.padstacks.place(
     via_name="",
     rotation=-90.0,
 )
+# -
 
 
 # ### Draw parametrized traces
@@ -302,7 +304,7 @@ h3d = Hfss3dLayout(
     new_desktop=True,
 )
 
-# ### Add a HFSS simulation setup
+# ### Define the HFSS simulation setup
 
 # +
 setup = h3d.create_setup()
@@ -323,7 +325,9 @@ h3d.create_linear_count_sweep(
 )
 # -
 
-# ### Define the differential pairs to used to calculate differential and common mode  s-parameters
+# ### Define the differential pairs
+#
+# The definition of differential pair enables calculation of differential and common mode  s-parameters.
 
 h3d.set_differential_pair(
     differential_mode="In", assignment="wave_port_1:T1", reference="wave_port_1:T2"
@@ -343,13 +347,14 @@ solutions = h3d.post.get_solution_data(
 )
 solutions.plot()
 h3d.release_desktop()
+time.sleep(3)  # Allow sufficient time for Electronics Desktop to shut down.
 
 # Note that the ground nets are only connected to each other due
 # to the wave ports. The problem with poor grounding can be seen in the
 # S-parameters. This example can be downloaded as a Jupyter Notebook, so
 # you can modify it. Try changing parameters or adding ground vias to improve performance.
 #
-# The final cell cleans up the temporary directory, removing all files.
+# All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
-time.sleep(3)
 temp_folder.cleanup()

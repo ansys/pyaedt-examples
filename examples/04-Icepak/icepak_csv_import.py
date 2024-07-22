@@ -9,6 +9,7 @@
 # Perform required imports including the operating system, regular expression, csv, Ansys PyAEDT
 # and its boundary objects.
 
+# +
 import csv
 import os
 import tempfile
@@ -18,25 +19,25 @@ import matplotlib as mpl
 from matplotlib import cm
 from matplotlib import pyplot as plt
 import pyaedt
+# -
 
 # Set constant values
 
 AEDT_VERSION = "2024.1"
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Download and open project
 #
 # Download the project and open it in non-graphical mode, using a temporary folder.
 
-# +
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
-
+project_name = os.path.join(temp_folder.name, "Icepak_CSV_Import.aedt")
 ipk = pyaedt.Icepak(
-    project=os.path.join(temp_folder.name, "Icepak_CSV_Import.aedt"),
+    project=project_name,
     version=AEDT_VERSION,
     new_desktop=True,
-    non_graphical=False,
+    non_graphical=NG_MODE,
 )
-# -
 
 # Create the PCB as a simple block.
 
@@ -59,21 +60,15 @@ board = ipk.modeler.create_box(
 #
 # The following table does not show the entire rows and data and only serves as a sample.
 #
-# +------------+------+--------+--------+------+-------+-------+------+------------------+-------+-----+-----+---------------+
+#
 # | block_type | name | xs     | ys     | zs   | xd    | yd    | zd   | matname          | power | Rjb | Rjc | Monitor_point |
-# +============+======+========+========+======+=======+=======+======+==================+=======+=====+=====+===============+
+# |------------|------|--------|--------|------|-------|-------|------|------------------|-------|-----|-----|---------------|
 # | hollow     | R8   | 31.75  | -20.32 | 0.40 | 15.24 | 2.54  | 2.54 |                  | 1     |     |     | 0             |
-# +------------+------+--------+--------+------+-------+-------+------+------------------+-------+-----+-----+---------------+
 # | solid      | U1   | 16.55  | 10.20  | 0.40 | 10.16 | 20.32 | 5.08 | Ceramic_material | 0.2   |     |     | 1             |
-# +------------+------+--------+--------+------+-------+-------+------+------------------+-------+-----+-----+---------------+
-# | solid      | U2   | -16.51 | 10.16  | 0.40 | 10.16 | 27.94 | 5.08 | Ceramic_material | 0.1   |     |     | 1             |
-# +------------+------+--------+--------+------+-------+-------+------+------------------+-------+-----+-----+---------------+
+# | solid      | U2   | -51    | 10.16  | 0.40 | 10.16 | 27.94 | 5.08 | Ceramic_material | 0.1   |     |     | 1             |
 # | network    | C180 | 47.62  | 19.05  | 0.40 | 3.81  | 2.54  | 2.43 |                  | 1.13  | 2   | 3   | 0             |
-# +------------+------+--------+--------+------+-------+-------+------+------------------+-------+-----+-----+---------------+
 # | network    | C10  | 65.40  | -1.27  | 0.40 | 3.81  | 2.54  | 2.43 |                  | 0.562 | 2   | 3   | 0             |
-# +------------+------+--------+--------+------+-------+-------+------+------------------+-------+-----+-----+---------------+
 # | network    | C20  | 113.03 | -0.63  | 0.40 | 2.54  | 3.81  | 2.43 |                  | 0.445 | 2   | 3   | 0             |
-# +------------+------+--------+--------+------+-------+-------+------+------------------+-------+-----+-----+---------------+
 #
 # In this step the code will loop over the csv file lines and creates the blocks.
 # It will create solid blocks and assign BCs.
@@ -137,9 +132,8 @@ with open(filename, "r") as csv_file:
 # -
 
 
-# ## Compute power budget
-#
-# Calculate the power assigned to all the components
+# # Calculate the power assigned to all the components
+
 power_budget, total_power = ipk.post.power_budget(units="W")
 
 # ## Plot model
@@ -171,8 +165,12 @@ output = p.screenshot(os.path.join(temp_folder.name, "object_power.jpg"), scale=
 Image(os.path.join(temp_folder.name, "object_power.jpg"))
 
 # ## Release AEDT
-#
-# Release AEDT.
 
 ipk.release_desktop(True, True)
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+
 temp_folder.cleanup()

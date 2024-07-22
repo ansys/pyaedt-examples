@@ -32,24 +32,17 @@
 
 import os
 import tempfile
-
 import pyaedt
 
 # Set constant values
 
 AEDT_VERSION = "2024.1"
 NUM_CORES = 4
-
-# ## Set non-graphical mode
-#
-# Set non-graphical mode.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
-
-non_graphical = False
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary directory
 
-temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Download 3D component
 # Download the 3D component that is needed to run the example.
@@ -58,7 +51,10 @@ project_path = pyaedt.downloads.download_file("eigenmode", "emi_PCB_house.aedt",
 
 # ## Launch AEDT
 
-d = pyaedt.launch_desktop(AEDT_VERSION, non_graphical=non_graphical, new_desktop=True)
+d = pyaedt.launch_desktop(AEDT_VERSION, 
+                          non_graphical=NG_MODE, 
+                          new_desktop=True,
+                         )
 
 # ## Launch HFSS
 #
@@ -75,22 +71,18 @@ hfss = pyaedt.Hfss(project=project_path, non_graphical=non_graphical)
 # of interest. ``fmax`` is the highest frequency of interest.
 # ``limit`` is the parameter limit that determines which modes are ignored.
 
-# +
 num_modes = 6
 fmin = 1
 fmax = 2
 next_fmin = fmin
 setup_nr = 1
-
 limit = 10
 resonance = {}
-# -
 
 # ## Find the modes
 #
-# The following cell is a function.  If called, it creates an eigenmode setup and solves it.
-# After the solve, each mode, along with its corresponding real frequency and quality factor,
-# are saved for further processing.
+# The following cell defines a function that can be used to create and solve an eigenmode setup.
+# After solving the model, information about each mode is saved for subsequent processing.
 
 
 def find_resonance():
@@ -154,7 +146,7 @@ resonance_frequencies = [f"{resonance[i][1] / 1e9:.5} GHz" for i in resonance]
 print(str(resonance_frequencies))
 # -
 
-# ## Plot model
+# Plot the model
 
 hfss.modeler.fit_all()
 hfss.plot(
@@ -165,8 +157,13 @@ hfss.plot(
 
 # ## Release AEDT
 
+hfss.save_project()
 d.release_desktop()
+time.sleep(3)  # Allow Elctronics Desktop to shut down before cleaning the temporary project folder.
 
-# ## Clean temporary directory
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 temp_dir.cleanup()

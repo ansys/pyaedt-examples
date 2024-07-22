@@ -11,19 +11,13 @@
 import json
 import os
 import tempfile
-
 import pyaedt
+import time
 
 # Set constant values
 
 AEDT_VERSION = "2024.1"
-
-# ## Set non-graphical mode
-#
-# Set non-graphical mode.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
-
-non_graphical = False
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary directory
 
@@ -31,11 +25,11 @@ temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 
 # ## Launch HFSS
 
-project_name = pyaedt.generate_unique_project_name(rootname=temp_dir.name, project_name="choke")
+project_name = os.path.join(temp_dir.name, "choke.aedt")
 hfss = pyaedt.Hfss(
     project=project_name,
     version=AEDT_VERSION,
-    non_graphical=non_graphical,
+    non_graphical=NG_MODE,
     new_desktop=True,
     solution_type="Terminal",
 )
@@ -179,6 +173,7 @@ for position in port_position_list:
 #
 # Create the mesh.
 
+# +
 cylinder_height = 2.5 * dictionary_values[1]["Outer Winding"]["Height"]
 cylinder_position = [0, 0, first_winding_list[1][0][2] - 4]
 mesh_operation_cylinder = hfss.modeler.create_cylinder(
@@ -193,6 +188,7 @@ mesh_operation_cylinder = hfss.modeler.create_cylinder(
 hfss.mesh.assign_length_mesh(
     [mesh_operation_cylinder], maxlength=15, maxel=None, meshop_name="choke_mesh"
 )
+# -
 
 
 # ## Create boundaries
@@ -233,8 +229,13 @@ hfss.plot(
 
 # ## Release AEDT
 
+hfss.save_project()
 hfss.release_desktop()
+time.sleep(3)
 
-# ## Clean temporary directory
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 temp_dir.cleanup()

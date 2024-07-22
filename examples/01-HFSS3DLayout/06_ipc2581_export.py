@@ -11,6 +11,8 @@ import time
 from pyaedt import Edb
 from pyaedt.downloads import download_file
 
+# Specify the version of Electronics Destkop to use for this example.
+
 EDB_VERSION = "2024.1"
 
 # Download the example PCB data.
@@ -47,11 +49,11 @@ edbapp.export_to_ipc2581(
     units="inch"
 )
 
-# ## Close EDB
+# ## Close EDB and clean up the temporary directory
+#
+# All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 edbapp.close_edb()
-
-# ## Clean up the temporary directory
-
-time.sleep(3)
+time.sleep(3)  # Allow Electronics desktop to shut down before deleting the projec files.
 temp_folder.cleanup()

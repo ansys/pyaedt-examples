@@ -18,7 +18,6 @@
 # ## Preparation
 # Import the required packages
 
-# +
 import os
 import json
 import tempfile
@@ -26,12 +25,11 @@ import time
 from pyaedt import Edb
 from pyaedt import Hfss3dLayout
 from pyaedt.downloads import download_file
-# -
 
-# Set constant values
+# Define constants.
 
 AEDT_VERSION = "2024.1"
-NG_MODE = True
+NG_MODE = True  # Open Electronics UI when the application is launched.
 
 
 # Download the example PCB data.

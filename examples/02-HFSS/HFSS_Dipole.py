@@ -11,7 +11,6 @@
 
 import os
 import tempfile
-
 import pyaedt
 
 
@@ -19,27 +18,23 @@ import pyaedt
 
 AEDT_VERSION = "2024.1"
 NUM_CORES = 4
-
-# ## Set non-graphical mode
-#
-# Set non-graphical mode. `
-# You can set ``non_graphical`` either to ``True`` or ``False``.
-
-non_graphical = False
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary directory
 
-temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch AEDT
 
-d = pyaedt.launch_desktop(AEDT_VERSION, non_graphical=non_graphical, new_desktop=True)
+d = pyaedt.launch_desktop(AEDT_VERSION, 
+                          non_graphical=NG_MODE, 
+                          new_desktop=True)
 
 # ## Launch HFSS
 #
 # Create a new HFSS design.
 
-project_name = pyaedt.generate_unique_project_name(rootname=temp_dir.name, project_name="dipole")
+project_name = os.path.join(temp_dir.name, "dipole.aedt")
 hfss = pyaedt.Hfss(project=project_name, solution_type="Modal")
 
 # ## Define variable
@@ -99,9 +94,9 @@ hfss.create_linear_count_sweep(
 
 hfss.analyze_setup(name="MySetup", num_cores=NUM_CORES)
 
-# ## Create scattering plot and far fields report
+# ### Post-processing
 #
-# Create a scattering plot and a far fields report.
+# Plot s-parameters and far field.
 
 hfss.create_scattering("MyScattering")
 variations = hfss.available_variations.nominal_w_values_dict
@@ -117,10 +112,7 @@ hfss.post.create_report(
     report_category="Far Fields",
 )
 
-# ## Create far fields report using report objects
-#
-# Create a far fields report using the ``report_by_category.far field`` method,
-# which gives you more freedom.
+# Create a far fields report using the ``report_by_category.far field`` method.
 
 new_report = hfss.post.reports_by_category.far_field(
     "db(RealizedGainTotal)", hfss.nominal_adaptive, "3D"
@@ -129,8 +121,6 @@ new_report.variations = variations
 new_report.primary_sweep = "Theta"
 new_report.create("Realized2D")
 
-# ## Generate multiple plots
-#
 # Generate multiple plots using the object ``new_report``. This code generates
 # 2D and 3D polar plots.
 
@@ -138,16 +128,12 @@ new_report.report_type = "3D Polar Plot"
 new_report.secondary_sweep = "Phi"
 new_report.create("Realized3D")
 
-# ## Get solution data
-#
 # Get solution data using the object ``new_report``` and postprocess or plot the
 # data outside AEDT.
 
 solution_data = new_report.get_solution_data()
 solution_data.plot()
 
-# ## Generate far field plot
-#
 # Generate a far field plot by creating a postprocessing variable and assigning
 # it to a new coordinate system. You can use the ``post`` prefix to create a
 # postprocessing variable directly from a setter, or you can use the ``set_variable``
@@ -158,39 +144,33 @@ hfss.variable_manager.set_variable(variable_name="y_post", expression=1, postpro
 hfss.modeler.create_coordinate_system(origin=["post_x", "y_post", 0], name="CS_Post")
 hfss.insert_infinite_sphere(custom_coordinate_system="CS_Post", name="Sphere_Custom")
 
-# ## Get solution data
+# ## Retrieve solution data
 #
-# Get solution data. You can use this code to generate the same plot outside AEDT.
+# Solution data can also be processed using python libraries like Matplotlib.
 
 new_report = hfss.post.reports_by_category.far_field("GainTotal", hfss.nominal_adaptive, "3D")
 new_report.primary_sweep = "Theta"
 new_report.far_field_sphere = "3D"
 solutions = new_report.get_solution_data()
 
-# ## Generate 3D plot using Matplotlib
-#
 # Generate a 3D plot using Matplotlib.
 
 solutions.plot_3d()
 
-# ## Generate 3D far fields plot using Matplotlib
-#
 # Generate a far fields plot using Matplotlib.
 
 new_report.far_field_sphere = "Sphere_Custom"
 solutions_custom = new_report.get_solution_data()
 solutions_custom.plot_3d()
 
-# ## Generate 2D plot using Matplotlib
-#
 # Generate a 2D plot using Matplotlib where you specify whether it is a polar
 # plot or a rectangular plot.
 
 solutions.plot(math_formula="db20", is_polar=True)
 
-# ## Get far field data
+# ## Retrieve far-field data
 #
-# Get far field data. After the simulation completes, the far
+# After the simulation completes, the far
 # field data is generated port by port and stored in a data class, , user can use this data
 # once AEDT is released.
 
@@ -214,8 +194,13 @@ ffdata.plot_2d_cut(
 
 # ## Release AEDT
 
+hfss.save_project()
 d.release_desktop()
+time.sleep(3)  # Allow Elctronics Desktop to shut down before cleaning the temporary project folder.
 
-# ## Clean temporary directory
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 temp_dir.cleanup()
