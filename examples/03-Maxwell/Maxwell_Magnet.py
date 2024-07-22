@@ -10,17 +10,20 @@
 import os
 import tempfile
 import time
+from pyaedt import Maxwell3d
 
-from pyaedt import Maxwell3d, generate_unique_project_name
-
-# Set constant values
+# ## Define constants
+# Define constants for use in this example.
 
 AEDT_VERSION = "2024.1"
 NG_MODE = False
 
 # ## Create temporary directory
 #
-# Create temporary directory.
+# The temporary directory is used to run the example and save simulation data. If you run
+# this example as a Jupyter Notebook you can recover the project data and results by copying
+# the contents of the temporary folder to a local drive prior to executing the final cell of this
+# notebook.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
@@ -30,7 +33,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # the project name, the version and the graphical mode.
 
 m3d = Maxwell3d(
-    project=generate_unique_project_name(),
+    project=os.path.join(temp_folder.name, "magnet_example"),
     version=AEDT_VERSION,
     new_desktop=True,
     non_graphical=NG_MODE,
@@ -44,10 +47,10 @@ m3d.solution_type = m3d.SOLUTIONS.Maxwell3d.ElectroDCConduction
 
 # ## Create magnet
 #
-# Create a magnet.
+# Create a permanent magnet using material suing "Alinco9" whic is pre-defined in the Maxwell material library.
 
 magnet = m3d.modeler.create_box(
-    origin=[7, 4, 22], sizes=[10, 5, 30], name="Magnet", material="copper"
+    origin=[7, 4, 22], sizes=[10, 5, 30], name="Magnet", material="Alnico9"
 )
 
 # ## Create setup and assign voltage
@@ -119,9 +122,8 @@ cs1 = m3d.modeler.create_coordinate_system(
 
 # ## Release AEDT and clean up temporary directory
 #
-# Release AEDT and remove both the project and temporary directory.
+# Release AEDT and remove both the project and temporary directory. If you'd like to retrieve the project data for subsequent use, the temporary folder name is given by ``temp_folder.name``.
 
 m3d.release_desktop(close_projects=True, close_desktop=True)
-
-time.sleep(3)
+time.sleep(3)  # Allow time for Electronics Desktop to close before cleaning the temporary folder.
 temp_folder.cleanup()

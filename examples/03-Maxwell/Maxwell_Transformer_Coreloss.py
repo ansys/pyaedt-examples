@@ -9,25 +9,28 @@
 
 import tempfile
 import time
-
 from pyaedt import Maxwell3d, downloads
 from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.general_methods import read_csv_pandas
 
-# Set constant values
+# ## Define constants
+# Define constants for use in this example.
 
 AEDT_VERSION = "2024.1"
 NG_MODE = False
 
 # ## Create temporary directory
 #
-# Create temporary directory.
+# The temporary directory is used to run the example and save simulation data. If you run
+# this example as a Jupyter Notebook you can recover the project data and results by copying
+# the contents of the temporary folder to a local drive prior to executing the final cell of this
+# notebook.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Download .aedt file example
 #
-# Set local temporary folder to export the .aedt file to.
+# The files required to run this example will be downloaded to the temporary working folder.
 
 # +
 aedt_file = downloads.download_file(
@@ -121,9 +124,8 @@ coefficients = m3d.materials[mat.name].get_core_loss_coefficients(
 
 # ## Release AEDT and clean up temporary directory
 #
-# Release AEDT and remove both the project and temporary directory.
+# Release AEDT and remove both the project and temporary directory. If you'd like to retrieve the project data for subsequent use, the temporary folder name is given by ``temp_folder.name``.
 
 m3d.release_desktop()
-
 time.sleep(3)
 temp_folder.cleanup()
