@@ -8,15 +8,17 @@
 #
 # For information on the cable model used in this example please see the following link:
 #
-# - [4 Core Armoured Power Cable](https://www.luxingcable.com/low-voltage-cables/4-core-armoured-power-cable.html)
+# - [4 Core Armoured Power Cable]
+# (https://www.luxingcable.com/low-voltage-cables/4-core-armoured-power-cable.html)
 
 # ## Perform required imports
 #
 
 import math
-import pyaedt
 import os
 import tempfile
+
+import pyaedt
 
 # ## Create temporary directory
 
@@ -40,7 +42,9 @@ core_xy_coord = math.ceil(3 * c_strand_radius + 2 * core_xlpe_ins_thickness)
 
 # Initialize radii of further structures incrementally adding thicknesses.
 
-filling_radius = 1.4142 * (core_xy_coord + 3 * c_strand_radius + core_xlpe_ins_thickness + 0.5)
+filling_radius = 1.4142 * (
+    core_xy_coord + 3 * c_strand_radius + core_xlpe_ins_thickness + 0.5
+)
 inner_sheath_radius = filling_radius + 0.75
 armour_thickness = 3
 armour_radius = inner_sheath_radius + armour_thickness
@@ -57,11 +61,14 @@ n_arm_strands = 30
 
 project_name = os.path.join(temp_dir.name, "Q2D_ArmouredCableExample.aedt")
 q2d_design_name = "2D_Extractor_Cable"
-setup_name = "MySetupAuto"
-sweep_name = "sweep1"
+setup_name = "AnalysisSeetup"
+sweep_name = "FreqSweep"
 tb_design_name = "CableSystem"
 q2d = pyaedt.Q2d(
-    project=project_name, design=q2d_design_name, version=AEDT_VERSION, non_graphical=NG_MODE, 
+    project=project_name,
+    design=q2d_design_name,
+    version=AEDT_VERSION,
+    non_graphical=NG_MODE,
 )
 q2d.modeler.model_units = "mm"
 
@@ -116,23 +123,28 @@ q2d.modeler.create_coordinate_system(
 )
 q2d.modeler.set_working_coordinate_system("CS_c_strand_1")
 c1_id = q2d.modeler.create_circle(
-    ["0mm", "0mm", "0mm"], "c_strand_radius", name="c_strand_1", material="copper"
+    origin=["0mm", "0mm", "0mm"],
+    radius="c_strand_radius",
+    name="c_strand_1",
+    material="copper",
 )
-c2_id = c1_id.duplicate_along_line(vector=["0mm", "2.0*c_strand_radius", "0mm"], clones=2)
+c2_id = c1_id.duplicate_along_line(
+    vector=["0mm", "2.0*c_strand_radius", "0mm"], clones=2
+)
 q2d.modeler.duplicate_around_axis(c2_id, axis="Z", angle=360 / core_n_strands, clones=6)
 c_unite_name = q2d.modeler.unite(q2d.get_all_conductors_names())
 
 fill_id = q2d.modeler.create_circle(
-    ["0mm", "0mm", "0mm"],
-    "3*c_strand_radius",
+    origin=["0mm", "0mm", "0mm"],
+    radius="3*c_strand_radius",
     name="c_strand_fill",
     material="plastic_pp_carbon_fiber",
 )
 fill_id.color = (255, 255, 0)
 
 xlpe_id = q2d.modeler.create_circle(
-    ["0mm", "0mm", "0mm"],
-    "3*c_strand_radius+" + str(core_xlpe_ins_thickness) + "mm",
+    origin=["0mm", "0mm", "0mm"],
+    radius="3*c_strand_radius+" + str(core_xlpe_ins_thickness) + "mm",
     name="c_strand_xlpe",
     material="plastic_pe_cable_grade",
 )
@@ -142,44 +154,63 @@ q2d.modeler.set_working_coordinate_system("Global")
 
 all_obj_names = q2d.get_all_conductors_names() + q2d.get_all_dielectrics_names()
 
-q2d.modeler.duplicate_around_axis(all_obj_names, axis="Z", angle=360 / cable_n_cores, clones=4)
+q2d.modeler.duplicate_around_axis(
+    all_obj_names, axis="Z", angle=360 / cable_n_cores, clones=4
+)
 cond_names = q2d.get_all_conductors_names()
 
 # Define the filling object.
 
 filling_id = q2d.modeler.create_circle(
-    ["0mm", "0mm", "0mm"], "filling_radius", name="Filling", matname="plastic_pp_carbon_fiber"
+    origin=["0mm", "0mm", "0mm"],
+    radius="filling_radius",
+    name="Filling",
+    material="plastic_pp_carbon_fiber",
 )
 filling_id.color = (255, 255, 180)
 
 # Define the inner sheath.
 
 inner_sheath_id = q2d.modeler.create_circle(
-    ["0mm", "0mm", "0mm"], "inner_sheath_radius", name="InnerSheath", matname="PVC plastic"
+    origin=["0mm", "0mm", "0mm"],
+    radius="inner_sheath_radius",
+    name="InnerSheath",
+    material="PVC plastic",
 )
 inner_sheath_id.color = (0, 0, 0)
 
 # Create the armature fill.
 
 arm_fill_id = q2d.modeler.create_circle(
-    ["0mm", "0mm", "0mm"], "armour_radius", name="ArmourFilling", material="plastic_pp_carbon_fiber"
+    origin=["0mm", "0mm", "0mm"],
+    radius="armour_radius",
+    name="ArmourFilling",
+    material="plastic_pp_carbon_fiber",
 )
 arm_fill_id.color = (255, 255, 255)
 
 # Create geometry for the outer sheath.
 
 outer_sheath_id = q2d.modeler.create_circle(
-    ["0mm", "0mm", "0mm"], "outer_sheath_radius", name="OuterSheath", material="PVC plastic"
+    origin=["0mm", "0mm", "0mm"],
+    radius="outer_sheath_radius",
+    name="OuterSheath",
+    material="PVC plastic",
 )
 outer_sheath_id.color = (0, 0, 0)
 
 # Create the geometry for armature steel strands.
 
 arm_strand_1_id = q2d.modeler.create_circle(
-    ["0mm", "armour_centre_pos", "0mm"], "1.1mm", name="arm_strand_1", material="steel_stainless"
+    origin=["0mm", "armour_centre_pos", "0mm"],
+    radius="1.1mm",
+    name="arm_strand_1",
+    material="steel_stainless",
 )
 arm_strand_1_id.color = (128, 128, 64)
-arm_strand_1_id.duplicate_around_axis("Z", "360deg/n_arm_strands", clones="n_arm_strands")
+arm_strand_1_id.duplicate_around_axis(
+    axis="Z", angle="360deg/n_arm_strands", clones="n_arm_strands"
+)
 arm_strand_names = q2d.modeler.get_objects_w_string("arm_strand")
 
 # Define the outer region that defines the solution domain.
@@ -197,26 +228,31 @@ obj = [q2d.modeler.get_object_from_name(i) for i in cond_names]
     for i in obj
 ]
 obj = [q2d.modeler.get_object_from_name(i) for i in arm_strand_names]
-q2d.assign_single_conductor(name="gnd", assignment=obj, conductor_type="ReferenceGround")
+q2d.assign_single_conductor(
+    name="gnd", assignment=obj, conductor_type="ReferenceGround"
+)
 q2d.modeler.fit_all()
 
 # Specify the design settings
 
-q2d.design_settings["LumpedLength"] = "100m"
+lumped_length = "100m"
+q2d.design_settings["LumpedLength"] = lumped_length
 
 # ## Solve the model
 #
 # Insert setup and frequency sweep
 
-q2d_setup = q2d.create_setup(name="AnalysisSeetup")
-q2d_sweep = q2d_setup.add_sweep(name="FreqSweep")
+q2d_setup = q2d.create_setup(name=setup_name)
+q2d_sweep = q2d_setup.add_sweep(name=sweep_name)
 
-# The cable model is generated by runing two solution types:
-# 1. Capacitance and conudctance per unit length (CG). For this model, the CG solution runs in a few seconds.
-# 2. Series resistance and inductnce (RL). Fo ths model the solution time can range from 15-20 minutes, depending on the
-#    available hardware.
+# The cable model is generated by running two solution types:
+# 1. Capacitance and conductance per unit length (CG).
+# For this model, the CG solution runs in a few seconds.
+# 2. Series resistance and inductance (RL).
+# For this model the solution time can range from 15-20 minutes,
+# depending on the available hardware.
 #
-# Uncomment the following line to run the analysis. 
+# Uncomment the following line to run the analysis.
 
 # +
 # q2d.analyze()
@@ -246,7 +282,8 @@ tb.release_desktop()
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you can retrieve those project files.
+# The following cell removes all temporary files, including the project folder.
 
 temp_dir.cleanup()
