@@ -74,13 +74,11 @@ m2d = pyaedt.Maxwell2d(
     non_graphical=NG_MODE,
 )
 
-# ## Create object to access 2D modeler
+# ## Set modeler units
 #
-# Create the object ``mod_2d`` to access the 2D modeler easily.
+# Set modeler units to ``mm``.
 
-mod_2d = m2d.modeler
-mod_2d.delete()
-mod_2d.model_units = "mm"
+m2d.modeler.model_units = "mm"
 
 # ## Define variables from dictionaries
 #
@@ -103,7 +101,7 @@ mats = m2d.materials.import_materials_from_excel(file_name_xlsx)
 # Create two new polylines and a region.
 
 # +
-rect = mod_2d.create_rectangle(
+rect = m2d.modeler.create_rectangle(
     origin=["r_x0", "r_y0", "r_z0"],
     sizes=["r_dx", "r_dy", 0],
     name="Ground",
@@ -112,7 +110,7 @@ rect = mod_2d.create_rectangle(
 rect.color = (0, 0, 255)  # rgb
 rect.solve_inside = False
 
-circle = mod_2d.create_circle(
+circle = m2d.modeler.create_circle(
     origin=["circle_x0", "circle_y0", "circle_z0"],
     radius="circle_radius",
     num_sides="0",
@@ -125,12 +123,12 @@ circle.solve_inside = False
 
 poly1_points = [[-9, 2, 0], [-4, 2, 0], [2, -2, 0], [8, 2, 0]]
 poly2_points = [[-9, 0, 0], [9, 0, 0]]
-poly1_id = mod_2d.create_polyline(
+poly1_id = m2d.modeler.create_polyline(
     points=poly1_points, segment_type="Spline", name="Poly1"
 )
-poly2_id = mod_2d.create_polyline(points=poly2_points, name="Poly2")
-mod_2d.split(assignment=[poly1_id, poly2_id], plane="YZ", sides="NegativeOnly")
-mod_2d.create_region(pad_value=[20, 100, 20, 100])
+poly2_id = m2d.modeler.create_polyline(points=poly2_points, name="Poly2")
+m2d.modeler.split(assignment=[poly1_id, poly2_id], plane="YZ", sides="NegativeOnly")
+m2d.modeler.create_region(pad_value=[20, 100, 20, 100])
 # -
 
 # ## Define excitations
