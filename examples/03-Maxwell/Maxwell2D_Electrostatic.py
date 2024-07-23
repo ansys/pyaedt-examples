@@ -155,16 +155,22 @@ setup = m2d.create_setup(name=setup_name)
 setup.props["PercentError"] = 0.5
 setup.update()
 m2d.validate_simple()
-m2d.analyze_setup(setup_name)
+m2d.analyze_setup(name=setup_name)
 
 # ## Evaluate the E Field tangential component
 #
 # Evaluate the E Field tangential component along the given polylines.
 # Add these operations to the Named Expression list in Field Calculator.
 
-e_line = m2d.post.fields_calculator.add_expression("e_line", None)
-m2d.post.fields_calculator.expression_plot("e_line", "Poly1", [e_line])
-m2d.post.fields_calculator.expression_plot("e_line", "Poly12", [e_line])
+e_line = m2d.post.fields_calculator.add_expression(
+    calculation="e_line", assignment=None
+)
+m2d.post.fields_calculator.expression_plot(
+    calculation="e_line", assignment="Poly1", names=[e_line]
+)
+m2d.post.fields_calculator.expression_plot(
+    calculation="e_line", assignment="Poly12", names=[e_line]
+)
 
 # ## Create Field Line Traces Plot
 #
