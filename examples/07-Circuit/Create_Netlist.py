@@ -9,35 +9,27 @@
 #
 # Perform required imports and set paths.
 
-# +
 import os
 import tempfile
 import time
-
 import pyaedt
 
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys", ignore_cleanup_errors=True)
+# ## Setup
+#
+# Create a temporary working folder and download the project data.
+
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 netlist = pyaedt.downloads.download_netlist(destination=temp_dir.name)
-# -
 
 # Set constant values
 
 AEDT_VERSION = "2024.1"
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Launch AEDT
 #
 # Launch AEDT in graphical mode. 
 # > _Note that this example uses SI units._
-
-# ## Set non-graphical mode
-#
-# Set non-graphical mode.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
-# The Boolean parameter ``new_thread`` defines whether to create a new instance
-# of AEDT or try to connect to an existing instance of it.
-
-non_graphical = False
-new_thread = True
 
 # ## Launch AEDT with Circuit
 #
@@ -47,8 +39,8 @@ new_thread = True
 circuit = pyaedt.Circuit(
     project=os.path.join(temp_dir.name, "NetlistExample"),
     version=AEDT_VERSION,
-    non_graphical=non_graphical,
-    new_desktop=new_thread
+    non_graphical=NG_MODE,
+    new_desktop=True
 )
 
 # ## Define a Parameter
@@ -63,7 +55,7 @@ circuit["Voltage"] = "5"
 # method reads the netlist file and parses it. All components are parsed
 # but only these categories are mapped: R, L, C, Q, U, J, V, and I.
 
-circuit.create_schematic_from_netlist(netlist)
+schematic = circuit.create_schematic_from_netlist(netlist)
 
 # ## Finish
 #
@@ -73,8 +65,12 @@ circuit.create_schematic_from_netlist(netlist)
 
 circuit.save_project()
 print("Project Saved in {}".format(circuit.project_path))
-
 circuit.release_desktop()
 time.sleep(3)
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 temp_dir.cleanup()  # Remove project folder and temporary files.

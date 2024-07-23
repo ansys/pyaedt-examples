@@ -17,12 +17,12 @@ import time
 from matplotlib import pyplot as plt
 import numpy as np
 import pyaedt
-
 # -
 
 # Set constant values
 
 AEDT_VERSION = "2024.1"
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Download Example Data
 #
@@ -42,22 +42,6 @@ project_path = pyaedt.downloads.download_file(
     "ami", name="ami_usb.aedtz", destination=temp_dir.name
 )
 
-# ## Launch AEDT
-#
-# Launch AEDT in graphical mode. This example uses SI units.
-
-desktopVersion = AEDT_VERSION
-
-# ## Set non-graphical mode
-#
-# Set non-graphical mode.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
-# The Boolean parameter ``new_thread`` defines whether to create a new instance
-# of AEDT or try to connect to an existing instance of it.
-
-non_graphical = False
-NewThread = True
-
 # ## Launch AEDT with Circuit and enable Pandas as the output format
 #
 # All outputs obtained with the `get_solution_data` method will have the
@@ -68,9 +52,9 @@ NewThread = True
 pyaedt.settings.enable_pandas_output = True
 circuit = pyaedt.Circuit(
     project=os.path.join(project_path),
-    non_graphical=non_graphical,
-    version=desktopVersion,
-    new_desktop=NewThread,
+    non_graphical=NG_MODE,
+    version=AEDT_VERSION,
+    new_desktop=True,
 )
 
 # ## Solve AMI setup
@@ -301,10 +285,17 @@ plt.show()
 #
 # Save the project and close AEDT.
 
+# +
 circuit.save_project()
 print("Project Saved in {}".format(circuit.project_path))
 
 circuit.release_desktop()
 time.sleep(3)
+# -
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 temp_dir.cleanup()  # Remove project folder and temporary files.

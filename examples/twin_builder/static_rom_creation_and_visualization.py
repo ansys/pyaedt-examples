@@ -5,43 +5,36 @@
 #
 # > **Note:** _This example uses functionality only available in Twin Builder 2024 R2 and later._
 
-# ## Perform required imports
+# ## Set up project
 #
 # Perform required imports.
 
 import os
 import shutil
-
 from pyaedt import TwinBuilder, downloads, generate_unique_project_name
+import tempfile
 
 # Set constant values
 
-AEDT_VERSION = "2024.1"
+AEDT_VERSION = "2024.2"
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
-# ## Select version and set launch options
+# ## Create temporary folder
 #
-# Select the Twin Builder version and set launch options. The following code
-# launches Twin Builder 2023 R2 in graphical mode.
-#
-# You can change the Boolean parameter ``non_graphical`` to ``True`` to launch
-# Twin Builder in non-graphical mode. You can also change the Boolean parameter
-# ``new_thread`` to ``False`` to launch Twin Builder in an existing AEDT session
-# if one is running.
-
-desktop_version = AEDT_VERSION
-non_graphical = False
-new_thread = True
-
-# ## Set up input data
+# Simulation data will be saved in the temporary folder. 
+# If you run this example as a Jupyter Notebook,
+# the results and project data can be retrieved before executing the
+# final cell of the notebook.
 #
 # The following files will be downloaded along with the
 # other project data used to run this example.
 
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys", ignore_cleanup_errors=True)
 source_snapshot_data_zipfilename = "Ex1_Fluent_StaticRom.zip"
 source_build_conf_file = "SROMbuild.conf"
 source_props_conf_file = "SROM_props.conf"
 
-# ## Download Example Data
+# ### Download Example Data
 #
 # The following cell downloads the required files needed to run this example and
 # extracts them in a local folder ``"Ex04"``
@@ -52,7 +45,7 @@ source_data_folder = downloads.download_twin_builder_data(source_build_conf_file
 source_data_folder = downloads.download_twin_builder_data(source_props_conf_file, True)
 
 # Target folder to extract project files.
-data_folder = os.path.join(source_data_folder, "Ex04")
+data_folder = os.path.join(temp_dir.name, "Ex04")
 
 # Unzip training data and config file
 downloads.unzip(os.path.join(source_data_folder, source_snapshot_data_zipfilename), data_folder)
@@ -72,10 +65,10 @@ shutil.copyfile(
 # a default setup for building the static ROM component.
 
 tb = TwinBuilder(
-    project=generate_unique_project_name(),
-    version=desktop_version,
-    non_graphical=non_graphical,
-    new_desktop=new_thread,
+    project=os.path.join(temp_dir.name, "Static_ROM.aedt"),
+    version=AEDT_VERSION,
+    non_graphical=NG_MODE,
+    new_desktop=True,
 )
 
 # ## Desktop Configuration
@@ -85,14 +78,17 @@ tb = TwinBuilder(
 # > The following cell configures Electronics Desktop (AEDT) and the schematic editor
 # > to use the _"Twin Builder"_ configuration.
 # > The Static ROM feature is only available with a Twin Builder license.
-# > A cell at the end of this example restores the AEDT configuration. If your
-# > environment is set up_
-# > to use the "Twin Builder" configuration, you do not need to run these sections.
+# > A cell at the end of this example restores the AEDT configuration. If you are
+# > running this example as a notebook and your
+# > environment is set up
+# > to use the "Twin Builder" configuration, you do not need to run this cell.
 
 current_desktop_config = tb._odesktop.GetDesktopConfiguration()
 current_schematic_environment = tb._odesktop.GetSchematicEnvironment()
 tb._odesktop.SetDesktopConfiguration("Twin Builder")
 tb._odesktop.SetSchematicEnvironment(1)
+
+# Create the static ROM.
 
 # +
 # Get the static ROM builder object
@@ -114,7 +110,7 @@ else:
 rom_manager.CreateROMComponent(static_rom_path.replace("\\", "/"), "staticrom")
 # -
 
-# ## Create schematic
+# ## Build the schematic
 #
 # Place components to create a schematic.
 
@@ -146,11 +142,9 @@ tb.modeler.schematic.create_wire(
 rom1.set_property("store_snapshots", 1)
 rom1.set_property("view1_storage_period", "10s")
 rom1.set_property("view2_storage_period", "10s")
+tb.modeler.zoom_to_fit()  # Zoom to fit the schematic
 
-# Zoom to fit the schematic
-tb.modeler.zoom_to_fit()
-
-# ## Parametrize transient setup
+# ## Run the simulation.
 #
 # Parametrize the default transient setup by setting the end time.
 
@@ -158,14 +152,12 @@ tb.set_end_time("300s")
 tb.set_hmin("1s")
 tb.set_hmax("1s")
 
-# ## Solve transient setup
-#
 # Solve the transient setup. Skipping in case of documentation build.
 
 if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
     tb.analyze_setup("TR")
 
-# ## Get report data and plot using Matplotlib
+# ## Postprocessing
 #
 # Get report data and plot it using Matplotlib. The following code gets and plots
 # the values for the voltage on the pulse voltage source and the values for the
@@ -192,11 +184,22 @@ if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
 # After the simulation is completed, you can close Twin Builder or release it.
 # All methods provide for saving the project before closing.
 
+# +
 # Clean up the downloaded data
-shutil.rmtree(source_data_folder)
+# shutil.rmtree(source_data_folder)
+# -
 
 # Restore earlier desktop configuration and schematic environment
 tb._odesktop.SetDesktopConfiguration(current_desktop_config)
 tb._odesktop.SetSchematicEnvironment(current_schematic_environment)
 
+tb.save_project()
 tb.release_desktop()
+shutil.rmtree(source_data_folder)  # Clean up the downloaded data
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+
+temp_dir.cleanup()

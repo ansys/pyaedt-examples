@@ -6,6 +6,8 @@ like Icepak or Mechanical.
 
 .. nbgallery::
 
+    Circuit_HFSS_Icepak_Coupling.py
     Hfss_Icepak_Coupling.py
     Hfss_Mechanical.py
-    MRI.py
+    ..
+      MRI.py

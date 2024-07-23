@@ -9,48 +9,33 @@
 #
 # Perform required imports.
 
-# +
 import os
 import tempfile
 import time
-
 import pyaedt
-
-# -
 
 # Set constant values
 
 AEDT_VERSION = "2024.1"
+NG_MODE = True  # Run Electronics Desktop without a UI.
 
 # ## Launch AEDT
-#
-# Launch AEDT in graphical mode. This example uses SI units.
-
-# ## Set non-graphical mode
-#
-# Set non-graphical mode.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
-# The Boolean parameter ``new_thread`` defines whether to create a new instance
-# of AEDT or try to connect to an existing instance of it.
-
-# ## Launch AEDT and Circuit
 #
 # Launch AEDT and Circuit. The [pyaedt.Desktop](
 # https://aedt.docs.pyansys.com/version/stable/API/_autosummary/pyaedt.desktop.Desktop.html#pyaedt.desktop.Desktop)
 # class initializes AEDT and starts the specified version in the specified mode.
+#
+# This example uses SI units.
 
 # +
-desktop_version = AEDT_VERSION
-non_graphical = False
-new_thread = True
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys", ignore_cleanup_errors=True)
 
 circuit = pyaedt.Circuit(
     project=os.path.join(temp_dir.name, "CircuitExample"),
     design="Simple",
-    version=desktop_version,
-    non_graphical=non_graphical,
-    new_desktop=new_thread,
+    version=AEDT_VERSION,
+    non_graphical=NG_MODE,
+    new_desktop=True,
 )
 
 circuit.modeler.schematic.schematic_units = "mil"
@@ -142,5 +127,10 @@ print("Project Saved in {}".format(circuit.project_path))
 
 circuit.release_desktop()
 time.sleep(3)
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 temp_dir.cleanup()  # Remove project folder and temporary files.

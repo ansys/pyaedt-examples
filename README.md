@@ -55,12 +55,12 @@ as a Jupyter Notebook if you open it using the jupytext plugin.
 ``` python
 # # PyAEDT Example Template
 #
-# This code can be used to start creating an example
+# This code can be used to create a new example
 # for PyAEDT. Examples should demonstrate the use of
 # PyAEDT to automate simple workflow steps.
 #
 # You may want to add keywords to your example. Comments
-# in the notebook are rendered as Markdown.
+# in the notebook are rendered using Markdown.
 # 
 # Keywords: **HFSS**, **flex cable**, **CPWG**.
 

@@ -11,29 +11,23 @@
 import os
 import tempfile
 import time
-
 import pyaedt
 
 # Set constant values
 
 AEDT_VERSION = "2024.1"
-
-# ## Set non-graphical mode
-#
-# Set non-graphical mode.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Launch AEDT with Circuit
 #
 # Launch AEDT in graphical mode. Instantite an instance of the ``Circuit`` class.
 
-non_graphical = False
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys", ignore_cleanup_errors=True)
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 circuit = pyaedt.Circuit(
     project=os.path.join(temp_dir.name, "SubcircuitExample"),
     design="SimpleExample",
     version=AEDT_VERSION,
-    non_graphical=non_graphical,
+    non_graphical=NG_MODE,
     new_desktop=True,
 )
 circuit.modeler.schematic_units = "mil"
@@ -75,8 +69,12 @@ circuit.pop_up()
 
 circuit.save_project()
 print("Project Saved in {}".format(circuit.project_path))
-
 circuit.release_desktop()
 time.sleep(3)
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 temp_dir.cleanup()  # Remove project folder and temporary files.

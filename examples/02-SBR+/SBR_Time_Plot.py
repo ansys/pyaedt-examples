@@ -86,6 +86,7 @@ hfss.post.plot_scene(
 #
 # Release AEDT and close the example.
 
+hfss.save_project()
 hfss.release_desktop()
 
 # ## Cleanup

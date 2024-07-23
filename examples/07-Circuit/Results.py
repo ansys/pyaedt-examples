@@ -8,18 +8,16 @@
 # data from the [example-data repository](https://github.com/ansys/example-data/tree/master)
 # located in ``pyaedt\custom_reports``.
 
-# +
 import os
 import tempfile
 import time
 from IPython.display import Image
 import pyaedt
 
-# Set local path to path for the project data.
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys", ignore_cleanup_errors=True)
+# ## Set local path to path for the project data.
 
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys", ignore_cleanup_errors=True)
 project_path = pyaedt.downloads.download_file(source="custom_reports/", destination=temp_dir.name)
-# -
 
 # Set constant values
 
@@ -124,7 +122,7 @@ time.sleep(3)
 
 # ## Cleanup
 #
-# The following cell cleans up the temporary directory and
-# removes all project files.
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 temp_dir.cleanup()

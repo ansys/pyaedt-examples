@@ -8,20 +8,17 @@
 #
 # Perform required imports.
 
-# +
 import os
 import tempfile
 import time
-
 from matplotlib import pyplot as plt
 import numpy as np
 import pyaedt
 
-# -
-
 # Set constant values
 
 AEDT_VERSION = "2024.1"
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Set non-graphical mode
 #
@@ -33,14 +30,13 @@ AEDT_VERSION = "2024.1"
 #
 # Launch AEDT in graphical mode with the Circuit schematic editor.
 
-non_graphical = False
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys", ignore_cleanup_errors=True)
 circuit = pyaedt.Circuit(
     project=os.path.join(temp_dir.name, "CktTransient"),
     design="Circuit Examples",
     version=AEDT_VERSION,
     new_desktop=True,
-    non_graphical=non_graphical,
+    non_graphical=NG_MODE,
 )
 
 # ## IBIS Buffer
@@ -193,8 +189,12 @@ plt.show()
 
 circuit.save_project()
 print("Project Saved in {}".format(circuit.project_path))
-
 circuit.release_desktop()
 time.sleep(3)
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 temp_dir.cleanup()  # Remove project folder and temporary files.

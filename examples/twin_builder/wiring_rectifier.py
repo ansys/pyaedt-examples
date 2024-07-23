@@ -5,33 +5,25 @@
 #
 # <img src="_static/rectifier.png" width="500">
 
-# ## Perform required imports
+# ## Set up project
 #
 # Perform required imports.
 
 import os
 import tempfile
-
 import matplotlib.pyplot as plt
 import pyaedt
 
 # Set constant values
 
 AEDT_VERSION = "2024.1"
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
-# ## Select version and set launch options
-#
-# Select the Twin Builder version and set the launch options. The following code
-# launches Twin Builder in graphical mode.
-#
-# You can change the Boolean parameter ``non_graphical`` to ``True`` to launch
-# Twin Builder in non-graphical mode. You can also change the Boolean parameter
-# ``new_thread`` to ``False`` to launch Twin Builder in an existing AEDT session
-# if one is running.
+# Simulation data will be saved in the temporary folder. 
+# If you run this example as a Jupyter Notebook,
+# the results and project data can be retrieved before executing the
+# final cell of the notebook.
 
-desktop_version = AEDT_VERSION
-non_graphical = False
-new_thread = True
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch Twin Builder
@@ -41,9 +33,9 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 tb = pyaedt.TwinBuilder(
     project=os.path.join(temp_dir.name, "TB_Rectifier_Demo"),
-    version=desktop_version,
-    non_graphical=non_graphical,
-    new_desktop=new_thread,
+    version=AEDT_VERSION,
+    non_graphical=NG_MODE,
+    new_desktop=True,
 )
 
 # ## Create components for bridge rectifier
@@ -54,7 +46,7 @@ tb = pyaedt.TwinBuilder(
 # of components in the schematic editor. Components are placed using the named
 # argument ``location`` as a list of ``[x, y]`` values in mm.
 
-G = 0.00254
+G = 0.00254  #  Grid spacing on the schematic.
 
 # Create an AC sinosoidal voltage source.
 
@@ -78,13 +70,9 @@ capacitor = tb.modeler.schematic.create_capacitor(
 
 resistor = tb.modeler.schematic.create_resistor(name="RL", value=100000, location=[39 * G, -10 * G])
 
-# Place the ground component.
+# Place the ground component in the schematic.
 
 gnd = tb.modeler.components.create_gnd(location=[5 * G, -16 * G])
-
-# ## Connect components
-#
-# Connect components with wires.
 
 # Connect the diode pins to create the bridge.
 
@@ -109,14 +97,15 @@ tb.modeler.schematic.create_wire(points=[capacitor.pins[0].location, [30 * G, 0]
 
 # Add the ground connection.
 
+# +
 tb.modeler.schematic.create_wire(
     points=[resistor.pins[1].location, [40 * G, -15 * G], gnd.pins[0].location]
 )
 tb.modeler.schematic.create_wire(points=[capacitor.pins[1].location, [30 * G, -15 * G]])
 tb.modeler.schematic.create_wire(points=[gnd.pins[0].location, [5 * G, 0], [8 * G, 0]])
 
-# Zoom to fit the schematic
-tb.modeler.zoom_to_fit()
+tb.modeler.zoom_to_fit()  # Zoom to fit the schematic
+# -
 
 # The circuit schematic will now be visible in the Twin Builder
 # schematic editor and should look like
@@ -135,6 +124,7 @@ tb.analyze_setup("TR")
 # the values for the voltage on the pulse voltage source and the values for the
 # voltage on the capacitor in the RC circuit.
 
+# +
 src_name = source.InstanceName + ".V"
 x = tb.post.get_solution_data(src_name, "TR", "Time")
 plt.plot(x.intrinsics["Time"], x.data_real(src_name))
@@ -150,12 +140,14 @@ plt.grid()
 plt.xlabel("Time")
 plt.ylabel("AC to DC Conversion using Rectifier")
 plt.show()
+# -
 
 # ## Close Twin Builder
 #
 # After the simulation is completed, you can close Twin Builder or release it.
 # All methods provide for saving the project before closing.
 
+tb.save_project()
 tb.release_desktop()
 
 # ## Cleanup

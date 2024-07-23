@@ -26,12 +26,6 @@ NUM_CORES = 4
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ## Set non-graphical mode
-#
-# Set non-graphical mode.
-
-non_graphical = False
-
 # ## Download and open project
 #
 # Download and open the project. Save it to the temporary folder.
@@ -160,4 +154,10 @@ mech.post.create_fieldplot_surface(assignment=surfaces, quantity="Temperature")
 # Release AEDT and clean up temporary directory.
 
 hfss.release_desktop()
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+
 temp_dir.cleanup()
