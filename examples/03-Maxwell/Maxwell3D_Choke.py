@@ -13,7 +13,7 @@ import time
 
 import pyaedt
 
-# Set constant values
+# ## Define constants
 
 AEDT_VERSION = "2024.1"
 NG_MODE = False
@@ -21,6 +21,8 @@ NG_MODE = False
 # ## Create temporary directory
 #
 # Create temporary directory.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 

@@ -16,7 +16,7 @@ import numpy as np
 from pyaedt import Maxwell3d
 from pyaedt.generic.general_methods import write_csv
 
-# Set constant values
+# ## Define constants
 
 AEDT_VERSION = "2024.1"
 NG_MODE = False
@@ -24,6 +24,8 @@ NG_MODE = False
 # ## Create temporary directory
 #
 # Create temporary directory.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
@@ -508,7 +510,7 @@ m3d.analyze()
 # Create two plots of the induced current (``Mag_J``) and the flux density (``Mag_B``) on the
 # surface of the plate.
 
-surf_list = m3d.modeler.get_object_faces("Plate")
+surf_list = m3d.modeler.get_object_faces(assignment="Plate")
 intrinsic_dict = {"Freq": "200Hz", "Phase": "0deg"}
 m3d.post.create_fieldplot_surface(
     assignment=surf_list,
@@ -530,7 +532,7 @@ m3d.post.create_fieldplot_surface(
 #
 # Release AEDT and remove both the project and temporary directory.
 
-m3d.release_desktop(True, True)
+m3d.release_desktop(close_projects=True, close_desktop=True)
 
 time.sleep(3)
 temp_folder.cleanup()

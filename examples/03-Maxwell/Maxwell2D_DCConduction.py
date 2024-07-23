@@ -16,8 +16,6 @@ import pyaedt
 from pyaedt.generic.pdf import AnsysReport
 
 # ## Define constants
-#
-# Define constant values used in this example
 
 AEDT_VERSION = "2024.1"
 
@@ -40,6 +38,8 @@ m2d = pyaedt.Maxwell2d(
 #
 # Create a temporary directory where we store downloaded data or
 # dumped data.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 

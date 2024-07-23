@@ -14,17 +14,15 @@ import time
 from pyaedt import Maxwell3d
 
 # ## Define constants
-# Define constants for use in this example.
 
 AEDT_VERSION = "2024.1"
 NG_MODE = False
 
 # ## Create temporary directory
 #
-# The temporary directory is used to run the example and save simulation data. If you run
-# this example as a Jupyter Notebook you can recover the project data and results by copying
-# the contents of the temporary folder to a local drive prior to executing the final cell of this
-# notebook.
+# The temporary directory is used to run the example and save simulation data.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
@@ -124,8 +122,6 @@ cs1 = m3d.modeler.create_coordinate_system(
 # ## Release AEDT and clean up temporary directory
 #
 # Release AEDT and remove both the project and temporary directory.
-# If you'd like to retrieve the project data for subsequent use,
-# the temporary folder name is given by ``temp_folder.name``.
 
 m3d.release_desktop(close_projects=True, close_desktop=True)
 time.sleep(

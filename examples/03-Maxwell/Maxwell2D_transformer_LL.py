@@ -17,8 +17,6 @@ from pyaedt import Maxwell2d
 # -
 
 # ## Define constants
-#
-# Define constant values used in this example
 
 AEDT_VERSION = "2024.1"
 NG_MODE = False
@@ -27,6 +25,8 @@ NG_MODE = False
 #
 # Create a temporary directory where we store downloaded data or
 # dumped data.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
@@ -253,7 +253,7 @@ energy_field_overlay = m2d.post.create_fieldplot_surface(
     plot_name="Energy",
 )
 
-# ## Save and release AEDT and clean up temporary directory
+# ## Release AEDT and clean up temporary directory
 #
 # Release AEDT and remove both the project and temporary directory.
 

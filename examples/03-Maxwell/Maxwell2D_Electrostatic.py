@@ -15,8 +15,6 @@ import time
 import pyaedt
 
 # ## Define constants
-#
-# Define constant values used in this example
 
 AEDT_VERSION = "2024.1"
 NG_MODE = False
@@ -25,6 +23,8 @@ NG_MODE = False
 #
 # Create a temporary directory where we store downloaded data or
 # dumped data.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
@@ -207,9 +207,9 @@ m2d.post.export_field_plot(
 
 m2d.post.export_mesh_obj(setup=m2d.nominal_adaptive)
 
-# ## Save project and close AEDT
+# ## Save project, release AEDT and clean up temporary directory
 #
-# Save the project, release AEDT and remove both the project and temporary directory.
+# Save project, release AEDT and remove both the project and temporary directory.
 
 m2d.save_project()
 m2d.release_desktop()
