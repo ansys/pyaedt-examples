@@ -24,36 +24,33 @@
 # ## Preparation
 # Import required packages
 
-# +
 import os
 import tempfile
-
 from pyaedt.generic.spisim import SpiSim
 from pyedb.misc.downloads import download_file
-# -
 
 # Download example files into temporary folder
 
 # +
-temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 thru = download_file(
-    directory="com_analysis", filename="SerDes_Demo_02_Thru.s4p", destination=temp_folder.name
+    directory="com_analysis", filename="SerDes_Demo_02_Thru.s4p", destination=temp_dir.name
 )
 fext_2_9 = download_file(
     directory="com_analysis",
     filename="FCI_CC_Long_Link_Pair_2_to_Pair_9_FEXT.s4p",
-    destination=temp_folder.name,
+    destination=temp_dir.name,
 )
 fext_5_9 = download_file(
     directory="com_analysis",
     filename="FCI_CC_Long_Link_Pair_5_to_Pair_9_FEXT.s4p",
-    destination=temp_folder.name,
+    destination=temp_dir.name,
 )
 next_11_9 = download_file(
     directory="com_analysis",
     filename="FCI_CC_Long_Link_Pair_11_to_Pair_9_NEXT.s4p",
-    destination=temp_folder.name,
+    destination=temp_dir.name,
 )
 # -
 
@@ -90,7 +87,7 @@ print(*com_results)
 # ## COM report
 # A complete COM report is generate in temporary folder in html format.
 
-print(temp_folder.name)
+print(temp_dir.name)
 
 # <img src="_static\com_report.png" width="800">
 
@@ -98,7 +95,7 @@ print(temp_folder.name)
 
 # ### Export template configuration file in JSON format.
 
-custom_json = os.path.join(temp_folder.name, "custom.json")
+custom_json = os.path.join(temp_dir.name, "custom.json")
 spi_sim.export_com_configure_file(custom_json, standard=1)
 
 # Modify the custom JSON file as needed.
@@ -122,7 +119,7 @@ from pyaedt.misc.spisim_com_configuration_files.com_parameters import COMParamet
 
 com_param = COMParametersVer3p4()
 com_param.load(custom_json)
-custom_cfg = os.path.join(temp_folder.name, "custom.cfg")
+custom_cfg = os.path.join(temp_dir.name, "custom.cfg")
 com_param.export_spisim_cfg(custom_cfg)
 # -
 
@@ -132,3 +129,10 @@ com_results = spi_sim.compute_com(
     standard=0, config_file=custom_cfg, port_order="EvenOdd"  # Custom
 )
 print(*com_results)
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+
+temp_dir.cleanup()

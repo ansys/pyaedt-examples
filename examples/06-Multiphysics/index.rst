@@ -9,5 +9,6 @@ like Icepak or Mechanical.
     Circuit_HFSS_Icepak_Coupling.py
     Hfss_Icepak_Coupling.py
     Hfss_Mechanical.py
+    Maxwell_Icepak_Wireless_Charging.py
     ..
       MRI.py

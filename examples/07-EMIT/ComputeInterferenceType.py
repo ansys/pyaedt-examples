@@ -6,9 +6,9 @@
 #
 # Keywords: **EMIT**, **Interference**.
 
-# +
 # Perform required imports
 
+# +
 import os
 import subprocess
 import sys
@@ -22,6 +22,7 @@ from pyaedt.emit_core.emit_constants import InterfererType
 # Set constant values
 
 AEDT_VERSION = "2024.1"
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Python Dependencies
 #
@@ -47,7 +48,6 @@ for package in required_packages:
 
 # Import plotly library
 import plotly.graph_objects as go
-
 # -
 
 # ## Create temporary directory
@@ -56,8 +56,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 
 # Check that EMIT version 2023.2 or greater is installed.
 
-desktop_version = AEDT_VERSION
-if desktop_version <= "2023.1":
+if AEDT_VERSION <= "2023.1":
     print("Warning: this example requires AEDT 2023.2 or later.")
     sys.exit()
 
@@ -66,22 +65,17 @@ if desktop_version <= "2023.1":
 # Launch AEDT with EMIT. The ``Desktop`` class initializes AEDT and starts it
 # on the specified version and in the specified graphical mode.
 
-non_graphical = False
-new_thread = True
-desktop = pyaedt.launch_desktop(
-    desktop_version, non_graphical=non_graphical, new_desktop=new_thread)
+desktop = pyaedt.launch_desktop(AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True)
 
 
-# ## Download project
-#
+# Download project
 
-path_to_desktop_project = pyaedt.downloads.download_file(
+project_name = pyaedt.downloads.download_file(
     "emit", "interference.aedtz", destination=temp_dir.name)
-path_to_desktop_project
 
 # ## Launch EMIT and open project
 
-emitapp = Emit(non_graphical=False, new_desktop=False, project=path_to_desktop_project)
+emitapp = Emit(non_graphical=NG_MODE, new_desktop=False, project=project_name)
 
 # ## Get a List of Transmitters
 #
@@ -122,9 +116,10 @@ emitapp.release_desktop()
 # and receivers down the left-most column. The power at the input to each
 # receiver is shown in each cell of the matrix and color-coded based on the
 # interference type.
-
+#
 # Set up colors to visualize results in a table.
 
+# +
 table_colors = {
     "green": "#7d73ca",
     "yellow": "#d359a2",
@@ -133,7 +128,6 @@ table_colors = {
     "white": "#ffffff",
 }
 header_color = "grey"
-
 
 def create_scenario_view(emis, colors, tx_radios, rx_radios):
     """Create a scenario matrix-like table with the higher received
@@ -181,6 +175,7 @@ def create_scenario_view(emis, colors, tx_radios, rx_radios):
         width=600,
     )
     fig.show()
+# -
 
 
 # ## Generate a legend
@@ -243,6 +238,9 @@ if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
     # Create a legend for the interference types
     create_legend_table()
 
-# ## Clean temporary directory
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 temp_dir.cleanup()

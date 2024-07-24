@@ -24,6 +24,7 @@ from pyaedt.emit_core.emit_constants import InterfererType
 # Set constant values
 
 AEDT_VERSION = "2024.1"
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Python Dependencies
 #
@@ -50,19 +51,11 @@ for package in required_packages:
 
 # Import to support plotting.
 
-# Import required modules
 import plotly.graph_objects as go
-
-# ## Set non-graphical mode
-#
-# Set non-graphical mode.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
-
-non_graphical = False
 
 # ## Create temporary directory
 
-temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch AEDT with EMIT
 #
@@ -75,8 +68,8 @@ if AEDT_VERSION <= "2023.1":
     print("Warning: this example requires AEDT 2023.2 or later.")
     sys.exit()
 
-project_name = pyaedt.generate_unique_project_name(rootname=temp_dir.name, project_name="emit")
-d = pyaedt.launch_desktop(AEDT_VERSION, non_graphical, True)
+project_name = os.path.join(temp_dir.name, "emit.aedt")
+d = pyaedt.launch_desktop(AEDT_VERSION, NG_MODE, True)
 emitapp = Emit(project_name)
 
 # ## Specify the protection levels
@@ -284,6 +277,9 @@ if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
 
 emitapp.release_desktop()
 
-# ## Clean temporary directory
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 temp_dir.cleanup()
