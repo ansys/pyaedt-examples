@@ -73,7 +73,7 @@ cfg["spice_models"] = [
         "component_definition": "COIL-1008CS_V",  # Part name of the components
         "file_path": "ferrite_bead_BLM15BX750SZ1.mod",  # File name or full file path to the SPICE file.
         "sub_circuit_name": "BLM15BX750SZ1",
-        "apply_to_all": True,  # If True, SPICE model is to be assigned to all components share the same part name.
+        "apply_to_all": True,   # If True, SPICE model is to be assigned to all components share the same part name.
         # If False, only assign SPICE model to components in "components".
         "components": [],
     }
@@ -202,8 +202,10 @@ siw.close_desktop()
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notbook you
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_file.dir``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
 time.sleep(3)
 temp_folder.cleanup()

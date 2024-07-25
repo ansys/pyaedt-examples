@@ -19,7 +19,6 @@ import tempfile
 import time
 
 from pyaedt import Hfss3dLayout
-from pyaedt.downloads import download_file
 from pyedb import Edb
 
 # -
@@ -388,7 +387,8 @@ h3d.create_linear_count_sweep(
 
 # ### Define the differential pairs
 #
-# The definition of differential pair enables calculation of differential and common mode  s-parameters.
+# The definition of differential pair enables calculation of
+# differential and common mode  s-parameters.
 
 h3d.set_differential_pair(
     differential_mode="In", assignment="wave_port_1:T1", reference="wave_port_1:T2"

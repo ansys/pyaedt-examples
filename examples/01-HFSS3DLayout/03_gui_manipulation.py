@@ -75,8 +75,10 @@ h3d.close_project(save_project=True)
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notbook you
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_file.dir``.
+# If you've run this example as a Jupyter noetbook you
+# can retrieve those project files. The following cell removes
+# all temporary files, including the project folder.
 
 time.sleep(3)
 temp_folder.cleanup()

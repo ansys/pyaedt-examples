@@ -2,7 +2,6 @@
 
 # -- Project information -----------------------------------------------------
 import datetime
-import json
 import os
 import shutil
 from importlib import import_module

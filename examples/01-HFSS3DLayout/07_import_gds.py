@@ -109,8 +109,10 @@ edbapp.stackup.plot(first_layer="met1")
 
 # ## Close EDB and clean up the temporary directory
 #
-# All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notebook you
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_file.dir``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes
+# all temporary files, including the project folder.
 
 edbapp.close_edb()
 time.sleep(
