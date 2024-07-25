@@ -48,7 +48,8 @@ be rendered and run in [Jupyter Lab](https://docs.jupyter.org/en/latest/) as Not
 
 ## Example Template
 
-You can refer to other examples or use the following template 
+You can refer to other examples or use the following 
+[template](./examples/Template/Example_Template.py)
 to create a new example. This code will be rendered
 as a Jupyter Notebook if you open it using the jupytext plugin.
 
