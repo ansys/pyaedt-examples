@@ -13,7 +13,7 @@ import os
 import shutil
 import tempfile
 
-from pyaedt import TwinBuilder, downloads, generate_unique_project_name
+from pyaedt import TwinBuilder, downloads
 
 # Set constant values
 

@@ -73,7 +73,8 @@ out = circuit.post.export_report_to_jpg(
 
 Image(os.path.join(circuit.working_directory, report1.plot_name + ".jpg"))
 
-# Every aspect of the report can be customized. The method ``crate_report_from_configuration`` reads the
+# Every aspect of the report can be customized. The
+# method ``create_report_from_configuration`` reads the
 # report configuration from a ``*.json`` file and generates the custom report.
 
 report1_full = circuit.post.create_report_from_configuration(
@@ -86,7 +87,8 @@ Image(os.path.join(circuit.working_directory, report1_full.plot_name + ".jpg"))
 
 # ## Transient Report
 #
-# The JSON configuration file can be read and modified from the API prior to creating the report.
+# The JSON configuration file can be read and modified
+# from the API prior to creating the report.
 # The following code modifies the trace rendering
 # prior to creating the report.
 

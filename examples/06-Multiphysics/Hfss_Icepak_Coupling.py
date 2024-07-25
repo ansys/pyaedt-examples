@@ -1,14 +1,38 @@
 # # Multiphysics: Circuit-HFSS-Icepak coupling workflow
 #
-# This example demonstrates how to create a two-way coupling between Circuit-HFSS designs and Icepak.
+# This example demonstrates how to create a two-way coupling
+# between Circuit-HFSS designs and Icepak.
 #
-# Let’s consider a design where some components are simulated in HFSS with a full 3D model, while others are simulated in Circuit as lumped elements. The electrical simulation is done by placing the HFSS design into a Circuit design as a subcomponent and by connecting the lumped components to its ports.
+# Let’s consider a design where some components are simulated in
+# HFSS with a full 3D model, while others are simulated in Circuit as lumped elements.
+# The electrical simulation is done by placing the HFSS design into a Circuit design as
+# a subcomponent and by connecting the lumped components to its ports.
 #
-# The purpose of the workflow is to perform a thermal simulation of the Circuit-HFSS design, creating a two-way coupling with Icepak that allows running multiple iterations. The losses from both designs are accounted for: EM losses are evaluated by the HFSS solver and fed into Icepak via a direct link, while losses from the lumped components in the Circuit design are evaluated analytically and must be manually set into the Icepak boundary.
+# The purpose of the workflow is to perform a thermal simulation
+# of the Circuit-HFSS design, creating a two-way coupling with Icepak
+# that allows running multiple iterations. The losses from both designs
+# are accounted for: EM losses are evaluated by the HFSS
+# solver and fed into Icepak via a direct link, while losses
+# from the lumped components in the Circuit design are evaluated
+# analytically and must be manually set into the Icepak boundary.
 #
-# On the way back of the coupling, temperature information is handled differently for HFSS and Circuit. For HFSS, a temperature map is exported from the Icepak design and used to create a 3D dataset; then the material properties in the HFSS design are updated based on this dataset. For Circuit, the average temperature of the lumped components is extracted from the Icepak design and used to update the temperature-dependent characteristics of the lumped components in Circuit.
+# On the way back of the coupling, temperature information
+# is handled differently for HFSS and Circuit. For HFSS, a temperature
+# map is exported from the Icepak design and used to create a
+# 3D dataset; then the material properties in the HFSS design
+# are updated based on this dataset. For Circuit, the average
+# temperature of the lumped components is extracted from the
+# Icepak design and used to update the temperature-dependent
+# characteristics of the lumped components in Circuit.
 #
-# In this example, the Circuit design contains only a resistor component, with temperature-dependent resistance described by this formula: 0.162*(1+0.004*(TempE-TempE0)), where TempE is the current temperature and TempE0 is the ambient temperature. The HFSS design includes only a cylinder with temperature-dependent material conductivity, defined by a 2D dataset. The resistor and the cylinder have matching resistances.
+# In this example, the Circuit design contains only a
+# resistor component, with temperature-dependent resistance
+# described by this formula: 0.162*(1+0.004*(TempE-TempE0)),
+# where TempE is the current temperature and TempE0 is the
+# ambient temperature. The HFSS design includes only a cylinder
+# with temperature-dependent material conductivity, defined by
+# a 2D dataset. The resistor and the cylinder have
+# matching resistances.
 #
 # The workflow steps are as follows:
 
@@ -419,7 +443,9 @@ hfss.release_desktop()
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes
+# all temporary files, including the project folder.
 
 temp_dir.cleanup()
