@@ -1,5 +1,6 @@
 # # HFSS 3D Layout: DC IR Analysis
-# This example shows how to configure EDB for DC IR analysis, and load EDB into the 3D Layout UI for analysis and
+# This example shows how to configure EDB for DC IR analysis, and load EDB
+# into the 3D Layout UI for analysis and
 # post-processing.
 #
 # - Set up EDB

@@ -87,7 +87,8 @@ c.import_options.import_dummy_nets = True
 
 # ## Write XML file
 #
-# After all settings are ready, you can save an XML file that can later be used to set up the simulation project.
+# After all settings are ready, you can save an XML file that can later be
+# used to set up the simulation project.
 
 c.write_xml(os.path.join(temp_dir.name, "output.xml"))
 
