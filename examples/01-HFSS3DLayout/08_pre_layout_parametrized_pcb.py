@@ -1,4 +1,4 @@
-# # HFSS 3D Layout: Pre-layout Paramerized PCB
+# # HFSS 3D Layout: Pre-layout Parameterized PCB
 #
 # This example shows how to use the EDB interface along with HFSS 3D Layout to create and solve a
 # parameterized layout. The layout shows a differential via transition on a printed circuit board
@@ -18,9 +18,10 @@ import os
 import tempfile
 import time
 
-from pyedb import Edb
 from pyaedt import Hfss3dLayout
 from pyaedt.downloads import download_file
+from pyedb import Edb
+
 # -
 
 # Specify the version of Electronics Destkop to use for this example.
@@ -61,12 +62,42 @@ for par_name in params:
 # Define the stackup layers from bottom to top.
 
 layers = [
-    {"name": "bottom", "layer_type": "signal", "thickness": "35um", "material": "copper"},
-    {"name": "diel_3", "layer_type": "dielectric", "thickness": "275um", "material": "FR4_epoxy"},
-    {"name": "sig_2", "layer_type": "signal", "thickness": "35um", "material": "copper"},
-    {"name": "diel_2", "layer_type": "dielectric", "thickness": "275um", "material": "FR4_epoxy"},
-    {"name": "sig_1", "layer_type": "signal", "thickness": "35um", "material": "copper"},
-    {"name": "diel_1", "layer_type": "dielectric", "thickness": "275um", "material": "FR4_epoxy"},
+    {
+        "name": "bottom",
+        "layer_type": "signal",
+        "thickness": "35um",
+        "material": "copper",
+    },
+    {
+        "name": "diel_3",
+        "layer_type": "dielectric",
+        "thickness": "275um",
+        "material": "FR4_epoxy",
+    },
+    {
+        "name": "sig_2",
+        "layer_type": "signal",
+        "thickness": "35um",
+        "material": "copper",
+    },
+    {
+        "name": "diel_2",
+        "layer_type": "dielectric",
+        "thickness": "275um",
+        "material": "FR4_epoxy",
+    },
+    {
+        "name": "sig_1",
+        "layer_type": "signal",
+        "thickness": "35um",
+        "material": "copper",
+    },
+    {
+        "name": "diel_1",
+        "layer_type": "dielectric",
+        "thickness": "275um",
+        "material": "FR4_epoxy",
+    },
     {"name": "top", "layer_type": "signal", "thickness": "35um", "material": "copper"},
 ]
 
@@ -208,10 +239,14 @@ trace_p = []
 trace_n = []
 for n in range(len(points_p)):
     trace_p.append(
-        edb.modeler.create_trace(points_p[n], route_layer[n], width[n], net_p, "Flat", "Flat")
+        edb.modeler.create_trace(
+            points_p[n], route_layer[n], width[n], net_p, "Flat", "Flat"
+        )
     )
     trace_n.append(
-        edb.modeler.create_trace(points_n[n], route_layer[n], width[n], net_n, "Flat", "Flat")
+        edb.modeler.create_trace(
+            points_n[n], route_layer[n], width[n], net_n, "Flat", "Flat"
+        )
     )
 
 # Create the wave ports
@@ -245,30 +280,54 @@ gnd_shape = edb.modeler.Shape("polygon", points=gnd_poly)
 
 # +
 void_poly = [
-    ["$pcb_len/3", "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2-$via_spacing/2"],
+    [
+        "$pcb_len/3",
+        "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2-$via_spacing/2",
+    ],
     [
         "$pcb_len/3 + $via_spacing",
         "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2-$via_spacing/2",
     ],
-    ["$pcb_len/3 + 2*$via_spacing", "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2"],
-    ["2*$pcb_len/3 - 2*$via_spacing", "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2"],
+    [
+        "$pcb_len/3 + 2*$via_spacing",
+        "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2",
+    ],
+    [
+        "2*$pcb_len/3 - 2*$via_spacing",
+        "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2",
+    ],
     [
         "2*$pcb_len/3 - $via_spacing",
         "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2-$via_spacing/2",
     ],
-    ["2*$pcb_len/3", "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2-$via_spacing/2"],
-    ["2*$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2+$via_spacing/2"],
+    [
+        "2*$pcb_len/3",
+        "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2-$via_spacing/2",
+    ],
+    [
+        "2*$pcb_len/3",
+        "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2+$via_spacing/2",
+    ],
     [
         "2*$pcb_len/3 - $via_spacing",
         "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2+$via_spacing/2",
     ],
-    ["2*$pcb_len/3 - 2*$via_spacing", "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2"],
-    ["$pcb_len/3 + 2*$via_spacing", "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2"],
+    [
+        "2*$pcb_len/3 - 2*$via_spacing",
+        "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2",
+    ],
+    [
+        "$pcb_len/3 + 2*$via_spacing",
+        "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2",
+    ],
     [
         "$pcb_len/3 + $via_spacing",
         "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2+$via_spacing/2",
     ],
-    ["$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2+$via_spacing/2"],
+    [
+        "$pcb_len/3",
+        "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2+$via_spacing/2",
+    ],
     ["$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2"],
 ]
 
@@ -308,7 +367,9 @@ h3d = Hfss3dLayout(
 
 # +
 setup = h3d.create_setup()
-setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = 3
+setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"][
+    "MaxPasses"
+] = 3
 
 h3d.create_linear_count_sweep(
     setup=setup.name,
@@ -354,7 +415,9 @@ time.sleep(3)  # Allow sufficient time for Electronics Desktop to shut down.
 # S-parameters. This example can be downloaded as a Jupyter Notebook, so
 # you can modify it. Try changing parameters or adding ground vias to improve performance.
 #
-# All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notebook you
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_file.dir``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes
+# all temporary files, including the project folder.
 
 temp_folder.cleanup()

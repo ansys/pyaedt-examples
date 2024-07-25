@@ -12,6 +12,7 @@
 import tempfile
 
 from pyaedt import Maxwell2d
+
 # -
 
 # Set constant values
@@ -156,7 +157,10 @@ m2d.assign_vector_potential(input_edge=region.edges, bound_name="VectorPotential
 # Assign a relatively dense mesh to all objects to ensure that the energy is calculated accurately.
 
 m2d.mesh.assign_length_mesh(
-    names=["core", "Region", "LV", "HV"], maxlength=50, maxel=None, meshop_name="all_objects"
+    names=["core", "Region", "LV", "HV"],
+    maxlength=50,
+    maxel=None,
+    meshop_name="all_objects",
 )
 
 # ## Define excitations
@@ -164,7 +168,9 @@ m2d.mesh.assign_length_mesh(
 # Assign the same current in amp-turns but in opposite directions to HV and LV windings.
 
 m2d.assign_current(object_list=lv, amplitude="Amp_turns", name="LV")
-m2d.assign_current(object_list=hv, amplitude="Amp_turns", name="HV", swap_direction=True)
+m2d.assign_current(
+    object_list=hv, amplitude="Amp_turns", name="HV", swap_direction=True
+)
 
 # ## Create and analyze the setup
 #

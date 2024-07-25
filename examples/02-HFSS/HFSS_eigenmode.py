@@ -32,6 +32,7 @@
 
 import os
 import tempfile
+
 import pyaedt
 
 # Set constant values
@@ -47,14 +48,17 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 # ## Download 3D component
 # Download the 3D component that is needed to run the example.
 
-project_path = pyaedt.downloads.download_file("eigenmode", "emi_PCB_house.aedt", temp_dir.name)
+project_path = pyaedt.downloads.download_file(
+    "eigenmode", "emi_PCB_house.aedt", temp_dir.name
+)
 
 # ## Launch AEDT
 
-d = pyaedt.launch_desktop(AEDT_VERSION, 
-                          non_graphical=NG_MODE, 
-                          new_desktop=True,
-                         )
+d = pyaedt.launch_desktop(
+    AEDT_VERSION,
+    non_graphical=NG_MODE,
+    new_desktop=True,
+)
 
 # ## Launch HFSS
 #
@@ -101,7 +105,9 @@ def find_resonance():
     hfss.analyze_setup(setup_name, num_cores=NUM_CORES, use_auto_settings=True)
 
     # Getting the Q and real frequency of each mode
-    eigen_q_quantities = hfss.post.available_report_quantities(quantities_category="Eigen Q")
+    eigen_q_quantities = hfss.post.available_report_quantities(
+        quantities_category="Eigen Q"
+    )
     eigen_mode_quantities = hfss.post.available_report_quantities()
     data = {}
     for i, expression in enumerate(eigen_mode_quantities):
@@ -159,11 +165,15 @@ hfss.plot(
 
 hfss.save_project()
 d.release_desktop()
-time.sleep(3)  # Allow Elctronics Desktop to shut down before cleaning the temporary project folder.
+time.sleep(
+    3
+)  # Allow Electronics Desktop to shut down before cleaning the temporary project folder.
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes
+# all temporary files, including the project folder.
 
 temp_dir.cleanup()

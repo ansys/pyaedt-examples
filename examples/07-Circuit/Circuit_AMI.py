@@ -14,9 +14,10 @@ import os
 import tempfile
 import time
 
-from matplotlib import pyplot as plt
 import numpy as np
 import pyaedt
+from matplotlib import pyplot as plt
+
 # -
 
 # Set constant values
@@ -116,10 +117,16 @@ sample_waveform = circuit.post.sample_ami_waveform(
 tstop = 55e-9
 tstart = 50e-9
 scale_time = pyaedt.constants.unit_converter(
-    1, unit_system="Time", input_units="s", output_units=original_data.units_sweeps["Time"]
+    1,
+    unit_system="Time",
+    input_units="s",
+    output_units=original_data.units_sweeps["Time"],
 )
 scale_data = pyaedt.constants.unit_converter(
-    1, unit_system="Voltage", input_units="V", output_units=original_data.units_data[plot_name]
+    1,
+    unit_system="Voltage",
+    input_units="V",
+    output_units=original_data.units_data[plot_name],
 )
 
 tstop_ns = scale_time * tstop
@@ -144,13 +151,23 @@ for time_value in sample_waveform[0].index:
         stop_index_waveform = sample_index.tolist().index(True)
         break
 
-original_data_zoom = original_data_value[start_index_original_data:stop_index_original_data]
-sampled_data_zoom = sample_waveform[0].values[start_index_waveform:stop_index_waveform] * scale_data
-sampled_time_zoom = sample_waveform[0].index[start_index_waveform:stop_index_waveform] * scale_time
+original_data_zoom = original_data_value[
+    start_index_original_data:stop_index_original_data
+]
+sampled_data_zoom = (
+    sample_waveform[0].values[start_index_waveform:stop_index_waveform] * scale_data
+)
+sampled_time_zoom = (
+    sample_waveform[0].index[start_index_waveform:stop_index_waveform] * scale_time
+)
 
 fig, ax = plt.subplots()
 ax.plot(sampled_time_zoom, sampled_data_zoom, "r*")
-ax.plot(np.array(list(original_data_zoom.index.values)), original_data_zoom.values, color="blue")
+ax.plot(
+    np.array(list(original_data_zoom.index.values)),
+    original_data_zoom.values,
+    color="blue",
+)
 ax.set_title("WaveAfterProbe")
 ax.set_xlabel(original_data.units_sweeps["Time"])
 ax.set_ylabel(original_data.units_data[plot_name])
@@ -252,11 +269,19 @@ for frame in sample_waveform[start_index_waveform:]:
         break
     cont += 1
 
-original_data_zoom = original_data_value[start_index_original_data:stop_index_original_data]
-original_sweep_zoom = original_data_sweep[start_index_original_data:stop_index_original_data]
-original_data_zoom_array = np.array(list(map(list, zip(original_sweep_zoom, original_data_zoom))))
+original_data_zoom = original_data_value[
+    start_index_original_data:stop_index_original_data
+]
+original_sweep_zoom = original_data_sweep[
+    start_index_original_data:stop_index_original_data
+]
+original_data_zoom_array = np.array(
+    list(map(list, zip(original_sweep_zoom, original_data_zoom)))
+)
 original_data_zoom_array[:, 0] *= 1
-sampled_data_zoom_array = np.array(sample_waveform[start_index_waveform:stop_index_waveform])
+sampled_data_zoom_array = np.array(
+    sample_waveform[start_index_waveform:stop_index_waveform]
+)
 sampled_data_zoom_array[:, 0] *= scale_time
 sampled_data_zoom_array[:, 1] *= scale_data
 

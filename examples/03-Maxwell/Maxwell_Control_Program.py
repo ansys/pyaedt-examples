@@ -13,6 +13,7 @@
 import tempfile
 
 from pyaedt import Maxwell2d, downloads
+
 # -
 
 # Set constant values
@@ -38,7 +39,9 @@ non_graphical = False
 # Set local temporary folder to export the .aedt file to.
 
 aedt_file = downloads.download_file(
-    directory="maxwell_ctrl_prg", filename="ControlProgramDemo.aedt", destination=temp_dir.name
+    directory="maxwell_ctrl_prg",
+    filename="ControlProgramDemo.aedt",
+    destination=temp_dir.name,
 )
 ctrl_prg_file = downloads.download_file(
     directory="maxwell_ctrl_prg", filename="timestep_only.py", destination=temp_dir.name
@@ -84,7 +87,9 @@ setup.analyze()
 # Plot Solved Results.
 
 sols = m2d.post.get_solution_data(
-    expressions="FluxLinkage(Winding1)", variations={"Time": ["All"]}, primary_sweep_variable="Time"
+    expressions="FluxLinkage(Winding1)",
+    variations={"Time": ["All"]},
+    primary_sweep_variable="Time",
 )
 sols.plot()
 

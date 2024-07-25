@@ -15,8 +15,9 @@
 
 import os
 import tempfile
-import pyaedt
 import time
+
+import pyaedt
 
 # Set constant values
 
@@ -25,7 +26,7 @@ NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary folder
 #
-# Simulation data will be saved in the temporary folder. 
+# Simulation data will be saved in the temporary folder.
 # If you run this example as a Jupyter Notebook,
 # the results and project data can be retrieved before executing the
 # final cell of the notebook.
@@ -50,7 +51,7 @@ hfss = pyaedt.Hfss(
 # ## Add code
 #
 # This is where you write the code for your example. Use Markdown
-# to create header cells and add a description of what is done in each cell. 
+# to create header cells and add a description of what is done in each cell.
 # You can also
 # add in-line comments if you feel a given command
 # needs further clarification.
@@ -61,16 +62,20 @@ print(my_var)
 # ## Release AEDT
 #
 # At the end of the example, release the application. Use the following cells
-# so the user of the example knows how to save the project data for 
+# so the user of the example knows how to save the project data for
 # later use if needed.
 
 hfss.save_project()
 hfss.release_desktop()
-time.sleep(3)  # Allow Elctronics Desktop to shut down before cleaning the temporary project folder.
+time.sleep(
+    3
+)  # Allow Electronics Desktop to shut down before cleaning the temporary project folder.
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes
+# all temporary files, including the project folder.
 
 temp_dir.cleanup()

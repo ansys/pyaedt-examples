@@ -8,11 +8,12 @@
 
 # +
 import os.path
-import time
 import tempfile
+import time
 
 import pyaedt
 from pyaedt import Circuit, Edb
+
 # -
 
 # Set constant values
@@ -64,7 +65,9 @@ edb_zones = edb.copy_zones(working_directory=work_folder)
 # Clip sub-designs along with corresponding zone definition
 # and create port of clipped signal traces.
 
-defined_ports, project_connexions = edb.cutout_multizone_layout(edb_zones, common_reference_net)
+defined_ports, project_connexions = edb.cutout_multizone_layout(
+    edb_zones, common_reference_net
+)
 
 # ## Circuit
 #
@@ -89,7 +92,9 @@ circuit_setup = circuit.create_setup("Pyedt_LNA")
 #
 # Add frequency sweep from 0GHt to 20GHz with 10NHz frequency step.
 
-circuit_setup.props["SweepDefinition"]["Data"] = "LIN {} {} {}".format("0GHz", "20GHz", "10MHz")
+circuit_setup.props["SweepDefinition"]["Data"] = "LIN {} {} {}".format(
+    "0GHz", "20GHz", "10MHz"
+)
 
 # ## Start simulation
 #
@@ -100,10 +105,14 @@ circuit.analyze()
 # Define differential pairs
 
 circuit.set_differential_pair(
-    differential_mode="U0", assignment="U0.via_38.B2B_SIGP", reference="U0.via_39.B2B_SIGN"
+    differential_mode="U0",
+    assignment="U0.via_38.B2B_SIGP",
+    reference="U0.via_39.B2B_SIGN",
 )
 circuit.set_differential_pair(
-    differential_mode="U1", assignment="U1.via_32.B2B_SIGP", reference="U1.via_33.B2B_SIGN"
+    differential_mode="U1",
+    assignment="U1.via_32.B2B_SIGP",
+    reference="U1.via_33.B2B_SIGN",
 )
 
 # Plot results

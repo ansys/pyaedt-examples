@@ -12,6 +12,7 @@
 import os
 import tempfile
 import time
+
 import pyaedt
 
 # ## Setup
@@ -28,7 +29,7 @@ NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Launch AEDT
 #
-# Launch AEDT in graphical mode. 
+# Launch AEDT in graphical mode.
 # > _Note that this example uses SI units._
 
 # ## Launch AEDT with Circuit
@@ -40,7 +41,7 @@ circuit = pyaedt.Circuit(
     project=os.path.join(temp_dir.name, "NetlistExample"),
     version=AEDT_VERSION,
     non_graphical=NG_MODE,
-    new_desktop=True
+    new_desktop=True,
 )
 
 # ## Define a Parameter

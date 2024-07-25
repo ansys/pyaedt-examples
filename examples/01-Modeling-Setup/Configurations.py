@@ -29,6 +29,7 @@
 import os
 import tempfile
 import time
+
 import pyaedt
 from pyaedt.generic.general_methods import generate_unique_name
 
@@ -104,7 +105,9 @@ ipk.export_3d_model(
 # Export the configuration files. You can optionally disable the export and
 # import sections. Supported formats are json and toml files
 
-conf_file = ipk.configurations.export_config(os.path.join(ipk.working_directory, "config.toml"))
+conf_file = ipk.configurations.export_config(
+    os.path.join(ipk.working_directory, "config.toml")
+)
 ipk.close_project()
 
 # ## Create project
@@ -127,11 +130,15 @@ app.configurations.results.global_import_success
 # Close the project and release AEDT.
 
 app.release_desktop()
-time.sleep(3)  # Allow Elctronics Desktop to shut down before cleaning the temporary project folder.
+time.sleep(
+    3
+)  # Allow Electronics Desktop to shut down before cleaning the temporary project folder.
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes
+# all temporary files, including the project folder.
 
 temp_dir.cleanup()

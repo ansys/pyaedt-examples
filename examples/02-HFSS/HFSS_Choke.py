@@ -11,8 +11,9 @@
 import json
 import os
 import tempfile
-import pyaedt
 import time
+
+import pyaedt
 
 # Set constant values
 
@@ -119,7 +120,9 @@ with open(json_path, "w") as outfile:
 # - Checks if the JSON file is correctly written (as explained in the rules)
 # - Checks in equations on windings parameters to avoid having unintended intersections
 
-dictionary_values = hfss.modeler.check_choke_values(json_path, create_another_file=False)
+dictionary_values = hfss.modeler.check_choke_values(
+    json_path, create_another_file=False
+)
 print(dictionary_values)
 
 # ## Create choke
@@ -150,9 +153,21 @@ ground.transparency = 0.9
 # Create lumped ports.
 
 port_position_list = [
-    [first_winding_list[1][0][0], first_winding_list[1][0][1], first_winding_list[1][0][2] - 1],
-    [first_winding_list[1][-1][0], first_winding_list[1][-1][1], first_winding_list[1][-1][2] - 1],
-    [second_winding_list[1][0][0], second_winding_list[1][0][1], second_winding_list[1][0][2] - 1],
+    [
+        first_winding_list[1][0][0],
+        first_winding_list[1][0][1],
+        first_winding_list[1][0][2] - 1,
+    ],
+    [
+        first_winding_list[1][-1][0],
+        first_winding_list[1][-1][1],
+        first_winding_list[1][-1][2] - 1,
+    ],
+    [
+        second_winding_list[1][0][0],
+        second_winding_list[1][0][1],
+        second_winding_list[1][0][2] - 1,
+    ],
     [
         second_winding_list[1][-1][0],
         second_winding_list[1][-1][1],
@@ -161,7 +176,9 @@ port_position_list = [
 ]
 port_dimension_list = [2, dictionary_values[1]["Outer Winding"]["Wire Diameter"]]
 for position in port_position_list:
-    sheet = hfss.modeler.create_rectangle("XZ", position, port_dimension_list, name="sheet_port")
+    sheet = hfss.modeler.create_rectangle(
+        "XZ", position, port_dimension_list, name="sheet_port"
+    )
     sheet.move([-dictionary_values[1]["Outer Winding"]["Wire Diameter"] / 2, 0, -1])
     hfss.lumped_port(
         signal=sheet.name,

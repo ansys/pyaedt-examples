@@ -9,8 +9,9 @@
 
 import os
 import tempfile
-import pyaedt
 import time
+
+import pyaedt
 
 # Define constants
 
@@ -143,7 +144,9 @@ sweep6 = hfss.optimizations.add(
 
 hfss.save_project()
 hfss.release_desktop()
-time.sleep(3)   # Allow Elctronics Desktop to shut down before cleaning the temporary project folder.
+time.sleep(
+    3
+)  # Allow Electronics Desktop to shut down before cleaning the temporary project folder.
 
 # ## Cleanup
 #

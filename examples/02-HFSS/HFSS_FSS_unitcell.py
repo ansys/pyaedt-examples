@@ -13,6 +13,7 @@
 import os
 import tempfile
 import time
+
 import pyaedt
 
 # Set constant values
@@ -27,10 +28,11 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 # ## Launch AEDT
 
 project_name = os.path.join(temp_dir.name, "FSS.aedt")
-d = pyaedt.launch_desktop(AEDT_VERSION, 
-                          non_graphical=NG_MODE, 
-                          new_desktop=True,
-                         )
+d = pyaedt.launch_desktop(
+    AEDT_VERSION,
+    non_graphical=NG_MODE,
+    new_desktop=True,
+)
 
 # ## Launch HFSS
 #
@@ -48,7 +50,9 @@ hfss["patch_dim"] = "10mm"
 #
 # Download the 3D component from the example data and insert the 3D Component.
 
-unitcell_3d_component_path = pyaedt.downloads.download_FSS_3dcomponent(destination=temp_dir.name)
+unitcell_3d_component_path = pyaedt.downloads.download_FSS_3dcomponent(
+    destination=temp_dir.name
+)
 unitcell_path = os.path.join(unitcell_3d_component_path, "FSS_unitcell_23R2.a3dcomp")
 comp = hfss.modeler.insert_3d_component(unitcell_path)
 
@@ -143,11 +147,15 @@ hfss.save_project()
 # ## Release AEDT
 
 hfss.release_desktop()
-time.sleep(3)  # Allow Elctronics Desktop to shut down before cleaning the temporary project folder.
+time.sleep(
+    3
+)  # Allow Electronics Desktop to shut down before cleaning the temporary project folder.
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes
+# all temporary files, including the project folder.
 
 temp_dir.cleanup()

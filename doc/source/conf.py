@@ -2,29 +2,24 @@
 
 # -- Project information -----------------------------------------------------
 import datetime
-from importlib import import_module
 import json
 import os
+import shutil
+from importlib import import_module
 from pathlib import Path
 from pprint import pformat
-from docutils.nodes import document
-import shutil
 from typing import Any
-from sphinx.application import Sphinx
 
-from ansys_sphinx_theme import (
-    ansys_favicon,
-    ansys_logo_white,
-    ansys_logo_white_cropped,
-    latex,
-    pyansys_logo_black,
-    watermark,
-)
-from docutils import nodes
-from docutils.parsers.rst import Directive
 import numpy as np
 import pyvista
+from ansys_sphinx_theme import (ansys_favicon, ansys_logo_white,
+                                ansys_logo_white_cropped, latex,
+                                pyansys_logo_black, watermark)
+from docutils import nodes
+from docutils.nodes import document
+from docutils.parsers.rst import Directive
 from sphinx import addnodes
+from sphinx.application import Sphinx
 from sphinx.builders.latex import LaTeXBuilder
 from sphinx.util import logging
 
@@ -47,6 +42,7 @@ release = version = "0.1.dev0"
 
 # -- Connect functions (hooks) to Sphinx events  -----------------------------
 
+
 class PrettyPrintDirective(Directive):
     """Renders a constant using ``pprint.pformat`` and inserts into the document."""
 
@@ -61,13 +57,22 @@ class PrettyPrintDirective(Directive):
         literal = nodes.literal_block(code, code)
         literal["language"] = "python"
 
-        return [addnodes.desc_name(text=member_name), addnodes.desc_content("", literal)]
+        return [
+            addnodes.desc_name(text=member_name),
+            addnodes.desc_content("", literal),
+        ]
 
 
 # Sphinx builder specific events hook
 
 
-def check_example_error(app: Sphinx, pagename: str, templatename:str , context:dict[str, Any], doctree: document):
+def check_example_error(
+    app: Sphinx,
+    pagename: str,
+    templatename: str,
+    context: dict[str, Any],
+    doctree: document,
+):
     """Log an error if the execution of an example as a notebook triggered an error.
 
     Since the documentation build might not stop if the execution of a notebook triggered
@@ -96,7 +101,7 @@ def check_example_error(app: Sphinx, pagename: str, templatename:str , context:d
 
 def directory_size(directory_path: Path):
     """Compute the size (in mega bytes) of a directory.
-    
+
     Parameters
     ----------
     directory_path : pathlib.Path
@@ -114,7 +119,7 @@ def directory_size(directory_path: Path):
 
 def copy_examples(app: Sphinx):
     """Copy root directory examples files into the doc/source/examples directory.
-    
+
     Parameters
     ----------
     app : sphinx.application.Sphinx
@@ -125,7 +130,9 @@ def copy_examples(app: Sphinx):
 
     if os.path.exists(destination_dir):
         size = directory_size(destination_dir)
-        logger.info(f"Directory {destination_dir} ({size} MB) already exist, removing it.")
+        logger.info(
+            f"Directory {destination_dir} ({size} MB) already exist, removing it."
+        )
         shutil.rmtree(destination_dir, ignore_errors=True)
         logger.info(f"Directory removed.")
 
@@ -161,7 +168,7 @@ def adjust_image_path(app: Sphinx, docname, source):
 
 def check_pandoc_installed(app: Sphinx):
     """Ensure that pandoc is installed
-    
+
     Parameters
     ----------
     app : sphinx.application.Sphinx
@@ -177,7 +184,9 @@ def check_pandoc_installed(app: Sphinx):
             os.environ["PATH"] += os.pathsep + pandoc_dir
             logger.info(f"Pandoc directory '{pandoc_dir}' has been added to $PATH")
     except OSError:
-        logger.error("Pandoc was not found, please add it to your path or install pypandoc-binary")
+        logger.error(
+            "Pandoc was not found, please add it to your path or install pypandoc-binary"
+        )
 
 
 # NOTE: The list of skipped files requires to be updated every time a new example
@@ -202,9 +211,10 @@ def skip_gif_examples_to_build_pdf(app: Sphinx):
             ]
         )
 
+
 def remove_examples(app: Sphinx, exception: None | Exception):
     """Remove the doc/source/examples directory created during documentation build.
-    
+
     Parameters
     ----------
     app : sphinx.application.Sphinx
@@ -216,6 +226,7 @@ def remove_examples(app: Sphinx, exception: None | Exception):
     logger.info(f"Removing directory {destination_dir} ({size} MB).")
     shutil.rmtree(destination_dir, ignore_errors=True)
     logger.info(f"Directory removed.")
+
 
 def check_build_finished_without_error(app: Sphinx, exception: None | Exception):
     """Check that no error is detected along the documentation build process.
@@ -230,6 +241,7 @@ def check_build_finished_without_error(app: Sphinx, exception: None | Exception)
     if app.builder.config.html_context.get("build_error", False):
         logger.info("Build failed due to an error in html-page-context")
         exit(1)
+
 
 def remove_doctree(app: Sphinx, exception: None | Exception):
     """Remove the .doctree directory created during the documentation build.
@@ -273,6 +285,7 @@ def setup(app):
     app.connect("build-finished", remove_examples)
     app.connect("build-finished", remove_doctree)
     app.connect("build-finished", check_build_finished_without_error)
+
 
 # -- General configuration ---------------------------------------------------
 

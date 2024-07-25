@@ -11,9 +11,9 @@
 import os
 import tempfile
 
-from IPython.display import Image
 import matplotlib.pyplot as plt
 import pyaedt
+from IPython.display import Image
 
 # -
 
@@ -72,7 +72,9 @@ ipk.create_pcb_from_3dlayout(
 
 bb = ipk.modeler.user_defined_components["Board1"].bounding_box
 stackup_thickness = bb[-1] - bb[2]
-ipk.modeler.create_coordinate_system(origin=[0, 0, stackup_thickness / 2], mode="view", view="XY")
+ipk.modeler.create_coordinate_system(
+    origin=[0, 0, stackup_thickness / 2], mode="view", view="XY"
+)
 
 # Import the board components from a MCAD file and remove the PCB object as it is already
 # imported with the ECAD.
@@ -88,7 +90,9 @@ ipk.mesh.global_mesh_region.global_region.padding_values = [20, 20, 20, 20, 300,
 #
 # Use Sherlock file to assign materials.
 
-ipk.assignmaterial_from_sherlock_files(csv_component=component_list, csv_material=material_list)
+ipk.assignmaterial_from_sherlock_files(
+    csv_component=component_list, csv_material=material_list
+)
 
 # Delete objects with no materials assignments.
 
@@ -196,8 +200,12 @@ report = ipk.post.create_report(
     polyline_points=500,
 )
 report_data = report.get_solution_data()
-distance = [k[0] for k, _ in report_data.full_matrix_mag_phase[0]["Temperature"].items()]
-temperature = [v for _, v in report_data.full_matrix_mag_phase[0]["Temperature"].items()]
+distance = [
+    k[0] for k, _ in report_data.full_matrix_mag_phase[0]["Temperature"].items()
+]
+temperature = [
+    v for _, v in report_data.full_matrix_mag_phase[0]["Temperature"].items()
+]
 speed = [v for _, v in report_data.full_matrix_mag_phase[0]["Speed"].items()]
 
 # Plot the data
@@ -236,7 +244,9 @@ ipk.release_desktop()
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
 temp_folder.cleanup()

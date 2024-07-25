@@ -13,8 +13,9 @@
 
 import os
 import tempfile
-import pyaedt
 import time
+
+import pyaedt
 from pyaedt.modules.solutions import FfdSolutionData
 
 # Define constants.
@@ -53,7 +54,9 @@ print("Project name " + project_name)
 #
 # Read JSON file.
 
-dict_in = pyaedt.general_methods.read_json(os.path.join(example_path, "array_simple.json"))
+dict_in = pyaedt.general_methods.read_json(
+    os.path.join(example_path, "array_simple.json")
+)
 
 # ## 3D Component definition
 #
@@ -117,7 +120,9 @@ frequencies = ffdata.frequencies
 working_directory = hfss.working_directory
 hfss.save_project()
 hfss.release_desktop()
-time.sleep(3)  # Allow Elctronics Desktop to shut down before cleaning the temporary project folder.
+time.sleep(
+    3
+)  # Allow Electronics Desktop to shut down before cleaning the temporary project folder.
 
 # ## Load far field data
 #

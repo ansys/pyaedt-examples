@@ -11,8 +11,9 @@
 
 import os
 import shutil
-from pyaedt import TwinBuilder, downloads, generate_unique_project_name
 import tempfile
+
+from pyaedt import TwinBuilder, downloads, generate_unique_project_name
 
 # Set constant values
 
@@ -21,7 +22,7 @@ NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary folder
 #
-# Simulation data will be saved in the temporary folder. 
+# Simulation data will be saved in the temporary folder.
 # If you run this example as a Jupyter Notebook,
 # the results and project data can be retrieved before executing the
 # final cell of the notebook.
@@ -40,7 +41,9 @@ source_props_conf_file = "SROM_props.conf"
 # extracts them in a local folder ``"Ex04"``
 
 # +
-source_data_folder = downloads.download_twin_builder_data(source_snapshot_data_zipfilename, True)
+source_data_folder = downloads.download_twin_builder_data(
+    source_snapshot_data_zipfilename, True
+)
 source_data_folder = downloads.download_twin_builder_data(source_build_conf_file, True)
 source_data_folder = downloads.download_twin_builder_data(source_props_conf_file, True)
 
@@ -48,7 +51,9 @@ source_data_folder = downloads.download_twin_builder_data(source_props_conf_file
 data_folder = os.path.join(temp_dir.name, "Ex04")
 
 # Unzip training data and config file
-downloads.unzip(os.path.join(source_data_folder, source_snapshot_data_zipfilename), data_folder)
+downloads.unzip(
+    os.path.join(source_data_folder, source_snapshot_data_zipfilename), data_folder
+)
 shutil.copyfile(
     os.path.join(source_data_folder, source_build_conf_file),
     os.path.join(data_folder, source_build_conf_file),
@@ -199,7 +204,9 @@ shutil.rmtree(source_data_folder)  # Clean up the downloaded data
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all
+# temporary files, including the project folder.
 
 temp_dir.cleanup()

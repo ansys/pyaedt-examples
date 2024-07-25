@@ -17,8 +17,9 @@ import os
 import tempfile
 
 from pyaedt.downloads import download_file
-from pyedb.dotnet.edb_core.edb_data.control_file import ControlFile
 from pyedb import Edb
+from pyedb.dotnet.edb_core.edb_data.control_file import ControlFile
+
 # -
 
 # Specify the version of Electronics Destkop to use for this example.
@@ -28,9 +29,17 @@ EDB_VERSION = "2024.1"
 # Download the example data.
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-control_fn = download_file(source="gds", name="sky130_fictitious_dtc_example_control_no_map.xml", destination=temp_dir.name)
-gds_fn = download_file(source="gds", name="sky130_fictitious_dtc_example.gds", destination=temp_dir.name)
-layer_map = download_file(source="gds", name="dummy_layermap.map", destination=temp_dir.name)
+control_fn = download_file(
+    source="gds",
+    name="sky130_fictitious_dtc_example_control_no_map.xml",
+    destination=temp_dir.name,
+)
+gds_fn = download_file(
+    source="gds", name="sky130_fictitious_dtc_example.gds", destination=temp_dir.name
+)
+layer_map = download_file(
+    source="gds", name="dummy_layermap.map", destination=temp_dir.name
+)
 
 # ## Control file
 #
@@ -64,7 +73,9 @@ for via in c.stackup.vias:
 # Boundaries can include ports, components and boundary extent.
 
 c.boundaries.units = "um"
-c.boundaries.add_port("P1", x1=223.7, y1=222.6, layer1="Metal6", x2=223.7, y2=100, layer2="Metal6")
+c.boundaries.add_port(
+    "P1", x1=223.7, y1=222.6, layer1="Metal6", x2=223.7, y2=100, layer2="Metal6"
+)
 c.boundaries.add_extent()
 comp = c.components.add_component("B1", "BGA", "IC", "Flip chip", "Cylinder")
 comp.solder_diameter = "65um"
@@ -85,7 +96,9 @@ c.write_xml(os.path.join(temp_dir.name, "output.xml"))
 # Import the gds and open the edb. The XML file is used to map layers to the stackup.
 
 edbapp = Edb(
-    gds_fn, edbversion=EDB_VERSION, technology_file=os.path.join(temp_dir.name, "output.xml")
+    gds_fn,
+    edbversion=EDB_VERSION,
+    technology_file=os.path.join(temp_dir.name, "output.xml"),
 )
 
 # ## Plot stackup
@@ -100,5 +113,7 @@ edbapp.stackup.plot(first_layer="met1")
 # can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 edbapp.close_edb()
-time.sleep(3)  # Allow Electronics desktop to shut down before deleting the projec files.
+time.sleep(
+    3
+)  # Allow Electronics desktop to shut down before deleting the project files.
 temp_dir.cleanup()

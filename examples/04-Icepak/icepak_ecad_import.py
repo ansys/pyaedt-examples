@@ -9,6 +9,7 @@
 
 import os
 import tempfile
+
 import pyaedt
 from pyaedt import Hfss3dLayout
 
@@ -50,7 +51,9 @@ ipk = pyaedt.Icepak(
 # Download ECAD and IDF files
 
 def_path = pyaedt.downloads.download_file(
-    source="icepak/Icepak_ECAD_Import/A1_uprev.aedb", name="edb.def", destination=temp_folder.name
+    source="icepak/Icepak_ECAD_Import/A1_uprev.aedb",
+    name="edb.def",
+    destination=temp_folder.name,
 )
 board_path = pyaedt.downloads.download_file(
     source="icepak/Icepak_ECAD_Import/", name="A1.bdf", destination=temp_folder.name

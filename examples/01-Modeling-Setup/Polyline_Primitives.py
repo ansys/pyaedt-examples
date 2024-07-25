@@ -8,8 +8,9 @@
 
 import os
 import tempfile
-import pyaedt
 import time
+
+import pyaedt
 
 # Define constants
 
@@ -78,8 +79,14 @@ print("primitive id = {}".format(line1.id))
 # Create an arc primitive. The parameter ``position_list`` must contain at
 # least three position values. The first three position values are used.
 
-line2 = modeler.create_polyline(points=test_points[0:3], segment_type="Arc", name="PL02_arc")
-print("Created object with id {} and name {}.".format(line2.id, modeler.objects[line2.id].name))
+line2 = modeler.create_polyline(
+    points=test_points[0:3], segment_type="Arc", name="PL02_arc"
+)
+print(
+    "Created object with id {} and name {}.".format(
+        line2.id, modeler.objects[line2.id].name
+    )
+)
 
 # ## Create spline primitive
 #
@@ -109,7 +116,9 @@ start_point = [100, 100, 0]
 center_point = [0, 0, 0]
 line4 = modeler.create_polyline(
     points=[start_point],
-    segment_type=modeler.polyline_segment("AngularArc", arc_center=center_point, arc_angle="30deg"),
+    segment_type=modeler.polyline_segment(
+        "AngularArc", arc_center=center_point, arc_angle="30deg"
+    ),
     name="PL04_center_point_arc",
 )
 
@@ -140,27 +149,30 @@ line4_zx = modeler.create_polyline(
 # You can pass a list of points to the ``create_polyline()`` method to create a multi-segment
 # polyline.
 #
-# If the type of segment is not specifid, all points
+# If the type of segment is not specified, all points
 # are connected by straight line segments.
 
 line6 = modeler.create_polyline(points=test_points, name="PL06_segmented_compound_line")
 
-# You can specify the segment type as an optional named argument to 
-# define the segment type used to connect the points. 
+# You can specify the segment type as an optional named argument to
+# define the segment type used to connect the points.
 
 line5 = modeler.create_polyline(
     points=test_points, segment_type=["Line", "Arc"], name="PL05_compound_line_arc"
 )
 
-# Setting the named argument ``close_surface=True`` ensures that the polyline starting point and
-# ending point are the same. You can also explicitly close the polyline by setting the last point equal 
+# Setting the named argument ``close_surface=True`` ensures
+# that the polyline starting point and
+# ending point are the same. You can also explicitly close the
+# polyline by setting the last point equal
 # to the first point in the list of points.
 
 line7 = modeler.create_polyline(
     points=test_points, close_surface=True, name="PL07_segmented_compound_line_closed"
 )
 
-# Setting the named argument ``cover_surface=True`` also covers the polyline and creates a sheet object.
+# Setting the named argument ``cover_surface=True`` also
+# covers the polyline and creates a sheet object.
 
 line_cover = modeler.create_polyline(
     points=test_points, cover_surface=True, name="SPL01_segmented_compound_line"
@@ -179,7 +191,9 @@ line_cover = modeler.create_polyline(
 # inserted after the first segment of the original polyline.
 
 line8_segment = modeler.create_polyline(
-    points=test_points, close_surface=True, name="PL08_segmented_compound_insert_segment"
+    points=test_points,
+    close_surface=True,
+    name="PL08_segmented_compound_insert_segment",
 )
 points_line8_segment = line8_segment.points[1]
 insert_point = ["-100mm", "20mm", "0mm"]
@@ -250,9 +264,13 @@ line_arc.insert_segment(
 modeler.create_polyline(
     points=[start_point, end_of_line_segment],
     segment_type=[
-        modeler.polyline_segment(type="AngularArc", arc_angle="43.47deg", arc_center=arc_center_1),
+        modeler.polyline_segment(
+            type="AngularArc", arc_angle="43.47deg", arc_center=arc_center_1
+        ),
         modeler.polyline_segment(type="Line"),
-        modeler.polyline_segment(type="AngularArc", arc_angle=arc_angle_2, arc_center=arc_center_2),
+        modeler.polyline_segment(
+            type="AngularArc", arc_angle=arc_angle_2, arc_center=arc_center_2
+        ),
     ],
     name="Compound_Polyline_One_Command",
 )
@@ -314,7 +332,9 @@ line_complex2 = modeler.create_polyline(
 
 maxwell.save_project()
 maxwell.release_desktop()
-time.sleep(3)  # Allow Elctronics Desktop to shut down before cleaning the temporary project folder.
+time.sleep(
+    3
+)  # Allow Electronics Desktop to shut down before cleaning the temporary project folder.
 
 # ## Cleanup
 #

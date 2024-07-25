@@ -11,8 +11,8 @@
 
 import os
 import tempfile
-import pyaedt
 
+import pyaedt
 
 # Set constant values
 
@@ -26,9 +26,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch AEDT
 
-d = pyaedt.launch_desktop(AEDT_VERSION, 
-                          non_graphical=NG_MODE, 
-                          new_desktop=True)
+d = pyaedt.launch_desktop(AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True)
 
 # ## Launch HFSS
 #
@@ -140,7 +138,9 @@ solution_data.plot()
 # method with an arbitrary name.
 
 hfss["post_x"] = 2
-hfss.variable_manager.set_variable(variable_name="y_post", expression=1, postprocessing=True)
+hfss.variable_manager.set_variable(
+    variable_name="y_post", expression=1, postprocessing=True
+)
 hfss.modeler.create_coordinate_system(origin=["post_x", "y_post", 0], name="CS_Post")
 hfss.insert_infinite_sphere(custom_coordinate_system="CS_Post", name="Sphere_Custom")
 
@@ -148,7 +148,9 @@ hfss.insert_infinite_sphere(custom_coordinate_system="CS_Post", name="Sphere_Cus
 #
 # Solution data can also be processed using python libraries like Matplotlib.
 
-new_report = hfss.post.reports_by_category.far_field("GainTotal", hfss.nominal_adaptive, "3D")
+new_report = hfss.post.reports_by_category.far_field(
+    "GainTotal", hfss.nominal_adaptive, "3D"
+)
 new_report.primary_sweep = "Theta"
 new_report.far_field_sphere = "3D"
 solutions = new_report.get_solution_data()
@@ -175,7 +177,9 @@ solutions.plot(math_formula="db20", is_polar=True)
 # once AEDT is released.
 
 ffdata = hfss.get_antenna_ffd_solution_data(
-    sphere_name="Sphere_Custom", setup_name=hfss.nominal_adaptive, frequencies=["1000MHz"]
+    sphere_name="Sphere_Custom",
+    setup_name=hfss.nominal_adaptive,
+    frequencies=["1000MHz"],
 )
 
 # ## Generate 2D cutout plot
@@ -196,7 +200,9 @@ ffdata.plot_2d_cut(
 
 hfss.save_project()
 d.release_desktop()
-time.sleep(3)  # Allow Elctronics Desktop to shut down before cleaning the temporary project folder.
+time.sleep(
+    3
+)  # Allow Electronics Desktop to shut down before cleaning the temporary project folder.
 
 # ## Cleanup
 #

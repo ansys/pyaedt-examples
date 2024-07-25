@@ -5,11 +5,13 @@
 # # Preparation
 # Import required packages
 
+import tempfile
 # +
 import time
-import tempfile
+
 from pyaedt import Hfss3dLayout
 from pyaedt.downloads import download_file
+
 # -
 
 # Set constant values
@@ -22,9 +24,7 @@ NG_MODE = False
 # Download example board.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
-aedb = download_file(
-    source="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name
-)
+aedb = download_file(source="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name)
 
 # ## Launch HFSS 3D Layout
 #
@@ -75,7 +75,7 @@ h3d.close_project(save_project=True)
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notbook you 
+# All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notbook you
 # can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 time.sleep(3)

@@ -58,7 +58,9 @@ m2d = pyaedt.Maxwell2d(
 #
 # Create a rectangle and duplicate it.
 
-rect1 = m2d.modeler.create_rectangle([0, 0, 0], [10, 20], name="winding", matname="copper")
+rect1 = m2d.modeler.create_rectangle(
+    [0, 0, 0], [10, 20], name="winding", matname="copper"
+)
 added = rect1.duplicate_along_line([14, 0, 0])
 rect2 = m2d.modeler[added[0]]
 
@@ -151,7 +153,9 @@ gif.animate()
 #
 # Generate the same plot outside AEDT.
 
-solutions = m2d.post.get_solution_data("InputCurrent(PHA)", primary_sweep_variable="Time")
+solutions = m2d.post.get_solution_data(
+    "InputCurrent(PHA)", primary_sweep_variable="Time"
+)
 solutions.plot()
 
 # ## Release AEDT and clean up temporary directory

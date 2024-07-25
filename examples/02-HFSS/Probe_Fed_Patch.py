@@ -12,10 +12,11 @@
 #
 # Perform required imports.
 
-import tempfile
-import pyaedt
 import os
+import tempfile
 import time
+
+import pyaedt
 from pyaedt.modeler.advanced_cad.stackup_3d import Stackup3D
 
 # Set constant values
@@ -52,12 +53,18 @@ hfss.modeler.model_units = length_units
 
 # +
 stackup = Stackup3D(hfss)
-ground = stackup.add_ground_layer("ground", material="copper", thickness=0.035, fill_material="air")
+ground = stackup.add_ground_layer(
+    "ground", material="copper", thickness=0.035, fill_material="air"
+)
 dielectric = stackup.add_dielectric_layer(
     "dielectric", thickness="0.5" + length_units, material="Duroid (tm)"
 )
-signal = stackup.add_signal_layer("signal", material="copper", thickness=0.035, fill_material="air")
-patch = signal.add_patch(patch_length=9.57, patch_width=9.25, patch_name="Patch", frequency=1e10)
+signal = stackup.add_signal_layer(
+    "signal", material="copper", thickness=0.035, fill_material="air"
+)
+patch = signal.add_patch(
+    patch_length=9.57, patch_width=9.25, patch_name="Patch", frequency=1e10
+)
 
 stackup.resize_around_element(patch)
 pad_length = [3, 3, 3, 3, 3, 3]  # Air bounding box buffer in mm.
@@ -95,7 +102,9 @@ plt = solution.plot(solution.expressions)
 
 hfss.save_project()
 hfss.release_desktop()
-time.sleep(3)  # Allow Elctronics Desktop to shut down before cleaning the temporary project folder.
+time.sleep(
+    3
+)  # Allow Electronics Desktop to shut down before cleaning the temporary project folder.
 
 # ## Cleanup
 #

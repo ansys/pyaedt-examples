@@ -12,6 +12,7 @@
 
 import os
 import tempfile
+
 import pyaedt
 
 # Set constant values
@@ -54,7 +55,9 @@ source = pyaedt.Hfss(
 #
 # Define a linked antenna. This is HFSS far field applied to HFSS SBR+.
 
-target.create_sbr_linked_antenna(source, target_cs="feederPosition", fieldtype="farfield")
+target.create_sbr_linked_antenna(
+    source, target_cs="feederPosition", fieldtype="farfield"
+)
 
 # ## Assign boundaries
 #

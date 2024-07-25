@@ -13,9 +13,10 @@
 
 import os
 import shutil
+import tempfile
+
 import matplotlib.pyplot as plt
 from pyaedt import TwinBuilder, downloads
-import tempfile
 
 # Set constant values
 
@@ -24,14 +25,14 @@ NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary folder
 #
-# Simulation data will be saved in the temporary folder. 
+# Simulation data will be saved in the temporary folder.
 # If you run this example as a Jupyter Notebook,
 # the results and project data can be retrieved before executing the
 # final cell of the notebook.
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# Specify the file names to be dowloaded for this example.
+# Specify the file names to be downloaded for this example.
 
 source_snapshot_data_zipfilename = "Ex1_Mechanical_DynamicRom.zip"
 source_build_conf_file = "dynarom_build.conf"
@@ -42,7 +43,9 @@ source_data_folder = downloads.download_twin_builder_data(
     source_snapshot_data_zipfilename, True, temp_dir.name
 )
 
-source_data_folder = downloads.download_twin_builder_data(source_build_conf_file, True, temp_dir.name)
+source_data_folder = downloads.download_twin_builder_data(
+    source_build_conf_file, True, temp_dir.name
+)
 
 # Toggle these for local testing
 # source_data_folder = "D:\\Scratch\\TempDyn"
@@ -50,7 +53,9 @@ source_data_folder = downloads.download_twin_builder_data(source_build_conf_file
 data_folder = os.path.join(source_data_folder, "Ex03")
 
 # Unzip training data and config file
-downloads.unzip(os.path.join(source_data_folder, source_snapshot_data_zipfilename), data_folder)
+downloads.unzip(
+    os.path.join(source_data_folder, source_snapshot_data_zipfilename), data_folder
+)
 shutil.copyfile(
     os.path.join(source_data_folder, source_build_conf_file),
     os.path.join(data_folder, source_build_conf_file),
@@ -104,7 +109,9 @@ if os.path.exists(dynamic_rom_path):
         "Info", "path exists: {}".format(dynamic_rom_path.replace("\\", "/")), ""
     )
 else:
-    tb._odesign.AddMessage("Info", "path does not exist: {}".format(dynamic_rom_path), "")
+    tb._odesign.AddMessage(
+        "Info", "path does not exist: {}".format(dynamic_rom_path), ""
+    )
 
 # Create the ROM component definition in Twin Builder
 
@@ -170,8 +177,6 @@ plt.ylabel("Temperature History Variation with Input Temperature Pulse")
 plt.show()
 
 
-
-
 # ## Close Twin Builder
 #
 # After the simulation is completed, you can close Twin Builder or release it.
@@ -187,7 +192,9 @@ tb.release_desktop()
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes
+# all temporary files, including the project folder.
 
 temp_dir.cleanup()

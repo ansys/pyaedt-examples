@@ -12,10 +12,11 @@
 # Perform required imports.
 #
 
-import tempfile
-import pyaedt
 import os
+import tempfile
 import time
+
+import pyaedt
 
 # Set constant values
 
@@ -81,7 +82,9 @@ for key in wgparams:
         for v in wgparams[key]:
             this_key = key + str(count)
             hfss[this_key] = str(v) + wgparams["units"]
-            var_mapping[this_key] = v  # Used to parse expressions and generate numerical values.
+            var_mapping[
+                this_key
+            ] = v  # Used to parse expressions and generate numerical values.
             count += 1
 
 if len(wgparams["l"]) % 2 == 0:
@@ -150,7 +153,10 @@ wg_length = hfss.variable_manager["wg_length"]
 hfss["u_start"] = "-a/2"
 hfss["u_end"] = "a/2"
 hfss.modeler.create_box(
-    ["-b/2", "-a/2", "wg_z_start"], ["b", "a", "wg_length"], name="waveguide", material="vacuum"
+    ["-b/2", "-a/2", "wg_z_start"],
+    ["b", "a", "wg_length"],
+    name="waveguide",
+    material="vacuum",
 )
 
 # ### Draw the whole waveguide.
@@ -177,7 +183,10 @@ for n, z in enumerate(wg_z):
 
     ports.append(
         hfss.wave_port(
-            face_id, integration_line=[u_start, u_end], name="P" + str(n + 1), renormalize=False
+            face_id,
+            integration_line=[u_start, u_end],
+            name="P" + str(n + 1),
+            renormalize=False,
         )
     )
 

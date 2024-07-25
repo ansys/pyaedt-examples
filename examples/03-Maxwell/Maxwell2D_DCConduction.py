@@ -113,7 +113,12 @@ setup1.analyze()
 # Save fields and mesh and use the mesh for all the materials.
 
 param_sweep = m2d.parametrics.add(
-    "MaterialIndex", 0, no_materials - 1, 1, "LinearStep", parametricname="MaterialSweep"
+    "MaterialIndex",
+    0,
+    no_materials - 1,
+    1,
+    "LinearStep",
+    parametricname="MaterialSweep",
 )
 param_sweep["SaveFields"] = True
 param_sweep["CopyMesh"] = True
@@ -154,7 +159,9 @@ d.plot(snapshot_path=os.path.join(temp_dir.name, "M2D_DCConduction.jpg"))
 material_index_vs_resistance = [["Material", "Resistance"]]
 colors = [[(255, 255, 255), (0, 255, 0)]]
 for i in range(len(d.primary_sweep_values)):
-    material_index_vs_resistance.append([str(d.primary_sweep_values[i]), str(resistance[i])])
+    material_index_vs_resistance.append(
+        [str(d.primary_sweep_values[i]), str(resistance[i])]
+    )
     colors.append([None, None])
 # -
 

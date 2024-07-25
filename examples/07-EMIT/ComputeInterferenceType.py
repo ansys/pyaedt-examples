@@ -17,6 +17,7 @@ import tempfile
 import pyaedt
 from pyaedt import Emit
 from pyaedt.emit_core.emit_constants import InterfererType
+
 # -
 
 # Set constant values
@@ -48,6 +49,7 @@ for package in required_packages:
 
 # Import plotly library
 import plotly.graph_objects as go
+
 # -
 
 # ## Create temporary directory
@@ -71,7 +73,8 @@ desktop = pyaedt.launch_desktop(AEDT_VERSION, non_graphical=NG_MODE, new_desktop
 # Download project
 
 project_name = pyaedt.downloads.download_file(
-    "emit", "interference.aedtz", destination=temp_dir.name)
+    "emit", "interference.aedtz", destination=temp_dir.name
+)
 
 # ## Launch EMIT and open project
 
@@ -102,7 +105,8 @@ if tx_radios is None or rx_radios is None:
 power_matrix = []
 all_colors = []
 all_colors, power_matrix = rev.interference_type_classification(
-    domain, use_filter=False, filter_list=[])
+    domain, use_filter=False, filter_list=[]
+)
 
 # ## Release AEDT
 #
@@ -128,6 +132,7 @@ table_colors = {
     "white": "#ffffff",
 }
 header_color = "grey"
+
 
 def create_scenario_view(emis, colors, tx_radios, rx_radios):
     """Create a scenario matrix-like table with the higher received
@@ -175,6 +180,8 @@ def create_scenario_view(emis, colors, tx_radios, rx_radios):
         width=600,
     )
     fig.show()
+
+
 # -
 
 

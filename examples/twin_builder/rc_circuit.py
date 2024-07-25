@@ -8,8 +8,9 @@
 #
 # Perform required imports.
 
-import pyaedt
 import tempfile
+
+import pyaedt
 
 # Define constants.
 
@@ -18,7 +19,7 @@ NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary folder
 #
-# Simulation data will be saved in the temporary folder. 
+# Simulation data will be saved in the temporary folder.
 # If you run this example as a Jupyter Notebook,
 # the results and project data can be retrieved before executing the
 # final cell of the notebook.
@@ -31,7 +32,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 # a default setup.
 
 tb = pyaedt.TwinBuilder(
-    project=os.path.join(temp_dir.name,"RC_ckt.aedt"),
+    project=os.path.join(temp_dir.name, "RC_ckt.aedt"),
     version=AEDT_VERSION,
     non_graphical=NG_MODE,
     new_desktop=True,
@@ -89,7 +90,9 @@ tb.release_desktop()
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all
+# temporary files, including the project folder.
 
 temp_dir.cleanup()

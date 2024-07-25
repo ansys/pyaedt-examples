@@ -65,7 +65,11 @@ m3d.create_setup()
 #
 # Plot the model.
 
-m3d.plot(show=False, export_path=os.path.join(temp_dir.name, "Image.jpg"), plot_air_objects=True)
+m3d.plot(
+    show=False,
+    export_path=os.path.join(temp_dir.name, "Image.jpg"),
+    plot_air_objects=True,
+)
 
 # ## Solve setup
 #

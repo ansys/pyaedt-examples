@@ -11,9 +11,10 @@
 import os
 import tempfile
 import time
-from matplotlib import pyplot as plt
+
 import numpy as np
 import pyaedt
+from matplotlib import pyplot as plt
 
 # Set constant values
 
@@ -52,7 +53,9 @@ ibs = ibis.buffers["DQ_u26a_800"].insert(0, 0)
 #
 # Place an ideal transmission line in the schematic and parametrize it.
 
-tr1 = circuit.modeler.components.components_catalog["Ideal Distributed:TRLK_NX"].place("tr1")
+tr1 = circuit.modeler.components.components_catalog["Ideal Distributed:TRLK_NX"].place(
+    "tr1"
+)
 tr1.parameters["P"] = "50mm"
 
 # ## Component Placement
@@ -120,7 +123,9 @@ if not non_graphical:
         trace_type=vout.TRACETYPE.Continuous,
         color=(0, 0, 255),
     )
-    vout.set_symbol_properties(style=vout.SYMBOLSTYLE.Circle, fill=True, color=(255, 255, 0))
+    vout.set_symbol_properties(
+        style=vout.SYMBOLSTYLE.Circle, fill=True, color=(255, 255, 0)
+    )
     ll = new_report.limit_lines[0]
     ll.set_line_properties(
         style=ll.LINESTYLE.Solid,
@@ -161,7 +166,10 @@ while i < tstop:
     i += 2 * unit_interval
     t_steps.append(i)
 
-t = [[i for i in solutions.intrinsics["Time"] if k - 2 * unit_interval < i <= k] for k in t_steps]
+t = [
+    [i for i in solutions.intrinsics["Time"] if k - 2 * unit_interval < i <= k]
+    for k in t_steps
+]
 ys = [
     [
         i / 1000
@@ -194,7 +202,9 @@ time.sleep(3)
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
 temp_dir.cleanup()  # Remove project folder and temporary files.

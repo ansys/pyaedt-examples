@@ -12,6 +12,7 @@ import os
 import tempfile
 
 import pyaedt
+
 # -
 
 # Set constant values
@@ -70,16 +71,20 @@ circuit.modeler.schematic.set_sim_solution_on_hfss_subcircuit(
 
 # +
 circuit.modeler.schematic.create_interface_port(
-    name="Excitation_1", location=[hfss_comp.pins[0].location[0], hfss_comp.pins[0].location[1]]
+    name="Excitation_1",
+    location=[hfss_comp.pins[0].location[0], hfss_comp.pins[0].location[1]],
 )
 circuit.modeler.schematic.create_interface_port(
-    name="Excitation_2", location=[hfss_comp.pins[1].location[0], hfss_comp.pins[1].location[1]]
+    name="Excitation_2",
+    location=[hfss_comp.pins[1].location[0], hfss_comp.pins[1].location[1]],
 )
 circuit.modeler.schematic.create_interface_port(
-    name="Port_1", location=[hfss_comp.pins[2].location[0], hfss_comp.pins[2].location[1]]
+    name="Port_1",
+    location=[hfss_comp.pins[2].location[0], hfss_comp.pins[2].location[1]],
 )
 circuit.modeler.schematic.create_interface_port(
-    name="Port_2", location=[hfss_comp.pins[3].location[0], hfss_comp.pins[3].location[1]]
+    name="Port_2",
+    location=[hfss_comp.pins[3].location[0], hfss_comp.pins[3].location[1]],
 )
 
 ports_list = ["Excitation_1", "Excitation_2"]
@@ -135,7 +140,11 @@ for el in diels:
 #
 # Plot the model.
 
-mech.plot(show=False, export_path=os.path.join(temp_dir.name, "Mech.jpg"), plot_air_objects=False)
+mech.plot(
+    show=False,
+    export_path=os.path.join(temp_dir.name, "Mech.jpg"),
+    plot_air_objects=False,
+)
 
 # ## Solve and plot thermal results
 #

@@ -19,6 +19,7 @@
 import os
 import tempfile
 import time
+
 import pyaedt
 from pyaedt.generic.pdf import AnsysReport
 
@@ -126,7 +127,9 @@ hfss.modeler.subtract(o2, o1, True)
 
 hfss.mesh.assign_initial_mesh_from_slider(level=6)
 hfss.mesh.assign_model_resolution(assignment=[o1.name, o3.name], defeature_length=None)
-hfss.mesh.assign_length_mesh(assignment=o2.faces, inside_selection=False, maximum_length=1, maximum_elements=2000)
+hfss.mesh.assign_length_mesh(
+    assignment=o2.faces, inside_selection=False, maximum_length=1, maximum_elements=2000
+)
 
 # ## Create HFSS Sources
 #
@@ -336,7 +339,9 @@ print("Total Time", end_time)
 # +
 setup_name = ipk.existing_analysis_sweeps[0]
 intrinsic = ""
-surface_list = ipk.modeler.get_object_faces("inner") + ipk.modeler.get_object_faces("outer")
+surface_list = ipk.modeler.get_object_faces("inner") + ipk.modeler.get_object_faces(
+    "outer"
+)
 plot5 = ipk.post.create_fieldplot_surface(surface_list, quantity="SurfTemperature")
 
 hfss.save_project()
@@ -373,7 +378,9 @@ pdf_report.add_section()
 pdf_report.add_chapter("Hfss Results")
 pdf_report.add_sub_chapter("Field Plot")
 pdf_report.add_text("This section contains Field plots of Hfss Coaxial.")
-pdf_report.add_image(os.path.join(temp_dir.name, plot1.name + ".jpg"), caption="Coaxial Cable")
+pdf_report.add_image(
+    os.path.join(temp_dir.name, plot1.name + ".jpg"), caption="Coaxial Cable"
+)
 
 # Add a page break and a subchapter for S Parameter results
 

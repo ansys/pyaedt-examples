@@ -31,7 +31,9 @@ non_graphical = False
 #
 # Set local temporary folder to export the .xlsx file to.
 
-file_name_xlsx = pyaedt.downloads.download_file(source="field_line_traces", name="my_copper.xlsx")
+file_name_xlsx = pyaedt.downloads.download_file(
+    source="field_line_traces", name="my_copper.xlsx"
+)
 
 # ## Initialize dictionaries
 #
@@ -120,7 +122,9 @@ circle.solve_inside = False
 
 poly1_points = [[-9, 2, 0], [-4, 2, 0], [2, -2, 0], [8, 2, 0]]
 poly2_points = [[-9, 0, 0], [9, 0, 0]]
-poly1_id = mod_2d.create_polyline(points=poly1_points, segment_type="Spline", name="Poly1")
+poly1_id = mod_2d.create_polyline(
+    points=poly1_points, segment_type="Spline", name="Poly1"
+)
 poly2_id = mod_2d.create_polyline(points=poly2_points, name="Poly2")
 mod_2d.split(assignment=[poly1_id, poly2_id], plane="YZ", sides="NegativeOnly")
 mod_2d.create_region(pad_value=[20, 100, 20, 100])

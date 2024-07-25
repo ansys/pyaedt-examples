@@ -12,9 +12,10 @@
 
 import os
 import tempfile
-from IPython.display import Image
+
 import pandas as pd
 import pyaedt
+from IPython.display import Image
 
 # Set constant values
 
@@ -70,7 +71,9 @@ ipk.create_source_block(object_name=["MEMORY1", "MEMORY1_1"], input_power="5W")
 # (fixed pressure condition) at x_max and x_min.
 
 region = ipk.modeler["Region"]
-ipk.assign_pressure_free_opening(assignment=region.top_face_x.id, boundary_name="Outlet")
+ipk.assign_pressure_free_opening(
+    assignment=region.top_face_x.id, boundary_name="Outlet"
+)
 ipk.assign_velocity_free_opening(
     assignment=region.bottom_face_x.id,
     boundary_name="Inlet",
@@ -126,7 +129,9 @@ ipk.mesh.global_mesh_region.update()
 
 cpu = ipk.modeler["CPU"]
 m1 = ipk.monitor.assign_face_monitor(
-    face_id=cpu.top_face_z.id, monitor_quantity="Temperature", monitor_name="TemperatureMonitor1"
+    face_id=cpu.top_face_z.id,
+    monitor_quantity="Temperature",
+    monitor_name="TemperatureMonitor1",
 )
 
 # Assign multiple speed point monitors downstream of the assembly.
@@ -156,7 +161,9 @@ ipk.analyze()
 
 # Get the point monitor data. A dictionary is returned with 'Min', 'Max' and 'Mean' keys.
 
-temperature_data = ipk.post.evaluate_monitor_quantity(monitor=m1, quantity="Temperature")
+temperature_data = ipk.post.evaluate_monitor_quantity(
+    monitor=m1, quantity="Temperature"
+)
 temperature_data
 
 # It is also possible to get the data as pandas dataframe for advanced post-processing.
@@ -198,7 +205,10 @@ speed_data.plot(
 temperature_fs = ipk.post.create_field_summary()
 for m_name in speed_monitors:
     temperature_fs.add_calculation(
-        entity="Monitor", geometry="Volume", geometry_name=m_name, quantity="Temperature"
+        entity="Monitor",
+        geometry="Volume",
+        geometry_name=m_name,
+        quantity="Temperature",
     )
 temperature_fs = temperature_fs.get_field_summary_data(pandas_output=True)
 temperature_fs.head()
@@ -206,7 +216,9 @@ temperature_fs.head()
 # The two DataFrames can be merged using the `pd.merge()` function. With the merge, suffixes are
 # added to the column names to differentiate between the columns from each original DataFrame.
 
-merged_df = pd.merge(temperature_fs, speed_data, on="Entity", suffixes=("_temperature", "_speed"))
+merged_df = pd.merge(
+    temperature_fs, speed_data, on="Entity", suffixes=("_temperature", "_speed")
+)
 merged_df.head()
 
 # The column names are renamed based on the 'Quantity' column of the original DataFrames.
@@ -220,7 +232,14 @@ merged_df.rename(
     inplace=True,
 )
 merged_df = merged_df[
-    ["Entity", temperature_quantity, velocity_quantity, "PositionX", "PositionY", "PositionZ"]
+    [
+        "Entity",
+        temperature_quantity,
+        velocity_quantity,
+        "PositionX",
+        "PositionY",
+        "PositionZ",
+    ]
 ]
 merged_df.head()
 
@@ -243,7 +262,9 @@ ax.set_title(f"Correlation between Temperature and Velocity: {correlation:.2f}")
 surflist = [i.id for i in ipk.modeler["CPU"].faces]
 surflist += [i.id for i in ipk.modeler["MEMORY1"].faces]
 surflist += [i.id for i in ipk.modeler["MEMORY1_1"].faces]
-plot3 = ipk.post.create_fieldplot_surface(assignment=surflist, quantity="SurfTemperature")
+plot3 = ipk.post.create_fieldplot_surface(
+    assignment=surflist, quantity="SurfTemperature"
+)
 path = plot3.export_image(
     full_path=os.path.join(temp_folder.name, "temperature.png"),
     orientation="top",

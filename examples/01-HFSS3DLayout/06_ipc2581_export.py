@@ -8,6 +8,7 @@
 import os
 import tempfile
 import time
+
 from pyaedt import Edb
 from pyaedt.downloads import download_file
 
@@ -18,9 +19,7 @@ EDB_VERSION = "2024.1"
 # Download the example PCB data.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
-aedb = download_file(
-    source="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name
-)
+aedb = download_file(source="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name)
 
 # ## Launch EDB
 
@@ -45,15 +44,18 @@ edbapp.nets.plot(None, None, color_by_net=True)
 # ## Export layout as a IPC2581 file.
 
 edbapp.export_to_ipc2581(
-    ipc_path=os.path.join(temp_folder.name, "ANSYS-HSD_V1.xml"),
-    units="inch"
+    ipc_path=os.path.join(temp_folder.name, "ANSYS-HSD_V1.xml"), units="inch"
 )
 
 # ## Close EDB and clean up the temporary directory
 #
-# All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notebook you
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_file.dir``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes
+# all temporary files, including the project folder.
 
 edbapp.close_edb()
-time.sleep(3)  # Allow Electronics desktop to shut down before deleting the projec files.
+time.sleep(
+    3
+)  # Allow Electronics desktop to shut down before deleting the project files.
 temp_folder.cleanup()

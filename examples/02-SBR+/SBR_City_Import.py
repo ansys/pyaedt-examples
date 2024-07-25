@@ -12,6 +12,7 @@
 
 import os
 import tempfile
+
 import pyaedt
 
 # Set constant values
@@ -48,7 +49,11 @@ ansys_home = [40.273726, -80.168269]
 # Assign boundaries.
 
 app.modeler.import_from_openstreet_map(
-    ansys_home, terrain_radius=250, road_step=3, plot_before_importing=False, import_in_aedt=True
+    ansys_home,
+    terrain_radius=250,
+    road_step=3,
+    plot_before_importing=False,
+    import_in_aedt=True,
 )
 
 # ## Plot model

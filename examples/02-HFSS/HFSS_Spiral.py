@@ -10,8 +10,8 @@
 
 import os
 import tempfile
-import pyaedt
 
+import pyaedt
 
 # Set constant values
 
@@ -54,7 +54,7 @@ hfss["Tsub"] = "6" + hfss.modeler.model_units
 
 # ## Standardize polyline
 #
-# Define a function that creates a polyline using the ``create_line`` method. This 
+# Define a function that creates a polyline using the ``create_line`` method. This
 # function creates a polyline having fixed
 # width, thickness, and material.
 
@@ -157,7 +157,8 @@ box = hfss.modeler.create_box(
 hfss.assign_radiation_boundary_to_objects("airbox")
 # -
 
-# Assign a material override which allows object intersections, assigning conductors higher priority than insulators.
+# Assign a material override which allows object intersections,
+# assigning conductors higher priority than insulators.
 
 hfss.change_material_override()
 
@@ -201,7 +202,9 @@ hfss.create_output_variable("L", L_formula, solution="setup1 : LastAdaptive")
 # Plot the results using Matplotlib.
 
 data = hfss.post.get_solution_data([L_formula, Q_formula])
-data.plot(curves=[L_formula, Q_formula], math_formula="re", xlabel="Freq", ylabel="L and Q")
+data.plot(
+    curves=[L_formula, Q_formula], math_formula="re", xlabel="Freq", ylabel="L and Q"
+)
 
 # Export results to csv file
 
@@ -213,11 +216,15 @@ data.export_data_to_csv(os.path.join(hfss.toolkit_directory, "output.csv"))
 
 hfss.save_project()
 hfss.release_desktop()
-time.sleep(3)  # Allow Elctronics Desktop to shut down before cleaning the temporary project folder.
+time.sleep(
+    3
+)  # Allow Electronics Desktop to shut down before cleaning the temporary project folder.
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes
+# all temporary files, including the project folder.
 
 temp_dir.cleanup()

@@ -9,6 +9,7 @@
 
 import os
 import tempfile
+
 import pyaedt
 
 # Set constant values
@@ -84,7 +85,9 @@ top_line_obj = q2d.modeler.create_polyline(
 )
 q2d.modeler.move(assignment=[top_line_obj], vector=[delta_w_half, 0, 0])
 q2d.modeler.connect([base_line_obj, top_line_obj])
-q2d.modeler.move(assignment=[base_line_obj], vector=["{}+{}".format(co_gnd_w, clearance), 0, 0])
+q2d.modeler.move(
+    assignment=[base_line_obj], vector=["{}+{}".format(co_gnd_w, clearance), 0, 0]
+)
 
 # Create a coplanar ground.
 
@@ -107,7 +110,8 @@ top_line_obj = q2d.modeler.create_polyline(
 q2d.modeler.move(objid=[top_line_obj], vector=[delta_w_half, 0, 0])
 q2d.modeler.connect([base_line_obj, top_line_obj])
 q2d.modeler.move(
-    assignment=[base_line_obj], vector=["{}+{}*2+{}".format(co_gnd_w, clearance, sig_bot_w), 0, 0]
+    assignment=[base_line_obj],
+    vector=["{}+{}*2+{}".format(co_gnd_w, clearance, sig_bot_w), 0, 0],
 )
 # -
 
@@ -142,7 +146,9 @@ for obj_name in ["signal", "co_gnd_left", "co_gnd_right"]:
         e_obj_list.append(e_obj)
     e_obj_1 = e_obj_list[0]
     q2d.modeler.unite(e_obj_list)
-    new_obj = q2d.modeler.sweep_along_vector(assignment=e_obj_1.id, sweep_vector=[0, sm_h, 0])
+    new_obj = q2d.modeler.sweep_along_vector(
+        assignment=e_obj_1.id, sweep_vector=[0, sm_h, 0]
+    )
     sm_obj_list.append(e_obj_1)
 
 new_obj = q2d.modeler.create_rectangle(
@@ -176,7 +182,10 @@ q2d.assign_single_conductor(
 
 # Assign the reference ground.
 
-obj = [q2d.modeler.get_object_from_name(i) for i in ["co_gnd_left", "co_gnd_right", "ref_gnd"]]
+obj = [
+    q2d.modeler.get_object_from_name(i)
+    for i in ["co_gnd_left", "co_gnd_right", "ref_gnd"]
+]
 q2d.assign_single_conductor(
     name="gnd",
     assignment=obj,
@@ -188,7 +197,9 @@ q2d.assign_single_conductor(
 # Assign the Huray model for conductive losses on the signal trace.
 
 obj = q2d.modeler.get_object_from_name("signal")
-q2d.assign_huray_finitecond_to_edges(obj.edges, radius="0.5um", ratio=3, name="b_" + obj.name)
+q2d.assign_huray_finitecond_to_edges(
+    obj.edges, radius="0.5um", ratio=3, name="b_" + obj.name
+)
 
 # ## Create the simulation setup
 #
@@ -223,7 +234,9 @@ q2d.release_desktop()
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes
+# all temporary files, including the project folder.
 
 temp_dir.cleanup()

@@ -26,6 +26,7 @@
 
 import os
 import tempfile
+
 from pyaedt.generic.spisim import SpiSim
 from pyedb.misc.downloads import download_file
 
@@ -35,7 +36,9 @@ from pyedb.misc.downloads import download_file
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 thru = download_file(
-    directory="com_analysis", filename="SerDes_Demo_02_Thru.s4p", destination=temp_dir.name
+    directory="com_analysis",
+    filename="SerDes_Demo_02_Thru.s4p",
+    destination=temp_dir.name,
 )
 fext_2_9 = download_file(
     directory="com_analysis",
@@ -115,7 +118,8 @@ print(*com_results)
 # The exported configuration file can be used in SPISim GUI.
 
 # +
-from pyaedt.misc.spisim_com_configuration_files.com_parameters import COMParametersVer3p4
+from pyaedt.misc.spisim_com_configuration_files.com_parameters import \
+    COMParametersVer3p4
 
 com_param = COMParametersVer3p4()
 com_param.load(custom_json)
@@ -132,7 +136,10 @@ print(*com_results)
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this
+# example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary
+# files, including the project folder.
 
 temp_dir.cleanup()

@@ -8,8 +8,8 @@
 # Perform required imports.
 
 import csv
-from operator import attrgetter
 import os
+from operator import attrgetter
 
 import pyaedt
 
@@ -338,7 +338,11 @@ create_cs_magnets(OPM1_id, "CS_" + OPM1_id.name, "outer")
 mod_2d.duplicate_and_mirror(
     objid=[IPM1_id, OPM1_id],
     position=[0, 0, 0],
-    vector=["cos((360deg/SymmetryFactor/2)+90deg)", "sin((360deg/SymmetryFactor/2)+90deg)", 0],
+    vector=[
+        "cos((360deg/SymmetryFactor/2)+90deg)",
+        "sin((360deg/SymmetryFactor/2)+90deg)",
+        0,
+    ],
 )
 id_PMs = mod_2d.get_objects_w_string("PM", case_sensitive=True)
 
@@ -355,7 +359,10 @@ coil_id = mod_2d.create_rectangle(
 coil_id.color = (255, 128, 0)
 m2d.modeler.rotate(objid=coil_id, cs_axis="Z", angle="360deg/SlotNumber/2")
 coil_id.duplicate_around_axis(
-    cs_axis="Z", angle="360deg/SlotNumber", nclones="CoilPitch+1", create_new_objects=True
+    cs_axis="Z",
+    angle="360deg/SlotNumber",
+    nclones="CoilPitch+1",
+    create_new_objects=True,
 )
 id_coils = mod_2d.get_objects_w_string("Coil", case_sensitive=True)
 
@@ -364,10 +371,18 @@ id_coils = mod_2d.get_objects_w_string("Coil", case_sensitive=True)
 # Create the shaft and region.
 
 region_id = mod_2d.create_circle(
-    position=[0, 0, 0], radius="DiaOuter/2", num_sides="SegAngle", is_covered=True, name="Region"
+    position=[0, 0, 0],
+    radius="DiaOuter/2",
+    num_sides="SegAngle",
+    is_covered=True,
+    name="Region",
 )
 shaft_id = mod_2d.create_circle(
-    position=[0, 0, 0], radius="DiaShaft/2", num_sides="SegAngle", is_covered=True, name="Shaft"
+    position=[0, 0, 0],
+    radius="DiaShaft/2",
+    num_sides="SegAngle",
+    is_covered=True,
+    name="Shaft",
 )
 
 # ## Create bands
@@ -413,7 +428,13 @@ m2d.assign_rotate_motion(
 #
 # Create a list of vacuum objects and assign color.
 
-vacuum_obj_id = [shaft_id, region_id, bandIN_id, bandMID_id, bandOUT_id]  # put shaft first
+vacuum_obj_id = [
+    shaft_id,
+    region_id,
+    bandIN_id,
+    bandMID_id,
+    bandOUT_id,
+]  # put shaft first
 for item in vacuum_obj_id:
     item.color = (128, 255, 255)
 
@@ -424,7 +445,11 @@ for item in vacuum_obj_id:
 
 # +
 rotor_id = mod_2d.create_circle(
-    position=[0, 0, 0], radius="DiaRotorLam/2", num_sides=0, name="Rotor", matname="30DH_20C_smooth"
+    position=[0, 0, 0],
+    radius="DiaRotorLam/2",
+    num_sides=0,
+    name="Rotor",
+    matname="30DH_20C_smooth",
 )
 
 rotor_id.color = (0, 128, 255)
@@ -434,7 +459,11 @@ void_small_1_id = mod_2d.create_circle(
 )
 
 m2d.modeler.duplicate_around_axis(
-    void_small_1_id, cs_axis="Z", angle="360deg/SymmetryFactor", nclones=2, create_new_objects=False
+    void_small_1_id,
+    cs_axis="Z",
+    angle="360deg/SymmetryFactor",
+    nclones=2,
+    create_new_objects=False,
 )
 
 void_big_1_id = mod_2d.create_circle(
@@ -469,7 +498,11 @@ slot_OM_id = mod_2d.create_polyline(
 m2d.modeler.duplicate_and_mirror(
     objid=[slot_IM_id, slot_OM_id],
     position=[0, 0, 0],
-    vector=["cos((360deg/SymmetryFactor/2)+90deg)", "sin((360deg/SymmetryFactor/2)+90deg)", 0],
+    vector=[
+        "cos((360deg/SymmetryFactor/2)+90deg)",
+        "sin((360deg/SymmetryFactor/2)+90deg)",
+        0,
+    ],
 )
 
 id_holes = mod_2d.get_objects_w_string("slot_", case_sensitive=True)
@@ -507,7 +540,11 @@ mod_2d.split(object_list, plane="ZX", sides="PositiveOnly")
 pos_1 = "((DiaGap - (1.0 * Airgap))/4)"
 id_bc_1 = mod_2d.get_edgeid_from_position(position=[pos_1, 0, 0], obj_name="Region")
 id_bc_2 = mod_2d.get_edgeid_from_position(
-    position=[pos_1 + "*cos((360deg/SymmetryFactor))", pos_1 + "*sin((360deg/SymmetryFactor))", 0],
+    position=[
+        pos_1 + "*cos((360deg/SymmetryFactor))",
+        pos_1 + "*sin((360deg/SymmetryFactor))",
+        0,
+    ],
     obj_name="Region",
 )
 m2d.assign_master_slave(
@@ -532,7 +569,9 @@ id_bc_az = mod_2d.get_edgeid_from_position(
     ],
     obj_name="Region",
 )
-m2d.assign_vector_potential(input_edge=id_bc_az, vectorvalue=0, bound_name="VectorPotentialZero")
+m2d.assign_vector_potential(
+    input_edge=id_bc_az, vectorvalue=0, bound_name="VectorPotentialZero"
+)
 
 # ## Create excitations
 #
@@ -547,10 +586,16 @@ PhC_current = "IPeak * cos(2*pi * ElectricFrequency*time - 240deg+Theta_i)"
 # Define windings in phase A.
 
 m2d.assign_coil(
-    input_object=["Coil"], conductor_number=6, polarity="Positive", name="CT_Ph1_P2_C1_Go"
+    input_object=["Coil"],
+    conductor_number=6,
+    polarity="Positive",
+    name="CT_Ph1_P2_C1_Go",
 )
 m2d.assign_coil(
-    input_object=["Coil_5"], conductor_number=6, polarity="Negative", name="CT_Ph1_P2_C1_Ret"
+    input_object=["Coil_5"],
+    conductor_number=6,
+    polarity="Negative",
+    name="CT_Ph1_P2_C1_Ret",
 )
 m2d.assign_winding(
     coil_terminals=None,
@@ -560,17 +605,25 @@ m2d.assign_winding(
     parallel_branches=1,
     name="Phase_A",
 )
-m2d.add_winding_coils(windingname="Phase_A", coil_names=["CT_Ph1_P2_C1_Go", "CT_Ph1_P2_C1_Ret"])
+m2d.add_winding_coils(
+    windingname="Phase_A", coil_names=["CT_Ph1_P2_C1_Go", "CT_Ph1_P2_C1_Ret"]
+)
 
 # ## Define windings in phase B
 #
 # Define windings in phase B.
 
 m2d.assign_coil(
-    input_object="Coil_3", conductor_number=6, polarity="Positive", name="CT_Ph3_P1_C2_Go"
+    input_object="Coil_3",
+    conductor_number=6,
+    polarity="Positive",
+    name="CT_Ph3_P1_C2_Go",
 )
 m2d.assign_coil(
-    input_object="Coil_4", conductor_number=6, polarity="Positive", name="CT_Ph3_P1_C1_Go"
+    input_object="Coil_4",
+    conductor_number=6,
+    polarity="Positive",
+    name="CT_Ph3_P1_C1_Go",
 )
 m2d.assign_winding(
     coil_terminals=None,
@@ -580,17 +633,25 @@ m2d.assign_winding(
     parallel_branches=1,
     name="Phase_B",
 )
-m2d.add_winding_coils(windingname="Phase_B", coil_names=["CT_Ph3_P1_C2_Go", "CT_Ph3_P1_C1_Go"])
+m2d.add_winding_coils(
+    windingname="Phase_B", coil_names=["CT_Ph3_P1_C2_Go", "CT_Ph3_P1_C1_Go"]
+)
 
 # ## Define windings in phase C
 #
 # Define windings in phase C.
 
 m2d.assign_coil(
-    input_object="Coil_1", conductor_number=6, polarity="Negative", name="CT_Ph2_P2_C2_Ret"
+    input_object="Coil_1",
+    conductor_number=6,
+    polarity="Negative",
+    name="CT_Ph2_P2_C2_Ret",
 )
 m2d.assign_coil(
-    input_object="Coil_2", conductor_number=6, polarity="Negative", name="CT_Ph2_P2_C1_Ret"
+    input_object="Coil_2",
+    conductor_number=6,
+    polarity="Negative",
+    name="CT_Ph2_P2_C1_Ret",
 )
 m2d.assign_winding(
     coil_terminals=None,
@@ -600,7 +661,9 @@ m2d.assign_winding(
     parallel_branches=1,
     name="Phase_C",
 )
-m2d.add_winding_coils(windingname="Phase_C", coil_names=["CT_Ph2_P2_C2_Ret", "CT_Ph2_P2_C1_Ret"])
+m2d.add_winding_coils(
+    windingname="Phase_C", coil_names=["CT_Ph2_P2_C2_Ret", "CT_Ph2_P2_C1_Ret"]
+)
 
 # ## Assign total current on PMs
 #
@@ -614,9 +677,15 @@ for item in PM_list:
 #
 # Create the mesh operations.
 
-m2d.mesh.assign_length_mesh(id_coils, isinside=True, maxlength=3, maxel=None, meshop_name="coils")
-m2d.mesh.assign_length_mesh(stator_id, isinside=True, maxlength=3, maxel=None, meshop_name="stator")
-m2d.mesh.assign_length_mesh(rotor_id, isinside=True, maxlength=3, maxel=None, meshop_name="rotor")
+m2d.mesh.assign_length_mesh(
+    id_coils, isinside=True, maxlength=3, maxel=None, meshop_name="coils"
+)
+m2d.mesh.assign_length_mesh(
+    stator_id, isinside=True, maxlength=3, maxel=None, meshop_name="stator"
+)
+m2d.mesh.assign_length_mesh(
+    rotor_id, isinside=True, maxlength=3, maxel=None, meshop_name="rotor"
+)
 
 # ## Turn on eddy effects
 #
@@ -636,7 +705,9 @@ m2d.set_core_losses(core_loss_list, value=True)
 #
 # Compute the transient inductance.
 
-m2d.change_inductance_computation(compute_transient_inductance=True, incremental_matrix=False)
+m2d.change_inductance_computation(
+    compute_transient_inductance=True, incremental_matrix=False
+)
 
 # ## Set model depth
 #
@@ -735,8 +806,16 @@ post_params = {"Moving1.Torque": "TorquePlots"}
 post_params_multiplot = {  # reports
     ("U_A", "U_B", "U_C", "Ui_A", "Ui_B", "Ui_C"): "PhaseVoltages",
     ("CoreLoss", "SolidLoss", "ArmatureOhmicLoss_DC"): "Losses",
-    ("InputCurrent(Phase_A)", "InputCurrent(Phase_B)", "InputCurrent(Phase_C)"): "PhaseCurrents",
-    ("FluxLinkage(Phase_A)", "FluxLinkage(Phase_B)", "FluxLinkage(Phase_C)"): "PhaseFluxes",
+    (
+        "InputCurrent(Phase_A)",
+        "InputCurrent(Phase_B)",
+        "InputCurrent(Phase_C)",
+    ): "PhaseCurrents",
+    (
+        "FluxLinkage(Phase_A)",
+        "FluxLinkage(Phase_B)",
+        "FluxLinkage(Phase_C)",
+    ): "PhaseFluxes",
     ("I_d", "I_q"): "Currents_dq",
     ("Flux_d", "Flux_q"): "Fluxes_dq",
     ("Ui_d", "Ui_q"): "InducedVoltages_dq",
@@ -836,7 +915,9 @@ m2d.post.plot_field_from_fieldplot(plot1.name, show=False)
 # Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
 # Plot the desired expression by using Matplotlib plot().
 
-solutions = m2d.post.get_solution_data(expressions="Moving1.Torque", primary_sweep_variable="Time")
+solutions = m2d.post.get_solution_data(
+    expressions="Moving1.Torque", primary_sweep_variable="Time"
+)
 # solutions.plot()
 
 # ## Retrieve the data magnitude of an expression

@@ -11,6 +11,7 @@
 
 import os
 import tempfile
+
 import pyaedt
 
 # Set constant values
@@ -80,10 +81,18 @@ prim = app.modeler
 # in the environment.
 
 person1 = app.modeler.add_person(
-    input_dir=person_folder, speed=1.0, global_offset=[25, 1.5, 0], yaw=180, name="Massimo"
+    input_dir=person_folder,
+    speed=1.0,
+    global_offset=[25, 1.5, 0],
+    yaw=180,
+    name="Massimo",
 )
 person2 = app.modeler.add_person(
-    input_dir=person_folder, speed=1.0, global_offset=[25, 2.5, 0], yaw=180, name="Devin"
+    input_dir=person_folder,
+    speed=1.0,
+    global_offset=[25, 2.5, 0],
+    yaw=180,
+    name="Devin",
 )
 car1 = app.modeler.add_vehicle(
     input_dir=car_folder, speed=8.7, global_offset=[3, -2.5, 0], name="LuxuryCar"
@@ -141,7 +150,9 @@ app.validate_simple()
 # Plot the model.
 
 app.plot(
-    show=False, export_path=os.path.join(app.working_directory, "Image.jpg"), plot_air_objects=True
+    show=False,
+    export_path=os.path.join(app.working_directory, "Image.jpg"),
+    plot_air_objects=True,
 )
 
 # ## Solve and release AEDT

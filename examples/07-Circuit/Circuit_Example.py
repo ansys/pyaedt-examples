@@ -12,6 +12,7 @@
 import os
 import tempfile
 import time
+
 import pyaedt
 
 # Set constant values
@@ -53,9 +54,15 @@ setup1.props["SweepDefinition"]["Data"] = "LINC 0GHz 4GHz 10001"
 # Place components such as an inductor, resistor, and capacitor. The ``location`` argument
 # provides the ``[x, y]`` coordinates to place the component.
 
-inductor = circuit.modeler.schematic.create_inductor(name="L1", value=1e-9, location=[0, 0])
-resistor = circuit.modeler.schematic.create_resistor(name="R1", value=50, location=[500, 0])
-capacitor = circuit.modeler.schematic.create_capacitor(name="C1", value=1e-12, location=[1000, 0])
+inductor = circuit.modeler.schematic.create_inductor(
+    name="L1", value=1e-9, location=[0, 0]
+)
+resistor = circuit.modeler.schematic.create_resistor(
+    name="R1", value=50, location=[500, 0]
+)
+capacitor = circuit.modeler.schematic.create_capacitor(
+    name="C1", value=1e-12, location=[1000, 0]
+)
 
 #  ## Get all pins
 #
@@ -71,7 +78,9 @@ capacitor = circuit.modeler.schematic.create_capacitor(name="C1", value=1e-12, l
 #
 # Place a port and a ground in the schematic.
 
-port = circuit.modeler.components.create_interface_port(name="myport", location=[-300, 50])
+port = circuit.modeler.components.create_interface_port(
+    name="myport", location=[-300, 50]
+)
 gnd = circuit.modeler.components.create_gnd(location=[1200, -100])
 
 # ## Connect components
@@ -88,7 +97,9 @@ capacitor.pins[1].connect_to_component(assignment=gnd.pins[0], use_wire=True)
 #
 # Create a transient setup.
 
-setup2 = circuit.create_setup(name="MyTransient", setup_type=circuit.SETUPS.NexximTransient)
+setup2 = circuit.create_setup(
+    name="MyTransient", setup_type=circuit.SETUPS.NexximTransient
+)
 setup2.props["TransientData"] = ["0.01ns", "200ns"]
 setup3 = circuit.create_setup(name="MyDC", setup_type=circuit.SETUPS.NexximDC)
 
@@ -130,7 +141,9 @@ time.sleep(3)
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes
+# all temporary files, including the project folder.
 
 temp_dir.cleanup()  # Remove project folder and temporary files.

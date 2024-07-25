@@ -62,7 +62,7 @@ as a Jupyter Notebook if you open it using the jupytext plugin.
 #
 # You may want to add keywords to your example. Comments
 # in the notebook are rendered using Markdown.
-# 
+#
 # Keywords: **HFSS**, **flex cable**, **CPWG**.
 
 # ## Perform required imports
@@ -101,7 +101,7 @@ hfss = pyaedt.Hfss(
 # ## Add code
 #
 # This is where you write the code for your example. Use Markdown
-# to create header cells and add a description of what is done in each cell. 
+# to create header cells and add a description of what is done in each cell.
 # You can also
 # add in-line comments if you feel a given command
 # needs further clarification.
@@ -112,12 +112,14 @@ print(my_var)
 # ## Release AEDT
 #
 # At the end of the example, release the application. Use the following cells
-# so the user of the example knows how to save the project data for 
+# so the user of the example knows how to save the project data for
 # later use if needed.
 
 hfss.save_project()
 hfss.release_desktop()
-time.sleep(3)  # Allow Elctronics Desktop to shut down before cleaning the temporary project folder.
+time.sleep(
+    3
+)  # Allow Electronics Desktop to shut down before cleaning the temporary project folder.
 
 # ## Cleanup
 #
@@ -125,5 +127,4 @@ time.sleep(3)  # Allow Elctronics Desktop to shut down before cleaning the tempo
 # can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 temp_dir.cleanup()
-
 ```

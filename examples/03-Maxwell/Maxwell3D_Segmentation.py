@@ -34,7 +34,9 @@ non_graphical = False
 # Set local temporary folder to export the .aedt file to.
 
 aedt_file = downloads.download_file(
-    directory="object_segmentation", filename="Motor3D_obj_segments.aedt", destination=temp_dir.name
+    directory="object_segmentation",
+    filename="Motor3D_obj_segments.aedt",
+    destination=temp_dir.name,
 )
 
 # ## Launch Maxwell 3D
@@ -66,7 +68,10 @@ modeler = m3d.modeler
 segments_number = 2
 object_name = "PM_I1"
 sheets_1 = modeler.objects_segmentation(
-    object_name, segments_number=segments_number, apply_mesh_sheets=True, mesh_sheets_number=3
+    object_name,
+    segments_number=segments_number,
+    apply_mesh_sheets=True,
+    mesh_sheets_number=3,
 )
 
 # ## Segment second magnet by specifying the number of segments

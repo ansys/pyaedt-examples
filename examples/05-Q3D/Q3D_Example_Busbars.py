@@ -9,6 +9,7 @@
 
 import os
 import tempfile
+
 import pyaedt
 
 # Set constant values
@@ -70,12 +71,19 @@ q3d.modeler.create_polyline(
 q3d.modeler["Bar3"].color = (0, 0, 255)
 
 q3d.modeler.create_box(
-    origin=[50, 30, -0.5], sizes=[-250, -100, -3], name="substrate", material="FR4_epoxy"
+    origin=[50, 30, -0.5],
+    sizes=[-250, -100, -3],
+    name="substrate",
+    material="FR4_epoxy",
 )
 q3d.modeler["substrate"].color = (128, 128, 128)
 q3d.modeler["substrate"].transparency = 0.8
 
-q3d.plot(show=False, output_file=os.path.join(temp_dir.name, "Q3D.jpg"), plot_air_objects=False)
+q3d.plot(
+    show=False,
+    output_file=os.path.join(temp_dir.name, "Q3D.jpg"),
+    plot_air_objects=False,
+)
 # -
 
 # Identify nets and assign sources and sinks to all nets.
@@ -116,7 +124,9 @@ sweep.update()
 #
 # Specify the traces that will be displayed after solving the model.
 
-data_plot_self = q3d.matrices[0].get_sources_for_plot(get_self_terms=True, get_mutual_terms=False)
+data_plot_self = q3d.matrices[0].get_sources_for_plot(
+    get_self_terms=True, get_mutual_terms=False
+)
 data_plot_mutual = q3d.get_traces_for_plot(
     get_self_terms=False, get_mutual_terms=True, category="C"
 )
@@ -124,7 +134,9 @@ data_plot_mutual = q3d.get_traces_for_plot(
 # Define a plot and a data table in Electronics Desktop for visualizing results.
 
 q3d.post.create_report(expressions=data_plot_self)
-q3d.post.create_report(expressions=data_plot_mutual, context="Original", plot_type="Data Table")
+q3d.post.create_report(
+    expressions=data_plot_mutual, context="Original", plot_type="Data Table"
+)
 
 # ## Analyze
 #
@@ -149,7 +161,9 @@ q3d.release_desktop(close_projects=True, close_desktop=True)
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes
+# all temporary files, including the project folder.
 
 temp_dir.cleanup()

@@ -14,11 +14,12 @@ import csv
 import os
 import tempfile
 
-from IPython.display import Image
 import matplotlib as mpl
+import pyaedt
+from IPython.display import Image
 from matplotlib import cm
 from matplotlib import pyplot as plt
-import pyaedt
+
 # -
 
 # Set constant values
@@ -75,12 +76,18 @@ board = ipk.modeler.create_box(
 # Every row of the csv has information of a particular block.
 
 # +
-filename = pyaedt.downloads.download_file("icepak", "blocks-list.csv", destination=temp_folder.name)
+filename = pyaedt.downloads.download_file(
+    "icepak", "blocks-list.csv", destination=temp_folder.name
+)
 
 with open(filename, "r") as csv_file:
     csv_reader = csv.DictReader(csv_file)
     for row in csv_reader:
-        origin = [float(row["xs"]), float(row["ys"]), float(row["zs"])]  # block starting point
+        origin = [
+            float(row["xs"]),
+            float(row["ys"]),
+            float(row["zs"]),
+        ]  # block starting point
         dimensions = [
             float(row["xd"]),
             float(row["yd"]),
@@ -127,7 +134,9 @@ with open(filename, "r") as csv_file:
         # column of the csv file
         if row["Monitor_point"] == "1":
             ipk.monitor.assign_point_monitor_in_object(
-                name=row["name"], monitor_quantity="Temperature", monitor_name=row["name"]
+                name=row["name"],
+                monitor_quantity="Temperature",
+                monitor_name=row["name"],
             )
 # -
 
@@ -147,14 +156,18 @@ pyvista_plot.show_legend = False
 # Set the colormap to use
 
 cmap = plt.get_cmap("viridis")
-norm = mpl.colors.Normalize(vmin=min(power_budget.values()), vmax=max(power_budget.values()))
+norm = mpl.colors.Normalize(
+    vmin=min(power_budget.values()), vmax=max(power_budget.values())
+)
 scalarMap = cm.ScalarMappable(norm=norm, cmap=cmap)
 
 # Apply the color based on the power assigned and the colormap
 
 for actor in pyvista_plot.objects:
     if actor.name in power_budget:
-        actor.color = [int(i * 255) for i in scalarMap.to_rgba(power_budget[actor.name])[0:3]]
+        actor.color = [
+            int(i * 255) for i in scalarMap.to_rgba(power_budget[actor.name])[0:3]
+        ]
         actor.opacity = 1
 
 # Generate the plot and export

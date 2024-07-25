@@ -35,22 +35,34 @@ aedt_file = downloads.download_file(
     destination=temp_dir.name,
 )
 freq_curve_csv_25kHz = downloads.download_file(
-    directory="core_loss_transformer", filename="mf3_25kHz.csv", destination=temp_dir.name
+    directory="core_loss_transformer",
+    filename="mf3_25kHz.csv",
+    destination=temp_dir.name,
 )
 freq_curve_csv_100kHz = downloads.download_file(
-    directory="core_loss_transformer", filename="mf3_100kHz.csv", destination=temp_dir.name
+    directory="core_loss_transformer",
+    filename="mf3_100kHz.csv",
+    destination=temp_dir.name,
 )
 freq_curve_csv_200kHz = downloads.download_file(
-    directory="core_loss_transformer", filename="mf3_200kHz.csv", destination=temp_dir.name
+    directory="core_loss_transformer",
+    filename="mf3_200kHz.csv",
+    destination=temp_dir.name,
 )
 freq_curve_csv_400kHz = downloads.download_file(
-    directory="core_loss_transformer", filename="mf3_400kHz.csv", destination=temp_dir.name
+    directory="core_loss_transformer",
+    filename="mf3_400kHz.csv",
+    destination=temp_dir.name,
 )
 freq_curve_csv_700kHz = downloads.download_file(
-    directory="core_loss_transformer", filename="mf3_700kHz.csv", destination=temp_dir.name
+    directory="core_loss_transformer",
+    filename="mf3_700kHz.csv",
+    destination=temp_dir.name,
 )
 freq_curve_csv_1MHz = downloads.download_file(
-    directory="core_loss_transformer", filename="mf3_1MHz.csv", destination=temp_dir.name
+    directory="core_loss_transformer",
+    filename="mf3_1MHz.csv",
+    destination=temp_dir.name,
 )
 
 data = read_csv_pandas(filename=freq_curve_csv_25kHz)
@@ -86,11 +98,21 @@ m3d = Maxwell3d(
 # retrieved from datasheet provided by supplier and finally set Power-Ferrite core loss model.
 
 mat = m3d.materials.add_material("newmat")
-freq_25kHz = unit_converter(25, unit_system="Freq", input_units="kHz", output_units="Hz")
-freq_100kHz = unit_converter(100, unit_system="Freq", input_units="kHz", output_units="Hz")
-freq_200kHz = unit_converter(200, unit_system="Freq", input_units="kHz", output_units="Hz")
-freq_400kHz = unit_converter(400, unit_system="Freq", input_units="kHz", output_units="Hz")
-freq_700kHz = unit_converter(700, unit_system="Freq", input_units="kHz", output_units="Hz")
+freq_25kHz = unit_converter(
+    25, unit_system="Freq", input_units="kHz", output_units="Hz"
+)
+freq_100kHz = unit_converter(
+    100, unit_system="Freq", input_units="kHz", output_units="Hz"
+)
+freq_200kHz = unit_converter(
+    200, unit_system="Freq", input_units="kHz", output_units="Hz"
+)
+freq_400kHz = unit_converter(
+    400, unit_system="Freq", input_units="kHz", output_units="Hz"
+)
+freq_700kHz = unit_converter(
+    700, unit_system="Freq", input_units="kHz", output_units="Hz"
+)
 pv = {
     freq_25kHz: curves_csv_25kHz,
     freq_100kHz: curves_csv_100kHz,

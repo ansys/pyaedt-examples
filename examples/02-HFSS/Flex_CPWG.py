@@ -9,11 +9,12 @@
 #
 # Perform required imports.
 
-from math import cos, radians, sin, sqrt
 import os
 import tempfile
-import pyaedt
 import time
+from math import cos, radians, sin, sqrt
+
+import pyaedt
 
 # Set constant values
 
@@ -160,7 +161,9 @@ for face, blockname in zip([fr4.top_face_z, fr4.bottom_face_x], ["b1", "b2"]):
     port_sheet_list = [
         ((x - xc) * 10 + xc, (y - yc) + yc, (z - zc) * 10 + zc) for x, y, z in positions
     ]
-    s = hfss.modeler.create_polyline(port_sheet_list, close_surface=True, cover_surface=True)
+    s = hfss.modeler.create_polyline(
+        port_sheet_list, close_surface=True, cover_surface=True
+    )
     center = [round(i, 6) for i in s.faces[0].center]
 
     port_block = hfss.modeler.thicken_sheet(s.name, -5)
@@ -230,11 +233,16 @@ my_plot.plot(
 
 hfss.save_project()
 hfss.release_desktop()
-time.sleep(3)  # Allow Elctronics Desktop to shut down before cleaning the temporary project folder.
+time.sleep(
+    3
+)  # Allow Electronics Desktop to shut down before cleaning the temporary project folder.
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this
+# example as a Jupyter notebook you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
 temp_dir.cleanup()

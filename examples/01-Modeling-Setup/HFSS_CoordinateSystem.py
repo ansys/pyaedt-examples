@@ -6,8 +6,9 @@
 # Import the required packages
 
 import tempfile
-import pyaedt
 import time
+
+import pyaedt
 
 # Define constants
 
@@ -20,9 +21,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch AEDT
 
-d = pyaedt.launch_desktop(
-    version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True
-)
+d = pyaedt.launch_desktop(version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True)
 
 # ## Insert HFSS design
 #
@@ -87,7 +86,11 @@ cs1.delete()
 # specify all coordinate system properties.
 
 cs2 = hfss.modeler.create_coordinate_system(
-    name="CS2", origin=[1, 2, 3.5], mode="axis", x_pointing=[1, 0, 1], y_pointing=[0, -1, 0]
+    name="CS2",
+    origin=[1, 2, 3.5],
+    mode="axis",
+    x_pointing=[1, 0, 1],
+    y_pointing=[0, -1, 0],
 )
 
 # ## Create coordinate system by defining Euler angles
@@ -114,7 +117,9 @@ cs4 = hfss.modeler.create_coordinate_system(
 # specify the axis and angle rotation, this data is automatically translated
 # to Euler angles.
 
-cs5 = hfss.modeler.create_coordinate_system(name="CS5", mode="axisrotation", u=[1, 0, 0], theta=123)
+cs5 = hfss.modeler.create_coordinate_system(
+    name="CS5", mode="axisrotation", u=[1, 0, 0], theta=123
+)
 
 # ## Create face coordinate system
 #
@@ -147,7 +152,7 @@ fcs3 = hfss.modeler.create_face_coordinate_system(
     face=face, origin=face, axis_position=face.edges[0], axis="Y"
 )
 
-# The face coordinate system can also be rotated by changing the 
+# The face coordinate system can also be rotated by changing the
 # reference axis.
 
 fcs3.props["WhichAxis"] = "X"
@@ -182,7 +187,7 @@ fcs5.props["YOffset"] = "0.1mm"
 # ## Create another coordinate system relative to face coordinate system
 #
 # The use of dependent coordinate systems can simplify model creation. The following
-# cell demonstrates how to create a coordinate system whose reference is the face coodinate system.
+# cell demonstrates how to create a coordinate system whose reference is the face coordinate system.
 
 face = box.faces[1]
 fcs6 = hfss.modeler.create_face_coordinate_system(
@@ -194,24 +199,38 @@ cs_fcs = hfss.modeler.create_coordinate_system(
 
 # ## Create object coordinate systems
 #
-# A coordinate system can also be defined relative to elements belonging to an object. For example, the coordinate system can be connected to an object face.
+# A coordinate system can also be defined relative to elements
+# belonging to an object. For example, the coordinate system can be
+# connected to an object face.
 
 obj_cs = hfss.modeler.create_object_coordinate_system(
-    obj=box, origin=box.faces[0], x_axis=box.edges[0], y_axis=[0, 0, 0], name="box_obj_cs"
+    obj=box,
+    origin=box.faces[0],
+    x_axis=box.edges[0],
+    y_axis=[0, 0, 0],
+    name="box_obj_cs",
 )
 obj_cs.rename("new_obj_cs")
 
 # Create an object coordinate system whose origin is linked to the edge of an object.
 
 obj_cs_1 = hfss.modeler.create_object_coordinate_system(
-    obj=box.name, origin=box.edges[0], x_axis=[1, 0, 0], y_axis=[0, 1, 0], name="obj_cs_1"
+    obj=box.name,
+    origin=box.edges[0],
+    x_axis=[1, 0, 0],
+    y_axis=[0, 1, 0],
+    name="obj_cs_1",
 )
 obj_cs_1.set_as_working_cs()
 
 # Create object coordinate system with origin specified on a point within an object.
 
 obj_cs_2 = hfss.modeler.create_object_coordinate_system(
-    obj=box.name, origin=[0, 0.8, 0], x_axis=[1, 0, 0], y_axis=[0, 1, 0], name="obj_cs_2"
+    obj=box.name,
+    origin=[0, 0.8, 0],
+    x_axis=[1, 0, 0],
+    y_axis=[0, 1, 0],
+    name="obj_cs_2",
 )
 new_obj_cs_2 = hfss.modeler.duplicate_coordinate_system_to_global(obj_cs_2)
 obj_cs_2.delete()
@@ -219,7 +238,11 @@ obj_cs_2.delete()
 # Create object coordinate system with origin on vertex.
 
 obj_cs_3 = hfss.modeler.create_object_coordinate_system(
-    obj=box.name, origin=box.vertices[1], x_axis=box.faces[2], y_axis=box.faces[4], name="obj_cs_3"
+    obj=box.name,
+    origin=box.vertices[1],
+    x_axis=box.faces[2],
+    y_axis=box.faces[4],
+    name="obj_cs_3",
 )
 obj_cs_3.props["MoveToEnd"] = False
 obj_cs_3.update()
