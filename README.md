@@ -46,7 +46,7 @@ be rendered and run in [Jupyter Lab](https://docs.jupyter.org/en/latest/) as Not
   ```
   Notebook files can be opened, edited and run from within Jupyter using _right click > Open With > Jupytext Notebook_.
 
-## Example Template
+### Example Template
 
 You can refer to other examples or use the following 
 [template](./examples/Template/Example_Template.py)
