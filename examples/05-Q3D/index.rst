@@ -8,8 +8,6 @@ Q3D Extractor. This includes model generation, setup, and thermal postprocessing
     Q2D_Armoured_Cable.py
     Q2D_Example_CPWG.py
     Q2D_Example_Stripline.py
-    .. 
-      Q3D_DC_IR.py
+    Q3D_DC_IR.py
     Q3D_Example_Busbars.py
-    .. 
-      Q3D_from_EDB.py
+    Q3D_from_EDB.py
