@@ -8,30 +8,25 @@
 # Keywords: **HFSS**, **antenna array**, **far field**.
 
 
-# ## Perform required imports
-#
-# Perform required imports.
+# ## Preparation
+# Import the required packages
 
 import os
 import tempfile
+import time
+
 import pyaedt
 from pyaedt.modules.solutions import FfdSolutionData
 
-# Set constant values
+# Define constants.
 
 AEDT_VERSION = "2024.1"
 NUM_CORES = 4
-
-# ## Set non-graphical mode
-#
-# Set non-graphical mode.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
-
-non_graphical = False
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary directory
 
-temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Download 3D component
 # Download the 3D component that is needed to run the example.
@@ -42,22 +37,26 @@ example_path = pyaedt.downloads.download_3dcomponent(destination=temp_dir.name)
 #
 # Launch HFSS and open the project.
 
-project_name = pyaedt.generate_unique_project_name(rootname=temp_dir.name, project_name="array")
+# +
+project_name = os.path.join(temp_dir.name, "array.aedt")
 hfss = pyaedt.Hfss(
     project=project_name,
     version=AEDT_VERSION,
     design="Array_Simple",
-    non_graphical=non_graphical,
+    non_graphical=NG_MODE,
     new_desktop=True,
 )
 
 print("Project name " + project_name)
+# -
 
 # ## Read array definition from JSON file
 #
 # Read JSON file.
 
-dict_in = pyaedt.general_methods.read_json(os.path.join(example_path, "array_simple.json"))
+dict_in = pyaedt.general_methods.read_json(
+    os.path.join(example_path, "array_simple.json")
+)
 
 # ## 3D Component definition
 #
@@ -91,7 +90,6 @@ array.cells[2][2].rotation = 90
 setup = hfss.create_setup()
 setup.props["Frequency"] = "5GHz"
 setup.props["MaximumPasses"] = 3
-
 hfss.analyze(num_cores=NUM_CORES)
 
 
@@ -120,8 +118,11 @@ ffdata.plot_farfield_contour(
 eep_file = ffdata.eep_files
 frequencies = ffdata.frequencies
 working_directory = hfss.working_directory
-
+hfss.save_project()
 hfss.release_desktop()
+time.sleep(
+    3
+)  # Allow Electronics Desktop to shut down before cleaning the temporary project folder.
 
 # ## Load far field data
 #
@@ -166,6 +167,11 @@ ffdata.plot_2d_cut(
 
 ffdata.polar_plot_3d(farfield_quantity="RealizedGain")
 
-# ## Clean temporary directory
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
 temp_dir.cleanup()

@@ -9,30 +9,31 @@
 #
 # Keywords: **HFSS**, **3D Component**.
 
-# ## Perform required imports
-#
-# Perform required imports.
+# ## Preparation
+# Import the required packages
 
 import os
 import tempfile
+import time
 
 from pyaedt import Hfss
-from pyaedt.generic.general_methods import generate_unique_name
 
 # Set constant values
 
 AEDT_VERSION = "2024.1"
-
-# ## Create temporary directory
-
-temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Launch AEDT
 #
 # Launch AEDT, create an HFSS design, and save the project.
 
-hfss = Hfss(version=AEDT_VERSION, new_desktop=True, close_on_exit=True)
-hfss.save_project(os.path.join(temp_dir.name, generate_unique_name("example") + ".aedt"))
+hfss = Hfss(
+    version=AEDT_VERSION,
+    new_desktop=True,
+    close_on_exit=True,
+    non_graphical=NG_MODE,
+)
+hfss.save_project(os.path.join(temp_dir.name, "example.aedt"))
 
 # ## Variable definition
 #
@@ -49,7 +50,10 @@ hfss["width"] = "1mm"
 
 # +
 substrate = hfss.modeler.create_box(
-    ["-width", "-width", "-thick"], ["2*width", "2*width", "thick"], matname="FR4_epoxy", name="sub"
+    ["-width", "-width", "-thick"],
+    ["2*width", "2*width", "thick"],
+    matname="FR4_epoxy",
+    name="sub",
 )
 
 patch = hfss.modeler.create_rectangle(
@@ -57,7 +61,12 @@ patch = hfss.modeler.create_rectangle(
 )
 
 via1 = hfss.modeler.create_cylinder(
-    2, ["-width/8", "-width/4", "-thick"], "0.01mm", "thick", matname="copper", name="via_inner"
+    2,
+    ["-width/8", "-width/4", "-thick"],
+    "0.01mm",
+    "thick",
+    matname="copper",
+    name="via_inner",
 )
 
 via_outer = hfss.modeler.create_cylinder(
@@ -84,7 +93,9 @@ hfss.assign_perfecte_to_sheets(patch)
 
 # +
 side_face = [
-    i for i in via_outer.faces if i.id not in [via_outer.top_face_z.id, via_outer.bottom_face_z.id]
+    i
+    for i in via_outer.faces
+    if i.id not in [via_outer.top_face_z.id, via_outer.bottom_face_z.id]
 ]
 
 hfss.assign_perfecte_to_sheets(side_face)
@@ -106,14 +117,14 @@ hfss.wave_port(
 # Multiple options are available to partially select objects, cs, boundaries and mesh operations.
 # Furthermore, encrypted 3d comp can be created too.
 
-component_path = os.path.join(temp_dir.name, generate_unique_name("component_test") + ".aedbcomp")
+component_path = os.path.join(temp_dir.name, "component_test.aedbcomp")
 hfss.modeler.create_3dcomponent(component_path, "patch_antenna")
 
 # ## Multiple project management
 #
 # PyAEDT allows to control multiple projects, design and solution type at the same time.
 
-new_project = os.path.join(temp_dir.name, generate_unique_name("new_project") + ".aedt")
+new_project = os.path.join(temp_dir.name, "new_project.aedt")
 hfss2 = Hfss(project=new_project, design="new_design")
 
 # ## Insert 3D component
@@ -171,8 +182,17 @@ hfss2.plot(
 
 # ## Release AEDT
 
+hfss2.save_project()
 hfss2.release_desktop()
+time.sleep(
+    3
+)  # Allow Electronics Desktop to shut down before cleaning the temporary project folder.
 
-# ## Clean temporary directory
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes
+# all temporary files, including the project folder.
 
 temp_dir.cleanup()
