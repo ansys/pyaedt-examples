@@ -18,14 +18,8 @@ from pyaedt import Hfss, downloads
 
 AEDT_VERSION = "2024.1"
 NUM_CORES = 4
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
-
-# ## Set non-graphical mode
-#
-# Set non-graphical mode.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
-
-non_graphical = False
 
 # ## Create temporary directory
 
@@ -41,7 +35,7 @@ project_file = downloads.download_sbr_time(destination=temp_dir.name)
 hfss = Hfss(
     project=project_file,
     version=AEDT_VERSION,
-    non_graphical=non_graphical,
+    non_graphical=NG_MODE,
     new_desktop=True,
 )
 
@@ -93,8 +87,12 @@ hfss.post.plot_scene(
 #
 # Release AEDT and close the example.
 
+hfss.save_project()
 hfss.release_desktop()
 
-# ## Clean temporary directory
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 temp_dir.cleanup()
