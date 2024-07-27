@@ -232,7 +232,7 @@ solutions.plot()
 # Save the project, release AEDT and remove both the project and temporary directory.
 
 # > **Note:** All project files are saved in the folder ``temp_file.dir``.
-# > If you've run this example as a Jupyter notbook you  can retrieve those project files.
+# > If you've run this example as a Jupyter notebook you  can retrieve those project files.
 # > The following cell removes all temporary files, including the project folder.
 
 # +
