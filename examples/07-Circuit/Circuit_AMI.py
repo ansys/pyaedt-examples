@@ -14,15 +14,16 @@ import os
 import tempfile
 import time
 
-from matplotlib import pyplot as plt
 import numpy as np
 import pyaedt
+from matplotlib import pyplot as plt
 
 # -
 
 # Set constant values
 
 AEDT_VERSION = "2024.1"
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Download Example Data
 #
@@ -42,22 +43,6 @@ project_path = pyaedt.downloads.download_file(
     "ami", name="ami_usb.aedtz", destination=temp_dir.name
 )
 
-# ## Launch AEDT
-#
-# Launch AEDT in graphical mode. This example uses SI units.
-
-desktopVersion = AEDT_VERSION
-
-# ## Set non-graphical mode
-#
-# Set non-graphical mode.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
-# The Boolean parameter ``new_thread`` defines whether to create a new instance
-# of AEDT or try to connect to an existing instance of it.
-
-non_graphical = False
-NewThread = True
-
 # ## Launch AEDT with Circuit and enable Pandas as the output format
 #
 # All outputs obtained with the `get_solution_data` method will have the
@@ -68,9 +53,9 @@ NewThread = True
 pyaedt.settings.enable_pandas_output = True
 circuit = pyaedt.Circuit(
     project=os.path.join(project_path),
-    non_graphical=non_graphical,
-    version=desktopVersion,
-    new_desktop=NewThread,
+    non_graphical=NG_MODE,
+    version=AEDT_VERSION,
+    new_desktop=True,
 )
 
 # ## Solve AMI setup
@@ -132,10 +117,16 @@ sample_waveform = circuit.post.sample_ami_waveform(
 tstop = 55e-9
 tstart = 50e-9
 scale_time = pyaedt.constants.unit_converter(
-    1, unit_system="Time", input_units="s", output_units=original_data.units_sweeps["Time"]
+    1,
+    unit_system="Time",
+    input_units="s",
+    output_units=original_data.units_sweeps["Time"],
 )
 scale_data = pyaedt.constants.unit_converter(
-    1, unit_system="Voltage", input_units="V", output_units=original_data.units_data[plot_name]
+    1,
+    unit_system="Voltage",
+    input_units="V",
+    output_units=original_data.units_data[plot_name],
 )
 
 tstop_ns = scale_time * tstop
@@ -160,13 +151,23 @@ for time_value in sample_waveform[0].index:
         stop_index_waveform = sample_index.tolist().index(True)
         break
 
-original_data_zoom = original_data_value[start_index_original_data:stop_index_original_data]
-sampled_data_zoom = sample_waveform[0].values[start_index_waveform:stop_index_waveform] * scale_data
-sampled_time_zoom = sample_waveform[0].index[start_index_waveform:stop_index_waveform] * scale_time
+original_data_zoom = original_data_value[
+    start_index_original_data:stop_index_original_data
+]
+sampled_data_zoom = (
+    sample_waveform[0].values[start_index_waveform:stop_index_waveform] * scale_data
+)
+sampled_time_zoom = (
+    sample_waveform[0].index[start_index_waveform:stop_index_waveform] * scale_time
+)
 
 fig, ax = plt.subplots()
 ax.plot(sampled_time_zoom, sampled_data_zoom, "r*")
-ax.plot(np.array(list(original_data_zoom.index.values)), original_data_zoom.values, color="blue")
+ax.plot(
+    np.array(list(original_data_zoom.index.values)),
+    original_data_zoom.values,
+    color="blue",
+)
 ax.set_title("WaveAfterProbe")
 ax.set_xlabel(original_data.units_sweeps["Time"])
 ax.set_ylabel(original_data.units_data[plot_name])
@@ -268,11 +269,19 @@ for frame in sample_waveform[start_index_waveform:]:
         break
     cont += 1
 
-original_data_zoom = original_data_value[start_index_original_data:stop_index_original_data]
-original_sweep_zoom = original_data_sweep[start_index_original_data:stop_index_original_data]
-original_data_zoom_array = np.array(list(map(list, zip(original_sweep_zoom, original_data_zoom))))
+original_data_zoom = original_data_value[
+    start_index_original_data:stop_index_original_data
+]
+original_sweep_zoom = original_data_sweep[
+    start_index_original_data:stop_index_original_data
+]
+original_data_zoom_array = np.array(
+    list(map(list, zip(original_sweep_zoom, original_data_zoom)))
+)
 original_data_zoom_array[:, 0] *= 1
-sampled_data_zoom_array = np.array(sample_waveform[start_index_waveform:stop_index_waveform])
+sampled_data_zoom_array = np.array(
+    sample_waveform[start_index_waveform:stop_index_waveform]
+)
 sampled_data_zoom_array[:, 0] *= scale_time
 sampled_data_zoom_array[:, 1] *= scale_data
 
@@ -301,10 +310,17 @@ plt.show()
 #
 # Save the project and close AEDT.
 
+# +
 circuit.save_project()
 print("Project Saved in {}".format(circuit.project_path))
 
 circuit.release_desktop()
 time.sleep(3)
+# -
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 temp_dir.cleanup()  # Remove project folder and temporary files.
