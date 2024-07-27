@@ -8,21 +8,23 @@
 import os
 import tempfile
 import time
+
 from pyaedt import Edb
 from pyaedt.downloads import download_file
 
-EDB_VERSION = "2024.1"
+# Set constants.
+
+AEDT_VERSION = "2024.1"
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # Download the example PCB data.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
-aedb = download_file(
-    source="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name
-)
+aedb = download_file(source="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name)
 
 # ## Launch EDB
 
-edbapp = Edb(edbpath=aedb, edbversion=EDB_VERSION)
+edbapp = Edb(edbpath=aedb, edbversion=AEDT_VERSION)
 
 # ## Create a cutout
 # The following assignments will define the region of the PCB to be cut out for analysis.
@@ -43,15 +45,27 @@ edbapp.nets.plot(None, None, color_by_net=True)
 # ## Export layout as a IPC2581 file.
 
 edbapp.export_to_ipc2581(
-    ipc_path=os.path.join(temp_folder.name, "ANSYS-HSD_V1.xml"),
-    units="inch"
+    ipc_path=os.path.join(temp_folder.name, "ANSYS-HSD_V1.xml"), units="inch"
 )
 
-# ## Close EDB
+# ## Close EDB and clean up the temporary directory
+#
+# All project files are saved in the folder ``temp_file.dir``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes
+# all temporary files, including the project folder.
 
 edbapp.close_edb()
+time.sleep(
+    3
+)  # Allow Electronics desktop to shut down before deleting the project files.
 
-# ## Clean up the temporary directory
 
-time.sleep(3)
-temp_folder.cleanup()
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
+
+temp_dir.cleanup()

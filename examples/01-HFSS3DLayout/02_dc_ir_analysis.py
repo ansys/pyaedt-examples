@@ -1,5 +1,6 @@
 # # HFSS 3D Layout: DC IR Analysis
-# This example shows how to configure EDB for DC IR analysis, and load EDB into the 3D Layout UI for analysis and
+# This example shows how to configure EDB for DC IR analysis, and load EDB
+# into the 3D Layout UI for analysis and
 # post-processing.
 #
 # - Set up EDB
@@ -8,7 +9,7 @@
 #     - Assign SPICE model to components
 #     - Create pin groups
 #     - Create voltage and current sources
-#     - Create SIwave DC anaylsis
+#     - Create SIwave DC analysis
 #     - Create cutout
 #
 # - Import EDB into HFSS 3D Layout
@@ -20,29 +21,28 @@
 # # Preparation
 # Import required packages
 
-# +
-import os
 import json
+import os
 import tempfile
 import time
-from pyedb import Edb
+
 from pyaedt import Hfss3dLayout
 from pyaedt.downloads import download_file
-# -
+from pyedb import Edb
 
-# Set constant values
+# Set constants.
 
 AEDT_VERSION = "2024.1"
 NG_MODE = False
 
-# Download example board.
+# ## Download the project file
+#
+# The files required to run this example will be downloaded to the temporary working folder.
 
-temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
-aedb = download_file(
-    source="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name
-)
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+aedb = download_file(source="edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
 download_file(
-    source="spice", name="ferrite_bead_BLM15BX750SZ1.mod", destination=temp_folder.name
+    source="spice", name="ferrite_bead_BLM15BX750SZ1.mod", destination=temp_dir.name
 )
 
 # # Create a configuration file
@@ -54,19 +54,15 @@ cfg = dict()
 # Define model library paths.
 
 cfg["general"] = {
-    "s_parameter_library": os.path.join(temp_folder.name, "touchstone"),
-    "spice_model_library": os.path.join(temp_folder.name, "spice")
+    "s_parameter_library": os.path.join(temp_dir.name, "touchstone"),
+    "spice_model_library": os.path.join(temp_dir.name, "spice"),
 }
 
 # ## Change via hole size and plating thickness
 
 cfg["padstacks"] = {
     "definitions": [
-        {
-            "name": "v40h15-3",
-            "hole_diameter": "0.2mm",
-            "hole_plating_thickness": "25um"
-        }
+        {"name": "v40h15-3", "hole_diameter": "0.2mm", "hole_plating_thickness": "25um"}
     ],
 }
 
@@ -78,9 +74,9 @@ cfg["spice_models"] = [
         "component_definition": "COIL-1008CS_V",  # Part name of the components
         "file_path": "ferrite_bead_BLM15BX750SZ1.mod",  # File name or full file path to the SPICE file.
         "sub_circuit_name": "BLM15BX750SZ1",
-        "apply_to_all": True,  # If True, SPICE model is to be assigned to all components share the same part name.
+        "apply_to_all": True,   # If True, SPICE model is to be assigned to all components share the same part name.
         # If False, only assign SPICE model to components in "components".
-        "components": []
+        "components": [],
     }
 ]
 
@@ -93,25 +89,16 @@ cfg["sources"] = [
         "reference_designator": "U4",
         "type": "voltage",
         "magnitude": 5,
-        "positive_terminal": {
-            "net": "5V"
-        },
-        "negative_terminal": {
-            "net": "GND"
-        }
+        "positive_terminal": {"net": "5V"},
+        "negative_terminal": {"net": "GND"},
     }
 ]
 
 # ## Create Current Sources
 # Create current sources between net and pin group.
 
-cfg["pin_groups"] = [
-    {
-        "name": "J5_GND",
-        "reference_designator": "J5",
-        "net": "GND"
-    }
-]
+# +
+cfg["pin_groups"] = [{"name": "J5_GND", "reference_designator": "J5", "net": "GND"}]
 
 cfg["sources"].append(
     {
@@ -119,12 +106,10 @@ cfg["sources"].append(
         "reference_designator": "J5",
         "type": "current",
         "magnitude": 0.5,
-        "positive_terminal": {
-            "net": "SFPA_VCCR"
-        },
+        "positive_terminal": {"net": "SFPA_VCCR"},
         "negative_terminal": {
             "pin_group": "J5_GND"  # Defined in "pin_groups" section.
-        }
+        },
     }
 )
 cfg["sources"].append(
@@ -133,24 +118,17 @@ cfg["sources"].append(
         "reference_designator": "J5",
         "type": "current",
         "magnitude": 0.5,
-        "positive_terminal": {
-            "net": "SFPA_VCCT"
-        },
+        "positive_terminal": {"net": "SFPA_VCCT"},
         "negative_terminal": {
             "pin_group": "J5_GND"  # Defined in "pin_groups" section.
-        }
+        },
     }
 )
+# -
 
 # ## Create SIwave DC analysis
 
-cfg["setups"] = [
-    {
-        "name": "siwave_dc",
-        "type": "siwave_dc",
-        "dc_slider_position": 0
-    }
-]
+cfg["setups"] = [{"name": "siwave_dc", "type": "siwave_dc", "dc_slider_position": 0}]
 
 # ## Do cutout
 
@@ -178,13 +156,13 @@ cfg["operations"] = {
         "maximum_iterations": 10,
         "preserve_components_with_model": False,
         "simple_pad_check": True,
-        "keep_lines_as_path": False
+        "keep_lines_as_path": False,
     }
 }
 
 # ## Save configuration as a JSON file
 
-pi_json = os.path.join(temp_folder.name, "pi.json")
+pi_json = os.path.join(temp_dir.name, "pi.json")
 with open(pi_json, "w") as f:
     json.dump(cfg, f, indent=4, ensure_ascii=False)
 
@@ -200,7 +178,7 @@ edbapp.close()
 
 # The configured EDB file is saved in a temp folder.
 
-print(temp_folder.name)
+print(temp_dir.name)
 
 # # Analyze DCIR with SIwave
 #
@@ -209,12 +187,7 @@ print(temp_folder.name)
 
 # ## Load edb into 3D Layout.
 
-siw = Hfss3dLayout(
-    aedb,
-    version=AEDT_VERSION,
-    non_graphical=NG_MODE,
-    new_desktop=True
-)
+siw = Hfss3dLayout(aedb, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True)
 
 # ## Analyze
 
@@ -230,8 +203,10 @@ siw.close_desktop()
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notbook you 
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
 time.sleep(3)
-temp_folder.cleanup()
+temp_dir.cleanup()
