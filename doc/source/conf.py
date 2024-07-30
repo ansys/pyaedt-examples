@@ -64,33 +64,6 @@ class PrettyPrintDirective(Directive):
         return [addnodes.desc_name(text=member_name), addnodes.desc_content("", literal)]
 
 
-# Sphinx builder specific events hook
-
-
-def check_example_error(app: Sphinx, pagename: str, templatename:str , context:dict[str, Any], doctree: document):
-    """Log an error if the execution of an example as a notebook triggered an error.
-
-    Since the documentation build might not stop if the execution of a notebook triggered
-    an error, we use a flag to log that an error is spotted in the html page context.
-    """
-    # Check if the HTML contains an error message
-    if pagename.startswith("examples") and not pagename.endswith("/index"):
-        if any(
-            map(
-                lambda msg: msg in context["body"],
-                [
-                    "UsageError",
-                    "NameError",
-                    "DeadKernelError",
-                    "NotebookError",
-                    "CellExecutionError",
-                ],
-            )
-        ):
-            logger.error(f"An error was detected in file {pagename}")
-            app.builder.config.html_context["build_error"] = True
-
-
 # Sphinx generic event hooks
 
 
@@ -227,8 +200,8 @@ def check_build_finished_without_error(app: Sphinx, exception: None | Exception)
     exception : None or Exception
         Exception raised during the build process.
     """
-    if app.builder.config.html_context.get("build_error", False):
-        logger.info("Build failed due to an error in html-page-context")
+    if exception is not None:
+        logger.error("Build failed due to an error.")
         exit(1)
 
 def remove_doctree(app: Sphinx, exception: None | Exception):
@@ -261,8 +234,6 @@ def setup(app):
         Sphinx instance containing all the configuration for the documentation build.
     """
     app.add_directive("pprint", PrettyPrintDirective)
-    # Builder specific hook
-    app.connect("html-page-context", check_example_error)
     # Builder inited hooks
     app.connect("builder-inited", copy_examples)
     app.connect("builder-inited", check_pandoc_installed)
