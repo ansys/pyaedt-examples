@@ -90,7 +90,7 @@ array.cells[2][2].rotation = 90
 setup = hfss.create_setup()
 setup.props["Frequency"] = "5GHz"
 setup.props["MaximumPasses"] = 3
-hfss.analyze(num_cores=NUM_CORES)
+hfss.analyze(cores=NUM_CORES)
 
 
 # ## Get far field data
@@ -99,7 +99,7 @@ hfss.analyze(num_cores=NUM_CORES)
 # field data is generated port by port and stored in a data class.
 
 ffdata = hfss.get_antenna_ffd_solution_data(
-    sphere_name="Infinite Sphere1", setup_name=hfss.nominal_adaptive, frequencies=[5e9]
+    sphere="Infinite Sphere1", setup=hfss.nominal_adaptive, frequencies=[5e9]
 )
 
 # ## Generate contour plot
@@ -107,7 +107,7 @@ ffdata = hfss.get_antenna_ffd_solution_data(
 # Generate a contour plot. You can define the Theta scan and Phi scan.
 
 ffdata.plot_farfield_contour(
-    farfield_quantity="RealizedGain", title="Contour at {}Hz".format(ffdata.frequency)
+    quantity="RealizedGain", title="Contour at {}Hz".format(ffdata.frequency)
 )
 
 # ## Release AEDT
@@ -136,7 +136,7 @@ ffdata = FfdSolutionData(frequencies=frequencies[0], eep_files=eep_file[0])
 # and Phi scan.
 
 ffdata.plot_farfield_contour(
-    farfield_quantity="RealizedGain", title="Contour at {}Hz".format(ffdata.frequency)
+    quantity="RealizedGain", title="Contour at {}Hz".format(ffdata.frequency)
 )
 
 # ## Generate 2D cutout plots
@@ -147,7 +147,7 @@ ffdata.plot_farfield_contour(
 ffdata.plot_2d_cut(
     primary_sweep="theta",
     secondary_sweep_value=[-180, -75, 75],
-    farfield_quantity="RealizedGain",
+    quantity="RealizedGain",
     title="Azimuth at {}Hz".format(ffdata.frequency),
     quantity_format="dB10",
 )
@@ -155,7 +155,7 @@ ffdata.plot_2d_cut(
 ffdata.plot_2d_cut(
     primary_sweep="phi",
     secondary_sweep_value=30,
-    farfield_quantity="RealizedGain",
+    quantity="RealizedGain",
     title="Elevation",
     quantity_format="dB10",
 )
@@ -165,7 +165,7 @@ ffdata.plot_2d_cut(
 # Generate 3D polar plots in Matplotlib. You can define
 # the Theta scan and Phi scan.
 
-ffdata.polar_plot_3d(farfield_quantity="RealizedGain")
+ffdata.polar_plot_3d(quantity="RealizedGain")
 
 # ## Cleanup
 #

@@ -18,14 +18,18 @@ import time
 
 from pyaedt import Hfss
 
-# Set constant values
+# ## Project setup
+#
+# Define constants
 
 AEDT_VERSION = "2024.1"
 NG_MODE = False  # Open Electronics UI when the application is launched.
 
-# ## Launch AEDT
-#
-# Launch AEDT, create an HFSS design, and save the project.
+# Create temporary directory
+
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+
+# Create an HFSS object.
 
 hfss = Hfss(
     version=AEDT_VERSION,
@@ -148,7 +152,7 @@ hfss2.modeler.user_defined_components["patch_antenna1"].parameters["thick"] = "p
 # They can be the same or linked to different files.
 
 hfss2.modeler.create_coordinate_system(origin=[20, 20, 10], name="Second_antenna")
-ant2 = hfss2.modeler.insert_3d_component(component_path, targetCS="Second_antenna")
+ant2 = hfss2.modeler.insert_3d_component(component_path, coordinate_system="Second_antenna")
 
 # ## Move 3D components
 #
@@ -176,7 +180,7 @@ optim = hfss2.parametrics.add("p_thick", "0.2mm", "1.5mm", step=14)
 hfss2.modeler.fit_all()
 hfss2.plot(
     show=False,
-    export_path=os.path.join(hfss.working_directory, "Image.jpg"),
+    output_file=os.path.join(hfss.working_directory, "Image.jpg"),
     plot_air_objects=True,
 )
 

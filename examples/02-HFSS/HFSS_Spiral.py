@@ -10,6 +10,7 @@
 
 import os
 import tempfile
+import time
 
 import pyaedt
 

@@ -11,6 +11,7 @@
 
 import os
 import tempfile
+import time
 
 import pyaedt
 
@@ -56,7 +57,7 @@ hfss.modeler.insert_3d_component(compfile, geometryparams)
 #
 # Create an open region.
 
-hfss.create_open_region(Frequency="1GHz")
+hfss.create_open_region(frequency="1GHz")
 
 # ## Plot model
 
@@ -76,12 +77,12 @@ setup = hfss.create_setup("MySetup")
 setup.props["Frequency"] = "1GHz"
 setup.props["MaximumPasses"] = 1
 hfss.create_linear_count_sweep(
-    setupname=setup.name,
-    unit="GHz",
-    freqstart=0.5,
-    freqstop=1.5,
+    setup=setup.name,
+    units="GHz",
+    start_frequency=0.5,
+    stop_frequency=1.5,
     num_of_freq_points=101,
-    sweepname="sweep1",
+    name="sweep1",
     sweep_type="Interpolating",
     interpolation_tol=3,
     interpolation_max_solutions=255,
@@ -90,7 +91,7 @@ hfss.create_linear_count_sweep(
 
 # ## Run simulation
 
-hfss.analyze_setup(name="MySetup", num_cores=NUM_CORES)
+hfss.analyze_setup(name="MySetup", cores=NUM_CORES)
 
 # ### Post-processing
 #
@@ -139,7 +140,7 @@ solution_data.plot()
 
 hfss["post_x"] = 2
 hfss.variable_manager.set_variable(
-    variable_name="y_post", expression=1, postprocessing=True
+    name="y_post", expression=1, is_post_processing=True
 )
 hfss.modeler.create_coordinate_system(origin=["post_x", "y_post", 0], name="CS_Post")
 hfss.insert_infinite_sphere(custom_coordinate_system="CS_Post", name="Sphere_Custom")
@@ -168,7 +169,7 @@ solutions_custom.plot_3d()
 # Generate a 2D plot using Matplotlib where you specify whether it is a polar
 # plot or a rectangular plot.
 
-solutions.plot(math_formula="db20", is_polar=True)
+solutions.plot(formula="db20", is_polar=True)
 
 # ## Retrieve far-field data
 #
@@ -177,8 +178,8 @@ solutions.plot(math_formula="db20", is_polar=True)
 # once AEDT is released.
 
 ffdata = hfss.get_antenna_ffd_solution_data(
-    sphere_name="Sphere_Custom",
-    setup_name=hfss.nominal_adaptive,
+    sphere="Sphere_Custom",
+    setup=hfss.nominal_adaptive,
     frequencies=["1000MHz"],
 )
 
@@ -190,7 +191,7 @@ ffdata = hfss.get_antenna_ffd_solution_data(
 ffdata.plot_2d_cut(
     primary_sweep="theta",
     secondary_sweep_value=0,
-    farfield_quantity="RealizedGain",
+    quantity="RealizedGain",
     title="FarField",
     quantity_format="dB20",
     is_polar=True,

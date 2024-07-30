@@ -79,7 +79,7 @@ region = hfss.modeler.create_air_region(
 
 # Assigning lattice pair boundary condition.
 
-hfss.auto_assign_lattice_pairs(object_to_assign=region.name)
+hfss.auto_assign_lattice_pairs(assignment=region.name)
 
 # Defie the Floquet port.
 
@@ -89,7 +89,7 @@ hfss.create_floquet_port(
     lattice_origin=[0, 0, z_max],
     lattice_a_end=[0, y_max, z_max],
     lattice_b_end=[x_max, 0, z_max],
-    portname="port_z_max",
+    name="port_z_max",
     deembed_distance=10 * bounding_dimensions[2],
 )
 
@@ -99,12 +99,12 @@ setup = hfss.create_setup("MySetup")
 setup.props["Frequency"] = "10GHz"
 setup.props["MaximumPasses"] = 10
 hfss.create_linear_count_sweep(
-    setupname=setup.name,
-    unit="GHz",
-    freqstart=6,
-    freqstop=15,
+    setup=setup.name,
+    units="GHz",
+    start_frequency=6,
+    stop_frequency=15,
     num_of_freq_points=51,
-    sweepname="sweep1",
+    name="sweep1",
     sweep_type="Interpolating",
     interpolation_tol=6,
     save_fields=False,
@@ -128,12 +128,12 @@ for i in all_quantities:
 hfss.post.create_report(
     expressions=str_mag,
     variations=variation,
-    plotname="magnitude_plot",
+    plot_name="magnitude_plot",
 )
 hfss.post.create_report(
     expressions=str_ang,
     variations=variation,
-    plotname="phase_plot",
+    plot_name="phase_plot",
 )
 # -
 

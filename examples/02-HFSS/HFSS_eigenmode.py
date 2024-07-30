@@ -32,6 +32,7 @@
 
 import os
 import tempfile
+import time
 
 import pyaedt
 
@@ -64,7 +65,7 @@ d = pyaedt.launch_desktop(
 #
 # Create a new HFSS design.
 
-hfss = pyaedt.Hfss(project=project_path, non_graphical=non_graphical)
+hfss = pyaedt.Hfss(project=project_path, non_graphical=NG_MODE)
 
 # ## Input parameters for eigenmode solver
 #
@@ -102,7 +103,7 @@ def find_resonance():
     setup.props["MaxDeltaFreq"] = 5
 
     # Analyzing the eigenmode setup
-    hfss.analyze_setup(setup_name, num_cores=NUM_CORES, use_auto_settings=True)
+    hfss.analyze_setup(setup_name, cores=NUM_CORES, use_auto_settings=True)
 
     # Getting the Q and real frequency of each mode
     eigen_q_quantities = hfss.post.available_report_quantities(
@@ -157,7 +158,7 @@ print(str(resonance_frequencies))
 hfss.modeler.fit_all()
 hfss.plot(
     show=False,
-    export_path=os.path.join(hfss.working_directory, "Image.jpg"),
+    output_file=os.path.join(hfss.working_directory, "Image.jpg"),
     plot_air_objects=False,
 )
 

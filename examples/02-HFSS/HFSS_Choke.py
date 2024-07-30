@@ -143,9 +143,9 @@ second_winding_list = list_object[3]
 ground_radius = 1.2 * dictionary_values[1]["Outer Winding"]["Outer Radius"]
 ground_position = [0, 0, first_winding_list[1][0][2] - 2]
 ground = hfss.modeler.create_circle(
-    "XY", ground_position, ground_radius, name="GND", matname="copper"
+    "XY", ground_position, ground_radius, name="GND", material="copper"
 )
-coat = hfss.assign_coating(ground, isinfgnd=True)
+coat = hfss.assign_coating(ground, is_infinite_ground=True)
 ground.transparency = 0.9
 
 # ## Create lumped ports
@@ -181,7 +181,7 @@ for position in port_position_list:
     )
     sheet.move([-dictionary_values[1]["Outer Winding"]["Wire Diameter"] / 2, 0, -1])
     hfss.lumped_port(
-        signal=sheet.name,
+        assignment=sheet.name,
         name="port_" + str(port_position_list.index(position) + 1),
         reference=[ground],
     )
@@ -198,12 +198,15 @@ mesh_operation_cylinder = hfss.modeler.create_cylinder(
     cylinder_position,
     ground_radius,
     cylinder_height,
-    numSides=36,
+    num_sides=36,
     name="mesh_cylinder",
 )
 
 hfss.mesh.assign_length_mesh(
-    [mesh_operation_cylinder], maxlength=15, maxel=None, meshop_name="choke_mesh"
+    [mesh_operation_cylinder],
+    maximum_length=15,
+    maximum_elements=None,
+    name="choke_mesh",
 )
 # -
 
@@ -224,12 +227,12 @@ setup = hfss.create_setup("MySetup")
 setup.props["Frequency"] = "50MHz"
 setup["MaximumPasses"] = 10
 hfss.create_linear_count_sweep(
-    setupname=setup.name,
-    unit="MHz",
-    freqstart=0.1,
-    freqstop=100,
+    setup=setup.name,
+    units="MHz",
+    start_frequency=0.1,
+    stop_frequency=100,
     num_of_freq_points=100,
-    sweepname="sweep1",
+    name="sweep1",
     sweep_type="Interpolating",
     save_fields=False,
 )
@@ -239,7 +242,7 @@ hfss.create_linear_count_sweep(
 hfss.modeler.fit_all()
 hfss.plot(
     show=False,
-    export_path=os.path.join(hfss.working_directory, "Image.jpg"),
+    output_file=os.path.join(hfss.working_directory, "Image.jpg"),
     plot_air_objects=False,
 )
 
