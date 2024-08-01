@@ -26,12 +26,14 @@
 # ## Preparation
 # Import the required packages
 
+# +
 import os
 import tempfile
 import time
 
 import pyaedt
 from pyaedt.generic.general_methods import generate_unique_name
+# -
 
 # Define constants
 
@@ -40,14 +42,14 @@ NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary directory
 
-temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Download project
 
 project_full_name = pyaedt.downloads.download_icepak(destination=temp_dir.name)
 
 # ## Open project
-
+#
 # Open the Icepak project from the project folder.
 
 ipk = pyaedt.Icepak(
@@ -96,8 +98,8 @@ ipk.export_3d_model(
     file_name=filename,
     file_path=ipk.working_directory,
     file_format=".step",
-    object_list=[],
-    removed_objects=[],
+    assignment_to_export=[],
+    assignment_to_remove=[],
 )
 
 # ## Export configuration files
@@ -130,9 +132,7 @@ app.configurations.results.global_import_success
 # Close the project and release AEDT.
 
 app.release_desktop()
-time.sleep(
-    3
-)  # Allow Electronics Desktop to shut down before cleaning the temporary project folder.
+time.sleep(3)   # Allow Electronics Desktop to shut down before cleaning the temporary project folder.
 
 # ## Cleanup
 #

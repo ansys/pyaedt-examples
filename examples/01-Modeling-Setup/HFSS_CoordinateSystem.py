@@ -7,8 +7,8 @@
 
 import tempfile
 import time
-
 import pyaedt
+import os
 
 # Define constants
 
@@ -47,7 +47,8 @@ cs1["OriginX"] = 10
 cs1.props["OriginY"] = 10
 cs1.props["OriginZ"] = 10
 
-# Pointing vectors can be changed
+# The orientation of the coordinate system can be modified by
+# updating the direction vectors for the coordinate system.
 
 ypoint = [0, -1, 0]
 cs1.props["YAxisXvec"] = ypoint[0]
@@ -62,13 +63,16 @@ cs1.rename("newCS")
 
 # ## Change coordinate system mode
 #
-# Use the ``change_cs_mode`` method to change the mode. Options are ``0``
-# for axis/position, ``1`` for Euler angle ZXZ, and ``2`` for Euler angle ZYZ.
+# Use the ``change_cs_mode`` method to change the mode. Options are
+# - ``0`` for axis/position
+# - ``1`` for Euler angle ZXZ
+# - ``2`` for Euler angle ZYZ.
+#
 # Here ``1`` sets Euler angle ZXZ as the mode.
 
 cs1.change_cs_mode(1)
 
-# In the new mode, these properties can be edited
+# The following lines use the ZXZ Euler angle definition to rotate the coordinate system.
 
 cs1.props["Phi"] = "10deg"
 cs1.props["Theta"] = "22deg"
@@ -80,10 +84,10 @@ cs1.props["Psi"] = "30deg"
 
 cs1.delete()
 
-# ## Create coordinate system by defining axes
+# ## Define a new coordinate system
 #
-# Create a coordinate system by defining the axes. During creation, you can
-# specify all coordinate system properties.
+# Create a coordinate system by defining the axes. You can
+# specify all coordinate system properties as shown here.
 
 cs2 = hfss.modeler.create_coordinate_system(
     name="CS2",
@@ -93,19 +97,19 @@ cs2 = hfss.modeler.create_coordinate_system(
     y_pointing=[0, -1, 0],
 )
 
-# ## Create coordinate system by defining Euler angles
-#
-# Create a coordinate system by defining Euler angles.
+# A new coordinate system can also be created based on the Euler angle convention.
 
 cs3 = hfss.modeler.create_coordinate_system(
     name="CS3", origin=[2, 2, 2], mode="zyz", phi=10, theta=20, psi=30
 )
 
-# ## Create coordinate system by defining view
+# Create a coordinate system that is defined by standard views in the modeler. The options are 
+# - ``"iso"``
+# - ``"XY"``
+# - ``"XZ"``
+# - ``"XY"``.
 #
-# Create a coordinate system by defining the view. Options are ``"iso"``,
-# ``"XY"``, ``"XZ"``, and ``"XY"``. Here ``"iso"`` is specified.
-# The axes are set automatically.
+# Here ``"iso"`` is specified. The axes are set automatically.
 
 cs4 = hfss.modeler.create_coordinate_system(
     name="CS4", origin=[1, 0, 0], reference_cs="CS3", mode="view", view="iso"
@@ -121,8 +125,6 @@ cs5 = hfss.modeler.create_coordinate_system(
     name="CS5", mode="axisrotation", u=[1, 0, 0], theta=123
 )
 
-# ## Create face coordinate system
-#
 # Face coordinate systems are bound to an object face.
 # First create a box and then define the face coordinate system on one of its
 # faces. To create the reference face for the face coordinate system, you must
@@ -134,8 +136,6 @@ fcs1 = hfss.modeler.create_face_coordinate_system(
     face=face, origin=face.edges[0], axis_position=face.edges[1], name="FCS1"
 )
 
-# ## Create face coordinate system centered on face
-#
 # Create a face coordinate system centered on the face with the X axis pointing
 # to the edge vertex.
 
@@ -143,8 +143,6 @@ fcs2 = hfss.modeler.create_face_coordinate_system(
     face=face, origin=face, axis_position=face.edges[0].vertices[0], name="FCS2"
 )
 
-# ## Swap X and Y axes of face coordinate system
-#
 # Swap the X axis and Y axis of the face coordinate system. The X axis is the
 # pointing ``axis_position`` by default. You can optionally select the Y axis.
 
@@ -158,7 +156,7 @@ fcs3 = hfss.modeler.create_face_coordinate_system(
 fcs3.props["WhichAxis"] = "X"
 
 
-# ## Apply a rotation around the Z axis
+# ### Rotate the coordinate system
 #
 # Apply a rotation around the Z axis. The Z axis of a face coordinate system
 # is always orthogonal to the face. A rotation can be applied at definition.
@@ -172,6 +170,8 @@ fcs4 = hfss.modeler.create_face_coordinate_system(
 
 fcs4.props["ZRotationAngle"] = "3deg"
 
+# ### Offset the coordinate system
+#
 # Apply an offset to the X axis and Y axis of a face coordinate system.
 # The offset is in respect to the face coordinate system itself.
 
@@ -184,7 +184,7 @@ fcs5 = hfss.modeler.create_face_coordinate_system(
 fcs5.props["XOffset"] = "0.2mm"
 fcs5.props["YOffset"] = "0.1mm"
 
-# ## Create another coordinate system relative to face coordinate system
+# ### Dependent coordinate systems
 #
 # The use of dependent coordinate systems can simplify model creation. The following
 # cell demonstrates how to create a coordinate system whose reference is the face coordinate system.
@@ -197,14 +197,14 @@ cs_fcs = hfss.modeler.create_coordinate_system(
     name="CS_FCS", origin=[0, 0, 0], reference_cs=fcs6.name, mode="view", view="iso"
 )
 
-# ## Create object coordinate systems
+# ### Object coordinate systems
 #
 # A coordinate system can also be defined relative to elements
 # belonging to an object. For example, the coordinate system can be
 # connected to an object face.
 
 obj_cs = hfss.modeler.create_object_coordinate_system(
-    obj=box,
+    assignment=box,
     origin=box.faces[0],
     x_axis=box.edges[0],
     y_axis=[0, 0, 0],
@@ -215,7 +215,7 @@ obj_cs.rename("new_obj_cs")
 # Create an object coordinate system whose origin is linked to the edge of an object.
 
 obj_cs_1 = hfss.modeler.create_object_coordinate_system(
-    obj=box.name,
+    assignment=box.name,
     origin=box.edges[0],
     x_axis=[1, 0, 0],
     y_axis=[0, 1, 0],
@@ -226,7 +226,7 @@ obj_cs_1.set_as_working_cs()
 # Create object coordinate system with origin specified on a point within an object.
 
 obj_cs_2 = hfss.modeler.create_object_coordinate_system(
-    obj=box.name,
+    assignment=box.name,
     origin=[0, 0.8, 0],
     x_axis=[1, 0, 0],
     y_axis=[0, 1, 0],
@@ -247,7 +247,9 @@ obj_cs_3 = hfss.modeler.create_object_coordinate_system(
 obj_cs_3.props["MoveToEnd"] = False
 obj_cs_3.update()
 
-# ## Get all coordinate systems
+# ### Get all coordinate systems
+#
+# All coordinate systems can easily be retrieved and subsequently manipulated.
 
 css = hfss.modeler.coordinate_systems
 names = [i.name for i in css]
