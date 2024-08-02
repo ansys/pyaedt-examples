@@ -119,9 +119,8 @@ working_directory = hfss.working_directory
 
 hfss.save_project()
 hfss.release_desktop()
-time.sleep(
-    3
-)  # Allow Electronics Desktop to shut down before cleaning the temporary project folder.
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
 
 # ## Load far field data
 #
