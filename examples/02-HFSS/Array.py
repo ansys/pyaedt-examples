@@ -16,7 +16,7 @@ import tempfile
 import time
 
 import pyaedt
-from pyaedt.modules.solutions import FfdSolutionData
+from pyaedt.generic.farfield_visualization import FfdSolutionData
 
 # Define constants.
 
@@ -98,16 +98,15 @@ hfss.analyze(cores=NUM_CORES)
 # Get far field data. After the simulation completes, the far
 # field data is generated port by port and stored in a data class.
 
-ffdata = hfss.get_antenna_ffd_solution_data(
-    sphere="Infinite Sphere1", setup=hfss.nominal_adaptive, frequencies=[5e9]
-)
+ffdata = hfss.get_antenna_data(setup=hfss.nominal_adaptive, sphere="Infinite Sphere1")
 
 # ## Generate contour plot
 #
 # Generate a contour plot. You can define the Theta scan and Phi scan.
 
-ffdata.plot_farfield_contour(
-    quantity="RealizedGain", title="Contour at {}Hz".format(ffdata.frequency)
+ffdata.farfield_data.plot_contour(
+    quantity="RealizedGain",
+    title="Contour at {}Hz".format(ffdata.farfield_data.frequency),
 )
 
 # ## Release AEDT
@@ -115,9 +114,9 @@ ffdata.plot_farfield_contour(
 # Release AEDT.
 # Far field post-processing can be performed without AEDT because the data is stored.
 
-eep_file = ffdata.eep_files
-frequencies = ffdata.frequencies
+metadata_file = ffdata.metadata_file
 working_directory = hfss.working_directory
+
 hfss.save_project()
 hfss.release_desktop()
 time.sleep(
@@ -128,7 +127,7 @@ time.sleep(
 #
 # Load far field data stored.
 
-ffdata = FfdSolutionData(frequencies=frequencies[0], eep_files=eep_file[0])
+ffdata = FfdSolutionData(input_file=metadata_file)
 
 # ## Generate contour plot
 #
@@ -144,28 +143,29 @@ ffdata.plot_farfield_contour(
 # Generate 2D cutout plots. You can define the Theta scan
 # and Phi scan.
 
-ffdata.plot_2d_cut(
+ffdata.plot_cut(
+    quantity="RealizedGain",
     primary_sweep="theta",
     secondary_sweep_value=[-180, -75, 75],
-    quantity="RealizedGain",
     title="Azimuth at {}Hz".format(ffdata.frequency),
     quantity_format="dB10",
 )
 
-ffdata.plot_2d_cut(
+ffdata.plot_cut(
+    quantity="RealizedGain",
     primary_sweep="phi",
     secondary_sweep_value=30,
-    quantity="RealizedGain",
     title="Elevation",
     quantity_format="dB10",
 )
 
-# ## Generate 3D polar plots in Matplotlib
+# ## Generate 3D plot
 #
-# Generate 3D polar plots in Matplotlib. You can define
-# the Theta scan and Phi scan.
+# Generate 3D plots. You can define the Theta scan and Phi scan.
 
-ffdata.polar_plot_3d(quantity="RealizedGain")
+# ffdata.plot_3d(quantity='RealizedGain',
+#                output_file=os.path.join(working_directory, "Image.jpg"),
+#                show=False)
 
 # ## Cleanup
 #
