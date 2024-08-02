@@ -12,6 +12,7 @@ import os
 import tempfile
 
 import pyaedt
+
 # -
 
 # Set constant values
@@ -112,7 +113,8 @@ signal_n_2 = q2d.modeler.create_polyline(
 q2d.modeler.move(objid=[signal_n_2], vector=[delta_w_half, 0, 0])
 q2d.modeler.connect([signal_n_1, signal_n_2])
 q2d.modeler.move(
-    objid=[signal_n_1], vector=["{}+{}+{}+{}".format(co_gnd_w, clearance, sig_w, sig_gap), 0, 0]
+    objid=[signal_n_1],
+    vector=["{}+{}+{}+{}".format(co_gnd_w, clearance, sig_w, sig_gap), 0, 0],
 )
 
 # ## Create reference ground plane
@@ -131,10 +133,16 @@ ref_gnd_l = q2d.modeler.create_rectangle(
 # Create a dielectric.
 
 q2d.modeler.create_rectangle(
-    position=[0, layer_1_uh, 0], dimension_list=[model_w, core_h], name="Core", matname="FR4_epoxy"
+    position=[0, layer_1_uh, 0],
+    dimension_list=[model_w, core_h],
+    name="Core",
+    matname="FR4_epoxy",
 )
 q2d.modeler.create_rectangle(
-    position=[0, layer_2_uh, 0], dimension_list=[model_w, pp_h], name="Prepreg", matname="FR4_epoxy"
+    position=[0, layer_2_uh, 0],
+    dimension_list=[model_w, pp_h],
+    name="Prepreg",
+    matname="FR4_epoxy",
 )
 q2d.modeler.create_rectangle(
     position=[0, layer_2_lh, 0],
@@ -235,7 +243,11 @@ data.plot(snapshot_path=os.path.join(temp_dir.name, "plot.jpg"))
 
 # +
 parametric = q2d.parametrics.add(
-    sweep_var="sig_bot_w", start_point=75, end_point=100, step=5, variation_type="LinearStep"
+    sweep_var="sig_bot_w",
+    start_point=75,
+    end_point=100,
+    step=5,
+    variation_type="LinearStep",
 )
 parametric.add_variation(
     sweep_var="sig_gap",
