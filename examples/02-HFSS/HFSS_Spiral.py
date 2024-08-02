@@ -56,8 +56,7 @@ hfss["Tsub"] = "6" + hfss.modeler.model_units
 # ## Standardize polyline
 #
 # Define a function that creates a polyline using the ``create_line`` method. This
-# function creates a polyline having fixed
-# width, thickness, and material.
+# function creates a polyline having fixed width, thickness, and material.
 
 
 def create_line(pts):
@@ -217,9 +216,8 @@ data.export_data_to_csv(os.path.join(hfss.toolkit_directory, "output.csv"))
 
 hfss.save_project()
 hfss.release_desktop()
-time.sleep(
-    3
-)  # Allow Electronics Desktop to shut down before cleaning the temporary project folder.
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
 
 # ## Cleanup
 #

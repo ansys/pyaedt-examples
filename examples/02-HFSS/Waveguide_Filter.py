@@ -254,6 +254,7 @@ plot = hfss.post.plot_field(
 
 hfss.save_project()
 hfss.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
 time.sleep(3)
 
 # ## Cleanup
