@@ -571,9 +571,9 @@ m2d.assign_vector_potential(
 #
 # Create excitations, defining phase currents for the windings.
 
-PhA_current = "IPeak * cos(2*pi*ElectricFrequency*time+Theta_i)"
-PhB_current = "IPeak * cos(2*pi * ElectricFrequency*time - 120deg+Theta_i)"
-PhC_current = "IPeak * cos(2*pi * ElectricFrequency*time - 240deg+Theta_i)"
+ph_a_current = "IPeak * cos(2*pi*ElectricFrequency*time+Theta_i)"
+ph_b_current = "IPeak * cos(2*pi * ElectricFrequency*time - 120deg+Theta_i)"
+ph_c_current = "IPeak * cos(2*pi * ElectricFrequency*time - 240deg+Theta_i)"
 
 # ## Define windings in phase A
 #
@@ -595,7 +595,7 @@ m2d.assign_winding(
     assignment=None,
     winding_type="Current",
     is_solid=False,
-    current=PhA_current,
+    current=ph_a_current,
     parallel_branches=1,
     name="Phase_A",
 )
@@ -623,7 +623,7 @@ m2d.assign_winding(
     assignment=None,
     winding_type="Current",
     is_solid=False,
-    current=PhB_current,
+    current=ph_b_current,
     parallel_branches=1,
     name="Phase_B",
 )
@@ -651,7 +651,7 @@ m2d.assign_winding(
     assignment=None,
     winding_type="Current",
     is_solid=False,
-    current=PhC_current,
+    current=ph_c_current,
     parallel_branches=1,
     name="Phase_C",
 )
