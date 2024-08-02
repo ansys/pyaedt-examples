@@ -6,9 +6,9 @@
 # The following libraries are required for the advanced postprocessing features
 # used in this example:
 #
-# - `Matplotlib <https://pypi.org/project/matplotlib/>`_
-# - `Numpy <https://pypi.org/project/numpy/>`_
-# - `PyVista <https://pypi.org/project/pyvista/>`_
+# - [Matplotlib](https://pypi.org/project/matplotlib/)
+# - [Numpy](https://pypi.org/project/numpy/)
+# - [PyVista](https://pypi.org/project/pyvista/)
 #
 # Install these libraries with:
 #
