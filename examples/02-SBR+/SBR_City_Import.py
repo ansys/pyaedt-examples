@@ -18,13 +18,7 @@ import pyaedt
 # Set constant values
 
 AEDT_VERSION = "2024.1"
-
-# ## Set non-graphical mode
-#
-# Set non-graphical mode.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
-
-non_graphical = False
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary directory
 
@@ -34,14 +28,14 @@ temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 #
 # Launch HFSS and open the project.
 
-project_name = pyaedt.generate_unique_project_name(rootname=temp_dir.name, project_name="city")
+project_name = os.path.join(temp_dir.name, "city.aedt")
 app = pyaedt.Hfss(
     project=project_name,
     design="Ansys",
     solution_type="SBR+",
     version=AEDT_VERSION,
     new_desktop=True,
-    non_graphical=non_graphical,
+    non_graphical=NG_MODE,
 )
 
 # ## Define Location to import
@@ -55,7 +49,11 @@ ansys_home = [40.273726, -80.168269]
 # Assign boundaries.
 
 app.modeler.import_from_openstreet_map(
-    ansys_home, terrain_radius=250, road_step=3, plot_before_importing=False, import_in_aedt=True
+    ansys_home,
+    terrain_radius=250,
+    road_step=3,
+    plot_before_importing=False,
+    import_in_aedt=True,
 )
 
 # ## Plot model
@@ -76,6 +74,9 @@ plot_obj.plot(os.path.join(app.working_directory, "Source.jpg"))
 
 app.release_desktop()
 
-# ## Clean temporary directory
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 temp_dir.cleanup()
