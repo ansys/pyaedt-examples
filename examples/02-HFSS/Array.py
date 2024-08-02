@@ -134,7 +134,7 @@ ffdata = FfdSolutionData(input_file=metadata_file)
 # Generate a contour plot. You can define the Theta scan
 # and Phi scan.
 
-ffdata.plot_farfield_contour(
+ffdata.plot_contour(
     quantity="RealizedGain", title="Contour at {}Hz".format(ffdata.frequency)
 )
 
