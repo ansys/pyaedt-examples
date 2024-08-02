@@ -8,20 +8,14 @@ import os
 from pathlib import Path
 from pprint import pformat
 from docutils.nodes import document
-
-# import re
 import shutil
 from typing import Any
 from sphinx.application import Sphinx
-import sys
-import warnings
 
-# from sphinx_gallery.sorting import FileNameSortKey
 from ansys_sphinx_theme import (
     ansys_favicon,
     ansys_logo_white,
     ansys_logo_white_cropped,
-    # get_version_match,
     latex,
     pyansys_logo_black,
     watermark,
@@ -51,9 +45,6 @@ author = "Ansys Inc."
 cname = os.getenv("DOCUMENTATION_CNAME", "nocname.com")
 release = version = "0.1.dev0"
 
-# os.environ["PYAEDT_NON_GRAPHICAL"] = "1"
-# os.environ["PYAEDT_DOC_GENERATION"] = "1"
-
 # -- Connect functions (hooks) to Sphinx events  -----------------------------
 
 class PrettyPrintDirective(Directive):
@@ -71,33 +62,6 @@ class PrettyPrintDirective(Directive):
         literal["language"] = "python"
 
         return [addnodes.desc_name(text=member_name), addnodes.desc_content("", literal)]
-
-
-# Sphinx builder specific events hook
-
-
-def check_example_error(app: Sphinx, pagename: str, templatename:str , context:dict[str, Any], doctree: document):
-    """Log an error if the execution of an example as a notebook triggered an error.
-
-    Since the documentation build might not stop if the execution of a notebook triggered
-    an error, we use a flag to log that an error is spotted in the html page context.
-    """
-    # Check if the HTML contains an error message
-    if pagename.startswith("examples") and not pagename.endswith("/index"):
-        if any(
-            map(
-                lambda msg: msg in context["body"],
-                [
-                    "UsageError",
-                    "NameError",
-                    "DeadKernelError",
-                    "NotebookError",
-                    "CellExecutionError",
-                ],
-            )
-        ):
-            logger.error(f"An error was detected in file {pagename}")
-            app.builder.config.html_context["build_error"] = True
 
 
 # Sphinx generic event hooks
@@ -236,8 +200,8 @@ def check_build_finished_without_error(app: Sphinx, exception: None | Exception)
     exception : None or Exception
         Exception raised during the build process.
     """
-    if app.builder.config.html_context.get("build_error", False):
-        logger.info("Build failed due to an error in html-page-context")
+    if exception is not None:
+        logger.error("Build failed due to an error.")
         exit(1)
 
 def remove_doctree(app: Sphinx, exception: None | Exception):
@@ -270,8 +234,6 @@ def setup(app):
         Sphinx instance containing all the configuration for the documentation build.
     """
     app.add_directive("pprint", PrettyPrintDirective)
-    # Builder specific hook
-    app.connect("html-page-context", check_example_error)
     # Builder inited hooks
     app.connect("builder-inited", copy_examples)
     app.connect("builder-inited", check_pandoc_installed)
@@ -343,20 +305,6 @@ numpydoc_validation_checks = {
     # separating the parameter name and type",
 }
 
-# numpydoc_validation_exclude = {  # set of regex
-#     r"\.AEDTMessageManager.add_message$",  # bad SS05
-#     r"\.Modeler3D\.create_choke$",  # bad RT05
-#     r"HistoryProps.",  # bad RT05 because of the base class named OrderedDict
-# }
-
-# # Add any paths that contain templates here, relative to this directory.
-# templates_path = ["_templates"]
-
-# # disable generating the sphinx nested documentation
-# if "PYAEDT_CI_NO_AUTODOC" in os.environ:
-#     templates_path.clear()
-
-
 # Copy button customization ---------------------------------------------------
 # exclude traditional Python prompts from the copied code
 copybutton_prompt_text = r">>> ?|\.\.\. "
@@ -370,20 +318,8 @@ language = "en"
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = [
-    # "_build",
-    # "sphinx_boogergreen_theme_1",
-    # "Thumbs.db",
-    # ".DS_Store",
-    # "*.txt",
     "conf.py",
-    # "constants.py",
 ]
-
-# inheritance_graph_attrs = dict(rankdir="RL", size='"8.0, 10.0"', fontsize=14, ratio="compress")
-# inheritance_node_attrs = dict(
-#     shape="ellipse", fontsize=14, height=0.75, color="dodgerblue1", style="filled"
-# )
-
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -410,46 +346,14 @@ nbsphinx_custom_formats = {
 }
 
 # Pyvista customization
-# pyvista.set_error_output_file("errors.txt")
-# Ensure that offscreen rendering is used for docs generation
-# pyvista.OFF_SCREEN = True
-# Preferred plotting style for documentation
-# pyvista.set_plot_theme('document')
-# must be less than or equal to the XVFB window size
+
+# Must be less than or equal to the XVFB window size
 pyvista.global_theme["window_size"] = np.array([1024, 768])
 
 # Save figures in specified directory
 pyvista.FIGURE_PATH = os.path.join(os.path.abspath("./images/"), "auto-generated/")
 if not os.path.exists(pyvista.FIGURE_PATH):
     os.makedirs(pyvista.FIGURE_PATH)
-
-# # suppress annoying matplotlib bug
-# warnings.filterwarnings(
-#     "ignore",
-#     category=UserWarning,
-#     message="Matplotlib is currently using agg so figures are not shown.",
-# )
-
-# necessary for pyvista when building the sphinx gallery
-# pyvista.BUILDING_GALLERY = True
-
-# jinja_contexts = {
-#     "main_toctree": {
-#         "run_examples": config["run_examples"],
-#     },
-# }
-# def prepare_jinja_env(jinja_env) -> None:
-#     """
-#     Customize the jinja env.
-#
-#     Notes
-#     -----
-#     See https://jinja.palletsprojects.com/en/3.0.x/api/#jinja2.Environment
-#     """
-#     jinja_env.globals["project_name"] = project
-#
-#
-# autoapi_prepare_jinja_env = prepare_jinja_env
 
 # -- Options for HTML output -------------------------------------------------
 html_short_title = html_title = "PyAEDT Examples"

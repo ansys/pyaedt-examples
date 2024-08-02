@@ -1,7 +1,9 @@
 # # HFSS 3D Layout: Pre-layout Signal Integrity
 # This example shows how to create a parameterized layout design, and load the layout into HFSS 3D Layout for analysis and
 # post-processing.
+#
 # - Create EDB
+#
 #     - Add material
 #     - Create stackup
 #     - Create a parameterized via padstack definition
@@ -10,7 +12,9 @@
 #     - Create signal vias and traces
 #     - Create ground stitching vias
 #     - Create HFSS analysis setup and frequency sweep
+#
 # - Import EDB into HFSS 3D Layout
+#
 #     - Place SMA connector
 #     - Analysis
 #     - Plot return loss
