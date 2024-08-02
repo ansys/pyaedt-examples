@@ -8,30 +8,25 @@
 # Keywords: **HFSS**, **antenna array**, **far field**.
 
 
-# ## Perform required imports
-#
-# Perform required imports.
+# ## Preparation
+# Import the required packages
 
 import os
 import tempfile
-import pyaedt
-from pyaedt.modules.solutions import FfdSolutionData
+import time
 
-# Set constant values
+import pyaedt
+from pyaedt.generic.farfield_visualization import FfdSolutionData
+
+# Define constants.
 
 AEDT_VERSION = "2024.1"
 NUM_CORES = 4
-
-# ## Set non-graphical mode
-#
-# Set non-graphical mode.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
-
-non_graphical = False
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary directory
 
-temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Download 3D component
 # Download the 3D component that is needed to run the example.
@@ -42,22 +37,26 @@ example_path = pyaedt.downloads.download_3dcomponent(destination=temp_dir.name)
 #
 # Launch HFSS and open the project.
 
-project_name = pyaedt.generate_unique_project_name(rootname=temp_dir.name, project_name="array")
+# +
+project_name = os.path.join(temp_dir.name, "array.aedt")
 hfss = pyaedt.Hfss(
     project=project_name,
     version=AEDT_VERSION,
     design="Array_Simple",
-    non_graphical=non_graphical,
+    non_graphical=NG_MODE,
     new_desktop=True,
 )
 
 print("Project name " + project_name)
+# -
 
 # ## Read array definition from JSON file
 #
 # Read JSON file.
 
-dict_in = pyaedt.general_methods.read_json(os.path.join(example_path, "array_simple.json"))
+dict_in = pyaedt.general_methods.read_json(
+    os.path.join(example_path, "array_simple.json")
+)
 
 # ## 3D Component definition
 #
@@ -91,8 +90,7 @@ array.cells[2][2].rotation = 90
 setup = hfss.create_setup()
 setup.props["Frequency"] = "5GHz"
 setup.props["MaximumPasses"] = 3
-
-hfss.analyze(num_cores=NUM_CORES)
+hfss.analyze(cores=NUM_CORES)
 
 
 # ## Get far field data
@@ -100,16 +98,15 @@ hfss.analyze(num_cores=NUM_CORES)
 # Get far field data. After the simulation completes, the far
 # field data is generated port by port and stored in a data class.
 
-ffdata = hfss.get_antenna_ffd_solution_data(
-    sphere_name="Infinite Sphere1", setup_name=hfss.nominal_adaptive, frequencies=[5e9]
-)
+ffdata = hfss.get_antenna_data(setup=hfss.nominal_adaptive, sphere="Infinite Sphere1")
 
 # ## Generate contour plot
 #
 # Generate a contour plot. You can define the Theta scan and Phi scan.
 
-ffdata.plot_farfield_contour(
-    farfield_quantity="RealizedGain", title="Contour at {}Hz".format(ffdata.frequency)
+ffdata.farfield_data.plot_contour(
+    quantity="RealizedGain",
+    title="Contour at {}Hz".format(ffdata.farfield_data.frequency),
 )
 
 # ## Release AEDT
@@ -117,25 +114,27 @@ ffdata.plot_farfield_contour(
 # Release AEDT.
 # Far field post-processing can be performed without AEDT because the data is stored.
 
-eep_file = ffdata.eep_files
-frequencies = ffdata.frequencies
+metadata_file = ffdata.metadata_file
 working_directory = hfss.working_directory
 
+hfss.save_project()
 hfss.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
 
 # ## Load far field data
 #
 # Load far field data stored.
 
-ffdata = FfdSolutionData(frequencies=frequencies[0], eep_files=eep_file[0])
+ffdata = FfdSolutionData(input_file=metadata_file)
 
 # ## Generate contour plot
 #
 # Generate a contour plot. You can define the Theta scan
 # and Phi scan.
 
-ffdata.plot_farfield_contour(
-    farfield_quantity="RealizedGain", title="Contour at {}Hz".format(ffdata.frequency)
+ffdata.plot_contour(
+    quantity="RealizedGain", title="Contour at {}Hz".format(ffdata.frequency)
 )
 
 # ## Generate 2D cutout plots
@@ -143,29 +142,35 @@ ffdata.plot_farfield_contour(
 # Generate 2D cutout plots. You can define the Theta scan
 # and Phi scan.
 
-ffdata.plot_2d_cut(
+ffdata.plot_cut(
+    quantity="RealizedGain",
     primary_sweep="theta",
     secondary_sweep_value=[-180, -75, 75],
-    farfield_quantity="RealizedGain",
     title="Azimuth at {}Hz".format(ffdata.frequency),
     quantity_format="dB10",
 )
 
-ffdata.plot_2d_cut(
+ffdata.plot_cut(
+    quantity="RealizedGain",
     primary_sweep="phi",
     secondary_sweep_value=30,
-    farfield_quantity="RealizedGain",
     title="Elevation",
     quantity_format="dB10",
 )
 
-# ## Generate 3D polar plots in Matplotlib
+# ## Generate 3D plot
 #
-# Generate 3D polar plots in Matplotlib. You can define
-# the Theta scan and Phi scan.
+# Generate 3D plots. You can define the Theta scan and Phi scan.
 
-ffdata.polar_plot_3d(farfield_quantity="RealizedGain")
+# ffdata.plot_3d(quantity='RealizedGain',
+#                output_file=os.path.join(working_directory, "Image.jpg"),
+#                show=False)
 
-# ## Clean temporary directory
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
 temp_dir.cleanup()
