@@ -64,6 +64,7 @@ cs1.rename("newCS")
 # ## Change coordinate system mode
 #
 # Use the ``change_cs_mode`` method to change the mode. Options are
+#
 # - ``0`` for axis/position
 # - ``1`` for Euler angle ZXZ
 # - ``2`` for Euler angle ZYZ.
@@ -104,6 +105,7 @@ cs3 = hfss.modeler.create_coordinate_system(
 )
 
 # Create a coordinate system that is defined by standard views in the modeler. The options are 
+#
 # - ``"iso"``
 # - ``"XY"``
 # - ``"XZ"``
