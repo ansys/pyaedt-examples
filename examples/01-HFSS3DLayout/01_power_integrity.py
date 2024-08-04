@@ -1,13 +1,17 @@
 # # HFSS 3D Layout: Power Integrity Analysis
 # This example shows how to use the electronics database (EDB) for power integrity analysis. The 
 # EDB will be loaded into HFSS 3D Layout for analysis and post-processing.
+#
 # - Set up EDB
+#
 #     - Assign S-parameter model to components
 #     - Create pin groups
 #     - Create ports
 #     - Create SIwave SYZ anaylsis
 #     - Create cutout
+#
 # - Import EDB into HFSS 3D Layout
+#
 #     - Analyze
 #     - Plot $Z_{11}$
 

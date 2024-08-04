@@ -12,10 +12,11 @@ on:
     - cron: "0 3 * * *"
 
 env:
-  MAIN_PYTHON_VERSION: '3.10'
-  PACKAGE_NAME: 'pyaedt-examples'
   ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
+  DOCUMENTATION_CNAME: 'examples.aedt.docs.pyansys.com'
+  MAIN_PYTHON_VERSION: '3.10'
   ON_CI: True
+  PACKAGE_NAME: 'pyaedt-examples'
   PYAEDT_NON_GRAPHICAL: '1'
   PYAEDT_DOC_GENERATION: '1'
 
@@ -93,28 +94,10 @@ jobs:
           path: doc/_build/latex
           retention-days: 7
 
-  release:
-    if: github.event_name == 'refs/heads/main' && !contains(github.ref, 'refs/tags')
-    needs: [doc-build, doc-style]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/download-artifact@v4
-
-      - name: Display structure of downloaded files
-        run: ls -R
-
-      - name: Zip HTML documentation
-        uses: vimtor/action-zip@v1.2
+      - name: Deploy
+        if: contains(github.ref, 'refs/heads/main')
+        uses: ansys/actions/doc-deploy-dev@v4
         with:
-          files: documentation-html
-          dest: documentation-html.zip
-
-      - name: Release
-        uses: softprops/action-gh-release@v2
-        with:
-          generate_release_notes: true
-          files: |
-            ./documentation-html.zip
-            ./documentation-pdf/*.pdf
+          cname: ${{ env.DOCUMENTATION_CNAME }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          doc-artifact-name: 'documentation-html'
