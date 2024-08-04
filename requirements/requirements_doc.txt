@@ -8,7 +8,7 @@ numpy==1.26.4
 openpyxl==3.1.4
 osmnx==1.9.0
 pandas==2.2.0
-pyvista==0.43.3
+pyvista==0.44.0
 fast-simplification==0.1.7
 joblib==1.4.0
 # Never directly imported but required when loading ML related file

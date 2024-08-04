@@ -12,13 +12,17 @@
 # Perform required imports.
 #
 
+import os
 import tempfile
+import time
+
 import pyaedt
 
 # Set constant values
 
 AEDT_VERSION = "2024.1"
 NUM_CORES = 4
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 
 # ## Launch Ansys Electronics Desktop (AEDT)
@@ -50,18 +54,15 @@ new_thread = True
 
 temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 
-# ### Save the project and results in the TEMP folder
-
-project_name = pyaedt.generate_unique_project_name(rootname=temp_dir.name, project_name="waveguide")
-
 # ### Create the HFSS design
 
+project_name = os.path.join(temp_dir.name, "waveguide.aedt")
 hfss = pyaedt.Hfss(
     project=project_name,
     version=AEDT_VERSION,
     design="filter",
     solution_type="Modal",
-    non_graphical=non_graphical,
+    non_graphical=NG_MODE,
     new_desktop=True,
     close_on_exit=True,
 )
@@ -81,7 +82,9 @@ for key in wgparams:
         for v in wgparams[key]:
             this_key = key + str(count)
             hfss[this_key] = str(v) + wgparams["units"]
-            var_mapping[this_key] = v  # Used to parse expressions and generate numerical values.
+            var_mapping[
+                this_key
+            ] = v  # Used to parse expressions and generate numerical values.
             count += 1
 
 if len(wgparams["l"]) % 2 == 0:
@@ -110,7 +113,7 @@ def place_iris(z_pos, dz, param_count):
             ["-b/2", "-a/2", z_pos],
             ["(b - " + w_str + ")/2", "a", dz],
             name=this_name,
-            matname="silver",
+            material="silver",
         )
     )
     iris_new.append(iris_new[0].mirror([0, 0, 0], [1, 0, 0], duplicate=True))
@@ -150,7 +153,10 @@ wg_length = hfss.variable_manager["wg_length"]
 hfss["u_start"] = "-a/2"
 hfss["u_end"] = "a/2"
 hfss.modeler.create_box(
-    ["-b/2", "-a/2", "wg_z_start"], ["b", "a", "wg_length"], name="waveguide", matname="vacuum"
+    ["-b/2", "-a/2", "wg_z_start"],
+    ["b", "a", "wg_length"],
+    name="waveguide",
+    material="vacuum",
 )
 
 # ### Draw the whole waveguide.
@@ -171,13 +177,16 @@ wg_z = [
 count = 0
 ports = []
 for n, z in enumerate(wg_z):
-    face_id = hfss.modeler.get_faceid_from_position([0, 0, z], obj_name="waveguide")
+    face_id = hfss.modeler.get_faceid_from_position([0, 0, z], assignment="waveguide")
     u_start = [0, hfss.variable_manager["u_start"].evaluated_value, z]
     u_end = [0, hfss.variable_manager["u_end"].evaluated_value, z]
 
     ports.append(
         hfss.wave_port(
-            face_id, integration_line=[u_start, u_end], name="P" + str(n + 1), renormalize=False
+            face_id,
+            integration_line=[u_start, u_end],
+            name="P" + str(n + 1),
+            renormalize=False,
         )
     )
 
@@ -191,16 +200,16 @@ for n, z in enumerate(wg_z):
 # +
 setup = hfss.create_setup(
     "Setup1",
-    setuptype="HFSSDriven",
+    setup_type="HFSSDriven",
     MultipleAdaptiveFreqsSetup=["9.8GHz", "10.2GHz"],
     MaximumPasses=5,
 )
 
 setup.create_frequency_sweep(
     unit="GHz",
-    sweepname="Sweep1",
-    freqstart=9.5,
-    freqstop=10.5,
+    name="Sweep1",
+    start_frequency=9.5,
+    stop_frequency=10.5,
     sweep_type="Interpolating",
 )
 # -
@@ -211,7 +220,7 @@ setup.create_frequency_sweep(
 
 setup.analyze(num_tasks=2, num_cores=NUM_CORES)
 
-# ### Generate S-Parameter Plots
+# ### Post-processing
 #
 #  The following commands fetch solution data from HFSS for plotting directly
 #  from the Python interpreter.
@@ -226,16 +235,14 @@ solution = report.get_solution_data()
 plt = solution.plot(solution.expressions)  # Matplotlib axes object.
 # -
 
-# ### Generate E field plot
-#
 #  The following command generates a field plot in HFSS and uses PyVista
 #  to plot the field in Jupyter.
 
 plot = hfss.post.plot_field(
     quantity="Mag_E",
-    object_list=["Global:XZ"],
+    assignment=["Global:XZ"],
     plot_type="CutPlane",
-    setup_name=hfss.nominal_adaptive,
+    setup=hfss.nominal_adaptive,
     intrinsics={"Freq": "9.8GHz", "Phase": "0deg"},
     export_path=hfss.working_directory,
     show=False,
@@ -247,7 +254,14 @@ plot = hfss.post.plot_field(
 
 hfss.save_project()
 hfss.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
 
-# ## Clean temporary directory
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes
+# all temporary files, including the project folder.
 
 temp_dir.cleanup()
