@@ -50,8 +50,8 @@ setup.update()
 #
 # Analyze and save the project.
 
-m3d.save_project()
 m3d.analyze_setup(name=setup.name)
+m3d.save_project()
 
 # ## Create field expression to evaluate J field
 #
@@ -63,10 +63,10 @@ fields.EnterQty("J")
 fields.EnterVol("Coil_A2")
 fields.CalcOp("Value")
 
-"""
-J is not scalar so you can not add as a named expression!
-J can only be exported: fields.CalculatorWrite()
-"""
+
+# J is not scalar so you can not add as a named expression!
+# J can only be exported: fields.CalculatorWrite()
+
 
 # ## Release AEDT and clean up temporary directory
 #
