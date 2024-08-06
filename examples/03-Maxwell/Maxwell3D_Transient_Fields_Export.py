@@ -53,20 +53,23 @@ setup.update()
 m3d.analyze_setup(name=setup.name)
 m3d.save_project()
 
-# ## Create field expression to evaluate J field
+# ## Create field expressions
 #
-# Create a field expression to evaluate J field for a certain object
+# Create a field expression to evaluate J field normal to a surface
+# Calculate the average value of the J field
 
 fields = m3d.ofieldsreporter
 fields.CalcStack("clear")
 fields.EnterQty("J")
-fields.EnterVol("Coil_A2")
-fields.CalcOp("Value")
+fields.EnterSurf("Coil_A2")
+fields.CalcOp("Normal")
+fields.CalcOp("Dot")
+fields.AddNameExpression("Jnormal", "Fields")
 
-
-# J is not scalar so you can not add as a named expression!
-# J can only be exported: fields.CalculatorWrite()
-
+fields.CopyNamedExprToStack("Jnormal")
+fields.EnterSurf("Coil_A2_ObjectFromFace1")
+fields.CalcOp("Mean")
+fields.AddNamedExpression("JA2_avg", "Fields")
 
 # ## Release AEDT and clean up temporary directory
 #
