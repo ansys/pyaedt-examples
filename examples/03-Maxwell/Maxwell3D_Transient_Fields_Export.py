@@ -1,13 +1,13 @@
 # # Maxwell 3D: fields export in transient
-
-# This example uses PyAEDT to export J field values for selected time steps in Maxwell 3D transient solver.
-# Keywords: time steps, field export
+# Description here!
+# Keywords: time steps, field calculator
 
 # ## Perform required imports
 #
 # Perform required imports.
 
-from pyaedt import Maxwell3d
+import tempfile
+import pyaedt
 
 # ## Define constants
 
@@ -23,35 +23,26 @@ NG_MODE = False
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
+# ## Import project
+#
+# Import of the project in the temporary directory
+
+project_path = pyaedt.downloads.download_file(
+    source="maxwell_transient_fields",
+    name="M3D_Transient_StrandedWindings.aedtz",
+    destination=temp_folder.name
+)
+
 # ## Initialize and launch Maxwell 2D
 #
 # Initialize and launch Maxwell 2D, providing the version, path to the project, the design
 # name and type.
 
-m3d = Maxwell3d(
+m3d = pyaedt.Maxwell3d(
+    project=project_path,
     version=AEDT_VERSION,
     non_graphical=NG_MODE
 )
-
-# ## Create setup and validate
-#
-# Create the setup and validate it.
-
-setup = m3d.create_setup(name="Setup1")
-setup.props["StopTime"] = "0.02s"
-setup.props["TimeStep"] = "0.002s"
-setup.props["SaveFieldsType"] = "Every N Steps"
-setup.props["N Steps"] = "2"
-setup.props["Steps From"] = "0s"
-setup.props["Steps To"] = "0.02s"
-setup.update()
-
-# ## Analyze and save project
-#
-# Analyze and save the project.
-
-m3d.analyze_setup(name=setup.name)
-m3d.save_project()
 
 # ## Create field expressions
 #
@@ -64,12 +55,12 @@ fields.EnterQty("J")
 fields.EnterSurf("Coil_A2")
 fields.CalcOp("Normal")
 fields.CalcOp("Dot")
-fields.AddNameExpression("Jnormal", "Fields")
+fields.AddNamedExpression("Jn", "Fields")
 
-fields.CopyNamedExprToStack("Jnormal")
+fields.CopyNamedExprToStack("Jn")
 fields.EnterSurf("Coil_A2_ObjectFromFace1")
 fields.CalcOp("Mean")
-fields.AddNamedExpression("JA2_avg", "Fields")
+fields.AddNamedExpression("J_avg_A2", "Fields")
 
 # ## Release AEDT and clean up temporary directory
 #
