@@ -20,7 +20,7 @@ from IPython.display import Image
 # Set constant values
 
 AEDT_VERSION = "2024.1"
-NG_MODE = True  # Do not show the graphical user-interface.
+NG_MODE = False # Do not show the graphical user-interface.
 
 
 # ## Open project
