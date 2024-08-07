@@ -7,16 +7,15 @@
 # ## Import PyAEDT and download files
 # Perform import of required classes from the ``pyaedt`` package and import the ``os`` package.
 
-# +
 import os
 import tempfile
 
 from pyaedt import Icepak, downloads
-# -
 
 # Set constant values
 
 AEDT_VERSION = "2024.1"
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # Download needed files in a temporary folder
 
@@ -26,19 +25,13 @@ package_temp_name, qfp_temp_name = downloads.download_icepak_3d_component(
 )
 
 
-# ## Set non-graphical mode
-# Set non-graphical mode.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
-
-non_graphical = False
-
 # ## Create heatsink
 # Create new empty project in non-graphical mode.
 
 ipk = Icepak(
     project=os.path.join(temp_folder.name, "Heatsink.aedt"),
     version=AEDT_VERSION,
-    non_graphical=non_graphical,
+    non_graphical=NG_MODE,
     close_on_exit=True,
     new_desktop=True,
 )
@@ -50,18 +43,22 @@ ipk.modeler["Region"].delete()
 
 # Define the heatsink using multiple boxes
 
-hs_base = ipk.modeler.create_box(origin=[0, 0, 0], sizes=[37.5, 37.5, 2], name="HS_Base")
+hs_base = ipk.modeler.create_box(
+    origin=[0, 0, 0], sizes=[37.5, 37.5, 2], name="HS_Base"
+)
 hs_base.material_name = "Al-Extruded"
 hs_fin = ipk.modeler.create_box(origin=[0, 0, 2], sizes=[37.5, 1, 18], name="HS_Fin1")
 hs_fin.material_name = "Al-Extruded"
 n_fins = 11
 hs_fins = hs_fin.duplicate_along_line(vector=[0, 3.65, 0], clones=n_fins)
 
-ipk.plot(show=False, export_path=os.path.join(temp_folder.name, "Heatsink.jpg"))
+ipk.plot(show=False, output_file=os.path.join(temp_folder.name, "Heatsink.jpg"))
 
 # Definition of a mesh region around the heatsink
 
-mesh_region = ipk.mesh.assign_mesh_region(assignment=[hs_base.name, hs_fin.name] + hs_fins)
+mesh_region = ipk.mesh.assign_mesh_region(
+    assignment=[hs_base.name, hs_fin.name] + hs_fins
+)
 mesh_region.manual_settings = True
 mesh_region.settings["MaxElementSizeX"] = "5mm"
 mesh_region.settings["MaxElementSizeY"] = "5mm"
@@ -87,10 +84,14 @@ ipk.monitor.assign_point_monitor(
     monitor_name="TopPoint",
 )
 ipk.monitor.assign_face_monitor(
-    face_id=hs_base.bottom_face_z.id, monitor_quantity="Temperature", monitor_name="Bottom"
+    face_id=hs_base.bottom_face_z.id,
+    monitor_quantity="Temperature",
+    monitor_name="Bottom",
 )
 ipk.monitor.assign_point_monitor_in_object(
-    name=hs_middle_fin.name, monitor_quantity="Temperature", monitor_name="MiddleFinCenter"
+    name=hs_middle_fin.name,
+    monitor_quantity="Temperature",
+    monitor_name="MiddleFinCenter",
 )
 
 # Export the heatsink 3D component in a ``"componentLibrary"`` folder.
@@ -98,29 +99,31 @@ ipk.monitor.assign_point_monitor_in_object(
 
 os.mkdir(os.path.join(temp_folder.name, "componentLibrary"))
 ipk.modeler.create_3dcomponent(
-    component_file=os.path.join(temp_folder.name, "componentLibrary", "Heatsink.a3dcomp"),
+    component_file=os.path.join(
+        temp_folder.name, "componentLibrary", "Heatsink.a3dcomp"
+    ),
     component_name="Heatsink",
     auxiliary_dict=True,
 )
-ipk.close_project(save_project=False)
+ipk.close_project(save=False)
 
 # ## Create QFP
 # Open the previously downloaded project containing a QPF.
 
 ipk = Icepak(project=qfp_temp_name)
-ipk.plot(show=False, export_path=os.path.join(temp_folder.name, "QFP2.jpg"))
+ipk.plot(show=False, output_file=os.path.join(temp_folder.name, "QFP2.jpg"))
 
 # Create dataset for power dissipation.
 
 x_datalist = [45, 53, 60, 70]
 y_datalist = [0.5, 3, 6, 9]
 ipk.create_dataset(
-    dsname="PowerDissipationDataset",
-    xlist=x_datalist,
-    ylist=y_datalist,
+    name="PowerDissipationDataset",
+    x=x_datalist,
+    y=y_datalist,
     is_project_dataset=False,
-    xunit="cel",
-    yunit="W",
+    x_unit="cel",
+    y_unit="W",
 )
 
 # Assign source power condition to the die.
@@ -166,7 +169,9 @@ ipk.release_desktop(close_projects=False, close_desktop=False)
 # Download and open a project containing the electronic package.
 
 ipk = Icepak(
-    project=package_temp_name, version=AEDT_VERSION, non_graphical=non_graphical
+    project=package_temp_name,
+    version=AEDT_VERSION,
+    non_graphical=NG_MODE,
 )
 ipk.plot(
     objects=[o for o in ipk.modeler.object_names if not o.startswith("DomainBox")],
@@ -201,10 +206,10 @@ QFP2_obj = ipk.modeler.insert_3d_component(
 )
 
 ipk.plot(
-    objects=[o for o in ipk.modeler.object_names if not o.startswith("DomainBox")],
+    assignment=[o for o in ipk.modeler.object_names if not o.startswith("DomainBox")],
     show=False,
     plot_air_objects=False,
-    export_path=os.path.join(temp_folder.name, "electronic_package.jpg"),
+    output_file=os.path.join(temp_folder.name, "electronic_package.jpg"),
     force_opacity_value=0.5,
 )
 # -
@@ -220,14 +225,16 @@ cs_pcb_assembly = ipk.modeler.create_coordinate_system(
     y_pointing=[0, 1, 0],
 )
 
-# Export of the whole assembly as 3d component and close project. First, a flattening
-# is needed because nested 3d components are not natively supported. Then it is possible
-# to export the whole package as 3d component. Here the auxiliary dictionary is needed
+# Export of the entire assembly as a 3D component and close the project. First, the nested
+# hierarchy must be flattned since nested 3d components are currently not supported. Subsequently,
+# the whole package can be exported as a 3D component. The auxiliary dictionary is needed
 # to export monitor objects, datasets and native components.
 
 ipk.flatten_3d_components()
 ipk.modeler.create_3dcomponent(
-    component_file=os.path.join(temp_folder.name, "componentLibrary", "PCBAssembly.a3dcomp"),
+    component_file=os.path.join(
+        temp_folder.name, "componentLibrary", "PCBAssembly.a3dcomp"
+    ),
     component_name="PCBAssembly",
     auxiliary_dict=True,
     included_cs=["Global", "HeatsinkCS", "PCB_Assembly"],
@@ -235,8 +242,14 @@ ipk.modeler.create_3dcomponent(
 )
 
 # ## Release AEDT
-#
-# Release AEDT and remove the temporary folder.
 
 ipk.release_desktop(close_projects=True, close_desktop=True)
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
+
 temp_folder.cleanup()

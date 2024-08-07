@@ -186,7 +186,7 @@ ffdata = hfss.get_antenna_data(
 # Generate 2D cutout plot. You can define the Theta scan
 # and Phi scan.
 
-ffdata.plot_cut(
+ffdata.farfield_data.plot_cut(
     primary_sweep="theta",
     secondary_sweep_value=0,
     quantity="RealizedGain",
