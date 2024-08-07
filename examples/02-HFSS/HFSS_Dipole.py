@@ -139,9 +139,7 @@ solution_data.plot()
 # method with an arbitrary name.
 
 hfss["post_x"] = 2
-hfss.variable_manager.set_variable(
-    name="y_post", expression=1, is_post_processing=True
-)
+hfss.variable_manager.set_variable(name="y_post", expression=1, is_post_processing=True)
 hfss.modeler.create_coordinate_system(origin=["post_x", "y_post", 0], name="CS_Post")
 hfss.insert_infinite_sphere(custom_coordinate_system="CS_Post", name="Sphere_Custom")
 
@@ -177,7 +175,7 @@ solutions.plot(formula="db20", is_polar=True)
 # field data is generated port by port and stored in a data class, , user can use this data
 # once AEDT is released.
 
-ffdata = hfss.get_antenna_ffd_solution_data(
+ffdata = hfss.get_antenna_data(
     sphere="Sphere_Custom",
     setup=hfss.nominal_adaptive,
     frequencies=["1000MHz"],
@@ -188,7 +186,7 @@ ffdata = hfss.get_antenna_ffd_solution_data(
 # Generate 2D cutout plot. You can define the Theta scan
 # and Phi scan.
 
-ffdata.plot_2d_cut(
+ffdata.plot_cut(
     primary_sweep="theta",
     secondary_sweep_value=0,
     quantity="RealizedGain",
@@ -206,7 +204,9 @@ time.sleep(3)
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files.
+# The following cell removes all temporary files, including the project folder.
 
 temp_dir.cleanup()
