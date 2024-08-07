@@ -7,11 +7,12 @@
 # Perform required imports.
 
 import tempfile
+
 import pyaedt
 
 # ## Define constants
 
-AEDT_VERSION = "2024.2"
+AEDT_VERSION = "2024.1"
 NG_MODE = False
 
 # ## Create temporary directory and download files
@@ -25,12 +26,12 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Import project
 #
-# Import of the project in the temporary directory
+# The files required to run this example will be downloaded to the temporary working folder.
 
 project_path = pyaedt.downloads.download_file(
     source="maxwell_transient_fields",
-    name="M3D_Transient_StrandedWindings.aedtz",
-    destination=temp_folder.name
+    name="M3D_Transient_StrandedWindings.aedt",
+    destination=temp_folder.name,
 )
 
 # ## Initialize and launch Maxwell 2D
@@ -39,15 +40,26 @@ project_path = pyaedt.downloads.download_file(
 # name and type.
 
 m3d = pyaedt.Maxwell3d(
-    project=project_path,
-    version=AEDT_VERSION,
-    non_graphical=NG_MODE
+    project=project_path, version=AEDT_VERSION, non_graphical=NG_MODE
 )
+
+# ## Create setup and validate
+#
+# Create the setup specifying general settings such as ``StopTime`` and ``TimeStep``
+# and the save fields type.
+
+setup = m3d.create_setup(name="Setup1")
+setup.props["StopTime"] = "0.02s"
+setup.props["TimeStep"] = "0.002s"
+setup.props["SaveFieldsType"] = "Every N Steps"
+setup.props["N Steps"] = "2"
+setup.props["Steps From"] = "0s"
+setup.props["Steps To"] = "0.02s"
+setup.update()
 
 # ## Create field expressions
 #
-# Create a field expression to evaluate J field normal to a surface
-# Calculate the average value of the J field
+# Create a field expression to evaluate J field normal to a surface.
 
 fields = m3d.ofieldsreporter
 fields.CalcStack("clear")
@@ -57,10 +69,16 @@ fields.CalcOp("Normal")
 fields.CalcOp("Dot")
 fields.AddNamedExpression("Jn", "Fields")
 
+# Calculate the average value of the J field
+
 fields.CopyNamedExprToStack("Jn")
-fields.EnterSurf("Coil_A2_ObjectFromFace1")
+fields.EnterSurf("Coil_A2")
 fields.CalcOp("Mean")
 fields.AddNamedExpression("J_avg_A2", "Fields")
+
+# Analyze setup specifying setup name.
+
+m3d.analyze_setup(name=setup.name)
 
 # ## Release AEDT and clean up temporary directory
 #
@@ -68,4 +86,3 @@ fields.AddNamedExpression("J_avg_A2", "Fields")
 
 m3d.release_desktop()
 temp_folder.cleanup()
-
