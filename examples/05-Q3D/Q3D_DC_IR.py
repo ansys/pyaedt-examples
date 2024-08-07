@@ -7,20 +7,16 @@
 #
 # Perform required imports.
 
-# +
 import os
 import tempfile
-
 import pyaedt
 import pyedb
-
-# -
 
 # Set constant values
 
 AEDT_VERSION = "2024.1"
-EDB_VERSION = "2024.1"
 NUM_CORES = 4
+NG_MODE = True
 
 # ## Create temporary directory
 #
@@ -48,7 +44,7 @@ output_q3d = os.path.join(temp_dir.name, project_name + "_q3d.aedt")
 # Open the EDB project and create a cutout on the selected nets
 # before exporting to Q3D.
 
-edb = pyedb.Edb(aedb_project, edbversion=EDB_VERSION)
+edb = pyedb.Edb(aedb_project, edbversion=AEDT_VERSION)
 signal_nets = ["1.2V_AVDLL_PLL", "1.2V_AVDDL", "1.2V_DVDDL", "NetR106_1"]
 ground_nets = ["GND"]
 cutout_points = edb.cutout(
@@ -109,7 +105,7 @@ edb.save_edb()
 edb.close_edb()
 
 h3d = pyaedt.Hfss3dLayout(
-    output_edb, version=AEDT_VERSION, non_graphical=False, new_desktop=True
+    output_edb, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True
 )
 # -
 
@@ -295,8 +291,7 @@ q3d.release_desktop()
 
 # ## Cleanup
 #
-# If you are running this example as a Jupyter notebook you can retrieve all project files
-# from ``temp_dir.name``.
-# The next cell cleans up the temporary directory and removes all project files.
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 temp_dir.cleanup()

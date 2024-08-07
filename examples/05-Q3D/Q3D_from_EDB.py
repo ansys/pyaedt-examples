@@ -7,19 +7,16 @@
 #
 # Perform required imports.
 
-# +
 import os
 import tempfile
-
 import pyaedt
 import pyedb
-# -
 
 # Set constant values
 
 AEDT_VERSION = "2024.1"
-EDB_VERSION = "2024.1"
 NUM_CORES = 4
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary directory
 #
@@ -47,18 +44,18 @@ output_q3d = os.path.join(project_dir, project_name + "_q3d.aedt")
 # Open the edb project and created a cutout on the selected nets
 # before exporting to Q3D.
 
-edb = pyedb.Edb(aedb_project, edbversion=EDB_VERSION)
-edb.cutout(
-    ["CLOCK_I2C_SCL", "CLOCK_I2C_SDA"],
-    ["GND"],
-    output_aedb_path=output_edb,
-    use_pyaedt_extent_computing=True,
-)
+edb = pyedb.Edb(aedb_project, edbversion=AEDT_VERSION)
+cutout_points = edb.cutout(
+                ["CLOCK_I2C_SCL", "CLOCK_I2C_SDA"],
+                ["GND"],
+                output_aedb_path=output_edb,
+                use_pyaedt_extent_computing=True,
+            )
 
 
-# ## Identify pins position
+# ## Identify the position of pins
 #
-# Identify [x,y] pin locations on the components to define where to assign sources
+# Identify $(x,y)$ pin locations on the components to define where to assign sources
 # and sinks for Q3D and append Z elevation.
 
 pin_u13_scl = [i for i in edb.components["U13"].pins.values() if i.net_name == "CLOCK_I2C_SCL"]
@@ -68,7 +65,7 @@ pin_u1_sda = [i for i in edb.components["U1"].pins.values() if i.net_name == "CL
 
 # ## Append Z Positions
 #
-# Note: The factor 100 converts from "meters" to "mm"
+# Note: The factor 1000 converts from "meters" to "mm"
 
 # +
 location_u13_scl = [i * 1000 for i in pin_u13_scl[0].position]
@@ -84,7 +81,7 @@ location_u1_sda = [i * 1000 for i in pin_u1_sda[0].position]
 location_u1_sda.append(edb.components["U1"].upper_elevation * 1000)
 # -
 
-# ## Save and close Edb
+# ## Save and close the EDB
 #
 # Save, close Edb and open it in Hfss 3D Layout to generate the 3D model.
 
@@ -93,22 +90,20 @@ edb.save_edb()
 edb.close_edb()
 
 h3d = pyaedt.Hfss3dLayout(
-    output_edb, version=AEDT_VERSION, non_graphical=True, new_desktop=True
+    output_edb, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True
 )
 # -
 
-# ## Export to Q3D
+# ## Set up the Q3D Project
 #
-# Create a dummy setup and export the layout in Q3D.
-# keep_net_name will reassign Q3D nets names from Hfss 3D Layout.
+# Use HFSS 3D Layout to export the model to Q3D Extractor. The named parameter
+# ``keep_net_name=True`` ensures that net names are retained when the model is exported from Hfss 3D Layout.
 
 setup = h3d.create_setup()
 setup.export_to_q3d(output_q3d, keep_net_name=True)
 h3d.close_project()
 
-# ## Open Q3D
-#
-# Launch the newly created q3d project and plot it.
+# Open the newly created Q3D project and display the layout.
 
 q3d = pyaedt.Q3d(output_q3d)
 q3d.plot(
@@ -118,8 +113,6 @@ q3d.plot(
     plot_air_objects=False,
 )
 
-# ## Assign Source and Sink
-#
 # Use previously calculated position to identify faces and
 # assign sources and sinks on nets.
 
@@ -132,10 +125,7 @@ q3d.sink(f1, net_name="CLOCK_I2C_SCL")
 f1 = q3d.modeler.get_faceid_from_position(location_u1_sda, obj_name="CLOCK_I2C_SDA")
 q3d.sink(f1, net_name="CLOCK_I2C_SDA")
 
-# ## Create Setup
-#
-# Create a setup and a frequency sweep from DC to 2GHz.
-# Analyze project.
+# Define the solution setup and the frequency sweep ranging from DC to 2GHz.
 
 setup = q3d.create_setup()
 setup.dc_enabled = True
@@ -146,18 +136,18 @@ sweep.add_subrange(
 )
 setup.analyze(num_cores=NUM_CORES)
 
-# ## ACL Report
+# ### Solve
 #
-# Compute ACL solutions and plot them.
+# Compute AC inductance and resistance.
 
 traces_acl = q3d.post.available_report_quantities(quantities_category="ACL Matrix")
 solution = q3d.post.get_solution_data(traces_acl)
-solution.plot()
 
-# ## ACR Report
+# ## Post-Processing
 #
-# Compute ACR solutions and plot them.
+# Plot AC inductance and resistance.
 
+solution.plot()
 traces_acr = q3d.post.available_report_quantities(quantities_category="ACR Matrix")
 solution2 = q3d.post.get_solution_data(traces_acr)
 solution2.plot()
@@ -167,5 +157,12 @@ solution2.plot()
 # After the simulation completes, you can close AEDT or release it using the
 # ``release_desktop`` method. All methods provide for saving projects before closing.
 
+q3d.save_project()
 q3d.release_desktop()
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+
 temp_dir.cleanup()

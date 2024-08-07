@@ -17,6 +17,7 @@ import tempfile
 
 import pyaedt
 from pyaedt.emit_core.emit_constants import ResultType, TxRxMode
+
 # -
 
 # Set constant values
