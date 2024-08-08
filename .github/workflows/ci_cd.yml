@@ -61,7 +61,7 @@ jobs:
       - name: Install project and documentation dependencies
         run: |
           .venv\Scripts\Activate.ps1
-          pip install -r requirements/requirements_doc.txt
+          pip install -r requirements/requirements_doc.txt -U
 
       # Use environment variable to keep the doctree and avoid redundant build for PDF pages
       - name: Create HTML documentation
