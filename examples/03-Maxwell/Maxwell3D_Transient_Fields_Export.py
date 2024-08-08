@@ -9,7 +9,6 @@
 import tempfile
 
 import pyaedt
-from pyaedt.generic.constants import unit_converter
 
 # ## Define constants
 
@@ -108,7 +107,7 @@ time_steps = data.intrinsics["Time"]
 # Export fields data in temporary directory as an ``.aedtplt``.
 
 for time_step in time_steps:
-    t = unit_converter(
+    t = pyaedt.generic.constants.unit_converter(
         time_step,
         unit_system="Time",
         input_units=data.units_sweeps["Time"],
