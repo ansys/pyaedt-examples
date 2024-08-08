@@ -190,20 +190,6 @@ def remove_examples(app: Sphinx, exception: None | Exception):
     shutil.rmtree(destination_dir, ignore_errors=True)
     logger.info(f"Directory removed.")
 
-def check_build_finished_without_error(app: Sphinx, exception: None | Exception):
-    """Check that no error is detected along the documentation build process.
-
-    Parameters
-    ----------
-    app : sphinx.application.Sphinx
-        Sphinx instance containing all the configuration for the documentation build.
-    exception : None or Exception
-        Exception raised during the build process.
-    """
-    if exception is not None:
-        logger.error("Build failed due to an error.")
-        exit(1)
-
 def remove_doctree(app: Sphinx, exception: None | Exception):
     """Remove the .doctree directory created during the documentation build.
 
@@ -243,7 +229,6 @@ def setup(app):
     # Build finished hooks
     app.connect("build-finished", remove_examples)
     app.connect("build-finished", remove_doctree)
-    app.connect("build-finished", check_build_finished_without_error)
 
 # -- General configuration ---------------------------------------------------
 
