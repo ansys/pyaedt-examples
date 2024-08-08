@@ -61,15 +61,22 @@ jobs:
       - name: Install project and documentation dependencies
         run: |
           .venv\Scripts\Activate.ps1
-          pip install -r requirements/requirements_doc.txt
+          pip install -r requirements/requirements_doc.txt -U
 
       # Use environment variable to keep the doctree and avoid redundant build for PDF pages
       - name: Create HTML documentation
+        id: create_html
         env:
           SPHINXBUILD_KEEP_DOCTREEDIR: "1"
         run: |
           .venv\Scripts\Activate.ps1
           . .\doc\make.bat html
+
+      - name: Check on failures
+        if: steps.create_html.outcome != 'success'
+        run: |
+          echo "Sphinx build failed, stopping the workflow."
+          exit 1
 
       - name: Upload HTML documentation artifact
         uses: actions/upload-artifact@v4
