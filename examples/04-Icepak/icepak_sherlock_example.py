@@ -94,15 +94,21 @@ ipk.assignmaterial_from_sherlock_files(
     csv_component=component_list, csv_material=material_list
 )
 
-# Delete objects with no materials assignments.
+# Delete resistor objects and objects with no materials assignments.
 
+obj_r=[m.startswith("COMP_R") for m in ipk.modeler.object_names]
 no_material_objs = ipk.modeler.get_objects_by_material(material="")
-ipk.modeler.delete(assignment=no_material_objs)
-ipk.save_project()
+ipk.modeler.delete(assignment=no_material_objs+obj_r)
 
 # Assign power blocks from the Sherlock file.
 
 total_power = ipk.assign_block_from_sherlock_file(csv_name=component_list)
+
+# ## Remove some components for the sake of simplicity
+
+for model in ipk.modeler.object_names:
+    if model.startswith("COMP_R"):
+        ipk.modeler[model].delete()
 
 # ## Plot model
 
@@ -110,6 +116,7 @@ ipk.plot(
     show=False,
     export_path=os.path.join(temp_folder.name, "Sherlock_Example.jpg"),
     plot_air_objects=False,
+    plot_as_separate_objects=False
 )
 
 # ## Create simulation setup
@@ -117,9 +124,9 @@ ipk.plot(
 # Set global mesh settings
 
 ipk.mesh.global_mesh_region.manual_settings = True
-ipk.mesh.global_mesh_region.settings["MaxElementSizeX"] = 10
-ipk.mesh.global_mesh_region.settings["MaxElementSizeY"] = 10
-ipk.mesh.global_mesh_region.settings["MaxElementSizeZ"] = 10
+ipk.mesh.global_mesh_region.settings["MaxElementSizeX"] = 30
+ipk.mesh.global_mesh_region.settings["MaxElementSizeY"] = 30
+ipk.mesh.global_mesh_region.settings["MaxElementSizeZ"] = 30
 ipk.mesh.global_mesh_region.settings["BufferLayers"] = 2
 ipk.mesh.global_mesh_region.settings["EnableMLM"] = True
 ipk.mesh.global_mesh_region.settings["UniformMeshParametersType"] = "Average"
@@ -130,9 +137,9 @@ ipk.mesh.global_mesh_region.update()
 
 mesh_region = ipk.mesh.assign_mesh_region(assignment="Board1")
 mesh_region.manual_settings = True
-mesh_region.settings["MaxElementSizeX"] = 1
-mesh_region.settings["MaxElementSizeY"] = 1
-mesh_region.settings["MaxElementSizeZ"] = 1
+mesh_region.settings["MaxElementSizeX"] = 10
+mesh_region.settings["MaxElementSizeY"] = 10
+mesh_region.settings["MaxElementSizeZ"] = 10
 mesh_region.settings["EnableMLM"] = True
 mesh_region.settings["UniformMeshParametersType"] = "Average"
 mesh_region.settings["EnforeMLMType"] = "2D"
@@ -164,7 +171,7 @@ line = ipk.modeler.create_polyline(
 )
 
 # ### Solve
-# Max iterations are set to 20 for quick demonstration, please increase to at
+# Max iterations are set to 10 for quick demonstration, please increase to at
 # least 100 for better accuracy.
 
 setup1 = ipk.create_setup()
