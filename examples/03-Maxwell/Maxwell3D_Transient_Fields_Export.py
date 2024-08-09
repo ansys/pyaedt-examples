@@ -1,6 +1,7 @@
 # # Maxwell 3D: fields export in transient
 # This example uses PyAEDT to setup transient analysis
-# and aim to plot the current density field over a coil surface.
+# of an imported Maxwell 3D model and aim to plot
+# the current density field over a coil surface and export the fields data.
 # Keywords: time steps, fields calculator, field export
 
 # ## Perform required imports
