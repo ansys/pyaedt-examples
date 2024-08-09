@@ -1,6 +1,6 @@
 # # Maxwell 3D: fields export in transient
 # Description here!
-# Keywords: time steps, field calculator
+# Keywords: time steps, fields calculator
 
 # ## Perform required imports
 #
@@ -59,22 +59,44 @@ setup.update()
 
 # ## Create field expressions
 #
-# Create a field expression to evaluate J field normal to a surface.
+# Create a field expression to evaluate J normal to a surface using the advanced fields calculator.
 
-fields = m3d.ofieldsreporter
-fields.CalcStack("clear")
-fields.EnterQty("J")
-# fields.EnterSurf("Coil_A2")
-fields.CalcOp("Normal")
-fields.CalcOp("Dot")
-fields.AddNamedExpression("Jn", "Fields")
+my_expression = {
+    "name": "Jn",
+    "description": "J field normal to a surface",
+    "design_type": ["Maxwell 3D"],
+    "fields_type": ["Fields"],
+    "primary_sweep": "Time",
+    "assignment": "",
+    "assignment_type": [""],
+    "operations": [
+        "NameOfExpression('<Jx,Jy,Jz>')",
+        "Operation('Normal')",
+        "Operation('Dot')",
+    ],
+    "report": ["Field_3D"],
+}
+m3d.post.fields_calculator.add_expression(my_expression, None)
 
-# Calculate the average value of the J field
+# Calculate the average value of J normal using the advanced fields calculator.
 
-fields.CopyNamedExprToStack("Jn")
-fields.EnterSurf("Coil_A2")
-fields.CalcOp("Mean")
-fields.AddNamedExpression("J_avg", "Fields")
+my_expression = {
+    "name": "Jn_avg",
+    "description": "Average J field normal to a surface",
+    "design_type": ["Maxwell 3D"],
+    "fields_type": ["Fields"],
+    "primary_sweep": "Time",
+    "assignment": "Coil_A2_ObjectFromFace1",
+    "assignment_type": [""],
+    "operations": [
+        "NameOfExpression('Jn')",
+        "EnterSurface('assignment')",
+        "Operation('SurfaceValue')",
+        "Operation('Mean')",
+    ],
+    "report": ["Field_3D"],
+}
+m3d.post.fields_calculator.add_expression(my_expression, None)
 
 # ## Analyze setup specifying setup name.
 
@@ -102,8 +124,10 @@ time_steps = data.intrinsics["Time"]
 # ## Create a field plot over the coil surface and export field data
 #
 # Convert each time step into ``ms``.
-# Create a field plot on the coil surface by specifying the coil object,
+# Create fields plot on the surface of each coil by specifying the coil object,
 # the quantity to plot and the time step.
+# The average value of J normal is plotted on Coil_A2 surface for every time-step.
+# The J field is plotted on the surface of each coil for every time-step.
 # Export fields data in temporary directory as an ``.aedtplt``.
 
 for time_step in time_steps:
@@ -119,11 +143,25 @@ for time_step in time_steps:
         plot_name="J_{}_ms".format(t),
         intrinsics={"Time": "{}ms".format(t)},
     )
-    field_export = m3d.post.export_field_plot(
+    mean_j_field_export = m3d.post.export_field_plot(
         plot_name="J_{}_ms".format(t),
         output_dir=temp_folder.name,
         file_format="aedtplt",
     )
+    m3d.post.create_fieldplot_surface(
+        assignment=[
+            o for o in m3d.modeler.solid_objects if o.material_name == "copper"
+        ],
+        quantity="Mag_J",
+        plot_name="Mag_J_Coils_{}_ms".format(t),
+        intrinsics={"Time": "{}ms".format(t)},
+    )
+    mag_j_field_export = m3d.post.export_field_plot(
+        plot_name="Mag_J_Coils_{}_ms".format(t),
+        output_dir=temp_folder.name,
+        file_format="aedtplt",
+    )
+
 
 # ## Release AEDT and clean up temporary directory
 #
