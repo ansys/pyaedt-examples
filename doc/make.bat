@@ -4,6 +4,9 @@ pushd %~dp0
 
 REM Command file for Sphinx documentation
 
+if "%SPHINXOPTS%" == "" (
+	set SPHINXOPTS=-j auto --color -W
+)
 if "%SPHINXBUILD%" == "" (
 	set SPHINXBUILD=sphinx-build
 )
@@ -70,8 +73,7 @@ goto end
 echo Building HTML pages with running examples
 REM %SPHINXBUILD% -M linkcheck %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %LINKCHECKOPTS% %O%
 %SPHINXBUILD% -M html %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
-echo
-echo "Build finished. The HTML pages are in %BUILDDIR%."
+echo "HTML build finished."
 goto end
 
 :pdf
@@ -80,9 +82,9 @@ cd "%BUILDDIR%\latex"
 for %%f in (*.tex) do (
 xelatex "%%f" --interaction=nonstopmode)
 if NOT EXIST pyaedt-examples.pdf (
-	Echo "no pdf generated!"
+	Echo "PDF file not generated!"
 	exit /b 1)
-Echo "pdf generated!"
+Echo "PDF file generated!"
 goto end 	
 
 :end
