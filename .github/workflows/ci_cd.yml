@@ -70,13 +70,13 @@ jobs:
           SPHINXBUILD_KEEP_DOCTREEDIR: "1"
         run: |
           .venv\Scripts\Activate.ps1
-          . .\doc\make.bat html
+          . .\doc\make.bat html 6>&1 2>&1 | Tee-Object -Variable output
 
-      - name: Check on failures
-        if: steps.create_html.outcome != 'success'
-        run: |
-          echo "Sphinx build failed, stopping the workflow."
-          exit 1
+          # Check sphinx-build exit code and error messages
+          if ($LASTEXITCODE -ne 0 -or $output -match 'CellExecutionError') {
+            Write-Error "HTML build failed, stopping the workflow."
+            exit 1
+          }
 
       - name: Upload HTML documentation artifact
         uses: actions/upload-artifact@v4
