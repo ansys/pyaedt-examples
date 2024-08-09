@@ -1,6 +1,10 @@
 # # Maxwell 3D: fields export in transient
-# Description here!
-# Keywords: time steps, fields calculator
+# In this example a Maxwell 3D transient model is imported.
+# A simulation setup is created to save the fields for the desired time steps.
+# The example shows how to retrieve all the simulation time steps,
+# add a field calculator expression, and perform fields data export
+# for the time steps for which the fields are saved.
+# Keywords: time steps, fields calculator, field export
 
 # ## Perform required imports
 #
@@ -31,13 +35,12 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 project_path = pyaedt.downloads.download_file(
     source="maxwell_transient_fields",
     name="M3D_Transient_StrandedWindings.aedt",
-    destination=temp_folder.name,
+    destination=temp_folder.name
 )
 
-# ## Initialize and launch Maxwell 2D
+# ## Initialize and launch Maxwell 3D
 #
-# Initialize and launch Maxwell 2D, providing the version, path to the project, the design
-# name and type.
+# Initialize and launch Maxwell 3D, providing the version, and the path of the imported project.
 
 m3d = pyaedt.Maxwell3d(
     project=project_path, version=AEDT_VERSION, non_graphical=NG_MODE
