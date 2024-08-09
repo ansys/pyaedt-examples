@@ -1,9 +1,6 @@
 # # Maxwell 3D: fields export in transient
-# In this example a Maxwell 3D transient model is imported.
-# A simulation setup is created to save the fields for the desired time steps.
-# The example shows how to retrieve all the simulation time steps,
-# add a field calculator expression, and perform fields data export
-# for the time steps for which the fields are saved.
+# This example uses PyAEDT to setup transient analysis
+# and aim to plot the current density field over a coil surface.
 # Keywords: time steps, fields calculator, field export
 
 # ## Perform required imports
