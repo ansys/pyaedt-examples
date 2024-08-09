@@ -23,7 +23,7 @@ project_path = pyaedt.downloads.download_file(source="custom_reports/", destinat
 
 # Set constant values
 
-AEDT_VERSION = "2024.1"
+AEDT_VERSION = "2024.2"
 
 # ## Launch AEDT with the Circuit Interface
 #

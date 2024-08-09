@@ -14,7 +14,7 @@ from pyaedt.downloads import download_file
 
 # Set constant values
 
-AEDT_VERSION = "2024.1"
+AEDT_VERSION = "2024.2"
 # Set ``NG_MODE`` to ``True`` in order to run in non-graphical mode.
 # The example is currently set up to run in graphical mode.
 NG_MODE = False

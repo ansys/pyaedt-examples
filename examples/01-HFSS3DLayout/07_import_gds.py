@@ -23,7 +23,7 @@ from pyedb import Edb
 
 # Set constant values
 
-EDB_VERSION = "2024.1"
+EDB_VERSION = "2024.2"
 
 # Download the example data.
 

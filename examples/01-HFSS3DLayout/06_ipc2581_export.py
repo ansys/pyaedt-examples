@@ -11,7 +11,7 @@ import time
 from pyaedt import Edb
 from pyaedt.downloads import download_file
 
-EDB_VERSION = "2024.1"
+EDB_VERSION = "2024.2"
 
 # Download the example PCB data.
 

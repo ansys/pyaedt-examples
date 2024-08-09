@@ -12,7 +12,7 @@ import os
 
 # Define constants
 
-AEDT_VERSION = "2024.1"
+AEDT_VERSION = "2024.2"
 NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary directory

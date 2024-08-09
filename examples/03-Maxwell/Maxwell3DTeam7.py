@@ -18,7 +18,7 @@ from pyaedt.generic.general_methods import write_csv
 
 # ## Define constants
 
-AEDT_VERSION = "2024.1"
+AEDT_VERSION = "2024.2"
 NG_MODE = False
 
 # ## Create temporary directory
