@@ -28,7 +28,7 @@ d = pyaedt.launch_desktop(version=AEDT_VERSION, non_graphical=NG_MODE, new_deskt
 # Insert an HFSS design with the default name.
 
 project_name = os.path.join(temp_dir.name, "CoordSysDemo.aedt")
-hfss = pyaedt.Hfss(project=project_name)
+hfss = pyaedt.Hfss(version=AEDT_VERSION, project=project_name)
 
 # ## Create coordinate system
 #

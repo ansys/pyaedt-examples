@@ -34,7 +34,7 @@ d = pyaedt.launch_desktop(AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True)
 # Create a new HFSS design.
 
 project_name = os.path.join(temp_dir.name, "dipole.aedt")
-hfss = pyaedt.Hfss(project=project_name, solution_type="Modal")
+hfss = pyaedt.Hfss(version=AEDT_VERSION, project=project_name, solution_type="Modal")
 
 # ## Define variable
 #

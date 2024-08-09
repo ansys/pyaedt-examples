@@ -71,7 +71,7 @@ if AEDT_VERSION <= "2023.1":
 
 project_name = os.path.join(temp_dir.name, "emit.aedt")
 d = pyaedt.launch_desktop(AEDT_VERSION, NG_MODE, True)
-emitapp = Emit(project_name)
+emitapp = Emit(project_name, version=AEDT_VERSION)
 
 # ## Specify the protection levels
 #

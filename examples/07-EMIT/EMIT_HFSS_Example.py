@@ -88,7 +88,7 @@ project_pdf = shutil.copyfile(
 
 # Open the project in the working directory.
 
-aedtapp = pyaedt.Emit(project_name)
+aedtapp = pyaedt.Emit(project_name, version=AEDT_VERSION)
 
 # ## Create and connect EMIT components
 #

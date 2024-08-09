@@ -78,7 +78,7 @@ project_name = pyaedt.downloads.download_file(
 
 # ## Launch EMIT and open project
 
-emitapp = Emit(non_graphical=NG_MODE, new_desktop=False, project=project_name)
+emitapp = Emit(non_graphical=NG_MODE, new_desktop=False, project=project_name, version=AEDT_VERSION)
 
 # ## Get a List of Transmitters
 #

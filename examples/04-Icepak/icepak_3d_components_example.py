@@ -110,7 +110,7 @@ ipk.close_project(save=False)
 # ## Create QFP
 # Open the previously downloaded project containing a QPF.
 
-ipk = Icepak(project=qfp_temp_name)
+ipk = Icepak(project=qfp_temp_name, version=AEDT_VERSION)
 ipk.plot(show=False, output_file=os.path.join(temp_folder.name, "QFP2.jpg"))
 
 # Create dataset for power dissipation.

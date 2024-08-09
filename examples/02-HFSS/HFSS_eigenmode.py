@@ -65,7 +65,7 @@ d = pyaedt.launch_desktop(
 #
 # Create a new HFSS design.
 
-hfss = pyaedt.Hfss(project=project_path, non_graphical=NG_MODE)
+hfss = pyaedt.Hfss(version=AEDT_VERSION, project=project_path, non_graphical=NG_MODE)
 
 # ## Input parameters for eigenmode solver
 #

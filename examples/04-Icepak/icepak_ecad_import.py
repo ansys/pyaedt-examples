@@ -73,7 +73,7 @@ ipk.save_project()
 # ## Import ECAD
 # Add an HFSS 3D Layout design with the layout information of the PCB
 
-hfss3d_lo = Hfss3dLayout(project=def_path)
+hfss3d_lo = Hfss3dLayout(project=def_path, version=AEDT_VERSION)
 hfss3d_lo.save_project()
 
 # Create a PCB component in Icepak linked to the 3D Layout project. The polygon ``"poly_0"``

@@ -262,7 +262,7 @@ q2d_sweep = q2d_setup.add_sweep(name=sweep_name)
 #
 # Add a Simplorer/Twin Builder design and the Q3D dynamic component
 
-tb = pyaedt.TwinBuilder(design=tb_design_name)
+tb = pyaedt.TwinBuilder(design=tb_design_name, version=AEDT_VERSION)
 
 # Add a Q2D dynamic component.
 

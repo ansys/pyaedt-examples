@@ -105,7 +105,7 @@ h3d.close_project()
 
 # Open the newly created Q3D project and display the layout.
 
-q3d = pyaedt.Q3d(output_q3d)
+q3d = pyaedt.Q3d(output_q3d, version=AEDT_VERSION)
 q3d.plot(
     show=False,
     objects=["CLOCK_I2C_SCL", "CLOCK_I2C_SDA"],

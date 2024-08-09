@@ -122,7 +122,7 @@ h3d.close_project()
 #
 # Launch the newly created q3d project.
 
-q3d = pyaedt.Q3d(output_q3d)
+q3d = pyaedt.Q3d(output_q3d, version=AEDT_VERSION)
 q3d.modeler.delete("GND")
 q3d.delete_all_nets()
 

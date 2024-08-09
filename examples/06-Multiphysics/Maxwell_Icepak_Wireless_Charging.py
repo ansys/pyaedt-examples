@@ -194,7 +194,7 @@ m3d.logger.info(
 # Insert Icepak design, copy solid objects from Maxwell, and modify region dimensions.
 
 # +
-ipk = pyaedt.Icepak(design=icepak_design_name)
+ipk = pyaedt.Icepak(design=icepak_design_name, version=AEDT_VERSION)
 ipk.copy_solid_bodies_from(m3d, no_pec=False)
 
 # Set domain dimensions suitable for natural convection using the diameter of the coil

@@ -218,7 +218,7 @@ sweepname = hfss.create_linear_count_sweep(
 # design and the coupled physics analysis can be run. The `FieldAnalysis3D.copy_solid_bodies_from()`
 # method imports a model from HFSS into Icepak including all material definitions.
 
-ipk = pyaedt.Icepak(design="CalcTemp")
+ipk = pyaedt.Icepak(design="CalcTemp", version=AEDT_VERSION)
 ipk.copy_solid_bodies_from(hfss)
 
 # ## Link RF Thermal Source
@@ -281,7 +281,7 @@ ipk.assign_openings(airfaces)
 # Save project and attach to Icepak instance
 
 hfss.save_project()
-ipk = pyaedt.Icepak()
+ipk = pyaedt.Icepak(version=AEDT_VERSION)
 ipk.solution_type = ipk.SOLUTIONS.Icepak.SteadyTemperatureAndFlow
 ipk.modeler.fit_all()
 

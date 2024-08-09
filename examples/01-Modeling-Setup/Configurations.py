@@ -117,7 +117,7 @@ ipk.close_project()
 # Create an Icepak project and import the step.
 
 new_project = os.path.join(temp_dir.name, "example.aedt")
-app = pyaedt.Icepak(project=new_project)
+app = pyaedt.Icepak(version=AEDT_VERSION, project=new_project)
 app.modeler.import_3d_cad(file_path)
 
 # ## Import and apply configuration file

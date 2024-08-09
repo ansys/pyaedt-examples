@@ -92,7 +92,7 @@ device3D_body_name = "Device_3D"
 ###############################################################################
 # Get the Hfss design.
 
-hfss = Hfss(project=circuit.project_name)
+hfss = Hfss(project=circuit.project_name, version=AEDT_VERSION,)
 
 ###############################################################################
 # Create a new material that will be used to set the temperature map on it.
@@ -119,7 +119,7 @@ hfss.modeler.objects_by_name[device3D_body_name].solve_inside = True
 
 ###############################################################################
 # Get the Icepak design.
-icepak = Icepak(project=circuit.project_name)
+icepak = Icepak(project=circuit.project_name, version=AEDT_VERSION,)
 
 ###############################################################################
 # Set the initial temperature to a value closer to the final one, to speed up the convergence.

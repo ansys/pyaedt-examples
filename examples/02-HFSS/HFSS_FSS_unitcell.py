@@ -38,7 +38,7 @@ d = pyaedt.launch_desktop(
 #
 # Create a new HFSS design.
 
-hfss = pyaedt.Hfss(project=project_name, solution_type="Modal")
+hfss = pyaedt.Hfss(version=AEDT_VERSION, project=project_name, solution_type="Modal")
 
 # ## Define variable
 #
