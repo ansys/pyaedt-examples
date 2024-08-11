@@ -32,7 +32,7 @@ from pyaedt.downloads import download_file
 
 # Set constant values
 
-AEDT_VERSION = "2024.1"
+AEDT_VERSION = "2024.2"
 NG_MODE = False
 
 # Download example board.

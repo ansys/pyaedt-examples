@@ -16,7 +16,7 @@ from pyaedt.generic.general_methods import read_csv_pandas
 
 # ## Define constants
 
-AEDT_VERSION = "2024.1"
+AEDT_VERSION = "2024.2"
 NG_MODE = False
 
 # ## Create temporary directory

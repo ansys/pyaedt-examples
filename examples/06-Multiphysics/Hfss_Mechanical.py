@@ -16,7 +16,7 @@ import pyaedt
 
 # Set constant values
 
-AEDT_VERSION = "2024.1"
+AEDT_VERSION = "2024.2"
 NUM_CORES = 4
 
 
@@ -54,7 +54,7 @@ hfss.change_material_override(True)
 #
 # Initialize Circuit and add the HFSS dynamic link component.
 
-circuit = pyaedt.Circuit()
+circuit = pyaedt.Circuit(version=AEDT_VERSION)
 hfss_comp = circuit.modeler.schematic.add_subcircuit_dynamic_link(pyaedt_app=hfss)
 
 # ## Set up dynamic link options
@@ -115,7 +115,7 @@ circuit.push_excitations(instance="S1", setup=setup_name)
 #
 # Start Mechanical and copy bodies from the HFSS project.
 
-mech = pyaedt.Mechanical()
+mech = pyaedt.Mechanical(version=AEDT_VERSION)
 mech.copy_solid_bodies_from(design=hfss)
 mech.change_material_override(True)
 

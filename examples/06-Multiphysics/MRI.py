@@ -24,7 +24,7 @@ from pyaedt import Hfss, Icepak, Mechanical, downloads
 
 # Set constant values
 
-AEDT_VERSION = "2024.1"
+AEDT_VERSION = "2024.2"
 NUM_CORES = 4
 
 

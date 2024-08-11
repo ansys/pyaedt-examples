@@ -22,7 +22,7 @@ import pyaedt
 
 # Set constant values
 
-AEDT_VERSION = "2024.1"
+AEDT_VERSION = "2024.2"
 
 # ## Download Example Data
 #
