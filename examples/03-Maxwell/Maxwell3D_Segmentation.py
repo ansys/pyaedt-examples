@@ -15,7 +15,7 @@ from pyaedt import Maxwell3d, downloads
 
 # ## Define constants
 
-AEDT_VERSION = "2024.1"
+AEDT_VERSION = "2024.2"
 NG_MODE = False
 
 # ## Create temporary directory

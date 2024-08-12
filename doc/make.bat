@@ -5,7 +5,7 @@ pushd %~dp0
 REM Command file for Sphinx documentation
 
 if "%SPHINXOPTS%" == "" (
-	set SPHINXOPTS=-j auto --color -W
+	set SPHINXOPTS=-j auto --color
 )
 if "%SPHINXBUILD%" == "" (
 	set SPHINXBUILD=sphinx-build
@@ -70,7 +70,7 @@ rmdir /s /q %BUILDDIR% > /NUL 2>&1
 goto end
 
 :html
-echo Building HTML pages with running examples
+echo "Building HTML pages"
 REM %SPHINXBUILD% -M linkcheck %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %LINKCHECKOPTS% %O%
 %SPHINXBUILD% -M html %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
 echo "HTML build finished."

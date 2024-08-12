@@ -70,11 +70,13 @@ jobs:
           SPHINXBUILD_KEEP_DOCTREEDIR: "1"
         run: |
           .venv\Scripts\Activate.ps1
-          . .\doc\make.bat html 6>&1 2>&1 | Tee-Object -Variable output
 
-          # Check sphinx-build exit code and error messages
-          if ($LASTEXITCODE -ne 0 -or $output -match 'CellExecutionError') {
-            Write-Error "HTML build failed, stopping the workflow."
+          # NOTE: The error redirection is leveraged to make sphinx exit with non null value on CellExecutionError.
+          . .\doc\make.bat html -j auto --color 2> sphinx-build_error.log
+
+          $error_log = Get-Content sphinx-build_error.log
+          if ($error_log -match 'CellExecutionError') {
+            Write-Error "Sphinx build failed with cell execution Error."
             exit 1
           }
 

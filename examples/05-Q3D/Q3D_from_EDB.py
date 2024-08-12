@@ -14,7 +14,7 @@ import pyedb
 
 # Set constant values
 
-AEDT_VERSION = "2024.1"
+AEDT_VERSION = "2024.2"
 NUM_CORES = 4
 NG_MODE = False  # Open Electronics UI when the application is launched.
 
@@ -105,7 +105,7 @@ h3d.close_project()
 
 # Open the newly created Q3D project and display the layout.
 
-q3d = pyaedt.Q3d(output_q3d)
+q3d = pyaedt.Q3d(output_q3d, version=AEDT_VERSION)
 q3d.plot(
     show=False,
     objects=["CLOCK_I2C_SCL", "CLOCK_I2C_SDA"],

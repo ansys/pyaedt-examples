@@ -19,7 +19,7 @@ from pyaedt import TwinBuilder, downloads, generate_unique_folder_name, generate
 
 # Set constant values
 
-AEDT_VERSION = "2024.1"
+AEDT_VERSION = "2024.2"
 
 # ## Select version and set launch options
 #

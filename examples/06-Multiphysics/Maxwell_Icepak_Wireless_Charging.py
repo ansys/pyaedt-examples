@@ -17,7 +17,7 @@ from pyaedt.generic.constants import AXIS
 
 # Set constant values
 
-AEDT_VERSION = "2024.1"
+AEDT_VERSION = "2024.2"
 NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary folder
@@ -194,7 +194,7 @@ m3d.logger.info(
 # Insert Icepak design, copy solid objects from Maxwell, and modify region dimensions.
 
 # +
-ipk = pyaedt.Icepak(design=icepak_design_name)
+ipk = pyaedt.Icepak(design=icepak_design_name, version=AEDT_VERSION)
 ipk.copy_solid_bodies_from(m3d, no_pec=False)
 
 # Set domain dimensions suitable for natural convection using the diameter of the coil

@@ -19,7 +19,7 @@ from IPython.display import Image
 
 # Set constant values
 
-AEDT_VERSION = "2024.1"
+AEDT_VERSION = "2024.2"
 NG_MODE = False # Do not show the graphical user-interface.
 
 
