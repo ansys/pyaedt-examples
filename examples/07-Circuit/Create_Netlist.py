@@ -22,7 +22,7 @@ netlist = pyaedt.downloads.download_netlist(destination=temp_dir.name)
 
 # Set constant values
 
-AEDT_VERSION = "2024.1"
+AEDT_VERSION = "2024.2"
 
 # ## Launch AEDT
 #

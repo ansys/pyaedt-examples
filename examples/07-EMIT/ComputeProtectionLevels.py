@@ -24,7 +24,7 @@ from pyaedt.emit_core.emit_constants import InterfererType
 
 # Set constant values
 
-AEDT_VERSION = "2024.1"
+AEDT_VERSION = "2024.2"
 NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Python Dependencies
@@ -71,7 +71,7 @@ if AEDT_VERSION <= "2023.1":
 
 project_name = os.path.join(temp_dir.name, "emit.aedt")
 d = pyaedt.launch_desktop(AEDT_VERSION, NG_MODE, True)
-emitapp = Emit(project_name)
+emitapp = Emit(project_name, version=AEDT_VERSION)
 
 # ## Specify the protection levels
 #

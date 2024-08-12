@@ -17,7 +17,7 @@ import pyaedt
 
 # Set constant values
 
-AEDT_VERSION = "2024.1"
+AEDT_VERSION = "2024.2"
 NUM_CORES = 4
 
 
@@ -29,7 +29,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch AEDT and 2D Extractor
 #
-# Launch AEDT 2024.1 in graphical mode and launch 2D Extractor. This example
+# Launch AEDT 2024.2 in graphical mode and launch 2D Extractor. This example
 # uses SI units.
 
 q2d = pyaedt.Q2d(

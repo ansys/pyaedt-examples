@@ -22,7 +22,7 @@ from pyaedt.emit_core.emit_constants import ResultType, TxRxMode
 
 # Set constant values
 
-AEDT_VERSION = "2024.1"
+AEDT_VERSION = "2024.2"
 
 # ## Set non-graphical mode
 #
@@ -45,7 +45,7 @@ project_name = pyaedt.generate_unique_project_name(
     rootname=temp_dir.name, project_name="antenna_cosite"
 )
 d = pyaedt.launch_desktop(AEDT_VERSION, non_graphical, True)
-aedtapp = pyaedt.Emit(project_name)
+aedtapp = pyaedt.Emit(project_name, version=AEDT_VERSION)
 
 # ## Create and connect EMIT components
 #

@@ -26,7 +26,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # Define constants.
 
-AEDT_VERSION = "2024.1"
+AEDT_VERSION = "2024.2"
 NG_MODE = False  # Open Electronics UI when the application is launched.
 
 
@@ -262,7 +262,7 @@ q2d_sweep = q2d_setup.add_sweep(name=sweep_name)
 #
 # Add a Simplorer/Twin Builder design and the Q3D dynamic component
 
-tb = pyaedt.TwinBuilder(design=tb_design_name)
+tb = pyaedt.TwinBuilder(design=tb_design_name, version=AEDT_VERSION)
 
 # Add a Q2D dynamic component.
 

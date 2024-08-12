@@ -11,15 +11,16 @@
 import os
 import tempfile
 
-from IPython.display import Image
 import matplotlib.pyplot as plt
 import pyaedt
+from IPython.display import Image
 
 # -
 
 # Set constant values
 
-AEDT_VERSION = "2024.1"
+AEDT_VERSION = "2024.2"
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 
 # ## Define input files and variables.
@@ -51,14 +52,7 @@ project_name = os.path.join(temp_folder.name, component_step[:-3] + "aedt")
 
 # ## Create Icepak model
 
-# Set non-graphical mode to ``False`` so that AEDT will run without GUI.
-# You can set ``non_graphical`` value either to ``True`` or ``False``.
-
-non_graphical = False
-
-# Open the project
-
-ipk = pyaedt.Icepak(project=project_name, version=AEDT_VERSION)
+ipk = pyaedt.Icepak(project=project_name, version=AEDT_VERSION, non_graphical=NG_MODE)
 
 # Disable autosave to speed up the import.
 
@@ -78,7 +72,9 @@ ipk.create_pcb_from_3dlayout(
 
 bb = ipk.modeler.user_defined_components["Board1"].bounding_box
 stackup_thickness = bb[-1] - bb[2]
-ipk.modeler.create_coordinate_system(origin=[0, 0, stackup_thickness / 2], mode="view", view="XY")
+ipk.modeler.create_coordinate_system(
+    origin=[0, 0, stackup_thickness / 2], mode="view", view="XY"
+)
 
 # Import the board components from a MCAD file and remove the PCB object as it is already
 # imported with the ECAD.
@@ -94,7 +90,9 @@ ipk.mesh.global_mesh_region.global_region.padding_values = [20, 20, 20, 20, 300,
 #
 # Use Sherlock file to assign materials.
 
-ipk.assignmaterial_from_sherlock_files(csv_component=component_list, csv_material=material_list)
+ipk.assignmaterial_from_sherlock_files(
+    csv_component=component_list, csv_material=material_list
+)
 
 # Delete objects with no materials assignments.
 
@@ -181,65 +179,74 @@ setup1.props["Convergence Criteria - Max Iterations"] = 10
 
 ipk.assign_priority_on_intersections()
 
-# Analyze the model
+# # Analyze the model
 
-ipk.analyze(cores=4, tasks=4)
-ipk.save_project()
+# ipk.analyze(cores=4, tasks=4)
+# ipk.save_project()
 
-# ## Post-Processing
-# Get monitor point result
+# # ## Post-Processing
+# # Get monitor point result
 
-pt_monitor_result = ipk.monitor.all_monitors[point1].value()
-print(pt_monitor_result)
+# pt_monitor_result = ipk.monitor.all_monitors[point1].value()
+# print(pt_monitor_result)
 
-# Create a report on the previously defined line and get data from it
+# # Create a report on the previously defined line and get data from it
 
-report = ipk.post.create_report(
-    expressions=["Temperature", "Speed"],
-    context=line.name,
-    primary_sweep_variable="Distance",
-    report_category="Fields",
-    polyline_points=500,
-)
-report_data = report.get_solution_data()
-distance = [k[0] for k, _ in report_data.full_matrix_mag_phase[0]["Temperature"].items()]
-temperature = [v for _, v in report_data.full_matrix_mag_phase[0]["Temperature"].items()]
-speed = [v for _, v in report_data.full_matrix_mag_phase[0]["Speed"].items()]
+# report = ipk.post.create_report(
+#     expressions=["Temperature", "Speed"],
+#     context=line.name,
+#     primary_sweep_variable="Distance",
+#     report_category="Fields",
+#     polyline_points=500,
+# )
+# report_data = report.get_solution_data()
+# distance = [
+#     k[0] for k, _ in report_data.full_matrix_mag_phase[0]["Temperature"].items()
+# ]
+# temperature = [
+#     v for _, v in report_data.full_matrix_mag_phase[0]["Temperature"].items()
+# ]
+# speed = [v for _, v in report_data.full_matrix_mag_phase[0]["Speed"].items()]
 
-# Plot the data
+# # Plot the data
 
-fig, ax = plt.subplots(1, 1)
-sc = ax.scatter(distance, speed, c=temperature)
-ax.grid()
-ax.set_xlabel("Distance [mm]")
-ax.set_ylabel("Speed [m/s]")
-cbar = fig.colorbar(sc)
-cbar.set_label("Temperature [cel]")
+# fig, ax = plt.subplots(1, 1)
+# sc = ax.scatter(distance, speed, c=temperature)
+# ax.grid()
+# ax.set_xlabel("Distance [mm]")
+# ax.set_ylabel("Speed [m/s]")
+# cbar = fig.colorbar(sc)
+# cbar.set_label("Temperature [cel]")
 
-# Plot contours. The plot can be performed within AEDT...
+# # Plot contours. The plot can be performed within AEDT...
 
-plot1 = ipk.post.create_fieldplot_surface(
-    assignment=ipk.modeler["COMP_U10"].faces, quantity="SurfTemperature"
-)
-path = plot1.export_image(
-    full_path=os.path.join(temp_folder.name, "temperature.png"), show_region=False
-)
-Image(filename=path)  # Display the image
+# plot1 = ipk.post.create_fieldplot_surface(
+#     assignment=ipk.modeler["COMP_U10"].faces, quantity="SurfTemperature"
+# )
+# path = plot1.export_image(
+#     full_path=os.path.join(temp_folder.name, "temperature.png"), show_region=False
+# )
+# Image(filename=path)  # Display the image
 
-# ... or using pyvista integration
+# # ... or using pyvista integration
 
-ipk.post.plot_field(
-    quantity="SurfPressure",
-    assignment=ipk.modeler["COMP_U10"].faces,
-    export_path=ipk.working_directory,
-    show=False,
-)
+# ipk.post.plot_field(
+#     quantity="SurfPressure",
+#     assignment=ipk.modeler["COMP_U10"].faces,
+#     export_path=ipk.working_directory,
+#     show=False,
+# )
 
 # ## Save project and release AEDT
 
-# +
 ipk.save_project()
 ipk.release_desktop()
 
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
+
 temp_folder.cleanup()
-# -

@@ -14,9 +14,9 @@ import pyedb
 
 # Set constant values
 
-AEDT_VERSION = "2024.1"
+AEDT_VERSION = "2024.2"
 NUM_CORES = 4
-NG_MODE = True
+NG_MODE = False
 
 # ## Create temporary directory
 #
@@ -122,7 +122,7 @@ h3d.close_project()
 #
 # Launch the newly created q3d project.
 
-q3d = pyaedt.Q3d(output_q3d)
+q3d = pyaedt.Q3d(output_q3d, version=AEDT_VERSION)
 q3d.modeler.delete("GND")
 q3d.delete_all_nets()
 

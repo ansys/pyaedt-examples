@@ -15,7 +15,8 @@ from pyaedt import Hfss3dLayout
 
 # Set constant values
 
-AEDT_VERSION = "2024.1"
+AEDT_VERSION = "2024.2"
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Open project
 #
@@ -28,7 +29,7 @@ ipk = pyaedt.Icepak(
     project=os.path.join(temp_folder.name, "Icepak_ECAD_Import.aedt"),
     version=AEDT_VERSION,
     new_desktop=True,
-    non_graphical=True,
+    non_graphical=NG_MODE,
 )
 # -
 
@@ -50,7 +51,9 @@ ipk = pyaedt.Icepak(
 # Download ECAD and IDF files
 
 def_path = pyaedt.downloads.download_file(
-    source="icepak/Icepak_ECAD_Import/A1_uprev.aedb", name="edb.def", destination=temp_folder.name
+    source="icepak/Icepak_ECAD_Import/A1_uprev.aedb",
+    name="edb.def",
+    destination=temp_folder.name,
 )
 board_path = pyaedt.downloads.download_file(
     source="icepak/Icepak_ECAD_Import/", name="A1.bdf", destination=temp_folder.name
@@ -70,7 +73,7 @@ ipk.save_project()
 # ## Import ECAD
 # Add an HFSS 3D Layout design with the layout information of the PCB
 
-hfss3d_lo = Hfss3dLayout(project=def_path)
+hfss3d_lo = Hfss3dLayout(project=def_path, version=AEDT_VERSION)
 hfss3d_lo.save_project()
 
 # Create a PCB component in Icepak linked to the 3D Layout project. The polygon ``"poly_0"``
@@ -99,8 +102,12 @@ ipk.plot(
 )
 
 # ## Release AEDT
-#
-# Release AEDT.
 
 ipk.release_desktop(close_projects=True, close_desktop=True)
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+
 temp_folder.cleanup()

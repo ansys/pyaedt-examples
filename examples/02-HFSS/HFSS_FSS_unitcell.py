@@ -18,7 +18,7 @@ import pyaedt
 
 # Set constant values
 
-AEDT_VERSION = "2024.1"
+AEDT_VERSION = "2024.2"
 NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary directory
@@ -38,7 +38,7 @@ d = pyaedt.launch_desktop(
 #
 # Create a new HFSS design.
 
-hfss = pyaedt.Hfss(project=project_name, solution_type="Modal")
+hfss = pyaedt.Hfss(version=AEDT_VERSION, project=project_name, solution_type="Modal")
 
 # ## Define variable
 #

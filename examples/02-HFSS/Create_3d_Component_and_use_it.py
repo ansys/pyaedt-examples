@@ -22,7 +22,7 @@ from pyaedt import Hfss
 #
 # Define constants
 
-AEDT_VERSION = "2024.1"
+AEDT_VERSION = "2024.2"
 NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # Create temporary directory
@@ -129,7 +129,7 @@ hfss.modeler.create_3dcomponent(component_path, "patch_antenna")
 # PyAEDT allows to control multiple projects, design and solution type at the same time.
 
 new_project = os.path.join(temp_dir.name, "new_project.aedt")
-hfss2 = Hfss(project=new_project, design="new_design")
+hfss2 = Hfss(version=AEDT_VERSION, project=new_project, design="new_design")
 
 # ## Insert 3D component
 #
