@@ -3,7 +3,7 @@ git+https://github.com/ansys/pyaedt@main
 
 # Examples dependencies
 imageio==2.34.0
-matplotlib==3.8.0
+matplotlib==3.9.1.post1
 numpy==1.26.4
 openpyxl==3.1.4
 osmnx==1.9.0
