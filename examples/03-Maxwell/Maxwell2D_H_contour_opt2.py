@@ -4,7 +4,8 @@
 # the magnetomotive force along a line that changes position.
 # It shows how to leverage PyAEDT advanced fields calculator
 # to insert a custom formula, in this case the integral
-# of the H field along a line and compute the field for each position.
+# of the H field along a line
+# and compute the field for each position with a parametric sweep.
 
 # ## Perform required imports
 #
