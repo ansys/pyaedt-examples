@@ -1,14 +1,17 @@
 # # Maxwell 3D: fields export in transient
-# This example uses PyAEDT to setup transient analysis
-# of an imported Maxwell 3D model and aim to plot
-# the current density field over a coil surface and export the fields data.
-# Keywords: time steps, fields calculator, field export
+#
+# This example shows how to leverage PyAEDT to set up a Maxwell 3D transient analysis,
+# compute the average value of the current density field over a specific coil surface
+# and the magnitude of the current density field over all coil surfaces at each time step
+# of the transient analysis.
+# Keywords: transient, fields calculator, field export
 
 # ## Perform required imports
 #
 # Perform required imports.
 
 import tempfile
+import time
 
 import pyaedt
 
@@ -28,17 +31,17 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Import project
 #
-# The files required to run this example will be downloaded to the temporary working folder.
+# The files required to run this example will be downloaded into the temporary working folder.
 
 project_path = pyaedt.downloads.download_file(
     source="maxwell_transient_fields",
     name="M3D_Transient_StrandedWindings.aedt",
-    destination=temp_folder.name
+    destination=temp_folder.name,
 )
 
 # ## Initialize and launch Maxwell 3D
 #
-# Initialize and launch Maxwell 3D, providing the version, and the path of the imported project.
+# Initialize and launch Maxwell 3D, providing the version and the path of the project.
 
 m3d = pyaedt.Maxwell3d(
     project=project_path, version=AEDT_VERSION, non_graphical=NG_MODE
@@ -61,6 +64,7 @@ setup.update()
 # ## Create field expressions
 #
 # Create a field expression to evaluate J normal to a surface using the advanced fields calculator.
+# The expression is created as a dictionary and then provided as an argument to ``add_expression``.
 
 my_expression = {
     "name": "Jn",
@@ -122,10 +126,10 @@ sol = m3d.post.reports_by_category.fields(setup=m3d.nominal_sweep)
 data = sol.get_solution_data()
 time_steps = data.intrinsics["Time"]
 
-# ## Create a field plot over the coil surface and export field data
+# ## Create field plots over the coil surfaces and export field data
 #
 # Convert each time step into ``ms``.
-# Create fields plot on the surface of each coil by specifying the coil object,
+# Create field plots over the surface of each coil by specifying the coil object,
 # the quantity to plot and the time step.
 # The average value of J normal is plotted on Coil_A2 surface for every time-step.
 # The J field is plotted on the surface of each coil for every time-step.
@@ -169,4 +173,6 @@ for time_step in time_steps:
 # Release AEDT and remove both the project and temporary directory.
 
 m3d.release_desktop()
+
+time.sleep(3)
 temp_folder.cleanup()
