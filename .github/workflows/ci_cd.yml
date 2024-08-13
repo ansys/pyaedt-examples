@@ -75,10 +75,12 @@ jobs:
       # to errors in powershell or workflows getting stuck in Github CICD.
       - name: Check doc creation
         run : |
-          if [ ! -f "doc\_build\html\index.html" ]; then
+          if (Test-Path "doc\_build\html\index.html" ) {
             Write-Error "Sphinx build failed, check if there is no cell execution error."
             exit 1
-          fi
+          } else {
+            Write-Output "File index.html found, HTML build successful."
+          }
 
       - name: Upload HTML documentation artifact
         uses: actions/upload-artifact@v4
