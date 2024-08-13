@@ -94,21 +94,14 @@ ipk.assignmaterial_from_sherlock_files(
     csv_component=component_list, csv_material=material_list
 )
 
-# Delete resistor objects and objects with no materials assignments.
+# Delete objects with no materials assignments.
 
-obj_r=[m.startswith("COMP_R") for m in ipk.modeler.object_names]
 no_material_objs = ipk.modeler.get_objects_by_material(material="")
-ipk.modeler.delete(assignment=no_material_objs+obj_r)
+ipk.modeler.delete(assignment=no_material_objs)
 
 # Assign power blocks from the Sherlock file.
 
 total_power = ipk.assign_block_from_sherlock_file(csv_name=component_list)
-
-# ## Remove some components for the sake of simplicity
-
-for model in ipk.modeler.object_names:
-    if model.startswith("COMP_R"):
-        ipk.modeler[model].delete()
 
 # ## Plot model
 
