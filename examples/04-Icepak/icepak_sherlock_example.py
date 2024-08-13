@@ -91,7 +91,7 @@ ipk.mesh.global_mesh_region.global_region.padding_values = [20, 20, 20, 20, 300,
 # Use Sherlock file to assign materials.
 
 ipk.assignmaterial_from_sherlock_files(
-    csv_component=component_list, csv_material=material_list
+    component_file=component_list, material_file=material_list
 )
 
 # Delete objects with no materials assignments.
@@ -107,7 +107,7 @@ total_power = ipk.assign_block_from_sherlock_file(csv_name=component_list)
 
 ipk.plot(
     show=False,
-    export_path=os.path.join(temp_folder.name, "Sherlock_Example.jpg"),
+    output_file=os.path.join(temp_folder.name, "Sherlock_Example.jpg"),
     plot_air_objects=False,
     plot_as_separate_objects=False
 )
