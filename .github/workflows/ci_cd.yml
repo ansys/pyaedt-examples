@@ -73,7 +73,7 @@ jobs:
 
       # NOTE: Ugly HTML checking but redirecting errors with our docs either leads
       # to errors in powershell or workflows getting stuck in Github CICD.
-      - name: Check doc creation
+      - name: Check HTML doc creation
         run : |
           if (Test-Path "doc\_build\html\index.html" ) {
             Write-Error "Sphinx build failed, check if there is no cell execution error."
