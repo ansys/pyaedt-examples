@@ -36,7 +36,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 project_path = pyaedt.downloads.download_file(
     source="maxwell_magnetic_force",
-    name="Maxwell_Magnetic_Force",
+    name="Maxwell_Magnetic_Force.aedt",
     destination=temp_folder.name,
 )
 
