@@ -76,10 +76,10 @@ jobs:
       - name: Check HTML doc creation
         run : |
           if (Test-Path "doc\_build\html\index.html" ) {
-            Write-Error "Sphinx build failed, check if there is no cell execution error."
-            exit 1
-          } else {
             Write-Output "File index.html found, HTML build successful."
+          } else {
+            Write-Error "Sphinx build failed, check if there is no cell execution error."
+            exit 1            
           }
 
       - name: Upload HTML documentation artifact
