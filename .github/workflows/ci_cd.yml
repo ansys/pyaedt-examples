@@ -65,19 +65,21 @@ jobs:
 
       # Use environment variable to keep the doctree and avoid redundant build for PDF pages
       - name: Create HTML documentation
-        id: create_html
         env:
           SPHINXBUILD_KEEP_DOCTREEDIR: "1"
         run: |
           .venv\Scripts\Activate.ps1
+          . .\doc\make.bat html --color
 
-          # NOTE: The error redirection is leveraged to make sphinx exit with non null value on CellExecutionError.
-          . .\doc\make.bat html -j auto --color 2> sphinx-build_error.log
-
-          $error_log = Get-Content sphinx-build_error.log
-          if ($error_log -match 'CellExecutionError') {
-            Write-Error "Sphinx build failed with cell execution Error."
-            exit 1
+      # NOTE: Ugly HTML checking but redirecting errors with our docs either leads
+      # to errors in powershell or workflows getting stuck in Github CICD.
+      - name: Check HTML doc creation
+        run : |
+          if (Test-Path "doc\_build\html\index.html" ) {
+            Write-Output "File index.html found, HTML build successful."
+          } else {
+            Write-Error "Sphinx build failed, check if there is no cell execution error."
+            exit 1            
           }
 
       - name: Upload HTML documentation artifact
