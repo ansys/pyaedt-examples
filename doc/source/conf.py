@@ -343,7 +343,6 @@ if not os.path.exists(pyvista.FIGURE_PATH):
 # -- Options for HTML output -------------------------------------------------
 html_short_title = html_title = "PyAEDT Examples"
 html_theme = "ansys_sphinx_theme"
-html_logo = pyansys_logo_black
 html_favicon = ansys_favicon
 
 html_context = {
@@ -356,6 +355,7 @@ html_context = {
 
 # specify the location of your github repo
 html_theme_options = {
+    "logo": "ansys",
     "github_url": f"https://github.com/{USERNAME}/{REPOSITORY_NAME}",
     "show_prev_next": False,
     "collapse_navigation": True,
