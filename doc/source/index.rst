@@ -10,16 +10,95 @@ PyAEDT is a Python library that interacts directly with the Ansys Electronics De
 enabling straightforward and efficient automation in your workflow.
 
 
-   .. grid:: 2
+.. grid:: 3
 
-      .. grid-item-card:: Examples :fa:`scroll`
-         :link: examples/index
-         :link-type: doc
+   .. grid-item-card:: HFSS 3D Layout
+      :padding: 2 2 2 2
+      :link: examples/01-HFSS3DLayout/index
+      :link-type: doc
 
-         Explore examples that show how to use PyAEDT to perform different types of simulations.
-      
+      Discover use cases of HFSS 3D Layout
 
-    .. toctree::
-       :hidden:
 
-       examples/index
+   .. grid-item-card:: Modeling and setup
+      :padding: 2 2 2 2
+      :link: examples/01-Modeling-Setup/index
+      :link-type: doc
+
+      Explore general model and simulation setup features inside AEDT
+
+   .. grid-item-card:: HFSS
+      :padding: 2 2 2 2
+      :link: examples/02-HFSS/index
+      :link-type: doc
+
+      Study some end-to-end workflows for HFSS 3D
+
+   .. grid-item-card:: SBR+
+      :padding: 2 2 2 2
+      :link: examples/02-SBR+/index
+      :link-type: doc
+
+      Venture into the diverse applications of SBR+
+
+   .. grid-item-card:: Maxwell
+      :padding: 2 2 2 2
+      :link: examples/03-Maxwell/index
+      :link-type: doc
+
+      Uncover the various uses of Maxwell 2D and Maxwell 3D
+
+   .. grid-item-card:: Icepak
+      :padding: 2 2 2 2
+      :link: examples/04-Icepak/index
+      :link-type: doc
+
+      Dive into the world of Icepak and explore schematic generation, setup and thermal postprocessing
+
+   .. grid-item-card:: Q3D
+      :padding: 2 2 2 2
+      :link: examples/05-Q3D/index
+      :link-type: doc
+
+      Discover end-to-end workflows for 2D Extractor and Q3D Extractor
+
+   .. grid-item-card:: Multiphysics
+      :padding: 2 2 2 2
+      :link: examples/06-Multiphysics/index
+      :link-type: doc
+
+      Create some multiphysics workflows
+
+   .. grid-item-card:: Circuit
+      :padding: 2 2 2 2
+      :link: examples/07-Circuit/index
+      :link-type: doc
+
+      Investigate some examples of Circuit in action
+
+   .. grid-item-card:: EMIT
+      :padding: 2 2 2 2
+      :link: examples/07-EMIT/index
+      :link-type: doc
+
+      Study the practical uses of Emit
+
+   .. grid-item-card:: General
+      :padding: 2 2 2 2
+      :link: examples/general/index
+      :link-type: doc
+
+      Discover some general end-to-end workflows
+
+   .. grid-item-card:: Twin Builder
+      :padding: 2 2 2 2
+      :link: examples/twin_builder/index
+      :link-type: doc
+
+      Inspect how Twin Builder is applied in different scenarios
+   
+
+   .. toctree::
+      :hidden:
+
+      examples/index
