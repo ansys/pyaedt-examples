@@ -12,7 +12,6 @@
 
 import os
 import tempfile
-
 import pyaedt
 
 # Set constant values

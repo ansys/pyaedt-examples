@@ -17,6 +17,11 @@ enabling straightforward and efficient automation in your workflow.
       :link: examples/01-HFSS3DLayout/index
       :link-type: doc
 
+      .. image:: examples/01-HFSS3DLayout/_static/HFSS_3DL.png
+         :alt: Flex assembly
+         :width: 200px
+
+
       Discover use cases of HFSS 3D Layout
 
 
@@ -25,19 +30,31 @@ enabling straightforward and efficient automation in your workflow.
       :link: examples/01-Modeling-Setup/index
       :link-type: doc
 
-      Explore general model and simulation setup features inside AEDT
+      .. image:: examples/01-Modeling-Setup/_static/Project_manager.png
+         :alt: AEDT Project Manager
+         :width: 200px
+
+      Learn more about automation for HFSS 3D Layout
 
    .. grid-item-card:: HFSS
       :padding: 2 2 2 2
       :link: examples/02-HFSS/index
       :link-type: doc
 
-      Study some end-to-end workflows for HFSS 3D
+      .. image:: examples/02-HFSS/_static/array_w_ff.png
+         :alt: AEDT Project Manager
+         :width: 200px
+
+      Explore end-to-end workflows for HFSS 3D
 
    .. grid-item-card:: SBR+
       :padding: 2 2 2 2
       :link: examples/02-SBR+/index
       :link-type: doc
+
+      .. image:: examples/02-SBR+/_static/car_w_pedestrians.png
+         :alt: Automotive radar
+         :width: 200px
 
       Venture into the diverse applications of SBR+
 
