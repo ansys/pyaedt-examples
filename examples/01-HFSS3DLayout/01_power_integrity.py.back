@@ -7,7 +7,7 @@
 #     - Assign S-parameter model to components
 #     - Create pin groups
 #     - Create ports
-#     - Create SIwave SYZ anaylsis
+#     - Create SIwave SYZ analysis
 #     - Create cutout
 #
 # - Import EDB into HFSS 3D Layout

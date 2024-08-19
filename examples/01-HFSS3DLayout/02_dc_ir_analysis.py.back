@@ -8,7 +8,7 @@
 #     - Assign SPICE model to components
 #     - Create pin groups
 #     - Create voltage and current sources
-#     - Create SIwave DC anaylsis
+#     - Create SIwave DC analysis
 #     - Create cutout
 #
 # - Import EDB into HFSS 3D Layout
