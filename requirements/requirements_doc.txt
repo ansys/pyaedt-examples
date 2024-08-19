@@ -19,14 +19,14 @@ SRTM.py
 utm
 
 # Documentation dependencies
-ansys-sphinx-theme==0.16.6
+ansys-sphinx-theme==1.0.5
 ipython==8.26.0
 jupyterlab==4.2.4
 nbsphinx==0.9.5
 numpydoc==1.7.0
 pypandoc==1.13.0
 recommonmark
-Sphinx==7.3.7
+Sphinx==8.0.2
 sphinx-autobuild==2024.4.16
 sphinx-autodoc-typehints==2.0.0
 sphinx-copybutton==0.5.2
