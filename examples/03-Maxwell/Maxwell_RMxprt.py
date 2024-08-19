@@ -1,6 +1,10 @@
 # ## Rmxprt: Create and export motor
 #
-# This example uses PyAEDT to create an Rmxprt project and export to Maxwell 2D
+# This example uses PyAEDT to create a Rmxprt project and export to Maxwell 2D.
+# It shows how to create an ASSM (Adjust-Speed Syncronous Machine) in RMxprt
+# and how to access rotor and stator settings.
+# The model is then exported in a Maxwell 2d design
+# and the Rmxprt settings are exported in a json file to be reused.
 # Keywords: Rmxprt, Maxwell2D
 
 # ## Perform required imports
@@ -9,8 +13,9 @@
 
 import os.path
 import tempfile
+import time
 
-import pyaedt
+import ansys.aedt.core
 
 # ## Define constants
 #
@@ -32,7 +37,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 # Launch AEDT and Rmxprt after first setting up the project name.
 # As solution type we will use ASSM (Adjust-Speed Syncronous Machine).
 
-app = pyaedt.Rmxprt(
+app = ansys.aedt.core.Rmxprt(
     version=AEDT_VERSION,
     new_desktop=True,
     close_on_exit=True,
@@ -131,19 +136,19 @@ m2d.plot(show=False, output_file=os.path.join(temp_dir.name, "Image.jpg"), plot_
 # project with import function.
 
 config = app.export_configuration(os.path.join(temp_dir.name, "assm.json"))
-app2 = pyaedt.Rmxprt(project="assm_test2",solution_type=app.solution_type, design="from_configuration")
+app2 = ansys.aedt.core.Rmxprt(project="assm_test2",solution_type=app.solution_type, design="from_configuration")
 app2.import_configuration(config)
 
-# ## Save and Close Desktop
+# ## Save project
 #
-# Save and Close Desktop.
+# Save the Maxwell project.
 
 m2d.save_project(os.path.join(temp_dir.name, "Maxwell_project.aedt"))
-m2d.release_desktop()
 
-# ## Cleanup
+# ## Release AEDT and clean up temporary directory
 #
-# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# Release AEDT and remove both the project and temporary directory.
 
-temp_dir.cleanup()
+m2d.release_desktop()
+time.sleep(3)
+temp_folder.cleanup()
