@@ -1,6 +1,6 @@
-# # Maxwell 3D Transformer model with zigzag connection
+# # Maxwell 2D external circuit example
 #
-# This example ...
+# This example shows how to create an external circuit and connect it with a Maxwell 2D design.
 
 # ## Perform required imports
 
