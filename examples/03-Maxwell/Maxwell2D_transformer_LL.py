@@ -173,7 +173,7 @@ m2d.assign_current(assignment=hv, amplitude="Amp_turns", name="HV", swap_directi
 # Create and analyze the setup. Setu no. of minimum passes to 3 to ensure accuracy.
 
 m2d.create_setup(name="Setup1", MinimumPasses=3)
-m2d.analyze_setup()
+m2d.analyze_setup(use_auto_settings=False)
 
 # ## Calculate transformer leakage inductance and reactance
 #

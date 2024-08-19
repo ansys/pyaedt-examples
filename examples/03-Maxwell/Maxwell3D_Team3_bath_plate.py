@@ -156,6 +156,7 @@ m3d.plot(
 setup = m3d.create_setup(name="Setup1")
 setup.props["Frequency"] = "200Hz"
 setup.props["HasSweepSetup"] = True
+setup.props["MaximumPasses"] = 1
 setup.add_eddy_current_sweep(
     range_type="LinearStep", start=50, end=200, count=150, clear=True
 )
@@ -197,7 +198,7 @@ param["SolveWithCopiedMeshOnly"] = True
 #
 # Solve the parametric sweep directly so that results of all variations are available.
 
-m3d.analyze_setup(sweep_name)
+m3d.analyze_setup(sweep_name, use_auto_settings=False)
 
 # ## Create expression for Bz
 #

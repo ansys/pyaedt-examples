@@ -66,7 +66,7 @@ polys.extend(poly.duplicate_along_line(vector=[-0.5, 0, 0], clones=10))
 #
 # Analyze setup specifying setup name
 
-m2d.analyze_setup(name=m2d.setups[0].name)
+m2d.analyze_setup(name=m2d.setups[0].name, use_auto_settings=False)
 
 # ## Compute magnetomotive force along each line
 #

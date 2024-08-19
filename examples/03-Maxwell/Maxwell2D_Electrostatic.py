@@ -153,7 +153,7 @@ setup = m2d.create_setup(name=setup_name)
 setup.props["PercentError"] = 0.5
 setup.update()
 m2d.validate_simple()
-m2d.analyze_setup(name=setup_name)
+m2d.analyze_setup(name=setup_name, use_auto_settings=False)
 
 # ## Evaluate the E Field tangential component
 #
