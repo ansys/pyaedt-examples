@@ -20,10 +20,9 @@ enabling straightforward and efficient automation in your workflow.
       .. image:: examples/01-HFSS3DLayout/_static/HFSS_3DL.png
          :alt: Flex assembly
          :width: 200px
-
+         :height: 150px
 
       Discover use cases of HFSS 3D Layout
-
 
    .. grid-item-card:: Modeling and setup
       :padding: 2 2 2 2
@@ -33,6 +32,7 @@ enabling straightforward and efficient automation in your workflow.
       .. image:: examples/01-Modeling-Setup/_static/Project_manager.png
          :alt: AEDT Project Manager
          :width: 200px
+         :height: 150px
 
       Learn more about automation for HFSS 3D Layout
 
@@ -44,6 +44,7 @@ enabling straightforward and efficient automation in your workflow.
       .. image:: examples/02-HFSS/_static/array_w_ff.png
          :alt: AEDT Project Manager
          :width: 200px
+         :height: 150px
 
       Explore end-to-end workflows for HFSS 3D
 
@@ -55,6 +56,7 @@ enabling straightforward and efficient automation in your workflow.
       .. image:: examples/02-SBR+/_static/car_w_pedestrians.png
          :alt: Automotive radar
          :width: 200px
+         :height: 150px
 
       Venture into the diverse applications of SBR+
 
