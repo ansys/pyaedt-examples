@@ -32,7 +32,7 @@ import tempfile
 import time
 
 import pyaedt
-from pyaedt.generic.general_methods import generate_unique_name
+
 # -
 
 # Define constants
@@ -126,13 +126,15 @@ app.modeler.import_3d_cad(file_path)
 # JSON file that you import using options in the ``configurations`` object.
 
 out = app.configurations.import_config(conf_file)
-app.configurations.results.global_import_success
+is_conf_imported = app.configurations.results.global_import_success
 
 # ## Release AEDT
 # Close the project and release AEDT.
 
 app.release_desktop()
-time.sleep(3)   # Allow Electronics Desktop to shut down before cleaning the temporary project folder.
+time.sleep(
+    3
+)  # Allow Electronics Desktop to shut down before cleaning the temporary project folder.
 
 # ## Cleanup
 #
