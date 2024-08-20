@@ -36,11 +36,12 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # name and type.
 
 # +
+project_name = os.path.join(temp_dir.name, "Magnetostatic.aedt")
 m2d = Maxwell2d(
     version=AEDT_VERSION,
     new_desktop=False,
     design="Transformer_leakage_inductance",
-    project="1 Magnetostatic",
+    project=project_name,
     solution_type="MagnetostaticXY",
     non_graphical=NG_MODE,
 )
@@ -253,12 +254,18 @@ energy_field_overlay = m2d.post.create_fieldplot_surface(
     plot_name="Energy",
 )
 
-# ## Release AEDT and clean up temporary directory
-#
-# Release AEDT and remove both the project and temporary directory.
+# ## Release AEDT
 
 m2d.save_project()
 m2d.release_desktop()
-
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
 time.sleep(3)
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
+
 temp_folder.cleanup()
