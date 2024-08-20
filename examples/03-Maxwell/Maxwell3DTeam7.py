@@ -35,8 +35,9 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # the project and design names, the solver, and the version.
 
 # +
+project_name = os.path.join(temp_folder.name, "COMPUMAG.aedt")
 m3d = Maxwell3d(
-    project="COMPUMAG",
+    project=project_name,
     design="TEAM 7 Asymmetric Conductor",
     solution_type="EddyCurrent",
     version=AEDT_VERSION,
