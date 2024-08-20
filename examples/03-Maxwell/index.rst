@@ -7,6 +7,7 @@ and Transient).
 
 .. nbgallery::
 
+    Maxwell3D_Team3_bath_plate
     Maxwell2D_DCConduction.py
     Maxwell2D_Electrostatic.py
     Maxwell2D_PMSynchronousMotor.py

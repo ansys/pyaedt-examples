@@ -5,19 +5,18 @@
    :maxdepth: 2
 
 
-   twin_builder/index
-   general/index
    01-Modeling-Setup/index
-   01-HFSS3DLayout/index
    02-HFSS/index
-   02-SBR+/index
    03-Maxwell/index
-   04-Icepak/index
-   06-Multiphysics/index
-   07-Circuit/index
-   07-EMIT/index
-   05-Q3D/index
-   EDB/index
+   04-HFSS3DLayout/index
+   05-Icepak/index
+   06-Q3D/index
+   07-SBR+/index
+   08-Circuit/index
+   09-Multiphysics/index
+   10-EMIT/index
+   11-twin_builder/index
+   12-general/index
 
 
 Examples
