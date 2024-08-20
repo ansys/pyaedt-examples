@@ -65,8 +65,9 @@ geom_params_rectangle = {
 # the solver, and the version. The following code also creates an instance of the
 # ``Maxwell2d`` class named ``m2d``.
 
+project_name = os.path.join(temp_dir.name, "M2D_Electrostatic.aedt")
 m2d = pyaedt.Maxwell2d(
-    project=pyaedt.generate_unique_project_name(),
+    project=project_name,
     version=AEDT_VERSION,
     design="Design1",
     solution_type="Electrostatic",

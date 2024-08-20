@@ -109,8 +109,9 @@ oper_params = {
 # the solver, and the version. The following code also creates an instance of the
 # ``Maxwell2d`` class named ``m2d``.
 
+project_name = os.path.join(temp_dir.name, "PM_Motor.aedt")
 m2d = pyaedt.Maxwell2d(
-    project=pyaedt.generate_unique_project_name(),
+    project=project_name,
     version=AEDT_VERSION,
     design="Sinusoidal",
     solution_type="TransientXY",

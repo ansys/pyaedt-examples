@@ -44,12 +44,13 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 #
 # Insert a Maxwell 2D design.
 
+project_name = os.path.join(temp_dir.name, "Transient.aedt")
 m2d = pyaedt.Maxwell2d(
     solution_type="TransientXY",
     version=AEDT_VERSION,
     non_graphical=NG_MODE,
     new_desktop=True,
-    project=pyaedt.generate_unique_project_name(),
+    project=project_name,
 )
 
 # ## Create rectangle and duplicate it

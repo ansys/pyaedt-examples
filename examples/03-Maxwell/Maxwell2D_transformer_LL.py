@@ -8,13 +8,11 @@
 
 # ## Perform required imports
 
-# +
+import os
 import tempfile
 import time
 
 from pyaedt import Maxwell2d
-
-# -
 
 # ## Define constants
 
@@ -36,6 +34,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # name and type.
 
 # +
+
 project_name = os.path.join(temp_dir.name, "Magnetostatic.aedt")
 m2d = Maxwell2d(
     version=AEDT_VERSION,
