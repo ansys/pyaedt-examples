@@ -109,7 +109,7 @@ oper_params = {
 # the solver, and the version. The following code also creates an instance of the
 # ``Maxwell2d`` class named ``m2d``.
 
-project_name = os.path.join(temp_dir.name, "PM_Motor.aedt")
+project_name = os.path.join(temp_folder.name, "PM_Motor.aedt")
 m2d = pyaedt.Maxwell2d(
     project=project_name,
     version=AEDT_VERSION,
