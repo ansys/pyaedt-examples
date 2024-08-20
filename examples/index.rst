@@ -5,8 +5,6 @@
    :maxdepth: 2
 
 
-   01-Modeling-Setup/index
-   02-HFSS/index
    03-Maxwell/index
    04-HFSS3DLayout/index
    05-Icepak/index
