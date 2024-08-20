@@ -35,7 +35,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # +
 
-project_name = os.path.join(temp_dir.name, "Magnetostatic.aedt")
+project_name = os.path.join(temp_folder.name, "Magnetostatic.aedt")
 m2d = Maxwell2d(
     version=AEDT_VERSION,
     new_desktop=False,

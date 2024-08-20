@@ -44,7 +44,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 #
 # Insert a Maxwell 2D design.
 
-project_name = os.path.join(temp_dir.name, "Transient.aedt")
+project_name = os.path.join(temp_folder.name, "Transient.aedt")
 m2d = pyaedt.Maxwell2d(
     solution_type="TransientXY",
     version=AEDT_VERSION,
