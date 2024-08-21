@@ -19,29 +19,29 @@ from pyaedt.generic.pdf import AnsysReport
 
 AEDT_VERSION = "2024.2"
 
+# ## Create temporary directory
+#
+# The temporary directory is used to run the example and save simulation data.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
+
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
+
 # ## Launch AEDT and Maxwell 2D
 #
 # Launch AEDT and Maxwell 2D after first setting up the project and design names,
 # the solver, and the version. The following code also creates an instance of the
 # ``Maxwell2d`` class named ``m2d``.
 
+project_name = os.path.join(temp_folder.name, "M2D_DC_Conduction.aedt")
 m2d = pyaedt.Maxwell2d(
     version=AEDT_VERSION,
     new_desktop=True,
     close_on_exit=True,
     solution_type="DCConduction",
-    project="M2D_DC_Conduction",
+    project=project_name,
     design="Ansys_resistor",
 )
-
-# ## Create temporary directory and download files
-#
-# Create a temporary directory where we store downloaded data or
-# dumped data.
-# If you'd like to retrieve the project data for subsequent use,
-# the temporary folder name is given by ``temp_folder.name``.
-
-temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Import geometry as a DXF file
 #
