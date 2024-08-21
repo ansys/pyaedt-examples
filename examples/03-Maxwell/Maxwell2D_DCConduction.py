@@ -19,26 +19,29 @@ from pyaedt.generic.pdf import AnsysReport
 
 AEDT_VERSION = "2024.2"
 
-# ## Create temporary directory
-
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-
 # ## Launch AEDT and Maxwell 2D
 #
 # Launch AEDT and Maxwell 2D after first setting up the project and design names,
 # the solver, and the version. The following code also creates an instance of the
 # ``Maxwell2d`` class named ``m2d``.
 
-project_name = os.path.join(temp_dir.name, "M2D_DC_Conduction.aedt")
 m2d = pyaedt.Maxwell2d(
     version=AEDT_VERSION,
     new_desktop=True,
     close_on_exit=True,
     solution_type="DCConduction",
-    project=project_name,
+    project="M2D_DC_Conduction",
     design="Ansys_resistor",
 )
 
+# ## Create temporary directory and download files
+#
+# Create a temporary directory where we store downloaded data or
+# dumped data.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
+
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Import geometry as a DXF file
 #
@@ -52,7 +55,7 @@ m2d = pyaedt.Maxwell2d(
 # m2d.import_dxf(DXFPath, dxf_layers, scale=1E-05)
 
 parasolid_path = pyaedt.downloads.download_file(
-    directory="x_t", filename="Ansys_logo_2D.x_t", destination=temp_dir.name
+    directory="x_t", filename="Ansys_logo_2D.x_t", destination=temp_folder.name
 )
 m2d.modeler.import_3d_cad(parasolid_path)
 # -
@@ -157,7 +160,7 @@ data = report.get_solution_data()
 resistance = data.data_magnitude()
 material_index = data.primary_sweep_values
 data.primary_sweep = "MaterialIndex"
-data.plot(snapshot_path=os.path.join(temp_dir.name, "M2D_DCConduction.jpg"))
+data.plot(snapshot_path=os.path.join(temp_folder.name, "M2D_DCConduction.jpg"))
 
 # ## Create material index vs resistance table
 #
@@ -198,7 +201,7 @@ py_vista_plot.focal_point = [0, 0, 0]
 py_vista_plot.roll_angle = 0
 py_vista_plot.elevation_angle = 0
 py_vista_plot.azimuth_angle = 0
-py_vista_plot.plot(os.path.join(temp_dir.name, "mag_E.jpg"))
+py_vista_plot.plot(os.path.join(temp_folder.name, "mag_E.jpg"))
 
 # ## Field animation
 #
@@ -207,7 +210,7 @@ py_vista_plot.plot(os.path.join(temp_dir.name, "mag_E.jpg"))
 animated_plot = m2d.post.plot_animated_field(
     quantity="Mag_J",
     assignment=conductor_surface,
-    export_path=temp_dir.name,
+    export_path=temp_folder.name,
     variation_variable="MaterialIndex",
     variations=[0, 1, 2, 3],
     show=False,
@@ -261,7 +264,7 @@ pdf_report.add_chapter("Field overlay")
 pdf_report.add_sub_chapter("Plots")
 pdf_report.add_text("This section contains the fields overlay.")
 pdf_report.add_image(
-    os.path.join(temp_dir.name, "mag_E.jpg"), caption="Mag E", width=120, height=80
+    os.path.join(temp_folder.name, "mag_E.jpg"), caption="Mag E", width=120, height=80
 )
 pdf_report.add_page_break()
 
@@ -272,7 +275,7 @@ pdf_report.add_chapter("Results")
 pdf_report.add_sub_chapter("Resistance vs. Material")
 pdf_report.add_text("This section contains resistance vs material data.")
 # Aspect ratio is automatically calculated if only width is provided
-pdf_report.add_image(os.path.join(temp_dir.name, "M2D_DCConduction.jpg"), width=130)
+pdf_report.add_image(os.path.join(temp_folder.name, "M2D_DCConduction.jpg"), width=130)
 
 # Add a new subchapter to display resistance data from previously created table.
 
@@ -288,20 +291,13 @@ pdf_report.add_table(
 # Add table of content and save PDF.
 
 pdf_report.add_toc()
-pdf_report.save_pdf(temp_dir.name, "AEDT_Results.pdf")
+pdf_report.save_pdf(temp_folder.name, "AEDT_Results.pdf")
 
-# ## Release AEDT
-
-m2d.save_project()
-m2d.release_desktop()
-# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
-time.sleep(3)
-
-# ## Cleanup
+# ## Release AEDT and clean up temporary directory
 #
-# All project files are saved in the folder ``temp_dir.name``.
-# If you've run this example as a Jupyter notebook you
-# can retrieve those project files. The following cell
-# removes all temporary files, including the project folder.
+# Release AEDT and remove both the project and temporary directory.
 
-temp_dir.cleanup()
+m2d.release_desktop()
+
+time.sleep(3)
+temp_folder.cleanup()

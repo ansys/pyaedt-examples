@@ -33,9 +33,8 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # the project and design names, the solver, and the version.
 
 # +
-project_name = os.path.join(temp_folder.name, "COMPUMAG.aedt")
 m3d = pyaedt.Maxwell3d(
-    project=project_name,
+    project=os.path.join(temp_folder.name, "COMPUMAG.aedt"),
     design="TEAM 3 Bath Plate",
     solution_type="EddyCurrent",
     version=AEDT_VERSION,
@@ -279,18 +278,11 @@ m3d.post.create_fieldplot_surface(
     plot_name="Mag_J",
 )
 
-# ## Release AEDT
-
-m3d.save_project()
-m3d.release_desktop()
-# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
-time.sleep(3)
-
-# ## Cleanup
+# ## Release AEDT and clean up temporary directory
 #
-# All project files are saved in the folder ``temp_dir.name``.
-# If you've run this example as a Jupyter notebook you
-# can retrieve those project files. The following cell
-# removes all temporary files, including the project folder.
+# Release AEDT and remove both the project and temporary directory.
 
+m3d.release_desktop()
+
+time.sleep(3)
 temp_folder.cleanup()
