@@ -184,12 +184,12 @@ m3d.eddy_effects_on(
 
 sweep_name = "CoilSweep"
 param = m3d.parametrics.add(
-    sweep_var="Coil_Position",
+    variable="Coil_Position",
     start_point=-20,
     end_point=0,
     step=20,
     variation_type="LinearStep",
-    parametricname=sweep_name,
+    name=sweep_name,
 )
 param["SaveFields"] = True
 param["CopyMesh"] = False
@@ -199,6 +199,7 @@ param["SolveWithCopiedMeshOnly"] = True
 #
 # Solve the parametric sweep directly so that results of all variations are available.
 
+m3d.save_project()
 m3d.analyze_setup(sweep_name, use_auto_settings=False)
 
 # ## Create expression for Bz
