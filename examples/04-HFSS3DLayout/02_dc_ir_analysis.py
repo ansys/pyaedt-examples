@@ -20,15 +20,14 @@
 # # Preparation
 # Import required packages
 
-# +
-import os
 import json
+import os
 import tempfile
 import time
-from pyedb import Edb
-from pyaedt import Hfss3dLayout
+
+import pyaedt
 from pyaedt.downloads import download_file
-# -
+from pyedb import Edb
 
 # Set constant values
 
@@ -38,9 +37,7 @@ NG_MODE = False
 # Download example board.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
-aedb = download_file(
-    source="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name
-)
+aedb = download_file(source="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name)
 download_file(
     source="spice", name="ferrite_bead_BLM15BX750SZ1.mod", destination=temp_folder.name
 )
@@ -55,18 +52,14 @@ cfg = dict()
 
 cfg["general"] = {
     "s_parameter_library": os.path.join(temp_folder.name, "touchstone"),
-    "spice_model_library": os.path.join(temp_folder.name, "spice")
+    "spice_model_library": os.path.join(temp_folder.name, "spice"),
 }
 
 # ## Change via hole size and plating thickness
 
 cfg["padstacks"] = {
     "definitions": [
-        {
-            "name": "v40h15-3",
-            "hole_diameter": "0.2mm",
-            "hole_plating_thickness": "25um"
-        }
+        {"name": "v40h15-3", "hole_diameter": "0.2mm", "hole_plating_thickness": "25um"}
     ],
 }
 
@@ -80,7 +73,7 @@ cfg["spice_models"] = [
         "sub_circuit_name": "BLM15BX750SZ1",
         "apply_to_all": True,  # If True, SPICE model is to be assigned to all components share the same part name.
         # If False, only assign SPICE model to components in "components".
-        "components": []
+        "components": [],
     }
 ]
 
@@ -93,25 +86,15 @@ cfg["sources"] = [
         "reference_designator": "U4",
         "type": "voltage",
         "magnitude": 5,
-        "positive_terminal": {
-            "net": "5V"
-        },
-        "negative_terminal": {
-            "net": "GND"
-        }
+        "positive_terminal": {"net": "5V"},
+        "negative_terminal": {"net": "GND"},
     }
 ]
 
 # ## Create Current Sources
 # Create current sources between net and pin group.
 
-cfg["pin_groups"] = [
-    {
-        "name": "J5_GND",
-        "reference_designator": "J5",
-        "net": "GND"
-    }
-]
+cfg["pin_groups"] = [{"name": "J5_GND", "reference_designator": "J5", "net": "GND"}]
 
 cfg["sources"].append(
     {
@@ -119,12 +102,10 @@ cfg["sources"].append(
         "reference_designator": "J5",
         "type": "current",
         "magnitude": 0.5,
-        "positive_terminal": {
-            "net": "SFPA_VCCR"
-        },
+        "positive_terminal": {"net": "SFPA_VCCR"},
         "negative_terminal": {
             "pin_group": "J5_GND"  # Defined in "pin_groups" section.
-        }
+        },
     }
 )
 cfg["sources"].append(
@@ -133,24 +114,16 @@ cfg["sources"].append(
         "reference_designator": "J5",
         "type": "current",
         "magnitude": 0.5,
-        "positive_terminal": {
-            "net": "SFPA_VCCT"
-        },
+        "positive_terminal": {"net": "SFPA_VCCT"},
         "negative_terminal": {
             "pin_group": "J5_GND"  # Defined in "pin_groups" section.
-        }
+        },
     }
 )
 
 # ## Create SIwave DC analysis
 
-cfg["setups"] = [
-    {
-        "name": "siwave_dc",
-        "type": "siwave_dc",
-        "dc_slider_position": 0
-    }
-]
+cfg["setups"] = [{"name": "siwave_dc", "type": "siwave_dc", "dc_slider_position": 0}]
 
 # ## Do cutout
 
@@ -178,7 +151,7 @@ cfg["operations"] = {
         "maximum_iterations": 10,
         "preserve_components_with_model": False,
         "simple_pad_check": True,
-        "keep_lines_as_path": False
+        "keep_lines_as_path": False,
     }
 }
 
@@ -209,11 +182,8 @@ print(temp_folder.name)
 
 # ## Load edb into 3D Layout.
 
-siw = Hfss3dLayout(
-    aedb,
-    version=AEDT_VERSION,
-    non_graphical=NG_MODE,
-    new_desktop=True
+siw = pyaedt.Hfss3dLayout(
+    aedb, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True
 )
 
 # ## Analyze
@@ -230,7 +200,7 @@ siw.close_desktop()
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notbook you 
+# All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notbook you
 # can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 time.sleep(3)
