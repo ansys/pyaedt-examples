@@ -22,7 +22,7 @@ enabling straightforward and efficient automation in your workflow.
          :width: 200px
          :height: 150px
 
-      Learn more about automation for HFSS 3D Layout
+      Explore general model and simulation setup features inside AEDT
 
    .. grid-item-card:: HFSS
       :padding: 2 2 2 2
