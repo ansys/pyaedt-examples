@@ -10,9 +10,11 @@
 
 import os
 import tempfile
-import time
 
 import pyaedt
+
+# import time
+
 
 # ## Define constants
 
@@ -202,46 +204,46 @@ param["SolveWithCopiedMeshOnly"] = True
 m3d.save_project()
 m3d.analyze_setup(sweep_name, use_auto_settings=False)
 
-# ## Create expression for Bz
+# # ## Create expression for Bz
+# #
+# # Create an expression for Bz using the fields calculator.
 #
-# Create an expression for Bz using the fields calculator.
-
-Fields = m3d.ofieldsreporter
-Fields.EnterQty("B")
-Fields.CalcOp("ScalarZ")
-Fields.EnterScalar(1000)
-Fields.CalcOp("*")
-Fields.CalcOp("Smooth")
-Fields.AddNamedExpression("Bz", "Fields")
-
-# ## Plot mag(Bz) as a function of frequency
+# Fields = m3d.ofieldsreporter
+# Fields.EnterQty("B")
+# Fields.CalcOp("ScalarZ")
+# Fields.EnterScalar(1000)
+# Fields.CalcOp("*")
+# Fields.CalcOp("Smooth")
+# Fields.AddNamedExpression("Bz", "Fields")
 #
-# Plot mag(Bz) as a function of frequency for both coil positions.
-
-# +
+# # ## Plot mag(Bz) as a function of frequency
+# #
+# # Plot mag(Bz) as a function of frequency for both coil positions.
+#
+# # +
 variations = {
     "Distance": ["All"],
     "Freq": ["All"],
     "Phase": ["0deg"],
     "Coil_Position": ["All"],
 }
-
-m3d.post.create_report(
-    expressions="mag(Bz)",
-    variations=variations,
-    primary_sweep_variable="Distance",
-    report_category="Fields",
-    context="Line_AB",
-    plot_name="mag(Bz) Along 'Line_AB' Coil",
-)
-# -
-
-# ## Get simulation results from a solved setup
 #
-# Get simulation results from a solved setup as a ``SolutionData`` object.
-
-# +
-
+# m3d.post.create_report(
+#     expressions="mag(Bz)",
+#     variations=variations,
+#     primary_sweep_variable="Distance",
+#     report_category="Fields",
+#     context="Line_AB",
+#     plot_name="mag(Bz) Along 'Line_AB' Coil",
+# )
+# # -
+#
+# # ## Get simulation results from a solved setup
+# #
+# # Get simulation results from a solved setup as a ``SolutionData`` object.
+#
+# # +
+#
 solutions = m3d.post.get_solution_data(
     expressions="mag(Bz)",
     report_category="Fields",
@@ -249,48 +251,48 @@ solutions = m3d.post.get_solution_data(
     variations=variations,
     primary_sweep_variable="Distance",
 )
-# -
-
-# ## Set up sweep value and plot solution
+# # -
 #
-# Set up a sweep value and plot the solution.
-
+# # ## Set up sweep value and plot solution
+# #
+# # Set up a sweep value and plot the solution.
+#
 solutions.active_variation["Coil_Position"] = -0.02
-solutions.plot()
-
-# ## Change sweep value and plot solution
-#
-# Change the sweep value and plot the solution again.
-# Unccomment to show plots.
-
-solutions.active_variation["Coil_Position"] = 0
 # solutions.plot()
-
-# ## Plot induced current density on surface of ladder plate
 #
-# Plot the induced current density, ``"Mag_J"``, on the surface of the ladder plate.
-
-ladder_plate = m3d.modeler.objects_by_name["LadderPlate"]
-intrinsics = {"Freq": "50Hz", "Phase": "0deg"}
-m3d.post.create_fieldplot_surface(
-    assignment=ladder_plate.faces,
-    quantity="Mag_J",
-    intrinsics=intrinsics,
-    plot_name="Mag_J",
-)
-
-# ## Release AEDT
-
+# # ## Change sweep value and plot solution
+# #
+# # Change the sweep value and plot the solution again.
+# # Unccomment to show plots.
+#
+# solutions.active_variation["Coil_Position"] = 0
+# # solutions.plot()
+#
+# # ## Plot induced current density on surface of ladder plate
+# #
+# # Plot the induced current density, ``"Mag_J"``, on the surface of the ladder plate.
+#
+# ladder_plate = m3d.modeler.objects_by_name["LadderPlate"]
+# intrinsics = {"Freq": "50Hz", "Phase": "0deg"}
+# m3d.post.create_fieldplot_surface(
+#     assignment=ladder_plate.faces,
+#     quantity="Mag_J",
+#     intrinsics=intrinsics,
+#     plot_name="Mag_J",
+# )
+#
+# # ## Release AEDT
+#
 m3d.save_project()
 m3d.release_desktop()
-# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
-time.sleep(3)
-
-# ## Cleanup
+# # Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+# time.sleep(3)
 #
-# All project files are saved in the folder ``temp_dir.name``.
-# If you've run this example as a Jupyter notebook you
-# can retrieve those project files. The following cell
-# removes all temporary files, including the project folder.
-
-temp_folder.cleanup()
+# # ## Cleanup
+# #
+# # All project files are saved in the folder ``temp_dir.name``.
+# # If you've run this example as a Jupyter notebook you
+# # can retrieve those project files. The following cell
+# # removes all temporary files, including the project folder.
+#
+# temp_folder.cleanup()
