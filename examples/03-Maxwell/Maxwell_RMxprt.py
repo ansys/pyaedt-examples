@@ -11,7 +11,7 @@
 #
 # Perform required imports.
 
-import os.path
+import os
 import tempfile
 import time
 
@@ -35,7 +35,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 # ## Launch AEDT and Rmxprt
 #
 # Launch AEDT and Rmxprt after first setting up the project name.
-# As solution type we will use ASSM (Adjust-Speed Syncronous Machine).
+# As a solution type the example uses an ASSM (Adjust-Speed Syncronous Machine).
 
 app = ansys.aedt.core.Rmxprt(
     version=AEDT_VERSION,
@@ -125,7 +125,7 @@ setup.analyze()
 
 # ## Export to Maxwell
 #
-# After the project is solved we can export in Maxwell 2D or Maxwell 3D.
+# After the project is solved, it can be exported either to Maxwell 2D or Maxwell 3D.
 
 m2d = app.create_maxwell_design(setup_name=setup.name, maxwell_2d=True)
 m2d.plot(show=False, output_file=os.path.join(temp_dir.name, "Image.jpg"), plot_air_objects=True)
