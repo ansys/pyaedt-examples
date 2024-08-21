@@ -8,14 +8,3 @@ and Transient).
 .. nbgallery::
 
     Maxwell3D_Team3_bath_plate
-    Maxwell2D_DCConduction.py
-    Maxwell2D_Electrostatic.py
-    Maxwell2D_PMSynchronousMotor.py
-    Maxwell2D_Transient.py
-    Maxwell3DTeam7.py
-    Maxwell3D_Choke.py
-    Maxwell3D_Segmentation.py
-    Maxwell_Control_Program.py
-    Maxwell_Magnet.py
-    Maxwell_Transformer_Coreloss.py
-    Maxwell2D_transformer_LL.py
