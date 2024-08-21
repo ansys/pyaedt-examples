@@ -1,6 +1,6 @@
 # # Maxwell 2D external circuit example
 #
-# This example shows how to create an external circuit and connect it with a Maxwell 2D design.
+# This example shows how to create a delta circuit as an external circuit and connect it with a Maxwell 2D design.
 
 # ## Perform required imports
 
@@ -35,7 +35,6 @@ frequency = "50Hz"
 transient_parameters = {
     "voltage": voltage,
     "frequency": frequency,
-    "resistance_value": "0.1Ohm",
     "electric_period": "1/frequency s",
     "stop_time": "2 * electric_period s",
     "time_step": "electric_period / 20 s",
@@ -44,7 +43,7 @@ transient_parameters = {
 circuit_parameters = {
     "voltage": voltage,
     "frequency": frequency,
-    "resistance_value": "0.1Ohm",
+    "resistance_value": "1Ohm",
 }
 
 # ## Initialize and launch Maxwell 2D
@@ -55,8 +54,9 @@ circuit_parameters = {
 # +
 non_graphical = False
 
-project_name = "delta_transient"
-design_name = "delta_connection"
+project_name = "Maxwell_circuit_example"
+design_name = "1 Maxwell"
+circuit_name = "2 Delta circuit"
 solver = "TransientXY"
 
 maxwell = Maxwell2d(
@@ -78,13 +78,16 @@ for k, v in transient_parameters.items():
 
 # ## Create geometry
 #
-# Create copper coils and vacuum region, assign balloon boundary to the region edges.
+# Create copper coils and vacuum region, assign mesh operations, and assign balloon boundary to the region edges.
 
 coil1_id = maxwell.modeler.create_circle(orientation='Z', origin=[0, 0, 0], radius=10, name="coil1", material="copper")
 coil2_id = maxwell.modeler.create_circle(orientation='Z', origin=[25, 0, 0], radius=10, name="coil2", material="copper")
 coil3_id = maxwell.modeler.create_circle(orientation='Z', origin=[50, 0, 0], radius=10, name="coil3", material="copper")
 
-region = maxwell.modeler.create_region()
+region = maxwell.modeler.create_region(pad_value=[100, 300, 100, 300])
+
+maxwell.mesh.assign_length_mesh(assignment=[coil1_id, coil2_id, coil3_id, region], maximum_length=5)
+
 maxwell.assign_balloon(assignment=region.edges)
 
 # ## Assign excitations
@@ -108,7 +111,7 @@ setup["TimeStep"] = "time_step"
 # Create circuit design with the windings
 
 # todo this only works when https://github.com/ansys/pyaedt/pull/5006 is merged
-circuit = maxwell.create_external_circuit(circuit_design="test_circuit")
+circuit = maxwell.create_external_circuit(circuit_design=circuit_name)
 
 # ## Define variables from dictionaries
 #
@@ -164,10 +167,10 @@ circuit.modeler.schematic.create_wire(points=[resistors[0].pins[1].location, [12
 #
 # Export the netlist file, and import it to Maxwell
 
-netlist_file = temp_dir.name = "delta_netlist.sph"
+netlist_file = temp_dir.name + "delta_netlist.sph"
 circuit.export_netlist_from_schematic(netlist_file)
 
-maxwell.edit_external_circuit(netlist_file_path=netlist_file, schematic_design_name="test_circuit")
+maxwell.edit_external_circuit(netlist_file_path=netlist_file, schematic_design_name=circuit_name)
 
 # ## Analyze the setup
 #
@@ -180,8 +183,8 @@ setup.analyze()
 # Plot winding currents
 
 maxwell.post.create_report(
-    expressions=["Current(winding1)", "Current(winding2)", "Current(winding3)"],
-    domain="Time",
+    expressions=["Current(winding1)","Current(winding2)","Current(winding3)"],
+    domain="Sweep",
     primary_sweep_variable="Time",
     plot_name="Winding Currents",
 )
