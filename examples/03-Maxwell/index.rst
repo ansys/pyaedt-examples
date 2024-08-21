@@ -20,7 +20,7 @@ and Transient).
     Maxwell3D_Conductor.py
     Maxwell3D_Segmentation.py
     Maxwell3D_Team3_bath_plate.py
-    Maxwell_Transformer_Coreloss.py
+    Maxwell3D_Transformer_Coreloss.py
     Maxwell3D_Transient_Fields_Export.py
     Maxwell3DTeam7.py
 
