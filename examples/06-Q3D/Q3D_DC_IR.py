@@ -175,9 +175,9 @@ objs_copper = q3d.modeler.get_objects_by_material("copper")
 objs_copper_names = [i.name for i in objs_copper]
 q3d.plot(
     show=False,
-    objects=objs_copper_names,
+    assignment=objs_copper_names,
     plot_as_separate_objects=False,
-    export_path=os.path.join(temp_dir.name, "Q3D.jpg"),
+    output_file=os.path.join(temp_dir.name, "Q3D.jpg"),
     plot_air_objects=False,
 )
 # -
@@ -225,7 +225,7 @@ setup.capacitance_enabled = False
 setup.ac_rl_enabled = False
 setup.props["SaveFields"] = True
 setup.props["DC"]["Cond"]["MaxPass"] = 3
-setup.analyze(num_cores=NUM_CORES)
+setup.analyze(cores=NUM_CORES)
 
 # ## Field Calculator
 #
@@ -289,8 +289,9 @@ data = q3d.post.get_solution_data(
     variations={"Freq": "1GHz"},
     report_category="DC R/L Fields",
 )
-for curve in curves:
-    print(data.data_real(curve))
+if data:
+    for curve in curves:
+        print(data.data_real(curve))
 # -
 
 # ## Close AEDT
