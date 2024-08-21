@@ -7,7 +7,7 @@ and Transient).
 
 .. nbgallery::
 
-
+    Maxwell2D_Control_Program.py
     Maxwell2D_DCConduction.py
     Maxwell2D_EC_Reduced_Matrix
     Maxwell2D_Electrostatic.py
@@ -17,10 +17,12 @@ and Transient).
     Maxwell2D_transformer_LL.py
     Maxwell2D_Transient.py
     Maxwell3D_Choke.py
+    Maxwell3D_Conductor.py
     Maxwell3D_Segmentation.py
     Maxwell3D_Team3_bath_plate.py
+    Maxwell_Transformer_Coreloss.py
     Maxwell3D_Transient_Fields_Export.py
     Maxwell3DTeam7.py
-    Maxwell_Conductor.py
-    Maxwell_Control_Program.py
-    Maxwell_Transformer_Coreloss.py
+
+
+
