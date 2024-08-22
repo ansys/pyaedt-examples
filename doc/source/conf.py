@@ -331,6 +331,7 @@ nbsphinx_thumbnails = {
     "examples/08-Circuit/Circuit_Siwave_Multizones": "_static/thumbnails/multizone.png",
     "examples/08-Circuit/Circuit_Subcircuit_Example": "_static/thumbnails/subcircuit.png",
     "examples/08-Circuit/Create_Netlist": "_static/thumbnails/netlist.png",
+    "examples/09-Multiphysics/Circuit_HFSS_Icepak_Coupling": "_static/thumbnails/ring.png",
     "examples/12-general/com_analysis": "_static/thumbnails/com_eye.png",
 }
 nbsphinx_custom_formats = {

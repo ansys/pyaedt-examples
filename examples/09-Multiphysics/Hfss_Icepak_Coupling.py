@@ -44,8 +44,8 @@ import os
 import tempfile
 import time
 
-import pyaedt
-from pyaedt.generic.pdf import AnsysReport
+import ansys.aedt.core
+from ansys.aedt.core.generic.pdf import AnsysReport
 
 # Set constant values
 
@@ -64,7 +64,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 # Launch AEDT and initialize HFSS. If there is an active HFSS design, the ``hfss``
 # object is linked to it. Otherwise, a new design is created.
 
-hfss = pyaedt.Hfss(
+hfss = ansys.aedt.core.Hfss(
     project=os.path.join(temp_dir.name, "Icepak_HFSS_Coupling"),
     design="RF",
     version=AEDT_VERSION,
@@ -218,7 +218,7 @@ sweepname = hfss.create_linear_count_sweep(
 # design and the coupled physics analysis can be run. The `FieldAnalysis3D.copy_solid_bodies_from()`
 # method imports a model from HFSS into Icepak including all material definitions.
 
-ipk = pyaedt.Icepak(design="CalcTemp", version=AEDT_VERSION)
+ipk = ansys.aedt.core.Icepak(design="CalcTemp", version=AEDT_VERSION)
 ipk.copy_solid_bodies_from(hfss)
 
 # ## Link RF Thermal Source
@@ -281,7 +281,7 @@ ipk.assign_openings(airfaces)
 # Save project and attach to Icepak instance
 
 hfss.save_project()
-ipk = pyaedt.Icepak(version=AEDT_VERSION)
+ipk = ansys.aedt.core.Icepak(version=AEDT_VERSION)
 ipk.solution_type = ipk.SOLUTIONS.Icepak.SteadyTemperatureAndFlow
 ipk.modeler.fit_all()
 
@@ -312,8 +312,8 @@ plot1 = hfss.post.create_fieldplot_surface(
 hfss.post.plot_field_from_fieldplot(
     plot1.name,
     project_path=temp_dir.name,
-    meshplot=False,
-    imageformat="jpg",
+    mesh_plot=False,
+    image_format="jpg",
     view="isometric",
     show=False,
     plot_cad_objs=False,
@@ -434,18 +434,18 @@ pdf_report.add_text("This section contains Multiphysics temperature plot.")
 pdf_report.add_toc()
 pdf_report.save_pdf(file_path=temp_dir.name, file_name="AEDT_Results.pdf")
 
-# ## Release AEDT and clean up temporary directory
+# ## Release AEDT
 #
-# Release AEDT and clean up temporary directory.
+# Release AEDT and close the example.
 
 ipk.save_project()
 hfss.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``.
-# If you've run this example as a Jupyter notebook you
-# can retrieve those project files. The following cell removes
-# all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 temp_dir.cleanup()
