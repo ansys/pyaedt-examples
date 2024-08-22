@@ -1,7 +1,9 @@
-# # General: coordinate system creation
+# # Coordinate system creation
 #
 # This example shows how you can use PyAEDT to create and modify coordinate systems in the modeler.
 #
+# Keywords: **General**, **coordinate system**.
+
 # ## Preparation
 # Import the required packages
 
@@ -9,7 +11,7 @@ import os
 import tempfile
 import time
 
-import pyaedt
+import ansys.aedt.core
 
 # Define constants
 
@@ -22,14 +24,16 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch AEDT
 
-d = pyaedt.launch_desktop(version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True)
+d = ansys.aedt.core.launch_desktop(
+    version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True
+)
 
 # ## Insert HFSS design
 #
 # Insert an HFSS design with the default name.
 
 project_name = os.path.join(temp_dir.name, "CoordSysDemo.aedt")
-hfss = pyaedt.Hfss(version=AEDT_VERSION, project=project_name)
+hfss = ansys.aedt.core.Hfss(version=AEDT_VERSION, project=project_name)
 
 # ## Create coordinate system
 #
