@@ -324,7 +324,9 @@ nbsphinx_allow_errors = False
 
 # NbSphinx customization
 nbsphinx_thumbnails = {
-    "examples/00-EDB/00_EDB_Create_VIA": "_static/thumbnails/diff_via.png",
+    "examples/01-Modeling-Setup/Configurations": "_static/thumbnails/configuration_file_icepak.png",
+    "examples/01-Modeling-Setup/CoordinateSystem": "_static/thumbnails/coordinate_system.png",
+    "examples/01-Modeling-Setup/Polyline_Primitives": "_static/thumbnails/polyline.png",
 }
 nbsphinx_custom_formats = {
     ".py": ["jupytext.reads", {"fmt": ""}],
