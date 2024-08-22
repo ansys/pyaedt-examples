@@ -225,7 +225,12 @@ setup.capacitance_enabled = False
 setup.ac_rl_enabled = False
 setup.props["SaveFields"] = True
 setup.props["DC"]["Cond"]["MaxPass"] = 3
-setup.analyze(cores=NUM_CORES)
+setup.analyze()
+
+# ## Solve setup
+
+q3d.save_project()
+q3d.analyze_setup(setup.name, cores=NUM_CORES)
 
 # ## Field Calculator
 #

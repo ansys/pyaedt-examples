@@ -1,13 +1,13 @@
-PyAEDT documentation  |version|
-===============================
+Examples
+========
 
 **Useful links**:
 `Installation <https://aedt.docs.pyansys.com/version/stable/Getting_started/Installation.html>`_ |
-`Source Repository <https://github.com/ansys/pyaedt>`_ |
-`Issues <https://github.com/ansys/pyaedt/issues>`_
+`Source Repository <https://github.com/ansys-internal/pyaedt-examples>`_ |
+`Issues <https://github.com/ansys-internal/pyaedt-examples/issues>`_
 
-PyAEDT is a Python library that interacts directly with the Ansys Electronics Desktop (AEDT) API,
-enabling straightforward and efficient automation in your workflow.
+Embedding examples for `PyAEDT <https://aedt.docs.pyansys.com/version/stable/>`_ are contained in this repository.
+These end-to-end examples show how you can use PyAEDT.
 
 
 .. grid:: 3
@@ -70,7 +70,7 @@ enabling straightforward and efficient automation in your workflow.
          :width: 200px
          :height: 150px
 
-      Dive into the world of Icepak and explore schematic generation, setup and thermal postprocessing
+      Discover use cases of Icepak
 
    .. grid-item-card:: Q3D
       :padding: 2 2 2 2
@@ -125,19 +125,19 @@ enabling straightforward and efficient automation in your workflow.
       :link: examples/10-EMIT/index
       :link-type: doc
 
-      .. image:: examples/10-EMIT/_static/simple_cosite.png
+      .. image:: examples/10-EMIT/_static/emit_simple_cosite.png
          :alt: Simple cosite
          :width: 200px
          :height: 150px
 
-      Study the practical uses of Emit
+      Study the practical uses of EMIT
 
    .. grid-item-card:: Twin Builder
       :padding: 2 2 2 2
       :link: examples/11-twin_builder/index
       :link-type: doc
 
-     .. image:: examples/11-twin_builder/_static/rectifier.png
+      .. image:: examples/11-twin_builder/_static/rectifier.png
          :alt: Rectifier
          :width: 200px
          :height: 150px
@@ -150,9 +150,6 @@ enabling straightforward and efficient automation in your workflow.
       :link-type: doc
 
       Discover some general end-to-end workflows
-
-
-   
 
    .. toctree::
       :hidden:
