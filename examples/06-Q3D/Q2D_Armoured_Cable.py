@@ -1,4 +1,4 @@
-# # Q2D: Cable parameter identification
+# # Cable parameter identification
 
 # This example shows how you can use PyAEDT to perform these tasks:
 #
@@ -10,6 +10,8 @@
 #
 # - [4 Core Armoured Power Cable]
 # (https://www.luxingcable.com/low-voltage-cables/4-core-armoured-power-cable.html)
+#
+# Keywords: **Q2D**, **Cable**.
 
 # ## Perform required imports
 #
@@ -18,17 +20,16 @@ import math
 import os
 import tempfile
 
-import pyaedt
+import ansys.aedt.core
 
 # ## Create temporary directory
 
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # Define constants.
 
 AEDT_VERSION = "2024.2"
 NG_MODE = False  # Open Electronics UI when the application is launched.
-
 
 # ## Set up for model creation
 #
@@ -59,12 +60,12 @@ n_arm_strands = 30
 # Start an instance of the Q2D extractor, providing the version, project name, design
 # name and type.
 
-project_name = os.path.join(temp_dir.name, "Q2D_ArmouredCableExample.aedt")
+project_name = os.path.join(temp_folder.name, "Q2D_ArmouredCableExample.aedt")
 q2d_design_name = "2D_Extractor_Cable"
 setup_name = "AnalysisSeetup"
 sweep_name = "FreqSweep"
 tb_design_name = "CableSystem"
-q2d = pyaedt.Q2d(
+q2d = ansys.aedt.core.Q2d(
     project=project_name,
     design=q2d_design_name,
     version=AEDT_VERSION,
@@ -233,6 +234,11 @@ q2d.assign_single_conductor(
 )
 q2d.modeler.fit_all()
 
+# ## Plot model
+
+model = q2d.plot(show=False)
+model.plot(os.path.join(temp_folder.name, "Image.jpg"))
+
 # Specify the design settings
 
 lumped_length = "100m"
@@ -262,7 +268,7 @@ q2d_sweep = q2d_setup.add_sweep(name=sweep_name)
 #
 # Add a Simplorer/Twin Builder design and the Q3D dynamic component
 
-tb = pyaedt.TwinBuilder(design=tb_design_name, version=AEDT_VERSION)
+tb = ansys.aedt.core.TwinBuilder(design=tb_design_name, version=AEDT_VERSION)
 
 # Add a Q2D dynamic component.
 
@@ -275,15 +281,18 @@ tb.add_q3d_dynamic_component(
     coupling_matrix_name="Original",
 )
 
-# ## Save project and release desktop
+# ## Release AEDT
 
 tb.save_project()
 tb.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``.
-# If you've run this example as a Jupyter notebook you can retrieve those project files.
-# The following cell removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_folder.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
-temp_dir.cleanup()
+temp_folder.cleanup()

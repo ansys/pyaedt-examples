@@ -1,7 +1,9 @@
-# # Q3D Extractor: PCB DCIR analysis
+# # PCB DCIR analysis
 #
 # This example shows how you can use PyAEDT to create a design in
 # Q3D Extractor and run a DC IR Drop simulation starting from an EDB Project.
+#
+# Keywords: **Q3D**, **DCIR**.
 
 # ## Perform required imports
 #
@@ -9,8 +11,9 @@
 
 import os
 import tempfile
+import time
 
-import pyaedt
+import ansys.aedt.core
 import pyedb
 
 # Set constant values
@@ -29,13 +32,13 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 #
 # Download needed project file and set up temporary project directory.
 
-aedb_project = pyaedt.downloads.download_file(
+aedb_project = ansys.aedt.core.downloads.download_file(
     "edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name
 )
-coil = pyaedt.downloads.download_file(
+coil = ansys.aedt.core.downloads.download_file(
     source="inductance_3d_component", name="air_coil.a3dcomp", destination=temp_dir.name
 )
-res = pyaedt.downloads.download_file(
+res = ansys.aedt.core.downloads.download_file(
     source="resistors", name="Res_0402.a3dcomp", destination=temp_dir.name
 )
 project_name = "HSD"
@@ -111,7 +114,7 @@ location_r106_1.append(edb.components["R106"].upper_elevation * 1000)
 edb.save_edb()
 edb.close_edb()
 
-h3d = pyaedt.Hfss3dLayout(
+h3d = ansys.aedt.core.Hfss3dLayout(
     output_edb, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True
 )
 # -
@@ -129,7 +132,7 @@ h3d.close_project()
 #
 # Launch the newly created q3d project.
 
-q3d = pyaedt.Q3d(output_q3d, version=AEDT_VERSION)
+q3d = ansys.aedt.core.Q3d(output_q3d, version=AEDT_VERSION)
 q3d.modeler.delete("GND")
 q3d.modeler.delete("16_Bottom_L6")
 q3d.delete_all_nets()
@@ -301,16 +304,18 @@ if data:
         print(data.data_real(curve))
 # -
 
-# ## Close AEDT
-#
-# Save the project, release AEDT and remove both the project and temporary directory.
+# ## Release AEDT
 
 q3d.save_project()
 q3d.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_folder.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
 temp_dir.cleanup()

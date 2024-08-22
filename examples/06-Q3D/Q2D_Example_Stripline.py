@@ -1,7 +1,9 @@
-# # 2D Extractor: stripline analysis
+# # Stripline analysis
 
 # This example shows how you can use PyAEDT to create a differential stripline design in
 # 2D Extractor and run a simulation.
+#
+# Keywords: **Q2D**, **Stripline**.
 
 # ## Perform required imports
 #
@@ -10,8 +12,9 @@
 # +
 import os
 import tempfile
+import time
 
-import pyaedt
+import ansys.aedt.core
 
 # -
 
@@ -32,7 +35,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 # Launch AEDT 2024.2 in graphical mode and launch 2D Extractor. This example
 # uses SI units.
 
-q2d = pyaedt.Q2d(
+q2d = ansys.aedt.core.Q2d(
     project=os.path.join(temp_dir.name, "stripline"),
     design="differential_stripline",
     version=AEDT_VERSION,
@@ -88,32 +91,34 @@ layer_3_uh = layer_3_lh + "+" + cond_h
 # Create a positive signal.
 
 signal_p_1 = q2d.modeler.create_polyline(
-    position_list=[[0, layer_2_lh, 0], [sig_w, layer_2_lh, 0]], name="signal_p_1"
+    points=[[0, layer_2_lh, 0], [sig_w, layer_2_lh, 0]], name="signal_p_1"
 )
 
 signal_p_2 = q2d.modeler.create_polyline(
-    position_list=[[0, layer_2_uh, 0], [sig_top_w, layer_2_uh, 0]], name="signal_p_2"
+    points=[[0, layer_2_uh, 0], [sig_top_w, layer_2_uh, 0]], name="signal_p_2"
 )
 q2d.modeler.move([signal_p_2], [delta_w_half, 0, 0])
 q2d.modeler.connect([signal_p_1, signal_p_2])
-q2d.modeler.move(objid=[signal_p_1], vector=["{}+{}".format(co_gnd_w, clearance), 0, 0])
+q2d.modeler.move(
+    assignment=[signal_p_1], vector=["{}+{}".format(co_gnd_w, clearance), 0, 0]
+)
 
 # ## Create negative signal
 #
 # Create a negative signal.
 
 signal_n_1 = q2d.modeler.create_polyline(
-    position_list=[[0, layer_2_lh, 0], [sig_w, layer_2_lh, 0]], name="signal_n_1"
+    points=[[0, layer_2_lh, 0], [sig_w, layer_2_lh, 0]], name="signal_n_1"
 )
 
 signal_n_2 = q2d.modeler.create_polyline(
-    position_list=[[0, layer_2_uh, 0], [sig_top_w, layer_2_uh, 0]], name="signal_n_2"
+    points=[[0, layer_2_uh, 0], [sig_top_w, layer_2_uh, 0]], name="signal_n_2"
 )
 
-q2d.modeler.move(objid=[signal_n_2], vector=[delta_w_half, 0, 0])
+q2d.modeler.move(assignment=[signal_n_2], vector=[delta_w_half, 0, 0])
 q2d.modeler.connect([signal_n_1, signal_n_2])
 q2d.modeler.move(
-    objid=[signal_n_1],
+    assignment=[signal_n_1],
     vector=["{}+{}+{}+{}".format(co_gnd_w, clearance, sig_w, sig_gap), 0, 0],
 )
 
@@ -122,10 +127,10 @@ q2d.modeler.move(
 # Create a reference ground plane.
 
 ref_gnd_u = q2d.modeler.create_rectangle(
-    position=[0, layer_1_lh, 0], dimension_list=[model_w, cond_h], name="ref_gnd_u"
+    origin=[0, layer_1_lh, 0], sizes=[model_w, cond_h], name="ref_gnd_u"
 )
 ref_gnd_l = q2d.modeler.create_rectangle(
-    position=[0, layer_3_lh, 0], dimension_list=[model_w, cond_h], name="ref_gnd_l"
+    origin=[0, layer_3_lh, 0], sizes=[model_w, cond_h], name="ref_gnd_l"
 )
 
 # ## Create dielectric
@@ -133,22 +138,22 @@ ref_gnd_l = q2d.modeler.create_rectangle(
 # Create a dielectric.
 
 q2d.modeler.create_rectangle(
-    position=[0, layer_1_uh, 0],
-    dimension_list=[model_w, core_h],
+    origin=[0, layer_1_uh, 0],
+    sizes=[model_w, core_h],
     name="Core",
-    matname="FR4_epoxy",
+    material="FR4_epoxy",
 )
 q2d.modeler.create_rectangle(
-    position=[0, layer_2_uh, 0],
-    dimension_list=[model_w, pp_h],
+    origin=[0, layer_2_uh, 0],
+    sizes=[model_w, pp_h],
     name="Prepreg",
-    matname="FR4_epoxy",
+    material="FR4_epoxy",
 )
 q2d.modeler.create_rectangle(
-    position=[0, layer_2_lh, 0],
-    dimension_list=[model_w, cond_h],
+    origin=[0, layer_2_lh, 0],
+    sizes=[model_w, cond_h],
     name="Filling",
-    matname="FR4_epoxy",
+    material="FR4_epoxy",
 )
 
 # ## Assign conductors
@@ -158,18 +163,18 @@ q2d.modeler.create_rectangle(
 # +
 q2d.assign_single_conductor(
     name=signal_p_1.name,
-    target_objects=[signal_p_1],
+    assignment=[signal_p_1],
     conductor_type="SignalLine",
     solve_option="SolveOnBoundary",
-    unit="mm",
+    units="mm",
 )
 
 q2d.assign_single_conductor(
     name=signal_n_1.name,
-    target_objects=[signal_n_1],
+    assignment=[signal_n_1],
     conductor_type="SignalLine",
     solve_option="SolveOnBoundary",
-    unit="mm",
+    units="mm",
 )
 # -
 
@@ -179,10 +184,10 @@ q2d.assign_single_conductor(
 
 q2d.assign_single_conductor(
     name="gnd",
-    target_objects=[ref_gnd_u, ref_gnd_l],
+    assignment=[ref_gnd_u, ref_gnd_l],
     conductor_type="ReferenceGround",
     solve_option="SolveOnBoundary",
-    unit="mm",
+    units="mm",
 )
 
 # ## Assign Huray model on signals
@@ -205,8 +210,8 @@ q2d.assign_huray_finitecond_to_edges(
 
 matrix = q2d.insert_reduced_matrix(
     operation_name=q2d.MATRIXOPERATIONS.DiffPair,
-    source_names=["signal_p_1", "signal_n_1"],
-    rm_name="diff_pair",
+    assignment=["signal_p_1", "signal_n_1"],
+    reduced_matrix="diff_pair",
 )
 
 # ## Create setup, analyze, and plot
@@ -215,11 +220,11 @@ matrix = q2d.insert_reduced_matrix(
 
 # Create a setup.
 
-setup = q2d.create_setup(setupname="new_setup")
+setup = q2d.create_setup(name="new_setup")
 
 # Add a sweep.
 
-sweep = setup.add_sweep(sweepname="sweep1", sweeptype="Discrete")
+sweep = setup.add_sweep(name="sweep1", sweep_type="Discrete")
 sweep.props["RangeType"] = "LinearStep"
 sweep.props["RangeStart"] = "1GHz"
 sweep.props["RangeStep"] = "100MHz"
@@ -231,7 +236,7 @@ sweep.update()
 
 # Analyze the nominal design and plot characteristic impedance.
 
-q2d.analyze()
+q2d.analyze(cores=NUM_CORES)
 plot_sources = matrix.get_sources_for_plot(category="Z0")
 
 # Get simulation results as a ``SolutionData`` object and plot as a jpg
@@ -239,31 +244,20 @@ plot_sources = matrix.get_sources_for_plot(category="Z0")
 data = q2d.post.get_solution_data(expressions=plot_sources, context=matrix.name)
 data.plot(snapshot_path=os.path.join(temp_dir.name, "plot.jpg"))
 
-# Add a parametric sweep and analyze.
-
-# +
-parametric = q2d.parametrics.add(
-    sweep_var="sig_bot_w",
-    start_point=75,
-    end_point=100,
-    step=5,
-    variation_type="LinearStep",
-)
-parametric.add_variation(
-    sweep_var="sig_gap",
-    start_point="100um",
-    end_point="200um",
-    step=5,
-    variation_type="LinearCount",
-)
-
-q2d.analyze_setup(name=parametric.name, num_cores=NUM_CORES)
 # -
 
-# ## Save project and release AEDT
-#
-# Save the project, release AEDT and remove both the project and temporary directory.
+# ## Release AEDT
 
 q2d.save_project()
 q2d.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_folder.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
+
 temp_dir.cleanup()

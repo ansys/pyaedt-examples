@@ -1,7 +1,9 @@
-# # Q3D Extractor: busbar analysis
+# # Busbar analysis
 
 # This example shows how you can use PyAEDT to create a busbar design in
 # Q3D Extractor and run a simulation.
+#
+# Keywords: **Q3D**, **Busbar**.
 
 # ## Perform required imports
 #
@@ -9,8 +11,9 @@
 
 import os
 import tempfile
+import time
 
-import pyaedt
+import ansys.aedt.core
 
 # Set constant values
 
@@ -26,9 +29,9 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch AEDT and Q3D Extractor
 #
-# Launch AEDT 2024 R1 in graphical mode and launch Q3D Extractor. This example uses SI units.
+# Launch AEDT 2024 R2 in graphical mode and launch Q3D Extractor. This example uses SI units.
 
-q3d = pyaedt.Q3d(
+q3d = ansys.aedt.core.Q3d(
     project=os.path.join(temp_dir.name, "busbar.aedt"),
     version=AEDT_VERSION,
     non_graphical=NG_MODE,
@@ -142,7 +145,7 @@ q3d.post.create_report(
 #
 # Solve the setup.
 
-q3d.analyze(num_cores=NUM_CORES)
+q3d.analyze(cores=NUM_CORES)
 q3d.save_project()
 
 # Retrieve solution data for processing in Python.
@@ -151,19 +154,18 @@ data = q3d.post.get_solution_data(expressions=data_plot_self, context="Original"
 data.data_magnitude()
 data.plot()
 
-# ## Close the application.
-#
-# After the simulation completes, you can close AEDT or release it using the
-# ``release_desktop`` method. All methods provide for saving projects before closing.
+# ## Release AEDT
 
 q3d.save_project()
-q3d.release_desktop(close_projects=True, close_desktop=True)
+q3d.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``.
+# All project files are saved in the folder ``temp_folder.name``.
 # If you've run this example as a Jupyter notebook you
-# can retrieve those project files. The following cell removes
-# all temporary files, including the project folder.
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
 temp_dir.cleanup()

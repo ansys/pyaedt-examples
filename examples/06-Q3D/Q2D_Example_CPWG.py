@@ -1,7 +1,9 @@
-# # 2D Extractor: CPWG analysis
+# # CPWG analysis
 
 # This example shows how you can use PyAEDT to create a CPWG (coplanar waveguide with ground) design
 # in 2D Extractor and run a simulation.
+#
+# Keywords: **Q2D**, **CPWG**.
 
 # ## Perform required imports
 #
@@ -10,7 +12,7 @@
 import os
 import tempfile
 
-import pyaedt
+import ansys.aedt.core
 
 # Set constant values
 
@@ -30,7 +32,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 # Launch AEDT 2024.2 in graphical mode and launch 2D Extractor. This example
 # uses SI units.
 
-q2d = pyaedt.Q2d(
+q2d = ansys.aedt.core.Q2d(
     version=AEDT_VERSION,
     non_graphical=NG_MODE,
     new_desktop=True,
@@ -225,18 +227,18 @@ data = q2d.post.get_solution_data(expressions="Z0(signal,signal)", context="Orig
 data.plot()
 # -
 
-# ## Save project and close AEDT
-#
-# Save the project, release AEDT and remove both the project and temporary directory.
+# ## Release AEDT
 
-q2d.save_project(os.path.join(temp_dir.name, q2d.project_name + ".aedt"))
+q2d.save_project()
 q2d.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``.
+# All project files are saved in the folder ``temp_folder.name``.
 # If you've run this example as a Jupyter notebook you
-# can retrieve those project files. The following cell removes
-# all temporary files, including the project folder.
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
 temp_dir.cleanup()

@@ -1,7 +1,9 @@
-# # Q3D Extractor: PCB analysis
+# # PCB analysis
 
 # This example shows how you can use PyAEDT to create a design in
 # Q3D Extractor and run a simulation starting from an EDB Project.
+#
+# Keywords: **Q3D**, **PCB**.
 
 # ## Perform required imports
 #
@@ -9,8 +11,9 @@
 
 import os
 import tempfile
+import time
 
-import pyaedt
+import ansys.aedt.core
 import pyedb
 
 # Set constant values
@@ -31,7 +34,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # +
 project_dir = os.path.join(temp_dir.name, "edb")
-aedb_project = pyaedt.downloads.download_file(
+aedb_project = ansys.aedt.core.downloads.download_file(
     source="edb/ANSYS-HSD_V1.aedb", destination=project_dir
 )
 
@@ -98,7 +101,7 @@ location_u1_sda.append(edb.components["U1"].upper_elevation * 1000)
 edb.save_edb()
 edb.close_edb()
 
-h3d = pyaedt.Hfss3dLayout(
+h3d = ansys.aedt.core.Hfss3dLayout(
     output_edb, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True
 )
 # -
@@ -114,24 +117,24 @@ h3d.close_project()
 
 # Open the newly created Q3D project and display the layout.
 
-q3d = pyaedt.Q3d(output_q3d, version=AEDT_VERSION)
+q3d = ansys.aedt.core.Q3d(output_q3d, version=AEDT_VERSION)
 q3d.plot(
     show=False,
-    objects=["CLOCK_I2C_SCL", "CLOCK_I2C_SDA"],
-    export_path=os.path.join(temp_dir.name, "Q3D.jpg"),
+    assignment=["CLOCK_I2C_SCL", "CLOCK_I2C_SDA"],
+    output_file=os.path.join(temp_dir.name, "Q3D.jpg"),
     plot_air_objects=False,
 )
 
 # Use previously calculated position to identify faces and
 # assign sources and sinks on nets.
 
-f1 = q3d.modeler.get_faceid_from_position(location_u13_scl, obj_name="CLOCK_I2C_SCL")
+f1 = q3d.modeler.get_faceid_from_position(location_u13_scl, assignment="CLOCK_I2C_SCL")
 q3d.source(f1, net_name="CLOCK_I2C_SCL")
-f1 = q3d.modeler.get_faceid_from_position(location_u13_sda, obj_name="CLOCK_I2C_SDA")
+f1 = q3d.modeler.get_faceid_from_position(location_u13_sda, assignment="CLOCK_I2C_SDA")
 q3d.source(f1, net_name="CLOCK_I2C_SDA")
-f1 = q3d.modeler.get_faceid_from_position(location_u1_scl, obj_name="CLOCK_I2C_SCL")
+f1 = q3d.modeler.get_faceid_from_position(location_u1_scl, assignment="CLOCK_I2C_SCL")
 q3d.sink(f1, net_name="CLOCK_I2C_SCL")
-f1 = q3d.modeler.get_faceid_from_position(location_u1_sda, obj_name="CLOCK_I2C_SDA")
+f1 = q3d.modeler.get_faceid_from_position(location_u1_sda, assignment="CLOCK_I2C_SDA")
 q3d.sink(f1, net_name="CLOCK_I2C_SDA")
 
 # Define the solution setup and the frequency sweep ranging from DC to 2GHz.
@@ -161,17 +164,18 @@ traces_acr = q3d.post.available_report_quantities(quantities_category="ACR Matri
 solution2 = q3d.post.get_solution_data(traces_acr)
 solution2.plot()
 
-# ## Close AEDT
-#
-# After the simulation completes, you can close AEDT or release it using the
-# ``release_desktop`` method. All methods provide for saving projects before closing.
+# ## Release AEDT
 
 q3d.save_project()
 q3d.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_folder.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
 temp_dir.cleanup()
