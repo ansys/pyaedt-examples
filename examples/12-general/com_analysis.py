@@ -1,5 +1,5 @@
 # # Channel Operating Margin (COM)
-# This example shows how you can use pyaedt for COM analysis.
+# This example shows how you can use PyAEDT for COM analysis.
 # Supported standards are as below:
 #
 # - 50GAUI_1_C2C
@@ -20,6 +20,8 @@
 # ```math
 # COM = 20 * log10 (A_signal / A_noise)
 # ```
+#
+# Keywords: **COM**, **signal integrity**, **virtual compliance**.
 
 # ## Preparation
 # Import required packages
@@ -27,8 +29,8 @@
 import os
 import tempfile
 
-from pyaedt.generic.spisim import SpiSim
-from pyaedt.misc.spisim_com_configuration_files import com_parameters
+from ansys.aedt.core.generic.spisim import SpiSim
+from ansys.aedt.core.misc.spisim_com_configuration_files import com_parameters
 from pyedb.misc.downloads import download_file
 
 # Download example files into temporary folder
