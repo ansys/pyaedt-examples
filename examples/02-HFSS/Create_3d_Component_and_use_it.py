@@ -16,7 +16,7 @@ import os
 import tempfile
 import time
 
-from pyaedt import Hfss
+from ansys.aedt.core import Hfss
 
 # ## Project setup
 #

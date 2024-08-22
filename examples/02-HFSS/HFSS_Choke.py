@@ -13,7 +13,7 @@ import os
 import tempfile
 import time
 
-import pyaedt
+import ansys.aedt.core
 
 # Set constant values
 
@@ -27,7 +27,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 # ## Launch HFSS
 
 project_name = os.path.join(temp_dir.name, "choke.aedt")
-hfss = pyaedt.Hfss(
+hfss = ansys.aedt.core.Hfss(
     project=project_name,
     version=AEDT_VERSION,
     non_graphical=NG_MODE,

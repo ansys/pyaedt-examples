@@ -13,8 +13,8 @@ import os
 import tempfile
 from math import cos, radians, sin, sqrt
 
-import pyaedt
-from pyaedt.generic.general_methods import generate_unique_name
+import ansys.aedt.core
+from ansys.aedt.core.generic.general_methods import generate_unique_name
 
 # Set constant values
 
@@ -35,7 +35,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 #
 # Launch AEDT, create an HFSS design, and save the project.
 
-hfss = pyaedt.Hfss(
+hfss = ansys.aedt.core.Hfss(
     version=AEDT_VERSION,
     solution_type="DrivenTerminal",
     new_desktop=True,

@@ -16,7 +16,7 @@ import os
 import tempfile
 import time
 
-import pyaedt
+import ansys.aedt.core
 
 # Set constant values
 
@@ -57,7 +57,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 # ### Create the HFSS design
 
 project_name = os.path.join(temp_dir.name, "waveguide.aedt")
-hfss = pyaedt.Hfss(
+hfss = ansys.aedt.core.Hfss(
     project=project_name,
     version=AEDT_VERSION,
     design="filter",
@@ -139,7 +139,7 @@ for count in reversed(range(1, len(wgparams["w"]) + 1)):
 # ### Draw full waveguide with ports
 #
 # Use ``hfss.variable_manager`` which acts like a dict() to return an instance of
-# the ``pyaedt.application.Variables.VariableManager`` class for any variable.
+# the ``ansys.aedt.core.application.variables.VariableManager`` class for any variable.
 # The ``VariableManager`` instance takes the HFSS variable name as a key.
 # ``VariableManager`` properties enable access to update, modify and
 # evaluate variables.

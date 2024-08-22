@@ -34,7 +34,7 @@ import os
 import tempfile
 import time
 
-import pyaedt
+import ansys.aedt.core
 
 # Set constant values
 
@@ -49,13 +49,13 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 # ## Download 3D component
 # Download the 3D component that is needed to run the example.
 
-project_path = pyaedt.downloads.download_file(
+project_path = ansys.aedt.core.downloads.download_file(
     "eigenmode", "emi_PCB_house.aedt", temp_dir.name
 )
 
 # ## Launch AEDT
 
-d = pyaedt.launch_desktop(
+d = ansys.aedt.core.launch_desktop(
     AEDT_VERSION,
     non_graphical=NG_MODE,
     new_desktop=True,
@@ -65,7 +65,9 @@ d = pyaedt.launch_desktop(
 #
 # Create a new HFSS design.
 
-hfss = pyaedt.Hfss(version=AEDT_VERSION, project=project_path, non_graphical=NG_MODE)
+hfss = ansys.aedt.core.Hfss(
+    version=AEDT_VERSION, project=project_path, non_graphical=NG_MODE
+)
 
 # ## Input parameters for eigenmode solver
 #

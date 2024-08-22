@@ -16,8 +16,8 @@ import os
 import tempfile
 import time
 
-import pyaedt
-from pyaedt.modeler.advanced_cad.stackup_3d import Stackup3D
+import ansys.aedt.core
+from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
 
 # Set constant values
 
@@ -34,7 +34,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 # Launch HFSS and change length units.
 
 project_name = os.path.join(temp_dir.name, "patch.aedt")
-hfss = pyaedt.Hfss(
+hfss = ansys.aedt.core.Hfss(
     project=project_name,
     solution_type="Terminal",
     design="patch",

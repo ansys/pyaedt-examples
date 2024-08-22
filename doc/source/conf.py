@@ -327,6 +327,7 @@ nbsphinx_thumbnails = {
     "examples/01-Modeling-Setup/Configurations": "_static/thumbnails/configuration_file_icepak.png",
     "examples/01-Modeling-Setup/CoordinateSystem": "_static/thumbnails/coordinate_system.png",
     "examples/01-Modeling-Setup/Polyline_Primitives": "_static/thumbnails/polyline.png",
+    "examples/02-HFSS/HFSS_FSS_unitcell": "_static/thumbnails/unitcell.png",
 
     "examples/12-general/com_analysis": "_static/thumbnails/com_eye.png",
 }

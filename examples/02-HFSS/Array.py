@@ -15,8 +15,8 @@ import os
 import tempfile
 import time
 
-import pyaedt
-from pyaedt.generic.farfield_visualization import FfdSolutionData
+import ansys.aedt.core
+from ansys.aedt.core.generic.farfield_visualization import FfdSolutionData
 
 # Define constants.
 
@@ -31,7 +31,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 # ## Download 3D component
 # Download the 3D component that is needed to run the example.
 
-example_path = pyaedt.downloads.download_3dcomponent(destination=temp_dir.name)
+example_path = ansys.aedt.core.downloads.download_3dcomponent(destination=temp_dir.name)
 
 # ## Launch HFSS and open project
 #
@@ -39,7 +39,7 @@ example_path = pyaedt.downloads.download_3dcomponent(destination=temp_dir.name)
 
 # +
 project_name = os.path.join(temp_dir.name, "array.aedt")
-hfss = pyaedt.Hfss(
+hfss = ansys.aedt.core.Hfss(
     project=project_name,
     version=AEDT_VERSION,
     design="Array_Simple",
@@ -54,7 +54,7 @@ print("Project name " + project_name)
 #
 # Read JSON file.
 
-dict_in = pyaedt.general_methods.read_json(
+dict_in = ansys.aedt.core.general_methods.read_json(
     os.path.join(example_path, "array_simple.json")
 )
 
