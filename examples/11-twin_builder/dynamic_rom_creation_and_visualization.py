@@ -52,7 +52,6 @@ source_data_folder = pyaedt.downloads.download_twin_builder_data(
 )
 
 # Toggle these for local testing
-# source_data_folder = "D:\\Scratch\\TempDyn"
 
 data_folder = os.path.join(source_data_folder, "Ex03")
 
