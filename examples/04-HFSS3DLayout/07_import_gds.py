@@ -1,4 +1,4 @@
-# # HFSS 3D Layout: Import GDS
+# # Import GDS
 #
 # This example demonstrates how to import a gds layout for subsequent simulation with HFSS.
 # - Create control file
@@ -8,6 +8,8 @@
 #   - Add components
 # - Import layout as EDB
 #     -  Plot stackup
+#
+# Keywords: **HFSS 3D Layout**, **GDS**.
 
 # ## Preparation
 # Import the required packages
@@ -16,7 +18,7 @@
 import os
 import tempfile
 
-from pyaedt.downloads import download_file
+from ansys.aedt.core.downloads import download_file
 from pyedb import Edb
 from pyedb.dotnet.edb_core.edb_data.control_file import ControlFile
 
@@ -24,7 +26,9 @@ from pyedb.dotnet.edb_core.edb_data.control_file import ControlFile
 
 # Set constant values
 
-EDB_VERSION = "2024.2"
+AEDT_VERSION = "2024.2"
+NUM_CORES = 4
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # Download the example data.
 
@@ -102,7 +106,7 @@ c.write_xml(os.path.join(temp_dir.name, "output.xml"))
 
 edbapp = Edb(
     gds_fn,
-    edbversion=EDB_VERSION,
+    edbversion=AEDT_VERSION,
     technology_file=os.path.join(temp_dir.name, "output.xml"),
 )
 # -

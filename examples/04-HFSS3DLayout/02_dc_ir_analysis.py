@@ -1,4 +1,4 @@
-# # HFSS 3D Layout: DC IR Analysis
+# # DC IR Analysis
 # This example shows how to configure EDB for DC IR analysis, and load EDB into the 3D Layout UI for analysis and
 # post-processing.
 #
@@ -15,7 +15,8 @@
 #
 #     - Analyze
 #     - Get DC IR analysis results
-
+#
+# Keywords: **HFSS 3D Layout**, **DCIR**.
 
 # # Preparation
 # Import required packages
@@ -25,14 +26,15 @@ import os
 import tempfile
 import time
 
-import pyaedt
-from pyaedt.downloads import download_file
+import ansys.aedt.core
+from ansys.aedt.core.downloads import download_file
 from pyedb import Edb
 
 # Set constant values
 
 AEDT_VERSION = "2024.2"
-NG_MODE = False
+NUM_CORES = 4
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # Download example board.
 
@@ -168,6 +170,12 @@ with open(pi_json, "w") as f:
 edbapp = Edb(aedb, edbversion=AEDT_VERSION)
 edbapp.configuration.load(config_file=pi_json)
 edbapp.configuration.run()
+
+# # Load configuration into EDB
+edbapp.nets.plot(None, None, color_by_net=True)
+
+# # Save and close EDB
+
 edbapp.save()
 edbapp.close()
 
@@ -182,26 +190,30 @@ print(temp_folder.name)
 
 # ## Load edb into 3D Layout.
 
-siw = pyaedt.Hfss3dLayout(
+siw = ansys.aedt.core.Hfss3dLayout(
     aedb, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True
 )
 
 # ## Analyze
 
-siw.analyze()
+siw.analyze(cores=NUM_CORES)
 
 # ## Get DC IR results
 
 siw.get_dcir_element_data_current_source("siwave_dc")
 
-# ## Shut Down Electronics Desktop
+# ## Release AEDT
 
-siw.close_desktop()
+siw.save_project()
+siw.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notbook you
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
-time.sleep(3)
 temp_folder.cleanup()

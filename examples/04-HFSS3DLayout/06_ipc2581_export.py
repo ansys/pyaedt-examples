@@ -1,6 +1,8 @@
-# # HFSS 3D Layout: IPC2581 export
+# # IPC2581 export
 #
 # This example shows how to use the electronics database (EDB) to export an IPC2581 file.
+#
+# Keywords: **HFSS 3D Layout**, **IPC2581**.
 
 # ## Preparation
 # Import the required packages
@@ -9,10 +11,13 @@ import os
 import tempfile
 import time
 
-from pyaedt import Edb
-from pyaedt.downloads import download_file
+from ansys.aedt.core import Edb
+from ansys.aedt.core.downloads import download_file
 
-EDB_VERSION = "2024.2"
+AEDT_VERSION = "2024.2"
+NUM_CORES = 4
+NG_MODE = False  # Open Electronics UI when the application is launched.
+
 
 # Download the example PCB data.
 
@@ -21,7 +26,7 @@ aedb = download_file(source="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.nam
 
 # ## Launch EDB
 
-edbapp = Edb(edbpath=aedb, edbversion=EDB_VERSION)
+edbapp = Edb(edbpath=aedb, edbversion=AEDT_VERSION)
 
 # ## Create a cutout
 # The following assignments will define the region of the PCB to be cut out for analysis.

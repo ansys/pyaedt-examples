@@ -1,4 +1,4 @@
-# # HFSS 3D Layout: Power Integrity Analysis
+# # Power Integrity Analysis
 # This example shows how to use the electronics database (EDB) for power integrity analysis. The
 # EDB will be loaded into HFSS 3D Layout for analysis and post-processing.
 #
@@ -14,6 +14,8 @@
 #
 #     - Analyze
 #     - Plot $Z_{11}$
+#
+# Keywords: **HFSS 3D Layout**, **Power Integrity**.
 
 # ## Preparation
 # Import the required packages
@@ -23,14 +25,14 @@ import os
 import tempfile
 import time
 
-import pyaedt
-from pyaedt.downloads import download_file
+import ansys.aedt.core
+from ansys.aedt.core.downloads import download_file
 
 # Set constant values
 
 AEDT_VERSION = "2024.2"
-NG_MODE = False
-
+NUM_CORES = 4
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # Download the example PCB data.
 
@@ -164,7 +166,7 @@ with open(pi_json, "w") as f:
 
 # Load configuration from JSON
 
-edbapp = pyaedt.Edb(aedb, edbversion=AEDT_VERSION)
+edbapp = ansys.aedt.core.Edb(aedb, edbversion=AEDT_VERSION)
 edbapp.configuration.load(config_file=pi_json)
 edbapp.configuration.run()
 edbapp.save()
@@ -178,30 +180,31 @@ print(temp_folder.name)
 
 # ### Load edb into HFSS 3D Layout.
 
-h3d = pyaedt.Hfss3dLayout(
+h3d = ansys.aedt.core.Hfss3dLayout(
     aedb, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True
 )
 
 # ### Analyze
 
-h3d.analyze()
+h3d.analyze(cores=NUM_CORES)
 
 # ### Plot impedance
 
 solutions = h3d.post.get_solution_data(expressions="Z(port1,port1)")
 solutions.plot()
 
-# ## Shut Down Electronics Desktop
+# ## Release AEDT
 
-h3d.close_desktop()
-
-# All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notbook you
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+h3d.save_project()
+h3d.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notbook you
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
-time.sleep(3)
 temp_folder.cleanup()
