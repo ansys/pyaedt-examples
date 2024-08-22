@@ -131,6 +131,7 @@ h3d.close_project()
 
 q3d = pyaedt.Q3d(output_q3d, version=AEDT_VERSION)
 q3d.modeler.delete("GND")
+q3d.modeler.delete("16_Bottom_L6")
 q3d.delete_all_nets()
 
 # ## Insert inductors
@@ -193,6 +194,7 @@ source_f1 = q3d.modeler.create_circle(q3d.PLANE.XY, location_u9_1_scl, 0.1)
 source_f2 = q3d.modeler.create_circle(q3d.PLANE.XY, location_u9_2_scl, 0.1)
 source_f3 = q3d.modeler.create_circle(q3d.PLANE.XY, location_u11_r106, 0.1)
 sources_objs = [source_f1, source_f2, source_f3]
+
 q3d.auto_identify_nets()
 
 identified_net = q3d.nets[0]
