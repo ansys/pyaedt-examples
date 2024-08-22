@@ -1,8 +1,10 @@
-# # Circuit: AMI PostProcessing
+# # AMI PostProcessing
 #
-# This example demonstartes advanced postprocessing of AMI simulations.
+# This example demonstrates advanced postprocessing of AMI simulations.
 
 # <img src='_static/spectrum_plot.png' width="500">
+#
+# Keywords: **Circuit**, **AMI**.
 
 # ## Perform required imports
 #
@@ -14,8 +16,8 @@ import os
 import tempfile
 import time
 
+import ansys.aedt.core
 import numpy as np
-import pyaedt
 from matplotlib import pyplot as plt
 
 # -
@@ -23,6 +25,11 @@ from matplotlib import pyplot as plt
 # Set constant values
 
 AEDT_VERSION = "2024.2"
+NG_MODE = False  # Open Electronics UI when the application is launched.
+
+# ## Create temporary directory
+
+temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 
 # ## Download Example Data
 #
@@ -37,40 +44,24 @@ AEDT_VERSION = "2024.2"
 #
 # Files are placed in the destination folder.
 
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-project_path = pyaedt.downloads.download_file(
+project_path = ansys.aedt.core.downloads.download_file(
     "ami", name="ami_usb.aedtz", destination=temp_dir.name
 )
 
-# ## Launch AEDT
-#
-# Launch AEDT in graphical mode. This example uses SI units.
-
-desktopVersion = AEDT_VERSION
-
-# ## Set non-graphical mode
-#
-# Set non-graphical mode.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
-# The Boolean parameter ``new_thread`` defines whether to create a new instance
-# of AEDT or try to connect to an existing instance of it.
-
-non_graphical = False
-NewThread = True
 
 # ## Launch AEDT with Circuit and enable Pandas as the output format
 #
 # All outputs obtained with the `get_solution_data` method will have the
 # [Pandas](https://pandas.pydata.org/docs/user_guide/index.html) format.
-# Launch AEDT with Circuit. The `pyaedt.Desktop` class initializes AEDT
+# Launch AEDT with Circuit. The `ansys.aedt.core.Desktop` class initializes AEDT
 # and starts the specified version in the specified mode.
 
-pyaedt.settings.enable_pandas_output = True
-circuit = pyaedt.Circuit(
+ansys.aedt.core.settings.enable_pandas_output = True
+circuit = ansys.aedt.core.Circuit(
     project=os.path.join(project_path),
-    non_graphical=non_graphical,
-    version=desktopVersion,
-    new_desktop=NewThread,
+    non_graphical=NG_MODE,
+    version=AEDT_VERSION,
+    new_desktop=True,
 )
 
 # ## Solve AMI setup
@@ -131,13 +122,13 @@ sample_waveform = circuit.post.sample_ami_waveform(
 # +
 tstop = 55e-9
 tstart = 50e-9
-scale_time = pyaedt.constants.unit_converter(
+scale_time = ansys.aedt.core.constants.unit_converter(
     1,
     unit_system="Time",
     input_units="s",
     output_units=original_data.units_sweeps["Time"],
 )
-scale_data = pyaedt.constants.unit_converter(
+scale_data = ansys.aedt.core.constants.unit_converter(
     1,
     unit_system="Voltage",
     input_units="V",
@@ -254,10 +245,10 @@ sample_waveform = circuit.post.sample_waveform(
 # +
 tstop = 40.0e-9
 tstart = 25.0e-9
-scale_time = pyaedt.constants.unit_converter(
+scale_time = ansys.aedt.core.constants.unit_converter(
     1, unit_system="Time", input_units="s", output_units=waveform_sweep_unit
 )
-scale_data = pyaedt.constants.unit_converter(
+scale_data = ansys.aedt.core.constants.unit_converter(
     1, unit_system="Voltage", input_units="V", output_units=waveform_unit
 )
 
@@ -321,14 +312,18 @@ ax2.set_xlabel("s")
 ax2.set_ylabel("V")
 plt.show()
 
-# ## Save Project
+# ## Release AEDT
 #
-# Save the project and close AEDT.
+# Release AEDT and close the example.
 
 circuit.save_project()
-print("Project Saved in {}".format(circuit.project_path))
-
 circuit.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-temp_dir.cleanup()  # Remove project folder and temporary files.
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+
+temp_dir.cleanup()

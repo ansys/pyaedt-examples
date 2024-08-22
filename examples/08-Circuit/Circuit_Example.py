@@ -5,6 +5,8 @@
 
 # <img src="_static/circuit.png" width="600">
 #
+# Keywords: **Circuit**, **Setup**.
+
 # ## Perform required imports
 #
 # Perform required imports.
@@ -14,13 +16,18 @@ import os
 import tempfile
 import time
 
-import pyaedt
+import ansys.aedt.core
 
 # -
 
 # Set constant values
 
 AEDT_VERSION = "2024.2"
+NG_MODE = False  # Open Electronics UI when the application is launched.
+
+# ## Create temporary directory
+
+temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 
 # ## Launch AEDT
 #
@@ -40,17 +47,13 @@ AEDT_VERSION = "2024.2"
 # class initializes AEDT and starts the specified version in the specified mode.
 
 # +
-desktop_version = AEDT_VERSION
-non_graphical = False
-new_thread = True
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys", ignore_cleanup_errors=True)
 
-circuit = pyaedt.Circuit(
+circuit = ansys.aedt.core.Circuit(
     project=os.path.join(temp_dir.name, "CircuitExample"),
     design="Simple",
-    version=desktop_version,
-    non_graphical=non_graphical,
-    new_desktop=new_thread,
+    version=AEDT_VERSION,
+    non_graphical=NG_MODE,
+    new_desktop=True,
 )
 
 circuit.modeler.schematic.schematic_units = "mil"
@@ -81,7 +84,7 @@ capacitor = circuit.modeler.schematic.create_capacitor(
 #  ## Get all pins
 #
 # The component pins are instances of the class
-# ``pyaedt.modeler.circuits.objct3dcircuit.CircuitPins`` and
+# ``ansys.aedt.core.modeler.circuits.objct3dcircuit.CircuitPins`` and
 # provide access to the
 # pin location, net connectivity and the method ``connect_to_component()`` which
 # can be used to connect components in the schematic
@@ -141,16 +144,18 @@ print(real)
 
 fig = solutions.plot()
 
-# ## Close AEDT
+# ## Release AEDT
 #
-# After the simulation completes, you can close AEDT or release it using the
-# `pyaedt.Desktop.force_close_desktop` method.
-# All methods provide for saving the project before closing.
+# Release AEDT and close the example.
 
 circuit.save_project()
-print("Project Saved in {}".format(circuit.project_path))
-
 circuit.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-temp_dir.cleanup()  # Remove project folder and temporary files.
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+
+temp_dir.cleanup()

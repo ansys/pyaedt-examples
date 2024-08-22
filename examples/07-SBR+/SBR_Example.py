@@ -73,12 +73,12 @@ target.mesh.assign_curvilinear_elements(["Reflector", "Subreflector"])
 
 source.plot(
     show=False,
-    export_path=os.path.join(target.working_directory, "Source.jpg"),
+    output_file=os.path.join(target.working_directory, "Source.jpg"),
     plot_air_objects=True,
 )
 target.plot(
     show=False,
-    export_path=os.path.join(target.working_directory, "Target.jpg"),
+    output_file=os.path.join(target.working_directory, "Target.jpg"),
     plot_air_objects=False,
 )
 
@@ -93,7 +93,7 @@ setup1.props["RayDensityPerWavelength"] = 2
 setup1.props["MaxNumberOfBounces"] = 3
 setup1["RangeType"] = "SinglePoints"
 setup1["RangeStart"] = "10GHz"
-target.analyze(num_cores=NUM_CORES)
+target.analyze(cores=NUM_CORES)
 
 # ## Post-processing
 #

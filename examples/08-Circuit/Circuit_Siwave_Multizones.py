@@ -1,6 +1,8 @@
-# # Circuit: Simulate multi-zone layout with SIwave
+# # Simulate multi-zone layout with SIwave
 #
 # This example demonstrates simulation of multiple zones with SIwave.
+#
+# Keywords: **Circuit**, **multi-zone**.
 
 # ## Perform required imports
 #
@@ -11,8 +13,8 @@ import os.path
 import tempfile
 import time
 
-import pyaedt
-from pyaedt import Circuit, Edb
+import ansys.aedt.core
+from ansys.aedt.core import Circuit, Edb
 
 # -
 
@@ -25,7 +27,7 @@ EDB_VERSION = "2024.2"
 # Download the EDB folder.
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys", ignore_cleanup_errors=True)
-edb_file = pyaedt.downloads.download_file(
+edb_file = ansys.aedt.core.downloads.download_file(
     directory="edb/siwave_multi_zones.aedb", destination=temp_dir.name
 )
 work_folder = os.path.join(temp_dir.name, "work")
@@ -121,13 +123,18 @@ circuit.post.create_report(
     expressions=["dB(S(U0,U0))", "dB(S(U1,U0))"], context="Differential Pairs"
 )
 
-# ## Release AEDT desktop
+# ## Release AEDT
 #
+# Release AEDT and close the example.
 
 circuit.save_project()
-print("Project Saved in {}".format(circuit.project_path))
-
 circuit.release_desktop()
-time.sleep(3)
+# Wait 5 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(5)
 
-temp_dir.cleanup()  # Remove the temporary working folder and all project files
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+
+temp_dir.cleanup()

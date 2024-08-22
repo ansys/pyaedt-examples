@@ -4,6 +4,8 @@
 # in the circuit schematic editor from a netlist file.
 #
 # Note that HSPICE files are fully supported and many other formats enjoy broad coverage.
+#
+# Keywords: **Circuit**, **Netlist**.
 
 # ## Imports
 #
@@ -14,41 +16,30 @@ import os
 import tempfile
 import time
 
-import pyaedt
+import ansys.aedt.core
 
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys", ignore_cleanup_errors=True)
-netlist = pyaedt.downloads.download_netlist(destination=temp_dir.name)
 # -
 
 # Set constant values
 
 AEDT_VERSION = "2024.2"
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
-# ## Launch AEDT
-#
-# Launch AEDT in graphical mode.
-# > _Note that this example uses SI units._
+# ## Create temporary directory
 
-# ## Set non-graphical mode
-#
-# Set non-graphical mode.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
-# The Boolean parameter ``new_thread`` defines whether to create a new instance
-# of AEDT or try to connect to an existing instance of it.
-
-non_graphical = False
-new_thread = True
+temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 
 # ## Launch AEDT with Circuit
 #
-# Launch AEDT with Circuit. The `pyaedt.Desktop` class initializes AEDT
+# Launch AEDT with Circuit. The `ansys.aedt.core.Desktop` class initializes AEDT
 # and starts it on the specified version in the specified graphical mode.
 
-circuit = pyaedt.Circuit(
+netlist = ansys.aedt.core.downloads.download_netlist(destination=temp_dir.name)
+circuit = ansys.aedt.core.Circuit(
     project=os.path.join(temp_dir.name, "NetlistExample"),
     version=AEDT_VERSION,
-    non_graphical=non_graphical,
-    new_desktop=new_thread,
+    non_graphical=NG_MODE,
+    new_desktop=True,
 )
 
 # ## Define a Parameter
@@ -65,16 +56,18 @@ circuit["Voltage"] = "5"
 
 circuit.create_schematic_from_netlist(netlist)
 
-# ## Finish
+# ## Release AEDT
 #
-# After adding any other desired functionalities, close the project and release
-# AEDT.
-
+# Release AEDT and close the example.
 
 circuit.save_project()
-print("Project Saved in {}".format(circuit.project_path))
-
 circuit.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-temp_dir.cleanup()  # Remove project folder and temporary files.
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+
+temp_dir.cleanup()

@@ -67,7 +67,7 @@ t_matrix = solution_data.ifft("NearE", window=True)
 frames_list_file = solution_data.ifft_to_file(
     coord_system_center=[-0.15, 0, 0],
     db_val=True,
-    csv_dir=os.path.join(hfss.working_directory, "csv"),
+    csv_path=os.path.join(hfss.working_directory, "csv"),
 )
 
 # ## Plot scene
@@ -75,8 +75,8 @@ frames_list_file = solution_data.ifft_to_file(
 # Plot the scene to create the time plot animation
 
 hfss.post.plot_scene(
-    frames_list=frames_list_file,
-    output_gif_path=os.path.join(hfss.working_directory, "animation.gif"),
+    frames=frames_list_file,
+    gif_path=os.path.join(hfss.working_directory, "animation.gif"),
     norm_index=15,
     dy_rng=35,
     show=False,

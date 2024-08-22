@@ -1,7 +1,10 @@
-# # Circuit: automatic report creation
+# # Automatic report creation
 #
 # This example demonstrates how to create reports from a JSON template file.
 #
+#
+# Keywords: **Circuit**, **Report**.
+
 # ## Perform required imports
 #
 # Perform required imports and set the local path to the path for PyAEDT. This example uses
@@ -13,20 +16,17 @@ import os
 import tempfile
 import time
 
-import pyaedt
+import ansys.aedt.core
 from IPython.display import Image
-
-# Set local path to path for the project data.
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys", ignore_cleanup_errors=True)
-
-project_path = pyaedt.downloads.download_file(
-    source="custom_reports/", destination=temp_dir.name
-)
-# -
 
 # Set constant values
 
 AEDT_VERSION = "2024.2"
+NG_MODE = False  # Open Electronics UI when the application is launched.
+
+# ## Create temporary directory
+
+temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 
 # ## Launch AEDT with the Circuit Interface
 #
@@ -44,12 +44,13 @@ AEDT_VERSION = "2024.2"
 # to the extracted project is accessible from the ``cir.project_file`` property.
 
 # +
-non_graphical = True
-NewThread = True
+project_path = ansys.aedt.core.downloads.download_file(
+    source="custom_reports/", destination=temp_dir.name
+)
 
-circuit = pyaedt.Circuit(
+circuit = ansys.aedt.core.Circuit(
     project=os.path.join(project_path, "CISPR25_Radiated_Emissions_Example23R1.aedtz"),
-    non_graphical=non_graphical,
+    non_graphical=NG_MODE,
     version=AEDT_VERSION,
     new_desktop=True,
 )
@@ -91,7 +92,7 @@ Image(os.path.join(circuit.working_directory, report1_full.plot_name + ".jpg"))
 # prior to creating the report.
 
 # +
-props = pyaedt.general_methods.read_json(
+props = ansys.aedt.core.general_methods.read_json(
     os.path.join(project_path, "Transient_CISPR_Custom.json")
 )
 

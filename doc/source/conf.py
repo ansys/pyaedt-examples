@@ -328,6 +328,9 @@ nbsphinx_thumbnails = {
     "examples/01-Modeling-Setup/CoordinateSystem": "_static/thumbnails/coordinate_system.png",
     "examples/01-Modeling-Setup/Polyline_Primitives": "_static/thumbnails/polyline.png",
     "examples/02-HFSS/HFSS_FSS_unitcell": "_static/thumbnails/unitcell.png",
+    "examples/08-Circuit/Circuit_Siwave_Multizones": "_static/thumbnails/multizone.png",
+    "examples/08-Circuit/Circuit_Subcircuit_Example": "_static/thumbnails/subcircuit.png",
+    "examples/08-Circuit/Create_Netlist": "_static/thumbnails/netlist.png",
     "examples/12-general/com_analysis": "_static/thumbnails/com_eye.png",
 }
 nbsphinx_custom_formats = {
