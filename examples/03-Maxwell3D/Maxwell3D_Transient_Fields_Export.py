@@ -1,24 +1,27 @@
-# # Maxwell 3D: fields export in transient
+# # Fields export in transient
 #
 # This example shows how to leverage PyAEDT to set up a Maxwell 3D transient analysis,
 # compute the average value of the current density field over a specific coil surface
 # and the magnitude of the current density field over all coil surfaces at each time step
 # of the transient analysis.
-# Keywords: transient, fields calculator, field export
+#
+# Keywords: **Maxwell 3D**, **transient**, **fields calculator**, **field export**.
 
 # ## Perform required imports
 #
 # Perform required imports.
 
+import os
 import tempfile
 import time
 
-import pyaedt
+import ansys.aedt.core
 
 # ## Define constants
 
 AEDT_VERSION = "2024.2"
-NG_MODE = False
+NUM_CORES = 4
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary directory and download files
 #
@@ -33,7 +36,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 #
 # The files required to run this example will be downloaded into the temporary working folder.
 
-project_path = pyaedt.downloads.download_file(
+project_path = ansys.aedt.core.downloads.download_file(
     source="maxwell_transient_fields",
     name="M3D_Transient_StrandedWindings.aedt",
     destination=temp_folder.name,
@@ -43,7 +46,7 @@ project_path = pyaedt.downloads.download_file(
 #
 # Initialize and launch Maxwell 3D, providing the version and the path of the project.
 
-m3d = pyaedt.Maxwell3d(
+m3d = ansys.aedt.core.Maxwell3d(
     project=project_path, version=AEDT_VERSION, non_graphical=NG_MODE
 )
 
@@ -60,6 +63,11 @@ setup.props["N Steps"] = "2"
 setup.props["Steps From"] = "0s"
 setup.props["Steps To"] = "0.02s"
 setup.update()
+
+# ## Plot model
+
+model = m3d.plot(show=False)
+model.plot(os.path.join(temp_folder.name, "Image.jpg"))
 
 # ## Create field expressions
 #
@@ -105,7 +113,7 @@ m3d.post.fields_calculator.add_expression(my_expression, None)
 
 # ## Analyze setup specifying setup name.
 
-m3d.analyze_setup(name=setup.name)
+m3d.analyze_setup(name=setup.name, cores=NUM_CORES)
 
 # ## Get the available report quantities
 #
@@ -136,7 +144,7 @@ time_steps = data.intrinsics["Time"]
 # Export fields data in temporary directory as an ``.aedtplt``.
 
 for time_step in time_steps:
-    t = pyaedt.generic.constants.unit_converter(
+    t = ansys.aedt.core.generic.constants.unit_converter(
         time_step,
         unit_system="Time",
         input_units=data.units_sweeps["Time"],
@@ -168,11 +176,18 @@ for time_step in time_steps:
     )
 
 
-# ## Release AEDT and clean up temporary directory
-#
-# Release AEDT and remove both the project and temporary directory.
+# ## Release AEDT
 
+m3d.save_project()
 m3d.release_desktop()
-
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
 time.sleep(3)
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
+
 temp_folder.cleanup()

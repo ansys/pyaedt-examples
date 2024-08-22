@@ -1,7 +1,9 @@
-# # Maxwell 3D: Electro DC analysis
+# # Electro DC analysis
 
 # This example shows how you can use PyAEDT to create a Maxwell DC analysis,
 # compute mass center, and move coordinate systems.
+#
+# Keywords: **Maxwell 3D**, **DC**.
 
 # ## Perform required imports
 #
@@ -11,12 +13,14 @@ import os
 import tempfile
 import time
 
-from pyaedt import Maxwell3d
+from ansys.aedt.core import Maxwell3d
 
 # ## Define constants
 
 AEDT_VERSION = "2024.2"
-NG_MODE = False
+NUM_CORES = 4
+NG_MODE = False  # Open Electronics UI when the application is launched.
+
 
 # ## Create temporary directory
 #
@@ -31,8 +35,9 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # Create an instance of the ``Maxwell3d`` class named ``m3d`` by providing
 # the project name, the version and the graphical mode.
 
+project_name = os.path.join(temp_folder.name, "conductor_example.aedt")
 m3d = Maxwell3d(
-    project=os.path.join(temp_folder.name, "conductor_example"),
+    project=project_name,
     version=AEDT_VERSION,
     new_desktop=True,
     non_graphical=NG_MODE,
@@ -65,7 +70,7 @@ m3d.create_setup()
 
 m3d.plot(
     show=False,
-    export_path=os.path.join(temp_folder.name, "Image.jpg"),
+    output_file=os.path.join(temp_folder.name, "Image.jpg"),
     plot_air_objects=True,
 )
 
@@ -73,7 +78,7 @@ m3d.plot(
 #
 # Solve the setup.
 
-m3d.analyze()
+m3d.analyze(cores=NUM_CORES)
 
 # ## Compute mass center
 #
@@ -119,12 +124,18 @@ cs1 = m3d.modeler.create_coordinate_system(
     name=conductor.name + "CS",
 )
 
-# ## Release AEDT and clean up temporary directory
-#
-# Release AEDT and remove both the project and temporary directory.
+# ## Release AEDT
 
-m3d.release_desktop(close_projects=True, close_desktop=True)
-time.sleep(
-    3
-)  # Allow time for Electronics Desktop to close before cleaning the temporary folder.
+m3d.save_project()
+m3d.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
+
 temp_folder.cleanup()

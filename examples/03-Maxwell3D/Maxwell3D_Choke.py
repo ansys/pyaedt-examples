@@ -1,6 +1,8 @@
-# # Maxwell 3D: choke setup
+# # Choke setup
 #
 # This example shows how you can use PyAEDT to create a choke setup in Maxwell 3D.
+#
+# Keywords: **Maxwell 3D**, **choke**.
 
 # ## Perform required imports
 #
@@ -11,12 +13,13 @@ import os
 import tempfile
 import time
 
-import pyaedt
+import ansys.aedt.core
 
 # ## Define constants
 
 AEDT_VERSION = "2024.2"
-NG_MODE = False
+NG_MODE = False  # Open Electronics UI when the application is launched.
+
 
 # ## Create temporary directory
 #
@@ -28,10 +31,11 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch Maxwell3D
 #
-# Launch Maxwell 3D 2023 R2 in graphical mode.
+# Launch Maxwell 3D 2024 R2 in graphical mode.
 
-m3d = pyaedt.Maxwell3d(
-    project=pyaedt.generate_unique_project_name(),
+project_name = os.path.join(temp_folder.name, "choke.aedt")
+m3d = ansys.aedt.core.Maxwell3d(
+    project=project_name,
     solution_type="EddyCurrent",
     version=AEDT_VERSION,
     non_graphical=NG_MODE,
@@ -260,11 +264,18 @@ m3d.plot(
     plot_air_objects=True,
 )
 
-# ## Release AEDT and clean up temporary directory
-#
-# Release AEDT and remove both the project and temporary directory.
+# ## Release AEDT
 
+m3d.save_project()
 m3d.release_desktop()
-
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
 time.sleep(3)
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
+
 temp_folder.cleanup()

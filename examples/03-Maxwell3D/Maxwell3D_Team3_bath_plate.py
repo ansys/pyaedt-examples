@@ -1,8 +1,10 @@
-# # Maxwell 3D: bath plate analysis
+# # Bath plate analysis
 #
 # This example uses PyAEDT to set up the TEAM 3 bath plate problem and
 # solve it using the Maxwell 3D Eddy Current solver.
 # https://www.compumag.org/wp/wp-content/uploads/2018/06/problem3.pdf
+#
+# Keywords: **Maxwell 3D**, **TEAM 3 bath plate**
 
 # ## Perform required imports
 #
@@ -12,12 +14,13 @@ import os
 import tempfile
 import time
 
-import pyaedt
+import ansys.aedt.core
 
 # ## Define constants
 
 AEDT_VERSION = "2024.2"
-NG_MODE = False
+NUM_CORES = 4
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary directory
 #
@@ -33,7 +36,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # the project and design names, the solver, and the version.
 
 # +
-m3d = pyaedt.Maxwell3d(
+m3d = ansys.aedt.core.Maxwell3d(
     project=os.path.join(temp_folder.name, "COMPUMAG.aedt"),
     design="TEAM 3 Bath Plate",
     solution_type="EddyCurrent",
@@ -140,14 +143,9 @@ poly = m3d.modeler.create_polyline(points=line_points, name="Line_AB_MeshRefinem
 poly.set_crosssection_properties(type="Circle", width="0.5mm")
 
 # ## Plot model
-#
-# Plot the model.
 
-m3d.plot(
-    show=False,
-    output_file=os.path.join(temp_folder.name, "Image.jpg"),
-    plot_air_objects=False,
-)
+model = m3d.plot(show=False)
+model.plot(os.path.join(temp_folder.name, "Image.jpg"))
 
 # ## Add Maxwell 3D setup
 #
@@ -278,11 +276,18 @@ m3d.post.create_fieldplot_surface(
     plot_name="Mag_J",
 )
 
-# ## Release AEDT and clean up temporary directory
-#
-# Release AEDT and remove both the project and temporary directory.
+# ## Release AEDT
 
+m3d.save_project()
 m3d.release_desktop()
-
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
 time.sleep(3)
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
+
 temp_folder.cleanup()

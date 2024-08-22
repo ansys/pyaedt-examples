@@ -1,8 +1,10 @@
-# # Maxwell 3D: asymmetric conductor analysis
+# # Asymmetric conductor analysis
 #
 # This example uses PyAEDT to set up the TEAM 7 problem for an asymmetric
 # conductor with a hole and solve it using the Maxwell 3D Eddy Current solver.
 # https://www.compumag.org/wp/wp-content/uploads/2018/06/problem7.pdf
+#
+# Keywords: **Maxwell 3D**, **Asymmetric conductor**.
 
 # ## Perform required imports
 #
@@ -13,13 +15,14 @@ import tempfile
 import time
 
 import numpy as np
-from pyaedt import Maxwell3d
-from pyaedt.generic.general_methods import write_csv
+from ansys.aedt.core import Maxwell3d
+from ansys.aedt.core.generic.general_methods import write_csv
 
 # ## Define constants
 
 AEDT_VERSION = "2024.2"
-NG_MODE = False
+NUM_CORES = 4
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary directory
 #
@@ -191,8 +194,8 @@ m3d.modeler.create_air_region(
 m3d.eddy_effects_on(assignment="Plate")
 m3d.eddy_effects_on(
     assignment=["Coil", "Region", "Line_A1_B1mesh", "Line_A2_B2mesh"],
-    activate_eddy_effects=False,
-    activate_displacement_current=False,
+    enable_eddy_effects=False,
+    enable_displacement_current=False,
 )
 
 # ## Create expression for Z component of B in Gauss
@@ -464,7 +467,7 @@ for i in range(len(dataset)):
     data[i].insert(0, header[1])
     ziplist = zip(line_length, data[i])
     file_path = os.path.join(temp_folder.name, str(dataset[i]) + ".csv")
-    write_csv(output=file_path, list_data=ziplist)
+    write_csv(output_file=file_path, list_data=ziplist)
 # -
 
 # ## Create rectangular plots and import test data into report
@@ -504,7 +507,7 @@ for item in range(len(dataset)):
 
 # Analyze project.
 
-m3d.analyze()
+m3d.analyze(cores=NUM_CORES)
 
 # ## Create plots of induced current and flux density on surface of plate
 #
@@ -516,24 +519,31 @@ intrinsic_dict = {"Freq": "200Hz", "Phase": "0deg"}
 m3d.post.create_fieldplot_surface(
     assignment=surf_list,
     quantity="Mag_J",
-    intrinsincs=intrinsic_dict,
+    intrinsics=intrinsic_dict,
     plot_name="Mag_J",
 )
 m3d.post.create_fieldplot_surface(
     assignment=surf_list,
     quantity="Mag_B",
-    intrinsincs=intrinsic_dict,
+    intrinsics=intrinsic_dict,
     plot_name="Mag_B",
 )
 m3d.post.create_fieldplot_surface(
-    assignment=surf_list, quantity="Mesh", intrinsincs=intrinsic_dict, plot_name="Mesh"
+    assignment=surf_list, quantity="Mesh", intrinsics=intrinsic_dict, plot_name="Mesh"
 )
 
-# ## Release AEDT and clean up temporary directory
-#
-# Release AEDT and remove both the project and temporary directory.
+# ## Release AEDT
 
-m3d.release_desktop(close_projects=True, close_desktop=True)
-
+m3d.save_project()
+m3d.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
 time.sleep(3)
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
+
 temp_folder.cleanup()
