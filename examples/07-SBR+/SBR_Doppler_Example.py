@@ -1,4 +1,4 @@
-# # SBR+: doppler setup
+# # Doppler setup
 #
 # This example shows how you can use PyAEDT to create a multipart scenario in HFSS SBR+
 # and set up a doppler analysis.
@@ -11,12 +11,14 @@
 
 import os
 import tempfile
+import time
 
-import pyaedt
+import ansys.aedt.core
 
 # Set constant values
 
 AEDT_VERSION = "2024.2"
+NUM_CORES = 4
 NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary directory
@@ -26,14 +28,14 @@ temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 # ## Download 3D component
 # Download the 3D component that is needed to run the example.
 
-library_path = pyaedt.downloads.download_multiparts(destination=temp_dir.name)
+library_path = ansys.aedt.core.downloads.download_multiparts(destination=temp_dir.name)
 
 # ## Launch HFSS and open project
 #
 # Launch HFSS and open the project.
 
 project_name = os.path.join(temp_dir.name, "doppler.aedt")
-app = pyaedt.Hfss(
+app = ansys.aedt.core.Hfss(
     version=AEDT_VERSION,
     solution_type="SBR+",
     new_desktop=True,
@@ -151,7 +153,7 @@ app.validate_simple()
 
 app.plot(
     show=False,
-    export_path=os.path.join(app.working_directory, "Image.jpg"),
+    output_file=os.path.join(app.working_directory, "Image.jpg"),
     plot_air_objects=True,
 )
 
@@ -168,7 +170,10 @@ app.plot(
 #
 # Release AEDT and close the example.
 
+app.save_project()
 app.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
 
 # ## Cleanup
 #

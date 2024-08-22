@@ -1,4 +1,4 @@
-# # SBR+: HFSS to SBR+ coupling
+# # HFSS to SBR+ coupling
 #
 # This example shows how you can use PyAEDT to create an HFSS SBR+ project from an
 # HFSS antenna and run a simulation.
@@ -12,8 +12,9 @@
 
 import os
 import tempfile
+import time
 
-import pyaedt
+import ansys.aedt.core
 
 # Set constant values
 
@@ -27,7 +28,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 
 # ## Download project
 
-project_full_name = pyaedt.downloads.download_sbr(destination=temp_dir.name)
+project_full_name = ansys.aedt.core.downloads.download_sbr(destination=temp_dir.name)
 
 # ## Define designs
 #
@@ -35,7 +36,7 @@ project_full_name = pyaedt.downloads.download_sbr(destination=temp_dir.name)
 # a different object.
 
 # +
-target = pyaedt.Hfss(
+target = ansys.aedt.core.Hfss(
     project=project_full_name,
     design="Cassegrain_",
     solution_type="SBR+",
@@ -44,7 +45,7 @@ target = pyaedt.Hfss(
     non_graphical=NG_MODE,
 )
 
-source = pyaedt.Hfss(
+source = ansys.aedt.core.Hfss(
     project=target.project_name,
     design="feeder",
     version=AEDT_VERSION,
@@ -127,7 +128,10 @@ solution.plot()
 #
 # Release AEDT and close the example.
 
+target.save_project()
 target.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
 
 # ## Cleanup
 #

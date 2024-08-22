@@ -1,4 +1,4 @@
-# # SBR+: Import Geometry from Maps
+# # Import Geometry from Maps
 #
 # This example shows how you can use PyAEDT to create an HFSS SBR+ project from an
 # OpenStreeMaps.
@@ -12,8 +12,9 @@
 
 import os
 import tempfile
+import time
 
-import pyaedt
+import ansys.aedt.core
 
 # Set constant values
 
@@ -29,7 +30,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 # Launch HFSS and open the project.
 
 project_name = os.path.join(temp_dir.name, "city.aedt")
-app = pyaedt.Hfss(
+app = ansys.aedt.core.Hfss(
     project=project_name,
     design="Ansys",
     solution_type="SBR+",
@@ -72,7 +73,10 @@ plot_obj.plot(os.path.join(app.working_directory, "Source.jpg"))
 #
 # Release AEDT and close the example.
 
+app.save_project()
 app.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
 
 # ## Cleanup
 #

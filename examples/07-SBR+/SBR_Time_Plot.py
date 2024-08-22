@@ -11,8 +11,9 @@
 
 import os
 import tempfile
+import time
 
-from pyaedt import Hfss, downloads
+from ansys.aedt.core import Hfss, downloads
 
 # Set constant values
 
@@ -89,6 +90,8 @@ hfss.post.plot_scene(
 
 hfss.save_project()
 hfss.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
 
 # ## Cleanup
 #
