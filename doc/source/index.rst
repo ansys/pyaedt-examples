@@ -36,17 +36,29 @@ These end-to-end examples show how you can use PyAEDT.
 
       Explore end-to-end workflows for HFSS 3D
 
-   .. grid-item-card:: Maxwell
+   .. grid-item-card:: Maxwell 3D
       :padding: 2 2 2 2
-      :link: examples/03-Maxwell/index
+      :link: examples/03-Maxwell3D/index
       :link-type: doc
 
-      .. image:: examples/03-Maxwell/_static/motor.png
+      .. image:: examples/03-Maxwell3D/_static/motor.png
          :alt: Motor fields
          :width: 200px
          :height: 150px
 
-      Uncover the various uses of Maxwell 2D and Maxwell 3D
+      Uncover the various uses of Maxwell 3D
+
+   .. grid-item-card:: Maxwell 2D
+      :padding: 2 2 2 2
+      :link: examples/03-Maxwell2D/index
+      :link-type: doc
+
+      .. image:: examples/03-Maxwell2D/_static/motor.png
+         :alt: Motor fields
+         :width: 200px
+         :height: 150px
+
+      Uncover the various uses of Maxwell 2D
 
    .. grid-item-card:: HFSS 3D Layout
       :padding: 2 2 2 2

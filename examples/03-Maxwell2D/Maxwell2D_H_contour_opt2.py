@@ -1,4 +1,4 @@
-# # Maxwell 2D: Magnetomotive force calculation along a contour
+# # Magnetomotive force calculation along a contour
 #
 # This example shows how to use PyAEDT to calculate
 # the magnetomotive force along a line that changes position.
@@ -6,6 +6,8 @@
 # to insert a custom formula, in this case the integral
 # of the H field along a line
 # and compute the field for each position with a parametric sweep.
+#
+# Keywords: **Maxwell 2D**, **magnetomotive force**.
 
 # ## Perform required imports
 #
@@ -15,12 +17,13 @@ import os
 import tempfile
 import time
 
-import pyaedt
+import ansys.aedt.core
 
 # ## Define constants
 
 AEDT_VERSION = "2024.2"
-NG_MODE = False
+NUM_CORES = 4
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary directory and download files
 #
@@ -35,7 +38,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 #
 # The files required to run this example will be downloaded into the temporary working folder.
 
-project_path = pyaedt.downloads.download_file(
+project_path = ansys.aedt.core.downloads.download_file(
     source="maxwell_magnetic_force",
     name="Maxwell_Magnetic_Force.aedt",
     destination=temp_folder.name,
@@ -45,7 +48,7 @@ project_path = pyaedt.downloads.download_file(
 #
 # Initialize and launch Maxwell 2D, providing the version and the path of the project.
 
-m2d = pyaedt.Maxwell2d(
+m2d = ansys.aedt.core.Maxwell2d(
     version=AEDT_VERSION,
     non_graphical=NG_MODE,
     project=project_path,
@@ -65,6 +68,11 @@ m2d["xl"] = "10mm"
 poly = m2d.modeler.create_polyline(
     points=[["xl", -10, 0], ["xl", 10, 0]], name="polyline"
 )
+
+# ## Plot model
+
+model = m2d.plot(show=False)
+model.plot(os.path.join(temp_folder.name, "Image.jpg"))
 
 # ## Add a parametric sweep
 #
@@ -110,7 +118,7 @@ param_sweep.add_calculation(calculation=quantity, report_type="Fields", ranges={
 
 # ## Analyze parametric sweep
 
-param_sweep.analyze()
+m2d.ooptimetrics.SolveSetup(param_sweep.name)
 
 # ## Create a data table report
 #
@@ -125,15 +133,22 @@ report = m2d.post.create_report(
     primary_sweep_variable="xl",
 )
 m2d.post.export_report_to_csv(
-    project_dir=os.path.join(temp_folder.name, "{}.csv".format(quantity)),
+    project_dir=temp_folder.name,
     plot_name=quantity,
 )
 
-# ## Release AEDT and clean up temporary directory
-#
-# Release AEDT and remove both the project and temporary directory.
+# ## Release AEDT
 
+m2d.save_project()
 m2d.release_desktop()
-
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
 time.sleep(3)
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
+
 temp_folder.cleanup()

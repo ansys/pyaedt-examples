@@ -1,9 +1,11 @@
-# # Maxwell 2D Electrostatic analysis
+# # Electrostatic analysis
 
 # This example shows how you can use PyAEDT to create a Maxwell 2D electrostatic analysis.
 # It shows how to create the geometry, load material properties from an Excel file and
 # set up the mesh settings. Moreover, it focuses on post-processing operations, in particular how to
 # plot field line traces, relevant for an electrostatic analysis.
+#
+# Keywords: **Maxwell 2D**, **electrostatic**.
 
 # ## Perform required imports
 #
@@ -13,11 +15,12 @@ import os
 import tempfile
 import time
 
-import pyaedt
+import ansys.aedt.core
 
 # ## Define constants
 
 AEDT_VERSION = "2024.2"
+NUM_CORES = 4
 NG_MODE = False
 
 # ## Create temporary directory and download files
@@ -33,7 +36,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 #
 # Set local temporary folder to export the .xlsx file to.
 
-file_name_xlsx = pyaedt.downloads.download_file(
+file_name_xlsx = ansys.aedt.core.downloads.download_file(
     source="field_line_traces", name="my_copper.xlsx", destination=temp_folder.name
 )
 
@@ -67,7 +70,7 @@ geom_params_rectangle = {
 # ``Maxwell2d`` class named ``m2d``.
 
 project_name = os.path.join(temp_folder.name, "M2D_Electrostatic.aedt")
-m2d = pyaedt.Maxwell2d(
+m2d = ansys.aedt.core.Maxwell2d(
     project=project_name,
     version=AEDT_VERSION,
     design="Design1",
@@ -133,6 +136,11 @@ m2d.modeler.split(assignment=[poly1_id, poly2_id], plane="YZ", sides="NegativeOn
 m2d.modeler.create_region(pad_value=[20, 100, 20, 100])
 # -
 
+# ## Plot model
+
+model = m2d.plot(show=False)
+model.plot(os.path.join(temp_folder.name, "Image.jpg"))
+
 # ## Define excitations
 #
 # Assign voltage excitations to rectangle and circle.
@@ -155,7 +163,7 @@ setup = m2d.create_setup(name=setup_name)
 setup.props["PercentError"] = 0.5
 setup.update()
 m2d.validate_simple()
-m2d.analyze_setup(name=setup_name, use_auto_settings=False)
+m2d.analyze_setup(name=setup_name, use_auto_settings=False, cores=NUM_CORES)
 
 # ## Evaluate the E Field tangential component
 #
@@ -209,12 +217,18 @@ m2d.post.export_field_plot(
 
 m2d.post.export_mesh_obj(setup=m2d.nominal_adaptive)
 
-# ## Save project, release AEDT and clean up temporary directory
-#
-# Save project, release AEDT and remove both the project and temporary directory.
+# ## Release AEDT
 
 m2d.save_project()
 m2d.release_desktop()
-
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
 time.sleep(3)
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
+
 temp_folder.cleanup()

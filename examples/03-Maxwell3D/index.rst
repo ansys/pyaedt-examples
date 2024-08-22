@@ -1,0 +1,19 @@
+Maxwell 3D examples
+~~~~~~~~~~~~~~~~~~~
+These examples use PyAEDT to show some end-to-end workflows for Maxwell 3D.
+This includes model generation, setup, meshing, and postprocessing.
+Examples cover different Maxwell solution types (Eddy Current, Magnetostatic,
+and Transient).
+
+.. nbgallery::
+
+    Maxwell3D_Choke.py
+    Maxwell3D_Conductor.py
+    Maxwell3D_Segmentation.py
+    Maxwell3D_Team3_bath_plate.py
+    Maxwell3D_Transformer_Coreloss.py
+    Maxwell3D_Transient_Fields_Export.py
+    Maxwell3DTeam7.py
+
+
+

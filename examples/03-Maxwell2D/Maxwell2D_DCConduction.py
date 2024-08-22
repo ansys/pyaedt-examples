@@ -1,8 +1,9 @@
-# # Maxwell 2D: resistance calculation
+# # Resistance calculation
 
 # This example uses PyAEDT to set up a resistance calculation
 # and solve it using the Maxwell 2D DCConduction solver.
-# Keywords: DXF import, material sweep, expression cache
+#
+# Keywords: **Maxwell 2D**, **DXF import**, **material sweep**, **expression cache**.
 
 # ## Perform required imports
 #
@@ -12,12 +13,14 @@ import os.path
 import tempfile
 import time
 
-import pyaedt
-from pyaedt.generic.pdf import AnsysReport
+import ansys.aedt.core
+from ansys.aedt.core.generic.pdf import AnsysReport
 
 # ## Define constants
 
 AEDT_VERSION = "2024.2"
+NG_MODE = False
+NUM_CORES = 4
 
 # ## Create temporary directory
 #
@@ -34,13 +37,14 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # ``Maxwell2d`` class named ``m2d``.
 
 project_name = os.path.join(temp_folder.name, "M2D_DC_Conduction.aedt")
-m2d = pyaedt.Maxwell2d(
+m2d = ansys.aedt.core.Maxwell2d(
     version=AEDT_VERSION,
     new_desktop=True,
     close_on_exit=True,
     solution_type="DCConduction",
     project=project_name,
     design="Ansys_resistor",
+    non_graphical=NG_MODE,
 )
 
 # ## Import geometry as a DXF file
@@ -50,11 +54,11 @@ m2d = pyaedt.Maxwell2d(
 # Importing DXF files only works in graphical mode.
 
 # +
-# DXFPath = pyaedt.downloads.download_file("dxf", "Ansys_logo_2D.dxf")
+# DXFPath = ansys.aedt.core.downloads.download_file("dxf", "Ansys_logo_2D.dxf")
 # dxf_layers = m2d.get_dxf_layers(DXFPath)
 # m2d.import_dxf(DXFPath, dxf_layers, scale=1E-05)
 
-parasolid_path = pyaedt.downloads.download_file(
+parasolid_path = ansys.aedt.core.downloads.download_file(
     directory="x_t", filename="Ansys_logo_2D.x_t", destination=temp_folder.name
 )
 m2d.modeler.import_3d_cad(parasolid_path)
@@ -116,7 +120,13 @@ setup.enable_expression_cache(
     conv_criteria=1,
     use_cache_for_freq=False,
 )
-setup.analyze()
+
+# ## Analyze setup
+#
+# Run the analysis.
+
+m2d.save_project()
+m2d.analyze(setup=setup.name, cores=NUM_CORES, use_auto_settings=False)
 
 # ## Create parametric sweep
 #
@@ -134,7 +144,7 @@ sweep = m2d.parametrics.add(
 sweep["SaveFields"] = True
 sweep["CopyMesh"] = True
 sweep["SolveWithCopiedMeshOnly"] = True
-sweep.analyze()
+m2d.ooptimetrics.SolveSetup(sweep.name)
 
 # ## Create resistance report
 #
@@ -293,11 +303,18 @@ pdf_report.add_table(
 pdf_report.add_toc()
 pdf_report.save_pdf(temp_folder.name, "AEDT_Results.pdf")
 
-# ## Release AEDT and clean up temporary directory
-#
-# Release AEDT and remove both the project and temporary directory.
+# ## Release AEDT
 
+m2d.save_project()
 m2d.release_desktop()
-
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
 time.sleep(3)
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
+
 temp_folder.cleanup()

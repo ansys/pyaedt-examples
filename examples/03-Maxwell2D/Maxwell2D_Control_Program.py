@@ -1,9 +1,11 @@
-# # Enabling Control Program in a Maxwell 2D Project
+# # Enabling Control Program
 
 # This example shows how you can use PyAEDT to enable control program in a Maxwell 2D project.
 # It shows how to create the geometry, load material properties from an Excel file and
 # set up the mesh settings. Moreover, it focuses on post-processing operations, in particular how to
 # plot field line traces, relevant for an electrostatic analysis.
+#
+# Keywords: **Maxwell 2D**, **control program**.
 
 # ## Perform required imports
 #
@@ -12,12 +14,13 @@
 import tempfile
 import time
 
-from pyaedt import Maxwell2d, downloads
+from ansys.aedt.core import Maxwell2d, downloads
 
 # ## Define constants
 
 AEDT_VERSION = "2024.2"
-NG_MODE = False
+NUM_CORES = 4
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary directory
 #
@@ -73,7 +76,8 @@ setup.enable_control_program(control_program_path=ctrl_prg_file)
 #
 # Run the analysis.
 
-setup.analyze()
+m2d.save_project()
+m2d.analyze(setup=setup.name, cores=NUM_CORES, use_auto_settings=False)
 
 # ## Plot results
 #
@@ -86,12 +90,18 @@ sols = m2d.post.get_solution_data(
 )
 sols.plot()
 
-# ## Release AEDT and clean up temporary directory
-#
-# Release AEDT and remove both the project and temporary directory.
+# ## Release AEDT
 
+m2d.save_project()
 m2d.release_desktop()
-time.sleep(
-    3
-)  # Allow sufficient time for AEDT to close before cleaning the temporary folder.
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
+
 temp_folder.cleanup()

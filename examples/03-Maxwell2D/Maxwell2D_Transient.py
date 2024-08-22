@@ -1,4 +1,4 @@
-# # Maxwell 2D: transient winding analysis
+# # Transient winding analysis
 #
 # This example shows how you can use PyAEDT to create a project in Maxwell 2D
 # and run a transient simulation. It runs only on Windows using CPython.
@@ -15,6 +15,8 @@
 # ```console
 #   pip install numpy pyvista matplotlib
 # ```
+#
+# Keywords: **Maxwell 2D**, **transient**, **winding**.
 
 # ## Perform required imports
 #
@@ -24,12 +26,14 @@ import os
 import tempfile
 import time
 
-import pyaedt
+import ansys.aedt.core
 
 # ## Define constants
 
 AEDT_VERSION = "2024.2"
-NG_MODE = False
+NUM_CORES = 4
+NG_MODE = False  # Open Electronics UI when the application is launched.
+
 
 # ## Create temporary directory and download files
 #
@@ -45,7 +49,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # Insert a Maxwell 2D design.
 
 project_name = os.path.join(temp_folder.name, "Transient.aedt")
-m2d = pyaedt.Maxwell2d(
+m2d = ansys.aedt.core.Maxwell2d(
     solution_type="TransientXY",
     version=AEDT_VERSION,
     non_graphical=NG_MODE,
@@ -58,7 +62,7 @@ m2d = pyaedt.Maxwell2d(
 # Create a rectangle and duplicate it.
 
 rect1 = m2d.modeler.create_rectangle(
-    origin=[0, 0, 0], sizes=[10, 20], name="winding", matname="copper"
+    origin=[0, 0, 0], sizes=[10, 20], name="winding", material="copper"
 )
 duplicate = rect1.duplicate_along_line(vector=[14, 0, 0])
 rect2 = m2d.modeler[duplicate[0]]
@@ -113,7 +117,7 @@ m2d.post.create_report(
 #
 # Solve the model.
 
-m2d.analyze(use_auto_settings=False)
+m2d.analyze(cores=NUM_CORES, use_auto_settings=False)
 
 # ## Create output and plot using PyVista
 #
@@ -157,11 +161,18 @@ solutions = m2d.post.get_solution_data(
 )
 solutions.plot()
 
-# ## Release AEDT and clean up temporary directory
-#
-# Release AEDT and remove both the project and temporary directory.
+# ## Release AEDT
 
+m2d.save_project()
 m2d.release_desktop()
-
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
 time.sleep(3)
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
+
 temp_folder.cleanup()

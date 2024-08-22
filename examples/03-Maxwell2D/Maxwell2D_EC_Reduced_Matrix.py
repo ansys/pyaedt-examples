@@ -1,7 +1,9 @@
-# # Maxwell 2D Eddy Current analysis - Reduced Matrix
+# # Eddy Current analysis and reduced matrix
 
 # This example shows how to leverage PyAEDT to assign matrix
 # and perform series or parallel connections in a Maxwell 2D design.
+#
+# Keywords: **HFSS**, **antenna array**, **far field**.
 
 # ## Perform required imports
 #
@@ -10,12 +12,13 @@
 import tempfile
 import time
 
-import pyaedt
+import ansys.aedt.core
 
 # ## Define constants
 
 AEDT_VERSION = "2024.2"
-NG_MODE = False
+NUM_CORES = 4
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary directory and download files
 #
@@ -30,7 +33,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 #
 # Set local temporary folder to export the .aedt file to.
 
-project_path = pyaedt.downloads.download_file(
+project_path = ansys.aedt.core.downloads.download_file(
     source="maxwell_ec_reduced_matrix",
     name="m2d_eddy_current.aedt",
     destination=temp_folder.name,
@@ -40,7 +43,7 @@ project_path = pyaedt.downloads.download_file(
 #
 # Launch AEDT and Maxwell 2D providing the version, path to the project and the graphical mode.
 
-m2d = pyaedt.Maxwell2d(
+m2d = ansys.aedt.core.Maxwell2d(
     project=project_path,
     version=AEDT_VERSION,
     design="EC_Planar",
@@ -64,9 +67,17 @@ matrix = m2d.assign_matrix(
 series = matrix.join_series(sources=["pri", "sec"], matrix_name="ReducedMatrix1")
 parallel = matrix.join_parallel(sources=["sec", "terz"], matrix_name="ReducedMatrix2")
 
-# ## Analyze setup
+# ## Plot model
 
-m2d.analyze()
+model = m2d.plot(show=False)
+model.plot(os.path.join(temp_folder.name, "Image.jpg"))
+
+# ## Analyze setup
+#
+# Run the analysis.
+
+m2d.save_project()
+m2d.analyze(setup=m2d.setup_names[0], cores=NUM_CORES, use_auto_settings=False)
 
 # ## Get expressions
 #
@@ -102,18 +113,25 @@ data = m2d.post.get_solution_data(
 #
 # Get inductance results for the join connections in ``nH``.
 
-ind = pyaedt.generic.constants.unit_converter(
+ind = ansys.aedt.core.generic.constants.unit_converter(
     data.data_magnitude()[0],
     unit_system="Inductance",
     input_units=data.units_data[expressions[0]],
     output_units="uH",
 )
 
-# ## Release AEDT and clean up temporary directory
-#
-# Release AEDT and remove both the project and temporary directory.
+# ## Release AEDT
 
+m2d.save_project()
 m2d.release_desktop()
-
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
 time.sleep(3)
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
+
 temp_folder.cleanup()

@@ -1,10 +1,12 @@
-# # Transformer leakage inductance calculation in Maxwell 2D Magnetostatic
+# # Transformer leakage inductance calculation
 #
 # This example shows how you can use pyAEDT to create a Maxwell 2D
 # magnetostatic analysis to calculate transformer leakage
 # inductance and reactance.
 # The analysis based on this document form page 8 on:
 # https://www.ee.iitb.ac.in/~fclab/FEM/FEM1.pdf
+#
+# Keywords: **Maxwell 2D**, **transformer**, **motor**.
 
 # ## Perform required imports
 
@@ -12,12 +14,14 @@ import os
 import tempfile
 import time
 
-from pyaedt import Maxwell2d
+from ansys.aedt.core import Maxwell2d
 
 # ## Define constants
 
 AEDT_VERSION = "2024.2"
-NG_MODE = False
+NUM_CORES = 4
+NG_MODE = False  # Open Electronics UI when the application is launched.
+
 
 # ## Create temporary directory and download files
 #
@@ -143,6 +147,12 @@ hv = m2d.modeler.create_rectangle(
 
 region = m2d.modeler.create_region(pad_percent=[20, 10, 0, 10])
 
+# ## Plot model
+
+model = m2d.plot(show=False)
+model.plot(os.path.join(temp_folder.name, "Image.jpg"))
+
+
 # ## Assign boundary condition
 #
 # Assign vector potential to zero on all region boundaries. This makes x=0 edge a symmetry boundary.
@@ -173,7 +183,7 @@ m2d.assign_current(assignment=hv, amplitude="Amp_turns", name="HV", swap_directi
 # Create and analyze the setup. Setu no. of minimum passes to 3 to ensure accuracy.
 
 m2d.create_setup(name="Setup1", MinimumPasses=3)
-m2d.analyze_setup(use_auto_settings=False)
+m2d.analyze_setup(use_auto_settings=False, cores=NUM_CORES)
 
 # ## Calculate transformer leakage inductance and reactance
 #

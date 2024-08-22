@@ -1,7 +1,9 @@
-# # Maxwell 2D: PM synchronous motor transient analysis
+# # PM synchronous motor transient analysis
 #
 # This example shows how you can use PyAEDT to create a Maxwell 2D transient analysis for
 # an interior permanent magnet electric motor.
+#
+# Keywords: **Maxwell 2D**, **transient**, **motor**.
 
 # ## Perform required imports
 #
@@ -13,12 +15,13 @@ import tempfile
 import time
 from operator import attrgetter
 
-import pyaedt
+import ansys.aedt.core
 
 # ## Define constants
 
 AEDT_VERSION = "2024.2"
-NG_MODE = False
+NUM_CORES = 4
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary directory and download files
 #
@@ -110,7 +113,7 @@ oper_params = {
 # ``Maxwell2d`` class named ``m2d``.
 
 project_name = os.path.join(temp_folder.name, "PM_Motor.aedt")
-m2d = pyaedt.Maxwell2d(
+m2d = ansys.aedt.core.Maxwell2d(
     project=project_name,
     version=AEDT_VERSION,
     design="Sinusoidal",
@@ -143,7 +146,7 @@ for k, v in oper_params.items():
 # Define the path for non-linear material properties.
 # Materials are stored in text files.
 
-filename_lam, filename_PM = pyaedt.downloads.download_leaf()
+filename_lam, filename_PM = ansys.aedt.core.downloads.download_leaf()
 
 # ## Create first material
 #
@@ -346,7 +349,7 @@ coil_id = m2d.modeler.create_rectangle(
     origin=["DiaRotorLam/2+Airgap+Coil_SetBack", "-Coil_Edge_Short/2", 0],
     sizes=["Coil_Edge_Long", "Coil_Edge_Short", 0],
     name="Coil",
-    matname="Copper (Annealed)_65C",
+    material="Copper (Annealed)_65C",
 )
 coil_id.color = (255, 128, 0)
 m2d.modeler.rotate(assignment=coil_id, axis="Z", angle="360deg/SlotNumber/2")
@@ -706,7 +709,7 @@ m2d.mesh.assign_length_mesh(
 # Turn on core loss.
 
 core_loss_list = ["Rotor", "Stator"]
-m2d.set_core_losses(core_loss_list, value=True)
+m2d.set_core_losses(core_loss_list, core_loss_on_field=True)
 
 # ## Compute transient inductance
 #
@@ -897,7 +900,7 @@ for k, v in post_params.items():
 # Analyze and save the project.
 
 m2d.save_project()
-m2d.analyze_setup(setup_name, use_auto_settings=False)
+m2d.analyze_setup(setup_name, use_auto_settings=False, cores=NUM_CORES)
 
 # ## Create flux lines plot on region
 #
@@ -943,11 +946,18 @@ m2d.post.export_report_to_file(
     output_dir=temp_folder.name, plot_name="TorquePlots", extension=".csv"
 )
 
-# ## Release AEDT and clean up temporary directory
-#
-# Release AEDT and remove both the project and temporary directory.
+# ## Release AEDT
 
+m2d.save_project()
 m2d.release_desktop()
-
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
 time.sleep(3)
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
+
 temp_folder.cleanup()
