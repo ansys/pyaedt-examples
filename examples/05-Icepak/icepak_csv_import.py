@@ -1,8 +1,10 @@
-# # Icepak: Creating blocks and assigning materials and power
+# # Creating blocks and assigning materials and power
 
 # This example shows how to create different types of blocks and assign power
 # and material to them using
 # a *.csv input file
+#
+# Keywords: **Icepak**, **Boundaries**.
 
 # ## Perform required imports
 #
@@ -14,8 +16,8 @@ import csv
 import os
 import tempfile
 
+import ansys.aedt.core
 import matplotlib as mpl
-import pyaedt
 from IPython.display import Image
 from matplotlib import cm
 from matplotlib import pyplot as plt
@@ -33,7 +35,7 @@ NG_MODE = False  # Open Electronics UI when the application is launched.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 project_name = os.path.join(temp_folder.name, "Icepak_CSV_Import.aedt")
-ipk = pyaedt.Icepak(
+ipk = ansys.aedt.core.Icepak(
     project=project_name,
     version=AEDT_VERSION,
     new_desktop=True,
@@ -76,7 +78,7 @@ board = ipk.modeler.create_box(
 # Every row of the csv has information of a particular block.
 
 # +
-filename = pyaedt.downloads.download_file(
+filename = ansys.aedt.core.downloads.download_file(
     "icepak", "blocks-list.csv", destination=temp_folder.name
 )
 
@@ -179,13 +181,16 @@ Image(os.path.join(temp_folder.name, "object_power.jpg"))
 
 # ## Release AEDT
 
-ipk.release_desktop(True, True)
+ipk.save_project()
+ipk.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
 
 # ## Cleanup
 #
 # All project files are saved in the folder ``temp_dir.name``.
 # If you've run this example as a Jupyter notebook you
-# can retrieve those project files. The following cell removes
-# all temporary files, including the project folder.
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
 temp_folder.cleanup()

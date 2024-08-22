@@ -1,16 +1,17 @@
-# # Icepak: thermal analysis with 3D components
+# # Thermal analysis with 3D components
 
 # This example shows how to create a thermal analysis of an electronic package by
 # taking advantage of 3D components with advanced features added by PyAEDT.
-# Keywords: 3D components, mesh regions, monitor objects
+#
+# Keywords: **Icepak**, **3D components**, **mesh regions**, **monitor objects**.
 
 # ## Import PyAEDT and download files
-# Perform import of required classes from the ``pyaedt`` package and import the ``os`` package.
+# Perform import of required classes from the ``ansys.aedt.core`` package and import the ``os`` package.
 
 import os
 import tempfile
 
-from pyaedt import Icepak, downloads
+from ansys.aedt.core import Icepak, downloads
 
 # Set constant values
 
@@ -23,7 +24,6 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 package_temp_name, qfp_temp_name = downloads.download_icepak_3d_component(
     destination=temp_folder.name
 )
-
 
 # ## Create heatsink
 # Create new empty project in non-graphical mode.
@@ -243,7 +243,10 @@ ipk.modeler.create_3dcomponent(
 
 # ## Release AEDT
 
-ipk.release_desktop(close_projects=True, close_desktop=True)
+ipk.save_project()
+ipk.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
 
 # ## Cleanup
 #

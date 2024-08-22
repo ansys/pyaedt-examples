@@ -1,7 +1,9 @@
-# # Icepak: Importing a PCB and its components via IDF and EDB
+# # Importing a PCB and its components via IDF and EDB
 
 # This example shows how to import a PCB and its components using IDF files (*.ldb/*.bdf).
 # The *.emn/*.emp combination can also be used in a similar way.
+#
+# Keywords: **Icepak**, **PCB**, **IDF**.
 
 # ## Perform required imports
 #
@@ -10,8 +12,8 @@
 import os
 import tempfile
 
-import pyaedt
-from pyaedt import Hfss3dLayout
+import ansys.aedt.core
+from ansys.aedt.core import Hfss3dLayout, Icepak
 
 # Set constant values
 
@@ -25,7 +27,7 @@ NG_MODE = False  # Open Electronics UI when the application is launched.
 # +
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-ipk = pyaedt.Icepak(
+ipk = Icepak(
     project=os.path.join(temp_folder.name, "Icepak_ECAD_Import.aedt"),
     version=AEDT_VERSION,
     new_desktop=True,
@@ -50,15 +52,15 @@ ipk = pyaedt.Icepak(
 
 # Download ECAD and IDF files
 
-def_path = pyaedt.downloads.download_file(
+def_path = ansys.aedt.core.downloads.download_file(
     source="icepak/Icepak_ECAD_Import/A1_uprev.aedb",
     name="edb.def",
     destination=temp_folder.name,
 )
-board_path = pyaedt.downloads.download_file(
+board_path = ansys.aedt.core.downloads.download_file(
     source="icepak/Icepak_ECAD_Import/", name="A1.bdf", destination=temp_folder.name
 )
-library_path = pyaedt.downloads.download_file(
+library_path = ansys.aedt.core.downloads.download_file(
     source="icepak/Icepak_ECAD_Import/", name="A1.ldf", destination=temp_folder.name
 )
 
@@ -103,11 +105,16 @@ ipk.plot(
 
 # ## Release AEDT
 
-ipk.release_desktop(close_projects=True, close_desktop=True)
+ipk.save_project()
+ipk.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
 temp_folder.cleanup()

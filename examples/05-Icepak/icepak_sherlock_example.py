@@ -1,7 +1,9 @@
-# # Icepak: setup from Sherlock inputs
+# # Setup from Sherlock inputs
 
 # This example shows how you can create an Icepak project from Sherlock
 # files (STEP and CSV) and an AEDB board.
+#
+# Keywords: **Icepak**, **Sherlock**.
 
 # ## Perform required imports
 #
@@ -11,22 +13,22 @@
 import os
 import tempfile
 
-import pyaedt
+import ansys.aedt.core
 
 # -
 
 # Set constant values
 
 AEDT_VERSION = "2024.2"
+NUM_CORES = 4
 NG_MODE = False  # Open Electronics UI when the application is launched.
-
 
 # ## Define input files and variables.
 #
 # Set paths.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
-input_dir = pyaedt.downloads.download_sherlock(destination=temp_folder.name)
+input_dir = ansys.aedt.core.downloads.download_sherlock(destination=temp_folder.name)
 
 # Define input files names.
 
@@ -50,12 +52,13 @@ project_name = os.path.join(temp_folder.name, component_step[:-3] + "aedt")
 
 # ## Create Icepak model
 
-ipk = pyaedt.Icepak(project=project_name, version=AEDT_VERSION, non_graphical=NG_MODE)
+ipk = ansys.aedt.core.Icepak(
+    project=project_name, version=AEDT_VERSION, non_graphical=NG_MODE
+)
 
 # Disable autosave to speed up the import.
 
 ipk.autosave_disable()
-
 
 # Import a PCB from an AEDB file.
 
@@ -89,7 +92,7 @@ ipk.mesh.global_mesh_region.global_region.padding_values = [20, 20, 20, 20, 300,
 # Use Sherlock file to assign materials.
 
 ipk.assignmaterial_from_sherlock_files(
-    csv_component=component_list, csv_material=material_list
+    component_file=component_list, material_file=material_list
 )
 
 # Delete objects with no materials assignments.
@@ -102,47 +105,34 @@ ipk.save_project()
 
 total_power = ipk.assign_block_from_sherlock_file(csv_name=component_list)
 
+# ## Assign openings
+#
+# Assign opening boundary condition to all the faces of the region.
+ipk.assign_openings(ipk.modeler.get_object_faces("Region"))
+
 # ## Plot model
 
 ipk.plot(
     show=False,
-    export_path=os.path.join(temp_folder.name, "Sherlock_Example.jpg"),
+    output_file=os.path.join(temp_folder.name, "Sherlock_Example.jpg"),
     plot_air_objects=False,
+    plot_as_separate_objects=False,
 )
 
 # ## Create simulation setup
 # ### Mesh settings
 # Set global mesh settings
 
-ipk.mesh.global_mesh_region.manual_settings = True
-ipk.mesh.global_mesh_region.settings["MaxElementSizeX"] = 10
-ipk.mesh.global_mesh_region.settings["MaxElementSizeY"] = 10
-ipk.mesh.global_mesh_region.settings["MaxElementSizeZ"] = 10
-ipk.mesh.global_mesh_region.settings["BufferLayers"] = 2
-ipk.mesh.global_mesh_region.settings["EnableMLM"] = True
-ipk.mesh.global_mesh_region.settings["UniformMeshParametersType"] = "Average"
-ipk.mesh.global_mesh_region.settings["MaxLevels"] = 3
-ipk.mesh.global_mesh_region.update()
+ipk.globalMeshSettings(
+    3,
+    gap_min_elements="1",
+    noOgrids=True,
+    MLM_en=True,
+    MLM_Type="2D",
+    edge_min_elements="2",
+    object="Region",
+)
 
-# Add PCB mesh with 2D multi-level meshing
-
-mesh_region = ipk.mesh.assign_mesh_region(assignment="Board1")
-mesh_region.manual_settings = True
-mesh_region.settings["MaxElementSizeX"] = 1
-mesh_region.settings["MaxElementSizeY"] = 1
-mesh_region.settings["MaxElementSizeZ"] = 1
-mesh_region.settings["EnableMLM"] = True
-mesh_region.settings["UniformMeshParametersType"] = "Average"
-mesh_region.settings["EnforeMLMType"] = "2D"
-mesh_region.settings["2DMLMType"] = "2DMLM_Auto"
-mesh_region.settings["MaxLevels"] = 1
-mesh_region.update()
-
-
-# ### Boundary conditions
-# assign free opening at all the region faces
-
-ipk.assign_pressure_free_opening(assignment=ipk.modeler.get_object_faces("Region"))
 
 # ### Add post-processing object
 # Create point monitor
@@ -170,7 +160,7 @@ setup1.props["Solution Initialization - Y Velocity"] = "1m_per_sec"
 setup1.props["Radiation Model"] = "Discrete Ordinates Model"
 setup1.props["Include Gravity"] = True
 setup1.props["Secondary Gradient"] = True
-setup1.props["Convergence Criteria - Max Iterations"] = 10
+setup1.props["Convergence Criteria - Max Iterations"] = 100
 
 # Check for intersections using validation and fix them by
 # assigning priorities.
@@ -235,10 +225,12 @@ ipk.assign_priority_on_intersections()
 #     show=False,
 # )
 
-# ## Save project and release AEDT
+# ## Release AEDT
 
 ipk.save_project()
 ipk.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
 
 # ## Cleanup
 #

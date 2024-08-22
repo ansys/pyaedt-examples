@@ -1,10 +1,11 @@
-# # Icepak: graphic card thermal analysis
+# # Graphic card thermal analysis
 
 # This example shows how you can use pyAEDT to create a graphic card setup in
 # Icepak and post-process results.
 # The example file is an Icepak project with a model that is already created and
 # has materials assigned.
-# Keywords: boundary conditions, postprocessing, monitors
+#
+# Keywords: **Icepak**, **boundary conditions**, **postprocessing**, **monitors**.
 
 # ## Perform required imports
 #
@@ -13,13 +14,14 @@
 import os
 import tempfile
 
+import ansys.aedt.core
 import pandas as pd
-import pyaedt
 from IPython.display import Image
 
 # Set constant values
 
 AEDT_VERSION = "2024.2"
+NUM_CORES = 4
 NG_MODE = False  # Do not show the graphical user-interface.
 
 
@@ -28,11 +30,13 @@ NG_MODE = False  # Do not show the graphical user-interface.
 # Download the project to a temporary folder.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
-project_temp_name = pyaedt.downloads.download_icepak(destination=temp_folder.name)
+project_temp_name = ansys.aedt.core.downloads.download_icepak(
+    destination=temp_folder.name
+)
 
 # Open the project in without the GUI.
 
-ipk = pyaedt.Icepak(
+ipk = ansys.aedt.core.Icepak(
     project=project_temp_name,
     version=AEDT_VERSION,
     new_desktop=True,
@@ -153,7 +157,7 @@ setup1.props["Convergence Criteria - Max Iterations"] = 5
 setup1.props["Linear Solver Type - Pressure"] = "flex"
 setup1.props["Linear Solver Type - Temperature"] = "flex"
 ipk.save_project()
-ipk.analyze()
+ipk.analyze(setup=setup1.name, cores=NUM_CORES, tasks=NUM_CORES)
 
 # ## PostProcess
 #
@@ -295,7 +299,9 @@ plot4 = ipk.post.plot_field(
 # ## Release AEDT
 
 ipk.save_project()
-ipk.release_desktop(True, True)
+ipk.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
 
 # ## Cleanup
 #
