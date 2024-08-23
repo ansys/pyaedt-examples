@@ -23,7 +23,6 @@ m3d = Maxwell3d(specified_version=desktop_version,
 
 m3d.modeler.model_units = "mm"
 
-
 electric_frequency = 50
 max_current = 50  # A
 number_of_el_periods = 1  # 2-3, 1 for testing purposes
