@@ -6,6 +6,6 @@ setup features inside AEDT.
 .. nbgallery::
 
     Configurations.py
-    HFSS_CoordinateSystem.py
+    CoordinateSystem.py
     Optimetrics.py
     Polyline_Primitives.py

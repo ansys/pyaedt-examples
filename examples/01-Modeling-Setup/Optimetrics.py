@@ -1,8 +1,9 @@
-# # General: optimetrics setup
+# # Optimetrics setup
 #
 # This example shows how you can use PyAEDT to create a project in HFSS and create all optimetrics
 # setups.
-
+#
+# Keywords: **General**, **Optimetrics**.
 
 # ## Preparation
 # Import the required packages
@@ -11,7 +12,7 @@ import os
 import tempfile
 import time
 
-import pyaedt
+import ansys.aedt.core
 
 # Define constants
 
@@ -30,7 +31,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 # +
 project_name = os.path.join(temp_dir.name, "optimetrics.aedt")
 
-hfss = pyaedt.Hfss(
+hfss = ansys.aedt.core.Hfss(
     project=project_name,
     version=AEDT_VERSION,
     new_desktop=True,
