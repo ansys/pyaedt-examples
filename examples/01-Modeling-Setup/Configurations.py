@@ -23,38 +23,40 @@
 # any reason, this face position has changed or the object name in the target
 # design has changed, the boundary fails to apply.
 
-# ## Perform required imports
+# ## Preparation
+# Import the required packages
 
+# +
 import os
 import tempfile
+import time
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 from pyaedt.generic.general_methods import generate_unique_name
+# -
 
-# ## Set non-graphical mode
+# Define constants
 
-# You can set ``non_graphical`` either to ``True`` or ``False``.
-
-non_graphical = False
+AEDT_VERSION = "2024.2"
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary directory
 
-temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Download project
 
 project_full_name = pyaedt.downloads.download_icepak(destination=temp_dir.name)
 
 # ## Open project
-
-# Open the project, and save it to the temporary folder.
+#
+# Open the Icepak project from the project folder.
 
 ipk = pyaedt.Icepak(
-    projectname=project_full_name,
-    specified_version=AEDT_VERSION,
-    new_desktop_session=True,
-    non_graphical=non_graphical,
+    project=project_full_name,
+    version=AEDT_VERSION,
+    new_desktop=True,
+    non_graphical=NG_MODE,
 )
 ipk.autosave_disable()
 
@@ -96,8 +98,8 @@ ipk.export_3d_model(
     file_name=filename,
     file_path=ipk.working_directory,
     file_format=".step",
-    object_list=[],
-    removed_objects=[],
+    assignment_to_export=[],
+    assignment_to_remove=[],
 )
 
 # ## Export configuration files
@@ -105,15 +107,17 @@ ipk.export_3d_model(
 # Export the configuration files. You can optionally disable the export and
 # import sections. Supported formats are json and toml files
 
-conf_file = ipk.configurations.export_config(os.path.join(ipk.working_directory, "config.toml"))
+conf_file = ipk.configurations.export_config(
+    os.path.join(ipk.working_directory, "config.toml")
+)
 ipk.close_project()
 
 # ## Create project
 #
 # Create an Icepak project and import the step.
 
-new_project = os.path.join(temp_dir.name, generate_unique_name("example") + ".aedt")
-app = pyaedt.Icepak(projectname=new_project)
+new_project = os.path.join(temp_dir.name, "example.aedt")
+app = pyaedt.Icepak(version=AEDT_VERSION, project=new_project)
 app.modeler.import_3d_cad(file_path)
 
 # ## Import and apply configuration file
@@ -128,7 +132,13 @@ app.configurations.results.global_import_success
 # Close the project and release AEDT.
 
 app.release_desktop()
+time.sleep(3)   # Allow Electronics Desktop to shut down before cleaning the temporary project folder.
 
-# ## Clean temporary directory
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes
+# all temporary files, including the project folder.
 
 temp_dir.cleanup()

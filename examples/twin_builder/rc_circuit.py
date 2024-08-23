@@ -8,8 +8,11 @@
 #
 # Perform required imports.
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
+
+# Set constant values
+
+AEDT_VERSION = "2024.2"
 
 # ## Select version and set launch options
 #
@@ -32,10 +35,10 @@ new_thread = True
 # a default setup.
 
 tb = pyaedt.TwinBuilder(
-    projectname=pyaedt.generate_unique_project_name(),
-    specified_version=desktop_version,
+    project=pyaedt.generate_unique_project_name(),
+    version=desktop_version,
     non_graphical=non_graphical,
-    new_desktop_session=new_thread,
+    new_desktop=new_thread,
 )
 tb.modeler.schematic_units = "mil"
 
@@ -86,7 +89,7 @@ E_Value = "E1.V"
 C_Value = "C1.V"
 
 x = tb.post.get_solution_data([E_Value, C_Value], "TR", "Time")
-x.plot([E_Value, C_Value], xlabel="Time", ylabel="Capacitor Voltage vs Input Pulse")
+x.plot([E_Value, C_Value], x_label="Time", y_label="Capacitor Voltage vs Input Pulse")
 
 tb.save_project()
 

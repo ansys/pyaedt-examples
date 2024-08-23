@@ -19,10 +19,14 @@ import os
 import shutil
 import tempfile
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 from pyaedt.emit_core.emit_constants import ResultType, TxRxMode
+
 # -
+
+# Set constant values
+
+AEDT_VERSION = "2024.2"
 
 # ## Set non-graphical mode
 #
@@ -72,22 +76,30 @@ example_pdf = os.path.join(example_dir, pdf_name(example))
 
 # Copy the files to the temporary working directory.
 
-project_name = shutil.copyfile(example_project, os.path.join(temp_dir.name, file_name(example)))
+project_name = shutil.copyfile(
+    example_project, os.path.join(temp_dir.name, file_name(example))
+)
 results_folder = shutil.copytree(
     example_results_folder, os.path.join(temp_dir.name, results_name(example))
 )
-project_pdf = shutil.copyfile(example_pdf, os.path.join(temp_dir.name, pdf_name(example)))
+project_pdf = shutil.copyfile(
+    example_pdf, os.path.join(temp_dir.name, pdf_name(example))
+)
 
 # Open the project in the working directory.
 
-aedtapp = pyaedt.Emit(project_name)
+aedtapp = pyaedt.Emit(project_name, version=AEDT_VERSION)
 
 # ## Create and connect EMIT components
 #
 # Create two radios with antennas connected to each one.
 
-rad1, ant1 = aedtapp.modeler.components.create_radio_antenna("Bluetooth Low Energy (LE)")
-rad2, ant2 = aedtapp.modeler.components.create_radio_antenna("Bluetooth Low Energy (LE)")
+rad1, ant1 = aedtapp.modeler.components.create_radio_antenna(
+    "Bluetooth Low Energy (LE)"
+)
+rad2, ant2 = aedtapp.modeler.components.create_radio_antenna(
+    "Bluetooth Low Energy (LE)"
+)
 
 # ## Define coupling among RF systems
 #

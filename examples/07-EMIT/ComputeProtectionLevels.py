@@ -16,11 +16,16 @@ import subprocess
 import sys
 import tempfile
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 from pyaedt import Emit
 from pyaedt.emit_core.emit_constants import InterfererType
+
 # -
+
+# Set constant values
+
+AEDT_VERSION = "2024.2"
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Python Dependencies
 #
@@ -47,19 +52,11 @@ for package in required_packages:
 
 # Import to support plotting.
 
-# Import required modules
 import plotly.graph_objects as go
-
-# ## Set non-graphical mode
-#
-# Set non-graphical mode.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
-
-non_graphical = False
 
 # ## Create temporary directory
 
-temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch AEDT with EMIT
 #
@@ -72,9 +69,9 @@ if AEDT_VERSION <= "2023.1":
     print("Warning: this example requires AEDT 2023.2 or later.")
     sys.exit()
 
-project_name = pyaedt.generate_unique_project_name(rootname=temp_dir.name, project_name="emit")
-d = pyaedt.launch_desktop(AEDT_VERSION, non_graphical, True)
-emitapp = Emit(project_name)
+project_name = os.path.join(temp_dir.name, "emit.aedt")
+d = pyaedt.launch_desktop(AEDT_VERSION, NG_MODE, True)
+emitapp = Emit(project_name, version=AEDT_VERSION)
 
 # ## Specify the protection levels
 #
@@ -94,7 +91,12 @@ overload_threshold = -4
 intermod_threshold = -30
 desense_threshold = -104
 
-protection_levels = [damage_threshold, overload_threshold, intermod_threshold, desense_threshold]
+protection_levels = [
+    damage_threshold,
+    overload_threshold,
+    intermod_threshold,
+    desense_threshold,
+]
 # -
 
 # ## Create and connect EMIT components
@@ -102,9 +104,12 @@ protection_levels = [damage_threshold, overload_threshold, intermod_threshold, d
 # Set up the scenario with radios connected to antennas.
 
 bluetooth, blue_ant = emitapp.modeler.components.create_radio_antenna(
-                      "Bluetooth Low Energy (LE)", "Bluetooth")
+    "Bluetooth Low Energy (LE)", "Bluetooth"
+)
 gps, gps_ant = emitapp.modeler.components.create_radio_antenna("GPS Receiver", "GPS")
-wifi, wifi_ant = emitapp.modeler.components.create_radio_antenna("WiFi - 802.11-2012", "WiFi")
+wifi, wifi_ant = emitapp.modeler.components.create_radio_antenna(
+    "WiFi - 802.11-2012", "WiFi"
+)
 
 # ## Configure the radios
 #
@@ -124,6 +129,7 @@ bands = bluetooth.bands()
 for band in bands:
     band.set_band_power_level(-20)
 
+
 def get_radio_node(radio_name):
     """Get the radio node that matches the
     given radio name.
@@ -140,6 +146,7 @@ def get_radio_node(radio_name):
     else:
         radio = wifi
     return radio
+
 
 bands = gps.bands()
 for band in bands:
@@ -181,7 +188,10 @@ def create_legend_table():
                     font=dict(color="white", size=16),
                 ),
                 cells=dict(
-                    values=[["Damage", "Overload", "Intermodulation", "Clear"], protectionLevels],
+                    values=[
+                        ["Damage", "Overload", "Intermodulation", "Clear"],
+                        protectionLevels,
+                    ],
                     line_color="darkslategray",
                     fill_color=["white", ["red", "orange", "yellow", "green"]],
                     align=["left", "center"],
@@ -192,7 +202,9 @@ def create_legend_table():
     )
     fig.update_layout(
         title=dict(
-            text="Protection Levels (dBm)", font=dict(color="darkslategray", size=20), x=0.5
+            text="Protection Levels (dBm)",
+            font=dict(color="darkslategray", size=20),
+            x=0.5,
         ),
         width=600,
     )
@@ -238,7 +250,9 @@ def create_scenario_view(emis, colors, tx_radios, rx_radios):
     )
     fig.update_layout(
         title=dict(
-            text="Protection Levels (dBm)", font=dict(color="darkslategray", size=20), x=0.5
+            text="Protection Levels (dBm)",
+            font=dict(color="darkslategray", size=20),
+            x=0.5,
         ),
         width=600,
     )
@@ -281,6 +295,11 @@ if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
 
 emitapp.release_desktop()
 
-# ## Clean temporary directory
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
 temp_dir.cleanup()

@@ -9,27 +9,31 @@
 #
 # Perform required imports.
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
+import tempfile
+import time
+
 import pyaedt
 
-# ## Initialize Maxwell 2D
-#
-# Initialize Maxwell 2D, providing the version, path to the project, and the design
-# name and type.
+# ## Define constants
 
-aedt_version = AEDT_VERSION
-setup_name = "MySetupAuto"
-solver = "Electrostatic"
-design_name = "Design1"
-project_name = pyaedt.generate_unique_project_name()
-non_graphical = False
+AEDT_VERSION = "2024.2"
+NG_MODE = False
+
+# ## Create temporary directory and download files
+#
+# Create a temporary directory where we store downloaded data or
+# dumped data.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
+
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Download .xlsx file
 #
 # Set local temporary folder to export the .xlsx file to.
 
 file_name_xlsx = pyaedt.downloads.download_file(
-    directory="field_line_traces", filename="my_copper.xlsx"
+    source="field_line_traces", name="my_copper.xlsx", destination=temp_folder.name
 )
 
 # ## Initialize dictionaries
@@ -55,26 +59,26 @@ geom_params_rectangle = {
 }
 # -
 
-# ## Launch Maxwell 2D
+# ## Launch AEDT and Maxwell 2D
 #
-# Launch Maxwell 2D and save the project.
+# Launch AEDT and Maxwell 2D after first setting up the project and design names,
+# the solver, and the version. The following code also creates an instance of the
+# ``Maxwell2d`` class named ``m2d``.
 
 m2d = pyaedt.Maxwell2d(
-    projectname=project_name,
-    specified_version=aedt_version,
-    designname=design_name,
-    solution_type=solver,
-    new_desktop_session=True,
-    non_graphical=non_graphical,
+    project=pyaedt.generate_unique_project_name(),
+    version=AEDT_VERSION,
+    design="Design1",
+    solution_type="Electrostatic",
+    new_desktop=True,
+    non_graphical=NG_MODE,
 )
 
-# ## Create object to access 2D modeler
+# ## Set modeler units
 #
-# Create the object ``mod_2d`` to access the 2D modeler easily.
+# Set modeler units to ``mm``.
 
-mod_2d = m2d.modeler
-mod_2d.delete()
-mod_2d.model_units = "mm"
+m2d.modeler.model_units = "mm"
 
 # ## Define variables from dictionaries
 #
@@ -93,78 +97,78 @@ mats = m2d.materials.import_materials_from_excel(file_name_xlsx)
 
 # ## Create design geometries
 #
-# Create rectangle and a circle and assign the material read from the .xlsx file.
+# Create a rectangle and a circle and assign the material read from the .xlsx file.
 # Create two new polylines and a region.
 
 # +
-rect = mod_2d.create_rectangle(
-    position=["r_x0", "r_y0", "r_z0"],
-    dimension_list=["r_dx", "r_dy", 0],
+rect = m2d.modeler.create_rectangle(
+    origin=["r_x0", "r_y0", "r_z0"],
+    sizes=["r_dx", "r_dy", 0],
     name="Ground",
-    matname=mats[0],
+    material=mats[0],
 )
 rect.color = (0, 0, 255)  # rgb
 rect.solve_inside = False
 
-circle = mod_2d.create_circle(
-    position=["circle_x0", "circle_y0", "circle_z0"],
+circle = m2d.modeler.create_circle(
+    origin=["circle_x0", "circle_y0", "circle_z0"],
     radius="circle_radius",
     num_sides="0",
     is_covered=True,
     name="Electrode",
-    matname=mats[0],
+    material=mats[0],
 )
 circle.color = (0, 0, 255)  # rgb
 circle.solve_inside = False
 
 poly1_points = [[-9, 2, 0], [-4, 2, 0], [2, -2, 0], [8, 2, 0]]
 poly2_points = [[-9, 0, 0], [9, 0, 0]]
-poly1_id = mod_2d.create_polyline(position_list=poly1_points, segment_type="Spline", name="Poly1")
-poly2_id = mod_2d.create_polyline(position_list=poly2_points, name="Poly2")
-mod_2d.split(objects=[poly1_id, poly2_id], plane="YZ", sides="NegativeOnly")
-mod_2d.create_region(pad_percent=[20, 100, 20, 100])
+poly1_id = m2d.modeler.create_polyline(
+    points=poly1_points, segment_type="Spline", name="Poly1"
+)
+poly2_id = m2d.modeler.create_polyline(points=poly2_points, name="Poly2")
+m2d.modeler.split(assignment=[poly1_id, poly2_id], plane="YZ", sides="NegativeOnly")
+m2d.modeler.create_region(pad_value=[20, 100, 20, 100])
 # -
 
 # ## Define excitations
 #
 # Assign voltage excitations to rectangle and circle.
 
-m2d.assign_voltage(rect.id, amplitude=0, name="Ground")
-m2d.assign_voltage(circle.id, amplitude=50e6, name="50kV")
+m2d.assign_voltage(assignment=rect.id, amplitude=0, name="Ground")
+m2d.assign_voltage(assignment=circle.id, amplitude=50e6, name="50kV")
 
 # ## Create initial mesh settings
 #
 # Assign a surface mesh to the rectangle.
 
-m2d.mesh.assign_surface_mesh_manual(names=["Ground"], surf_dev=0.001)
+m2d.mesh.assign_surface_mesh_manual(assignment=["Ground"], surface_deviation=0.001)
 
 # ## Create, validate and analyze the setup
 #
 # Create, update, validate and analyze the setup.
 
-setup = m2d.create_setup(setupname=setup_name)
+setup_name = "MySetupAuto"
+setup = m2d.create_setup(name=setup_name)
 setup.props["PercentError"] = 0.5
 setup.update()
 m2d.validate_simple()
-m2d.analyze_setup(setup_name)
+m2d.analyze_setup(name=setup_name)
 
 # ## Evaluate the E Field tangential component
 #
 # Evaluate the E Field tangential component along the given polylines.
 # Add these operations to the Named Expression list in Field Calculator.
 
-fields = m2d.ofieldsreporter
-fields.CalcStack("clear")
-fields.EnterQty("E")
-fields.EnterEdge("Poly1")
-fields.CalcOp("Tangent")
-fields.CalcOp("Dot")
-fields.AddNamedExpression("e_tan_poly1", "Fields")
-fields.EnterQty("E")
-fields.EnterEdge("Poly2")
-fields.CalcOp("Tangent")
-fields.CalcOp("Dot")
-fields.AddNamedExpression("e_tan_poly2", "Fields")
+e_line = m2d.post.fields_calculator.add_expression(
+    calculation="e_line", assignment=None
+)
+m2d.post.fields_calculator.expression_plot(
+    calculation="e_line", assignment="Poly1", names=[e_line]
+)
+m2d.post.fields_calculator.expression_plot(
+    calculation="e_line", assignment="Poly12", names=[e_line]
+)
 
 # ## Create Field Line Traces Plot
 #
@@ -194,24 +198,21 @@ plot.update()
 # For field lint traces plot, the export file format is ``.fldplt``.
 
 m2d.post.export_field_plot(
-    plotname="LineTracesTest", filepath=m2d.toolkit_directory, file_format="fldplt"
+    plot_name="LineTracesTest", output_dir=temp_folder.name, file_format="fldplt"
 )
-
-# ## Export a field plot to an image file
-#
-# Export the flux lines plot to an image file using PyVista Python package.
-
-m2d.post.plot_field_from_fieldplot(plot.name, show=False)
 
 # ## Export the mesh field plot
 #
 # Export the mesh in ``aedtplt`` format.
 
-m2d.post.export_mesh_obj(setup_name=m2d.nominal_adaptive)
+m2d.post.export_mesh_obj(setup=m2d.nominal_adaptive)
 
-# ## Save project and close AEDT
+# ## Save project, release AEDT and clean up temporary directory
 #
-# Save the project and close AEDT.
+# Save project, release AEDT and remove both the project and temporary directory.
 
 m2d.save_project()
 m2d.release_desktop()
+
+time.sleep(3)
+temp_folder.cleanup()

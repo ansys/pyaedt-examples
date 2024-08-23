@@ -11,10 +11,14 @@
 import os
 import tempfile
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION, NUM_CORES
 import pyaedt
-
 # -
+
+# Set constant values
+
+AEDT_VERSION = "2024.2"
+NUM_CORES = 4
+
 
 # ## Create temporary directory
 #
@@ -39,10 +43,10 @@ project_name = pyaedt.downloads.download_via_wizard(destination=temp_dir.name)
 # Initialize HFSS.
 
 hfss = pyaedt.Hfss(
-    projectname=project_name,
-    specified_version=AEDT_VERSION,
+    project=project_name,
+    version=AEDT_VERSION,
     non_graphical=non_graphical,
-    new_desktop_session=True,
+    new_desktop=True,
 )
 hfss.change_material_override(True)
 
@@ -50,7 +54,7 @@ hfss.change_material_override(True)
 #
 # Initialize Circuit and add the HFSS dynamic link component.
 
-circuit = pyaedt.Circuit()
+circuit = pyaedt.Circuit(version=AEDT_VERSION)
 hfss_comp = circuit.modeler.schematic.add_subcircuit_dynamic_link(pyaedt_app=hfss)
 
 # ## Set up dynamic link options
@@ -95,7 +99,7 @@ source.phase = 0
 # Create a setup.
 
 setup_name = "MySetup"
-LNA_setup = circuit.create_setup(setupname=setup_name)
+LNA_setup = circuit.create_setup(name=setup_name)
 sweep_list = ["LINC", str(4.3) + "GHz", str(4.4) + "GHz", str(1001)]
 LNA_setup.props["SweepDefinition"]["Data"] = " ".join(sweep_list)
 
@@ -104,14 +108,14 @@ LNA_setup.props["SweepDefinition"]["Data"] = " ".join(sweep_list)
 # Solve the circuit and push excitations to the HFSS model to calculate the
 # correct value of losses.
 
-circuit.analyze(num_cores=NUM_CORES)
-circuit.push_excitations(instance_name="S1", setup_name=setup_name)
+circuit.analyze(cores=NUM_CORES)
+circuit.push_excitations(instance="S1", setup=setup_name)
 
 # ## Start Mechanical
 #
 # Start Mechanical and copy bodies from the HFSS project.
 
-mech = pyaedt.Mechanical()
+mech = pyaedt.Mechanical(version=AEDT_VERSION)
 mech.copy_solid_bodies_from(design=hfss)
 mech.change_material_override(True)
 
@@ -120,7 +124,7 @@ mech.change_material_override(True)
 # Get losses from HFSS and assign the convection to Mechanical.
 
 mech.assign_em_losses(
-    designname=hfss.design_name,
+    design=hfss.design_name,
     setupname=hfss.setups[0].name,
     sweepname="LastAdaptive",
     map_frequency=hfss.setups[0].props["Frequency"],
@@ -145,11 +149,11 @@ mech.plot(show=False, export_path=os.path.join(temp_dir.name, "Mech.jpg"), plot_
 
 mech.create_setup()
 mech.save_project()
-mech.analyze(num_cores=NUM_CORES)
+mech.analyze(cores=NUM_CORES)
 surfaces = []
 for name in mech.get_all_conductors_names():
     surfaces.extend(mech.modeler.get_object_faces(name))
-mech.post.create_fieldplot_surface(objlist=surfaces, quantityName="Temperature")
+mech.post.create_fieldplot_surface(assignment=surfaces, quantity="Temperature")
 
 # ## Release AEDT and clean up temporary directory
 #

@@ -14,9 +14,12 @@
 import os
 import shutil
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
 import matplotlib.pyplot as plt
 from pyaedt import TwinBuilder, downloads, generate_unique_folder_name, generate_unique_project_name
+
+# Set constant values
+
+AEDT_VERSION = "2024.2"
 
 # ## Select version and set launch options
 #
@@ -65,10 +68,10 @@ shutil.copyfile(
 # a default setup for building the dynamic ROM component.
 
 tb = TwinBuilder(
-    projectname=generate_unique_project_name(),
-    specified_version=desktop_version,
+    project=generate_unique_project_name(),
+    version=desktop_version,
     non_graphical=non_graphical,
-    new_desktop_session=new_thread,
+    new_desktop=new_thread,
 )
 
 # ## Desktop Configuration

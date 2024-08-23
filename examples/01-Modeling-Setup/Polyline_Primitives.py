@@ -3,38 +3,37 @@
 # This example shows how you can use PyAEDT to create and manipulate polylines.
 
 
-# ## Perform required imports
-#
-# Perform required imports.
+# ## Preparation
+# Import the required packages
 
 import os
 import tempfile
+import time
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 
-# ## Set non-graphical mode
-# Set non-graphical mode.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
+# Define constants
 
-non_graphical = False
+AEDT_VERSION = "2024.2"
+NG_MODE = False  # Open Electronics UI when the application is launched.
+
 
 # ## Create temporary directory
 
-temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Create Maxwell 3D object
 #
 # Create a `Maxwell3d` object and set the unit type to ``"mm"``.
 
-project_name = pyaedt.generate_unique_project_name(rootname=temp_dir.name, project_name="polyline")
+project_name = os.path.join(temp_dir.name, "polyline.aedt")
 maxwell = pyaedt.Maxwell3d(
-    projectname=project_name,
+    project=project_name,
     solution_type="Transient",
-    designname="test_polyline_3D",
-    specified_version=AEDT_VERSION,
-    new_desktop_session=True,
-    non_graphical=non_graphical,
+    design="test_polyline_3D",
+    version=AEDT_VERSION,
+    new_desktop=True,
+    non_graphical=NG_MODE,
 )
 maxwell.modeler.model_units = "mm"
 modeler = maxwell.modeler
@@ -70,8 +69,7 @@ test_points = [
 # segments. The supported segment types are ``Line``, ``Arc`` (3 points),
 # ``AngularArc`` (center-point + angle), and ``Spline``.
 
-line1 = modeler.create_polyline(position_list=test_points[0:2], name="PL01_line")
-
+line1 = modeler.create_polyline(points=test_points[0:2], name="PL01_line")
 print("Created Polyline with name: {}".format(modeler.objects[line1.id].name))
 print("Segment types : {}".format([s.type for s in line1.segment_types]))
 print("primitive id = {}".format(line1.id))
@@ -81,19 +79,24 @@ print("primitive id = {}".format(line1.id))
 # Create an arc primitive. The parameter ``position_list`` must contain at
 # least three position values. The first three position values are used.
 
-line2 = modeler.create_polyline(position_list=test_points[0:3], segment_type="Arc", name="PL02_arc")
-
-print("Created object with id {} and name {}.".format(line2.id, modeler.objects[line2.id].name))
+line2 = modeler.create_polyline(
+    points=test_points[0:3], segment_type="Arc", name="PL02_arc"
+)
+print(
+    "Created object with id {} and name {}.".format(
+        line2.id, modeler.objects[line2.id].name
+    )
+)
 
 # ## Create spline primitive
 #
 # Create a spline primitive. Defining the segment using a ``PolylineSegment``
 # object allows you to provide additional input parameters for the spine, such
-# as the number of points (in this case 4). The parameter ``position_list``
+# as the number of points (in this case 4). The parameter ``points``
 # must contain at least four position values.
 
 line3 = modeler.create_polyline(
-    position_list=test_points,
+    points=test_points,
     segment_type=modeler.polyline_segment("Spline", num_points=4),
     name="PL03_spline_4pt",
 )
@@ -106,14 +109,16 @@ line3 = modeler.create_polyline(
 # plane of the active coordinate system. The starting point and the center point
 # must therefore have one coordinate value (X, Y, or Z) with the same value.
 #
-# Here ``start-point`` and ``center-point`` have a common Z coordinate, ``"0mm"``.
-# The curve is therefore rotated in the XY plane with Z = ``"0mm"``.
+# Here ``start-point`` and ``center-point`` have a common Z position, ``"0mm"``.
+# The curve therefore lies in the XY plane at $ z = 0 $.
 
 start_point = [100, 100, 0]
 center_point = [0, 0, 0]
 line4 = modeler.create_polyline(
-    position_list=[start_point],
-    segment_type=modeler.polyline_segment("AngularArc", arc_center=center_point, arc_angle="30deg"),
+    points=[start_point],
+    segment_type=modeler.polyline_segment(
+        "AngularArc", arc_center=center_point, arc_angle="30deg"
+    ),
     name="PL04_center_point_arc",
 )
 
@@ -125,14 +130,14 @@ line4 = modeler.create_polyline(
 start_point = [100, 0, 0]
 center_point = [0, 0, 0]
 line4_xy = modeler.create_polyline(
-    position_list=[start_point],
+    points=[start_point],
     segment_type=modeler.polyline_segment(
         "AngularArc", arc_center=center_point, arc_angle="30deg", arc_plane="XY"
     ),
     name="PL04_center_point_arc_rot_XY",
 )
 line4_zx = modeler.create_polyline(
-    position_list=[start_point],
+    points=[start_point],
     segment_type=modeler.polyline_segment(
         "AngularArc", arc_center=center_point, arc_angle="30deg", arc_plane="ZX"
     ),
@@ -141,36 +146,36 @@ line4_zx = modeler.create_polyline(
 
 # ## Compound polylines
 #
-# You can use a list of points in a single command to create a multi-segment
+# You can pass a list of points to the ``create_polyline()`` method to create a multi-segment
 # polyline.
 #
-# By default, if no specification of the type of segments is given, all points
-# are connected by line segments.
+# If the type of segment is not specified, all points
+# are connected by straight line segments.
 
-line6 = modeler.create_polyline(position_list=test_points, name="PL06_segmented_compound_line")
+line6 = modeler.create_polyline(points=test_points, name="PL06_segmented_compound_line")
 
-# You can specify the segment type with the parameter ``segment_type``.
-# In this case, you must specify that the four input points in ``position_list``
-# are to be connected as a line segment followed by a 3-point arc segment.
+# You can specify the segment type as an optional named argument to
+# define the segment type used to connect the points.
 
 line5 = modeler.create_polyline(
-    position_list=test_points, segment_type=["Line", "Arc"], name="PL05_compound_line_arc"
+    points=test_points, segment_type=["Line", "Arc"], name="PL05_compound_line_arc"
 )
 
-# The parameter ``close_surface`` ensures that the polyline starting point and
-# ending point are the same. If necessary, you can add an additional line
-# segment to achieve this.
+# Setting the named argument ``close_surface=True`` ensures
+# that the polyline starting point and
+# ending point are the same. You can also explicitly close the
+# polyline by setting the last point equal
+# to the first point in the list of points.
 
 line7 = modeler.create_polyline(
-    position_list=test_points, close_surface=True, name="PL07_segmented_compound_line_closed"
+    points=test_points, close_surface=True, name="PL07_segmented_compound_line_closed"
 )
 
-# The parameter ``cover_surface=True`` also performs the modeler command
-# ``cover_surface``. Note that specifying ``cover_surface=True`` automatically
-# results in the polyline being closed.
+# Setting the named argument ``cover_surface=True`` also
+# covers the polyline and creates a sheet object.
 
 line_cover = modeler.create_polyline(
-    position_list=test_points, cover_surface=True, name="SPL01_segmented_compound_line"
+    points=test_points, cover_surface=True, name="SPL01_segmented_compound_line"
 )
 
 # ## Compound lines
@@ -186,13 +191,13 @@ line_cover = modeler.create_polyline(
 # inserted after the first segment of the original polyline.
 
 line8_segment = modeler.create_polyline(
-    position_list=test_points, close_surface=True, name="PL08_segmented_compound_insert_segment"
+    points=test_points,
+    close_surface=True,
+    name="PL08_segmented_compound_insert_segment",
 )
-
 points_line8_segment = line8_segment.points[1]
 insert_point = ["-100mm", "20mm", "0mm"]
-
-line8_segment.insert_segment(position_list=[insert_point, points_line8_segment])
+line8_segment.insert_segment(points=[insert_point, points_line8_segment])
 
 # ### Insert compound line with insert curve
 #
@@ -201,8 +206,9 @@ line8_segment.insert_segment(position_list=[insert_point, points_line8_segment])
 # By numerical comparison of the starting point, it is determined automatically
 # that the segment is inserted after the first segment of the original polyline.
 
+# +
 line8_segment_arc = modeler.create_polyline(
-    position_list=test_points, close_surface=False, name="PL08_segmented_compound_insert_arc"
+    points=test_points, close_surface=False, name="PL08_segmented_compound_insert_arc"
 )
 
 start_point = line8_segment_arc.vertex_positions[1]
@@ -210,8 +216,9 @@ insert_point1 = ["90mm", "20mm", "0mm"]
 insert_point2 = [40, 40, 0]
 
 line8_segment_arc.insert_segment(
-    position_list=[start_point, insert_point1, insert_point2], segment="Arc"
+    points=[start_point, insert_point1, insert_point2], segment="Arc"
 )
+# -
 
 # ## Insert compound line at end of a center-point arc
 #
@@ -220,32 +227,32 @@ line8_segment_arc.insert_segment(
 #
 # Step 1: Draw a center-point arc.
 
+# +
 start_point = [2200.0, 0.0, 1200.0]
 arc_center_1 = [1400, 0, 800]
 arc_angle_1 = "43.47deg"
 
 line_arc = modeler.create_polyline(
     name="First_Arc",
-    position_list=[start_point],
+    points=[start_point],
     segment_type=modeler.polyline_segment(
         type="AngularArc", arc_angle=arc_angle_1, arc_center=arc_center_1
     ),
 )
+# -
 
 # Step 2: Insert a line segment at the end of the arc with a specified end point.
 
 start_of_line_segment = line_arc.end_point
 end_of_line_segment = [3600, 200, 30]
-
-line_arc.insert_segment(position_list=[start_of_line_segment, end_of_line_segment])
+line_arc.insert_segment(points=[start_of_line_segment, end_of_line_segment])
 
 # Step 3: Append a center-point arc segment to the line object.
 
 arc_angle_2 = "39.716deg"
 arc_center_2 = [3400, 200, 3800]
-
 line_arc.insert_segment(
-    position_list=[end_of_line_segment],
+    points=[end_of_line_segment],
     segment=modeler.polyline_segment(
         type="AngularArc", arc_center=arc_center_2, arc_angle=arc_angle_2
     ),
@@ -255,11 +262,15 @@ line_arc.insert_segment(
 # a single step.
 
 modeler.create_polyline(
-    position_list=[start_point, end_of_line_segment],
+    points=[start_point, end_of_line_segment],
     segment_type=[
-        modeler.polyline_segment(type="AngularArc", arc_angle="43.47deg", arc_center=arc_center_1),
+        modeler.polyline_segment(
+            type="AngularArc", arc_angle="43.47deg", arc_center=arc_center_1
+        ),
         modeler.polyline_segment(type="Line"),
-        modeler.polyline_segment(type="AngularArc", arc_angle=arc_angle_2, arc_center=arc_center_2),
+        modeler.polyline_segment(
+            type="AngularArc", arc_angle=arc_angle_2, arc_center=arc_center_2
+        ),
     ],
     name="Compound_Polyline_One_Command",
 )
@@ -271,7 +282,7 @@ modeler.create_polyline(
 # the position list.
 
 line_three_points = modeler.create_polyline(
-    position_list=[
+    points=[
         [34.1004, 14.1248, 0],
         [27.646, 16.7984, 0],
         [24.9725, 10.3439, 0],
@@ -281,7 +292,7 @@ line_three_points = modeler.create_polyline(
     cover_surface=True,
     close_surface=True,
     name="line_covered",
-    matname="vacuum",
+    material="vacuum",
 )
 
 # Here is an example of a complex polyline where the number of points is
@@ -304,14 +315,13 @@ line_points = [
 
 line_segments = ["Line", "Arc", "Line", "Arc", "Line"]
 line_complex1 = modeler.create_polyline(
-    line_points, segment_type=line_segments, name="Polyline_example"
+    points=line_points, segment_type=line_segments, name="Polyline_example"
 )
 
 # Here is an example that provides more points than the segment list requires.
 # This is valid usage. The remaining points are ignored.
 
 line_segments = ["Line", "Arc", "Line", "Arc"]
-
 line_complex2 = modeler.create_polyline(
     line_points, segment_type=line_segments, name="Polyline_example2"
 )
@@ -320,16 +330,17 @@ line_complex2 = modeler.create_polyline(
 #
 # Save the project.
 
-project_dir = temp_dir.name
-project_name = "Polylines"
-project_file = os.path.join(project_dir, project_name + ".aedt")
-
-maxwell.save_project(project_file)
-
-# ## Release AEDT
-
+maxwell.save_project()
 maxwell.release_desktop()
+time.sleep(
+    3
+)  # Allow Electronics Desktop to shut down before cleaning the temporary project folder.
 
-# ## Clean temporary directory
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes
+# all temporary files, including the project folder.
 
 temp_dir.cleanup()

@@ -1,27 +1,57 @@
-# # Multiphysics: HFSS-Icepak multiphysics analysis
+# # Multiphysics: Circuit-HFSS-Icepak coupling workflow
 #
-# This example shows how you can create a project from scratch in HFSS and Icepak (linked to HFSS).
-# This includes creating a setup, solving it, and creating postprocessing outputs.
+# This example demonstrates how to create a two-way coupling
+# between Circuit-HFSS designs and Icepak.
 #
-# To provide the advanced postprocessing features needed for this example, the ``numpy``,
-# ``matplotlib``, and ``pyvista`` packages must be installed on the machine.
+# Let’s consider a design where some components are simulated in
+# HFSS with a full 3D model, while others are simulated in Circuit as lumped elements.
+# The electrical simulation is done by placing the HFSS design into a Circuit design as
+# a subcomponent and by connecting the lumped components to its ports.
 #
-# This examples runs only on Windows using CPython.
+# The purpose of the workflow is to perform a thermal simulation
+# of the Circuit-HFSS design, creating a two-way coupling with Icepak
+# that allows running multiple iterations. The losses from both designs
+# are accounted for: EM losses are evaluated by the HFSS
+# solver and fed into Icepak via a direct link, while losses
+# from the lumped components in the Circuit design are evaluated
+# analytically and must be manually set into the Icepak boundary.
+#
+# On the way back of the coupling, temperature information
+# is handled differently for HFSS and Circuit. For HFSS, a temperature
+# map is exported from the Icepak design and used to create a
+# 3D dataset; then the material properties in the HFSS design
+# are updated based on this dataset. For Circuit, the average
+# temperature of the lumped components is extracted from the
+# Icepak design and used to update the temperature-dependent
+# characteristics of the lumped components in Circuit.
+#
+# In this example, the Circuit design contains only a
+# resistor component, with temperature-dependent resistance
+# described by this formula: 0.162*(1+0.004*(TempE-TempE0)),
+# where TempE is the current temperature and TempE0 is the
+# ambient temperature. The HFSS design includes only a cylinder
+# with temperature-dependent material conductivity, defined by
+# a 2D dataset. The resistor and the cylinder have
+# matching resistances.
+#
+# The workflow steps are as follows:
 
 # ## Perform required imports
 #
 # Perform required imports.
 
-# +
 import os
 import tempfile
 import time
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION, NUM_CORES
 import pyaedt
 from pyaedt.generic.pdf import AnsysReport
 
-# -
+# Set constant values
+
+AEDT_VERSION = "2024.2"
+NUM_CORES = 4
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary directory
 #
@@ -29,23 +59,18 @@ from pyaedt.generic.pdf import AnsysReport
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ## Setup
-#
-# Set non-graphical mode.
-
-non_graphical = False
-
 # ## Launch AEDT and initialize HFSS
 #
 # Launch AEDT and initialize HFSS. If there is an active HFSS design, the ``hfss``
 # object is linked to it. Otherwise, a new design is created.
 
 hfss = pyaedt.Hfss(
-    projectname=os.path.join(temp_dir.name, "Icepak_HFSS_Coupling"),
-    designname="RF",
-    specified_version=AEDT_VERSION,
-    non_graphical=non_graphical,
-    new_desktop_session=True,
+    project=os.path.join(temp_dir.name, "Icepak_HFSS_Coupling"),
+    design="RF",
+    version=AEDT_VERSION,
+    non_graphical=NG_MODE,
+    new_desktop=True,
+    solution_type="Modal",
 )
 
 # ## Parameters
@@ -66,27 +91,27 @@ hfss["inner"] = "3mm"  # Local "Design" scope.
 # Optionally, you can assign a material using the `assign_material` method.
 
 o1 = hfss.modeler.create_cylinder(
-    cs_axis=hfss.PLANE.ZX,
-    position=udp,
+    orientation=hfss.PLANE.ZX,
+    origin=udp,
     radius="inner",
     height="$coax_dimension",
-    numSides=0,
+    num_sides=0,
     name="inner",
 )
 o2 = hfss.modeler.create_cylinder(
-    cs_axis=hfss.PLANE.ZX,
-    position=udp,
+    orientation=hfss.PLANE.ZX,
+    origin=udp,
     radius=8,
     height="$coax_dimension",
-    numSides=0,
-    matname="teflon_based",
+    num_sides=0,
+    name="teflon_based",
 )
 o3 = hfss.modeler.create_cylinder(
-    cs_axis=hfss.PLANE.ZX,
-    position=udp,
+    orientation=hfss.PLANE.ZX,
+    origin=udp,
     radius=10,
     height="$coax_dimension",
-    numSides=0,
+    num_sides=0,
     name="outer",
 )
 
@@ -125,8 +150,10 @@ hfss.modeler.subtract(o2, o1, True)
 # operations.
 
 hfss.mesh.assign_initial_mesh_from_slider(level=6)
-hfss.mesh.assign_model_resolution(names=[o1.name, o3.name], defeature_length=None)
-hfss.mesh.assign_length_mesh(names=o2.faces, isinside=False, maxlength=1, maxel=2000)
+hfss.mesh.assign_model_resolution(assignment=[o1.name, o3.name], defeature_length=None)
+hfss.mesh.assign_length_mesh(
+    assignment=o2.faces, inside_selection=False, maximum_length=1, maximum_elements=2000
+)
 
 # ## Create HFSS Sources
 #
@@ -138,7 +165,7 @@ hfss.mesh.assign_length_mesh(names=o2.faces, isinside=False, maxlength=1, maxel=
 
 # +
 hfss.wave_port(
-    signal="inner",
+    assignment="inner",
     reference="outer",
     integration_line=1,
     create_port_sheet=True,
@@ -147,7 +174,7 @@ hfss.wave_port(
 )
 
 hfss.wave_port(
-    signal="inner",
+    assignment="inner",
     reference="outer",
     integration_line=4,
     create_pec_cap=True,
@@ -177,10 +204,10 @@ setup.props["MaximumPasses"] = 1
 # injected into the structure.
 
 sweepname = hfss.create_linear_count_sweep(
-    setupname="MySetup",
-    unit="GHz",
-    freqstart=0.8,
-    freqstop=1.2,
+    setup="MySetup",
+    units="GHz",
+    start_frequency=0.8,
+    stop_frequency=1.2,
     num_of_freq_points=401,
     sweep_type="Interpolating",
 )
@@ -191,7 +218,7 @@ sweepname = hfss.create_linear_count_sweep(
 # design and the coupled physics analysis can be run. The `FieldAnalysis3D.copy_solid_bodies_from()`
 # method imports a model from HFSS into Icepak including all material definitions.
 
-ipk = pyaedt.Icepak(designname="CalcTemp")
+ipk = pyaedt.Icepak(design="CalcTemp", version=AEDT_VERSION)
 ipk.copy_solid_bodies_from(hfss)
 
 # ## Link RF Thermal Source
@@ -200,12 +227,12 @@ ipk.copy_solid_bodies_from(hfss)
 
 surfaceobj = ["inner", "outer"]
 ipk.assign_em_losses(
-    designname=hfss.design_name,
-    setupname="MySetup",
-    sweepname="LastAdaptive",
+    design=hfss.design_name,
+    setup="MySetup",
+    sweep="LastAdaptive",
     map_frequency="1GHz",
     surface_objects=surfaceobj,
-    paramlist=["$coax_dimension", "inner"],
+    parameters=["$coax_dimension", "inner"],
 )
 
 # ## Assign the Direction of Gravity
@@ -254,7 +281,7 @@ ipk.assign_openings(airfaces)
 # Save project and attach to Icepak instance
 
 hfss.save_project()
-ipk = pyaedt.Icepak()
+ipk = pyaedt.Icepak(version=AEDT_VERSION)
 ipk.solution_type = ipk.SOLUTIONS.Icepak.SteadyTemperatureAndFlow
 ipk.modeler.fit_all()
 
@@ -276,10 +303,10 @@ quantity_name = "ComplexMag_H"
 intrinsic = {"Freq": hfss.setups[0].props["Frequency"], "Phase": "0deg"}
 surface_list = hfss.modeler.get_object_faces("outer")
 plot1 = hfss.post.create_fieldplot_surface(
-    objlist=surface_list,
-    quantityName=quantity_name,
-    setup_name=hfss.nominal_adaptive,
-    intrinsincDict=intrinsic,
+    assignment=surface_list,
+    quantity=quantity_name,
+    setup=hfss.nominal_adaptive,
+    intrinsics=intrinsic,
 )
 
 hfss.post.plot_field_from_fieldplot(
@@ -306,13 +333,13 @@ phase_values = [str(i * 5) + "deg" for i in range(18)]
 
 animated = hfss.post.plot_animated_field(
     quantity="Mag_E",
-    object_list=cutlist,
+    assignment=cutlist,
     plot_type="CutPlane",
-    setup_name=hfss.nominal_adaptive,
+    setup=hfss.nominal_adaptive,
     intrinsics=intrinsic,
     export_path=temp_dir.name,
     variation_variable="Phase",
-    variation_list=phase_values,
+    variations=phase_values,
     show=False,
     export_gif=False,
     log_scale=True,
@@ -328,7 +355,7 @@ end_time = time.time() - start
 print("Total Time", end_time)
 # -
 
-# ## Create Icepak plots and export
+# ## Postprocessing
 #
 # Create Icepak plots and export them as images using the same functions that
 # were used early. Only the quantity is different.
@@ -336,15 +363,15 @@ print("Total Time", end_time)
 # +
 setup_name = ipk.existing_analysis_sweeps[0]
 intrinsic = ""
-surface_list = ipk.modeler.get_object_faces("inner") + ipk.modeler.get_object_faces("outer")
-plot5 = ipk.post.create_fieldplot_surface(surface_list, quantityName="SurfTemperature")
+surface_list = ipk.modeler.get_object_faces("inner") + ipk.modeler.get_object_faces(
+    "outer"
+)
+plot5 = ipk.post.create_fieldplot_surface(surface_list, quantity="SurfTemperature")
 
 hfss.save_project()
 # -
 
-# ## Generate plots outside AEDT
-#
-# Generate plots outside AEDT using Matplotlib and NumPy.
+# Plot results using Matplotlib.
 
 trace_names = hfss.get_traces_for_plot(category="S")
 context = ["Domain:=", "Sweep"]
@@ -352,16 +379,14 @@ families = ["Freq:=", ["All"]]
 my_data = hfss.post.get_solution_data(expressions=trace_names)
 my_data.plot(
     trace_names,
-    math_formula="db20",
-    xlabel="Frequency (Ghz)",
-    ylabel="SParameters(dB)",
+    formula="db20",
+    x_label="Frequency (Ghz)",
+    y_label="SParameters(dB)",
     title="Scattering Chart",
     snapshot_path=os.path.join(temp_dir.name, "Touchstone_from_matplotlib.jpg"),
 )
 
-# ## Generate PDF pdf_report
-#
-# Generate a PDF pdf_report with simulation results.
+# Create a PDF report summarizig results.
 
 pdf_report = AnsysReport(
     project_name=hfss.project_name, design_name=hfss.design_name, version=AEDT_VERSION
@@ -377,7 +402,9 @@ pdf_report.add_section()
 pdf_report.add_chapter("Hfss Results")
 pdf_report.add_sub_chapter("Field Plot")
 pdf_report.add_text("This section contains Field plots of Hfss Coaxial.")
-pdf_report.add_image(os.path.join(temp_dir.name, plot1.name + ".jpg"), caption="Coaxial Cable")
+pdf_report.add_image(
+    os.path.join(temp_dir.name, plot1.name + ".jpg"), caption="Coaxial Cable"
+)
 
 # Add a page break and a subchapter for S Parameter results
 
@@ -411,5 +438,14 @@ pdf_report.save_pdf(file_path=temp_dir.name, file_name="AEDT_Results.pdf")
 #
 # Release AEDT and clean up temporary directory.
 
+ipk.save_project()
 hfss.release_desktop()
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes
+# all temporary files, including the project folder.
+
 temp_dir.cleanup()

@@ -9,58 +9,57 @@
 #
 # Perform required imports.
 
-# +
 import tempfile
+import time
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
 from pyaedt import Maxwell2d, downloads
 
-# -
+# ## Define constants
+
+AEDT_VERSION = "2024.2"
+NG_MODE = False
 
 # ## Create temporary directory
 #
-# Create temporary directory.
+# The temporary directory is used to run the example and save simulation data.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ## Set non-graphical mode
+# ## Download the project file
 #
-# Set non-graphical mode.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
-
-non_graphical = False
-
-# ## Download .aedt file example
-#
-# Set local temporary folder to export the .aedt file to.
+# The files required to run this example will be downloaded to the temporary working folder.
 
 aedt_file = downloads.download_file(
-    directory="maxwell_ctrl_prg", filename="ControlProgramDemo.aedt", destination=temp_dir.name
+    source="maxwell_ctrl_prg",
+    name="ControlProgramDemo.aedt",
+    destination=temp_folder.name,
 )
 ctrl_prg_file = downloads.download_file(
-    directory="maxwell_ctrl_prg", filename="timestep_only.py", destination=temp_dir.name
+    source="maxwell_ctrl_prg", name="timestep_only.py", destination=temp_folder.name
 )
 
 # ## Launch Maxwell 2D
 #
-# Launch Maxwell 2D.
+# Create an instance of the ``Maxwell2d`` class named ``m2d``.
 
 m2d = Maxwell2d(
-    projectname=aedt_file,
-    specified_version=AEDT_VERSION,
-    new_desktop_session=True,
-    non_graphical=non_graphical,
+    project=aedt_file,
+    version=AEDT_VERSION,
+    new_desktop=True,
+    non_graphical=NG_MODE,
 )
 
 # ## Set active design
 #
-# Set active design.
+# Set the active design.
 
 m2d.set_active_design("1 time step control")
 
-# ## Get design setup
+# ## Retrieve the setup
 #
-# Get design setup to enable the control program to.
+# Get the simulation setup for this design so that the "control program" can be enabled.
 
 setup = m2d.setups[0]
 
@@ -72,22 +71,27 @@ setup.enable_control_program(control_program_path=ctrl_prg_file)
 
 # ## Analyze setup
 #
-# Analyze setup.
+# Run the analysis.
 
 setup.analyze()
 
 # ## Plot results
 #
-# Plot Solved Results.
+# Display the simulation results.
 
 sols = m2d.post.get_solution_data(
-    expressions="FluxLinkage(Winding1)", variations={"Time": ["All"]}, primary_sweep_variable="Time"
+    expressions="FluxLinkage(Winding1)",
+    variations={"Time": ["All"]},
+    primary_sweep_variable="Time",
 )
 sols.plot()
 
 # ## Release AEDT and clean up temporary directory
 #
-# Release AEDT and remove both the project and temporary directories.
+# Release AEDT and remove both the project and temporary directory.
 
 m2d.release_desktop()
-temp_dir.cleanup()
+time.sleep(
+    3
+)  # Allow sufficient time for AEDT to close before cleaning the temporary folder.
+temp_folder.cleanup()

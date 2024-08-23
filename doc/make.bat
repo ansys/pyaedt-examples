@@ -4,6 +4,9 @@ pushd %~dp0
 
 REM Command file for Sphinx documentation
 
+if "%SPHINXOPTS%" == "" (
+	set SPHINXOPTS=-j auto --color
+)
 if "%SPHINXBUILD%" == "" (
 	set SPHINXBUILD=sphinx-build
 )
@@ -22,7 +25,7 @@ if NOT "%is_vtk_osmesa_installed%" == "vtk-osmesa" if "%ON_CI%" == "true" (
 	@ECHO ON
 	echo "Installing vtk-osmesa"
 	@ECHO OFF
-	pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0)
+	pip install --extra-index-url https://wheels.vtk.org vtk-osmesa)
 for /f %%i in ('pip freeze ^| findstr /c:"pypandoc_binary"') do set is_pypandoc_binary_installed=%%i
 if NOT "%is_pypandoc_binary_installed%" == "pypandoc_binary" if "%ON_CI%" == "true" (
 	@ECHO ON
@@ -67,11 +70,10 @@ rmdir /s /q %BUILDDIR% > /NUL 2>&1
 goto end
 
 :html
-echo Building HTML pages with running examples
+echo "Building HTML pages"
 REM %SPHINXBUILD% -M linkcheck %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %LINKCHECKOPTS% %O%
 %SPHINXBUILD% -M html %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
-echo
-echo "Build finished. The HTML pages are in %BUILDDIR%."
+echo "HTML build finished."
 goto end
 
 :pdf
@@ -80,9 +82,9 @@ cd "%BUILDDIR%\latex"
 for %%f in (*.tex) do (
 xelatex "%%f" --interaction=nonstopmode)
 if NOT EXIST pyaedt-examples.pdf (
-	Echo "no pdf generated!"
+	Echo "PDF file not generated!"
 	exit /b 1)
-Echo "pdf generated!"
+Echo "PDF file generated!"
 goto end 	
 
 :end

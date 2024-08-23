@@ -8,27 +8,30 @@
 # Perform required imports.
 
 import csv
-from operator import attrgetter
 import os
+import tempfile
+import time
+from operator import attrgetter
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
 import pyaedt
 
-# ## Initialize Maxwell 2D
-#
-# Initialize Maxwell 2D, providing the version, path to the project, and the design
-# name and type.
+# ## Define constants
 
-aedt_version = AEDT_VERSION
-setup_name = "MySetupAuto"
-solver = "TransientXY"
-project_name = pyaedt.generate_unique_project_name()
-design_name = "Sinusoidal"
+AEDT_VERSION = "2024.2"
+NG_MODE = False
+
+# ## Create temporary directory and download files
+#
+# Create a temporary directory where we store downloaded data or
+# dumped data.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
+
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Initialize dictionaries
 #
-# Initialize dictionaries that contain all the definitions for the design
-# variables and output variables.
+# Dictionaries contain all the definitions for the design variables and output variables.
 
 # ## Initialize definitions for stator, rotor, and shaft
 #
@@ -100,34 +103,26 @@ oper_params = {
     "Theta_i": "135deg",
 }
 
-# ## Set non-graphical mode
+# ## Launch AEDT and Maxwell 2D
 #
-# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to
-# generate documentation only.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
-
-non_graphical = False
-
-# ## Launch Maxwell 2D
-#
-# Launch Maxwell 2D and save the project.
+# Launch AEDT and Maxwell 2D after first setting up the project and design names,
+# the solver, and the version. The following code also creates an instance of the
+# ``Maxwell2d`` class named ``m2d``.
 
 m2d = pyaedt.Maxwell2d(
-    projectname=project_name,
-    specified_version=aedt_version,
-    designname=design_name,
-    solution_type=solver,
-    new_desktop_session=True,
-    non_graphical=non_graphical,
+    project=pyaedt.generate_unique_project_name(),
+    version=AEDT_VERSION,
+    design="Sinusoidal",
+    solution_type="TransientXY",
+    new_desktop=True,
+    non_graphical=NG_MODE,
 )
 
-# ## Create object to access 2D modeler
+# ## Define modeler units
 #
-# Create the object ``mod_2d`` to access the 2D modeler easily.
+# Define modeler units.
 
-mod_2d = m2d.modeler
-mod_2d.delete()
-mod_2d.model_units = "mm"
+m2d.modeler.model_units = "mm"
 
 # ## Define variables from dictionaries
 #
@@ -165,7 +160,7 @@ mat_coils.permeability = "1"
 # is created. This list is passed to the ``mat_PM.permeability.value``
 # method.
 
-mat_PM = m2d.materials.add_material("Arnold_Magnetics_N30UH_80C_new")
+mat_PM = m2d.materials.add_material(name="Arnold_Magnetics_N30UH_80C_new")
 mat_PM.update()
 mat_PM.conductivity = "555555.5556"
 mat_PM.set_magnetic_coercivity(value=-800146.66287534, x=1, y=0, z=0)
@@ -239,10 +234,10 @@ udp_par_list_stator = [
     ["InfoCore", "0"],
 ]
 
-stator_id = mod_2d.create_udp(
-    udp_dll_name="RMxprt/VentSlotCore.dll",
-    udp_parameters_list=udp_par_list_stator,
-    upd_library="syslib",
+stator_id = m2d.modeler.create_udp(
+    dll="RMxprt/VentSlotCore.dll",
+    parameters=udp_par_list_stator,
+    library="syslib",
     name="my_stator",
 )
 
@@ -253,7 +248,7 @@ stator_id = mod_2d.create_udp(
 # Assign properties to the stator. The following code assigns
 # the material, name, color, and  ``solve_inside`` properties.
 
-m2d.assign_material(obj=stator_id, mat="30DH_20C_smooth")
+m2d.assign_material(assignment=stator_id, material="30DH_20C_smooth")
 stator_id.name = "Stator"
 stator_id.color = (0, 0, 255)  # rgb
 
@@ -276,18 +271,18 @@ OM1_points = [
     [63.26490432, 11.15992981, 0],
     [57.94560461, 24.00185531, 0],
 ]
-IPM1_id = mod_2d.create_polyline(
-    position_list=IM1_points,
+IPM1_id = m2d.modeler.create_polyline(
+    points=IM1_points,
     cover_surface=True,
     name="PM_I1",
-    matname="Arnold_Magnetics_N30UH_80C_new",
+    material="Arnold_Magnetics_N30UH_80C_new",
 )
 IPM1_id.color = (0, 128, 64)
-OPM1_id = mod_2d.create_polyline(
-    position_list=OM1_points,
+OPM1_id = m2d.modeler.create_polyline(
+    points=OM1_points,
     cover_surface=True,
     name="PM_O1",
-    matname="Arnold_Magnetics_N30UH_80C_new",
+    material="Arnold_Magnetics_N30UH_80C_new",
 )
 OPM1_id.color = (0, 128, 64)
 
@@ -307,7 +302,7 @@ def create_cs_magnets(pm_id, cs_name, point_direction):
     elif point_direction == "inner":
         my_axis_pos = edges[1]
 
-    mod_2d.create_face_coordinate_system(
+    m2d.modeler.create_face_coordinate_system(
         face=pm_id.faces[0],
         origin=pm_id.faces[0],
         axis_position=my_axis_pos,
@@ -315,7 +310,7 @@ def create_cs_magnets(pm_id, cs_name, point_direction):
         name=cs_name,
     )
     pm_id.part_coordinate_system = cs_name
-    mod_2d.set_working_coordinate_system("Global")
+    m2d.modeler.set_working_coordinate_system("Global")
 
 
 # -
@@ -331,61 +326,73 @@ create_cs_magnets(OPM1_id, "CS_" + OPM1_id.name, "outer")
 #
 # Duplicate and mirror the PMs along with the local coordinate system.
 
-mod_2d.duplicate_and_mirror(
-    objid=[IPM1_id, OPM1_id],
-    position=[0, 0, 0],
-    vector=["cos((360deg/SymmetryFactor/2)+90deg)", "sin((360deg/SymmetryFactor/2)+90deg)", 0],
+m2d.modeler.duplicate_and_mirror(
+    assignment=[IPM1_id, OPM1_id],
+    origin=[0, 0, 0],
+    vector=[
+        "cos((360deg/SymmetryFactor/2)+90deg)",
+        "sin((360deg/SymmetryFactor/2)+90deg)",
+        0,
+    ],
 )
-id_PMs = mod_2d.get_objects_w_string("PM", case_sensitive=True)
+id_PMs = m2d.modeler.get_objects_w_string(string_name="PM", case_sensitive=True)
 
 # ## Create coils
 #
 # Create the coils.
 
-coil_id = mod_2d.create_rectangle(
-    position=["DiaRotorLam/2+Airgap+Coil_SetBack", "-Coil_Edge_Short/2", 0],
-    dimension_list=["Coil_Edge_Long", "Coil_Edge_Short", 0],
+coil_id = m2d.modeler.create_rectangle(
+    origin=["DiaRotorLam/2+Airgap+Coil_SetBack", "-Coil_Edge_Short/2", 0],
+    sizes=["Coil_Edge_Long", "Coil_Edge_Short", 0],
     name="Coil",
     matname="Copper (Annealed)_65C",
 )
 coil_id.color = (255, 128, 0)
-m2d.modeler.rotate(objid=coil_id, cs_axis="Z", angle="360deg/SlotNumber/2")
+m2d.modeler.rotate(assignment=coil_id, axis="Z", angle="360deg/SlotNumber/2")
 coil_id.duplicate_around_axis(
-    cs_axis="Z", angle="360deg/SlotNumber", nclones="CoilPitch+1", create_new_objects=True
+    axis="Z", angle="360deg/SlotNumber", clones="CoilPitch+1", create_new_objects=True
 )
-id_coils = mod_2d.get_objects_w_string("Coil", case_sensitive=True)
+id_coils = m2d.modeler.get_objects_w_string(string_name="Coil", case_sensitive=True)
 
 # ## Create shaft and region
 #
 # Create the shaft and region.
 
-region_id = mod_2d.create_circle(
-    position=[0, 0, 0], radius="DiaOuter/2", num_sides="SegAngle", is_covered=True, name="Region"
+region_id = m2d.modeler.create_circle(
+    origin=[0, 0, 0],
+    radius="DiaOuter/2",
+    num_sides="SegAngle",
+    is_covered=True,
+    name="Region",
 )
-shaft_id = mod_2d.create_circle(
-    position=[0, 0, 0], radius="DiaShaft/2", num_sides="SegAngle", is_covered=True, name="Shaft"
+shaft_id = m2d.modeler.create_circle(
+    origin=[0, 0, 0],
+    radius="DiaShaft/2",
+    num_sides="SegAngle",
+    is_covered=True,
+    name="Shaft",
 )
 
 # ## Create bands
 #
 # Create the inner band, band, and outer band.
 
-bandIN_id = mod_2d.create_circle(
-    position=[0, 0, 0],
+bandIN_id = m2d.modeler.create_circle(
+    origin=[0, 0, 0],
     radius="(DiaGap - (1.5 * Airgap))/2",
     num_sides="mapping_angle",
     is_covered=True,
     name="Inner_Band",
 )
-bandMID_id = mod_2d.create_circle(
-    position=[0, 0, 0],
+bandMID_id = m2d.modeler.create_circle(
+    origin=[0, 0, 0],
     radius="(DiaGap - (1.0 * Airgap))/2",
     num_sides="mapping_angle",
     is_covered=True,
     name="Band",
 )
-bandOUT_id = mod_2d.create_circle(
-    position=[0, 0, 0],
+bandOUT_id = m2d.modeler.create_circle(
+    origin=[0, 0, 0],
     radius="(DiaGap - (0.5 * Airgap))/2",
     num_sides="mapping_angle",
     is_covered=True,
@@ -397,7 +404,7 @@ bandOUT_id = mod_2d.create_circle(
 # Assign a motion setup to a ``Band`` object named ``RotatingBand_mid``.
 
 m2d.assign_rotate_motion(
-    band_object="Band",
+    assignment="Band",
     coordinate_system="Global",
     axis="Z",
     positive_movement=True,
@@ -409,7 +416,13 @@ m2d.assign_rotate_motion(
 #
 # Create a list of vacuum objects and assign color.
 
-vacuum_obj_id = [shaft_id, region_id, bandIN_id, bandMID_id, bandOUT_id]  # put shaft first
+vacuum_obj_id = [
+    shaft_id,
+    region_id,
+    bandIN_id,
+    bandMID_id,
+    bandOUT_id,
+]  # put shaft first
 for item in vacuum_obj_id:
     item.color = (128, 255, 255)
 
@@ -419,28 +432,40 @@ for item in vacuum_obj_id:
 # Allocated PMs are created.
 
 # +
-rotor_id = mod_2d.create_circle(
-    position=[0, 0, 0], radius="DiaRotorLam/2", num_sides=0, name="Rotor", matname="30DH_20C_smooth"
+rotor_id = m2d.modeler.create_circle(
+    origin=[0, 0, 0],
+    radius="DiaRotorLam/2",
+    num_sides=0,
+    name="Rotor",
+    material="30DH_20C_smooth",
 )
 
 rotor_id.color = (0, 128, 255)
-mod_2d.subtract(rotor_id, shaft_id, keep_originals=True)
-void_small_1_id = mod_2d.create_circle(
-    position=[62, 0, 0], radius="2.55mm", num_sides=0, name="void1", matname="vacuum"
+m2d.modeler.subtract(blank_list=rotor_id, tool_list=shaft_id, keep_originals=True)
+void_small_1_id = m2d.modeler.create_circle(
+    origin=[62, 0, 0], radius="2.55mm", num_sides=0, name="void1", material="vacuum"
 )
 
 m2d.modeler.duplicate_around_axis(
-    void_small_1_id, cs_axis="Z", angle="360deg/SymmetryFactor", nclones=2, create_new_objects=False
+    assignment=void_small_1_id,
+    axis="Z",
+    angle="360deg/SymmetryFactor",
+    clones=2,
+    create_new_objects=False,
 )
 
-void_big_1_id = mod_2d.create_circle(
-    position=[29.5643, 12.234389332712, 0],
+void_big_1_id = m2d.modeler.create_circle(
+    origin=[29.5643, 12.234389332712, 0],
     radius="9.88mm/2",
     num_sides=0,
     name="void_big",
-    matname="vacuum",
+    material="vacuum",
 )
-mod_2d.subtract(rotor_id, [void_small_1_id, void_big_1_id], keep_originals=False)
+m2d.modeler.subtract(
+    blank_list=rotor_id,
+    tool_list=[void_small_1_id, void_big_1_id],
+    keep_originals=False,
+)
 
 slot_IM1_points = [
     [37.5302872, 15.54555396, 0],
@@ -455,20 +480,24 @@ slot_OM1_points = [
     [63.53825619, 10.5, 0],
     [57.94560461, 24.00185531, 0],
 ]
-slot_IM_id = mod_2d.create_polyline(
-    position_list=slot_IM1_points, cover_surface=True, name="slot_IM1", matname="vacuum"
+slot_IM_id = m2d.modeler.create_polyline(
+    points=slot_IM1_points, cover_surface=True, name="slot_IM1", material="vacuum"
 )
-slot_OM_id = mod_2d.create_polyline(
-    position_list=slot_OM1_points, cover_surface=True, name="slot_OM1", matname="vacuum"
+slot_OM_id = m2d.modeler.create_polyline(
+    points=slot_OM1_points, cover_surface=True, name="slot_OM1", material="vacuum"
 )
 
 m2d.modeler.duplicate_and_mirror(
-    objid=[slot_IM_id, slot_OM_id],
-    position=[0, 0, 0],
-    vector=["cos((360deg/SymmetryFactor/2)+90deg)", "sin((360deg/SymmetryFactor/2)+90deg)", 0],
+    assignment=[slot_IM_id, slot_OM_id],
+    origin=[0, 0, 0],
+    vector=[
+        "cos((360deg/SymmetryFactor/2)+90deg)",
+        "sin((360deg/SymmetryFactor/2)+90deg)",
+        0,
+    ],
 )
 
-id_holes = mod_2d.get_objects_w_string("slot_", case_sensitive=True)
+id_holes = m2d.modeler.get_objects_w_string(string_name="slot_", case_sensitive=True)
 m2d.modeler.subtract(rotor_id, id_holes, keep_originals=True)
 # -
 
@@ -479,7 +508,7 @@ m2d.modeler.subtract(rotor_id, id_holes, keep_originals=True)
 
 # +
 object_list = [stator_id, rotor_id] + vacuum_obj_id
-mod_2d.create_coordinate_system(
+m2d.modeler.create_coordinate_system(
     origin=[0, 0, 0],
     reference_cs="Global",
     name="Section",
@@ -488,10 +517,10 @@ mod_2d.create_coordinate_system(
     y_pointing=["-sin(360deg/SymmetryFactor)", "cos(360deg/SymmetryFactor)", 0],
 )
 
-mod_2d.set_working_coordinate_system("Section")
-mod_2d.split(object_list, plane="ZX", sides="NegativeOnly")
-mod_2d.set_working_coordinate_system("Global")
-mod_2d.split(object_list, plane="ZX", sides="PositiveOnly")
+m2d.modeler.set_working_coordinate_system("Section")
+m2d.modeler.split(assignment=object_list, plane="ZX", sides="NegativeOnly")
+m2d.modeler.set_working_coordinate_system("Global")
+m2d.modeler.split(assignment=object_list, plane="ZX", sides="PositiveOnly")
 # -
 
 # ## Create boundary conditions
@@ -501,18 +530,24 @@ mod_2d.split(object_list, plane="ZX", sides="PositiveOnly")
 # The points for edge picking are in the airgap.
 
 pos_1 = "((DiaGap - (1.0 * Airgap))/4)"
-id_bc_1 = mod_2d.get_edgeid_from_position(position=[pos_1, 0, 0], obj_name="Region")
-id_bc_2 = mod_2d.get_edgeid_from_position(
-    position=[pos_1 + "*cos((360deg/SymmetryFactor))", pos_1 + "*sin((360deg/SymmetryFactor))", 0],
-    obj_name="Region",
+id_bc_1 = m2d.modeler.get_edgeid_from_position(
+    position=[pos_1, 0, 0], assignment="Region"
+)
+id_bc_2 = m2d.modeler.get_edgeid_from_position(
+    position=[
+        pos_1 + "*cos((360deg/SymmetryFactor))",
+        pos_1 + "*sin((360deg/SymmetryFactor))",
+        0,
+    ],
+    assignment="Region",
 )
 m2d.assign_master_slave(
-    master_edge=id_bc_1,
-    slave_edge=id_bc_2,
+    independent=id_bc_1,
+    dependent=id_bc_2,
     reverse_master=False,
     reverse_slave=True,
     same_as_master=False,
-    bound_name="Matching",
+    boundary="Matching",
 )
 
 # ## Assign vector potential
@@ -520,83 +555,109 @@ m2d.assign_master_slave(
 # Assign a vector potential of ``0`` to the second position.
 
 pos_2 = "(DiaOuter/2)"
-id_bc_az = mod_2d.get_edgeid_from_position(
+id_bc_az = m2d.modeler.get_edgeid_from_position(
     position=[
         pos_2 + "*cos((360deg/SymmetryFactor/2))",
         pos_2 + "*sin((360deg/SymmetryFactor)/2)",
         0,
     ],
-    obj_name="Region",
+    assignment="Region",
 )
-m2d.assign_vector_potential(input_edge=id_bc_az, vectorvalue=0, bound_name="VectorPotentialZero")
+m2d.assign_vector_potential(
+    assignment=id_bc_az, vector_value=0, boundary="VectorPotentialZero"
+)
 
 # ## Create excitations
 #
 # Create excitations, defining phase currents for the windings.
 
-PhA_current = "IPeak * cos(2*pi*ElectricFrequency*time+Theta_i)"
-PhB_current = "IPeak * cos(2*pi * ElectricFrequency*time - 120deg+Theta_i)"
-PhC_current = "IPeak * cos(2*pi * ElectricFrequency*time - 240deg+Theta_i)"
+ph_a_current = "IPeak * cos(2*pi*ElectricFrequency*time+Theta_i)"
+ph_b_current = "IPeak * cos(2*pi * ElectricFrequency*time - 120deg+Theta_i)"
+ph_c_current = "IPeak * cos(2*pi * ElectricFrequency*time - 240deg+Theta_i)"
 
 # ## Define windings in phase A
 #
 # Define windings in phase A.
 
 m2d.assign_coil(
-    input_object=["Coil"], conductor_number=6, polarity="Positive", name="CT_Ph1_P2_C1_Go"
+    assignment=["Coil"],
+    conductors_number=6,
+    polarity="Positive",
+    name="CT_Ph1_P2_C1_Go",
 )
 m2d.assign_coil(
-    input_object=["Coil_5"], conductor_number=6, polarity="Negative", name="CT_Ph1_P2_C1_Ret"
+    assignment=["Coil_5"],
+    conductors_number=6,
+    polarity="Negative",
+    name="CT_Ph1_P2_C1_Ret",
 )
 m2d.assign_winding(
-    coil_terminals=None,
+    assignment=None,
     winding_type="Current",
     is_solid=False,
-    current_value=PhA_current,
+    current=ph_a_current,
     parallel_branches=1,
     name="Phase_A",
 )
-m2d.add_winding_coils(windingname="Phase_A", coil_names=["CT_Ph1_P2_C1_Go", "CT_Ph1_P2_C1_Ret"])
+m2d.add_winding_coils(
+    assignment="Phase_A", coils=["CT_Ph1_P2_C1_Go", "CT_Ph1_P2_C1_Ret"]
+)
 
 # ## Define windings in phase B
 #
 # Define windings in phase B.
 
 m2d.assign_coil(
-    input_object="Coil_3", conductor_number=6, polarity="Positive", name="CT_Ph3_P1_C2_Go"
+    assignment="Coil_3",
+    conductors_number=6,
+    polarity="Positive",
+    name="CT_Ph3_P1_C2_Go",
 )
 m2d.assign_coil(
-    input_object="Coil_4", conductor_number=6, polarity="Positive", name="CT_Ph3_P1_C1_Go"
+    assignment="Coil_4",
+    conductors_number=6,
+    polarity="Positive",
+    name="CT_Ph3_P1_C1_Go",
 )
 m2d.assign_winding(
-    coil_terminals=None,
+    assignment=None,
     winding_type="Current",
     is_solid=False,
-    current_value=PhB_current,
+    current=ph_b_current,
     parallel_branches=1,
     name="Phase_B",
 )
-m2d.add_winding_coils(windingname="Phase_B", coil_names=["CT_Ph3_P1_C2_Go", "CT_Ph3_P1_C1_Go"])
+m2d.add_winding_coils(
+    assignment="Phase_B", coils=["CT_Ph3_P1_C2_Go", "CT_Ph3_P1_C1_Go"]
+)
 
 # ## Define windings in phase C
 #
 # Define windings in phase C.
 
 m2d.assign_coil(
-    input_object="Coil_1", conductor_number=6, polarity="Negative", name="CT_Ph2_P2_C2_Ret"
+    assignment="Coil_1",
+    conductors_number=6,
+    polarity="Negative",
+    name="CT_Ph2_P2_C2_Ret",
 )
 m2d.assign_coil(
-    input_object="Coil_2", conductor_number=6, polarity="Negative", name="CT_Ph2_P2_C1_Ret"
+    assignment="Coil_2",
+    conductors_number=6,
+    polarity="Negative",
+    name="CT_Ph2_P2_C1_Ret",
 )
 m2d.assign_winding(
-    coil_terminals=None,
+    assignment=None,
     winding_type="Current",
     is_solid=False,
-    current_value=PhC_current,
+    current=ph_c_current,
     parallel_branches=1,
     name="Phase_C",
 )
-m2d.add_winding_coils(windingname="Phase_C", coil_names=["CT_Ph2_P2_C2_Ret", "CT_Ph2_P2_C1_Ret"])
+m2d.add_winding_coils(
+    assignment="Phase_C", coils=["CT_Ph2_P2_C2_Ret", "CT_Ph2_P2_C1_Ret"]
+)
 
 # ## Assign total current on PMs
 #
@@ -604,15 +665,33 @@ m2d.add_winding_coils(windingname="Phase_C", coil_names=["CT_Ph2_P2_C2_Ret", "CT
 
 PM_list = id_PMs
 for item in PM_list:
-    m2d.assign_current(item, amplitude=0, solid=True, name=item + "_I0")
+    m2d.assign_current(assignment=item, amplitude=0, solid=True, name=item + "_I0")
 
 # ## Create mesh operations
 #
 # Create the mesh operations.
 
-m2d.mesh.assign_length_mesh(id_coils, isinside=True, maxlength=3, maxel=None, meshop_name="coils")
-m2d.mesh.assign_length_mesh(stator_id, isinside=True, maxlength=3, maxel=None, meshop_name="stator")
-m2d.mesh.assign_length_mesh(rotor_id, isinside=True, maxlength=3, maxel=None, meshop_name="rotor")
+m2d.mesh.assign_length_mesh(
+    assignment=id_coils,
+    inside_selection=True,
+    maximum_length=3,
+    maximum_elements=None,
+    name="coils",
+)
+m2d.mesh.assign_length_mesh(
+    assignment=stator_id,
+    inside_selection=True,
+    maximum_length=3,
+    maximum_elements=None,
+    name="stator",
+)
+m2d.mesh.assign_length_mesh(
+    assignment=rotor_id,
+    inside_selection=True,
+    maximum_length=3,
+    maximum_elements=None,
+    name="rotor",
+)
 
 # ## Turn on eddy effects
 #
@@ -632,7 +711,9 @@ m2d.set_core_losses(core_loss_list, value=True)
 #
 # Compute the transient inductance.
 
-m2d.change_inductance_computation(compute_transient_inductance=True, incremental_matrix=False)
+m2d.change_inductance_computation(
+    compute_transient_inductance=True, incremental_matrix=False
+)
 
 # ## Set model depth
 #
@@ -651,7 +732,8 @@ m2d.change_symmetry_multiplier("SymmetryFactor")
 # Create the setup and validate it.
 
 # +
-setup = m2d.create_setup(setupname=setup_name)
+setup_name = "MySetupAuto"
+setup = m2d.create_setup(name=setup_name)
 setup.props["StopTime"] = "StopTime"
 setup.props["TimeStep"] = "TimeStep"
 setup.props["SaveFieldsType"] = "None"
@@ -662,7 +744,7 @@ setup.update()
 m2d.validate_simple()
 
 model = m2d.plot(show=False)
-model.plot(os.path.join(m2d.working_directory, "Image.jpg"))
+model.plot(os.path.join(temp_folder.name, "Image.jpg"))
 # -
 
 # ## Initialize definitions for output variables
@@ -731,8 +813,16 @@ post_params = {"Moving1.Torque": "TorquePlots"}
 post_params_multiplot = {  # reports
     ("U_A", "U_B", "U_C", "Ui_A", "Ui_B", "Ui_C"): "PhaseVoltages",
     ("CoreLoss", "SolidLoss", "ArmatureOhmicLoss_DC"): "Losses",
-    ("InputCurrent(Phase_A)", "InputCurrent(Phase_B)", "InputCurrent(Phase_C)"): "PhaseCurrents",
-    ("FluxLinkage(Phase_A)", "FluxLinkage(Phase_B)", "FluxLinkage(Phase_C)"): "PhaseFluxes",
+    (
+        "InputCurrent(Phase_A)",
+        "InputCurrent(Phase_B)",
+        "InputCurrent(Phase_C)",
+    ): "PhaseCurrents",
+    (
+        "FluxLinkage(Phase_A)",
+        "FluxLinkage(Phase_B)",
+        "FluxLinkage(Phase_C)",
+    ): "PhaseFluxes",
     ("I_d", "I_q"): "Currents_dq",
     ("Flux_d", "Flux_q"): "Fluxes_dq",
     ("Ui_d", "Ui_q"): "InducedVoltages_dq",
@@ -784,7 +874,7 @@ for k, v in post_params.items():
         context=None,
         subdesign_id=None,
         polyline_points=1001,
-        plotname=v,
+        plot_name=v,
     )
 
 # ## Create multiplot report
@@ -813,11 +903,11 @@ m2d.analyze_setup(setup_name, use_auto_settings=False)
 # Create a flux lines plot on a region. The ``object_list`` is
 # formerly created when the section is applied.
 
-faces_reg = mod_2d.get_object_faces(object_list[1].name)  # Region
+faces_reg = m2d.modeler.get_object_faces(object_list[1].name)  # Region
 plot1 = m2d.post.create_fieldplot_surface(
-    objlist=faces_reg,
-    quantityName="Flux_Lines",
-    intrinsincDict={"Time": m2d.variable_manager.variables["StopTime"].evaluated_value},
+    assignment=faces_reg,
+    quantity="Flux_Lines",
+    intrinsics={"Time": m2d.variable_manager.variables["StopTime"].evaluated_value},
     plot_name="Flux_Lines",
 )
 
@@ -832,7 +922,9 @@ m2d.post.plot_field_from_fieldplot(plot1.name, show=False)
 # Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
 # Plot the desired expression by using Matplotlib plot().
 
-solutions = m2d.post.get_solution_data(expressions="Moving1.Torque", primary_sweep_variable="Time")
+solutions = m2d.post.get_solution_data(
+    expressions="Moving1.Torque", primary_sweep_variable="Time"
+)
 # solutions.plot()
 
 # ## Retrieve the data magnitude of an expression
@@ -847,11 +939,14 @@ avg = sum(mag) / len(mag)
 # Export a 2D Plot data to a .csv file.
 
 m2d.post.export_report_to_file(
-    output_dir=m2d.toolkit_directory, plot_name="TorquePlots", extension=".csv"
+    output_dir=temp_folder.name, plot_name="TorquePlots", extension=".csv"
 )
 
-# ## Close AEDT
+# ## Release AEDT and clean up temporary directory
 #
-# Close AEDT.
+# Release AEDT and remove both the project and temporary directory.
 
 m2d.release_desktop()
+
+time.sleep(3)
+temp_folder.cleanup()

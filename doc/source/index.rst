@@ -10,8 +10,6 @@ PyAEDT is a Python library that interacts directly with the Ansys Electronics De
 enabling straightforward and efficient automation in your workflow.
 
 
-.. jinja:: main_toctree
-
    .. grid:: 2
 
       .. grid-item-card:: Examples :fa:`scroll`
@@ -20,8 +18,6 @@ enabling straightforward and efficient automation in your workflow.
 
          Explore examples that show how to use PyAEDT to perform different types of simulations.
       
-
-.. jinja:: main_toctree
 
     .. toctree::
        :hidden:
