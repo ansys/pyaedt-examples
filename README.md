@@ -43,4 +43,6 @@ be rendered and run in [Jupyter Lab](https://docs.jupyter.org/en/latest/) as Not
      pip install .[doc]
      jupyter lab
   ```
+- Follow the [template](./examples/template.py) if you want to publish a new example.
+
   Notebook files can be opened, edited and run from within Jupyter using _right click > Open With > Jupytext Notebook_.
