@@ -1,4 +1,4 @@
-# # EMIT: Classify Interference Type
+# # Classify Interference Type
 #
 # This example shows how to load an existing AEDT EMIT
 # design and analyze the results to classify the
@@ -14,9 +14,9 @@ import subprocess
 import sys
 import tempfile
 
-import pyaedt
-from pyaedt import Emit
-from pyaedt.emit_core.emit_constants import InterfererType
+import ansys.aedt.core
+from ansys.aedt.core import Emit
+from ansys.aedt.core.emit_core.emit_constants import InterfererType
 
 # -
 
@@ -67,12 +67,14 @@ if AEDT_VERSION <= "2023.1":
 # Launch AEDT with EMIT. The ``Desktop`` class initializes AEDT and starts it
 # on the specified version and in the specified graphical mode.
 
-desktop = pyaedt.launch_desktop(AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True)
+desktop = ansys.aedt.core.launch_desktop(
+    AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True
+)
 
 
 # Download project
 
-project_name = pyaedt.downloads.download_file(
+project_name = ansys.aedt.core.downloads.download_file(
     "emit", "interference.aedtz", destination=temp_dir.name
 )
 

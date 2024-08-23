@@ -1,4 +1,4 @@
-# # Multiphysics: HFSS-Mechanical MRI analysis
+# # HFSS-Mechanical MRI analysis
 #
 # The goal of this example is to use a coil tuned to 63.8 MHz to determine the temperature
 # rise in a gel phantom near an implant given a background SAR of 1 W/kg.
@@ -11,6 +11,8 @@
 # View SAR in tissue surrounding implant.
 # Step 3: Thermal simulation:
 # Link HFSS to transient thermal solver to find temperature rise in tissue near implant vs. time.
+#
+# Keywords: **Multiphysics**, **HFSS**, **Mechanica AEDTl**, **Circuit**.
 
 # ## Perform required imports
 # Perform required imports.
@@ -18,8 +20,9 @@
 # +
 import os.path
 import tempfile
+import time
 
-from pyaedt import Hfss, Icepak, Mechanical, downloads
+from ansys.aedt.core import Hfss, Icepak, Mechanical, downloads
 
 # -
 
@@ -27,6 +30,7 @@ from pyaedt import Hfss, Icepak, Mechanical, downloads
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 
 # ## Create temporary directory
@@ -35,11 +39,6 @@ NUM_CORES = 4
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ## Set non-graphical mode
-#
-# Set non-graphical mode.
-
-non_graphical = False
 
 # ## Project load
 #
@@ -55,7 +54,7 @@ project_name = os.path.join(project_path, "background_SAR.aedt")
 hfss = Hfss(
     project=project_name,
     version=AEDT_VERSION,
-    non_graphical=non_graphical,
+    non_graphical=NG_MODE,
     new_desktop=True,
 )
 
@@ -351,9 +350,18 @@ data = ipk.post.get_solution_data(
 data.plot()
 # -
 
-# ## Release AEDT and clean up temporary directory
+# ## Release AEDT
 #
-# Release AEDT and clean up temporary directory.
+# Release AEDT and close the example.
 
+hfss.save_project()
 hfss.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+
 temp_dir.cleanup()

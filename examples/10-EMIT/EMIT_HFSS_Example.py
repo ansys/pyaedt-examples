@@ -1,4 +1,4 @@
-# # EMIT: HFSS to EMIT coupling
+# # HFSS to EMIT coupling
 #
 # <img src="_static/emit_hfss.png" width="40"> This example
 # demonstrates how link an HFSS design
@@ -18,26 +18,23 @@
 import os
 import shutil
 import tempfile
+import time
 
-import pyaedt
-from pyaedt.emit_core.emit_constants import ResultType, TxRxMode
+import ansys.aedt.core
+from ansys.aedt.core.emit_core.emit_constants import ResultType, TxRxMode
 
 # -
 
 # Set constant values
 
 AEDT_VERSION = "2024.2"
-
-# ## Set non-graphical mode
-#
-# Set non-graphical mode.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
-
-non_graphical = False
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary directory
+#
+# Create temporary directory.
 
-temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch AEDT with EMIT
 #
@@ -45,7 +42,9 @@ temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 # on the specified version and in the specified graphical mode.
 # A temporary working directory is created using ``tempfile``.
 
-d = pyaedt.launch_desktop(AEDT_VERSION, non_graphical, True)
+d = ansys.aedt.core.launch_desktop(
+    version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True
+)
 
 # ## Copy Example Files
 #
@@ -88,7 +87,7 @@ project_pdf = shutil.copyfile(
 
 # Open the project in the working directory.
 
-aedtapp = pyaedt.Emit(project_name, version=AEDT_VERSION)
+aedtapp = ansys.aedt.core.Emit(project_name, version=AEDT_VERSION)
 
 # ## Create and connect EMIT components
 #
@@ -136,8 +135,14 @@ if AEDT_VERSION > "2023.1":
 #
 # Release AEDT and close the example.
 
+aedtapp.save_project()
 aedtapp.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
 
-# ## Clean temporary directory
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 temp_dir.cleanup()

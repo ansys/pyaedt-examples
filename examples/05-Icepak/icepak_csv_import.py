@@ -15,6 +15,7 @@
 import csv
 import os
 import tempfile
+import time
 
 import ansys.aedt.core
 import matplotlib as mpl

@@ -1,11 +1,12 @@
-# # Twin Builder: Dynamic ROM
+# # Dynamic ROM
 #
 # This example shows how you can use PyAEDT to create a dynamic ROM in Twin Builder
 # and run a Twin Builder time-domain simulation.
 #
 # > **Note:** This example uses functionality only available in Twin
 # > Builder 2023 R2 and later.
-
+#
+# Keywords: **Twin Builder**, **Dynamic ROM**.
 
 # ## Perform required imports
 #
@@ -13,27 +14,23 @@
 
 import os
 import shutil
+import tempfile
+import time
 
+import ansys.aedt.core
 import matplotlib.pyplot as plt
-import pyaedt
 
 # Set constant values
 
 AEDT_VERSION = "2024.2"
+NUM_CORES = 4
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
-# ## Select version and set launch options
+# ## Create temporary directory
 #
-# Select the Twin Builder version and set launch options. The following code
-# launches Twin Builder in graphical mode.
-#
-# You can change the Boolean parameter ``non_graphical`` to ``True`` to launch
-# Twin Builder in non-graphical mode. You can also change the Boolean parameter
-# ``new_thread`` to ``False`` to launch Twin Builder in an existing AEDT session
-# if one is running.
+# Create temporary directory.
 
-desktop_version = AEDT_VERSION
-non_graphical = False
-new_thread = True
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Set up input data
 #
@@ -43,12 +40,14 @@ source_snapshot_data_zipfilename = "Ex1_Mechanical_DynamicRom.zip"
 source_build_conf_file = "dynarom_build.conf"
 
 # Download data from example_data repository
-temp_folder = pyaedt.generate_unique_folder_name()
-source_data_folder = pyaedt.downloads.download_twin_builder_data(
-    source_snapshot_data_zipfilename, True, temp_folder
+
+_ = ansys.aedt.core.downloads.download_twin_builder_data(
+    file_name=source_snapshot_data_zipfilename,
+    force_download=True,
+    destination=temp_dir.name,
 )
-source_data_folder = pyaedt.downloads.download_twin_builder_data(
-    source_build_conf_file, True, temp_folder
+source_data_folder = ansys.aedt.core.downloads.download_twin_builder_data(
+    source_build_conf_file, True, temp_dir.name
 )
 
 # Toggle these for local testing
@@ -56,7 +55,7 @@ source_data_folder = pyaedt.downloads.download_twin_builder_data(
 data_folder = os.path.join(source_data_folder, "Ex03")
 
 # Unzip training data and config file
-pyaedt.downloads.unzip(
+ansys.aedt.core.downloads.unzip(
     os.path.join(source_data_folder, source_snapshot_data_zipfilename), data_folder
 )
 shutil.copyfile(
@@ -70,11 +69,12 @@ shutil.copyfile(
 # Launch Twin Builder using an implicit declaration and add a new design with
 # a default setup for building the dynamic ROM component.
 
-tb = pyaedt.TwinBuilder(
-    project=pyaedt.generate_unique_project_name(),
-    version=desktop_version,
-    non_graphical=non_graphical,
-    new_desktop=new_thread,
+project_name = os.path.join(temp_dir.name, "dynamic_rom.aedt")
+tb = ansys.aedt.core.TwinBuilder(
+    project=project_name,
+    version=AEDT_VERSION,
+    non_graphical=NG_MODE,
+    new_desktop=True,
 )
 
 # ## Desktop Configuration
@@ -160,7 +160,7 @@ tb.set_hmax("1s")
 #
 # Solve the transient setup.
 
-tb.analyze_setup("TR")
+tb.analyze_setup("TR", cores=NUM_CORES)
 
 
 # ## Get report data and plot using Matplotlib
@@ -195,4 +195,18 @@ shutil.rmtree(source_data_folder)
 tb._odesktop.SetDesktopConfiguration(current_desktop_config)
 tb._odesktop.SetSchematicEnvironment(current_schematic_environment)
 
+# ## Release AEDT
+#
+# Release AEDT and close the example.
+
+tb.save_project()
 tb.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+
+temp_dir.cleanup()

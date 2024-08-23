@@ -1,4 +1,4 @@
-# # Multiphysics: Maxwell 3D - Icepak electrothermal analysis
+# # Maxwell 3D - Icepak electrothermal analysis
 #
 # This example uses PyAEDT to set up a simple Maxwell design consisting of a coil and a ferrite core.
 # Coil current is set to 100A, and coil resistance and ohmic loss are analyzed.
@@ -6,7 +6,7 @@
 # Icepak calculates a temperature distribution, and it is mapped back to Maxwell (2-way coupling).
 # Coil resistance and ohmic loss are analyzed again in Maxwell. Results are printed in AEDT Message Manager.
 #
-# Keywords: **Maxwell**, **Icepak**, **Wirless Charging**.
+# Keywords: **Multiphysics**, **Maxwell**, **Icepak**, **Wirless Charging**.
 #
 # ## Set up project
 #
@@ -16,8 +16,8 @@ import os
 import tempfile
 import time
 
-import pyaedt
-from pyaedt.generic.constants import AXIS
+import ansys.aedt.core
+from ansys.aedt.core.generic.constants import AXIS
 
 # Set constant values
 
@@ -45,7 +45,7 @@ project_name = os.path.join(temp_dir.name, "Maxwell-Icepak-2way-Coupling")
 maxwell_design_name = "1 Maxwell"
 icepak_design_name = "2 Icepak"
 
-m3d = pyaedt.Maxwell3d(
+m3d = ansys.aedt.core.Maxwell3d(
     project=project_name,
     design=maxwell_design_name,
     solution_type="EddyCurrent",
@@ -198,7 +198,7 @@ m3d.logger.info(
 # Insert Icepak design, copy solid objects from Maxwell, and modify region dimensions.
 
 # +
-ipk = pyaedt.Icepak(design=icepak_design_name, version=AEDT_VERSION)
+ipk = ansys.aedt.core.Icepak(design=icepak_design_name, version=AEDT_VERSION)
 ipk.copy_solid_bodies_from(m3d, no_pec=False)
 
 # Set domain dimensions suitable for natural convection using the diameter of the coil

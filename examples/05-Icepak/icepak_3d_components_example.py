@@ -10,6 +10,7 @@
 
 import os
 import tempfile
+import time
 
 from ansys.aedt.core import Icepak, downloads
 

@@ -13,6 +13,7 @@
 
 import os
 import tempfile
+import time
 
 import ansys.aedt.core
 import pandas as pd

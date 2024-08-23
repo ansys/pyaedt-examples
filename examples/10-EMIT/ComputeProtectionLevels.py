@@ -1,4 +1,4 @@
-# # EMIT: Compute receiver protection levels
+# # Compute receiver protection levels
 #
 # This example shows how to open an AEDT project with
 # an EMIT design and analyze the results to determine if the received
@@ -15,10 +15,11 @@ import os
 import subprocess
 import sys
 import tempfile
+import time
 
-import pyaedt
-from pyaedt import Emit
-from pyaedt.emit_core.emit_constants import InterfererType
+import ansys.aedt.core
+from ansys.aedt.core import Emit
+from ansys.aedt.core.emit_core.emit_constants import InterfererType
 
 # -
 
@@ -70,7 +71,7 @@ if AEDT_VERSION <= "2023.1":
     sys.exit()
 
 project_name = os.path.join(temp_dir.name, "emit.aedt")
-d = pyaedt.launch_desktop(AEDT_VERSION, NG_MODE, True)
+d = ansys.aedt.core.launch_desktop(AEDT_VERSION, NG_MODE, True)
 emitapp = Emit(project_name, version=AEDT_VERSION)
 
 # ## Specify the protection levels
@@ -293,13 +294,14 @@ if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
 #
 # Release AEDT and close the example.
 
+emitapp.save_project()
 emitapp.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``.
-# If you've run this example as a Jupyter notebook you
-# can retrieve those project files. The following cell
-# removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 temp_dir.cleanup()

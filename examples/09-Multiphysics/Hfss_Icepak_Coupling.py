@@ -1,4 +1,4 @@
-# # Multiphysics: Circuit-HFSS-Icepak coupling workflow
+# # Circuit-HFSS-Icepak coupling workflow
 #
 # This example demonstrates how to create a two-way coupling
 # between Circuit-HFSS designs and Icepak.
@@ -34,7 +34,7 @@
 # a 2D dataset. The resistor and the cylinder have
 # matching resistances.
 #
-# The workflow steps are as follows:
+# Keywords: **Multiphysics**, **HFSS**, **Icepak**, **Circuit**.
 
 # ## Perform required imports
 #
@@ -86,7 +86,7 @@ hfss["inner"] = "3mm"  # Local "Design" scope.
 # ## Create coaxial and cylinders
 #
 # Create a coaxial and three cylinders. You can apply parameters
-# directly using the `pyaedt.modeler.Primitives3D.Primitives3D.create_cylinder`
+# directly using the `ansys.aedt.core.modeler.Primitives3D.Primitives3D.create_cylinder`
 # method. You can assign a material directly to the object creation action.
 # Optionally, you can assign a material using the `assign_material` method.
 
@@ -144,7 +144,7 @@ hfss.modeler.subtract(o2, o1, True)
 # ## Assign Mesh Operations
 #
 # Most mesh operations are accessible using the ``mesh`` property
-# which is an instance of the ``pyaedt.modules.MeshIcepak.IcepakMesh`` class.
+# which is an instance of the ``ansys.aedt.core.modules.MeshIcepak.IcepakMesh`` class.
 #
 # This example demonstrates the use of several common mesh
 # operations.

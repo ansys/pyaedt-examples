@@ -1,7 +1,9 @@
-# # Multiphysics: HFSS-Mechanical multiphysics analysis
+# # HFSS-Mechanical multiphysics analysis
 #
 # This example shows how you can use PyAEDT to create a multiphysics workflow that
 # includes Circuit, HFSS, and Mechanical.
+#
+# Keywords: **Multiphysics**, **HFSS**, **Mechanical AEDT**, **Circuit**.
 
 # ## Perform required imports
 #
@@ -10,8 +12,9 @@
 # +
 import os
 import tempfile
+import time
 
-import pyaedt
+import ansys.aedt.core
 
 # -
 
@@ -19,7 +22,6 @@ import pyaedt
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
-
 
 # ## Create temporary directory
 #
@@ -37,13 +39,13 @@ non_graphical = False
 #
 # Download and open the project. Save it to the temporary folder.
 
-project_name = pyaedt.downloads.download_via_wizard(destination=temp_dir.name)
+project_name = ansys.aedt.core.downloads.download_via_wizard(destination=temp_dir.name)
 
 # ## Start HFSS
 #
 # Initialize HFSS.
 
-hfss = pyaedt.Hfss(
+hfss = ansys.aedt.core.Hfss(
     project=project_name,
     version=AEDT_VERSION,
     non_graphical=non_graphical,
@@ -55,7 +57,7 @@ hfss.change_material_override(True)
 #
 # Initialize Circuit and add the HFSS dynamic link component.
 
-circuit = pyaedt.Circuit(version=AEDT_VERSION)
+circuit = ansys.aedt.core.Circuit(version=AEDT_VERSION)
 hfss_comp = circuit.modeler.schematic.add_subcircuit_dynamic_link(pyaedt_app=hfss)
 
 # ## Set up dynamic link options
@@ -120,7 +122,7 @@ circuit.push_excitations(instance="S1", setup=setup_name)
 #
 # Start Mechanical and copy bodies from the HFSS project.
 
-mech = pyaedt.Mechanical(version=AEDT_VERSION)
+mech = ansys.aedt.core.Mechanical(version=AEDT_VERSION)
 mech.copy_solid_bodies_from(design=hfss)
 mech.change_material_override(True)
 
@@ -164,9 +166,18 @@ for name in mech.get_all_conductors_names():
     surfaces.extend(mech.modeler.get_object_faces(name))
 mech.post.create_fieldplot_surface(assignment=surfaces, quantity="Temperature")
 
-# ## Release AEDT and clean up temporary directory
+# ## Release AEDT
 #
-# Release AEDT and clean up temporary directory.
+# Release AEDT and close the example.
 
+hfss.save_project()
 hfss.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+
 temp_dir.cleanup()

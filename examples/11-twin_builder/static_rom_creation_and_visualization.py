@@ -1,9 +1,11 @@
-# # Twin Builder: Static ROM
+# # Static ROM
 #
 # This example shows how to create a static reduced order model (ROM)
 # in Twin Builder and run a transient simulation.
 #
 # > **Note:** _This example uses functionality only available in Twin Builder 2024 R2 and later._
+#
+# Keywords: **Twin Builder**, **Static ROM**.
 
 # ## Perform required imports
 #
@@ -11,26 +13,22 @@
 
 import os
 import shutil
+import tempfile
+import time
 
-from pyaedt import TwinBuilder, downloads, generate_unique_project_name
+from ansys.aedt.core import TwinBuilder, downloads
 
 # Set constant values
 
 AEDT_VERSION = "2024.2"
+NUM_CORES = 4
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
-# ## Select version and set launch options
+# ## Create temporary directory
 #
-# Select the Twin Builder version and set launch options. The following code
-# launches Twin Builder 2023 R2 in graphical mode.
-#
-# You can change the Boolean parameter ``non_graphical`` to ``True`` to launch
-# Twin Builder in non-graphical mode. You can also change the Boolean parameter
-# ``new_thread`` to ``False`` to launch Twin Builder in an existing AEDT session
-# if one is running.
+# Create temporary directory.
 
-desktop_version = AEDT_VERSION
-non_graphical = False
-new_thread = True
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Set up input data
 #
@@ -47,11 +45,16 @@ source_props_conf_file = "SROM_props.conf"
 # extracts them in a local folder ``"Ex04"``
 
 # +
-source_data_folder = downloads.download_twin_builder_data(
-    source_snapshot_data_zipfilename, True
+_ = downloads.download_twin_builder_data(
+    file_name=source_snapshot_data_zipfilename,
+    force_download=True,
+    destination=temp_dir.name,
 )
-source_data_folder = downloads.download_twin_builder_data(source_build_conf_file, True)
-source_data_folder = downloads.download_twin_builder_data(source_props_conf_file, True)
+
+_ = downloads.download_twin_builder_data(source_build_conf_file, True, temp_dir.name)
+source_data_folder = downloads.download_twin_builder_data(
+    source_props_conf_file, True, temp_dir.name
+)
 
 # Target folder to extract project files.
 data_folder = os.path.join(source_data_folder, "Ex04")
@@ -75,11 +78,12 @@ shutil.copyfile(
 # Launch Twin Builder using an implicit declaration and add a new design with
 # a default setup for building the static ROM component.
 
+project_name = os.path.join(temp_dir.name, "static_rom.aedt")
 tb = TwinBuilder(
-    project=generate_unique_project_name(),
-    version=desktop_version,
-    non_graphical=non_graphical,
-    new_desktop=new_thread,
+    project=project_name,
+    version=AEDT_VERSION,
+    non_graphical=NG_MODE,
+    new_desktop=True,
 )
 
 # ## Desktop Configuration
@@ -203,4 +207,18 @@ shutil.rmtree(source_data_folder)
 tb._odesktop.SetDesktopConfiguration(current_desktop_config)
 tb._odesktop.SetSchematicEnvironment(current_schematic_environment)
 
+# ## Release AEDT
+#
+# Release AEDT and close the example.
+
+tb.save_project()
 tb.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+
+temp_dir.cleanup()

@@ -1,44 +1,43 @@
-# # Twin Builder: RC circuit design anaysis
+# # RC circuit design analysis
 #
 # This example shows how you can use PyAEDT to create a Twin Builder design
 # and run a Twin Builder time-domain simulation.
-
+#
+# Keywords: **Twin Builder**, **RC**.
 
 # ## Perform required imports
 #
 # Perform required imports.
 
-import pyaedt
+import os
+import tempfile
+import time
+
+import ansys.aedt.core
 
 # Set constant values
 
 AEDT_VERSION = "2024.2"
+NUM_CORES = 4
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
-# ## Select version and set launch options
+# ## Create temporary directory
 #
-# Select the Twin Builder version and set the launch options. The following code
-# launches Twin Builder in graphical mode.
-#
-# You can change the Boolean parameter ``non_graphical`` to ``True`` to launch
-# Twin Builder in non-graphical mode. You can also change the Boolean parameter
-# ``new_thread`` to ``False`` to launch Twin Builder in an existing AEDT session
-# if one is running.
+# Create temporary directory.
 
-desktop_version = AEDT_VERSION
-
-non_graphical = False
-new_thread = True
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch Twin Builder
 #
 # Launch Twin Builder using an implicit declaration and add a new design with
 # a default setup.
 
-tb = pyaedt.TwinBuilder(
-    project=pyaedt.generate_unique_project_name(),
-    version=desktop_version,
-    non_graphical=non_graphical,
-    new_desktop=new_thread,
+project_name = os.path.join(temp_dir.name, "rc_circuit.aedt")
+tb = ansys.aedt.core.TwinBuilder(
+    project=project_name,
+    version=AEDT_VERSION,
+    non_graphical=NG_MODE,
+    new_desktop=True,
 )
 tb.modeler.schematic_units = "mil"
 
@@ -91,11 +90,18 @@ C_Value = "C1.V"
 x = tb.post.get_solution_data([E_Value, C_Value], "TR", "Time")
 x.plot([E_Value, C_Value], x_label="Time", y_label="Capacitor Voltage vs Input Pulse")
 
-tb.save_project()
-
-# ## Close Twin Builder
+# ## Release AEDT
 #
-# After the simulation completes, you can close Twin Builder or release it.
-# All methods provide for saving the project before closing.
+# Release AEDT and close the example.
 
+tb.save_project()
 tb.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+
+temp_dir.cleanup()

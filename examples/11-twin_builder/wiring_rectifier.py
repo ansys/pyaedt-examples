@@ -1,9 +1,11 @@
-# # Twin Builder: wiring a rectifier with a capacitor filter
+# # Wiring a rectifier with a capacitor filter
 #
 # This example shows how you can use PyAEDT to create a Twin Builder design
 # and run a Twin Builder time-domain simulation.
 #
 # <img src="_static/rectifier.png" width="500">
+#
+# Keywords: **Twin Builder**, **rectifier**, **filter**.
 
 # ## Perform required imports
 #
@@ -11,27 +13,21 @@
 
 import os
 import tempfile
+import time
 
+import ansys.aedt.core
 import matplotlib.pyplot as plt
-import pyaedt
 
 # Set constant values
 
 AEDT_VERSION = "2024.2"
+NUM_CORES = 4
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
-# ## Select version and set launch options
+# ## Create temporary directory
 #
-# Select the Twin Builder version and set the launch options. The following code
-# launches Twin Builder in graphical mode.
-#
-# You can change the Boolean parameter ``non_graphical`` to ``True`` to launch
-# Twin Builder in non-graphical mode. You can also change the Boolean parameter
-# ``new_thread`` to ``False`` to launch Twin Builder in an existing AEDT session
-# if one is running.
+# Create temporary directory.
 
-desktop_version = AEDT_VERSION
-non_graphical = False
-new_thread = True
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch Twin Builder
@@ -39,11 +35,12 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 # Launch Twin Builder using an implicit declaration and add a new design with
 # a default setup.
 
-tb = pyaedt.TwinBuilder(
-    project=os.path.join(temp_dir.name, "TB_Rectifier_Demo"),
-    version=desktop_version,
-    non_graphical=non_graphical,
-    new_desktop=new_thread,
+project_name = os.path.join(temp_dir.name, "TB_Rectifier_Demo.aedt")
+tb = ansys.aedt.core.TwinBuilder(
+    project=project_name,
+    version=AEDT_VERSION,
+    non_graphical=NG_MODE,
+    new_desktop=True,
 )
 
 # ## Create components for bridge rectifier
@@ -173,16 +170,18 @@ plt.xlabel("Time")
 plt.ylabel("AC to DC Conversion using Rectifier")
 plt.show()
 
-# ## Close Twin Builder
+# ## Release AEDT
 #
-# After the simulation is completed, you can close Twin Builder or release it.
-# All methods provide for saving the project before closing.
+# Release AEDT and close the example.
 
+tb.save_project()
 tb.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
 
 # ## Cleanup
 #
-# Remove the project and temporary folder. The project files can be retrieved from the
-# temporary directory, ``temp_dir.name``, prior to executing the following cell, if desired.
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
-temp_dir.cleanup()  # Cleans up all files and removes the project directory.
+temp_dir.cleanup()
