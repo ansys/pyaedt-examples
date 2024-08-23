@@ -1,4 +1,4 @@
-# # HFSS: FSS Unit Cell Simulation
+# # FSS Unit Cell Simulation
 #
 # This example shows how you can use PyAEDT to model and simulation a unit cell
 # for a frequency-selectiv surface in

@@ -1,4 +1,4 @@
-# # HFSS: choke
+# # Choke
 #
 # This example shows how you can use PyAEDT to create a choke setup in HFSS.
 #

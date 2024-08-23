@@ -1,4 +1,4 @@
-# # HFSS: spiral inductor
+# # Spiral inductor
 #
 # This example shows how you can use PyAEDT to create a spiral inductor, solve it, and plot results.
 #

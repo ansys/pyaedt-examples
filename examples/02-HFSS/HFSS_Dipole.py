@@ -1,4 +1,4 @@
-# # HFSS: dipole antenna
+# # Dipole antenna
 #
 # This example shows how you can use PyAEDT to create a dipole antenna in HFSS
 # and postprocess results.

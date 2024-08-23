@@ -1,4 +1,4 @@
-# # HFSS: Probe-fed patch antenna
+# # Probe-fed patch antenna
 #
 # This example shows how to use the ``Stackup3D`` class
 # to create and analyze a patch antenna in HFSS.

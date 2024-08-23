@@ -1,4 +1,4 @@
-# # HFSS: component antenna array
+# # Component antenna array
 
 # This example shows how you can use PyAEDT to create an example using a 3D component file. It sets
 # up
