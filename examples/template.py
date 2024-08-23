@@ -1,8 +1,13 @@
-# # Title (do not specify application in title, i.e.: Maxwell2D, Maxwell3D etc)
+# # Short, Descriptive Title (do not specify the application name here, i.e.: Maxwell2D, Maxwell3D etc)
 #
-# Description
+# Description:
 #
-# Keywords
+# Most examples can be described as a series of steps that comprise a workflow.
+# 1. Import packages and instantiate the application.
+# 2. Do something useful and interesting.
+# 3. View the results.
+#
+# Keywords: **Template**, **Jupyter**
 
 # ## Perform required imports
 #
@@ -34,7 +39,6 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # class named (``m3d``,``hfss`` etc.) by providing
 # the project and design names, the solver, and the version.
 
-# +
 project_name = os.path.join(temp_folder.name, "my_project.aedt")
 m3d = ansys.aedt.core.Maxwell3d(
     project=project_name,
@@ -45,25 +49,20 @@ m3d = ansys.aedt.core.Maxwell3d(
     new_desktop=True,
 )
 m3d.modeler.model_units = "mm"
-# -
 
 # ## Pre-Processing
 #
 # Description of pre-processing task.
 # Add as many sections as needed for pre-processing tasks.
 
-# +
 
-# -
 
 # ## Post-Processing
 #
 # Description of post-processing task.
 # Add as many sections as needed for post-processing tasks.
 
-# +
 
-# -
 
 
 # ## Release AEDT

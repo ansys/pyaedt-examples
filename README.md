@@ -37,12 +37,17 @@ The following guidelines help ensure that the examples are consistent, easy to r
   ```
      temp_dir.cleanup()
   ```
-- The examples should be formatted, so they are compatible with jupytext using the [light format](https://jupytext.readthedocs.io/en/latest/formats-scripts.html#the-light-format) and can
-be rendered and run in [Jupyter Lab](https://docs.jupyter.org/en/latest/) as Notebook files. Jupyter can be used to ensure correct rendering of markdown, images, and equations.
+- The examples should be formatted, so they are compatible with 
+  [jupytext](https://jupytext.readthedocs.io/en/latest/) using the [light format](https://jupytext.readthedocs.io/en/latest/formats-scripts.html#the-light-format) and can
+  be rendered and run in [Jupyter Lab](https://docs.jupyter.org/en/latest/) as Notebook files. Jupyter can be used to ensure correct
+  rendering of markdown, images, and equations.
   ```
      pip install .[doc]
      jupyter lab
   ```
-- Follow the [template](./examples/template.py) if you want to publish a new example.
+- You can use this [template](./examples/template.py) to help you start creating a new example 
+  for publication here.
 
-  Notebook files can be opened, edited and run from within Jupyter using _right click > Open With > Jupytext Notebook_.
+  If you're creating an example for publication here, you can open
+  the file and render it from within Jupyter  
+  using _right click > Open With > Jupytext Notebook_.
