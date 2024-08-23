@@ -38,7 +38,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # +
 m3d = ansys.aedt.core.Maxwell3d(
     project=os.path.join(temp_folder.name, "COMPUMAG.aedt"),
-    design="TEAM 3 Bath Plate",
+    design="TEAM_3_Bath_Plate",
     solution_type="EddyCurrent",
     version=AEDT_VERSION,
     non_graphical=NG_MODE,

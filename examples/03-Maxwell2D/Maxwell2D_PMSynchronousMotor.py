@@ -146,7 +146,9 @@ for k, v in oper_params.items():
 # Define the path for non-linear material properties.
 # Materials are stored in text files.
 
-filename_lam, filename_PM = ansys.aedt.core.downloads.download_leaf()
+filename_lam, filename_PM = ansys.aedt.core.downloads.download_leaf(
+    destination=temp_folder.name
+)
 
 # ## Create first material
 #
