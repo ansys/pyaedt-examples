@@ -11,3 +11,4 @@ pre-layout design creation.
     03_gui_manipulation.py
     06_ipc2581_export.py
     07_import_gds.py
+    08_pre_layout_parametrized_pcb.py

@@ -104,7 +104,7 @@ hfss.modeler.create_box(
 hfss.modeler.create_rectangle(
     orientation=ansys.aedt.core.constants.PLANE.YZ,
     origin=[abs(x1) + 5, y0 - width / 2, -gap - thickness / 2],
-    sizes=[width, "Tsub+{}{}".format(gap, hfss.modeler.model_units)],
+    sizes=[width, "-Tsub+{}{}".format(gap, hfss.modeler.model_units)],
     name="port1",
 )
 hfss.lumped_port(assignment="port1", integration_line=ansys.aedt.core.constants.AXIS.Z)
@@ -203,7 +203,7 @@ hfss.create_output_variable("L", L_formula, solution="setup1 : LastAdaptive")
 
 data = hfss.post.get_solution_data([L_formula, Q_formula])
 data.plot(
-    curves=[L_formula, Q_formula], math_formula="re", xlabel="Freq", ylabel="L and Q"
+    curves=[L_formula, Q_formula], formula="re", x_label="Freq", y_label="L and Q"
 )
 
 # Export results to csv file
