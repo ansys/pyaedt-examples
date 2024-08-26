@@ -118,7 +118,7 @@ param_sweep.add_calculation(calculation=quantity, report_type="Fields", ranges={
 
 # ## Analyze parametric sweep
 
-m2d.ooptimetrics.SolveSetup(param_sweep.name)
+param_sweep.analyze(cores=NUM_CORES)
 
 # ## Create a data table report
 #
