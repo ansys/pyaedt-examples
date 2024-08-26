@@ -60,17 +60,17 @@ These end-to-end examples show how you can use PyAEDT.
 
       Uncover the various uses of Maxwell 2D
 
-   .. grid-item-card:: HFSS 3D Layout
+   .. grid-item-card:: Layout
       :padding: 2 2 2 2
-      :link: examples/04-HFSS3DLayout/index
+      :link: examples/04-Layout/index
       :link-type: doc
 
-      .. image:: examples/04-HFSS3DLayout/_static/HFSS_3DL.png
+      .. image:: examples/04-Layout/_static/HFSS_3DL.png
          :alt: Flex assembly
          :width: 200px
          :height: 150px
 
-      Discover use cases of HFSS 3D Layout
+      Explore end-to-end workflows for Layout automation
 
    .. grid-item-card:: Icepak
       :padding: 2 2 2 2
