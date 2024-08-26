@@ -15,6 +15,7 @@
 
 import os
 import tempfile
+import time
 
 from pyaedt import Desktop, Hfss, settings
 from pyedb.misc.downloads import download_file
