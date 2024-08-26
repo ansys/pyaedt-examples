@@ -65,7 +65,7 @@ These end-to-end examples show how you can use PyAEDT.
       :link: examples/04-Layout/index
       :link-type: doc
 
-      .. image:: examples/04-Layout/_static/HFSS_3DL.png
+      .. image:: examples/04-Layout/hfss_3d_layout/_static/HFSS_3DL.png
          :alt: Flex assembly
          :width: 200px
          :height: 150px

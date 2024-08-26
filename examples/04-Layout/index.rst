@@ -3,15 +3,14 @@ Layout examples
 
 These examples use PyAEDT and PyEDB to show some end-to-end workflows for HFSS 3D Layout and SIwave.
 
-
 .. grid:: 3
 
    .. grid-item-card:: HFSS 3D Layout
       :padding: 2 2 2 2
-      :link: examples/04-Layout/hfss_3d_layout/index
+      :link: hfss_3d_layout/index
       :link-type: doc
 
-      .. image:: examples/04-Layout/hfss_3d_layout/_static/pre_layout_parameterized_pcb.png
+      .. image:: hfss_3d_layout/_static/pre_layout_parameterized_pcb.png
          :alt: HFSS 3D Layout example
          :width: 200px
          :height: 150px
@@ -20,17 +19,15 @@ These examples use PyAEDT and PyEDB to show some end-to-end workflows for HFSS 3
 
    .. grid-item-card:: EDB
       :padding: 2 2 2 2
-      :link: examples/04-Layout/edb/index
+      :link: edb/index
       :link-type: doc
 
-      .. image:: examples/04-Layout/edb/stackup.png
+      .. image:: edb/_static/stackup.png
          :alt: Stackup
          :width: 200px
          :height: 150px
 
-     Discover layout workflows with PyEDB
+      Discover layout workflows with PyEDB
 
-   .. toctree::
-      :hidden:
-
-      examples/index
+.. toctree::
+   :hidden:
