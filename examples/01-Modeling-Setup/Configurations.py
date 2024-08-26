@@ -1,4 +1,4 @@
-# # General: configuration files
+# # Configuration files
 #
 # This example shows how you can use PyAEDT to export configuration files and reuse
 # them to import in a new project. A configuration file is supported by these applications:
@@ -22,6 +22,8 @@
 # ``FaceByPosition`` on the same object name on the target design. If, for
 # any reason, this face position has changed or the object name in the target
 # design has changed, the boundary fails to apply.
+#
+# Keywords: **General**, **configuration file**, **setup**.
 
 # ## Preparation
 # Import the required packages
@@ -31,8 +33,8 @@ import os
 import tempfile
 import time
 
-import pyaedt
-from pyaedt.generic.general_methods import generate_unique_name
+import ansys.aedt.core
+
 # -
 
 # Define constants
@@ -46,13 +48,13 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Download project
 
-project_full_name = pyaedt.downloads.download_icepak(destination=temp_dir.name)
+project_full_name = ansys.aedt.core.downloads.download_icepak(destination=temp_dir.name)
 
 # ## Open project
 #
 # Open the Icepak project from the project folder.
 
-ipk = pyaedt.Icepak(
+ipk = ansys.aedt.core.Icepak(
     project=project_full_name,
     version=AEDT_VERSION,
     new_desktop=True,
@@ -117,7 +119,7 @@ ipk.close_project()
 # Create an Icepak project and import the step.
 
 new_project = os.path.join(temp_dir.name, "example.aedt")
-app = pyaedt.Icepak(version=AEDT_VERSION, project=new_project)
+app = ansys.aedt.core.Icepak(version=AEDT_VERSION, project=new_project)
 app.modeler.import_3d_cad(file_path)
 
 # ## Import and apply configuration file
@@ -126,13 +128,15 @@ app.modeler.import_3d_cad(file_path)
 # JSON file that you import using options in the ``configurations`` object.
 
 out = app.configurations.import_config(conf_file)
-app.configurations.results.global_import_success
+is_conf_imported = app.configurations.results.global_import_success
 
 # ## Release AEDT
 # Close the project and release AEDT.
 
 app.release_desktop()
-time.sleep(3)   # Allow Electronics Desktop to shut down before cleaning the temporary project folder.
+time.sleep(
+    3
+)  # Allow Electronics Desktop to shut down before cleaning the temporary project folder.
 
 # ## Cleanup
 #

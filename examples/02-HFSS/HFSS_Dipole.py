@@ -1,4 +1,4 @@
-# # HFSS: dipole antenna
+# # Dipole antenna
 #
 # This example shows how you can use PyAEDT to create a dipole antenna in HFSS
 # and postprocess results.
@@ -13,7 +13,7 @@ import os
 import tempfile
 import time
 
-import pyaedt
+import ansys.aedt.core
 
 # Set constant values
 
@@ -27,14 +27,18 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch AEDT
 
-d = pyaedt.launch_desktop(AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True)
+d = ansys.aedt.core.launch_desktop(
+    AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True
+)
 
 # ## Launch HFSS
 #
 # Create a new HFSS design.
 
 project_name = os.path.join(temp_dir.name, "dipole.aedt")
-hfss = pyaedt.Hfss(version=AEDT_VERSION, project=project_name, solution_type="Modal")
+hfss = ansys.aedt.core.Hfss(
+    version=AEDT_VERSION, project=project_name, solution_type="Modal"
+)
 
 # ## Define variable
 #
