@@ -197,7 +197,7 @@ param["SolveWithCopiedMeshOnly"] = True
 # Solve the parametric sweep directly so that results of all variations are available.
 
 m3d.save_project()
-m3d.ooptimetrics.SolveSetup(sweep_name)
+param.analyze(cores=NUM_CORES)
 
 # ## Create expression for Bz
 #
