@@ -99,7 +99,7 @@ if tx_radios is None or rx_radios is None:
 
 power_matrix = []
 all_colors = []
-if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
+if os.getenv("PYAEDT_DOC_GENERATION", "0") != "1":
     all_colors, power_matrix = rev.interference_type_classification(
         domain, use_filter=False, filter_list=[]
     )
@@ -234,7 +234,7 @@ def create_legend_table():
     fig.show()
 
 
-if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
+if os.getenv("PYAEDT_DOC_GENERATION", "0") != "1":
     # Create a scenario view for all the interference types
     create_scenario_view(power_matrix, all_colors, tx_radios, rx_radios)
 

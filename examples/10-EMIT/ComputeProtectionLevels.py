@@ -267,7 +267,7 @@ def create_scenario_view(emis, colors, tx_radios, rx_radios):
 #
 # Get lists of all transmitters and receivers in the project.
 
-if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
+if os.getenv("PYAEDT_DOC_GENERATION", "0") != "1":
     rev = emitapp.results.current_revision
     rx_radios = rev.get_receiver_names()
     tx_radios = rev.get_interferer_names(InterfererType.TRANSMITTERS)
@@ -279,7 +279,7 @@ if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
 # at the input to each receiver due to each of the transmitters. Computes
 # which, if any, protection levels are exceeded by these power levels.
 
-if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
+if os.getenv("PYAEDT_DOC_GENERATION", "0") != "1":
     power_matrix = []
     all_colors = []
 
