@@ -1,4 +1,4 @@
-# # HFSS: FSS Unit Cell Simulation
+# # FSS Unit Cell Simulation
 #
 # This example shows how you can use PyAEDT to model and simulation a unit cell
 # for a frequency-selectiv surface in
@@ -14,7 +14,7 @@ import os
 import tempfile
 import time
 
-import pyaedt
+import ansys.aedt.core
 
 # Set constant values
 
@@ -28,7 +28,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 # ## Launch AEDT
 
 project_name = os.path.join(temp_dir.name, "FSS.aedt")
-d = pyaedt.launch_desktop(
+d = ansys.aedt.core.launch_desktop(
     AEDT_VERSION,
     non_graphical=NG_MODE,
     new_desktop=True,
@@ -38,7 +38,9 @@ d = pyaedt.launch_desktop(
 #
 # Create a new HFSS design.
 
-hfss = pyaedt.Hfss(version=AEDT_VERSION, project=project_name, solution_type="Modal")
+hfss = ansys.aedt.core.Hfss(
+    version=AEDT_VERSION, project=project_name, solution_type="Modal"
+)
 
 # ## Define variable
 #
@@ -50,7 +52,7 @@ hfss["patch_dim"] = "10mm"
 #
 # Download the 3D component from the example data and insert the 3D Component.
 
-unitcell_3d_component_path = pyaedt.downloads.download_FSS_3dcomponent(
+unitcell_3d_component_path = ansys.aedt.core.downloads.download_FSS_3dcomponent(
     destination=temp_dir.name
 )
 unitcell_path = os.path.join(unitcell_3d_component_path, "FSS_unitcell_23R2.a3dcomp")
@@ -141,7 +143,7 @@ hfss.post.create_report(
 #
 # Save and run the simulation. Uncomment the line following line to run the analysis.
 
-hfss.analyze()
+# hfss.analyze()
 hfss.save_project()
 
 # ## Release AEDT

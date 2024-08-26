@@ -1,0 +1,73 @@
+# # Circuit Netlist to Schematic
+#
+# This example shows how to create components
+# in the circuit schematic editor from a netlist file.
+#
+# Note that HSPICE files are fully supported and many other formats enjoy broad coverage.
+#
+# Keywords: **Circuit**, **Netlist**.
+
+# ## Imports
+#
+# Perform required imports and set paths.
+
+# +
+import os
+import tempfile
+import time
+
+import ansys.aedt.core
+
+# -
+
+# Set constant values
+
+AEDT_VERSION = "2024.2"
+NG_MODE = False  # Open Electronics UI when the application is launched.
+
+# ## Create temporary directory
+
+temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
+
+# ## Launch AEDT with Circuit
+#
+# Launch AEDT with Circuit. The `ansys.aedt.core.Desktop` class initializes AEDT
+# and starts it on the specified version in the specified graphical mode.
+
+netlist = ansys.aedt.core.downloads.download_netlist(destination=temp_dir.name)
+circuit = ansys.aedt.core.Circuit(
+    project=os.path.join(temp_dir.name, "NetlistExample"),
+    version=AEDT_VERSION,
+    non_graphical=NG_MODE,
+    new_desktop=True,
+)
+
+# ## Define a Parameter
+#
+# Specify the voltage as a parameter.
+
+circuit["Voltage"] = "5"
+
+# ## Create schematic from netlist file
+#
+# Create a schematic from a netlist file. The ``create_schematic_from_netlist``
+# method reads the netlist file and parses it. All components are parsed
+# but only these categories are mapped: R, L, C, Q, U, J, V, and I.
+
+circuit.create_schematic_from_netlist(netlist)
+
+# ## Release AEDT
+#
+# Release AEDT and close the example.
+
+circuit.save_project()
+circuit.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+
+temp_dir.cleanup()
