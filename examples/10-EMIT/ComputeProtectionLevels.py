@@ -17,7 +17,6 @@ import sys
 import tempfile
 import time
 
-import ansys.aedt.core
 from ansys.aedt.core import Emit
 from ansys.aedt.core.emit_core.emit_constants import InterfererType
 
@@ -38,6 +37,7 @@ NG_MODE = False  # Open Electronics UI when the application is launched.
 # Check to see which Python packages have been installed
 reqs = subprocess.check_output([sys.executable, "-m", "pip", "freeze"])
 installed_packages = [r.decode().split("==")[0] for r in reqs.split()]
+
 
 # Install required packages if they are not installed
 def install(package):
@@ -71,8 +71,10 @@ if AEDT_VERSION <= "2023.1":
     sys.exit()
 
 project_name = os.path.join(temp_dir.name, "emit.aedt")
-d = ansys.aedt.core.launch_desktop(AEDT_VERSION, NG_MODE, True)
-emitapp = Emit(project_name, version=AEDT_VERSION)
+
+emitapp = Emit(
+    non_graphical=NG_MODE, new_desktop=True, project=project_name, version=AEDT_VERSION
+)
 
 # ## Specify the protection levels
 #
@@ -163,6 +165,7 @@ for band in bands:
 # Create a results revision and load it for analysis.
 
 rev = emitapp.results.analyze()
+
 
 # ## Generate a legend
 #

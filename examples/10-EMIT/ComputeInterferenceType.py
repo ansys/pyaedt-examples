@@ -35,6 +35,7 @@ NG_MODE = False  # Open Electronics UI when the application is launched.
 reqs = subprocess.check_output([sys.executable, "-m", "pip", "freeze"])
 installed_packages = [r.decode().split("==")[0] for r in reqs.split()]
 
+
 # Install required packages if they are not installed
 def install(package):
     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
@@ -62,16 +63,6 @@ if AEDT_VERSION <= "2023.1":
     print("Warning: this example requires AEDT 2023.2 or later.")
     sys.exit()
 
-# ## Launch AEDT with EMIT
-#
-# Launch AEDT with EMIT. The ``Desktop`` class initializes AEDT and starts it
-# on the specified version and in the specified graphical mode.
-
-desktop = ansys.aedt.core.launch_desktop(
-    AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True
-)
-
-
 # Download project
 
 project_name = ansys.aedt.core.downloads.download_file(
@@ -81,7 +72,7 @@ project_name = ansys.aedt.core.downloads.download_file(
 # ## Launch EMIT and open project
 
 emitapp = Emit(
-    non_graphical=NG_MODE, new_desktop=False, project=project_name, version=AEDT_VERSION
+    non_graphical=NG_MODE, new_desktop=True, project=project_name, version=AEDT_VERSION
 )
 
 # ## Get a List of Transmitters
@@ -108,9 +99,10 @@ if tx_radios is None or rx_radios is None:
 
 power_matrix = []
 all_colors = []
-all_colors, power_matrix = rev.interference_type_classification(
-    domain, use_filter=False, filter_list=[]
-)
+if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
+    all_colors, power_matrix = rev.interference_type_classification(
+        domain, use_filter=False, filter_list=[]
+    )
 
 # ## Release AEDT
 #
