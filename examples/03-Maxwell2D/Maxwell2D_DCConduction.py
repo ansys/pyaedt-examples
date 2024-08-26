@@ -144,7 +144,7 @@ sweep = m2d.parametrics.add(
 sweep["SaveFields"] = True
 sweep["CopyMesh"] = True
 sweep["SolveWithCopiedMeshOnly"] = True
-m2d.ooptimetrics.SolveSetup(sweep.name)
+sweep.analyze(cores=NUM_CORES)
 
 # ## Create resistance report
 #

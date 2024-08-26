@@ -170,7 +170,7 @@ tb.set_hmax("1s")
 #
 # Solve the transient setup. Skipping in case of documentation build.
 
-if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
+if os.getenv("PYAEDT_DOC_GENERATION", "0") != "1":
     tb.analyze_setup("TR")
 
 # ## Get report data and plot using Matplotlib
@@ -180,7 +180,7 @@ if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
 # output of the dynamic ROM.
 
 
-if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
+if os.getenv("PYAEDT_DOC_GENERATION", "0") != "1":
     e_value = "ROM1.outfield_mode_1"
     x = tb.post.get_solution_data(e_value, "TR", "Time")
     x.plot()
