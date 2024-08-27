@@ -22,18 +22,13 @@ import ansys.aedt.core
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary directory
 #
 # Create temporary directory.
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-
-# ## Set non-graphical mode
-#
-# Set non-graphical mode.
-
-non_graphical = False
 
 # ## Download and open project
 #
@@ -48,7 +43,7 @@ project_name = ansys.aedt.core.downloads.download_via_wizard(destination=temp_di
 hfss = ansys.aedt.core.Hfss(
     project=project_name,
     version=AEDT_VERSION,
-    non_graphical=non_graphical,
+    non_graphical=NG_MODE,
     new_desktop=True,
 )
 hfss.change_material_override(True)
