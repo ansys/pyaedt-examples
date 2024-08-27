@@ -333,6 +333,7 @@ nbsphinx_thumbnails = {
     "examples/08-Circuit/Circuit_Subcircuit_Example": "_static/thumbnails/subcircuit.png",
     "examples/08-Circuit/Create_Netlist": "_static/thumbnails/netlist.png",
     "examples/09-Multiphysics/Circuit_HFSS_Icepak_Coupling": "_static/thumbnails/ring.png",
+    "examples/09-Multiphysics/Maxwell_Icepak_Wireless_Charging": "_static/thumbnails/charging.png",
     "examples/10-EMIT/ComputeInterferenceType": "_static/thumbnails/interference.png",
     "examples/10-EMIT/ComputeProtectionLevels": "_static/thumbnails/protection.png",
     "examples/10-EMIT/EMIT_Example": "_static/thumbnails/emit.png",
