@@ -1,21 +1,21 @@
-# # Creating blocks and assigning materials and power
+# # Define PCB components from CSV and export model images
 
 # This example shows how to create different types of blocks and assign power
-# and material to them using
-# a *.csv input file
+# and material to them using a *.csv input file
 #
-# Keywords: **Icepak**, **Boundaries**.
+# Keywords: **Icepak**, **boundaries**, **pyVista**, **CSV**, **PCB**, **components**.
 
 # ## Perform required imports
-#
-# Perform required imports including the operating system, regular expression, csv, Ansys PyAEDT
-# and its boundary objects.
 
 # +
 import csv
 import os
 import tempfile
 import time
+from pathlib import Path
+
+import numpy as np
+import pyvista as pv
 
 import ansys.aedt.core
 import matplotlib as mpl
@@ -43,7 +43,7 @@ ipk = ansys.aedt.core.Icepak(
     non_graphical=NG_MODE,
 )
 
-# Create the PCB as a simple block.
+# Create the PCB as a simple block with lumped material properties.
 
 board = ipk.modeler.create_box(
     origin=[-30.48, -27.305, 0],
@@ -52,15 +52,22 @@ board = ipk.modeler.create_box(
     material="FR-4_Ref",
 )
 
-# ## Blocks creation with a CSV file
+# ## Components creation with a CSV file
 #
-# The CSV file lists the name of blocks, their type and material properties.
-# Block types (solid, network, hollow), block name, block starting and end points,
-# solid material, and power are listed.
-# Hollow and network blocks do not need the material name.
-# Network blocks must have Rjb and Rjc values.
-# Monitor points can be created for any types of block if the last column is assigned
-# to be 1 (0 and 1 are the only options).
+# Components are represented as simple cubes with dimensions and properties specified in a CSV file.
+
+filename = ansys.aedt.core.downloads.download_file(
+    "icepak", "blocks-list.csv", destination=temp_folder.name
+)
+
+# The CSV file lists block properties:
+# - type (solid, network, hollow)
+# - name
+# - starting point (xs, ys, zs) and end point (xd, yd, zd)
+# - material properties (for solid blocks)
+# - power assignment
+# - resistances to board and to case (for network blocks)
+# - whether to add a monitor point to the block (0 or 1)
 #
 # The following table does not show the entire rows and data and only serves as a sample.
 #
@@ -74,15 +81,11 @@ board = ipk.modeler.create_box(
 # | network    | C10  | 65.40  | -1.27  | 0.40 | 3.81  | 2.54  | 2.43 |                  | 0.562 | 2   | 3   | 0             |
 # | network    | C20  | 113.03 | -0.63  | 0.40 | 2.54  | 3.81  | 2.43 |                  | 0.445 | 2   | 3   | 0             |
 #
-# In this step the code will loop over the csv file lines and creates the blocks.
+# In this step the code will loop over each line of the csv file, creates the blocks.
 # It will create solid blocks and assign BCs.
 # Every row of the csv has information of a particular block.
 
 # +
-filename = ansys.aedt.core.downloads.download_file(
-    "icepak", "blocks-list.csv", destination=temp_folder.name
-)
-
 with open(filename, "r") as csv_file:
     csv_reader = csv.DictReader(csv_file)
     for row in csv_reader:
@@ -144,48 +147,78 @@ with open(filename, "r") as csv_file:
 # -
 
 
-# # Calculate the power assigned to all the components
+# ## Calculate the power assigned to all the components
 
 power_budget, total_power = ipk.post.power_budget(units="W")
 
 # ## Plot model
+# ### Plot model using AEDT
 #
-# Plot the model and color each component depending on the power.
-# Instantiate the plotter object.
+# Set the colormap to use. Previously computed power budget can be used to set the minimum and maximum values.
 
-pyvista_plot = ipk.plot(show=False, plot_air_objects=False, force_opacity_value=0.2)
-pyvista_plot.show_legend = False
-
-# Set the colormap to use
-
-cmap = plt.get_cmap("viridis")
+cmap = plt.get_cmap("plasma")
 norm = mpl.colors.Normalize(
     vmin=min(power_budget.values()), vmax=max(power_budget.values())
 )
 scalarMap = cm.ScalarMappable(norm=norm, cmap=cmap)
 
-# Apply the color based on the power assigned and the colormap
-
-for actor in pyvista_plot.objects:
-    if actor.name in power_budget:
-        actor.color = [
-            int(i * 255) for i in scalarMap.to_rgba(power_budget[actor.name])[0:3]
+# Color the objects depending
+for obj in ipk.modeler.objects.values():
+    if obj.name in power_budget:
+        obj.color = [
+            int(i * 255) for i in scalarMap.to_rgba(power_budget[obj.name])[0:3]
         ]
-        actor.opacity = 1
+        obj.transparency = 0
+    else:
+        obj.color = [0, 0, 0]
+        obj.transparency = 0.9
 
-# Generate the plot and export
+# Export the model image by creating a list of all objects that excludes "Region". This list is then passed to the `export_model_picture` function. This approach ensures that the exported image fitted to the PCB and its compoents.
 
-mesh = pyvista_plot.generate_geometry_mesh()
-p = pyvista_plot.pv
-output = p.screenshot(os.path.join(temp_folder.name, "object_power.jpg"), scale=10)
-Image(os.path.join(temp_folder.name, "object_power.jpg"))
+obj_list_noregion = list(ipk.modeler.object_names)
+obj_list_noregion.remove("Region")
+export_file = os.path.join(temp_folder.name, "object_power_AEDTExport.jpg")
+ipk.post.export_model_picture(export_file, selections=obj_list_noregion, width=1920, height=1080)
+Image(export_file)
+
+# ### Plot model using pyAEDT
+#
+# Initialize a pyVista plotter
+plotter = pv.Plotter(off_screen=True, window_size=[2048, 1536])
+
+# Export all models objects to .obj files.
+
+f = ipk.post.export_model_obj(export_path=temp_folder.name, export_as_single_objects=True, air_objects=False)
+
+# Add objects to the PyVista plotter. These objects are either set to a black color or assigned scalar values,
+# allowing them to be visualized with a colormap.
+
+for file, color, opacity in f:
+    if color == (0, 0, 0):
+        plotter.add_mesh(mesh=pv.read(file), color="black", opacity=opacity)
+    else:
+        mesh = pv.read(filename=file)
+        mesh["Power"] = np.full(shape=mesh.n_points, fill_value=power_budget[Path(file).stem])
+        plotter.add_mesh(mesh=mesh, scalars="Power", cmap="viridis", opacity=opacity)
+
+# Add a label to the object with the maximum temperature
+
+max_pow_obj = "MP1"
+plotter.add_point_labels(points=[ipk.modeler[max_pow_obj].top_face_z.center],
+                         labels=[f"{max_pow_obj}, {power_budget[max_pow_obj]}W"],
+                         point_size=20, font_size=30, text_color="red")
+
+# Export file
+
+export_file = os.path.join(temp_folder.name, "object_power_pyVista.png")
+plotter.screenshot(filename=export_file, scale=1)
+Image(export_file)
 
 # ## Release AEDT
 
 ipk.save_project()
 ipk.release_desktop()
-# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
-time.sleep(3)
+time.sleep(3)  # Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
 
 # ## Cleanup
 #
