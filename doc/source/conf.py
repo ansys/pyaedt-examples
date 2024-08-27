@@ -339,6 +339,7 @@ nbsphinx_thumbnails = {
     "examples/10-EMIT/EMIT_HFSS_Example": "_static/thumbnails/emit_hfss.png",
     "examples/11-twin_builder/static_rom_creation_and_visualization": "_static/thumbnails/static_rom.png",
     "examples/12-general/com_analysis": "_static/thumbnails/com_eye.png",
+    "examples/12-general/convert_model_version": "_static/thumbnails/e3dcomp.png",
 }
 nbsphinx_custom_formats = {
     ".py": ["jupytext.reads", {"fmt": ""}],
