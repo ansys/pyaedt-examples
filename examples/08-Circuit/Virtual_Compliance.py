@@ -234,10 +234,9 @@ v.create_compliance_report()
 #
 # Release AEDT and close the example.
 
-h3d.save_project()
 h3d.release_desktop()
 # Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
-time.sleep(3)
+time.sleep(10)
 
 # ## Cleanup
 #
