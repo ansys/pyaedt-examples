@@ -105,7 +105,7 @@ app.rotor["Steel Type"] = "steel_1008"
 app.rotor["Pole Type"] = 1
 
 app.rotor.properties.children["Pole"].props["Embrace"] = 0.7
-app.rotor.properties.children["Pole"].props["Offset"] = 0
+app.rotor.properties.children["Pole"].props["Offset"] = "0mm"
 app.rotor.properties.children["Pole"].props["Magnet Type"] = ["Material:=", "Alnico9"]
 app.rotor.properties.children["Pole"].props["Magnet Thickness"] = "3.5mm"
 
@@ -132,9 +132,9 @@ setup.analyze()
 m2d = app.create_maxwell_design(setup_name=setup.name, maxwell_2d=True)
 m2d.plot(show=False, output_file=os.path.join(temp_folder.name, "Image.jpg"), plot_air_objects=True)
 
-# ## Rmxprt settings export
+# ## RMxprt settings export
 #
-# All Rmxprt settings can be exported in a json file and reused for another
+# All RMxprt settings can be exported in a json file and reused for another
 # project with import function.
 
 config = app.export_configuration(os.path.join(temp_folder.name, "assm.json"))
@@ -143,9 +143,9 @@ app2.import_configuration(config)
 
 # ## Save project
 #
-# Save the Maxwell project.
+# Save the project containing the Maxwell design.
 
-m2d.save_project(os.path.join(temp_folder.name, "Maxwell_project.aedt"))
+m2d.save_project(file_name=project_name)
 
 # ## Release AEDT and clean up temporary directory
 #
