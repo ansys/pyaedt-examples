@@ -324,7 +324,21 @@ nbsphinx_allow_errors = False
 
 # NbSphinx customization
 nbsphinx_thumbnails = {
-    "examples/00-EDB/00_EDB_Create_VIA": "_static/thumbnails/diff_via.png",
+    "examples/01-Modeling-Setup/Configurations": "_static/thumbnails/configuration_file_icepak.png",
+    "examples/01-Modeling-Setup/CoordinateSystem": "_static/thumbnails/coordinate_system.png",
+    "examples/01-Modeling-Setup/Polyline_Primitives": "_static/thumbnails/polyline.png",
+    "examples/02-HFSS/HFSS_FSS_unitcell": "_static/thumbnails/unitcell.png",
+    "examples/04-Layout/hfss_3d_layout/03_gui_manipulation": "_static/thumbnails/user_interface.png",
+    "examples/08-Circuit/Circuit_Siwave_Multizones": "_static/thumbnails/multizone.png",
+    "examples/08-Circuit/Circuit_Subcircuit_Example": "_static/thumbnails/subcircuit.png",
+    "examples/08-Circuit/Create_Netlist": "_static/thumbnails/netlist.png",
+    "examples/09-Multiphysics/Circuit_HFSS_Icepak_Coupling": "_static/thumbnails/ring.png",
+    "examples/10-EMIT/ComputeInterferenceType": "_static/thumbnails/interference.png",
+    "examples/10-EMIT/ComputeProtectionLevels": "_static/thumbnails/protection.png",
+    "examples/10-EMIT/EMIT_Example": "_static/thumbnails/emit.png",
+    "examples/10-EMIT/EMIT_HFSS_Example": "_static/thumbnails/emit_hfss.png",
+    "examples/11-twin_builder/static_rom_creation_and_visualization": "_static/thumbnails/static_rom.png",
+    "examples/12-general/com_analysis": "_static/thumbnails/com_eye.png",
 }
 nbsphinx_custom_formats = {
     ".py": ["jupytext.reads", {"fmt": ""}],

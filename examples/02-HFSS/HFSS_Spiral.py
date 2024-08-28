@@ -1,4 +1,4 @@
-# # HFSS: spiral inductor
+# # Spiral inductor
 #
 # This example shows how you can use PyAEDT to create a spiral inductor, solve it, and plot results.
 #
@@ -12,7 +12,7 @@ import os
 import tempfile
 import time
 
-import pyaedt
+import ansys.aedt.core
 
 # Set constant values
 
@@ -29,7 +29,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 # Create a new HFSS design and change the units to microns.
 
 project_name = os.path.join(temp_dir.name, "spiral.aedt")
-hfss = pyaedt.Hfss(
+hfss = ansys.aedt.core.Hfss(
     project=project_name,
     version=AEDT_VERSION,
     non_graphical=NG_MODE,
@@ -102,23 +102,23 @@ hfss.modeler.create_box(
 # Create port 1.
 
 hfss.modeler.create_rectangle(
-    orientation=pyaedt.constants.PLANE.YZ,
+    orientation=ansys.aedt.core.constants.PLANE.YZ,
     origin=[abs(x1) + 5, y0 - width / 2, -gap - thickness / 2],
-    sizes=[width, "Tsub+{}{}".format(gap, hfss.modeler.model_units)],
+    sizes=[width, "-Tsub+{}{}".format(gap, hfss.modeler.model_units)],
     name="port1",
 )
-hfss.lumped_port(assignment="port1", integration_line=pyaedt.constants.AXIS.Z)
+hfss.lumped_port(assignment="port1", integration_line=ansys.aedt.core.constants.AXIS.Z)
 
 # Create port 2.
 
 create_line([(x1 + width / 2, y1, 0), (x1 - 5, y1, 0)])
 hfss.modeler.create_rectangle(
-    pyaedt.constants.PLANE.YZ,
+    ansys.aedt.core.constants.PLANE.YZ,
     [x1 - 5, y1 - width / 2, -thickness / 2],
     [width, "-Tsub"],
     name="port2",
 )
-hfss.lumped_port(assignment="port2", integration_line=pyaedt.constants.AXIS.Z)
+hfss.lumped_port(assignment="port2", integration_line=ansys.aedt.core.constants.AXIS.Z)
 
 # Create the silicon substrate and the ground plane.
 
@@ -203,7 +203,7 @@ hfss.create_output_variable("L", L_formula, solution="setup1 : LastAdaptive")
 
 data = hfss.post.get_solution_data([L_formula, Q_formula])
 data.plot(
-    curves=[L_formula, Q_formula], math_formula="re", xlabel="Freq", ylabel="L and Q"
+    curves=[L_formula, Q_formula], formula="re", x_label="Freq", y_label="L and Q"
 )
 
 # Export results to csv file

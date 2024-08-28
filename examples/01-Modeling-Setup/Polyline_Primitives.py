@@ -1,7 +1,8 @@
-# # General: polyline creation
+# # Polyline creation
 #
 # This example shows how you can use PyAEDT to create and manipulate polylines.
-
+#
+# Keywords: **General**, **polyline**, **modeler**.
 
 # ## Preparation
 # Import the required packages
@@ -10,7 +11,7 @@ import os
 import tempfile
 import time
 
-import pyaedt
+import ansys.aedt.core
 
 # Define constants
 
@@ -27,7 +28,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 # Create a `Maxwell3d` object and set the unit type to ``"mm"``.
 
 project_name = os.path.join(temp_dir.name, "polyline.aedt")
-maxwell = pyaedt.Maxwell3d(
+maxwell = ansys.aedt.core.Maxwell3d(
     project=project_name,
     solution_type="Transient",
     design="test_polyline_3D",

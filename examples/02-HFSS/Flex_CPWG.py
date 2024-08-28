@@ -1,4 +1,4 @@
-# # HFSS: flex cable CPWG
+# # Flex cable CPWG
 #
 # This example shows how you can use PyAEDT to create a flex cable CPWG
 # (coplanar waveguide with ground).
@@ -9,12 +9,12 @@
 #
 # Perform required imports.
 
-from math import cos, radians, sin, sqrt
 import os
 import tempfile
+from math import cos, radians, sin, sqrt
 
-import pyaedt
-from pyaedt.generic.general_methods import generate_unique_name
+import ansys.aedt.core
+from ansys.aedt.core.generic.general_methods import generate_unique_name
 
 # Set constant values
 
@@ -35,13 +35,15 @@ temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 #
 # Launch AEDT, create an HFSS design, and save the project.
 
-hfss = pyaedt.Hfss(
+hfss = ansys.aedt.core.Hfss(
     version=AEDT_VERSION,
     solution_type="DrivenTerminal",
     new_desktop=True,
     non_graphical=non_graphical,
 )
-hfss.save_project(os.path.join(temp_dir.name, generate_unique_name("example") + ".aedt"))
+hfss.save_project(
+    os.path.join(temp_dir.name, generate_unique_name("example") + ".aedt")
+)
 
 # ## Design settings
 #
@@ -170,7 +172,9 @@ for face, blockname in zip([fr4.top_face_z, fr4.bottom_face_x], ["b1", "b2"]):
     port_sheet_list = [
         ((x - xc) * 10 + xc, (y - yc) + yc, (z - zc) * 10 + zc) for x, y, z in positions
     ]
-    s = hfss.modeler.create_polyline(port_sheet_list, close_surface=True, cover_surface=True)
+    s = hfss.modeler.create_polyline(
+        port_sheet_list, close_surface=True, cover_surface=True
+    )
     center = [round(i, 6) for i in s.faces[0].center]
 
     port_block = hfss.modeler.thicken_sheet(s.name, -5)
