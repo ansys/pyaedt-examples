@@ -4,18 +4,15 @@
 
 # ## Perform required imports
 
-# +
 import tempfile
 import time
 
-from pyaedt import Maxwell2d
-
-
-# -
+import pyaedt
 
 # Set constant values
 
 AEDT_VERSION = "2024.1"
+NG_MODE = False
 
 # ## Create temporary directory
 #
@@ -27,15 +24,13 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 #
 # Initialize dictionaries that contain all the definitions for the design variables.
 
-# +
-
 voltage = "230V"
 frequency = "50Hz"
 
 transient_parameters = {
     "voltage": voltage,
     "frequency": frequency,
-    "electric_period": "1/frequency s",
+    "electric_period": "1 / frequency s",
     "stop_time": "2 * electric_period s",
     "time_step": "electric_period / 20 s",
 }
@@ -51,23 +46,19 @@ circuit_parameters = {
 # Initialize and launch Maxwell 2D, providing the version, path to the project, the design
 # name and type.
 
-# +
-non_graphical = False
-
 project_name = "Maxwell_circuit_example"
 design_name = "1 Maxwell"
 circuit_name = "2 Delta circuit"
 solver = "TransientXY"
 
-maxwell = Maxwell2d(
+maxwell = pyaedt.Maxwell2d(
     version=AEDT_VERSION,
     new_desktop=False,
     design=design_name,
     project=project_name,
     solution_type=solver,
-    non_graphical=non_graphical,
+    non_graphical=NG_MODE,
 )
-
 
 # ## Define variables from dictionaries
 #
@@ -110,7 +101,6 @@ setup["TimeStep"] = "time_step"
 #
 # Create circuit design with the windings
 
-# todo this only works when https://github.com/ansys/pyaedt/pull/5006 is merged
 circuit = maxwell.create_external_circuit(circuit_design=circuit_name)
 
 # ## Define variables from dictionaries
@@ -167,7 +157,7 @@ circuit.modeler.schematic.create_wire(points=[resistors[0].pins[1].location, [12
 #
 # Export the netlist file, and import it to Maxwell
 
-netlist_file = temp_dir.name + "delta_netlist.sph"
+netlist_file = temp_dir.name + project_name + "_netlist.sph"
 circuit.export_netlist_from_schematic(netlist_file)
 
 maxwell.edit_external_circuit(netlist_file_path=netlist_file, schematic_design_name=circuit_name)
@@ -194,7 +184,5 @@ maxwell.post.create_report(
 # Release AEDT and remove both the project and temporary directory.
 
 maxwell.release_desktop(close_projects=True, close_desktop=True)
-time.sleep(
-    3
-)  # Allow time for Electronics Desktop to close before cleaning the temporary folder.
+time.sleep(3)
 temp_dir.cleanup()
