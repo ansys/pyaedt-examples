@@ -23,6 +23,8 @@ import ansys.aedt.core
 # Define constants.
 
 AEDT_VERSION = "2024.2"
+NUM_CORES = 4
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary directory and download files
 #
@@ -45,6 +47,7 @@ rmxprt = ansys.aedt.core.Rmxprt(
     close_on_exit=True,
     solution_type="ASSM",
     project=project_name,
+    non_graphical=NG_MODE
 )
 
 # ## Define Machine settings
