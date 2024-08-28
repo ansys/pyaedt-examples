@@ -129,7 +129,7 @@ setup.props["OperatingTemperature"] = "75cel"
 #
 # Analyze setup.
 
-setup.analyze()
+setup.analyze(cores=NUM_CORES)
 
 # ## Export to Maxwell
 #
