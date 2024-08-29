@@ -3,12 +3,38 @@
 # This example uses PyAEDT to set up a Lorentz actuator
 # and solve it using the Maxwell 2D transient solver.
 #
-# Keywords: **translational motion**, **mechanical transient**
+# Keywords: **Maxwell 2D**, **transient**, **translational motion**, **mechanical transient**
 
-
-# ## Initialize electric and geometric parameters
+# ## Perform required imports
 #
-# Launch AEDT and Maxwell 2D after first setting up the project and design names,
+# Perform required imports.
+
+import os
+import tempfile
+import time
+
+import ansys.aedt.core
+
+# ## Define constants
+
+AEDT_VERSION = "2024.2"
+NUM_CORES = 4
+NG_MODE = False  # Open Electronics UI when the application is launched.
+
+# ## Create temporary directory
+#
+# Create temporary directory.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
+
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
+
+
+# ## Initialize dictionaries
+#
+# Initialize electric and geometric parameters for the actuator.
+# Initialize simulation specification.
+# Initialize materials for the actuator component.
 
 dimensions = {
     "Core_outer_x": "100mm",
@@ -43,57 +69,41 @@ materials = {
     "Magnet_material": "NdFe30"
 }
 
-import os.path
-import tempfile
-
-from ansys.pyaedt.examples.constants import AEDT_VERSION
-import pyaedt
-
 # ## Launch AEDT and Maxwell 2D
 #
 # Launch AEDT and Maxwell 2D after first setting up the project and design names,
 # the solver, and the version. The following code also creates an instance of the
 # ``Maxwell2d`` class named ``m2d``.
 
-non_graphical = False
-
-m2d = pyaedt.Maxwell2d(
-    projectname="Lorentz_actuator",
+project_name = os.path.join(temp_folder.name, "Lorentz_actuator.aedt")
+m2d = ansys.aedt.core.Maxwell2d(
+    projectname=project_name,
     designname="1 transient 2D",
     solution_type="TransientXY",
     specified_version=AEDT_VERSION,
-    non_graphical=non_graphical,
+    non_graphical=NG_MODE
 )
-
-# ## Create temporary directory
-#
-# Create temporary directory.
-
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Define variables from dictionaries
 #
 # Define design variables from the created dictionaries.
 
 m2d.variable_manager.set_variable(variable_name="Dimensions")
-
 for k, v in dimensions.items():
     m2d[k] = v
 
 m2d.variable_manager.set_variable(variable_name="Winding data")
-
 for k, v in coil_specifications.items():
     m2d[k] = v
 
 m2d.variable_manager.set_variable(variable_name="Simulation data")
-
 for k, v in simulation_specifications.items():
     m2d[k] = v
 
-# Materials
+# Materials.
+
 m2d.variable_manager.set_variable(variable_name="Material data")
 m2d.logger.clear_messages()
-
 for i, key in enumerate(materials.keys()):
     if key == "Coil_material":
         coil_mat_index = i
@@ -101,11 +111,9 @@ for i, key in enumerate(materials.keys()):
         core_mat_index = i
     elif key == "Magnet_material":
         magnet_mat_index = i
-
 material_array = []
 for k, v in materials.items():
     material_array.append("\"" + v + "\"")
-
 s = ', '.join(material_array)
 m2d["Materials"] = "[{}]".format(s)
 
@@ -125,7 +133,6 @@ hole_id = mod.create_rectangle(
     sizes=["Core_outer_x-2*Core_thickness", "Core_outer_y-2*Core_thickness"],
     name="hole")
 mod.subtract(blank_list=[core_id], tool_list=[hole_id])
-
 
 magnet_n_id = mod.create_rectangle(
     origin=["Core_thickness", "Core_outer_y-2*Core_thickness", 0],
@@ -177,7 +184,7 @@ m2d.add_winding_coils(assignment="Winding1", coils=["coil_terminal_in", "coil_te
 # ## Assign motion
 #
 # Create band objects: All the objects within the band move. Inner band ensures that the mesh is good,
-# and additionally it is required when there more than 1 moving objects
+# and additionally it is required when there more than 1 moving objects.
 # Assign linear motion with mechanical transient.
 
 band_id = mod.create_rectangle(
@@ -214,8 +221,9 @@ m2d.mesh.assign_length_mesh(
     maximum_length="Mesh_other_objects", maximum_elements=None, name="Coils_core_magnets"
 )
 
-# ## Create simulation setup
+# ## Create and analyze the setup
 #
+# Create and analyze the simulation setup.
 
 setup = m2d.create_setup(name="Setup1")
 setup.props["StopTime"] = "Stop_time"
@@ -225,21 +233,29 @@ setup.props["N Steps"] = "Save_fields_interval"
 setup.props["Steps From"] = "0ms"
 setup.props["Steps To"] = "Stop_time"
 
+setup.analyze(cores=NUM_CORES)
+
 # ## Post-processing
 #
 # XY-report with force on coil and the position of the coil on Y-axis, time on X-axis.
+
 m2d.post.create_report(
     expressions=["Moving1.Force_x", "Moving1.Position"],
     plot_name="Force on Coil and Position of Coil", primary_sweep_variable="Time"
 )
 
-# ## Analyze setup
+# ## Release AEDT
 
-setup.analyze()
-
-# ## Release AEDT and clean up temporary directory
-#
-# Release AEDT and remove both the project and temporary directory.
-
+m2d.save_project()
 m2d.release_desktop()
-temp_dir.cleanup()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
+
+temp_folder.cleanup()
