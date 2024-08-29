@@ -99,14 +99,16 @@ def copy_examples_structure(app: Sphinx, config: Config):
     destination_dir = Path(app.srcdir, "examples").resolve()
     logger.info(f"Copying examples structures of {EXAMPLES_DIRECTORY} into {destination_dir}.")
 
-    if os.path.exists(destination_dir):
-        size = directory_size(destination_dir)
-        logger.info(f"Directory {destination_dir} ({size} MB) already exist, removing it.")
-        shutil.rmtree(destination_dir, ignore_errors=True)
-        logger.info(f"Directory removed.")
+    # NOTE: Only remove the examples directory if the workflow isn't tagged as coupling HTML and PDF build.
+    if not bool(int(os.getenv("SPHINXBUILD_HTML_AND_PDF_WORKFLOW", "0"))):
+        if os.path.exists(destination_dir):
+            size = directory_size(destination_dir)
+            logger.info(f"Directory {destination_dir} ({size} MB) already exist, removing it.")
+            shutil.rmtree(destination_dir, ignore_errors=True)
+            logger.info(f"Directory removed.")
 
     ignore_python_files = lambda _, files: [file for file in files if file.endswith(".py")]
-    shutil.copytree(EXAMPLES_DIRECTORY, destination_dir, ignore=ignore_python_files)
+    shutil.copytree(EXAMPLES_DIRECTORY, destination_dir, ignore=ignore_python_files, dirs_exist_ok=True)
     logger.info(f"Copy performed.")
 
 
@@ -189,12 +191,13 @@ def remove_examples(app: Sphinx, exception: None | Exception):
     app : sphinx.application.Sphinx
         Sphinx instance containing all the configuration for the documentation build.
     """
-    destination_dir = Path(app.srcdir) / "examples"
-
-    size = directory_size(destination_dir)
-    logger.info(f"Removing directory {destination_dir} ({size} MB).")
-    shutil.rmtree(destination_dir, ignore_errors=True)
-    logger.info(f"Directory removed.")
+    # NOTE: Only remove the examples if the workflow isn't tagged as coupling HTML and PDF build.
+    if not bool(int(os.getenv("SPHINXBUILD_HTML_AND_PDF_WORKFLOW", "0"))):
+        destination_dir = Path(app.srcdir) / "examples"
+        size = directory_size(destination_dir)
+        logger.info(f"Removing directory {destination_dir} ({size} MB).")
+        shutil.rmtree(destination_dir, ignore_errors=True)
+        logger.info(f"Directory removed.")
 
 def remove_doctree(app: Sphinx, exception: None | Exception):
     """Remove the .doctree directory created during the documentation build.
@@ -206,11 +209,8 @@ def remove_doctree(app: Sphinx, exception: None | Exception):
     exception : None or Exception
         Exception raised during the build process.
     """
-    # Keep the doctree to avoid creating it twice. This is typically helpful in CI/CD
-    # where we want to build both HTML and PDF pages.
-    if bool(int(os.getenv("SPHINXBUILD_KEEP_DOCTREEDIR", "0"))):
-        logger.info(f"Keeping directory {app.doctreedir}.")
-    else:
+    # NOTE: Only remove the doctree if the workflow isn't tagged as coupling HTML and PDF build.
+    if not bool(int(os.getenv("SPHINXBUILD_HTML_AND_PDF_WORKFLOW", "0"))):
         size = directory_size(app.doctreedir)
         logger.info(f"Removing doctree {app.doctreedir} ({size} MB).")
         shutil.rmtree(app.doctreedir, ignore_errors=True)
@@ -228,43 +228,45 @@ def convert_examples_into_notebooks(app):
         "05_electrothermal.py",
     )
 
-    count = 0
-    for example in EXAMPLES:
-        count += 1
-        example_path = str(example).split("examples" + os.sep)[-1]
-        notebook_path = example_path.replace(".py", ".ipynb")
-        output = subprocess.run(
-            [
-                "jupytext",
-                "--to",
-                "ipynb",
-                str(example),
-                "--output",
-                str(DESTINATION_DIR / notebook_path),
-            ],
-            capture_output=True,
-        )
+    # NOTE: Only convert the examples if the workflow isn't tagged as coupling HTML and PDF build.
+    if not bool(int(os.getenv("SPHINXBUILD_HTML_AND_PDF_WORKFLOW", "0"))) or app.builder.name == "html":
+        count = 0
+        for example in EXAMPLES:
+            count += 1
+            example_path = str(example).split("examples" + os.sep)[-1]
+            notebook_path = example_path.replace(".py", ".ipynb")
+            output = subprocess.run(
+                [
+                    "jupytext",
+                    "--to",
+                    "ipynb",
+                    str(example),
+                    "--output",
+                    str(DESTINATION_DIR / notebook_path),
+                ],
+                capture_output=True,
+            )
 
-        if output.returncode != 0:
-            logger.error(f"Error converting {example} to script")
-            logger.error(output.stderr)
+            if output.returncode != 0:
+                logger.error(f"Error converting {example} to script")
+                logger.error(output.stderr)
 
-        # Disable execution if required
-        basename = os.path.basename(example)
-        if basename in EXAMPLES_TO_NOT_EXECUTE:
-            logger.warning(f"Disable execution of example {basename}.")
-            with open(str(DESTINATION_DIR / notebook_path), "r") as f:
-                nb = nbformat.read(f, as_version=nbformat.NO_CONVERT)
-            if "nbsphinx" not in nb.metadata:
-                nb.metadata["nbsphinx"] = {}
-            nb.metadata["nbsphinx"]["execute"] = "never"
-            with open(str(DESTINATION_DIR / notebook_path), "w", encoding="utf-8") as f:
-                nbformat.write(nb, f)
+            # Disable execution if required
+            basename = os.path.basename(example)
+            if basename in EXAMPLES_TO_NOT_EXECUTE:
+                logger.warning(f"Disable execution of example {basename}.")
+                with open(str(DESTINATION_DIR / notebook_path), "r") as f:
+                    nb = nbformat.read(f, as_version=nbformat.NO_CONVERT)
+                if "nbsphinx" not in nb.metadata:
+                    nb.metadata["nbsphinx"] = {}
+                nb.metadata["nbsphinx"]["execute"] = "never"
+                with open(str(DESTINATION_DIR / notebook_path), "w", encoding="utf-8") as f:
+                    nbformat.write(nb, f)
 
-    if count == 0:
-        logger.warning("No python examples found to convert to scripts")
-    else:
-        logger.info(f"Converted {count} python examples to scripts")
+        if count == 0:
+            logger.warning("No python examples found to convert to scripts")
+        else:
+            logger.info(f"Converted {count} python examples to scripts")
 
 def setup(app):
     """Run different hook functions during the documentation build."""
@@ -278,7 +280,7 @@ def setup(app):
     # Source read hook
     app.connect("source-read", adjust_image_path)
     # Build finished hooks
-    app.connect("build-finished", remove_examples)
+    # app.connect("build-finished", remove_examples)
     app.connect("build-finished", remove_doctree)
 
 # -- General configuration ---------------------------------------------------
