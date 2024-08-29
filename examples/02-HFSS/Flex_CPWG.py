@@ -1,4 +1,4 @@
-# # HFSS: flex cable CPWG
+# # Flex cable CPWG
 #
 # This example shows how you can use PyAEDT to create a flex cable CPWG
 # (coplanar waveguide with ground).
@@ -9,13 +9,16 @@
 #
 # Perform required imports.
 
-from math import cos, radians, sin, sqrt
 import os
 import tempfile
+from math import cos, radians, sin, sqrt
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
-import pyaedt
-from pyaedt.generic.general_methods import generate_unique_name
+import ansys.aedt.core
+from ansys.aedt.core.generic.general_methods import generate_unique_name
+
+# Set constant values
+
+AEDT_VERSION = "2024.2"
 
 # ## Set non-graphical mode
 #
@@ -32,13 +35,15 @@ temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 #
 # Launch AEDT, create an HFSS design, and save the project.
 
-hfss = pyaedt.Hfss(
-    specified_version=AEDT_VERSION,
+hfss = ansys.aedt.core.Hfss(
+    version=AEDT_VERSION,
     solution_type="DrivenTerminal",
-    new_desktop_session=True,
+    new_desktop=True,
     non_graphical=non_graphical,
 )
-hfss.save_project(os.path.join(temp_dir.name, generate_unique_name("example") + ".aedt"))
+hfss.save_project(
+    os.path.join(temp_dir.name, generate_unique_name("example") + ".aedt")
+)
 
 # ## Design settings
 #
@@ -74,32 +79,32 @@ xt = (total_length - r * radians(theta)) / 2
 
 
 def create_bending(radius, extension=0):
-    position_list = [(-xt, 0, -radius), (0, 0, -radius)]
+    points = [(-xt, 0, -radius), (0, 0, -radius)]
 
     for i in [radians(i) for i in range(theta)] + [radians(theta + 0.000000001)]:
-        position_list.append((radius * sin(i), 0, -radius * cos(i)))
+        points.append((radius * sin(i), 0, -radius * cos(i)))
 
-    x1, y1, z1 = position_list[-1]
-    x0, y0, z0 = position_list[-2]
+    x1, y1, z1 = points[-1]
+    x0, y0, z0 = points[-2]
 
     scale = (xt + extension) / sqrt((x1 - x0) ** 2 + (z1 - z0) ** 2)
     x, y, z = (x1 - x0) * scale + x0, 0, (z1 - z0) * scale + z0
 
-    position_list[-1] = (x, y, z)
-    return position_list
+    points[-1] = (x, y, z)
+    return points
 
 
 # ## Draw signal line
 #
 # Draw a signal line to create a bent signal wire.
 
-position_list = create_bending(r, 1)
+points = create_bending(r, 1)
 line = hfss.modeler.create_polyline(
-    position_list=position_list,
+    points=points,
     xsection_type="Rectangle",
     xsection_width=height,
     xsection_height=width,
-    matname="copper",
+    material="copper",
 )
 
 # ## Draw ground line
@@ -107,17 +112,17 @@ line = hfss.modeler.create_polyline(
 # Draw a ground line to create two bent ground wires.
 
 # +
-gnd_r = [(x, spacing + width / 2 + gnd_width / 2, z) for x, y, z in position_list]
+gnd_r = [(x, spacing + width / 2 + gnd_width / 2, z) for x, y, z in points]
 gnd_l = [(x, -y, z) for x, y, z in gnd_r]
 
 gnd_objs = []
 for gnd in [gnd_r, gnd_l]:
     x = hfss.modeler.create_polyline(
-        position_list=gnd,
+        points=gnd,
         xsection_type="Rectangle",
         xsection_width=height,
         xsection_height=gnd_width,
-        matname="copper",
+        material="copper",
     )
     x.color = (255, 0, 0)
     gnd_objs.append(x)
@@ -128,14 +133,14 @@ for gnd in [gnd_r, gnd_l]:
 # Draw a dielectric to create a dielectric cable.
 
 # +
-position_list = create_bending(r + (height + gnd_thickness) / 2)
+points = create_bending(r + (height + gnd_thickness) / 2)
 
 fr4 = hfss.modeler.create_polyline(
-    position_list=position_list,
+    points=points,
     xsection_type="Rectangle",
     xsection_width=gnd_thickness,
     xsection_height=width + 2 * spacing + 2 * gnd_width,
-    matname="FR4_epoxy",
+    material="FR4_epoxy",
 )
 # -
 
@@ -144,14 +149,14 @@ fr4 = hfss.modeler.create_polyline(
 # Create the bottom metals.
 
 # +
-position_list = create_bending(r + height + gnd_thickness, 1)
+points = create_bending(r + height + gnd_thickness, 1)
 
 bot = hfss.modeler.create_polyline(
-    position_list=position_list,
+    points=points,
     xsection_type="Rectangle",
     xsection_width=height,
     xsection_height=width + 2 * spacing + 2 * gnd_width,
-    matname="copper",
+    material="copper",
 )
 # -
 
@@ -167,7 +172,9 @@ for face, blockname in zip([fr4.top_face_z, fr4.bottom_face_x], ["b1", "b2"]):
     port_sheet_list = [
         ((x - xc) * 10 + xc, (y - yc) + yc, (z - zc) * 10 + zc) for x, y, z in positions
     ]
-    s = hfss.modeler.create_polyline(port_sheet_list, close_surface=True, cover_surface=True)
+    s = hfss.modeler.create_polyline(
+        port_sheet_list, close_surface=True, cover_surface=True
+    )
     center = [round(i, 6) for i in s.faces[0].center]
 
     port_block = hfss.modeler.thicken_sheet(s.name, -5)
@@ -212,12 +219,12 @@ setup["Frequency"] = "2GHz"
 setup.props["MaximumPasses"] = 10
 setup.props["MinimumConvergedPasses"] = 2
 hfss.create_linear_count_sweep(
-    setupname="setup1",
-    unit="GHz",
-    freqstart=1e-1,
-    freqstop=4,
+    setup="setup1",
+    units="GHz",
+    start_frequency=1e-1,
+    stop_frequency=4,
     num_of_freq_points=101,
-    sweepname="sweep1",
+    name="sweep1",
     save_fields=False,
     sweep_type="Interpolating",
 )

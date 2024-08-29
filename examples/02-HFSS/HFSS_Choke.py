@@ -1,4 +1,4 @@
-# # HFSS: choke
+# # Choke
 #
 # This example shows how you can use PyAEDT to create a choke setup in HFSS.
 #
@@ -11,16 +11,14 @@
 import json
 import os
 import tempfile
+import time
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
-import pyaedt
+import ansys.aedt.core
 
-# ## Set non-graphical mode
-#
-# Set non-graphical mode.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
+# Set constant values
 
-non_graphical = False
+AEDT_VERSION = "2024.2"
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary directory
 
@@ -28,12 +26,12 @@ temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 
 # ## Launch HFSS
 
-project_name = pyaedt.generate_unique_project_name(rootname=temp_dir.name, project_name="choke")
-hfss = pyaedt.Hfss(
-    projectname=project_name,
-    specified_version=AEDT_VERSION,
-    non_graphical=non_graphical,
-    new_desktop_session=True,
+project_name = os.path.join(temp_dir.name, "choke.aedt")
+hfss = ansys.aedt.core.Hfss(
+    project=project_name,
+    version=AEDT_VERSION,
+    non_graphical=NG_MODE,
+    new_desktop=True,
     solution_type="Terminal",
 )
 
@@ -122,7 +120,9 @@ with open(json_path, "w") as outfile:
 # - Checks if the JSON file is correctly written (as explained in the rules)
 # - Checks in equations on windings parameters to avoid having unintended intersections
 
-dictionary_values = hfss.modeler.check_choke_values(json_path, create_another_file=False)
+dictionary_values = hfss.modeler.check_choke_values(
+    json_path, create_another_file=False
+)
 print(dictionary_values)
 
 # ## Create choke
@@ -143,9 +143,9 @@ second_winding_list = list_object[3]
 ground_radius = 1.2 * dictionary_values[1]["Outer Winding"]["Outer Radius"]
 ground_position = [0, 0, first_winding_list[1][0][2] - 2]
 ground = hfss.modeler.create_circle(
-    "XY", ground_position, ground_radius, name="GND", matname="copper"
+    "XY", ground_position, ground_radius, name="GND", material="copper"
 )
-coat = hfss.assign_coating(ground, isinfgnd=True)
+coat = hfss.assign_coating(ground, is_infinite_ground=True)
 ground.transparency = 0.9
 
 # ## Create lumped ports
@@ -153,9 +153,21 @@ ground.transparency = 0.9
 # Create lumped ports.
 
 port_position_list = [
-    [first_winding_list[1][0][0], first_winding_list[1][0][1], first_winding_list[1][0][2] - 1],
-    [first_winding_list[1][-1][0], first_winding_list[1][-1][1], first_winding_list[1][-1][2] - 1],
-    [second_winding_list[1][0][0], second_winding_list[1][0][1], second_winding_list[1][0][2] - 1],
+    [
+        first_winding_list[1][0][0],
+        first_winding_list[1][0][1],
+        first_winding_list[1][0][2] - 1,
+    ],
+    [
+        first_winding_list[1][-1][0],
+        first_winding_list[1][-1][1],
+        first_winding_list[1][-1][2] - 1,
+    ],
+    [
+        second_winding_list[1][0][0],
+        second_winding_list[1][0][1],
+        second_winding_list[1][0][2] - 1,
+    ],
     [
         second_winding_list[1][-1][0],
         second_winding_list[1][-1][1],
@@ -164,10 +176,12 @@ port_position_list = [
 ]
 port_dimension_list = [2, dictionary_values[1]["Outer Winding"]["Wire Diameter"]]
 for position in port_position_list:
-    sheet = hfss.modeler.create_rectangle("XZ", position, port_dimension_list, name="sheet_port")
+    sheet = hfss.modeler.create_rectangle(
+        "XZ", position, port_dimension_list, name="sheet_port"
+    )
     sheet.move([-dictionary_values[1]["Outer Winding"]["Wire Diameter"] / 2, 0, -1])
     hfss.lumped_port(
-        signal=sheet.name,
+        assignment=sheet.name,
         name="port_" + str(port_position_list.index(position) + 1),
         reference=[ground],
     )
@@ -176,6 +190,7 @@ for position in port_position_list:
 #
 # Create the mesh.
 
+# +
 cylinder_height = 2.5 * dictionary_values[1]["Outer Winding"]["Height"]
 cylinder_position = [0, 0, first_winding_list[1][0][2] - 4]
 mesh_operation_cylinder = hfss.modeler.create_cylinder(
@@ -183,13 +198,17 @@ mesh_operation_cylinder = hfss.modeler.create_cylinder(
     cylinder_position,
     ground_radius,
     cylinder_height,
-    numSides=36,
+    num_sides=36,
     name="mesh_cylinder",
 )
 
 hfss.mesh.assign_length_mesh(
-    [mesh_operation_cylinder], maxlength=15, maxel=None, meshop_name="choke_mesh"
+    [mesh_operation_cylinder],
+    maximum_length=15,
+    maximum_elements=None,
+    name="choke_mesh",
 )
+# -
 
 
 # ## Create boundaries
@@ -208,12 +227,12 @@ setup = hfss.create_setup("MySetup")
 setup.props["Frequency"] = "50MHz"
 setup["MaximumPasses"] = 10
 hfss.create_linear_count_sweep(
-    setupname=setup.name,
-    unit="MHz",
-    freqstart=0.1,
-    freqstop=100,
+    setup=setup.name,
+    units="MHz",
+    start_frequency=0.1,
+    stop_frequency=100,
     num_of_freq_points=100,
-    sweepname="sweep1",
+    name="sweep1",
     sweep_type="Interpolating",
     save_fields=False,
 )
@@ -223,15 +242,23 @@ hfss.create_linear_count_sweep(
 hfss.modeler.fit_all()
 hfss.plot(
     show=False,
-    export_path=os.path.join(hfss.working_directory, "Image.jpg"),
+    output_file=os.path.join(hfss.working_directory, "Image.jpg"),
     plot_air_objects=False,
 )
 
 
 # ## Release AEDT
 
+hfss.save_project()
 hfss.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
 
-# ## Clean temporary directory
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
 temp_dir.cleanup()

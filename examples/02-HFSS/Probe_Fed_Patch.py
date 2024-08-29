@@ -1,4 +1,4 @@
-# # HFSS: Probe-fed patch antenna
+# # Probe-fed patch antenna
 #
 # This example shows how to use the ``Stackup3D`` class
 # to create and analyze a patch antenna in HFSS.
@@ -6,24 +6,24 @@
 # Note that the HFSS 3D Layout interface may offer advantages for
 # laminate structures such as the patch antenna.
 #
-# Keywords: **HFSS**, **Patch**, **antenna**.
-
+# Keywords: **HFSS**, **patch**, **antenna**.
+#
 # ## Perform required imports
 #
 # Perform required imports.
 
+import os
 import tempfile
+import time
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION, NUM_CORES
-import pyaedt
-from pyaedt.modeler.advanced_cad.stackup_3d import Stackup3D
+import ansys.aedt.core
+from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
 
-# ## Set non-graphical mode
-#
-# Set non-graphical mode.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
+# Set constant values
 
-non_graphical = False
+AEDT_VERSION = "2024.2"
+NUM_CORES = 4
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary directory
 
@@ -33,19 +33,18 @@ temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 #
 # Launch HFSS and change length units.
 
-project_name = pyaedt.generate_unique_project_name(rootname=temp_dir.name, project_name="patch")
-hfss = pyaedt.Hfss(
-    projectname=project_name,
+project_name = os.path.join(temp_dir.name, "patch.aedt")
+hfss = ansys.aedt.core.Hfss(
+    project=project_name,
     solution_type="Terminal",
-    designname="patch",
-    non_graphical=non_graphical,
-    new_desktop_session=True,
-    specified_version=AEDT_VERSION,
+    design="patch",
+    non_graphical=NG_MODE,
+    new_desktop=True,
+    version=AEDT_VERSION,
 )
 
 length_units = "mm"
 freq_units = "GHz"
-
 hfss.modeler.model_units = length_units
 
 # ## Create patch
@@ -54,12 +53,18 @@ hfss.modeler.model_units = length_units
 
 # +
 stackup = Stackup3D(hfss)
-ground = stackup.add_ground_layer("ground", material="copper", thickness=0.035, fill_material="air")
+ground = stackup.add_ground_layer(
+    "ground", material="copper", thickness=0.035, fill_material="air"
+)
 dielectric = stackup.add_dielectric_layer(
     "dielectric", thickness="0.5" + length_units, material="Duroid (tm)"
 )
-signal = stackup.add_signal_layer("signal", material="copper", thickness=0.035, fill_material="air")
-patch = signal.add_patch(patch_length=9.57, patch_width=9.25, patch_name="Patch", frequency=1e10)
+signal = stackup.add_signal_layer(
+    "signal", material="copper", thickness=0.035, fill_material="air"
+)
+patch = signal.add_patch(
+    patch_length=9.57, patch_width=9.25, patch_name="Patch", frequency=1e10
+)
 
 stackup.resize_around_element(patch)
 pad_length = [3, 3, 3, 3, 3, 3]  # Air bounding box buffer in mm.
@@ -95,8 +100,16 @@ plt = solution.plot(solution.expressions)
 #
 # Release AEDT.
 
+hfss.save_project()
 hfss.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
 
-# ## Clean temporary directory
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes
+# all temporary files, including the project folder.
 
 temp_dir.cleanup()

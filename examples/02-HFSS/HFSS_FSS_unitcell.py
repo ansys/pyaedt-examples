@@ -1,7 +1,8 @@
-# # HFSS: FSS Unitcell Simulation
+# # FSS Unit Cell Simulation
 #
-# This example shows how you can use PyAEDT to create a FSS unitcell simulations in
-# HFSS and postprocess results.
+# This example shows how you can use PyAEDT to model and simulation a unit cell
+# for a frequency-selectiv surface in
+# HFSS.
 #
 # Keywords: **HFSS**, **FSS**, **Floquet**.
 
@@ -11,31 +12,35 @@
 
 import os
 import tempfile
+import time
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
-import pyaedt
+import ansys.aedt.core
 
-# ## Set non-graphical mode
-#
-# Set non-graphical mode. `
-# You can set ``non_graphical`` either to ``True`` or ``False``.
+# Set constant values
 
-non_graphical = False
+AEDT_VERSION = "2024.2"
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary directory
 
-temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch AEDT
 
-project_name = pyaedt.generate_unique_project_name(rootname=temp_dir.name, project_name="FSS")
-d = pyaedt.launch_desktop(AEDT_VERSION, non_graphical=non_graphical, new_desktop_session=True)
+project_name = os.path.join(temp_dir.name, "FSS.aedt")
+d = ansys.aedt.core.launch_desktop(
+    AEDT_VERSION,
+    non_graphical=NG_MODE,
+    new_desktop=True,
+)
 
 # ## Launch HFSS
 #
 # Create a new HFSS design.
 
-hfss = pyaedt.Hfss(projectname=project_name, solution_type="Modal")
+hfss = ansys.aedt.core.Hfss(
+    version=AEDT_VERSION, project=project_name, solution_type="Modal"
+)
 
 # ## Define variable
 #
@@ -43,27 +48,22 @@ hfss = pyaedt.Hfss(projectname=project_name, solution_type="Modal")
 
 hfss["patch_dim"] = "10mm"
 
-# ## Insert 3D component from system library
+# ## Model Setup
 #
 # Download the 3D component from the example data and insert the 3D Component.
 
-# +
-unitcell_3d_component_path = pyaedt.downloads.download_FSS_3dcomponent(destination=temp_dir.name)
+unitcell_3d_component_path = ansys.aedt.core.downloads.download_FSS_3dcomponent(
+    destination=temp_dir.name
+)
 unitcell_path = os.path.join(unitcell_3d_component_path, "FSS_unitcell_23R2.a3dcomp")
-
 comp = hfss.modeler.insert_3d_component(unitcell_path)
-# -
 
-# ## Assign design parameter to 3D Component parameter
-#
-# Assign parameter.
+# Assign parameter to the 3D component.
 
 component_name = hfss.modeler.user_defined_component_names
 comp.parameters["a"] = "patch_dim"
 
-# ## Create air region
-#
-# Create an open region along +Z direction for unitcell analysis.
+# Create an open region along +Z direction for unit cell analysis.
 
 # +
 bounding_dimensions = hfss.modeler.get_bounding_dimension()
@@ -79,15 +79,11 @@ region = hfss.modeler.create_air_region(
 [x_min, y_min, z_min, x_max, y_max, z_max] = region.bounding_box
 # -
 
-# ## Assign Lattice pair boundary
-#
-# Assigning lattice pair boundary automatically detected.
+# Assigning lattice pair boundary condition.
 
-hfss.auto_assign_lattice_pairs(object_to_assign=region.name)
+hfss.auto_assign_lattice_pairs(assignment=region.name)
 
-# ## Assign Floquet port excitation along +Z direction
-#
-# Assign Floquet port.
+# Defie the Floquet port.
 
 id_z_pos = region.top_face_z
 hfss.create_floquet_port(
@@ -95,30 +91,28 @@ hfss.create_floquet_port(
     lattice_origin=[0, 0, z_max],
     lattice_a_end=[0, y_max, z_max],
     lattice_b_end=[x_max, 0, z_max],
-    portname="port_z_max",
+    name="port_z_max",
     deembed_distance=10 * bounding_dimensions[2],
 )
 
-# ## Create setup
-#
-# Create a setup with a sweep to run the simulation.
+# Create a solution setup, including the frequency sweep.
 
 setup = hfss.create_setup("MySetup")
 setup.props["Frequency"] = "10GHz"
 setup.props["MaximumPasses"] = 10
 hfss.create_linear_count_sweep(
-    setupname=setup.name,
-    unit="GHz",
-    freqstart=6,
-    freqstop=15,
+    setup=setup.name,
+    units="GHz",
+    start_frequency=6,
+    stop_frequency=15,
     num_of_freq_points=51,
-    sweepname="sweep1",
+    name="sweep1",
     sweep_type="Interpolating",
     interpolation_tol=6,
     save_fields=False,
 )
 
-# ## Create S-parameter report using report objects
+# ## Post-processing
 #
 # Create S-parameter reports using create report.
 
@@ -136,12 +130,12 @@ for i in all_quantities:
 hfss.post.create_report(
     expressions=str_mag,
     variations=variation,
-    plotname="magnitude_plot",
+    plot_name="magnitude_plot",
 )
 hfss.post.create_report(
     expressions=str_ang,
     variations=variation,
-    plotname="phase_plot",
+    plot_name="phase_plot",
 )
 # -
 
@@ -150,11 +144,19 @@ hfss.post.create_report(
 # Save and run the simulation. Uncomment the line following line to run the analysis.
 
 # hfss.analyze()
+hfss.save_project()
 
 # ## Release AEDT
 
 hfss.release_desktop()
+# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(3)
 
-# ## Clean temporary directory
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes
+# all temporary files, including the project folder.
 
 temp_dir.cleanup()

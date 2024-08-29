@@ -1,46 +1,45 @@
-# # General: optimetrics setup
+# # Optimetrics setup
 #
 # This example shows how you can use PyAEDT to create a project in HFSS and create all optimetrics
 # setups.
-
-
-# ## Perform required imports
 #
-# Perform required imports.
+# Keywords: **General**, **Optimetrics**.
+
+# ## Preparation
+# Import the required packages
 
 import os
 import tempfile
+import time
 
-from ansys.pyaedt.examples.constants import AEDT_VERSION
-import pyaedt
+import ansys.aedt.core
 
-# ## Set non-graphical mode
-#
-# Set non-graphical mode.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
+# Define constants
 
-non_graphical = False
+AEDT_VERSION = "2024.2"
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary directory
 
-temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Initialize HFSS and create variables
 #
 # Initialize the ``Hfss`` object and create two needed design variables,
 # ``w1`` and ``w2``.
 
-project_name = pyaedt.generate_unique_project_name(
-    rootname=temp_dir.name, project_name="optimetrics"
-)
-hfss = pyaedt.Hfss(
-    projectname=project_name,
-    specified_version=AEDT_VERSION,
-    new_desktop_session=True,
-    non_graphical=non_graphical,
+# +
+project_name = os.path.join(temp_dir.name, "optimetrics.aedt")
+
+hfss = ansys.aedt.core.Hfss(
+    project=project_name,
+    version=AEDT_VERSION,
+    new_desktop=True,
+    non_graphical=NG_MODE,
 )
 hfss["w1"] = "1mm"
 hfss["w2"] = "100mm"
+# -
 
 # ## Create waveguide with sheets on it
 #
@@ -144,8 +143,17 @@ sweep6 = hfss.optimizations.add(
 
 # ## Release AEDT
 
+hfss.save_project()
 hfss.release_desktop()
+time.sleep(
+    3
+)  # Allow Electronics Desktop to shut down before cleaning the temporary project folder.
 
-# ## Clean temporary directory
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes
+# all temporary files, including the project folder.
 
 temp_dir.cleanup()

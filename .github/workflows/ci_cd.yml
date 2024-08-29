@@ -12,10 +12,13 @@ on:
     - cron: "0 3 * * *"
 
 env:
-  MAIN_PYTHON_VERSION: '3.10'
-  PACKAGE_NAME: 'pyaedt-examples'
   ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
+  DOCUMENTATION_CNAME: 'examples.aedt.docs.pyansys.com'
+  MAIN_PYTHON_VERSION: '3.10'
   ON_CI: True
+  PACKAGE_NAME: 'pyaedt-examples'
+  PYAEDT_NON_GRAPHICAL: '1'
+  PYAEDT_DOC_GENERATION: '1'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -23,34 +26,6 @@ concurrency:
 
 jobs:
   
-  #TODO: Update to use code-style
-  # code-style:
-  #   name: Code style
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: ansys/actions/code-style@v4
-  #       with:
-  #         python-version: ${{ env.MAIN_PYTHON_VERSION }}
-  #         use-python-cache: false
-
-  smoke-tests:
-    name: Build and Smoke tests
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-        python-version: ['3.9', '3.10', '3.11']
-        should-release:
-          - ${{ github.event_name == 'push' && contains(github.ref, 'refs/tags') }}
-    steps:
-      - name: Build wheelhouse and perform smoke test
-        uses: ansys/actions/build-wheelhouse@v5
-        with:
-          library-name: ${{ env.PACKAGE_NAME }}
-          operating-system: ${{ matrix.os }}
-          python-version: ${{ matrix.python-version }}
-
   doc-style:
     name: Documentation style
     runs-on: ubuntu-latest
@@ -58,22 +33,6 @@ jobs:
       - uses: ansys/actions/doc-style@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-
-  tests:
-    name: Test and coverage
-    runs-on: ubuntu-latest
-    steps:
-      - uses: ansys/actions/tests-pytest@v5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload Coverage Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-html
-          path: .cov/html
-          retention-days: 7
 
 # =================================================================================================
 # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
@@ -89,7 +48,6 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
-          use-cache: false
 
       - name: Create virtual environment
         run: |
@@ -102,8 +60,7 @@ jobs:
       - name: Install project and documentation dependencies
         run: |
           .venv\Scripts\Activate.ps1
-          pip install .
-          pip install .[doc]
+          pip install --no-cache-dir -r requirements/requirements_doc.txt
 
       # Use environment variable to keep the doctree and avoid redundant build for PDF pages
       - name: Create HTML documentation
@@ -111,7 +68,18 @@ jobs:
           SPHINXBUILD_KEEP_DOCTREEDIR: "1"
         run: |
           .venv\Scripts\Activate.ps1
-          . .\doc\make.bat html
+          . .\doc\make.bat html --color
+
+      # NOTE: Ugly HTML checking but redirecting errors with our docs either leads
+      # to errors in powershell or workflows getting stuck in Github CICD.
+      - name: Check HTML doc creation
+        run : |
+          if (Test-Path "doc\_build\html\index.html" ) {
+            Write-Output "File index.html found, HTML build successful."
+          } else {
+            Write-Error "Sphinx build failed, check if there is no cell execution error."
+            exit 1            
+          }
 
       - name: Upload HTML documentation artifact
         uses: actions/upload-artifact@v4
@@ -136,23 +104,15 @@ jobs:
           path: doc/_build/latex
           retention-days: 7
 
-  #TODO: Update to use code-style
-  release:
-    name: Release project
-    if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
-    # needs: [code-style, doc-build]
-    needs: [doc-build]
+  deploy-doc:
+    name: Upload documentation
+    if: contains(github.ref, 'refs/heads/main')
     runs-on: ubuntu-latest
+    needs: [doc-build]
     steps:
-      # TODO: update if ever public
-      # - name: Release to the public PyPI repository
-      #   uses: ansys/actions/release-pypi-public@v5
-      #   with:
-      #     library-name: ${{ env.PACKAGE_NAME }}
-      #     twine-username: "__token__"
-      #     twine-token: ${{ secrets.PYPI_TOKEN }}
-
-      - name: Release to GitHub
-        uses: ansys/actions/release-github@v5
+      - name: Deploy the documentation
+        uses: ansys/actions/doc-deploy-dev@v5
         with:
-          library-name: ${{ env.PACKAGE_NAME }}
+          cname: ${{ env.DOCUMENTATION_CNAME }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          doc-artifact-name: 'documentation-html'
