@@ -38,15 +38,7 @@ download_folder = ansys.aedt.core.downloads.download_file(
 project_folder = os.path.join(download_folder, "project")
 project_path = os.path.join(project_folder, "PCIE_GEN5_only_layout.aedtz")
 
-# ## Launch AEDT
-
-# d = ansys.aedt.core.Desktop(
-#     version=AEDT_VERSION,
-#     new_desktop=True,
-#     non_graphical=NG_MODE,
-# )
-
-# ## Open and solve layout
+# ## Launch AEDT and solve layout
 #
 # Open the HFSS 3D Layout project and analyze it using the SIwave solver.
 # Before solving, this code ensures that the model is solved from DC to 70GHz and that
@@ -68,6 +60,7 @@ touchstone_path = h3d.export_touchstone()
 # Use the LNA setup to retrieve Touchstone files
 # and generate frequency domain reports.
 
+# +
 circuit = ansys.aedt.core.Circuit(project=h3d.project_name, design="Touchstone")
 status, diff_pairs, comm_pairs = circuit.create_lna_schematic_from_snp(
     input_file=touchstone_path,
@@ -78,7 +71,6 @@ status, diff_pairs, comm_pairs = circuit.create_lna_schematic_from_snp(
     pattern=["component", "pin", "net"],
     analyze=True,
 )
-
 insertion = circuit.get_all_insertion_loss_list(
     drivers=diff_pairs,
     receivers=diff_pairs,
@@ -99,6 +91,7 @@ return_comm = circuit.get_all_return_loss_list(
     math_formula="dB",
     nets=["RX0", "RX1", "RX2", "RX3"],
 )
+# -
 
 # ## Create TDR project
 #
@@ -122,6 +115,7 @@ result, tdr_probe_name = circuit.create_tdr_schematic_from_snp(
 #
 # Create an Ibis AMI project to compute an eye diagram simulation and retrieve
 # eye mask violations.
+
 _, eye_curve_tx, eye_curve_rx = circuit.create_ami_schematic_from_snp(
     input_file=touchstone_path,
     ibis_tx_file=os.path.join(project_folder, "models", "pcieg5_32gt.ibs"),
@@ -173,8 +167,7 @@ v = VirtualCompliance(circuit.desktop_class, str(template))
 # .. image:: _static/virtual_compliance_usage.png
 #    :width: 400
 #    :alt: Virtual compliance configuration usage example.
-#
-#
+
 
 v.project_file = circuit.project_file
 v.reports["insertion losses"].design_name = "LNA"
