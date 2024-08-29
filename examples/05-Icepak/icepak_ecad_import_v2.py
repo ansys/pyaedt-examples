@@ -1,0 +1,130 @@
+# # Import an ECAD into Icepak and modify stackup properties
+
+# This example shows how to import an ECAD as a PCB component into Icepak.
+# It will also demonstrate how to change the materials of the PCB layers and
+# update the PCB in Icepak.
+#
+# Keywords: **Icepak**, **PCB**
+
+# ## Perform required imports
+#
+# Perform required imports including the operating system, Ansys PyAEDT packages.
+
+import os
+import time
+import tempfile
+
+import ansys.aedt.core
+from ansys.aedt.core import Edb
+from ansys.aedt.core import Hfss3dLayout, Icepak
+
+# Set constant values
+
+AEDT_VERSION = "2024.2"
+NG_MODE = False     # Open AEDT interface when False
+#
+# ## Open project
+#
+# Open an empty project in graphical mode, using a temporary folder.
+
+# +
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
+project_name = "Icepak_ECAD_Import"
+project_path = os.path.join(temp_folder.name, f"{project_name}.aedt")
+
+# Add an Icepak design
+ipk = Icepak(
+    project=project_name,
+    version=AEDT_VERSION,
+    new_desktop=True,
+    non_graphical=NG_MODE,
+)
+
+# Disable autosave
+ipk.autosave_disable()
+
+# Save Icepak project
+ipk.save_project()
+# -
+
+# Download the ECAD file
+
+ecad_path = ansys.aedt.core.downloads.download_file(
+    source="edb/ANSYS-HSD_V1.aedb",
+    name="edb.def",
+    destination=temp_folder.name,
+)
+
+# ## Import ECAD 
+# Add an HFSS 3D Layout design with the layout information of the PCB
+h3d_design_name = "PCB_TEMP"
+h3d = Hfss3dLayout(
+    project=project_name, 
+    design=h3d_design_name, 
+    version=AEDT_VERSION,
+)
+h3d.import_edb(ecad_path)
+h3d.save_project()
+
+# Delete the empty placeholder HFSS 3D layout design 
+ipk.delete_design(name=h3d_design_name, fallback_design=None)
+
+# Set component name and ECAD source name and ECAD project path to be linked to Icepak
+component_name = "PCB_ECAD"
+layout_name = h3d.design_name
+ecad_source = os.path.join(h3d.project_path, f"{h3d.project_name}.aedt")
+
+# Create a PCB component in Icepak linked to the 3D Layout project. 
+# Polygon ``"poly_5949"`` is used as the outline of the PCB and 
+# a dissipation of ``"1W"`` is applied to the PCB.
+
+# Create PCB component in Icepak
+pcb_comp = ipk.create_pcb_from_3dlayout(
+    component_name=component_name, 
+    project_name=ecad_source,
+    design_name=layout_name,
+    resolution=3,
+    extent_type="Polygon",
+    outline_polygon="poly_5949",
+    power_in=1,
+)
+
+# Save project
+ipk.save_project()
+
+# Initialize PyEDB object to modify ECAD
+edb = Edb(edbpath=ecad_path, edbversion=AEDT_VERSION)
+
+# Change dielectric fill in signal layers
+for name, layer in edb.stackup.signal_layers.items():
+    layer.dielectric_fill = "FR_epoxy"
+
+# Change material of dielectric layers
+for name, layer in edb.stackup.dielectric_layers.items():
+    layer.material = "FR_epoxy"
+
+# Save EDB
+edb.save_edb()
+
+# Close edb session
+edb.close_edb()
+
+# Update layers of PCB with new materials in PCB component
+pcb_comp.update()
+
+# Save project and release desktop
+ipk.save_project()
+ipk.release_desktop()
+
+# Wait 3 seconds to allow Electronics Desktop to shut down 
+# before cleaning the temporary directory.
+time.sleep(3)
+
+# ## Cleanup
+#
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
+
+temp_folder.cleanup()
