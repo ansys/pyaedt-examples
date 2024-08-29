@@ -28,13 +28,15 @@ NG_MODE = False  # Open Electronics UI when the application is launched.
 #
 # Create temporary directory.
 
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Download and open project
 #
 # Download and open the project. Save it to the temporary folder.
 
-project_name = ansys.aedt.core.downloads.download_via_wizard(destination=temp_dir.name)
+project_name = ansys.aedt.core.downloads.download_via_wizard(
+    destination=temp_folder.name
+)
 
 # ## Start HFSS
 #
@@ -145,7 +147,7 @@ for el in diels:
 
 mech.plot(
     show=False,
-    output_file=os.path.join(temp_dir.name, "Mech.jpg"),
+    output_file=os.path.join(temp_folder.name, "Mech.jpg"),
     plot_air_objects=False,
 )
 
@@ -165,14 +167,14 @@ mech.post.create_fieldplot_surface(assignment=surfaces, quantity="Temperature")
 #
 # Release AEDT and close the example.
 
-hfss.save_project()
-hfss.release_desktop()
+mech.save_project()
+mech.release_desktop()
 # Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
 time.sleep(3)
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook you
 # can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
-temp_dir.cleanup()
+temp_folder.cleanup()

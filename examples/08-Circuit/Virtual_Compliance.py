@@ -28,11 +28,11 @@ temp_folder = tempfile.TemporaryDirectory(suffix="_ansys")
 
 # ## Download Example Data
 
-workdir = ansys.aedt.core.downloads.download_file(
+project_path = ansys.aedt.core.downloads.download_file(
     "pcie_compliance", destination=temp_folder.name
 )
 
-projectdir = os.path.join(workdir, "project")
+project_dir = os.path.join(project_path, "project")
 
 # ## Launch AEDT
 
@@ -48,7 +48,7 @@ d = ansys.aedt.core.Desktop(
 # Before solving, this code ensures that the model is solved from DC to 70GHz and that
 # causality and passivity are enforced.
 
-project_name = os.path.join(projectdir, "PCIE_GEN5_only_layout.aedtz")
+project_name = os.path.join(project_dir, "PCIE_GEN5_only_layout.aedtz")
 h3d = ansys.aedt.core.Hfss3dLayout(project_name)
 h3d.remove_all_unused_definitions()
 h3d.edit_cosim_options(simulate_missing_solution=False)
@@ -121,7 +121,7 @@ result, tdr_probe_name = cir.create_tdr_schematic_from_snp(
 # eye mask violations.
 _, eye_curve_tx, eye_curve_rx = cir.create_ami_schematic_from_snp(
     input_file=touchstone_path,
-    ibis_tx_file=os.path.join(projectdir, "models", "pcieg5_32gt.ibs"),
+    ibis_tx_file=os.path.join(project_dir, "models", "pcieg5_32gt.ibs"),
     tx_buffer_name="1p",
     rx_buffer_name="2p",
     tx_schematic_pins=["U1.AM25.PCIe_Gen4_TX0_CAP_P"],
@@ -157,7 +157,7 @@ cir.save_project()
 #
 #
 
-template = os.path.join(workdir, "pcie_gen5_templates", "main.json")
+template = os.path.join(project_path, "pcie_gen5_templates", "main.json")
 
 v = VirtualCompliance(cir.desktop_class, str(template))
 
@@ -181,7 +181,7 @@ v.reports["tdr from circuit"].design_name = "TDR"
 v.reports["eye1"].design_name = "AMI"
 v.reports["eye3"].design_name = "AMI"
 v.parameters["erl"].design_name = "LNA"
-v.specs_folder = os.path.join(workdir, "readme_pictures")
+v.specs_folder = os.path.join(project_path, "readme_pictures")
 
 # ## Define trace names
 #
