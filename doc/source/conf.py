@@ -3,21 +3,19 @@
 # -- Project information -----------------------------------------------------
 import datetime
 from importlib import import_module
-import json
 import os
 from pathlib import Path
 from pprint import pformat
-from docutils.nodes import document
 import shutil
 from typing import Any
 from sphinx.application import Sphinx
+from sphinx.config import Config
 
 from ansys_sphinx_theme import (
     ansys_favicon,
     ansys_logo_white,
     ansys_logo_white_cropped,
     latex,
-    pyansys_logo_black,
     watermark,
 )
 from docutils import nodes
@@ -85,16 +83,21 @@ def directory_size(directory_path: Path):
     return res
 
 
-def copy_examples(app: Sphinx):
-    """Copy root directory examples files into the doc/source/examples directory.
+def copy_examples_structure(app: Sphinx, config: Config):
+    """Copy root directory examples structure into the doc/source/examples directory.
+
+    Everything is copied except for python file. This is because we are manually
+    converting them into notebook in another Sphinx hook.
     
     Parameters
     ----------
     app : sphinx.application.Sphinx
         Sphinx instance containing all the configuration for the documentation build.
+    config : sphinx.config.Config
+        Configuration file abstraction.
     """
     destination_dir = Path(app.srcdir, "examples").resolve()
-    logger.info(f"Copying examples from {EXAMPLES_DIRECTORY} to {destination_dir}.")
+    logger.info(f"Copying examples structures of {EXAMPLES_DIRECTORY} into {destination_dir}.")
 
     if os.path.exists(destination_dir):
         size = directory_size(destination_dir)
@@ -102,8 +105,9 @@ def copy_examples(app: Sphinx):
         shutil.rmtree(destination_dir, ignore_errors=True)
         logger.info(f"Directory removed.")
 
-    shutil.copytree(EXAMPLES_DIRECTORY, destination_dir)
-    logger.info(f"Copy performed")
+    ignore_python_files = lambda _, files: [file for file in files if file.endswith(".py")]
+    shutil.copytree(EXAMPLES_DIRECTORY, destination_dir, ignore=ignore_python_files)
+    logger.info(f"Copy performed.")
 
 
 def adjust_image_path(app: Sphinx, docname, source):
@@ -132,13 +136,15 @@ def adjust_image_path(app: Sphinx, docname, source):
     source[0] = source[0].replace("../../doc/source/_static", "../../_static")
 
 
-def check_pandoc_installed(app: Sphinx):
+def check_pandoc_installed(app: Sphinx, config: Config):
     """Ensure that pandoc is installed
     
     Parameters
     ----------
     app : sphinx.application.Sphinx
         Sphinx instance containing all the configuration for the documentation build.
+    config : sphinx.config.Config
+        Configuration file abstraction.
     """
     import pypandoc
 
@@ -210,19 +216,64 @@ def remove_doctree(app: Sphinx, exception: None | Exception):
         shutil.rmtree(app.doctreedir, ignore_errors=True)
         logger.info(f"Doctree removed.")
 
+def convert_examples_into_notebooks(app):
+    """Convert light style script into notebooks and disable execution if needed."""
+    import subprocess
+    import nbformat
+
+    DESTINATION_DIR = Path(app.srcdir, "examples").resolve()
+    EXAMPLES = EXAMPLES_DIRECTORY.glob("**/*.py")
+    EXAMPLES_TO_NOT_EXECUTE = (
+        "03_gui_manipulation.py",
+        "05_electrothermal.py",
+    )
+
+    count = 0
+    for example in EXAMPLES:
+        count += 1
+        example_path = str(example).split("examples" + os.sep)[-1]
+        notebook_path = example_path.replace(".py", ".ipynb")
+        output = subprocess.run(
+            [
+                "jupytext",
+                "--to",
+                "ipynb",
+                str(example),
+                "--output",
+                str(DESTINATION_DIR / notebook_path),
+            ],
+            capture_output=True,
+        )
+
+        if output.returncode != 0:
+            logger.error(f"Error converting {example} to script")
+            logger.error(output.stderr)
+
+        # Disable execution if required
+        basename = os.path.basename(example)
+        if basename in EXAMPLES_TO_NOT_EXECUTE:
+            logger.warning(f"Disable execution of example {basename}.")
+            with open(str(DESTINATION_DIR / notebook_path), "r") as f:
+                nb = nbformat.read(f, as_version=nbformat.NO_CONVERT)
+            if "nbsphinx" not in nb.metadata:
+                nb.metadata["nbsphinx"] = {}
+            nb.metadata["nbsphinx"]["execute"] = "never"
+            with open(str(DESTINATION_DIR / notebook_path), "w", encoding="utf-8") as f:
+                nbformat.write(nb, f)
+
+    if count == 0:
+        logger.warning("No python examples found to convert to scripts")
+    else:
+        logger.info(f"Converted {count} python examples to scripts")
 
 def setup(app):
-    """Run different hook functions during the documentation build.
-
-    Parameters
-    ----------
-    app : sphinx.application.Sphinx
-        Sphinx instance containing all the configuration for the documentation build.
-    """
+    """Run different hook functions during the documentation build."""
     app.add_directive("pprint", PrettyPrintDirective)
+    # Configuration inited hooks
+    app.connect("config-inited", check_pandoc_installed)
+    app.connect("config-inited", copy_examples_structure)
     # Builder inited hooks
-    app.connect("builder-inited", copy_examples)
-    app.connect("builder-inited", check_pandoc_installed)
+    app.connect("builder-inited", convert_examples_into_notebooks)    
     app.connect("builder-inited", skip_gif_examples_to_build_pdf)
     # Source read hook
     app.connect("source-read", adjust_image_path)
