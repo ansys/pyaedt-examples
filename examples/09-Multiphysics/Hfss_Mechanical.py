@@ -60,7 +60,7 @@ hfss_comp = circuit.modeler.schematic.add_subcircuit_dynamic_link(pyaedt_app=hfs
 # Set up dynamic link options. The argument for ``set_sim_option_on_hfss_subcircuit``
 # method can be the component name, component ID, or component object.
 
-circuit.modeler.schematic.refresh_dynamic_link(component_name=hfss_comp.composed_name)
+circuit.modeler.schematic.refresh_dynamic_link(name=hfss_comp.composed_name)
 circuit.modeler.schematic.set_sim_option_on_hfss_subcircuit(component=hfss_comp)
 hfss_setup_name = hfss.setups[0].name + " : " + hfss.setups[0].sweeps[0].name
 circuit.modeler.schematic.set_sim_solution_on_hfss_subcircuit(
