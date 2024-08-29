@@ -56,14 +56,14 @@ NG_MODE = False  # Open Electronics UI when the application is launched.
 #
 # Create temporary directory.
 
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Download and open project
 #
 # Download and open the project. Save it to the temporary folder.
 
 project_name = aedt.downloads.download_file(
-    "circuit_hfss_icepak", "Circuit-HFSS-Icepak-workflow.aedtz", temp_dir.name
+    "circuit_hfss_icepak", "Circuit-HFSS-Icepak-workflow.aedtz", temp_folder.name
 )
 
 # ## Launch AEDT and initialize HFSS
@@ -124,7 +124,7 @@ icepak = aedt.Icepak(project=circuit.project_name)
 # ## Plot model
 
 model = icepak.plot(show=False)
-model.plot(os.path.join(temp_dir.name, "Image.jpg"))
+model.plot(os.path.join(temp_folder.name, "Image.jpg"))
 
 # ## Set the parameters for the iterations
 #
@@ -345,7 +345,7 @@ time.sleep(3)
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook you
 # can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
-temp_dir.cleanup()
+temp_folder.cleanup()
