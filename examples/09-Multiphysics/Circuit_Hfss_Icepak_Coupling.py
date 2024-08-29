@@ -52,9 +52,12 @@ AEDT_VERSION = "2024.2"
 NUM_CORES = 4
 NG_MODE = False  # Open Electronics UI when the application is launched.
 
-# ## Create temporary directory
+# ## Create temporary directory and download files
 #
-# Create temporary directory.
+# Create a temporary directory where we store downloaded data or
+# dumped data.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
@@ -79,6 +82,7 @@ circuit = aedt.Circuit(
 )
 
 # ## Variable names
+#
 # Set the name of the resistor in Circuit.
 
 resistor_body_name = "Circuit_Component"
@@ -88,6 +92,7 @@ resistor_body_name = "Circuit_Component"
 device3D_body_name = "Device_3D"
 
 # ## Get HFSS design
+#
 # Get the Hfss design and prepare the material for the thermal link
 
 hfss = aedt.Hfss(project=circuit.project_name)
@@ -104,6 +109,7 @@ new_material = hfss.materials.duplicate_material(
 )
 
 # ## Modify material properties
+#
 # Save the conductivity value. It will be used later in the iterations.
 
 old_conductivity = new_material.conductivity.value
@@ -129,7 +135,6 @@ model.plot(os.path.join(temp_folder.name, "Image.jpg"))
 # ## Set the parameters for the iterations
 #
 # Set the initial temperature to a value closer to the final one, to speed up the convergence.
-#
 
 circuit["TempE"] = "300cel"
 
@@ -143,11 +148,11 @@ temp_residual_limit = 0.02
 loss_residual_limit = 0.02
 
 # This variable will contain the iteration statistics.
-#
 
 stats = {}
 
 # ## Start the iterations
+#
 # Each for loop is a complete two-way iteration.
 # The code is thoroughly commented.
 # Please read the inline comments carefully for a full understanding.
@@ -314,6 +319,7 @@ for cp_iter in range(1, max_iter + 1):
         break
 
 # ## Print the overall statistics
+#
 # Print the overall statistics for the multiphysic loop.
 
 for i in stats:
