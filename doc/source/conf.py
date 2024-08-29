@@ -280,7 +280,7 @@ def setup(app):
     # Source read hook
     app.connect("source-read", adjust_image_path)
     # Build finished hooks
-    # app.connect("build-finished", remove_examples)
+    app.connect("build-finished", remove_examples)
     app.connect("build-finished", remove_doctree)
 
 # -- General configuration ---------------------------------------------------
