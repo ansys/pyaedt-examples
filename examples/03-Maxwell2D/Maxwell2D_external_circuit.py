@@ -81,13 +81,13 @@ coil3_id = m2d.modeler.create_circle(
     orientation="Z", origin=[50, 0, 0], radius=10, name="coil3", material="copper"
 )
 
-region = m2d.modeler.create_region(pad_value=[100, 300, 100, 300])
+region = m2d.modeler.create_region(pad_value=[200, 400, 200, 400])
 
 m2d.mesh.assign_length_mesh(
     assignment=[coil1_id, coil2_id, coil3_id, region], maximum_length=5
 )
 
-m2d.assign_balloon(assignment=region.edges)
+m2d.assign_vector_potential(assignment=region.edges, vector_value=0)
 
 # ## Assign excitations
 #
@@ -165,6 +165,10 @@ for i in range(len(windings)):
         angle=90,
     )
     v_sources.append(v)
+
+    v.parameters["Va"] = "voltage"
+    v.parameters["VFreq"] = "frequency"
+    v.parameters["Phase"] = str(i * 120) + "deg"
 
     g = circuit.modeler.schematic.create_gnd([2300, i * 1000], angle=90)
     ground.append(g)
