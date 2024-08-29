@@ -127,15 +127,15 @@ mech.change_material_override(True)
 
 mech.assign_em_losses(
     design=hfss.design_name,
-    setupname=hfss.setups[0].name,
-    sweepname="LastAdaptive",
+    setup=hfss.setups[0].name,
+    sweep="LastAdaptive",
     map_frequency=hfss.setups[0].props["Frequency"],
     surface_objects=hfss.get_all_conductors_names(),
 )
 diels = ["1_pd", "2_pd", "3_pd", "4_pd", "5_pd"]
 for el in diels:
     mech.assign_uniform_convection(
-        objects_list=[mech.modeler[el].top_face_y, mech.modeler[el].bottom_face_y],
+        assignment=[mech.modeler[el].top_face_y, mech.modeler[el].bottom_face_y],
         convection_value=3,
     )
 
@@ -145,7 +145,7 @@ for el in diels:
 
 mech.plot(
     show=False,
-    export_path=os.path.join(temp_dir.name, "Mech.jpg"),
+    output_file=os.path.join(temp_dir.name, "Mech.jpg"),
     plot_air_objects=False,
 )
 
