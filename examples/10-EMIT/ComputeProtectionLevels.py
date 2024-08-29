@@ -22,7 +22,7 @@ from ansys.aedt.core.emit_core.emit_constants import InterfererType
 
 # -
 
-# Set constant values
+# ## Define constants
 
 AEDT_VERSION = "2024.2"
 NG_MODE = False  # Open Electronics UI when the application is launched.
@@ -56,8 +56,12 @@ for package in required_packages:
 import plotly.graph_objects as go
 
 # ## Create temporary directory
+#
+# Create temporary directory.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch AEDT with EMIT
 #
@@ -70,7 +74,7 @@ if AEDT_VERSION <= "2023.1":
     print("Warning: this example requires AEDT 2023.2 or later.")
     sys.exit()
 
-project_name = os.path.join(temp_dir.name, "emit.aedt")
+project_name = os.path.join(temp_folder.name, "emit.aedt")
 
 emitapp = Emit(
     non_graphical=NG_MODE, new_desktop=True, project=project_name, version=AEDT_VERSION
@@ -304,7 +308,7 @@ time.sleep(3)
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook you
 # can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
-temp_dir.cleanup()
+temp_folder.cleanup()

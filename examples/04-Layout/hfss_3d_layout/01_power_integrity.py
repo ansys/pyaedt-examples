@@ -28,15 +28,22 @@ import time
 import ansys.aedt.core
 from ansys.aedt.core.downloads import download_file
 
-# Set constant values
+# ## Define constants
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
 NG_MODE = False  # Open Electronics UI when the application is launched.
 
-# Download the example PCB data.
+# ## Create temporary directory
+#
+# Create temporary directory.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
+
+# Download the example PCB data.
+
 aedb = download_file(source="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name)
 download_file(
     source="touchstone",
@@ -202,7 +209,7 @@ time.sleep(3)
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``.
+# All project files are saved in the folder ``temp_folder.name``.
 # If you've run this example as a Jupyter notebook you
 # can retrieve those project files. The following cell
 # removes all temporary files, including the project folder.

@@ -15,15 +15,20 @@ import time
 
 import ansys.aedt.core
 
-# Set constant values
+# ## Define constants
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
 NG_MODE = False  # Open Electronics UI when the application is launched.
 
-# ## Create temporary directory
+# ## Create temporary directory and download files
+#
+# Create a temporary directory where we store downloaded data or
+# dumped data.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch AEDT
 
@@ -35,7 +40,7 @@ d = ansys.aedt.core.launch_desktop(
 #
 # Create a new HFSS design.
 
-project_name = os.path.join(temp_dir.name, "dipole.aedt")
+project_name = os.path.join(temp_folder.name, "dipole.aedt")
 hfss = ansys.aedt.core.Hfss(
     version=AEDT_VERSION, project=project_name, solution_type="Modal"
 )
@@ -208,9 +213,9 @@ time.sleep(3)
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``.
+# All project files are saved in the folder ``temp_folder.name``.
 # If you've run this example as a Jupyter notebook you
 # can retrieve those project files.
 # The following cell removes all temporary files, including the project folder.
 
-temp_dir.cleanup()
+temp_folder.cleanup()

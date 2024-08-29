@@ -15,7 +15,7 @@ import time
 
 import ansys.aedt.core
 
-# Set constant values
+# ## Define constants
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
@@ -25,8 +25,10 @@ NG_MODE = False  # Run the example without opening the UI.
 # ## Create temporary directory
 #
 # Create temporary directory.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch AEDT and 2D Extractor
 #
@@ -37,7 +39,7 @@ q2d = ansys.aedt.core.Q2d(
     version=AEDT_VERSION,
     non_graphical=NG_MODE,
     new_desktop=True,
-    project=os.path.join(temp_dir.name, "cpwg"),
+    project=os.path.join(temp_folder.name, "cpwg"),
     design="coplanar_waveguide",
 )
 
@@ -242,4 +244,4 @@ time.sleep(3)
 # can retrieve those project files. The following cell
 # removes all temporary files, including the project folder.
 
-temp_dir.cleanup()
+temp_folder.cleanup()
