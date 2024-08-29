@@ -62,10 +62,10 @@ jobs:
           .venv\Scripts\Activate.ps1
           pip install --no-cache-dir -r requirements/requirements_doc.txt
 
-      # Use environment variable to keep the doctree and avoid redundant build for PDF pages
+      # Use environment variable speed up build for PDF pages
       - name: Create HTML documentation
         env:
-          SPHINXBUILD_KEEP_DOCTREEDIR: "1"
+          SPHINXBUILD_HTML_AND_PDF_WORKFLOW: "1"
         run: |
           .venv\Scripts\Activate.ps1
           . .\doc\make.bat html --color
@@ -92,7 +92,7 @@ jobs:
       # Keeping doctree could cause an issue, see https://github.com/ansys/pyaedt/pull/3844/files
       - name: Create PDF documentation
         env:
-          SPHINXBUILD_KEEP_DOCTREEDIR: "0"
+          SPHINXBUILD_HTML_AND_PDF_WORKFLOW: "1"
         run: |
           .venv\Scripts\Activate.ps1
           . .\doc\make.bat pdf
