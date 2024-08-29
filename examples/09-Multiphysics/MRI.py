@@ -33,11 +33,14 @@ NUM_CORES = 4
 NG_MODE = False  # Open Electronics UI when the application is launched.
 
 
-# ## Create temporary directory
+# ## Create temporary directory and download files
 #
-# Create temporary directory.
+# Create a temporary directory where we store downloaded data or
+# dumped data.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 
 # ## Project load
@@ -49,7 +52,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 # Separate objects are used to selectively assign mesh operations
 # Material properties defined in  this project already contain electrical and thermal properties.
 
-project_path = downloads.download_file(source="mri", destination=temp_dir.name)
+project_path = downloads.download_file(source="mri", destination=temp_folder.name)
 project_name = os.path.join(project_path, "background_SAR.aedt")
 hfss = Hfss(
     project=project_name,
@@ -361,7 +364,7 @@ time.sleep(3)
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook you
 # can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
-temp_dir.cleanup()
+temp_folder.cleanup()

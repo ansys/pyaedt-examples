@@ -22,11 +22,14 @@ AEDT_VERSION = "2024.2"
 NUM_CORES = 4
 NG_MODE = False  # Open Electronics UI when the application is launched.
 
-# ## Create temporary directory
+# ## Create temporary directory and download files
 #
-# Create temporary directory.
+# Create a temporary directory where we store downloaded data or
+# dumped data.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch AEDT and initialize HFSS
 #
@@ -34,7 +37,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 # object is linked to it. Otherwise, a new design is created.
 
 hfss = ansys.aedt.core.Hfss(
-    project=os.path.join(temp_dir.name, "Icepak_HFSS_Coupling"),
+    project=os.path.join(temp_folder.name, "Icepak_HFSS_Coupling"),
     design="RF",
     version=AEDT_VERSION,
     non_graphical=NG_MODE,
@@ -280,7 +283,7 @@ plot1 = hfss.post.create_fieldplot_surface(
 
 hfss.post.plot_field_from_fieldplot(
     plot1.name,
-    project_path=temp_dir.name,
+    project_path=temp_folder.name,
     mesh_plot=False,
     image_format="jpg",
     view="isometric",
@@ -306,14 +309,14 @@ animated = hfss.post.plot_animated_field(
     plot_type="CutPlane",
     setup=hfss.nominal_adaptive,
     intrinsics=intrinsic,
-    export_path=temp_dir.name,
+    export_path=temp_folder.name,
     variation_variable="Phase",
     variations=phase_values,
     show=False,
     export_gif=False,
     log_scale=True,
 )
-animated.gif_file = os.path.join(temp_dir.name, "animate.gif")
+animated.gif_file = os.path.join(temp_folder.name, "animate.gif")
 
 # Set off_screen to False to visualize the animation.
 # animated.off_screen = False
@@ -352,7 +355,7 @@ my_data.plot(
     x_label="Frequency (Ghz)",
     y_label="SParameters(dB)",
     title="Scattering Chart",
-    snapshot_path=os.path.join(temp_dir.name, "Touchstone_from_matplotlib.jpg"),
+    snapshot_path=os.path.join(temp_folder.name, "Touchstone_from_matplotlib.jpg"),
 )
 
 # Create a PDF report summarizig results.
@@ -372,7 +375,7 @@ pdf_report.add_chapter("Hfss Results")
 pdf_report.add_sub_chapter("Field Plot")
 pdf_report.add_text("This section contains Field plots of Hfss Coaxial.")
 pdf_report.add_image(
-    os.path.join(temp_dir.name, plot1.name + ".jpg"), caption="Coaxial Cable"
+    os.path.join(temp_folder.name, plot1.name + ".jpg"), caption="Coaxial Cable"
 )
 
 # Add a page break and a subchapter for S Parameter results
@@ -387,7 +390,7 @@ pdf_report.add_chart(
     title="S-Parameters",
 )
 pdf_report.add_image(
-    path=os.path.join(temp_dir.name, "Touchstone_from_matplotlib.jpg"),
+    path=os.path.join(temp_folder.name, "Touchstone_from_matplotlib.jpg"),
     caption="Touchstone from Matplotlib",
 )
 
@@ -401,7 +404,7 @@ pdf_report.add_text("This section contains Multiphysics temperature plot.")
 # Add table of content and save PDF.
 
 pdf_report.add_toc()
-pdf_report.save_pdf(file_path=temp_dir.name, file_name="AEDT_Results.pdf")
+pdf_report.save_pdf(file_path=temp_folder.name, file_name="AEDT_Results.pdf")
 
 # ## Release AEDT
 #
@@ -414,7 +417,7 @@ time.sleep(3)
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook you
 # can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
-temp_dir.cleanup()
+temp_folder.cleanup()

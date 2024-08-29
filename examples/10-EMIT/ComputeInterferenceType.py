@@ -54,8 +54,12 @@ import plotly.graph_objects as go
 # -
 
 # ## Create temporary directory
+#
+# Create temporary directory.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
-temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # Check that EMIT version 2023.2 or greater is installed.
 
@@ -66,7 +70,7 @@ if AEDT_VERSION <= "2023.1":
 # Download project
 
 project_name = ansys.aedt.core.downloads.download_file(
-    "emit", "interference.aedtz", destination=temp_dir.name
+    "emit", "interference.aedtz", destination=temp_folder.name
 )
 
 # ## Launch EMIT and open project
@@ -243,9 +247,9 @@ if os.getenv("PYAEDT_DOC_GENERATION", "0") != "1":
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``.
+# All project files are saved in the folder ``temp_folder.name``.
 # If you've run this example as a Jupyter notebook you
 # can retrieve those project files. The following cell
 # removes all temporary files, including the project folder.
 
-temp_dir.cleanup()
+temp_folder.cleanup()

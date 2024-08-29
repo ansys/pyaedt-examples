@@ -30,20 +30,24 @@ AEDT_VERSION = "2024.2"
 NUM_CORES = 4
 NG_MODE = False  # Open Electronics UI when the application is launched.
 
-# Download the example data.
+# ## Create temporary directory
+#
+# Create temporary directory.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 control_fn = download_file(
     source="gds",
     name="sky130_fictitious_dtc_example_control_no_map.xml",
-    destination=temp_dir.name,
+    destination=temp_folder.name,
 )
 gds_fn = download_file(
-    source="gds", name="sky130_fictitious_dtc_example.gds", destination=temp_dir.name
+    source="gds", name="sky130_fictitious_dtc_example.gds", destination=temp_folder.name
 )
 layer_map = download_file(
-    source="gds", name="dummy_layermap.map", destination=temp_dir.name
+    source="gds", name="dummy_layermap.map", destination=temp_folder.name
 )
 
 # -
@@ -96,7 +100,7 @@ c.import_options.import_dummy_nets = True
 #
 # After all settings are ready, you can write an XML file.
 
-c.write_xml(os.path.join(temp_dir.name, "output.xml"))
+c.write_xml(os.path.join(temp_folder.name, "output.xml"))
 
 # ## Open EDB
 #
@@ -107,7 +111,7 @@ c.write_xml(os.path.join(temp_dir.name, "output.xml"))
 edbapp = Edb(
     gds_fn,
     edbversion=AEDT_VERSION,
-    technology_file=os.path.join(temp_dir.name, "output.xml"),
+    technology_file=os.path.join(temp_folder.name, "output.xml"),
 )
 # -
 
@@ -125,4 +129,4 @@ edbapp.close_edb()
 
 # Clean up the temporary folder.
 
-temp_dir.cleanup()
+temp_folder.cleanup()

@@ -22,17 +22,24 @@ from ansys.aedt.core import Circuit, Edb
 
 EDB_VERSION = "2024.2"
 
+# ## Create temporary directory
+#
+# Create temporary directory.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
+
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
+
 # ## Download file
 #
 # Download the EDB folder.
 
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys", ignore_cleanup_errors=True)
 edb_file = ansys.aedt.core.downloads.download_file(
-    directory="edb/siwave_multi_zones.aedb", destination=temp_dir.name
+    directory="edb/siwave_multi_zones.aedb", destination=temp_folder.name
 )
-work_folder = os.path.join(temp_dir.name, "work")
+work_folder = os.path.join(temp_folder.name, "work")
 aedt_file = os.path.splitext(edb_file)[0] + ".aedt"
-circuit_project_file = os.path.join(temp_dir.name, "multizone_clipped_circuit.aedt")
+circuit_project_file = os.path.join(temp_folder.name, "multizone_clipped_circuit.aedt")
 print(edb_file)
 
 
@@ -134,7 +141,7 @@ time.sleep(5)
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook you
 # can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
-temp_dir.cleanup()
+temp_folder.cleanup()

@@ -28,8 +28,12 @@ AEDT_VERSION = "2024.2"
 NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary directory
+#
+# Create temporary directory.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
-temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Download Example Data
 #
@@ -45,7 +49,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 # Files are placed in the destination folder.
 
 project_path = ansys.aedt.core.downloads.download_file(
-    "ami", name="ami_usb.aedtz", destination=temp_dir.name
+    "ami", name="ami_usb.aedtz", destination=temp_folder.name
 )
 
 
@@ -323,7 +327,7 @@ time.sleep(3)
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook you
 # can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
-temp_dir.cleanup()
+temp_folder.cleanup()

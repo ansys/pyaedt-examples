@@ -25,20 +25,22 @@ NG_MODE = False  # Open Electronics UI when the application is launched.
 # ## Create temporary directory
 #
 # Create temporary directory.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Setup project files and path
 #
 # Download of needed project file and setup of temporary project directory.
 
 # +
-project_dir = os.path.join(temp_dir.name, "edb")
+project_dir = os.path.join(temp_folder.name, "edb")
 aedb_project = ansys.aedt.core.downloads.download_file(
     source="edb/ANSYS-HSD_V1.aedb", destination=project_dir
 )
 
-project_name = os.path.join(temp_dir.name, "HSD")
+project_name = os.path.join(temp_folder.name, "HSD")
 output_edb = os.path.join(project_dir, project_name + ".aedb")
 output_q3d = os.path.join(project_dir, project_name + "_q3d.aedt")
 # -
@@ -121,7 +123,7 @@ q3d = ansys.aedt.core.Q3d(output_q3d, version=AEDT_VERSION)
 q3d.plot(
     show=False,
     assignment=["CLOCK_I2C_SCL", "CLOCK_I2C_SDA"],
-    output_file=os.path.join(temp_dir.name, "Q3D.jpg"),
+    output_file=os.path.join(temp_folder.name, "Q3D.jpg"),
     plot_air_objects=False,
 )
 
@@ -178,4 +180,4 @@ time.sleep(3)
 # can retrieve those project files. The following cell
 # removes all temporary files, including the project folder.
 
-temp_dir.cleanup()
+temp_folder.cleanup()
