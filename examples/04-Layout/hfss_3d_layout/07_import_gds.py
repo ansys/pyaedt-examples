@@ -24,7 +24,7 @@ from pyedb.dotnet.edb_core.edb_data.control_file import ControlFile
 
 # -
 
-# Set constant values
+# ## Define constants
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4

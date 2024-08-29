@@ -16,7 +16,7 @@ from math import cos, radians, sin, sqrt
 import ansys.aedt.core
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 
-# Set constant values
+# ## Define constants
 
 AEDT_VERSION = "2024.2"
 

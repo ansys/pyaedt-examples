@@ -1,4 +1,5 @@
 # # Electrothermal Analysis
+#
 # This example shows how to use the electronics database (EDB) for DC IR analysis and
 # electrotermal analysis. The EDB will be loaded into SIwave for analysis and post-processing.
 # In the end, an Icepak project is exported from SIwave.
@@ -12,8 +13,9 @@
 #   - Export Icepak project
 
 
-# ## Preparation
-# Import required packages
+# ## Perform required imports
+#
+# Perform required imports.
 
 import json
 import os
@@ -24,7 +26,7 @@ import time
 from ansys.aedt.core.downloads import download_file
 from pyedb import Edb, Siwave
 
-# Set constant values
+# ## Define constants
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
@@ -36,19 +38,27 @@ if not NG_MODE or os.getenv("PYAEDT_DOC_GENERATION", "0") == "1":
     print("Warning: this example requires graphical mode enabled.")
     sys.exit()
 
-# Download the example PCB data.
+# ## Create temporary directory and download files
+#
+# Create a temporary directory where we store downloaded data or
+# dumped data.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
+
+# Download the example PCB data.
+
 aedb = download_file(source="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name)
 
 # ## Create a configuration file
-# In this example, we are going to use a configure file to set up layout for analysis.
-# ### Initialize a dictionary
+#
+# In this example, we are going to use a configuration file to set up layout for analysis.
 # Create an empty dictionary to host all configurations.
 
 cfg = dict()
 
-# ### Add component thermal information and heatsink definition
+# ## Add component thermal information and heats-ink definition
 
 cfg["package_definitions"] = [
     {
@@ -72,12 +82,14 @@ cfg["package_definitions"] = [
 ]
 
 # ## Create pin groups.
+#
 # In this example, all pins on net "GND" on component J5 are grouped into one group.
 # Pin groups can be assigned by net name using the "net" key as shown here:
 
 cfg["pin_groups"] = [{"name": "J5_GND", "reference_designator": "J5", "net": "GND"}]
 
-# ### Create Current Sources
+# ## Create Current Sources
+#
 # In this example, two current sources are created on component J5.
 # A current source is placed between positive and negative terminals.
 # When keyword "net" is used, all pins on the specified net are grouped into a
@@ -102,7 +114,8 @@ i_src_2 = {
     "negative_terminal": {"pin_group": "J5_GND"},  # Defined in "pin_groups" section.
 }
 
-# ### Create a Voltage Source
+# ## Create a Voltage Source
+#
 # Create a voltage source on component U4 between two nets using keyword "net".
 
 # +
@@ -119,6 +132,7 @@ cfg["sources"] = [v_src, i_src_1, i_src_2]
 # -
 
 # ## Cutout
+#
 # The following assignments will define the region of the PCB to be cut out for analysis.
 
 cfg["operations"] = {
@@ -141,6 +155,7 @@ cfg["setups"] = [
 ]
 
 # ## Save configuration as a JSON file
+#
 # The configuration file can be saved in JSON format and applied to layout data using the EDB.
 
 # +
@@ -150,8 +165,8 @@ with open(pi_json, "w") as f:
     json.dump(cfg, f, indent=4, ensure_ascii=False)
 # -
 
-# # Load configuration into EDB
-
+# ## Load configuration into EDB
+#
 # Load configuration from JSON
 
 edbapp = Edb(aedb, edbversion=AEDT_VERSION)
@@ -166,25 +181,25 @@ time.sleep(3)
 print(temp_folder.name)
 
 # ## Analyze in SIwave
-
-# ### Load edb into SIwave.
+#
+# Load edb into SIwave.
 
 siwave = Siwave(specified_version=AEDT_VERSION)
 time.sleep(10)
 siwave.open_project(proj_path=aedb)
 siwave.save_project(projectpath=temp_folder.name, projectName="ansys")
 
-# ### Analyze
+# ## Analyze
 
 siwave.run_dc_simulation()
 
-# ### Export Icepak project
+# ## Export Icepak project
 
 siwave.export_icepak_project(
     os.path.join(temp_folder.name, "from_siwave.aedt"), "siwave_dc"
 )
 
-# ### Close SIWave project
+# ## Close SIWave project
 
 siwave.close_project()
 

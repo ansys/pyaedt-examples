@@ -19,7 +19,7 @@ import ansys.aedt.core
 import pandas as pd
 from IPython.display import Image
 
-# Set constant values
+# ## Define constants
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4

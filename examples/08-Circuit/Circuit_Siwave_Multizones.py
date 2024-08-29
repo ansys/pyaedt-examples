@@ -18,7 +18,7 @@ from ansys.aedt.core import Circuit, Edb
 
 # -
 
-# Set constant values
+# ## Define constants
 
 EDB_VERSION = "2024.2"
 

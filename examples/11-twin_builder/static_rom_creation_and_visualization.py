@@ -18,7 +18,7 @@ import time
 
 from ansys.aedt.core import TwinBuilder, downloads
 
-# Set constant values
+# ## Define constants
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4

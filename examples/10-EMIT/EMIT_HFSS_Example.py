@@ -25,7 +25,7 @@ from ansys.aedt.core.emit_core.emit_constants import ResultType, TxRxMode
 
 # -
 
-# Set constant values
+# ## Define constants
 
 AEDT_VERSION = "2024.2"
 NG_MODE = False  # Open Electronics UI when the application is launched.

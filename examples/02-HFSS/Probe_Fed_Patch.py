@@ -19,7 +19,7 @@ import time
 import ansys.aedt.core
 from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
 
-# Set constant values
+# ## Define constants
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4

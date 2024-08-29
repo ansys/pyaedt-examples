@@ -46,7 +46,7 @@ import time
 
 import ansys.aedt.core as aedt
 
-# Set constant values
+# ## Define constants
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
@@ -161,12 +161,12 @@ for cp_iter in range(1, max_iter + 1):
     stats[cp_iter] = {}
 
     # Step 1: Solve the HFSS design
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    #
     # Solve the Hfss design.
     hfss.analyze(cores=NUM_CORES)
 
     # Step 2: Refresh the dynamic link and solve the Circuit design
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    #
     # Find the HFSS subcomponent in Circuit.
     # This information is required by refresh_dynamic_link and push_excitations methods.
     hfss_component_name = ""
@@ -189,12 +189,12 @@ for cp_iter in range(1, max_iter + 1):
     circuit.analyze()
 
     # Step 3: Push excitations (HFSS design results are scaled automatically)
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    #
     # Push excitations.
     circuit.push_excitations(instance=hfss_instance_name)
 
     # Step 4: Extract the resistor's power loss value from the Circuit design
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    #
     # Evaluate power loss on resistor.
     r_losses = circuit.post.get_solution_data(
         expressions="0.5*mag(I(I1)*V(V1))"
@@ -204,7 +204,7 @@ for cp_iter in range(1, max_iter + 1):
     stats[cp_iter]["losses"] = r_losses
 
     # Step 5: Set the resistor's power loss value in the Icepak design (block thermal condition)
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    #
     # Find the Solid Block boundary in Icepak.
     boundaries = icepak.boundaries
     boundary = None
@@ -219,7 +219,7 @@ for cp_iter in range(1, max_iter + 1):
     boundary.props["Total Power"] = str(r_losses) + "W"
 
     # Step 6: Solve the Icepak design
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    #
     # Clear linked data, otherwise Icepak continues to run simulation with the initial losses.
     icepak.clear_linked_data()
 
@@ -227,7 +227,7 @@ for cp_iter in range(1, max_iter + 1):
     icepak.analyze(cores=NUM_CORES)
 
     # Step 7: Export the temperature map from the Icepak and create a new 3D dataset with it
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    #
     # Export the temperature map into a file.
     fld_filename = os.path.join(
         icepak.working_directory, f"temperature_map_{cp_iter}.fld"
@@ -262,7 +262,7 @@ for cp_iter in range(1, max_iter + 1):
     )
 
     # Step 8: Update material properties in the HFSS design based on the new dataset
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    #
     # Set the new conductivity value.
     new_material.conductivity.value = (
         f"{old_conductivity}*Pwl($TempDepCond,clp(${dataset_name},X,Y,Z))"
@@ -272,7 +272,7 @@ for cp_iter in range(1, max_iter + 1):
     new_material.conductivity.thermalmodifier = None
 
     # Step 9: Extract the average temperature of the resistor from the Icepak design
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    #
     # Get the mean temp value on the high resistivity object.
     mean_temp = icepak.post.get_scalar_field_value(
         quantity="Temp", scalar_function="Mean", object_name=resistor_body_name
@@ -282,7 +282,7 @@ for cp_iter in range(1, max_iter + 1):
     stats[cp_iter]["temp"] = mean_temp
 
     # Step 10: Update the resistance value in the Circuit design
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    #
     # Set this temperature in circuit in variable TempE.
     circuit["TempE"] = f"{mean_temp}cel"
 
@@ -290,7 +290,7 @@ for cp_iter in range(1, max_iter + 1):
     circuit.save_project()
 
     # Check the convergence of the iteration
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    #
     # Evaluate the relative residuals on temperature and losses.
     # If the residuals are smaller than the threshold, set the convergence flag to `True`.
     # Residuals are calculated starting from the second iteration.
@@ -320,7 +320,7 @@ for cp_iter in range(1, max_iter + 1):
 
 # ## Print the overall statistics
 #
-# Print the overall statistics for the multiphysic loop.
+# Print the overall statistics for the multi physic loop.
 
 for i in stats:
     txt = "yes" if stats[i]["converged"] else "no"

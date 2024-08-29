@@ -15,7 +15,7 @@ import time
 
 import ansys.aedt.core
 
-# Set constant values
+# ## Define constants
 
 AEDT_VERSION = "2024.2"
 NG_MODE = False  # Open Electronics UI when the application is launched.

@@ -19,7 +19,7 @@ from ansys.aedt.core.downloads import download_file
 
 # -
 
-# Set constant values
+# ## Define constants
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
