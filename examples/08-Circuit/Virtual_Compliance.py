@@ -16,31 +16,35 @@ import time
 import ansys.aedt.core
 from ansys.aedt.core.generic.compliance import VirtualCompliance
 
-# Set constant values
+# ## Define constants
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
 NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary directory
+#
+# The temporary directory is used to run the example and save simulation data.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
-temp_folder = tempfile.TemporaryDirectory(suffix="_ansys")
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Download Example Data
 
-project_path = ansys.aedt.core.downloads.download_file(
-    "pcie_compliance", destination=temp_folder.name
+download_folder = ansys.aedt.core.downloads.download_file(
+    source="pcie_compliance", destination=temp_folder.name
 )
-
-project_dir = os.path.join(project_path, "project")
+project_folder = os.path.join(download_folder, "project")
+project_path = os.path.join(project_folder, "PCIE_GEN5_only_layout.aedtz")
 
 # ## Launch AEDT
 
-d = ansys.aedt.core.Desktop(
-    version=AEDT_VERSION,
-    new_desktop=True,
-    non_graphical=NG_MODE,
-)
+# d = ansys.aedt.core.Desktop(
+#     version=AEDT_VERSION,
+#     new_desktop=True,
+#     non_graphical=NG_MODE,
+# )
 
 # ## Open and solve layout
 #
@@ -48,8 +52,7 @@ d = ansys.aedt.core.Desktop(
 # Before solving, this code ensures that the model is solved from DC to 70GHz and that
 # causality and passivity are enforced.
 
-project_name = os.path.join(project_dir, "PCIE_GEN5_only_layout.aedtz")
-h3d = ansys.aedt.core.Hfss3dLayout(project_name)
+h3d = ansys.aedt.core.Hfss3dLayout(project_path)
 h3d.remove_all_unused_definitions()
 h3d.edit_cosim_options(simulate_missing_solution=False)
 h3d.setups[0].sweeps[0].props["EnforcePassivity"] = True
@@ -65,8 +68,8 @@ touchstone_path = h3d.export_touchstone()
 # Use the LNA setup to retrieve Touchstone files
 # and generate frequency domain reports.
 
-cir = ansys.aedt.core.Circuit(project=h3d.project_name, design="Touchstone")
-status, diff_pairs, comm_pairs = cir.create_lna_schematic_from_snp(
+circuit = ansys.aedt.core.Circuit(project=h3d.project_name, design="Touchstone")
+status, diff_pairs, comm_pairs = circuit.create_lna_schematic_from_snp(
     input_file=touchstone_path,
     start_frequency=0,
     stop_frequency=70,
@@ -76,7 +79,7 @@ status, diff_pairs, comm_pairs = cir.create_lna_schematic_from_snp(
     analyze=True,
 )
 
-insertion = cir.get_all_insertion_loss_list(
+insertion = circuit.get_all_insertion_loss_list(
     drivers=diff_pairs,
     receivers=diff_pairs,
     drivers_prefix_name="X1",
@@ -84,13 +87,13 @@ insertion = cir.get_all_insertion_loss_list(
     math_formula="dB",
     nets=["RX0", "RX1", "RX2", "RX3"],
 )
-return_diff = cir.get_all_return_loss_list(
+return_diff = circuit.get_all_return_loss_list(
     excitations=diff_pairs,
     excitation_name_prefix="X1",
     math_formula="dB",
     nets=["RX0", "RX1", "RX2", "RX3"],
 )
-return_comm = cir.get_all_return_loss_list(
+return_comm = circuit.get_all_return_loss_list(
     excitations=comm_pairs,
     excitation_name_prefix="COMMON_X1",
     math_formula="dB",
@@ -103,7 +106,7 @@ return_comm = cir.get_all_return_loss_list(
 # the TDR measurement on a differential pair.
 # The original circuit schematic is duplicated and modified to achieve this target.
 
-result, tdr_probe_name = cir.create_tdr_schematic_from_snp(
+result, tdr_probe_name = circuit.create_tdr_schematic_from_snp(
     input_file=touchstone_path,
     tx_schematic_pins=["X1.A2.PCIe_Gen4_RX0_P"],
     tx_schematic_differential_pins=["X1.A3.PCIe_Gen4_RX0_N"],
@@ -119,9 +122,9 @@ result, tdr_probe_name = cir.create_tdr_schematic_from_snp(
 #
 # Create an Ibis AMI project to compute an eye diagram simulation and retrieve
 # eye mask violations.
-_, eye_curve_tx, eye_curve_rx = cir.create_ami_schematic_from_snp(
+_, eye_curve_tx, eye_curve_rx = circuit.create_ami_schematic_from_snp(
     input_file=touchstone_path,
-    ibis_tx_file=os.path.join(project_dir, "models", "pcieg5_32gt.ibs"),
+    ibis_tx_file=os.path.join(project_folder, "models", "pcieg5_32gt.ibs"),
     tx_buffer_name="1p",
     rx_buffer_name="2p",
     tx_schematic_pins=["U1.AM25.PCIe_Gen4_TX0_CAP_P"],
@@ -138,7 +141,7 @@ _, eye_curve_tx, eye_curve_rx = cir.create_ami_schematic_from_snp(
     design_name="AMI",
 )
 
-cir.save_project()
+circuit.save_project()
 
 # ## Create virtual compliance report
 #
@@ -157,9 +160,9 @@ cir.save_project()
 #
 #
 
-template = os.path.join(project_path, "pcie_gen5_templates", "main.json")
+template = os.path.join(download_folder, "pcie_gen5_templates", "main.json")
 
-v = VirtualCompliance(cir.desktop_class, str(template))
+v = VirtualCompliance(circuit.desktop_class, str(template))
 
 # ## Customize project and design
 #
@@ -173,7 +176,7 @@ v = VirtualCompliance(cir.desktop_class, str(template))
 #
 #
 
-v.project_file = cir.project_file
+v.project_file = circuit.project_file
 v.reports["insertion losses"].design_name = "LNA"
 v.reports["return losses"].design_name = "LNA"
 v.reports["common mode return losses"].design_name = "LNA"
@@ -181,7 +184,7 @@ v.reports["tdr from circuit"].design_name = "TDR"
 v.reports["eye1"].design_name = "AMI"
 v.reports["eye3"].design_name = "AMI"
 v.parameters["erl"].design_name = "LNA"
-v.specs_folder = os.path.join(project_path, "readme_pictures")
+v.specs_folder = os.path.join(download_folder, "readme_pictures")
 
 # ## Define trace names
 #
@@ -231,16 +234,17 @@ v.parameters["erl"].trace_pins = [
 v.create_compliance_report()
 
 # ## Release AEDT
-#
-# Release AEDT and close the example.
 
+h3d.save_project()
 h3d.release_desktop()
 # Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
-time.sleep(10)
+time.sleep(3)
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook you
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_dir.name``.
+# If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
 temp_folder.cleanup()
