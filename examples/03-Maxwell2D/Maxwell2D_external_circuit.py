@@ -1,7 +1,7 @@
 # # External circuit
 #
 # This example shows how to create an external delta circuit and connect it with a Maxwell 2D design.
-# Keywords:
+# Keywords: **Maxwell2d**, **Circuit**, **netlist**
 
 # ## Perform required imports
 
@@ -152,21 +152,22 @@ resistors = []
 v_sources = []
 ground = []
 
-for i in range(3):
-    resistors[i] = circuit.modeler.schematic.create_resistor(
+for i in range(len(windings)):
+    r = circuit.modeler.schematic.create_resistor(
         name="R" + str(i + 1), value="resistance_value", location=[1000, i * 1000]
     )
+    resistors.append(r)
 
-    v_sources[i] = circuit.modeler.schematic.create_component(
+    v = circuit.modeler.schematic.create_component(
         component_library="Sources",
         component_name="VSin",
         location=[2000, i * 1000],
         angle=90,
     )
-    v_sources[i].set_property(name="Va", value="voltage")
-    v_sources[i].set_property(name="VFreq", value="frequency")
-    v_sources[i].set_property(name="Phase", value=str(i * 120) + "deg")
-    ground[i] = circuit.modeler.schematic.create_gnd([2300, i * 1000], angle=90)
+    v_sources.append(v)
+
+    g = circuit.modeler.schematic.create_gnd([2300, i * 1000], angle=90)
+    ground.append(g)
 
 # ## Connect the components
 #
