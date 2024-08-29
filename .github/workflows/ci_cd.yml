@@ -92,7 +92,7 @@ jobs:
       # Keeping doctree could cause an issue, see https://github.com/ansys/pyaedt/pull/3844/files
       - name: Create PDF documentation
         env:
-          SPHINXBUILD_HTML_AND_PDF_WORKFLOW: "0"
+          SPHINXBUILD_HTML_AND_PDF_WORKFLOW: "1"
         run: |
           .venv\Scripts\Activate.ps1
           . .\doc\make.bat pdf
