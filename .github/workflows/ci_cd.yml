@@ -16,9 +16,7 @@ env:
   DOCUMENTATION_CNAME: 'examples.aedt.docs.pyansys.com'
   MAIN_PYTHON_VERSION: '3.10'
   ON_CI: True
-  PACKAGE_NAME: 'pyaedt-examples'
   PYAEDT_NON_GRAPHICAL: '1'
-  PYAEDT_DOC_GENERATION: '1'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

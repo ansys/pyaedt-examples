@@ -18,8 +18,8 @@ import sys
 import ansys.aedt.core
 import openpyxl
 from ansys.aedt.core import Emit, get_pyaedt_app  # noqa: F401
-from ansys.aedt.core.emit_core.emit_constants import (  
-    InterfererType, ResultType, TxRxMode) # noqa: F401
+from ansys.aedt.core.emit_core.emit_constants import (  # noqa: F401
+    InterfererType, ResultType, TxRxMode)
 from openpyxl.styles import PatternFill
 from PySide6 import QtCore, QtGui, QtUiTools, QtWidgets
 
