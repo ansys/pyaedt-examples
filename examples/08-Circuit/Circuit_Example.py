@@ -33,17 +33,6 @@ NG_MODE = False  # Open Electronics UI when the application is launched.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ## Launch AEDT
-#
-# Launch AEDT in graphical mode. This example uses SI units.
-
-# ## Set non-graphical mode
-#
-# Set non-graphical mode.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
-# The Boolean parameter ``new_thread`` defines whether to create a new instance
-# of AEDT or try to connect to an existing instance of it.
-
 # ## Launch AEDT and Circuit
 #
 # Launch AEDT and Circuit. The [pyaedt.Desktop](
