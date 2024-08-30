@@ -17,6 +17,8 @@ env:
   MAIN_PYTHON_VERSION: '3.10'
   ON_CI: True
   PYAEDT_NON_GRAPHICAL: '1'
+  # To keep as it impacts pyaedt behavior
+  PYAEDT_DOC_GENERATION: '1'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
