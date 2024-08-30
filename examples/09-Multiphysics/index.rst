@@ -7,6 +7,7 @@ like Icepak or Mechanical.
 .. nbgallery::
 
     Hfss_Icepak_Coupling.py
+    Circuit_Hfss_Icepak_Coupling.py
     Hfss_Mechanical.py
     Maxwell_Icepak_Wireless_Charging.py
     MRI.py

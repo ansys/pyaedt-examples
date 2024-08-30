@@ -16,18 +16,23 @@ import time
 
 import ansys.aedt.core
 
-# Set constant values
+# ## Define constants
 
 AEDT_VERSION = "2024.2"
 NG_MODE = False  # Open Electronics UI when the application is launched.
 
-# ## Create temporary directory
+# ## Create temporary directory and download files
+#
+# Create a temporary directory where we store downloaded data or
+# dumped data.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch AEDT
 
-project_name = os.path.join(temp_dir.name, "FSS.aedt")
+project_name = os.path.join(temp_folder.name, "FSS.aedt")
 d = ansys.aedt.core.launch_desktop(
     AEDT_VERSION,
     non_graphical=NG_MODE,
@@ -53,7 +58,7 @@ hfss["patch_dim"] = "10mm"
 # Download the 3D component from the example data and insert the 3D Component.
 
 unitcell_3d_component_path = ansys.aedt.core.downloads.download_FSS_3dcomponent(
-    destination=temp_dir.name
+    destination=temp_folder.name
 )
 unitcell_path = os.path.join(unitcell_3d_component_path, "FSS_unitcell_23R2.a3dcomp")
 comp = hfss.modeler.insert_3d_component(unitcell_path)
@@ -154,9 +159,9 @@ time.sleep(3)
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``.
+# All project files are saved in the folder ``temp_folder.name``.
 # If you've run this example as a Jupyter notebook you
 # can retrieve those project files. The following cell removes
 # all temporary files, including the project folder.
 
-temp_dir.cleanup()
+temp_folder.cleanup()

@@ -20,7 +20,7 @@ import time
 import ansys.aedt.core
 import matplotlib.pyplot as plt
 
-# Set constant values
+# ## Define constants
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
@@ -29,8 +29,10 @@ NG_MODE = False  # Open Electronics UI when the application is launched.
 # ## Create temporary directory
 #
 # Create temporary directory.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Set up input data
 #
@@ -44,10 +46,10 @@ source_build_conf_file = "dynarom_build.conf"
 _ = ansys.aedt.core.downloads.download_twin_builder_data(
     file_name=source_snapshot_data_zipfilename,
     force_download=True,
-    destination=temp_dir.name,
+    destination=temp_folder.name,
 )
 source_data_folder = ansys.aedt.core.downloads.download_twin_builder_data(
-    source_build_conf_file, True, temp_dir.name
+    source_build_conf_file, True, temp_folder.name
 )
 
 # Toggle these for local testing
@@ -69,7 +71,7 @@ shutil.copyfile(
 # Launch Twin Builder using an implicit declaration and add a new design with
 # a default setup for building the dynamic ROM component.
 
-project_name = os.path.join(temp_dir.name, "dynamic_rom.aedt")
+project_name = os.path.join(temp_folder.name, "dynamic_rom.aedt")
 tb = ansys.aedt.core.TwinBuilder(
     project=project_name,
     version=AEDT_VERSION,
@@ -206,7 +208,7 @@ time.sleep(3)
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook you
 # can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
-temp_dir.cleanup()
+temp_folder.cleanup()

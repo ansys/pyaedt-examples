@@ -25,16 +25,19 @@ from ansys.aedt.core.emit_core.emit_constants import ResultType, TxRxMode
 
 # -
 
-# Set constant values
+# ## Define constants
 
 AEDT_VERSION = "2024.2"
 NG_MODE = False  # Open Electronics UI when the application is launched.
 
-# ## Create temporary directory
+# ## Create temporary directory and download files
 #
-# Create temporary directory.
+# Create a temporary directory where we store downloaded data or
+# dumped data.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch AEDT with EMIT
 #
@@ -76,13 +79,13 @@ example_pdf = os.path.join(example_dir, pdf_name(example))
 # Copy the files to the temporary working directory.
 
 project_name = shutil.copyfile(
-    example_project, os.path.join(temp_dir.name, file_name(example))
+    example_project, os.path.join(temp_folder.name, file_name(example))
 )
 results_folder = shutil.copytree(
-    example_results_folder, os.path.join(temp_dir.name, results_name(example))
+    example_results_folder, os.path.join(temp_folder.name, results_name(example))
 )
 project_pdf = shutil.copyfile(
-    example_pdf, os.path.join(temp_dir.name, pdf_name(example))
+    example_pdf, os.path.join(temp_folder.name, pdf_name(example))
 )
 
 # Open the project in the working directory.
@@ -142,7 +145,7 @@ time.sleep(3)
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook you
 # can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
-temp_dir.cleanup()
+temp_folder.cleanup()

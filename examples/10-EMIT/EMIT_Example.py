@@ -21,7 +21,7 @@ from ansys.aedt.core.emit_core.emit_constants import ResultType, TxRxMode
 
 # -
 
-# Set constant values
+# ## Define constants
 
 AEDT_VERSION = "2024.2"
 
@@ -32,9 +32,14 @@ AEDT_VERSION = "2024.2"
 
 non_graphical = False
 
-# ## Create temporary directory
+# ## Create temporary directory and download files
+#
+# Create a temporary directory where we store downloaded data or
+# dumped data.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
-temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch AEDT with EMIT
 #
@@ -43,7 +48,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 # run AEDT in non-graphical mode.
 
 project_name = ansys.aedt.core.generate_unique_project_name(
-    rootname=temp_dir.name, project_name="antenna_cosite"
+    rootname=temp_folder.name, project_name="antenna_cosite"
 )
 d = ansys.aedt.core.launch_desktop(AEDT_VERSION, non_graphical, True)
 aedtapp = ansys.aedt.core.Emit(project_name, version=AEDT_VERSION)
@@ -106,7 +111,7 @@ time.sleep(3)
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook you
 # can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
-temp_dir.cleanup()
+temp_folder.cleanup()

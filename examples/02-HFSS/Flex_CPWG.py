@@ -16,7 +16,7 @@ from math import cos, radians, sin, sqrt
 import ansys.aedt.core
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 
-# Set constant values
+# ## Define constants
 
 AEDT_VERSION = "2024.2"
 
@@ -27,9 +27,14 @@ AEDT_VERSION = "2024.2"
 
 non_graphical = False
 
-# ## Create temporary directory
+# ## Create temporary directory and download files
+#
+# Create a temporary directory where we store downloaded data or
+# dumped data.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
-temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch AEDT
 #
@@ -42,7 +47,7 @@ hfss = ansys.aedt.core.Hfss(
     non_graphical=non_graphical,
 )
 hfss.save_project(
-    os.path.join(temp_dir.name, generate_unique_name("example") + ".aedt")
+    os.path.join(temp_folder.name, generate_unique_name("example") + ".aedt")
 )
 
 # ## Design settings
@@ -246,4 +251,4 @@ hfss.release_desktop()
 
 # ## Clean temporary directory
 
-temp_dir.cleanup()
+temp_folder.cleanup()

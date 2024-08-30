@@ -15,7 +15,7 @@ import time
 
 import ansys.aedt.core
 
-# Set constant values
+# ## Define constants
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
@@ -24,15 +24,17 @@ NG_MODE = False
 # ## Create temporary directory
 #
 # Create temporary directory.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch AEDT and Q3D Extractor
 #
 # Launch AEDT 2024 R2 in graphical mode and launch Q3D Extractor. This example uses SI units.
 
 q3d = ansys.aedt.core.Q3d(
-    project=os.path.join(temp_dir.name, "busbar.aedt"),
+    project=os.path.join(temp_folder.name, "busbar.aedt"),
     version=AEDT_VERSION,
     non_graphical=NG_MODE,
     new_desktop=True,
@@ -84,7 +86,7 @@ q3d.modeler["substrate"].transparency = 0.8
 
 q3d.plot(
     show=False,
-    output_file=os.path.join(temp_dir.name, "Q3D.jpg"),
+    output_file=os.path.join(temp_folder.name, "Q3D.jpg"),
     plot_air_objects=False,
 )
 # -
@@ -168,4 +170,4 @@ time.sleep(3)
 # can retrieve those project files. The following cell
 # removes all temporary files, including the project folder.
 
-temp_dir.cleanup()
+temp_folder.cleanup()
