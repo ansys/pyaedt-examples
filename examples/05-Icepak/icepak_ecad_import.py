@@ -18,7 +18,7 @@ import ansys.aedt.core
 from ansys.aedt.core import Edb
 from ansys.aedt.core import Hfss3dLayout, Icepak, downloads
 
-# Set constant values
+# ## Define constants
 
 AEDT_VERSION = "2024.2"
 NG_MODE = False     # Open AEDT interface when False

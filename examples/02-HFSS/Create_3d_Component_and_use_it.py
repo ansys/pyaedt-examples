@@ -25,9 +25,13 @@ from ansys.aedt.core import Hfss
 AEDT_VERSION = "2024.2"
 NG_MODE = False  # Open Electronics UI when the application is launched.
 
-# Create temporary directory
+# ## Create temporary directory
+#
+# Create temporary directory.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # Create an HFSS object.
 
@@ -37,7 +41,7 @@ hfss = Hfss(
     close_on_exit=True,
     non_graphical=NG_MODE,
 )
-hfss.save_project(os.path.join(temp_dir.name, "example.aedt"))
+hfss.save_project(os.path.join(temp_folder.name, "example.aedt"))
 
 # ## Variable definition
 #
@@ -121,14 +125,14 @@ hfss.wave_port(
 # Multiple options are available to partially select objects, cs, boundaries and mesh operations.
 # Furthermore, encrypted 3d comp can be created too.
 
-component_path = os.path.join(temp_dir.name, "component_test.aedbcomp")
+component_path = os.path.join(temp_folder.name, "component_test.aedbcomp")
 hfss.modeler.create_3dcomponent(component_path, "patch_antenna")
 
 # ## Multiple project management
 #
 # PyAEDT allows to control multiple projects, design and solution type at the same time.
 
-new_project = os.path.join(temp_dir.name, "new_project.aedt")
+new_project = os.path.join(temp_folder.name, "new_project.aedt")
 hfss2 = Hfss(version=AEDT_VERSION, project=new_project, design="new_design")
 
 # ## Insert 3D component
@@ -195,9 +199,9 @@ time.sleep(3)
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``.
+# All project files are saved in the folder ``temp_folder.name``.
 # If you've run this example as a Jupyter notebook you
 # can retrieve those project files. The following cell removes
 # all temporary files, including the project folder.
 
-temp_dir.cleanup()
+temp_folder.cleanup()

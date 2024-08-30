@@ -10,6 +10,7 @@
 
 # +
 
+import sys
 import tempfile
 import time
 
@@ -18,16 +19,23 @@ from ansys.aedt.core.downloads import download_file
 
 # -
 
-# Set constant values
+# ## Define constants
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
 NG_MODE = False  # Open Electronics UI when the application is launched.
 
+# Check if AEDT is launched in graphical mode.
+
+if not NG_MODE or os.getenv("PYAEDT_DOC_GENERATION", "0") == "1":
+    print("Warning: this example requires graphical mode enabled.")
+    sys.exit()
+
 # Download example board.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 aedb = download_file(source="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name)
+
 
 # ## Launch HFSS 3D Layout
 #
@@ -81,7 +89,7 @@ time.sleep(3)
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``.
+# All project files are saved in the folder ``temp_folder.name``.
 # If you've run this example as a Jupyter notebook you
 # can retrieve those project files. The following cell
 # removes all temporary files, including the project folder.

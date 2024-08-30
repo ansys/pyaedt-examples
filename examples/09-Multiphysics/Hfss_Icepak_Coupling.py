@@ -1,40 +1,9 @@
-# # Circuit-HFSS-Icepak coupling workflow
+# # HFSS-Icepak coupling workflow
 #
-# This example demonstrates how to create a two-way coupling
-# between Circuit-HFSS designs and Icepak.
+# This example shows how you can create a project from scratch in HFSS and Icepak.
+# This includes creating a setup, solving it, and creating postprocessing outputs.
 #
-# Let’s consider a design where some components are simulated in
-# HFSS with a full 3D model, while others are simulated in Circuit as lumped elements.
-# The electrical simulation is done by placing the HFSS design into a Circuit design as
-# a subcomponent and by connecting the lumped components to its ports.
-#
-# The purpose of the workflow is to perform a thermal simulation
-# of the Circuit-HFSS design, creating a two-way coupling with Icepak
-# that allows running multiple iterations. The losses from both designs
-# are accounted for: EM losses are evaluated by the HFSS
-# solver and fed into Icepak via a direct link, while losses
-# from the lumped components in the Circuit design are evaluated
-# analytically and must be manually set into the Icepak boundary.
-#
-# On the way back of the coupling, temperature information
-# is handled differently for HFSS and Circuit. For HFSS, a temperature
-# map is exported from the Icepak design and used to create a
-# 3D dataset; then the material properties in the HFSS design
-# are updated based on this dataset. For Circuit, the average
-# temperature of the lumped components is extracted from the
-# Icepak design and used to update the temperature-dependent
-# characteristics of the lumped components in Circuit.
-#
-# In this example, the Circuit design contains only a
-# resistor component, with temperature-dependent resistance
-# described by this formula: 0.162*(1+0.004*(TempE-TempE0)),
-# where TempE is the current temperature and TempE0 is the
-# ambient temperature. The HFSS design includes only a cylinder
-# with temperature-dependent material conductivity, defined by
-# a 2D dataset. The resistor and the cylinder have
-# matching resistances.
-#
-# Keywords: **Multiphysics**, **HFSS**, **Icepak**, **Circuit**.
+# Keywords: **Multiphysics**, **HFSS**, **Icepak**.
 
 # ## Perform required imports
 #
@@ -47,17 +16,20 @@ import time
 import ansys.aedt.core
 from ansys.aedt.core.generic.pdf import AnsysReport
 
-# Set constant values
+# ## Define constants
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
 NG_MODE = False  # Open Electronics UI when the application is launched.
 
-# ## Create temporary directory
+# ## Create temporary directory and download files
 #
-# Create temporary directory.
+# Create a temporary directory where we store downloaded data or
+# dumped data.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch AEDT and initialize HFSS
 #
@@ -65,7 +37,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 # object is linked to it. Otherwise, a new design is created.
 
 hfss = ansys.aedt.core.Hfss(
-    project=os.path.join(temp_dir.name, "Icepak_HFSS_Coupling"),
+    project=os.path.join(temp_folder.name, "Icepak_HFSS_Coupling"),
     design="RF",
     version=AEDT_VERSION,
     non_graphical=NG_MODE,
@@ -311,7 +283,7 @@ plot1 = hfss.post.create_fieldplot_surface(
 
 hfss.post.plot_field_from_fieldplot(
     plot1.name,
-    project_path=temp_dir.name,
+    project_path=temp_folder.name,
     mesh_plot=False,
     image_format="jpg",
     view="isometric",
@@ -337,14 +309,14 @@ animated = hfss.post.plot_animated_field(
     plot_type="CutPlane",
     setup=hfss.nominal_adaptive,
     intrinsics=intrinsic,
-    export_path=temp_dir.name,
+    export_path=temp_folder.name,
     variation_variable="Phase",
     variations=phase_values,
     show=False,
     export_gif=False,
     log_scale=True,
 )
-animated.gif_file = os.path.join(temp_dir.name, "animate.gif")
+animated.gif_file = os.path.join(temp_folder.name, "animate.gif")
 
 # Set off_screen to False to visualize the animation.
 # animated.off_screen = False
@@ -383,7 +355,7 @@ my_data.plot(
     x_label="Frequency (Ghz)",
     y_label="SParameters(dB)",
     title="Scattering Chart",
-    snapshot_path=os.path.join(temp_dir.name, "Touchstone_from_matplotlib.jpg"),
+    snapshot_path=os.path.join(temp_folder.name, "Touchstone_from_matplotlib.jpg"),
 )
 
 # Create a PDF report summarizig results.
@@ -403,7 +375,7 @@ pdf_report.add_chapter("Hfss Results")
 pdf_report.add_sub_chapter("Field Plot")
 pdf_report.add_text("This section contains Field plots of Hfss Coaxial.")
 pdf_report.add_image(
-    os.path.join(temp_dir.name, plot1.name + ".jpg"), caption="Coaxial Cable"
+    os.path.join(temp_folder.name, plot1.name + ".jpg"), caption="Coaxial Cable"
 )
 
 # Add a page break and a subchapter for S Parameter results
@@ -418,7 +390,7 @@ pdf_report.add_chart(
     title="S-Parameters",
 )
 pdf_report.add_image(
-    path=os.path.join(temp_dir.name, "Touchstone_from_matplotlib.jpg"),
+    path=os.path.join(temp_folder.name, "Touchstone_from_matplotlib.jpg"),
     caption="Touchstone from Matplotlib",
 )
 
@@ -432,7 +404,7 @@ pdf_report.add_text("This section contains Multiphysics temperature plot.")
 # Add table of content and save PDF.
 
 pdf_report.add_toc()
-pdf_report.save_pdf(file_path=temp_dir.name, file_name="AEDT_Results.pdf")
+pdf_report.save_pdf(file_path=temp_folder.name, file_name="AEDT_Results.pdf")
 
 # ## Release AEDT
 #
@@ -445,7 +417,7 @@ time.sleep(3)
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook you
 # can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
-temp_dir.cleanup()
+temp_folder.cleanup()

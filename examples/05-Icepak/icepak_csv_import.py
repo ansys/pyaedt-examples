@@ -14,18 +14,17 @@ import tempfile
 import time
 from pathlib import Path
 
-import numpy as np
-import pyvista as pv
-
 import ansys.aedt.core
 import matplotlib as mpl
+import numpy as np
+import pyvista as pv
 from IPython.display import Image
 from matplotlib import cm
 from matplotlib import pyplot as plt
 
 # -
 
-# Set constant values
+# ## Define constants
 
 AEDT_VERSION = "2024.2"
 NG_MODE = False  # Open Electronics UI when the application is launched.
@@ -173,12 +172,16 @@ for obj in ipk.modeler.objects.values():
         obj.color = [0, 0, 0]
         obj.transparency = 0.9
 
-# Export the model image by creating a list of all objects that excludes "Region". This list is then passed to the `export_model_picture` function. This approach ensures that the exported image fitted to the PCB and its compoents.
+# Export the model image by creating a list of all objects that excludes "Region".
+# This list is then passed to the `export_model_picture` function.
+# This approach ensures that the exported image fitted to the PCB and its components.
 
 obj_list_noregion = list(ipk.modeler.object_names)
 obj_list_noregion.remove("Region")
 export_file = os.path.join(temp_folder.name, "object_power_AEDTExport.jpg")
-ipk.post.export_model_picture(export_file, selections=obj_list_noregion, width=1920, height=1080)
+ipk.post.export_model_picture(
+    export_file, selections=obj_list_noregion, width=1920, height=1080
+)
 Image(export_file)
 
 # ### Plot model using pyAEDT
@@ -188,7 +191,9 @@ plotter = pv.Plotter(off_screen=True, window_size=[2048, 1536])
 
 # Export all models objects to .obj files.
 
-f = ipk.post.export_model_obj(export_path=temp_folder.name, export_as_single_objects=True, air_objects=False)
+f = ipk.post.export_model_obj(
+    export_path=temp_folder.name, export_as_single_objects=True, air_objects=False
+)
 
 # Add objects to the PyVista plotter. These objects are either set to a black color or assigned scalar values,
 # allowing them to be visualized with a colormap.
@@ -198,15 +203,21 @@ for file, color, opacity in f:
         plotter.add_mesh(mesh=pv.read(file), color="black", opacity=opacity)
     else:
         mesh = pv.read(filename=file)
-        mesh["Power"] = np.full(shape=mesh.n_points, fill_value=power_budget[Path(file).stem])
+        mesh["Power"] = np.full(
+            shape=mesh.n_points, fill_value=power_budget[Path(file).stem]
+        )
         plotter.add_mesh(mesh=mesh, scalars="Power", cmap="viridis", opacity=opacity)
 
 # Add a label to the object with the maximum temperature
 
 max_pow_obj = "MP1"
-plotter.add_point_labels(points=[ipk.modeler[max_pow_obj].top_face_z.center],
-                         labels=[f"{max_pow_obj}, {power_budget[max_pow_obj]}W"],
-                         point_size=20, font_size=30, text_color="red")
+plotter.add_point_labels(
+    points=[ipk.modeler[max_pow_obj].top_face_z.center],
+    labels=[f"{max_pow_obj}, {power_budget[max_pow_obj]}W"],
+    point_size=20,
+    font_size=30,
+    text_color="red",
+)
 
 # Export file
 
@@ -218,11 +229,13 @@ Image(export_file)
 
 ipk.save_project()
 ipk.release_desktop()
-time.sleep(3)  # Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+time.sleep(
+    3
+)  # Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``.
+# All project files are saved in the folder ``temp_folder.name``.
 # If you've run this example as a Jupyter notebook you
 # can retrieve those project files. The following cell
 # removes all temporary files, including the project folder.
