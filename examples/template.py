@@ -35,7 +35,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch AEDT and application
 #
-# Create an instance of the application (i.e. ``Maxwell3d``,``Hfss`` etc)
+# Create an instance of the application (i.e. ``Maxwell3d``,``Hfss`` etc.)
 # class named (``m3d``,``hfss`` etc.) by providing
 # the project and design names, the solver, and the version.
 
@@ -56,13 +56,10 @@ m3d.modeler.model_units = "mm"
 # Add as many sections as needed for pre-processing tasks.
 
 
-
 # ## Post-Processing
 #
 # Description of post-processing task.
 # Add as many sections as needed for post-processing tasks.
-
-
 
 
 # ## Release AEDT
@@ -74,7 +71,7 @@ time.sleep(3)
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``.
+# All project files are saved in the folder ``temp_folder.name``.
 # If you've run this example as a Jupyter notebook you
 # can retrieve those project files. The following cell
 # removes all temporary files, including the project folder.

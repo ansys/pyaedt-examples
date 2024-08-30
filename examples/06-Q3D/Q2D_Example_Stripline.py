@@ -18,7 +18,7 @@ import ansys.aedt.core
 
 # -
 
-# Set constant values
+# ## Define constants
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
@@ -27,8 +27,10 @@ NUM_CORES = 4
 # ## Create temporary directory
 #
 # Create temporary directory.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch AEDT and 2D Extractor
 #
@@ -36,7 +38,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 # uses SI units.
 
 q2d = ansys.aedt.core.Q2d(
-    project=os.path.join(temp_dir.name, "stripline"),
+    project=os.path.join(temp_folder.name, "stripline"),
     design="differential_stripline",
     version=AEDT_VERSION,
     non_graphical=False,
@@ -242,7 +244,7 @@ plot_sources = matrix.get_sources_for_plot(category="Z0")
 # Get simulation results as a ``SolutionData`` object and plot as a jpg
 
 data = q2d.post.get_solution_data(expressions=plot_sources, context=matrix.name)
-data.plot(snapshot_path=os.path.join(temp_dir.name, "plot.jpg"))
+data.plot(snapshot_path=os.path.join(temp_folder.name, "plot.jpg"))
 
 # -
 
@@ -260,4 +262,4 @@ time.sleep(3)
 # can retrieve those project files. The following cell
 # removes all temporary files, including the project folder.
 
-temp_dir.cleanup()
+temp_folder.cleanup()

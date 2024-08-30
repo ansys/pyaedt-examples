@@ -19,14 +19,18 @@ import time
 import ansys.aedt.core
 from IPython.display import Image
 
-# Set constant values
+# ## Define constants
 
 AEDT_VERSION = "2024.2"
 NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary directory
+#
+# Create temporary directory.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
-temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch AEDT with the Circuit Interface
 #
@@ -45,7 +49,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix="_ansys")
 
 # +
 project_path = ansys.aedt.core.downloads.download_file(
-    source="custom_reports/", destination=temp_dir.name
+    source="custom_reports/", destination=temp_folder.name
 )
 
 circuit = ansys.aedt.core.Circuit(
@@ -138,7 +142,7 @@ Image(os.path.join(circuit.working_directory, report4_full.plot_name + ".jpg"))
 # ## Save project and close AEDT
 #
 # Save the project and close AEDT. The example has finished running. Project files can be retrieved
-# from ``temp_dir.name``.
+# from ``temp_folder.name``.
 
 circuit.save_project()
 print("Project Saved in {}".format(circuit.project_path))
@@ -151,4 +155,4 @@ time.sleep(3)
 # The following cell cleans up the temporary directory and
 # removes all project files.
 
-temp_dir.cleanup()
+temp_folder.cleanup()
