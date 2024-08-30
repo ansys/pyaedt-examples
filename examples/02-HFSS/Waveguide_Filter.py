@@ -45,9 +45,6 @@ wgparams = {
     "t": 0.15,
     "units": "in",
 }
-
-non_graphical = False
-new_thread = True
 # -
 
 # ## Create temporary directory and download files
