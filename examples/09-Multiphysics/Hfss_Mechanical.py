@@ -18,28 +18,25 @@ import ansys.aedt.core
 
 # -
 
-# Set constant values
+# ## Define constants
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary directory
 #
 # Create temporary directory.
 
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-
-# ## Set non-graphical mode
-#
-# Set non-graphical mode.
-
-non_graphical = False
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Download and open project
 #
 # Download and open the project. Save it to the temporary folder.
 
-project_name = ansys.aedt.core.downloads.download_via_wizard(destination=temp_dir.name)
+project_name = ansys.aedt.core.downloads.download_via_wizard(
+    destination=temp_folder.name
+)
 
 # ## Start HFSS
 #
@@ -48,7 +45,7 @@ project_name = ansys.aedt.core.downloads.download_via_wizard(destination=temp_di
 hfss = ansys.aedt.core.Hfss(
     project=project_name,
     version=AEDT_VERSION,
-    non_graphical=non_graphical,
+    non_graphical=NG_MODE,
     new_desktop=True,
 )
 hfss.change_material_override(True)
@@ -65,7 +62,7 @@ hfss_comp = circuit.modeler.schematic.add_subcircuit_dynamic_link(pyaedt_app=hfs
 # Set up dynamic link options. The argument for ``set_sim_option_on_hfss_subcircuit``
 # method can be the component name, component ID, or component object.
 
-circuit.modeler.schematic.refresh_dynamic_link(component_name=hfss_comp.composed_name)
+circuit.modeler.schematic.refresh_dynamic_link(name=hfss_comp.composed_name)
 circuit.modeler.schematic.set_sim_option_on_hfss_subcircuit(component=hfss_comp)
 hfss_setup_name = hfss.setups[0].name + " : " + hfss.setups[0].sweeps[0].name
 circuit.modeler.schematic.set_sim_solution_on_hfss_subcircuit(
@@ -132,15 +129,15 @@ mech.change_material_override(True)
 
 mech.assign_em_losses(
     design=hfss.design_name,
-    setupname=hfss.setups[0].name,
-    sweepname="LastAdaptive",
+    setup=hfss.setups[0].name,
+    sweep="LastAdaptive",
     map_frequency=hfss.setups[0].props["Frequency"],
     surface_objects=hfss.get_all_conductors_names(),
 )
 diels = ["1_pd", "2_pd", "3_pd", "4_pd", "5_pd"]
 for el in diels:
     mech.assign_uniform_convection(
-        objects_list=[mech.modeler[el].top_face_y, mech.modeler[el].bottom_face_y],
+        assignment=[mech.modeler[el].top_face_y, mech.modeler[el].bottom_face_y],
         convection_value=3,
     )
 
@@ -150,7 +147,7 @@ for el in diels:
 
 mech.plot(
     show=False,
-    export_path=os.path.join(temp_dir.name, "Mech.jpg"),
+    output_file=os.path.join(temp_folder.name, "Mech.jpg"),
     plot_air_objects=False,
 )
 
@@ -170,14 +167,14 @@ mech.post.create_fieldplot_surface(assignment=surfaces, quantity="Temperature")
 #
 # Release AEDT and close the example.
 
-hfss.save_project()
-hfss.release_desktop()
+mech.save_project()
+mech.release_desktop()
 # Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
 time.sleep(3)
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook you
 # can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
-temp_dir.cleanup()
+temp_folder.cleanup()

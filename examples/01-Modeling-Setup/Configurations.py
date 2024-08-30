@@ -43,12 +43,18 @@ AEDT_VERSION = "2024.2"
 NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary directory
+#
+# Create temporary directory.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Download project
 
-project_full_name = ansys.aedt.core.downloads.download_icepak(destination=temp_dir.name)
+project_full_name = ansys.aedt.core.downloads.download_icepak(
+    destination=temp_folder.name
+)
 
 # ## Open project
 #
@@ -118,7 +124,7 @@ ipk.close_project()
 #
 # Create an Icepak project and import the step.
 
-new_project = os.path.join(temp_dir.name, "example.aedt")
+new_project = os.path.join(temp_folder.name, "example.aedt")
 app = ansys.aedt.core.Icepak(version=AEDT_VERSION, project=new_project)
 app.modeler.import_3d_cad(file_path)
 
@@ -140,9 +146,9 @@ time.sleep(
 
 # ## Cleanup
 #
-# All project files are saved in the folder ``temp_dir.name``.
+# All project files are saved in the folder ``temp_folder.name``.
 # If you've run this example as a Jupyter notebook you
 # can retrieve those project files. The following cell removes
 # all temporary files, including the project folder.
 
-temp_dir.cleanup()
+temp_folder.cleanup()

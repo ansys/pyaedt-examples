@@ -16,7 +16,7 @@ import time
 import ansys.aedt.core
 import pyedb
 
-# Set constant values
+# ## Define constants
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
@@ -25,25 +25,28 @@ NG_MODE = False
 # ## Create temporary directory
 #
 # Create temporary directory.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # ## Set up project files and path
 #
 # Download needed project file and set up temporary project directory.
 
 aedb_project = ansys.aedt.core.downloads.download_file(
-    "edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name
+    "edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name
 )
 coil = ansys.aedt.core.downloads.download_file(
-    source="inductance_3d_component", name="air_coil.a3dcomp", destination=temp_dir.name
+    source="inductance_3d_component",
+    name="air_coil.a3dcomp",
+    destination=temp_folder.name,
 )
 res = ansys.aedt.core.downloads.download_file(
-    source="resistors", name="Res_0402.a3dcomp", destination=temp_dir.name
+    source="resistors", name="Res_0402.a3dcomp", destination=temp_folder.name
 )
 project_name = "HSD"
-output_edb = os.path.join(temp_dir.name, project_name + ".aedb")
-output_q3d = os.path.join(temp_dir.name, project_name + "_q3d.aedt")
+output_edb = os.path.join(temp_folder.name, project_name + ".aedb")
+output_q3d = os.path.join(temp_folder.name, project_name + "_q3d.aedt")
 
 # ## Open EDB
 #
@@ -181,7 +184,7 @@ q3d.plot(
     show=False,
     assignment=objs_copper_names,
     plot_as_separate_objects=False,
-    output_file=os.path.join(temp_dir.name, "Q3D.jpg"),
+    output_file=os.path.join(temp_folder.name, "Q3D.jpg"),
     plot_air_objects=False,
 )
 # -
@@ -262,7 +265,7 @@ plot1 = q3d.post.create_fieldplot_surface(
 
 q3d.post.plot_field_from_fieldplot(
     plot1.name,
-    project_path=temp_dir.name,
+    project_path=temp_folder.name,
     mesh_plot=False,
     image_format="jpg",
     view="isometric",
@@ -318,4 +321,4 @@ time.sleep(3)
 # can retrieve those project files. The following cell
 # removes all temporary files, including the project folder.
 
-temp_dir.cleanup()
+temp_folder.cleanup()

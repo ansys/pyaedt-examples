@@ -31,11 +31,11 @@ The following guidelines help ensure that the examples are consistent, easy to r
   ```
   Create a temporary folder at the beginning of the example:
   ```
-     temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+     temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
   ```
   Remove the temporary folder at the end of the example:
   ```
-     temp_dir.cleanup()
+     temp_folder.cleanup()
   ```
 - The examples should be formatted, so they are compatible with 
   [jupytext](https://jupytext.readthedocs.io/en/latest/) using the [light format](https://jupytext.readthedocs.io/en/latest/formats-scripts.html#the-light-format) and can
