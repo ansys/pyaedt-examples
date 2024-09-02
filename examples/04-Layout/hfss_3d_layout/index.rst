@@ -9,6 +9,7 @@ pre-layout design creation.
     01_power_integrity
     02_dc_ir_analysis
     03_gui_manipulation.py
+    04_pre_layout_sma_connector_on_pcb.py
     05_electrothermal.py
     06_ipc2581_export.py
     07_import_gds.py

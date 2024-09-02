@@ -87,8 +87,9 @@ def copy_examples_structure(app: Sphinx, config: Config):
     """Copy root directory examples structure into the doc/source/examples directory.
 
     Everything is copied except for python file. This is because we are manually
-    converting them into notebook in another Sphinx hook.
-    
+    converting them into notebook in another Sphinx hook and having both files in
+    would raise a lot of sphinx warning while building the documentation.
+
     Parameters
     ----------
     app : sphinx.application.Sphinx
@@ -109,6 +110,29 @@ def copy_examples_structure(app: Sphinx, config: Config):
 
     ignore_python_files = lambda _, files: [file for file in files if file.endswith(".py")]
     shutil.copytree(EXAMPLES_DIRECTORY, destination_dir, ignore=ignore_python_files, dirs_exist_ok=True)
+    logger.info(f"Copy performed.")
+
+
+def copy_script_examples(app: Sphinx, config: Config):
+    """Copy root directory examples script into Sphinx application out directory.
+    
+    This is required to allow users to download python scripts in the admonition.
+
+    Parameters
+    ----------
+    app : sphinx.application.Sphinx
+        Sphinx instance containing all the configuration for the documentation build.
+    config : sphinx.config.Config
+        Configuration file abstraction.
+    """
+    destination_dir = Path(app.outdir, "examples").resolve()
+    logger.info(f"Copying script examples into out directory {destination_dir}.")
+    
+    EXAMPLES = EXAMPLES_DIRECTORY.glob("**/*.py")
+    for example in EXAMPLES:
+        example_path = str(example).split("examples" + os.sep)[-1]
+        shutil.copyfile(example, str(destination_dir / example_path))
+
     logger.info(f"Copy performed.")
 
 
@@ -185,7 +209,7 @@ def skip_gif_examples_to_build_pdf(app: Sphinx):
 
 def remove_examples(app: Sphinx, exception: None | Exception):
     """Remove the doc/source/examples directory created during documentation build.
-    
+
     Parameters
     ----------
     app : sphinx.application.Sphinx
@@ -198,6 +222,7 @@ def remove_examples(app: Sphinx, exception: None | Exception):
         logger.info(f"Removing directory {destination_dir} ({size} MB).")
         shutil.rmtree(destination_dir, ignore_errors=True)
         logger.info(f"Directory removed.")
+
 
 def remove_doctree(app: Sphinx, exception: None | Exception):
     """Remove the .doctree directory created during the documentation build.
@@ -216,6 +241,7 @@ def remove_doctree(app: Sphinx, exception: None | Exception):
         shutil.rmtree(app.doctreedir, ignore_errors=True)
         logger.info(f"Doctree removed.")
 
+
 def convert_examples_into_notebooks(app):
     """Convert light style script into notebooks and disable execution if needed."""
     import subprocess
@@ -226,6 +252,11 @@ def convert_examples_into_notebooks(app):
     EXAMPLES_TO_NOT_EXECUTE = (
         "03_gui_manipulation.py",
         "05_electrothermal.py",
+        # TODO: Remove the following example when 2025.1 is released, currently the latest version is 24.1.
+        "Lumped_Element_Response.py",
+        # TODO: Remove once EMIT examples are moved into extensions.
+        "ComputeInterferenceType.py",
+        "interference_gui.py",
     )
 
     # NOTE: Only convert the examples if the workflow isn't tagged as coupling HTML and PDF build.
@@ -268,6 +299,7 @@ def convert_examples_into_notebooks(app):
         else:
             logger.info(f"Converted {count} python examples to scripts")
 
+
 def setup(app):
     """Run different hook functions during the documentation build."""
     app.add_directive("pprint", PrettyPrintDirective)
@@ -282,6 +314,7 @@ def setup(app):
     # Build finished hooks
     app.connect("build-finished", remove_examples)
     app.connect("build-finished", remove_doctree)
+    app.connect("build-finished", copy_script_examples)
 
 # -- General configuration ---------------------------------------------------
 
@@ -369,13 +402,15 @@ master_doc = "index"
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
 
+# NbSphinx customization
+
 # Execute notebooks before conversion
 nbsphinx_execute = "always"
 
-# Allow errors to help debug.
+# Allow errors to help debug
 nbsphinx_allow_errors = False
 
-# NbSphinx customization
+# Define static thumbnails
 nbsphinx_thumbnails = {
     "examples/01-Modeling-Setup/Configurations": "_static/thumbnails/configuration_file_icepak.png",
     "examples/01-Modeling-Setup/CoordinateSystem": "_static/thumbnails/coordinate_system.png",
@@ -396,9 +431,41 @@ nbsphinx_thumbnails = {
     "examples/12-general/com_analysis": "_static/thumbnails/com_eye.png",
     "examples/12-general/convert_model_version": "_static/thumbnails/e3dcomp.png",
 }
+
+# Define custom notebook format
 nbsphinx_custom_formats = {
     ".py": ["jupytext.reads", {"fmt": ""}],
 }
+
+# Define prolog and epilog
+
+nbsphinx_prolog = """
+
+.. admonition:: Download this example
+
+    Download this example as a `Jupyter Notebook <{examples_url}/{notebook_path}>`_
+    or as a `Python script <{examples_url}/{python_script_path}>`_.
+
+----
+""".format(
+    examples_url=f"https://{cname}",
+    notebook_path="{{ env.docname }}.ipynb",
+    python_script_path="{{ env.docname }}.py",
+)
+
+nbsphinx_epilog = """
+----
+
+.. admonition:: Download this example
+
+    Download this example as a `Jupyter Notebook <{examples_url}/{notebook_path}>`_
+    or as a `Python script <{examples_url}/{python_script_path}>`_.
+
+""".format(
+    examples_url=f"https://{cname}",
+    notebook_path="{{ env.docname }}.ipynb",
+    python_script_path="{{ env.docname }}.py",
+)
 
 # Pyvista customization
 
