@@ -3,7 +3,7 @@
 # This example shows how you can use PyAEDT to create a dipole antenna in HFSS
 # and postprocess results.
 #
-# Keywords: **HFSS**, **antenna**, **modal**, **3D components**, **far field**.
+# Keywords: **HFSS**, **modal**, **antenna**, **3D components**, **far field**.
 
 # ## Perform required imports
 #

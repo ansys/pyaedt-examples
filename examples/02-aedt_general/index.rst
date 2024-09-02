@@ -7,4 +7,4 @@ These examples use PyAEDT to show some general capabilities of AEDT
     configuration_files.py
     modeler/index
     optimetrics.py
-    modeler/index
+    components/index

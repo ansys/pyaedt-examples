@@ -414,10 +414,12 @@ nbsphinx_allow_errors = False
 # Define static thumbnails
 nbsphinx_thumbnails = {
     "examples/02-aedt_general/configuration_files": "_static/thumbnails/configuration_file_icepak.png",
+    "examples/02-aedt_general/modeler/index": "_static/thumbnails/modeler.png",
+    "examples/02-aedt_general/modeler/coordinate_system": "_static/thumbnails/coordinate_system.png",
+    "examples/02-aedt_general/modeler/polyline": "_static/thumbnails/polyline.png",
+    "examples/02-aedt_general/components/index": "_static/thumbnails/components.png",
+    "examples/03-high_frequency/antenna/fss_unitcell": "_static/thumbnails/unitcell.png",
 
-    "examples/01-Modeling-Setup/CoordinateSystem": "_static/thumbnails/coordinate_system.png",
-    "examples/01-Modeling-Setup/Polyline_Primitives": "_static/thumbnails/polyline.png",
-    "examples/02-HFSS/HFSS_FSS_unitcell": "_static/thumbnails/unitcell.png",
     "examples/04-Layout/hfss_3d_layout/03_gui_manipulation": "_static/thumbnails/user_interface.png",
     "examples/08-Circuit/Circuit_Siwave_Multizones": "_static/thumbnails/multizone.png",
     "examples/08-Circuit/Circuit_Subcircuit_Example": "_static/thumbnails/subcircuit.png",

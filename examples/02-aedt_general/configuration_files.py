@@ -23,7 +23,7 @@
 # any reason, this face position has changed or the object name in the target
 # design has changed, the boundary fails to apply.
 #
-# Keywords: **General**, **configuration file**, **setup**.
+# Keywords: **AEDT**, **general**, **configuration file**, **setup**.
 
 # ## Preparation
 # Import the required packages
