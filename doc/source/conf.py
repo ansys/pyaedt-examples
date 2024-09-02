@@ -250,6 +250,7 @@ def convert_examples_into_notebooks(app):
     DESTINATION_DIR = Path(app.srcdir, "examples").resolve()
     EXAMPLES = EXAMPLES_DIRECTORY.glob("**/*.py")
     EXAMPLES_TO_NOT_EXECUTE = (
+        "template.py",
         "03_gui_manipulation.py",
         "05_electrothermal.py",
         # TODO: Remove the following example when 2025.1 is released, currently the latest version is 24.1.
@@ -412,7 +413,8 @@ nbsphinx_allow_errors = False
 
 # Define static thumbnails
 nbsphinx_thumbnails = {
-    "examples/01-Modeling-Setup/Configurations": "_static/thumbnails/configuration_file_icepak.png",
+    "examples/02-aedt_general/configuration_files": "_static/thumbnails/configuration_file_icepak.png",
+
     "examples/01-Modeling-Setup/CoordinateSystem": "_static/thumbnails/coordinate_system.png",
     "examples/01-Modeling-Setup/Polyline_Primitives": "_static/thumbnails/polyline.png",
     "examples/02-HFSS/HFSS_FSS_unitcell": "_static/thumbnails/unitcell.png",
