@@ -191,12 +191,12 @@ m2d.add_winding_coils(assignment="Winding1", coils=["coil_terminal_in", "coil_te
 # and additionally it is required when there more than 1 moving objects.
 # Assign linear motion with mechanical transient.
 
-band_id = mod.create_rectangle(
+band_id = m2d.modeler.create_rectangle(
     origin=["Core_thickness + Band_clearance", "Core_thickness+Magnet_thickness+Band_clearance", 0],
     sizes=["Core_outer_x-2*(Core_thickness+Band_clearance)",
            "Core_outer_y-2*(Core_thickness+Band_clearance+Magnet_thickness)"],
     name="Motion_band")
-inner_band_id = mod.create_rectangle(
+inner_band_id = m2d.modeler.create_rectangle(
     origin=["Core_thickness+Coil_start_position-Band_clearance",
             "Core_thickness+Magnet_thickness+Coil_magnet_distance-Band_clearance", 0],
     sizes=["Coil_width + 2*Band_clearance", "Coil_inner_diameter+2*(Coil_thickness+Band_clearance)"],
@@ -211,7 +211,7 @@ m2d.assign_translate_motion(
 #
 # Create region and assign zero vector potential on the region edges.
 
-region_id = mod.create_region(pad_percent=2)
+region_id = m2d.modeler.create_region(pad_percent=2)
 m2d.assign_vector_potential(assignment=region_id.edges, boundary="VectorPotential1")
 
 # ## Assign mesh operations

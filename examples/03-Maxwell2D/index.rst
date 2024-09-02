@@ -17,3 +17,4 @@ and Transient).
     Maxwell2D_transformer_LL.py
     Maxwell2D_Transient.py
     Maxwell2D_external_circuit.py
+    Maxwell2D_Lorentz_actuator.py
