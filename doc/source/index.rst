@@ -51,6 +51,45 @@ These end-to-end examples show how you can use PyAEDT.
 
       This section demonstrates PyAEDT capabilities of High Frequency applications
 
+   .. grid-item-card:: Low Frequency
+      :padding: 2 2 2 2
+      :link: examples/04-low_frequency/index
+      :link-type: doc
+
+      .. image:: examples/04-low_frequency/_static/motor_maxwell.png
+         :alt: Low frequency motor
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      This section demonstrates PyAEDT capabilities of Low Frequency applications
+
+   .. grid-item-card:: Electrothermal
+      :padding: 2 2 2 2
+      :link: examples/05-electrothermal/index
+      :link-type: doc
+
+      .. image:: examples/05-electrothermal/_static/icepak_logo.png
+         :alt: Icepak
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      This section demonstrates PyAEDT capabilities of High Frequency applications
+
+   .. grid-item-card:: Examples by AEDT solution
+      :padding: 2 2 2 2
+      :link: examples/06-AEDT/index
+      :link-type: doc
+
+      .. image:: examples/06-AEDT/_static/aedt_electronics.png
+         :alt: Ansys
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      This section demonstrates PyAEDT capabilities of High Frequency applications
+
    .. toctree::
       :hidden:
 

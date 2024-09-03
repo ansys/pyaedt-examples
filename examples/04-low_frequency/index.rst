@@ -1,30 +1,30 @@
-High Frequency
-==============
+Low Frequency
+=============
 
-These end-to-end examples show how you can use PyAEDT for high frequency applications.
+These end-to-end examples show how you can use PyAEDT for low frequency applications.
 
 
 .. grid:: 2
 
-   .. grid-item-card:: Antenna
+   .. grid-item-card:: General
       :padding: 2 2 2 2
-      :link: antenna/index
+      :link: general/index
       :link-type: doc
 
-      .. image:: ./_static/array.png
+      .. image:: _static/general.png
          :alt: Antenna
          :width: 250px
          :height: 200px
          :align: center
 
-      This section shows some Antenna workflows
+      This section shows some general workflows
 
-   .. grid-item-card:: IC-Package-PCB
+   .. grid-item-card:: Motor
       :padding: 2 2 2 2
-      :link: layout/index
+      :link: motor/index
       :link-type: doc
 
-      .. image:: ./_static/layout.png
+      .. image:: _static/motor.png
          :alt: PCB
          :width: 250px
          :height: 200px
@@ -32,12 +32,12 @@ These end-to-end examples show how you can use PyAEDT for high frequency applica
 
       This section shows some layout automation examples
 
-   .. grid-item-card:: Radio frequency and millimeter wave
+   .. grid-item-card:: Magnetics
       :padding: 2 2 2 2
-      :link: radiofrequency_mmwave/index
+      :link: magnetic/index
       :link-type: doc
 
-      .. image:: ./_static/wgf.png
+      .. image:: _static/magnetic.png
          :alt: Filter
          :width: 250px
          :height: 200px
@@ -45,25 +45,19 @@ These end-to-end examples show how you can use PyAEDT for high frequency applica
 
       This section shows some RF and millimeter wave workflows
 
-   .. grid-item-card:: EMC
+   .. grid-item-card:: T.E.A.M. problems
       :padding: 2 2 2 2
       :link: emc/index
       :link-type: doc
 
-      .. image:: ./_static/emc.png
-         :alt: Busbar
-         :width: 250px
-         :height: 200px
-         :align: center
-
-      This section shows some EMC examples
+      This section shows some T.E.A.M. examples
 
    .. grid-item-card:: Multiphysics
       :padding: 2 2 2 2
       :link: multiphysics/index
       :link-type: doc
 
-      .. image:: ./_static/pcb_stress.png
+      .. image:: _static/pcb_stress.png
          :alt: Stress PCB
          :width: 250px
          :height: 200px
@@ -87,8 +81,8 @@ These end-to-end examples show how you can use PyAEDT for high frequency applica
    .. toctree::
       :hidden:
 
-      antenna/index
-      radiofrequency_mmwave/index
-      layout/index
-      emc/index
+      general/index
+      motor/index
+      magnetic/index
+      team/index
       multiphysics/index
