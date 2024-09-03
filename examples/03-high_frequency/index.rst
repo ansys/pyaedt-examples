@@ -58,6 +58,19 @@ These end-to-end examples show how you can use PyAEDT for high frequency applica
 
       This section shows some EMC examples
 
+   .. grid-item-card:: Multiphysics
+      :padding: 2 2 2 2
+      :link: multiphysics/index
+      :link-type: doc
+
+      .. image:: ./_static/pcb_stress.png
+         :alt: Stress PCB
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      This section shows some multiphysics examples
+
    .. grid-item-card:: Report
       :padding: 2 2 2 2
       :link: ref_report

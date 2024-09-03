@@ -434,8 +434,8 @@ nbsphinx_thumbnails = {
     "examples/03-high_frequency/emc/subcircuit": "_static/thumbnails/subcircuit.png",
     "examples/03-high_frequency/radiofrequency_mmwave/lumped_element": "_static/thumbnails/lumped_filter.png",
     "examples/03-high_frequency/layout/signal_integrity/com_analysis": "_static/thumbnails/com_eye.png",
-
-    "examples/08-Circuit/Circuit_Siwave_Multizones": "_static/thumbnails/multizone.png",
+    "examples/03-high_frequency/layout/signal_integrity/multizone": "_static/thumbnails/multizone.png",
+    "examples/03-high_frequency/multiphysics/index": "_static/thumbnails/multizone.png",
 
     "examples/09-Multiphysics/Circuit_HFSS_Icepak_Coupling": "_static/thumbnails/ring.png",
     "examples/09-Multiphysics/Maxwell_Icepak_Wireless_Charging": "_static/thumbnails/charging.png",
