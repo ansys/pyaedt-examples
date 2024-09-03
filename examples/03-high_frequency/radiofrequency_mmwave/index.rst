@@ -6,3 +6,4 @@ These examples use PyAEDT to show some general capabilities of AEDT for radio fr
 .. nbgallery::
 
     iris_filter.py
+    ../antenna/interferences/index

@@ -1,6 +1,6 @@
 Antenna
 ~~~~~~~
-These examples use PyAEDT to show some general capabilities of AEDT
+These examples use PyAEDT to show some antenna examples
 
 .. nbgallery::
 
@@ -9,3 +9,5 @@ These examples use PyAEDT to show some general capabilities of AEDT
     patch.py
     fss_unitcell.py
     ../../02-aedt_general/modeler/circuit_schematic.py
+    large_scenarios/index
+    interferences/index
