@@ -252,7 +252,7 @@ def convert_examples_into_notebooks(app):
     EXAMPLES = EXAMPLES_DIRECTORY.glob("**/*.py")
     EXAMPLES_TO_NOT_EXECUTE = (
         "template.py",
-        "03_gui_manipulation.py",
+        "gui_manipulation.py",
         "05_electrothermal.py",
         # TODO: Remove the following example when 2025.1 is released, currently the latest version is 24.1.
         "lumped_element.py",
@@ -434,7 +434,6 @@ nbsphinx_thumbnails = {
     "examples/03-high_frequency/radiofrequency_mmwave/lumped_element": "_static/thumbnails/lumped_filter.png",
     "examples/03-high_frequency/layout/signal_integrity/com_analysis": "_static/thumbnails/com_eye.png",
 
-    "examples/04-Layout/hfss_3d_layout/03_gui_manipulation": "_static/thumbnails/user_interface.png",
     "examples/08-Circuit/Circuit_Siwave_Multizones": "_static/thumbnails/multizone.png",
 
     "examples/09-Multiphysics/Circuit_HFSS_Icepak_Coupling": "_static/thumbnails/ring.png",

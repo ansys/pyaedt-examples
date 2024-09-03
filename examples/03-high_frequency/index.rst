@@ -63,7 +63,7 @@ These end-to-end examples show how you can use PyAEDT for high frequency applica
       :link: ref_report
       :link-type: ref
 
-      .. image:: _static/touschstone.png
+      .. image:: _static/touchstone.png
          :alt: Touchstone
          :width: 250px
          :height: 200px

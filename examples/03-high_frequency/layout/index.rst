@@ -44,3 +44,16 @@ These examples use PyAEDT to show some layout examples
          :align: center
 
       Signal integrity examples.
+
+   .. grid-item-card:: Layout user interface
+      :padding: 2 2 2 2
+      :link: gui_manipulation
+      :link-type: doc
+
+      .. image:: ./_static/user_interface.png
+         :alt: UI 3D Layout
+         :width: 200px
+         :height: 150px
+         :align: center
+
+      HFSS 3D Layout Gui manipulation.
