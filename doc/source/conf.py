@@ -420,6 +420,7 @@ nbsphinx_thumbnails = {
     "examples/02-aedt_general/modeler/polyline": "_static/thumbnails/polyline.png",
     "examples/02-aedt_general/modeler/netlist_to_circuit": "_static/thumbnails/netlist.png",
     "examples/02-aedt_general/components/index": "_static/thumbnails/components.png",
+    "examples/02-aedt_general/components/component_conversion": "_static/thumbnails/e3dcomp.png",
     "examples/02-aedt_general/report/index": "_static/thumbnails/touchstone.png",
     "examples/02-aedt_general/report/virtual_compliance": "_static/thumbnails/virtual_compliance_eye.png",
     "examples/03-high_frequency/antenna/fss_unitcell": "_static/thumbnails/unitcell.png",
@@ -441,7 +442,7 @@ nbsphinx_thumbnails = {
 
     "examples/11-twin_builder/static_rom_creation_and_visualization": "_static/thumbnails/static_rom.png",
 
-    "examples/12-general/convert_model_version": "_static/thumbnails/e3dcomp.png",
+
 }
 
 # Define custom notebook format
