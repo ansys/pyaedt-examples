@@ -32,6 +32,19 @@ These end-to-end examples show how you can use PyAEDT for high frequency applica
 
       This section shows some RF and mmWave workflows
 
+   .. grid-item-card:: EMC
+      :padding: 2 2 2 2
+      :link: emc/index
+      :link-type: doc
+
+      .. image:: ./_static/busbar.png
+         :alt: Busbar
+         :width: 200px
+         :height: 150px
+         :align: center
+
+      This section shows some EMC examples
+
    .. toctree::
       :hidden:
 

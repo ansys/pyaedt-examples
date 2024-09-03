@@ -3,7 +3,7 @@
 # This example shows how you can use PyAEDT to create a busbar design in
 # Q3D Extractor and run a simulation.
 #
-# Keywords: **Q3D**, **Busbar**.
+# Keywords: **Q3D**, **EMC*, **busbar**.
 
 # ## Perform required imports
 #
