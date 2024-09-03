@@ -57,3 +57,16 @@ These examples use PyAEDT to show some layout examples
          :align: center
 
       HFSS 3D Layout Gui manipulation.
+
+   .. grid-item-card:: Configuration files
+      :padding: 2 2 2 2
+      :link: https://edb.docs.pyansys.com/version/stable/examples/use_configuration/index.html
+      :link-type: url
+
+      .. image:: ./_static/pyedb2.png
+         :alt: PyEDB2
+         :width: 200px
+         :height: 150px
+         :align: center
+
+      PyEDB configuration file examples.
