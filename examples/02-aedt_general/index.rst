@@ -8,3 +8,4 @@ These examples use PyAEDT to show some general capabilities of AEDT
     modeler/index
     optimetrics.py
     components/index
+    report/index

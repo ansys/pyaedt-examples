@@ -255,7 +255,7 @@ def convert_examples_into_notebooks(app):
         "03_gui_manipulation.py",
         "05_electrothermal.py",
         # TODO: Remove the following example when 2025.1 is released, currently the latest version is 24.1.
-        "Lumped_Element_Response.py",
+        "lumped_element.py",
         # TODO: Remove once EMIT examples are moved into extensions.
         "interference_type.py",
         "interference.py",
@@ -420,6 +420,8 @@ nbsphinx_thumbnails = {
     "examples/02-aedt_general/modeler/polyline": "_static/thumbnails/polyline.png",
     "examples/02-aedt_general/modeler/netlist_to_circuit": "_static/thumbnails/netlist.png",
     "examples/02-aedt_general/components/index": "_static/thumbnails/components.png",
+    "examples/02-aedt_general/report/index": "_static/thumbnails/touchstone.png",
+    "examples/02-aedt_general/report/virtual_compliance": "_static/thumbnails/virtual_compliance_eye.png",
     "examples/03-high_frequency/antenna/fss_unitcell": "_static/thumbnails/unitcell.png",
     "examples/03-high_frequency/antenna/large_scenarios/index": "_static/thumbnails/car_w_pedestrians.png",
     "examples/03-high_frequency/antenna/interferences/index": "_static/thumbnails/emit_simple_cosite.png",
@@ -429,15 +431,17 @@ nbsphinx_thumbnails = {
     "examples/03-high_frequency/antenna/interferences/protection": "_static/thumbnails/protection.png",
     "examples/03-high_frequency/antenna/interferences/interference_type": "_static/thumbnails/interference_type.png",
     "examples/03-high_frequency/emc/subcircuit": "_static/thumbnails/subcircuit.png",
+    "examples/03-high_frequency/radiofrequency_mmwave/lumped_element": "_static/thumbnails/lumped_filter.png",
+    "examples/03-high_frequency/layout/signal_integrity/com_analysis": "_static/thumbnails/com_eye.png",
 
     "examples/04-Layout/hfss_3d_layout/03_gui_manipulation": "_static/thumbnails/user_interface.png",
     "examples/08-Circuit/Circuit_Siwave_Multizones": "_static/thumbnails/multizone.png",
-    "examples/08-Circuit/Virtual_Compliance": "_static/thumbnails/virtual_compliance_eye.png",
+
     "examples/09-Multiphysics/Circuit_HFSS_Icepak_Coupling": "_static/thumbnails/ring.png",
     "examples/09-Multiphysics/Maxwell_Icepak_Wireless_Charging": "_static/thumbnails/charging.png",
 
     "examples/11-twin_builder/static_rom_creation_and_visualization": "_static/thumbnails/static_rom.png",
-    "examples/12-general/com_analysis": "_static/thumbnails/com_eye.png",
+
     "examples/12-general/convert_model_version": "_static/thumbnails/e3dcomp.png",
 }
 
