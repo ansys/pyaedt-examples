@@ -50,6 +50,7 @@ jobs:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           check-links: false
           use-python-cache: false
+          skip-install: true
   
   deploy-doc:
     name: Upload documentation
