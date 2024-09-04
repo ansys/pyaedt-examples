@@ -30,7 +30,7 @@ jobs:
     name: Documentation style
     runs-on: ubuntu-latest
     steps:
-      - uses: ansys/actions/doc-style@v4
+      - uses: ansys/actions/doc-style@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -42,68 +42,15 @@ jobs:
     name: Build documentation
     runs-on: [self-hosted, Windows, pyaedt-examples]
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python ${{ env.MAIN_PYTHON_VERSION }}
-        uses: actions/setup-python@v4
+      - name: Build documentation
+        uses: ansys/actions/doc-build@v7
+        env:
+          SPHINXBUILD_HTML_AND_PDF_WORKFLOW: "1"
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
-
-      - name: Create virtual environment
-        run: |
-          python -m venv .venv
-          .venv\Scripts\Activate.ps1
-          python -m pip install pip -U
-          python -m pip install wheel setuptools -U
-          python -c "import sys; print(sys.executable)"
-
-      - name: Install project and documentation dependencies
-        run: |
-          .venv\Scripts\Activate.ps1
-          pip install --no-cache-dir -r requirements/requirements_doc.txt
-
-      # Use environment variable speed up build for PDF pages
-      - name: Create HTML documentation
-        env:
-          SPHINXBUILD_HTML_AND_PDF_WORKFLOW: "1"
-        run: |
-          .venv\Scripts\Activate.ps1
-          . .\doc\make.bat html --color
-
-      # NOTE: Ugly HTML checking but redirecting errors with our docs either leads
-      # to errors in powershell or workflows getting stuck in Github CICD.
-      - name: Check HTML doc creation
-        run : |
-          if (Test-Path "doc\_build\html\index.html" ) {
-            Write-Output "File index.html found, HTML build successful."
-          } else {
-            Write-Error "Sphinx build failed, check if there is no cell execution error."
-            exit 1            
-          }
-
-      - name: Upload HTML documentation artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: documentation-html
-          path: doc/_build/html
-          retention-days: 7
-
-      # Use environment variable to remove the doctree after the build of PDF pages
-      # Keeping doctree could cause an issue, see https://github.com/ansys/pyaedt/pull/3844/files
-      - name: Create PDF documentation
-        env:
-          SPHINXBUILD_HTML_AND_PDF_WORKFLOW: "1"
-        run: |
-          .venv\Scripts\Activate.ps1
-          . .\doc\make.bat pdf
-
-      - name: Upload PDF documentation artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: documentation-pdf
-          path: doc/_build/latex
-          retention-days: 7
-
+          check-links: false
+          use-python-cache: false
+  
   deploy-doc:
     name: Upload documentation
     if: contains(github.ref, 'refs/heads/main')
@@ -111,8 +58,7 @@ jobs:
     needs: [doc-build]
     steps:
       - name: Deploy the documentation
-        uses: ansys/actions/doc-deploy-dev@v5
+        uses: ansys/actions/doc-deploy-dev@v7
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          doc-artifact-name: 'documentation-html'
