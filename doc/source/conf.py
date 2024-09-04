@@ -126,14 +126,15 @@ def copy_script_examples(app: Sphinx, config: Config):
         Configuration file abstraction.
     """
     destination_dir = Path(app.outdir, "examples").resolve()
-    logger.info(f"Copying script examples into out directory {destination_dir}.")
+    if os.path.exists(destination_dir):
+        logger.info(f"Copying script examples into out directory {destination_dir}.")
     
-    EXAMPLES = EXAMPLES_DIRECTORY.glob("**/*.py")
-    for example in EXAMPLES:
-        example_path = str(example).split("examples" + os.sep)[-1]
-        shutil.copyfile(example, str(destination_dir / example_path))
+        EXAMPLES = EXAMPLES_DIRECTORY.glob("**/*.py")
+        for example in EXAMPLES:
+            example_path = str(example).split("examples" + os.sep)[-1]
+            shutil.copyfile(example, str(destination_dir / example_path))
 
-    logger.info(f"Copy performed.")
+        logger.info(f"Copy performed.")
 
 
 def adjust_image_path(app: Sphinx, docname, source):
