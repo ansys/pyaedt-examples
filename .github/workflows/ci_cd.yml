@@ -51,6 +51,7 @@ jobs:
           check-links: false
           use-python-cache: false
           skip-install: true
+          dependencies: "pandoc"
   
   deploy-doc:
     name: Upload documentation
