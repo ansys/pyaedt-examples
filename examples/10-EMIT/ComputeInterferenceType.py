@@ -9,12 +9,11 @@
 # Perform required imports
 
 # +
-import os
-import subprocess
 import sys
 import tempfile
 
 import ansys.aedt.core
+import plotly.graph_objects as go
 from ansys.aedt.core import Emit
 from ansys.aedt.core.emit_core.emit_constants import InterfererType
 
@@ -24,34 +23,6 @@ from ansys.aedt.core.emit_core.emit_constants import InterfererType
 
 AEDT_VERSION = "2024.2"
 NG_MODE = False  # Open Electronics UI when the application is launched.
-
-# ## Python Dependencies
-#
-# The following cell can be run to make sure the ``plotly`` package is installed
-# in the current Python environment. If ``plotly`` is installed there is no need
-# to run this cell.
-
-# +
-reqs = subprocess.check_output([sys.executable, "-m", "pip", "freeze"])
-installed_packages = [r.decode().split("==")[0] for r in reqs.split()]
-
-
-# Install required packages if they are not installed
-def install(package):
-    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-
-
-# Install plotly (if needed) to display legend and
-# scenario matrix results (internet connection needed)
-required_packages = ["plotly"]
-for package in required_packages:
-    if package not in installed_packages:
-        install(package)
-
-# Import plotly library
-import plotly.graph_objects as go
-
-# -
 
 # ## Create temporary directory
 #
@@ -103,10 +74,11 @@ if tx_radios is None or rx_radios is None:
 
 power_matrix = []
 all_colors = []
-if os.getenv("PYAEDT_DOC_GENERATION", "0") != "1":
-    all_colors, power_matrix = rev.interference_type_classification(
-        domain, use_filter=False, filter_list=[]
-    )
+
+
+all_colors, power_matrix = rev.interference_type_classification(
+    domain, use_filter=False, filter_list=[]
+)
 
 # ## Release AEDT
 #
@@ -238,12 +210,11 @@ def create_legend_table():
     fig.show()
 
 
-if os.getenv("PYAEDT_DOC_GENERATION", "0") != "1":
-    # Create a scenario view for all the interference types
-    create_scenario_view(power_matrix, all_colors, tx_radios, rx_radios)
+# Create a scenario view for all the interference types
+create_scenario_view(power_matrix, all_colors, tx_radios, rx_radios)
 
-    # Create a legend for the interference types
-    create_legend_table()
+# Create a legend for the interference types
+create_legend_table()
 
 # ## Cleanup
 #

@@ -41,7 +41,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 #
 # - The argument ``non_graphical`` specifies whether or not an interactive session will be launched or if
 #   AEDT runs in non-graphical mode.
-# - The Boolean parameter ``new_thread`` specifies if a new instance
+# - The Boolean parameter ``new_desktop`` specifies if a new instance
 #   of AEDT will be launched. If it is set to ``False`` the API will try to connect to a running session.
 #
 # This example extracts an archived project. The full path

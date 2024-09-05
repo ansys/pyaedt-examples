@@ -252,6 +252,11 @@ def convert_examples_into_notebooks(app):
     EXAMPLES_TO_NOT_EXECUTE = (
         "03_gui_manipulation.py",
         "05_electrothermal.py",
+        # TODO: Remove the following example when 2025.1 is released, currently the latest version is 24.1.
+        "Lumped_Element_Response.py",
+        # TODO: Remove once EMIT examples are moved into extensions.
+        "ComputeInterferenceType.py",
+        "interference_gui.py",
     )
 
     # NOTE: Only convert the examples if the workflow isn't tagged as coupling HTML and PDF build.
