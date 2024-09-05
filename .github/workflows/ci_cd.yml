@@ -43,7 +43,7 @@ jobs:
     runs-on: [self-hosted, Windows, pyaedt-examples]
     steps:
       - name: Build documentation
-        uses: ansys/actions/doc-build@v7
+        uses: ansys/actions/doc-build@main
         env:
           SPHINXBUILD_HTML_AND_PDF_WORKFLOW: "1"
         with:
