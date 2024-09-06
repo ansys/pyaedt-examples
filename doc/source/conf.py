@@ -436,11 +436,15 @@ nbsphinx_thumbnails = {
     "examples/03-high_frequency/layout/signal_integrity/com_analysis": "_static/thumbnails/com_eye.png",
     "examples/03-high_frequency/layout/signal_integrity/multizone": "_static/thumbnails/multizone.png",
     "examples/03-high_frequency/multiphysics/index": "_static/thumbnails/multizone.png",
+    "examples/03-low_frequency/general/external_circuit": "_static/thumbnails/external_circuit.png",
+    "examples/03-low_frequency/general/twin_builder/index": "_static/thumbnails/rectifier.png",
+    "examples/03-low_frequency/general/twin_builder/static_rom": "_static/thumbnails/static_rom.png",
+    "examples/03-low_frequency/motor/aedt_motor/rmxpert": "_static/thumbnails/rmxpert.png",
 
     "examples/09-Multiphysics/Circuit_HFSS_Icepak_Coupling": "_static/thumbnails/ring.png",
     "examples/09-Multiphysics/Maxwell_Icepak_Wireless_Charging": "_static/thumbnails/charging.png",
 
-    "examples/11-twin_builder/static_rom_creation_and_visualization": "_static/thumbnails/static_rom.png",
+
 
 
 }

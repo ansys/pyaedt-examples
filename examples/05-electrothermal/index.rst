@@ -4,11 +4,13 @@ These examples use PyAEDT to show electrothermal capabilities of AEDT
 
 .. nbgallery::
 
-    components.py
+    components_csv.py
+    ecad_import.py
     assign_boundaries.py
-    pcb_thermal.py
+    components_3d.py
     graphic_card.py
-    icpak_hfss_coupling.py
+    coaxial_hfss_icepak.py
     sherlock.py
-    icepak_maxwell_coupling.py
-    ref_report
+    icepak_circuit_hfss_coupling.py
+    electrothermal.py
+    ../../../02-aedt_general/report/virtual_compliance.py

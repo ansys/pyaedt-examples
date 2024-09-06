@@ -24,7 +24,7 @@ These end-to-end examples show how you can use PyAEDT for low frequency applicat
       :link: motor/index
       :link-type: doc
 
-      .. image:: _static/motor.png
+      .. image:: _static/motor_maxwell.png
          :alt: PCB
          :width: 250px
          :height: 200px

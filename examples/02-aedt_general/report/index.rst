@@ -9,3 +9,4 @@ These examples use PyAEDT to show some report capabilities
 
     virtual_compliance.py
     touchstone_file.py
+    automatic_report.py
