@@ -10,7 +10,6 @@
 # ## Perform required imports
 #
 
-# +
 import os
 import sys
 import tempfile
@@ -18,10 +17,9 @@ import time
 
 import plotly.graph_objects as go
 from ansys.aedt.core import Emit
-from ansys.aedt.core.emit_core.emit_constants import \
-    InterfererType  # noqa: F401
 
-# -
+# from ansys.aedt.core.emit_core.emit_constants import \
+#     InterfererType  # noqa: F401
 
 # ## Define constants
 
