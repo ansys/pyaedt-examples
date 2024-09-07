@@ -8,3 +8,4 @@ These examples use PyAEDT to show some magnetics examples
     transient_winding.py
     choke.py
     magneto_motive_contour.py
+    magneto_motive_line.py

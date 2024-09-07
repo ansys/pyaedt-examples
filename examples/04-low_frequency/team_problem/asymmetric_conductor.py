@@ -22,7 +22,7 @@ from ansys.aedt.core.generic.general_methods import write_csv
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
-NG_MODE = True  # Open Electronics UI when the application is launched.
+NG_MODE = False  # Open Electronics UI when the application is launched.
 
 # ## Create temporary directory
 #

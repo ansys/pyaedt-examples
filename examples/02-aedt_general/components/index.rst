@@ -1,6 +1,7 @@
 3D Components
 ~~~~~~~~~~~~~
-These examples use PyAEDT to show some 3D Component capabilities of AEDT
+
+These examples use PyAEDT to show some 3D Component capabilities
 
 .. nbgallery::
 

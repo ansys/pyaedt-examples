@@ -9,3 +9,4 @@ These examples use PyAEDT to show some motor examples in AEDT
     magnet_segmentation.py
     transformer.py
     transformer_inductance.py
+    rmxpert.py

@@ -20,7 +20,7 @@ import ansys.aedt.core
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
-NG_MODE = False  # Open Electronics UI when the application is launched.
+NG_MODE = True  # Open Electronics UI when the application is launched.
 
 # ## Create temporary directory
 #
@@ -92,12 +92,12 @@ m3d.modeler.subtract(
 #
 # Add a mesh refinement to the ladder plate.
 
-m3d.mesh.assign_length_mesh(
-    assignment="LadderPlate",
-    maximum_length=3,
-    maximum_elements=None,
-    name="Ladder_Mesh",
-)
+# m3d.mesh.assign_length_mesh(
+#     assignment="LadderPlate",
+#     maximum_length=3,
+#     maximum_elements=None,
+#     name="Ladder_Mesh",
+# )
 
 # ## Draw search coil and assign excitation
 #

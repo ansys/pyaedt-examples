@@ -45,9 +45,9 @@ These end-to-end examples show how you can use PyAEDT for low frequency applicat
 
       This section shows some RF and millimeter wave workflows
 
-   .. grid-item-card:: T.E.A.M. problems
+   .. grid-item-card:: TEAM problems
       :padding: 2 2 2 2
-      :link: emc/index
+      :link: team_problem/index
       :link-type: doc
 
       This section shows some T.E.A.M. examples

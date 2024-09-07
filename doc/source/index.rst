@@ -23,9 +23,9 @@ These end-to-end examples show how you can use PyAEDT.
          :height: 200px
          :align: center
 
-      This section demonstrates the basic capabilities of PyAEDT
+      This section demonstrates basic PyAEDT capabilities
 
-   .. grid-item-card:: AEDT General
+   .. grid-item-card:: General
       :padding: 2 2 2 2
       :link: examples/02-aedt_general/index
       :link-type: doc
@@ -36,7 +36,7 @@ These end-to-end examples show how you can use PyAEDT.
          :height: 200px
          :align: center
 
-      This section shows some general capabilities of AEDT
+      AEDT general capabilities
 
    .. grid-item-card:: High Frequency
       :padding: 2 2 2 2
@@ -49,7 +49,7 @@ These end-to-end examples show how you can use PyAEDT.
          :height: 200px
          :align: center
 
-      This section demonstrates PyAEDT capabilities of High Frequency applications
+      PyAEDT capabilities for High Frequency applications
 
    .. grid-item-card:: Low Frequency
       :padding: 2 2 2 2
@@ -62,7 +62,7 @@ These end-to-end examples show how you can use PyAEDT.
          :height: 200px
          :align: center
 
-      This section demonstrates PyAEDT capabilities of Low Frequency applications
+      PyAEDT capabilities for Low Frequency applications
 
    .. grid-item-card:: Electrothermal
       :padding: 2 2 2 2
@@ -75,7 +75,7 @@ These end-to-end examples show how you can use PyAEDT.
          :height: 200px
          :align: center
 
-      This section demonstrates PyAEDT capabilities of High Frequency applications
+      PyAEDT capabilities for High Frequency applications
 
    .. grid-item-card:: Examples by AEDT solution
       :padding: 2 2 2 2
@@ -88,7 +88,7 @@ These end-to-end examples show how you can use PyAEDT.
          :height: 200px
          :align: center
 
-      This section demonstrates PyAEDT capabilities of High Frequency applications
+      PyAEDT capabilities for High Frequency applications
 
    .. toctree::
       :hidden:

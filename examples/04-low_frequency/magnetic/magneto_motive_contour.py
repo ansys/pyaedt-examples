@@ -1,4 +1,4 @@
-# # Magnetomotive force calculation along a contour
+# # Magnetomotive force along several lines
 #
 # This example shows how to use PyAEDT to calculate
 # the magnetomotive force along several lines.

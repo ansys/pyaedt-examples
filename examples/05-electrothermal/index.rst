@@ -1,5 +1,6 @@
 Electrothermal
 ~~~~~~~~~~~~~~
+
 These examples use PyAEDT to show electrothermal capabilities of AEDT
 
 .. nbgallery::
@@ -13,4 +14,5 @@ These examples use PyAEDT to show electrothermal capabilities of AEDT
     sherlock.py
     icepak_circuit_hfss_coupling.py
     electrothermal.py
-    ../../../02-aedt_general/report/virtual_compliance.py
+    ../04-low_frequency/multiphysics/maxwell_icepak.py
+    ../02-aedt_general/report/virtual_compliance.py

@@ -1,6 +1,6 @@
 Modeler
 ~~~~~~~
-These examples use PyAEDT to show some modeler capabilities of AEDT
+These examples use PyAEDT to show some modeler capabilities
 
 .. nbgallery::
 
