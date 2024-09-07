@@ -11,15 +11,13 @@
 #
 # Perform required imports.
 
-# +
+
 import tempfile
 import time
 
 import ansys.aedt.core
-from ansys.aedt.core.emit_core.emit_constants import (
-    ResultType, TxRxMode)  # noqa: F401
 
-# -
+# from ansys.aedt.core.emit_core.emit_constants import ResultType, TxRxMode
 
 # ## Define constants
 
