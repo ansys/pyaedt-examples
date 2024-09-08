@@ -116,6 +116,7 @@ location_r106_1.append(edb.components["R106"].upper_elevation * 1000)
 # +
 edb.save_edb()
 edb.close_edb()
+time.sleep(3)
 
 h3d = ansys.aedt.core.Hfss3dLayout(
     output_edb, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True
@@ -130,6 +131,7 @@ h3d = ansys.aedt.core.Hfss3dLayout(
 setup = h3d.create_setup()
 setup.export_to_q3d(output_q3d, keep_net_name=True)
 h3d.close_project()
+time.sleep(3)
 
 # ## Open Q3D
 #

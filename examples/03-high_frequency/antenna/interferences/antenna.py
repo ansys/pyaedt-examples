@@ -40,7 +40,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # run AEDT in non-graphical mode.
 
 project_name = ansys.aedt.core.generate_unique_project_name(
-    rootname=temp_folder.name, project_name="antenna_cosite"
+    root_name=temp_folder.name, project_name="antenna_cosite"
 )
 d = ansys.aedt.core.launch_desktop(AEDT_VERSION, NG_MODE, new_desktop=True)
 aedtapp = ansys.aedt.core.Emit(project_name, version=AEDT_VERSION)

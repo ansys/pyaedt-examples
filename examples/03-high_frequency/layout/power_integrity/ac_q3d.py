@@ -116,6 +116,7 @@ h3d = ansys.aedt.core.Hfss3dLayout(
 setup = h3d.create_setup()
 setup.export_to_q3d(output_q3d, keep_net_name=True)
 h3d.close_project()
+time.sleep(3)
 
 # Open the newly created Q3D project and display the layout.
 

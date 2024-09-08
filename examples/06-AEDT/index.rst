@@ -74,4 +74,4 @@ Examples divided by AEDT solution.
       :link: misc/index
       :link-type: doc
 
-      This section shows Miscellaneous examples
+      This section shows miscellaneous examples

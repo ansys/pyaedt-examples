@@ -1,7 +1,8 @@
 # # HFSS to EMIT coupling
 #
-# <img src="_static/emit_hfss.png" width="40"> This example
-# demonstrates how link an HFSS design
+# <img src="_static/emit_hfss.png" width="400">
+#
+# This example demonstrates how link an HFSS design
 # to EMIT and model RF interference among various components.
 #
 # > **Note:** This example uses the ``Cell Phone RFI Desense``
@@ -14,7 +15,6 @@
 #
 # Perform required imports.
 
-# +
 import os
 import shutil
 import tempfile
@@ -22,8 +22,6 @@ import time
 
 import ansys.aedt.core
 from ansys.aedt.core.emit_core.emit_constants import ResultType, TxRxMode
-
-# -
 
 # ## Define constants
 

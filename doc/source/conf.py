@@ -259,6 +259,7 @@ def convert_examples_into_notebooks(app):
         # TODO: Remove once EMIT examples are moved into extensions.
         "interference_type.py",
         "interference.py",
+        "hfss_emit.py",
     )
 
     # NOTE: Only convert the examples if the workflow isn't tagged as coupling HTML and PDF build.
@@ -442,6 +443,7 @@ nbsphinx_thumbnails = {
     "examples/04-low_frequency/motor/aedt_motor/rmxpert": "_static/thumbnails/rmxpert.png",
     "examples/04-low_frequency/multiphysics/maxwell_icepak": "_static/thumbnails/charging.png",
     "examples/05-electrothermal/icepak_circuit_hfss_coupling": "_static/thumbnails/ring.png",
+    "examples/05-electrothermal/electrothermal": "_static/thumbnails/electrothermal.png",
 }
 
 
