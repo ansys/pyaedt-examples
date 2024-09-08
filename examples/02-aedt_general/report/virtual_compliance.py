@@ -60,7 +60,6 @@ touchstone_path = h3d.export_touchstone()
 # Use the LNA setup to retrieve Touchstone files
 # and generate frequency domain reports.
 
-# +
 circuit = ansys.aedt.core.Circuit(project=h3d.project_name, design="Touchstone")
 status, diff_pairs, comm_pairs = circuit.create_lna_schematic_from_snp(
     input_file=touchstone_path,
@@ -91,7 +90,6 @@ return_comm = circuit.get_all_return_loss_list(
     math_formula="dB",
     nets=["RX0", "RX1", "RX2", "RX3"],
 )
-# -
 
 # ## Create TDR project
 #
@@ -142,17 +140,10 @@ circuit.save_project()
 # Initialize the ``VirtualCompliance`` class
 # and set up the main project information needed to generate the report.
 #
-#
-# .. image:: _static/virtual_compliance_class.png
-#    :width: 400
-#    :alt: Virtual compliance class description.
-#
-#
-# .. image:: _static/virtual_compliance_configs.png
-#    :width: 400
-#    :alt: Virtual compliance configuration files hierarchy.
-#
-#
+
+# <img src="_static/virtual_compliance_class.png" width="500">
+
+# <img src="_static/virtual_compliance_configs.png" width="500">
 
 template = os.path.join(download_folder, "pcie_gen5_templates", "main.json")
 
@@ -163,11 +154,7 @@ v = VirtualCompliance(circuit.desktop_class, str(template))
 # Define the path to the project file and the
 # design names to be used in each report generation.
 #
-#
-# .. image:: _static/virtual_compliance_usage.png
-#    :width: 400
-#    :alt: Virtual compliance configuration usage example.
-
+# <img src=" _static/virtual_compliance_usage.png" width="400">
 
 v.project_file = circuit.project_file
 v.reports["insertion losses"].design_name = "LNA"
@@ -207,22 +194,9 @@ v.parameters["erl"].trace_pins = [
 #
 # Generate the reports and produce a PDF report.
 #
-#
-# .. image:: _static/virtual_compliance_scattering1.png
-#    :width: 400
-#    :alt: Insertion loss output.
-#
-#
-# .. image:: _static/virtual_compliance_scattering2.png
-#    :width: 400
-#    :alt: Return loss output.
-#
-#
-# .. image:: _static/virtual_compliance_eye.png
-#    :width: 400
-#    :alt: Eye diagram example.
-#
-#
+# <img src="_static/virtual_compliance_scattering1.png" width="400">
+# <img src="_static/virtual_compliance_scattering2.png" width="400">
+# <img src="_static/virtual_compliance_eye.png" width="400">
 
 v.create_compliance_report()
 
