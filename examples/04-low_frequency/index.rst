@@ -84,5 +84,5 @@ These end-to-end examples show how you can use PyAEDT for low frequency applicat
       general/index
       motor/index
       magnetic/index
-      team/index
+      team_problem/index
       multiphysics/index

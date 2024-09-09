@@ -8,7 +8,7 @@ These examples use PyAEDT to show electrothermal capabilities of AEDT
     components_csv.py
     ecad_import.py
     assign_boundaries.py
-    components_3d.py
+    component_3d.py
     graphic_card.py
     coaxial_hfss_icepak.py
     sherlock.py
