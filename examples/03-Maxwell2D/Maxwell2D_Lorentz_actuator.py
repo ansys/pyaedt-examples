@@ -45,13 +45,13 @@ dimensions = {
     "Coil_inner_diameter": "20mm",
     "Coil_magnet_distance": "5mm",
     "Coil_start_position": "3mm",
-    "Band_clearance": "1mm"
+    "Band_clearance": "1mm",
 }
 
 coil_specifications = {
     "Winding_current": "5A",
     "No_of_turns": "100",
-    "Coil_mass": "0.2kg"
+    "Coil_mass": "0.2kg",
 }
 
 simulation_specifications = {
@@ -59,13 +59,13 @@ simulation_specifications = {
     "Mesh_other_objects": "2mm",
     "Stop_time": "10ms",
     "Time_step": "0.5ms",
-    "Save_fields_interval": "1"
+    "Save_fields_interval": "1",
 }
 
 materials = {
     "Coil_material": "copper",
     "Core_material": "steel_1008",
-    "Magnet_material": "NdFe30"
+    "Magnet_material": "NdFe30",
 }
 
 # ## Launch AEDT and Maxwell 2D
@@ -81,7 +81,7 @@ m2d = ansys.aedt.core.Maxwell2d(
     designname="1 transient 2D",
     solution_type="TransientXY",
     specified_version=AEDT_VERSION,
-    non_graphical=NG_MODE
+    non_graphical=NG_MODE,
 )
 
 # ## Define variables from dictionaries
@@ -113,8 +113,8 @@ for i, key in enumerate(materials.keys()):
         magnet_mat_index = i
 material_array = []
 for k, v in materials.items():
-    material_array.append("\"" + v + "\"")
-s = ', '.join(material_array)
+    material_array.append('"' + v + '"')
+s = ", ".join(material_array)
 m2d["Materials"] = "[{}]".format(s)
 
 # ## Create geometry
@@ -125,29 +125,36 @@ m2d["Materials"] = "[{}]".format(s)
 core_id = m2d.modeler.create_rectangle(
     origin=[0, 0, 0],
     sizes=["Core_outer_x", "Core_outer_y"],
-    name="Core")
-m2d.modeler[core_id].material_name = "Materials[" + str(core_mat_index) + "]"
+    name="Core",
+    material="Materials[" + str(core_mat_index) + "]",
+)
 
 hole_id = m2d.modeler.create_rectangle(
     origin=["Core_thickness", "Core_thickness", 0],
     sizes=["Core_outer_x-2*Core_thickness", "Core_outer_y-2*Core_thickness"],
-    name="hole")
+    name="hole",
+)
 m2d.modeler.subtract(blank_list=[core_id], tool_list=[hole_id])
 
 magnet_n_id = m2d.modeler.create_rectangle(
     origin=["Core_thickness", "Core_outer_y-2*Core_thickness", 0],
     sizes=["Core_outer_x-2*Core_thickness", "Magnet_thickness"],
-    name="magnet_n")
+    name="magnet_n",
+    material="Materials[" + str(magnet_mat_index) + "]",
+)
 magnet_s_id = m2d.modeler.create_rectangle(
     origin=["Core_thickness", "Core_thickness", 0],
     sizes=["Core_outer_x-2*Core_thickness", "Magnet_thickness"],
-    name="magnet_s")
+    name="magnet_s",
+    material="Materials[" + str(magnet_mat_index) + "]",
+)
 
-m2d.modeler[magnet_n_id].material_name = "Materials[" + str(magnet_mat_index) + "]"
-m2d.modeler[magnet_s_id].material_name = "Materials[" + str(magnet_mat_index) + "]"
-
-m2d.modeler.create_coordinate_system(origin=[0, 0, 0], x_pointing=[0, 1, 0], y_pointing=[1, 0, 0], name="cs_x_positive")
-m2d.modeler.create_coordinate_system(origin=[0, 0, 0], x_pointing=[0, -1, 0], y_pointing=[1, 0, 0], name="cs_x_negative")
+m2d.modeler.create_coordinate_system(
+    origin=[0, 0, 0], x_pointing=[0, 1, 0], y_pointing=[1, 0, 0], name="cs_x_positive"
+)
+m2d.modeler.create_coordinate_system(
+    origin=[0, 0, 0], x_pointing=[0, -1, 0], y_pointing=[1, 0, 0], name="cs_x_negative"
+)
 magnet_s_id.part_coordinate_system = "cs_x_positive"
 magnet_n_id.part_coordinate_system = "cs_x_negative"
 m2d.modeler.set_working_coordinate_system("Global")
@@ -157,33 +164,42 @@ m2d.modeler.set_working_coordinate_system("Global")
 # Create coil terminals with 100 turns and winding with 5A current.
 
 coil_in_id = m2d.modeler.create_rectangle(
-    origin=["Core_thickness+Coil_start_position", "Core_thickness+Magnet_thickness+Coil_magnet_distance", 0],
+    origin=[
+        "Core_thickness+Coil_start_position",
+        "Core_thickness+Magnet_thickness+Coil_magnet_distance",
+        0,
+    ],
     sizes=["Coil_width", "Coil_thickness"],
-    name="coil_in"
+    name="coil_in",
+    material="Materials[" + str(coil_mat_index) + "]",
 )
 coil_out_id = m2d.modeler.create_rectangle(
-    origin=["Core_thickness+Coil_start_position",
-            "Core_thickness+Magnet_thickness+Coil_magnet_distance+Coil_inner_diameter+Coil_thickness", 0],
+    origin=[
+        "Core_thickness+Coil_start_position",
+        "Core_thickness+Magnet_thickness+Coil_magnet_distance+Coil_inner_diameter+Coil_thickness",
+        0,
+    ],
     sizes=["Coil_width", "Coil_thickness"],
-    name="coil_out"
+    name="coil_out",
+    material="Materials[" + str(coil_mat_index) + "]",
 )
-m2d.modeler[coil_in_id].material_name = "Materials[" + str(coil_mat_index) + "]"
-m2d.modeler[coil_out_id].material_name = "Materials[" + str(coil_mat_index) + "]"
 
 m2d.assign_coil(
     assignment=[coil_in_id],
     conductors_number="No_of_turns",
     name="coil_terminal_in",
-    polarity="Negative"
+    polarity="Negative",
 )
 m2d.assign_coil(
     assignment=[coil_out_id],
     conductors_number="No_of_turns",
     name="coil_terminal_out",
-    polarity="Positive"
+    polarity="Positive",
 )
 m2d.assign_winding(is_solid=False, current="Winding_current", name="Winding1")
-m2d.add_winding_coils(assignment="Winding1", coils=["coil_terminal_in", "coil_terminal_out"])
+m2d.add_winding_coils(
+    assignment="Winding1", coils=["coil_terminal_in", "coil_terminal_out"]
+)
 
 # ## Assign motion
 #
@@ -192,19 +208,39 @@ m2d.add_winding_coils(assignment="Winding1", coils=["coil_terminal_in", "coil_te
 # Assign linear motion with mechanical transient.
 
 band_id = m2d.modeler.create_rectangle(
-    origin=["Core_thickness + Band_clearance", "Core_thickness+Magnet_thickness+Band_clearance", 0],
-    sizes=["Core_outer_x-2*(Core_thickness+Band_clearance)",
-           "Core_outer_y-2*(Core_thickness+Band_clearance+Magnet_thickness)"],
-    name="Motion_band")
+    origin=[
+        "Core_thickness + Band_clearance",
+        "Core_thickness+Magnet_thickness+Band_clearance",
+        0,
+    ],
+    sizes=[
+        "Core_outer_x-2*(Core_thickness+Band_clearance)",
+        "Core_outer_y-2*(Core_thickness+Band_clearance+Magnet_thickness)",
+    ],
+    name="Motion_band",
+)
 inner_band_id = m2d.modeler.create_rectangle(
-    origin=["Core_thickness+Coil_start_position-Band_clearance",
-            "Core_thickness+Magnet_thickness+Coil_magnet_distance-Band_clearance", 0],
-    sizes=["Coil_width + 2*Band_clearance", "Coil_inner_diameter+2*(Coil_thickness+Band_clearance)"],
-    name="Motion_band_inner")
+    origin=[
+        "Core_thickness+Coil_start_position-Band_clearance",
+        "Core_thickness+Magnet_thickness+Coil_magnet_distance-Band_clearance",
+        0,
+    ],
+    sizes=[
+        "Coil_width + 2*Band_clearance",
+        "Coil_inner_diameter+2*(Coil_thickness+Band_clearance)",
+    ],
+    name="Motion_band_inner",
+)
 motion_limit = "Core_outer_x-2*(Core_thickness+Band_clearance)-(Coil_width + 2*Band_clearance)-2*Band_clearance"
 m2d.assign_translate_motion(
-    assignment="Motion_band", axis="X", periodic_translate=None, mechanical_transient=True,
-    mass="Coil_mass", start_position=0, negative_limit=0, positive_limit=motion_limit
+    assignment="Motion_band",
+    axis="X",
+    periodic_translate=None,
+    mechanical_transient=True,
+    mass="Coil_mass",
+    start_position=0,
+    negative_limit=0,
+    positive_limit=motion_limit,
 )
 
 # ## Create simulation domain
@@ -218,11 +254,17 @@ m2d.assign_vector_potential(assignment=region_id.edges, boundary="VectorPotentia
 #
 # Transient solver does not have adaptive mesh refinement, so the mesh operations have to be assigned.
 
-m2d.mesh.assign_length_mesh(assignment=[band_id, inner_band_id],
-                            maximum_length="Mesh_bands", maximum_elements=None, name="Bands")
+m2d.mesh.assign_length_mesh(
+    assignment=[band_id, inner_band_id],
+    maximum_length="Mesh_bands",
+    maximum_elements=None,
+    name="Bands",
+)
 m2d.mesh.assign_length_mesh(
     assignment=[coil_in_id, coil_in_id, core_id, magnet_n_id, magnet_s_id, region_id],
-    maximum_length="Mesh_other_objects", maximum_elements=None, name="Coils_core_magnets"
+    maximum_length="Mesh_other_objects",
+    maximum_elements=None,
+    name="Coils_core_magnets",
 )
 
 # ## Turn on eddy effects
@@ -260,7 +302,7 @@ setup.props["Steps To"] = "Stop_time"
 m2d.post.create_report(
     expressions=["Moving1.Force_x", "Moving1.Position"],
     plot_name="Force on Coil and Position of Coil",
-    primary_sweep_variable="Time"
+    primary_sweep_variable="Time",
 )
 
 # ## Analyze project
