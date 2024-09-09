@@ -279,10 +279,6 @@ m2d.mesh.assign_length_mesh(
 
 # m2d.set_core_losses(assignment="Core")
 
-# ## Set model depth
-#
-# Set the model depth.
-
 # ## Create setup
 #
 # Create the simulation setup.
