@@ -419,7 +419,7 @@ nbsphinx_thumbnails = {
     "examples/02-aedt_general/modeler/index": "_static/thumbnails/modeler.png",
     "examples/02-aedt_general/modeler/coordinate_system": "_static/thumbnails/coordinate_system.png",
     "examples/02-aedt_general/modeler/polyline": "_static/thumbnails/polyline.png",
-    "examples/02-aedt_general/modeler/netlist_to_circuit": "_static/thumbnails/netlist.png",
+    "examples/02-aedt_general/modeler/netlist_to_schematic": "_static/thumbnails/netlist.png",
     "examples/02-aedt_general/components/index": "_static/thumbnails/components.png",
     "examples/02-aedt_general/components/component_conversion": "_static/thumbnails/e3dcomp.png",
     "examples/02-aedt_general/report/index": "_static/thumbnails/touchstone.png",

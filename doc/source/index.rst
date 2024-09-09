@@ -30,8 +30,8 @@ These end-to-end examples show how you can use PyAEDT.
       :link: examples/02-aedt_general/index
       :link-type: doc
 
-      .. image:: examples/02-aedt_general/_static/aedt.png
-         :alt: AEDT user interface
+      .. image:: examples/02-aedt_general/_static/aedt_electronics.png
+         :alt: AEDT electronics
          :width: 250px
          :height: 200px
          :align: center
@@ -75,20 +75,20 @@ These end-to-end examples show how you can use PyAEDT.
          :height: 200px
          :align: center
 
-      PyAEDT capabilities for High Frequency applications
+      PyAEDT capabilities for Electrothermal applications
 
-   .. grid-item-card:: Examples by AEDT solution
+   .. grid-item-card:: Examples by AEDT application
       :padding: 2 2 2 2
       :link: examples/06-AEDT/index
       :link-type: doc
 
-      .. image:: examples/06-AEDT/_static/aedt_electronics.png
-         :alt: Ansys
+      .. image:: examples/06-AEDT/_static/aedt.png
+         :alt: AEDT
          :width: 250px
          :height: 200px
          :align: center
 
-      PyAEDT capabilities for High Frequency applications
+      Examples divided by AEDT application
 
    .. toctree::
       :hidden:

@@ -1,7 +1,7 @@
-Examples by AEDT solution
-=========================
+Examples by AEDT application
+===========================
 
-Examples divided by AEDT solution.
+Examples divided by AEDT application.
 
 
 .. grid:: 2
