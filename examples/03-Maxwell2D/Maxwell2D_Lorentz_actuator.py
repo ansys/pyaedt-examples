@@ -77,10 +77,10 @@ materials = {
 
 project_name = os.path.join(temp_folder.name, "Lorentz_actuator.aedt")
 m2d = ansys.aedt.core.Maxwell2d(
-    projectname=project_name,
-    designname="1 transient 2D",
+    project=project_name,
+    design="1 transient 2D",
     solution_type="TransientXY",
-    specified_version=AEDT_VERSION,
+    version=AEDT_VERSION,
     non_graphical=NG_MODE,
 )
 
@@ -88,21 +88,21 @@ m2d = ansys.aedt.core.Maxwell2d(
 #
 # Define design variables from the created dictionaries.
 
-m2d.variable_manager.set_variable(variable_name="Dimensions")
+m2d.variable_manager.set_variable(name="Dimensions")
 for k, v in dimensions.items():
     m2d[k] = v
 
-m2d.variable_manager.set_variable(variable_name="Winding data")
+m2d.variable_manager.set_variable(name="Winding data")
 for k, v in coil_specifications.items():
     m2d[k] = v
 
-m2d.variable_manager.set_variable(variable_name="Simulation data")
+m2d.variable_manager.set_variable(name="Simulation data")
 for k, v in simulation_specifications.items():
     m2d[k] = v
 
 # Materials.
 
-m2d.variable_manager.set_variable(variable_name="Material data")
+m2d.variable_manager.set_variable(name="Material data")
 m2d.logger.clear_messages()
 for i, key in enumerate(materials.keys()):
     if key == "Coil_material":
