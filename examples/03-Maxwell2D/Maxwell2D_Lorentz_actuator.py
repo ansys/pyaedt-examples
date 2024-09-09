@@ -269,13 +269,13 @@ m2d.mesh.assign_length_mesh(
 
 # ## Turn on eddy effects
 #
-# Turn on eddy effects.
+# To turn eddy effects on please uncomment this line.
 
 # m2d.eddy_effects_on(assignment=["magnet_n", "magnet_s"])
 
 # ## Turn on core loss
 #
-# Turn on core loss.
+# Turn core loss on please uncomment this line.
 
 # m2d.set_core_losses(assignment="Core")
 
