@@ -3,7 +3,7 @@ Examples
 
 **Useful links**:
 `Installation <https://aedt.docs.pyansys.com/version/stable/Getting_started/Installation.html>`_ |
-`Source Repository <https://github.com/ansys-internal/pyaedt-examples>`_ |
+`Source repository <https://github.com/ansys-internal/pyaedt-examples>`_ |
 `Issues <https://github.com/ansys-internal/pyaedt-examples/issues>`_
 
 Embedding examples for `PyAEDT <https://aedt.docs.pyansys.com/version/stable/>`_ are contained in this repository.
