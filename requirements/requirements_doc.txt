@@ -9,7 +9,7 @@ openpyxl==3.1.4
 osmnx==1.9.0
 pandas==2.2.0
 pyvista==0.44.0
-fast-simplification==0.1.7
+fast-simplification==0.1.9
 joblib==1.4.0
 plotly==5.24.0
 PySide6==6.7.2
