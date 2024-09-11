@@ -4,20 +4,11 @@
    :hidden:
    :maxdepth: 2
 
-
-   01-Modeling-Setup/index
-   02-HFSS/index
-   03-Maxwell3D/index
-   03-Maxwell2D/index
-   04-Layout/index
-   05-Icepak/index
-   06-Q3D/index
-   07-SBR+/index
-   08-Circuit/index
-   09-Multiphysics/index
-   10-EMIT/index
-   11-twin_builder/index
-   12-general/index
+   02-aedt_general/index
+   03-high_frequency/index
+   04-low_frequency/index
+   05-electrothermal/index
+   06-AEDT/index
 
 
 Examples
