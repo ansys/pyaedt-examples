@@ -9,3 +9,4 @@ These examples use PyAEDT to show some magnetics examples
     choke.py
     magneto_motive_contour.py
     magneto_motive_line.py
+    lorentz_actuator.py
