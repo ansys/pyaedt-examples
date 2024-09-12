@@ -70,7 +70,7 @@ dict_in = ansys.aedt.core.general_methods.read_json(
 
 dict_in["Circ_Patch_5GHz1"] = os.path.join(example_path, "Circ_Patch_5GHz.a3dcomp")
 
-# ## Add 3D component aray
+# ## Add 3D component array
 #
 # A 3D component array is created from the previous dictionary.
 # If a 3D component is not available in the design, it is loaded
