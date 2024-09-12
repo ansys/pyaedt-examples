@@ -1,11 +1,11 @@
 # # Reflector
 #
-# This example shows how you can use PyAEDT to create an HFSS SBR+ project from an
+# This example shows how to use PyAEDT to create an HFSS SBR+ project from an
 # HFSS antenna and run a simulation.
 #
 # Keywords: **HFSS**,  **SBR+**, **reflector**.
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports and set up the local path to the path for the PyAEDT
 # directory.
@@ -16,15 +16,16 @@ import time
 
 import ansys.aedt.core
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
-NG_MODE = False  # Open Electronics UI when the application is launched.
+NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
-# Create temporary directory.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -99,9 +100,9 @@ setup1["RangeType"] = "SinglePoints"
 setup1["RangeStart"] = "10GHz"
 target.analyze(cores=NUM_CORES)
 
-# ## Post-processing
+# ## Postprocess
 #
-# Plot results in Electronics Desktop.
+# Plot results in AEDT.
 
 variations = target.available_variations.nominal_w_values_dict
 variations["Freq"] = ["10GHz"]
@@ -134,12 +135,12 @@ solution.plot()
 
 target.save_project()
 target.release_desktop()
-# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-# ## Cleanup
+# ## Clean up
 #
-# All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook you
+# All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook, you
 # can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 temp_folder.cleanup()

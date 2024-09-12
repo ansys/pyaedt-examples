@@ -1,11 +1,11 @@
 # # Coordinate system creation
 #
-# This example shows how you can use PyAEDT to create and modify coordinate systems in the modeler.
+# This example shows how to use PyAEDT to create and modify coordinate systems in the modeler.
 #
 # Keywords: **AEDT**, **modeler**, **coordinate system**.
 
-# ## Preparation
-# Import the required packages
+# ## Perform imports and define constants
+# Import the required packages.
 
 import os
 import tempfile
@@ -13,15 +13,15 @@ import time
 
 import ansys.aedt.core
 
-# Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
-NG_MODE = False  # Open Electronics UI when the application is launched.
+NG_MODE = False  # Open the AEDT UI when it is launched.
 
-# ## Create temporary directory and download files
+# ## Create temporary directory
 #
-# Create a temporary directory where we store downloaded data or
-# dumped data.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -73,11 +73,11 @@ cs1.rename("newCS")
 
 # ## Change coordinate system mode
 #
-# Use the ``change_cs_mode`` method to change the mode. Options are
+# Use the ``change_cs_mode`` method to change the mode. Options are:
 #
 # - ``0`` for axis/position
 # - ``1`` for Euler angle ZXZ
-# - ``2`` for Euler angle ZYZ.
+# - ``2`` for Euler angle ZYZ
 #
 # Here ``1`` sets Euler angle ZXZ as the mode.
 
@@ -114,12 +114,12 @@ cs3 = hfss.modeler.create_coordinate_system(
     name="CS3", origin=[2, 2, 2], mode="zyz", phi=10, theta=20, psi=30
 )
 
-# Create a coordinate system that is defined by standard views in the modeler. The options are
+# Create a coordinate system that is defined by standard views in the modeler. The options are:
 #
 # - ``"iso"``
 # - ``"XY"``
 # - ``"XZ"``
-# - ``"XY"``.
+# - ``"XY"``
 #
 # Here ``"iso"`` is specified. The axes are set automatically.
 
@@ -178,7 +178,7 @@ fcs4 = hfss.modeler.create_face_coordinate_system(
     face=face, origin=face, axis_position=face.edges[1], rotation=10.3
 )
 
-# Rotation can also be changed after coordinate system creation
+# Rotation can also be changed after coordinate system creation.
 
 fcs4.props["ZRotationAngle"] = "3deg"
 
@@ -196,7 +196,7 @@ fcs5 = hfss.modeler.create_face_coordinate_system(
 fcs5.props["XOffset"] = "0.2mm"
 fcs5.props["YOffset"] = "0.1mm"
 
-# ### Dependent coordinate systems
+# ### Create a dependent coordinate system
 #
 # The use of dependent coordinate systems can simplify model creation. The following
 # cell demonstrates how to create a coordinate system whose reference is the face coordinate system.
@@ -209,7 +209,7 @@ cs_fcs = hfss.modeler.create_coordinate_system(
     name="CS_FCS", origin=[0, 0, 0], reference_cs=fcs6.name, mode="view", view="iso"
 )
 
-# ### Object coordinate systems
+# ### Create object coordinate systems
 #
 # A coordinate system can also be defined relative to elements
 # belonging to an object. For example, the coordinate system can be
@@ -235,7 +235,7 @@ obj_cs_1 = hfss.modeler.create_object_coordinate_system(
 )
 obj_cs_1.set_as_working_cs()
 
-# Create object coordinate system with origin specified on a point within an object.
+# Create an object coordinate system with an origin specified on a point within an object.
 
 obj_cs_2 = hfss.modeler.create_object_coordinate_system(
     assignment=box.name,
@@ -247,7 +247,7 @@ obj_cs_2 = hfss.modeler.create_object_coordinate_system(
 new_obj_cs_2 = hfss.modeler.duplicate_coordinate_system_to_global(obj_cs_2)
 obj_cs_2.delete()
 
-# Create object coordinate system with origin on vertex.
+# Create an object coordinate system with an origin on the vertex.
 
 obj_cs_3 = hfss.modeler.create_object_coordinate_system(
     obj=box.name,
@@ -261,7 +261,7 @@ obj_cs_3.update()
 
 # ### Get all coordinate systems
 #
-# All coordinate systems can easily be retrieved and subsequently manipulated.
+# Easily retrieve and subsequently manipulate all coordinate systems.
 
 css = hfss.modeler.coordinate_systems
 names = [i.name for i in css]
@@ -292,9 +292,9 @@ print("CS5 :", p2)
 d.release_desktop()
 time.sleep(3)
 
-# ## Cleanup
+# ## Clean up
 #
-# All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook you
+# All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook, you
 # can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 temp_folder.cleanup()

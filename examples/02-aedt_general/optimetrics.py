@@ -1,12 +1,12 @@
 # # Optimetrics setup
 #
-# This example shows how you can use PyAEDT to create a project in HFSS and create all optimetrics
+# This example shows how to use PyAEDT to create a project in HFSS and create all optimetrics
 # setups.
 #
 # Keywords: **AEDT**, **General**, **optimetrics**.
 
-# ## Preparation
-# Import the required packages
+# ## Perform imports and define constants
+# Import the required packages.
 
 import os
 import tempfile
@@ -14,15 +14,15 @@ import time
 
 import ansys.aedt.core
 
-# Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
-NG_MODE = False  # Open Electronics UI when the application is launched.
+NG_MODE = False  # Open AEDT UI when it is launched.
 
-# ## Create temporary directory and download files
+# ## Create temporary directory
 #
-# Create a temporary directory where we store downloaded data or
-# dumped data.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -67,7 +67,9 @@ model.show_grid = False
 model.plot(os.path.join(hfss.working_directory, "Image.jpg"))
 # -
 
-# ## Create two wave ports on the sheets.
+# ## Create wave ports on sheets
+#
+# Create two wave ports on the sheets.
 
 hfss.wave_port(p1, integration_line=hfss.AxisDir.ZPos, name="1")
 hfss.wave_port(p2, integration_line=hfss.AxisDir.ZPos, name="2")
@@ -88,9 +90,9 @@ hfss.create_linear_step_sweep(
     save_fields=True,
 )
 
-# ## Optimetrics analysis
+# ## Create optimetrics analyses
 #
-# ### Parametric Analysis
+# ### Create parametric analysis
 #
 # Create a simple optimetrics parametrics analysis with output calculations.
 
@@ -99,7 +101,9 @@ sweep.add_variation("w1", 0.1, 2, 10)
 sweep.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"})
 sweep.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 
-# ## Create an optimetrics sensitivity analysis with output calculations.
+# ### Create sensitivity analysis
+#
+# Create an optimetrics sensitivity analysis with output calculations.
 
 sweep2 = hfss.optimizations.add(
     calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="Sensitivity"
@@ -107,7 +111,9 @@ sweep2 = hfss.optimizations.add(
 sweep2.add_variation("w1", 0.1, 3, 0.5)
 sweep2.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 
-# ## Create an optimization analysis based on goals and calculations.
+# ### Create an optimization analysis
+#
+# Create an optimization analysis based on goals and calculations.
 
 sweep3 = hfss.optimizations.add(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"})
 sweep3.add_variation("w1", 0.1, 3, 0.5)
@@ -119,22 +125,26 @@ sweep3.add_goal(
     condition="Maximize",
 )
 
-# ## Create a DX (DesignXplorer) optimization based on a goal and a calculation.
+# ### Create a DesignXplorer optimization
+#
+# Create a DesignXplorer optimization based on a goal and a calculation.
 
 sweep4 = hfss.optimizations.add(
     calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="DesignExplorer"
 )
 sweep4.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 
-# ## Create DOE based on a goal and calculation
+# ### Create a Design of Experiments (DOE)
 #
-# Create a DOE (Design of Experiments) based on a goal and a calculation.
+# Create a DOE based on a goal and a calculation.
 
 sweep5 = hfss.optimizations.add(
     calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="DXDOE"
 )
 
-# ## Create DOE based on a goal and calculation
+# ### Create another DOE
+#
+# Create another DOE based on a goal and a calculation.
 
 region = hfss.modeler.create_region()
 hfss.assign_radiation_boundary_to_objects(region)
@@ -150,14 +160,12 @@ sweep6 = hfss.optimizations.add(
 
 hfss.save_project()
 hfss.release_desktop()
-time.sleep(
-    3
-)  # Allow Electronics Desktop to shut down before cleaning the temporary project folder.
+time.sleep(3)  # Allow AEDT to shut down before cleaning the temporary project folder.
 
-# ## Cleanup
+# ## Clean up
 #
 # All project files are saved in the folder ``temp_folder.name``.
-# If you've run this example as a Jupyter notebook you
+# If you've run this example as a Jupyter notebook, you
 # can retrieve those project files. The following cell removes
 # all temporary files, including the project folder.
 

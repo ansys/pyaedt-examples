@@ -1,16 +1,20 @@
-# # Create a 3D Component and reuse it
+# # 3D component creation and reuse
 
-# Summary of the workflow:
-# 1. Create an antenna using PyAEDT and HFSS 3D Modeler (same can be done with EDB and
-# HFSS 3D Layout).
-# 2. Store the object as a 3D Component on the disk.
-# 3. Reuse the 3D component in another project.
-# 4. Parametrize and optimize target design.
+# Here is a workflow for creating a 3D component and reusing it:
 #
-# Keywords: **AEDT**, **General**, **3D Component**.
+# Step 1: Create an antenna using PyAEDT and HFSS 3D Modeler. (The antenna can also be created using EDB and
+# HFSS 3D Layout).
+#
+# Step 2. Store the object as a 3D component on the disk.
+#
+# Step 3. Reuse the 3D component in another project.
+#
+# Step 4. Parametrize and optimize the target design.
+#
+# Keywords: **AEDT**, **General**, **3D component**.
 
-# ## Preparation
-# Import the required packages
+# ## Perform imports and define constants
+# Import the required packages.
 
 import os
 import tempfile
@@ -18,16 +22,15 @@ import time
 
 from ansys.aedt.core import Hfss
 
-# ## Project setup
-#
-# Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
-NG_MODE = False  # Open Electronics UI when the application is launched.
+NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
-# Create temporary directory.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -43,18 +46,19 @@ hfss = Hfss(
 )
 hfss.save_project(os.path.join(temp_folder.name, "example.aedt"))
 
-# ## Variable definition
+# ## Define variables
 #
-# PyAEDT can create and store all variables available in AEDT (Design, Project, Post Processing).
+# PyAEDT can create and store all variables available in AEDT (such as design, project,
+# and postprocessing).
 
 hfss["thick"] = "0.1mm"
 hfss["width"] = "1mm"
 
-# ##  Modeler
+# ##  Create modeler objects
 #
-# PyAEDT supports all modeler functionalities available in the Desktop.
-# Objects can be created, deleted and modified using all available boolean operations.
-# History is also fully accessible to PyAEDT.
+# PyAEDT supports all modeler functionalities available in the AEDT.
+# You can create, delete, and modify objects using all available Boolean operations.
+# PyAEDT can also fully access history.
 
 # +
 substrate = hfss.modeler.create_box(
@@ -87,15 +91,19 @@ via_outer = hfss.modeler.create_cylinder(
 )
 # -
 
-# ## Boundaries
+# ## Assign bundaries
 #
 # Most of HFSS boundaries and excitations are already available in PyAEDT.
-# User can assign easily a boundary to a face or to an object by taking benefits of
+# You can easily assign a boundary to a face or to an object by taking advantage of
 # Object-Oriented Programming (OOP) available in PyAEDT.
+
+# ### Assign perfect e to sheets
+#
+# Assign perfect e to sheets.
 
 hfss.assign_perfecte_to_sheets(patch)
 
-# ## Assign boundary to faces
+# ### Assign boundaries to faces
 #
 # Assign boundaries to the top and bottom faces of an object.
 
@@ -110,50 +118,50 @@ hfss.assign_perfecte_to_sheets(side_face)
 hfss.assign_perfecte_to_sheets(substrate.bottom_face_z)
 # -
 
-# ## Create Wave Port
+# ## Create wave port
 #
-# Wave port can be assigned to a sheet or to a face of an object.
+# You can assign a wave port to a sheet or to a face of an object.
 
 hfss.wave_port(
     via_outer.bottom_face_z,
     name="P1",
 )
 
-# ## Create 3D Component
+# ## Create 3D component
 #
-# Once the model is ready a 3D Component can be created.
-# Multiple options are available to partially select objects, cs, boundaries and mesh operations.
-# Furthermore, encrypted 3d comp can be created too.
+# Once the model is ready, you can create a 3D component.
+# Multiple options are available to partially select objects, coordinate systems,
+# boundaries, and mesh operations. You can also create encrypted 3D components.
 
 component_path = os.path.join(temp_folder.name, "component_test.aedbcomp")
 hfss.modeler.create_3dcomponent(component_path, "patch_antenna")
 
-# ## Multiple project management
+# ## Manage multiple project
 #
-# PyAEDT allows to control multiple projects, design and solution type at the same time.
+# PyAEDT lets you control multiple projects, designs, and solution types at the same time.
 
 new_project = os.path.join(temp_folder.name, "new_project.aedt")
 hfss2 = Hfss(version=AEDT_VERSION, project=new_project, design="new_design")
 
 # ## Insert 3D component
 #
-# The 3D component can be inserted without any additional info.
-# All needed info will be read from the file itself.
+# You can insert a 3D component without supplying additional information.
+# All needed information is read from the file itself.
 
 hfss2.modeler.insert_3d_component(component_path)
 
-# ## 3D Component Parameters
+# ## Parametrize 3D components
 #
-# All 3D Component parameters are available and can be parametrized.
+# You can specify parameters for any 3D components.
 
 hfss2.modeler.user_defined_components["patch_antenna1"].parameters
 hfss2["p_thick"] = "1mm"
 hfss2.modeler.user_defined_components["patch_antenna1"].parameters["thick"] = "p_thick"
 
-# ## Multiple 3D Components
+# ## Insert multiple 3D components
 #
-# There is no limit to the number of 3D components that can be added to the same design.
-# They can be the same or linked to different files.
+# There is no limit to the number of 3D components that can be inserted in a design.
+# These components can be the same or linked to different files.
 
 hfss2.modeler.create_coordinate_system(origin=[20, 20, 10], name="Second_antenna")
 ant2 = hfss2.modeler.insert_3d_component(
@@ -162,20 +170,20 @@ ant2 = hfss2.modeler.insert_3d_component(
 
 # ## Move 3D components
 #
-# The 3D component can be moved by changing is position or moving the relative coordinate system.
+# Move a 3D component by either changing its position or moving the relative coordinate system.
 
 hfss2.modeler.coordinate_systems[0].origin = [10, 10, 3]
 
 # ## Create air region
 #
-# Assign a boundary to a face or an object.
+# Create an air region and assign a boundary to a face or an object.
 
 hfss2.modeler.create_air_region(30, 30, 30, 30, 30, 30)
 hfss2.assign_radiation_boundary_to_faces(hfss2.modeler["Region"].faces)
 
-# ## Create Setup and Optimetrics.
+# ## Create setup and optimetrics analysis
 #
-# Once project is ready to be solved, a setup and parametrics analysis can be created with PyAEDT.
+# Once a project is ready to be solved, use PyAEDT to create a setup and parametrics analysis.
 # All setup parameters can be edited.
 
 setup1 = hfss2.create_setup()
@@ -194,13 +202,13 @@ hfss2.plot(
 
 hfss2.save_project()
 hfss2.release_desktop()
-# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-# ## Cleanup
+# ## Clean up
 #
 # All project files are saved in the folder ``temp_folder.name``.
-# If you've run this example as a Jupyter notebook you
+# If you've run this example as a Jupyter notebook, you
 # can retrieve those project files. The following cell removes
 # all temporary files, including the project folder.
 

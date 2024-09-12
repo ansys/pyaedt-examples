@@ -1,17 +1,17 @@
 # # HFSS to EMIT coupling
 #
-# <img src="_static/emit_hfss.png" width="400">
-#
-# This example demonstrates how link an HFSS design
+# This example shows how to link an HFSS design
 # to EMIT and model RF interference among various components.
 #
-# > **Note:** This example uses the ``Cell Phone RFI Desense``
-# > project that is available with the AEDT installation in the
-# > folder ``\Examples\EMIT\``
+# <img src="_static/emit_hfss.png" width="400">
+#
+# **Note:** This example uses the ``Cell Phone RFI Desense``
+# project that is available with the AEDT installation in the
+# ``\Examples\EMIT\`` directory.
 #
 # Keywords: **EMIT**, **Coupling**.
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports.
 
@@ -23,15 +23,15 @@ import time
 import ansys.aedt.core
 from ansys.aedt.core.emit_core.emit_constants import ResultType, TxRxMode
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
-NG_MODE = False  # Open Electronics UI when the application is launched.
+NG_MODE = False  # Open AEDT UI when it is launched.
 
-# ## Create temporary directory and download files
+# ## Create temporary directory
 #
-# Create a temporary directory where we store downloaded data or
-# dumped data.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -47,20 +47,20 @@ d = ansys.aedt.core.launch_desktop(
     version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True
 )
 
-# ## Copy Example Files
+# ## Copy example files
 #
 # Copy the ``Cell Phone RFT Defense`` example data from the
-# installed examples folder to the temporary working
+# installed ``Examples`` directory to the temporary working
 # directory.
 #
-# > **Note:** The HFSS design from the installed example
-# > used to model the RF environment
-# > has been pre-solved. Hence, the results folder is copied and
-# > the RF interference between transceivers is calculated in EMIT using
-# > results from the linked HFSS design.
+# **Note:** The HFSS design from the installed example
+# used to model the RF environment
+# has been pre-solved. Hence, the results folder is copied and
+# the RF interference between transceivers is calculated in EMIT using
+# results from the linked HFSS design.
 #
-# The following lambda functions help create file and folder
-# names when copying data from the Examples folder.
+# The following lambda functions help create file and directory
+# names when copying data from the ``Examples`` directory.
 
 file_name = lambda s: s + ".aedt"
 results_name = lambda s: s + ".aedtresults"
@@ -113,7 +113,7 @@ for link in aedtapp.couplings.coupling_names:
     aedtapp.couplings.update_link(link)
     print('linked "' + link + '".')
 
-# ## Calculate RF Interference
+# ## Calculate RF interference
 #
 # Run the EMIT simulation. This portion of the EMIT API is not yet implemented.
 #
@@ -138,12 +138,12 @@ if AEDT_VERSION > "2023.1":
 
 aedtapp.save_project()
 aedtapp.release_desktop()
-# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-# ## Cleanup
+# ## Clean up
 #
-# All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook you
+# All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook, you
 # can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 temp_folder.cleanup()

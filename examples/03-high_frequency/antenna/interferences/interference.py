@@ -4,9 +4,9 @@
 # design and analyze the results to classify the
 # worst-case interference.
 #
-# Keywords: **EMIT**, **Interference**.
+# Keywords: **EMIT**, **interference**.
 
-# Perform required imports
+# ## Perform imports and define constants
 
 # +
 import sys
@@ -19,23 +19,24 @@ from ansys.aedt.core.emit_core.emit_constants import InterfererType
 
 # -
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
-NG_MODE = False  # Open Electronics UI when the application is launched.
+NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
-# Create temporary directory.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# Check that EMIT version 2023.2 or greater is installed.
+# Check that EMIT 2023.2 or later is installed.
 
 if AEDT_VERSION <= "2023.1":
-    print("Warning: this example requires AEDT 2023.2 or later.")
+    print("Warning: This example requires AEDT 2023.2 or later.")
     sys.exit()
 
 # Download project
@@ -50,7 +51,7 @@ emitapp = Emit(
     non_graphical=NG_MODE, new_desktop=True, project=project_name, version=AEDT_VERSION
 )
 
-# ## Get a List of Transmitters
+# ## Get lists of transmitters and receivers
 #
 # Get lists of all transmitters and receivers in the project.
 
@@ -69,8 +70,8 @@ if tx_radios is None or rx_radios is None:
 # ## Classify the interference
 #
 # Iterate over all the transmitters and receivers and compute the power
-# at the input to each receiver due to each of the transmitters. Computes
-# which, if any, type of interference occurred.
+# at the input to each receiver due to each of the transmitters. Compute
+# which type of interference occurred, if any.
 
 power_matrix = []
 all_colors = []
@@ -157,9 +158,9 @@ def create_scenario_view(emis, colors, tx_radios, rx_radios):
 # -
 
 
-# ## Generate a legend
+# ## Create a legend
 #
-# Define the interference types and colors used to display the results of
+# Create a legend, defining the interference types and colors used to display the results of
 # the analysis.
 
 
@@ -216,10 +217,10 @@ create_scenario_view(power_matrix, all_colors, tx_radios, rx_radios)
 # Create a legend for the interference types
 create_legend_table()
 
-# ## Cleanup
+# ## Clean up
 #
 # All project files are saved in the folder ``temp_folder.name``.
-# If you've run this example as a Jupyter notebook you
+# If you've run this example as a Jupyter notebook, you
 # can retrieve those project files. The following cell
 # removes all temporary files, including the project folder.
 

@@ -1,11 +1,11 @@
-# # Import Geometry from Maps
+# # Geometry import from maps
 #
-# This example shows how you can use PyAEDT to create an HFSS SBR+ project from an
-# OpenStreeMaps.
+# This example shows how to use PyAEDT to create an HFSS SBR+ project from
+# OpenStreetMap.
 #
 # Keywords: **HFSS**,  **SBR+**, **city**.
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports and set up the local path to the PyAEDT
 # directory path.
@@ -16,14 +16,15 @@ import time
 
 import ansys.aedt.core
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
-NG_MODE = False  # Open Electronics UI when the application is launched.
+NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
-# Create temporary directory.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -43,9 +44,9 @@ app = ansys.aedt.core.Hfss(
     non_graphical=NG_MODE,
 )
 
-# ## Define Location to import
+# ## Define location to import
 #
-# Define latitude and longitude to import.
+# Define the latitude and longitude of the location to import.
 
 ansys_home = [40.273726, -80.168269]
 
@@ -79,12 +80,12 @@ plot_obj.plot(os.path.join(app.working_directory, "Source.jpg"))
 
 app.save_project()
 app.release_desktop()
-# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-# ## Cleanup
+# ## Clean up
 #
-# All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook you
+# All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook, you
 # can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 temp_folder.cleanup()

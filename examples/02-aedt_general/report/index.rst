@@ -3,7 +3,7 @@
 Report
 ~~~~~~
 
-These examples use PyAEDT to show some report capabilities
+These examples use PyAEDT to show some report capabilities.
 
 .. nbgallery::
 

@@ -1,6 +1,6 @@
 # # Coaxial
 #
-# This example shows how you can create a project from scratch in HFSS and Icepak.
+# This example shows how to create a project from scratch in HFSS and Icepak.
 # This includes creating a setup, solving it, and creating postprocessing outputs.
 #
 # Keywords: **Multiphysics**, **HFSS**, **Icepak**.
@@ -20,9 +20,9 @@ from ansys.aedt.core.generic.pdf import AnsysReport
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
-NG_MODE = False  # Open Electronics UI when the application is launched.
+NG_MODE = False  # Open AEDT UI when it is launched.
 
-# ## Create temporary directory and download files
+# ## Create temporary directory
 #
 # Create a temporary directory where we store downloaded data or
 # dumped data.
@@ -412,12 +412,12 @@ pdf_report.save_pdf(file_path=temp_folder.name, file_name="AEDT_Results.pdf")
 
 ipk.save_project()
 hfss.release_desktop()
-# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-# ## Cleanup
+# ## Clean up
 #
-# All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook you
+# All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook, you
 # can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 temp_folder.cleanup()

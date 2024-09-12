@@ -1,10 +1,10 @@
 # # Spiral inductor
 #
-# This example shows how you can use PyAEDT to create a spiral inductor, solve it, and plot results.
+# This example shows how to use PyAEDT to create a spiral inductor, solve it, and plot results.
 #
 # Keywords: **HFSS**, **spiral**, **inductance**, **output variable**.
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports.
 
@@ -14,16 +14,16 @@ import time
 
 import ansys.aedt.core
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
-NG_MODE = False  # Open Electronics UI when the application is launched.
+NG_MODE = False  # Open AEDT UI when it is launched.
 
-# ## Create temporary directory and download files
+# ## Create temporary directory
 #
-# Create a temporary directory where we store downloaded data or
-# dumped data.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -31,7 +31,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch HFSS
 #
-# Create a new HFSS design and change the units to microns.
+# Create an HFSS design and change the units to microns.
 
 project_name = os.path.join(temp_folder.name, "spiral.aedt")
 hfss = ansys.aedt.core.Hfss(
@@ -60,8 +60,8 @@ hfss["Tsub"] = "6" + hfss.modeler.model_units
 
 # ## Standardize polyline
 #
-# Define a function that creates a polyline using the ``create_line`` method. This
-# function creates a polyline having fixed width, thickness, and material.
+# Define a function that creates a polyline using the ``create_line()`` method. This
+# function creates a polyline having a fixed width, thickness, and material.
 
 
 def create_line(pts):
@@ -141,7 +141,7 @@ hfss.modeler.create_box(
 )
 # -
 
-# ## Model Setup
+# ## set up model
 #
 # Create the air box and radiation boundary condition.
 
@@ -162,7 +162,7 @@ box = hfss.modeler.create_box(
 hfss.assign_radiation_boundary_to_objects("airbox")
 # -
 
-# Assign a material override which allows object intersections,
+# Assign a material override that allows object intersections,
 # assigning conductors higher priority than insulators.
 
 hfss.change_material_override()
@@ -177,7 +177,7 @@ hfss.plot(
 
 # ## Generate the solution
 #
-# Create the setup including a frequency sweep, then solve the project.
+# Create the setup, including a frequency sweep. Then, solve the project.
 
 setup1 = hfss.create_setup(name="setup1")
 setup1.props["Frequency"] = "10GHz"
@@ -192,7 +192,7 @@ hfss.create_linear_count_sweep(
 hfss.save_project()
 hfss.analyze(cores=NUM_CORES)
 
-# ## Post-processing
+# ## Postprocess
 #
 # Get report data and use the following formulas to calculate
 # the inductance and quality factor.
@@ -200,7 +200,7 @@ hfss.analyze(cores=NUM_CORES)
 L_formula = "1e9*im(1/Y(1,1))/(2*pi*freq)"
 Q_formula = "im(Y(1,1))/re(Y(1,1))"
 
-# Define the inductance as a post-processing variable.
+# Define the inductance as a postprocessing variable.
 
 hfss.create_output_variable("L", L_formula, solution="setup1 : LastAdaptive")
 
@@ -211,7 +211,7 @@ data.plot(
     curves=[L_formula, Q_formula], formula="re", x_label="Freq", y_label="L and Q"
 )
 
-# Export results to csv file
+# Export results to a CSV file
 
 data.export_data_to_csv(os.path.join(hfss.toolkit_directory, "output.csv"))
 
@@ -221,13 +221,13 @@ data.export_data_to_csv(os.path.join(hfss.toolkit_directory, "output.csv"))
 
 hfss.save_project()
 hfss.release_desktop()
-# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-# ## Cleanup
+# ## Clean up
 #
 # All project files are saved in the folder ``temp_folder.name``.
-# If you've run this example as a Jupyter notebook you
+# If you've run this example as a Jupyter notebook, you
 # can retrieve those project files. The following cell removes
 # all temporary files, including the project folder.
 

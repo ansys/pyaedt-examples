@@ -1,6 +1,6 @@
 # # Configuration files
 #
-# This example shows how you can use PyAEDT to export configuration files and reuse
+# This example shows how to use PyAEDT to export configuration files and reuse
 # them to import in a new project. A configuration file is supported by these applications:
 #
 # * HFSS
@@ -9,7 +9,7 @@
 # * Icepak (in AEDT)
 # * Mechanical (in AEDT)
 #
-# The following sections are covered:
+# The following topics are covered:
 #
 # * Variables
 # * Mesh operations (except Icepak)
@@ -18,15 +18,15 @@
 # * Object properties
 # * Boundaries and excitations
 #
-# When a boundary is attached to a face, the tool tries to match it with a
-# ``FaceByPosition`` on the same object name on the target design. If, for
-# any reason, this face position has changed or the object name in the target
+# When a boundary is attached to a face, PyAEDT tries to match it with a
+# ``FaceByPosition`` on the same object name on the target design. If for
+# any reason this face position has changed or the object name in the target
 # design has changed, the boundary fails to apply.
 #
 # Keywords: **AEDT**, **general**, **configuration file**, **setup**.
 
-# ## Preparation
-# Import the required packages
+# ## Perform imports and define constants
+# Import the required packages.
 
 # +
 import os
@@ -37,20 +37,22 @@ import ansys.aedt.core
 
 # -
 
-# Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
-NG_MODE = False  # Open Electronics UI when the application is launched.
+NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
-# Create temporary directory.
+# Create the temporary directory.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Download project
+#
+# Download the Icepack project.
 
 project_full_name = ansys.aedt.core.downloads.download_icepak(
     destination=temp_folder.name
@@ -98,7 +100,7 @@ ipk.save_project()
 
 # ## Export project to step file
 #
-# Export the current project to the step file.
+# Export the project to the step file.
 
 filename = ipk.design_name
 file_path = os.path.join(ipk.working_directory, filename + ".step")
@@ -113,7 +115,7 @@ ipk.export_3d_model(
 # ## Export configuration files
 #
 # Export the configuration files. You can optionally disable the export and
-# import sections. Supported formats are json and toml files
+# import sections. Supported formats are JSON and TOML files.
 
 conf_file = ipk.configurations.export_config(
     os.path.join(ipk.working_directory, "config.toml")
@@ -140,14 +142,12 @@ is_conf_imported = app.configurations.results.global_import_success
 # Close the project and release AEDT.
 
 app.release_desktop()
-time.sleep(
-    3
-)  # Allow Electronics Desktop to shut down before cleaning the temporary project folder.
+time.sleep(3)  # Allow AEDT to shut down before cleaning the temporary project folder.
 
-# ## Cleanup
+# ## Clean up
 #
 # All project files are saved in the folder ``temp_folder.name``.
-# If you've run this example as a Jupyter notebook you
+# If you've run this example as a Jupyter notebook, you
 # can retrieve those project files. The following cell removes
 # all temporary files, including the project folder.
 

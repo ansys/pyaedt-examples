@@ -1,15 +1,14 @@
 # # Component antenna array
 
-# This example shows how you can use PyAEDT to create an example using a 3D component file. It sets
-# up
-# the analysis, solves it, and uses postprocessing functions to create plots using Matplotlib and
+# This example shows how to use PyAEDT to create an example using a 3D component file. It sets
+# up the analysis, solves it, and uses postprocessing functions to create plots using Matplotlib and
 # PyVista without opening the HFSS user interface. This example runs only on Windows using CPython.
 #
 # Keywords: **HFSS**, **antenna array**, **3D components**, **far field**.
 
 
-# ## Preparation
-# Import the required packages
+# ## Perform imports and define constants
+# Import the required packages.
 
 import os
 import tempfile
@@ -22,11 +21,12 @@ from ansys.aedt.core.generic.farfield_visualization import FfdSolutionData
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
-NG_MODE = False  # Open Electronics UI when the application is launched.
+NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
-# Create temporary directory.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -56,23 +56,23 @@ hfss = ansys.aedt.core.Hfss(
 print("Project name " + project_name)
 # -
 
-# ## Read array definition from JSON file
+# ## Read array definition
 #
-# Read JSON file.
+# Read array definition from the JSON file.
 
 dict_in = ansys.aedt.core.general_methods.read_json(
     os.path.join(example_path, "array_simple.json")
 )
 
-# ## 3D Component definition
+# ## Define 3D component
 #
-# Define 3DComponent cell.
+# Define the 3D component cell.
 
 dict_in["Circ_Patch_5GHz1"] = os.path.join(example_path, "Circ_Patch_5GHz.a3dcomp")
 
-# ## Add 3D Component Array
+# ## Add 3D component aray
 #
-# Created 3D Component array from the previous dictionary.
+# A 3D component array is created from the previous dictionary.
 # If a 3D component is not available in the design, it is loaded
 # into the dictionary from the path that you specify. The following
 # code edits the dictionary to point to the location of the A3DCOMP file.
@@ -81,7 +81,7 @@ array = hfss.add_3d_component_array_from_json(dict_in)
 
 # ## Modify cells
 #
-# Make center element passive and rotate corner elements.
+# Make the center element passive and rotate the corner elements.
 
 array.cells[1][1].is_active = False
 array.cells[0][0].rotation = 90
@@ -89,7 +89,7 @@ array.cells[0][2].rotation = 90
 array.cells[2][0].rotation = 90
 array.cells[2][2].rotation = 90
 
-# ## Set up simulation
+# ## Set up simulation and analyze
 #
 # Set up a simulation and analyze it.
 
@@ -118,19 +118,19 @@ ffdata.farfield_data.plot_contour(
 # ## Release AEDT
 #
 # Release AEDT.
-# Far field post-processing can be performed without AEDT because the data is stored.
+# You can perform far field postprocessing without AEDT because the data is stored.
 
 metadata_file = ffdata.metadata_file
 working_directory = hfss.working_directory
 
 hfss.save_project()
 hfss.release_desktop()
-# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
 # ## Load far field data
 #
-# Load far field data stored.
+# Load the stored far field data.
 
 ffdata = FfdSolutionData(input_file=metadata_file)
 
@@ -174,10 +174,10 @@ ffdata.plot_3d(
     show=False,
 )
 
-# ## Cleanup
+# ## Clean up
 #
 # All project files are saved in the folder ``temp_folder.name``.
-# If you've run this example as a Jupyter notebook you
+# If you've run this example as a Jupyter notebook, you
 # can retrieve those project files. The following cell
 # removes all temporary files, including the project folder.
 

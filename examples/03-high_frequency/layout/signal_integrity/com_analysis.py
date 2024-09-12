@@ -1,5 +1,5 @@
 # # Channel Operating Margin (COM)
-# This example shows how you can use PyAEDT for COM analysis.
+# This example shows how to use PyAEDT for COM analysis.
 # Supported standards are as below:
 #
 # - 50GAUI_1_C2C

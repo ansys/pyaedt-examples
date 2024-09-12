@@ -19,7 +19,7 @@ import ansys.aedt.core
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
-NG_MODE = False  # Open Electronics UI when the application is launched.
+NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
@@ -311,13 +311,13 @@ setup.analyze(cores=NUM_CORES, use_auto_settings=False)
 
 m2d.save_project()
 m2d.release_desktop()
-# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-# ## Cleanup
+# ## Clean up
 #
 # All project files are saved in the folder ``temp_dir.name``.
-# If you've run this example as a Jupyter notebook you
+# If you've run this example as a Jupyter notebook, you
 # can retrieve those project files. The following cell
 # removes all temporary files, including the project folder.
 

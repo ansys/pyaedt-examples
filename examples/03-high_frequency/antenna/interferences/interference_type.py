@@ -4,11 +4,11 @@
 # an EMIT design and analyze the results to classify the
 # worst-case interference.
 #
-# > **Note:** This example requires PySide6.
+# **Note:** This example requires PySide6.
 #
-# Keywords: **EMIT**, **User interface**.
+# Keywords: **EMIT**, **user interface**.
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports.
 
@@ -22,12 +22,12 @@ from ansys.aedt.core.emit_core.emit_constants import InterfererType
 from openpyxl.styles import PatternFill
 from PySide6 import QtCore, QtGui, QtUiTools, QtWidgets
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
-NG_MODE = False  # Open Electronics UI when the application is launched.
+NG_MODE = False  # Open AEDT UI when it is launched.
 
-# Uncomment if there are Qt plugin errors
+# Uncomment the following code if there are Qt plugin errors
 # import PySide6
 # dirname = os.path.dirname(PySide6.__file__)
 # plugin_path = os.path.join(dirname, 'plugins', 'platforms')
@@ -37,7 +37,7 @@ NG_MODE = False  # Open Electronics UI when the application is launched.
 
 desktop = ansys.aedt.core.launch_desktop(AEDT_VERSION, NG_MODE, new_desktop=True)
 
-# ## Add emitapi to system path to import EmitApiPython
+# ## Add ``EmitApiPython`` module to system path to import it
 
 emit_path = os.path.join(desktop.install_path, "Delcross")
 sys.path.insert(0, emit_path)
@@ -47,12 +47,12 @@ api = EmitApiPython.EmitApi()
 
 # ## Define GUI
 #
-# Start with UI extension file.
+# Define the UI extension file.
 
 ui_file = ansys.aedt.core.downloads.download_file("emit", "interference_gui.ui")
 Ui_MainWindow, _ = QtUiTools.loadUiType(ui_file)
 
-# Then customize the GUI
+# Customize the GUI.
 
 # +
 class DoubleDelegate(QtWidgets.QStyledItemDelegate):
@@ -316,7 +316,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     emit_designs.append(d)
 
             # Add warning if no EMIT design
-            # NOTE: This should never happen since loading a project without an EMIT design
+            # NOTE: This should never happen because loading a project without an EMIT design
             # should add a blank EMIT design
             self.warning_label.setHidden(True)
             if len(emit_designs) == 0:
@@ -722,9 +722,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
 # -
 
-# ## Run the GUI
+# ## Run GUI
 #
-# Launch the GUI.
+# Run the GUI.
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])

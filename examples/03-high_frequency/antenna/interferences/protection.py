@@ -5,9 +5,9 @@
 # power at the input to each receiver exceeds the specified protection
 # levels.
 #
-# Keywords: **EMIT**, **Protection levels**.
+# Keywords: **EMIT**, **protection levels**.
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 
 import os
@@ -21,14 +21,15 @@ from ansys.aedt.core import Emit
 # from ansys.aedt.core.emit_core.emit_constants import \
 #     InterfererType  # noqa: F401
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
-NG_MODE = False  # Open Electronics UI when the application is launched.
+NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
-# Create temporary directory.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -42,7 +43,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # Check that the correct version of EMIT is installed.
 
 if AEDT_VERSION <= "2023.1":
-    print("Warning: this example requires AEDT 2023.2 or later.")
+    print("Warning: This example requires AEDT 2023.2 or later.")
     sys.exit()
 
 project_name = os.path.join(temp_folder.name, "emit.aedt")
@@ -51,14 +52,14 @@ emitapp = Emit(
     non_graphical=NG_MODE, new_desktop=True, project=project_name, version=AEDT_VERSION
 )
 
-# ## Specify the protection levels
+# ## Specify protection levels
 #
 # The protection levels are specified in dBm.
 # If the damage threshold is exceeded, permanent damage to the receiver front
 # end may occur.
 # Exceeding the overload threshold severely densensitizes the receiver.
-# Exceeding the intermod threshold can drive the victim receiver into non-
-# linear operation, where it operates as a mixer.
+# Exceeding the intermod threshold can drive the victim receiver into non-linear
+# operation, where it operates as a mixer.
 # Exceeding the desense threshold reduces the signal-to-noise ratio and can
 # reduce the maximum range, maximum bandwidth, and/or the overall link quality.
 
@@ -142,9 +143,9 @@ for band in bands:
 rev = emitapp.results.analyze()
 
 
-# ## Generate a legend
+# ## Create a legend
 #
-# Define the thresholds and colors used to display the results of
+# Create a legend, defining the thresholds and colors used to display the results of
 # the protection level analysis.
 
 
@@ -242,7 +243,7 @@ def create_scenario_view(emis, colors, tx_radios, rx_radios):
 #
 # Get lists of all transmitters and receivers in the project.
 
-# NOTE : The following code can be uncommented.
+# **Note:** You can uncomment the following code.
 #
 # rev = emitapp.results.current_revision
 # rx_radios = rev.get_receiver_names()
@@ -253,9 +254,9 @@ def create_scenario_view(emis, colors, tx_radios, rx_radios):
 #
 # Iterate over all the transmitters and receivers and compute the power
 # at the input to each receiver due to each of the transmitters. Computes
-# which, if any, protection levels are exceeded by these power levels.
+# which protection levels are exceeded by these power levels, if any.
 
-# NOTE : The following code can be uncommented but depends on the previous commented code.
+# **Note:** Your ability to uncomment the following code depends on whether you uncommented the earlier code.
 #
 # power_matrix = []
 # all_colors = []
@@ -264,10 +265,10 @@ def create_scenario_view(emis, colors, tx_radios, rx_radios):
 #     domain, global_levels=protection_levels
 # )
 
-# # Create a scenario matrix-like view for the protection levels
+# ## Create a scenario matrix-like view for the protection levels
 # create_scenario_view(power_matrix, all_colors, tx_radios, rx_radios)
 
-# # Create a legend for the protection levels
+# ## Create a legend for the protection levels
 # create_legend_table()
 
 # ## Release AEDT
@@ -276,12 +277,12 @@ def create_scenario_view(emis, colors, tx_radios, rx_radios):
 
 emitapp.save_project()
 emitapp.release_desktop()
-# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-# ## Cleanup
+# ## Clean up
 #
-# All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook you
+# All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook, you
 # can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 temp_folder.cleanup()

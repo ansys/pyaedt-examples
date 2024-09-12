@@ -1,25 +1,21 @@
-# # Design a lumped element filter
+# # Lumped element filter
 #
 # This example shows how to use PyAEDT to use the ``FilterSolutions`` module to design and
 # visualize the frequency response of a band-pass Butterworth filter.
 #
 # Keywords: **filter solutions**
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports.
 
 import ansys.aedt.core
 import matplotlib.pyplot as plt
 from ansys.aedt.core.filtersolutions_core.attributes import (
-    FilterClass,
-    FilterImplementation,
-    FilterType,
-)
-from ansys.aedt.core.filtersolutions_core.ideal_response import FrequencyResponseColumn
+    FilterClass, FilterImplementation, FilterType)
+from ansys.aedt.core.filtersolutions_core.ideal_response import \
+    FrequencyResponseColumn
 
-# ## Define constants
-#
 # Define constants.
 
 AEDT_VERSION = "2025.1"
@@ -38,7 +34,7 @@ def format_plot():
     plt.grid()
 
 
-# ## Create the lumped design
+# ## Create lumped filter design
 #
 # Create a lumped element filter design and assign the class, type, frequency, and order.
 
@@ -51,7 +47,7 @@ design.attributes.pass_band_center_frequency = "1G"
 design.attributes.pass_band_width_frequency = "500M"
 design.attributes.filter_order = 5
 
-# ## Plot the frequency response of the filter
+# ## Plot frequency response of filter
 #
 # Plot the frequency response of the filter without any transmission zeros.
 
@@ -62,9 +58,9 @@ plt.plot(freq, mag_db, linewidth=2.0, label="Without Tx Zero")
 format_plot()
 plt.show()
 
-# ## Add a transmission zero to the filter design
+# ## Add a transmission zero to filter design
 #
-# Add a transmission zeros that yields nulls separated by 2 times the pass band width (1 GHz).
+# Add a transmission zero that yields nulls separated by two times the pass band width (1 GHz).
 # Plot the frequency response of the filter with the transmission zero.
 
 design.transmission_zeros_ratio.append_row("2.0")
@@ -76,9 +72,10 @@ plt.plot(freq_with_zero, mag_db_with_zero, linewidth=2.0, label="With Tx Zero")
 format_plot()
 plt.show()
 
-# ## Generate the netlist for the designed filter
+# ## Generate netlist for designed filter
 #
-# Generate and print the netlist for the designed filter with the added transmission zero to filter.
+# Generate and print the netlist for the designed filter with the added transmission zero to
+# the filter.
 
 netlist = design.topology.circuit_response()
 print("Netlist: \n", netlist)

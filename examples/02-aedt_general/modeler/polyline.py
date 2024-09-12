@@ -1,11 +1,11 @@
 # # Polyline creation
 #
-# This example shows how you can use PyAEDT to create and manipulate polylines.
+# This example shows how to use PyAEDT to create and manipulate polylines.
 #
 # Keywords: **AEDT**, **modeler**, **polyline**.
 
-# ## Preparation
-# Import the required packages
+# ## Import packages and define constants
+# Import the required packages.
 
 import os
 import tempfile
@@ -16,13 +16,13 @@ import ansys.aedt.core
 # Define constants
 
 AEDT_VERSION = "2024.2"
-NG_MODE = False  # Open Electronics UI when the application is launched.
+NG_MODE = False  # Open AEDT UI when it is launched.
 
 
-# ## Create temporary directory and download files
+# ## Create temporary directory
 #
-# Create a temporary directory where we store downloaded data or
-# dumped data.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -64,11 +64,11 @@ test_points = [
     ["0mm", "0mm", "0mm"],
 ]
 
-# ## Polyline primitives
+# ## Create polyline primitives
 #
 # The following examples are for creating polyline primitives.
 
-# ## Create line primitive
+# ### Create line primitive
 #
 # Create a line primitive. The basic polyline command takes a list of positions
 # (``[X, Y, Z]`` coordinates) and creates a polyline object with one or more
@@ -80,9 +80,9 @@ print("Created Polyline with name: {}".format(modeler.objects[line1.id].name))
 print("Segment types : {}".format([s.type for s in line1.segment_types]))
 print("primitive id = {}".format(line1.id))
 
-# ## Create arc primitive
+# ### Create arc primitive
 #
-# Create an arc primitive. The parameter ``position_list`` must contain at
+# Create an arc primitive. The ``position_list`` parameter must contain at
 # least three position values. The first three position values are used.
 
 line2 = modeler.create_polyline(
@@ -94,11 +94,11 @@ print(
     )
 )
 
-# ## Create spline primitive
+# ### Create spline primitive
 #
 # Create a spline primitive. Defining the segment using a ``PolylineSegment``
 # object allows you to provide additional input parameters for the spine, such
-# as the number of points (in this case 4). The parameter ``points``
+# as the number of points (in this case 4). The ``points`` parameter
 # must contain at least four position values.
 
 line3 = modeler.create_polyline(
@@ -107,7 +107,7 @@ line3 = modeler.create_polyline(
     name="PL03_spline_4pt",
 )
 
-# ## Create center-point arc primitive
+# ### Create center-point arc primitive
 #
 # Create a center-point arc primitive. A center-point arc segment is defined
 # by a starting point, a center point, and an angle of rotation around the
@@ -115,8 +115,8 @@ line3 = modeler.create_polyline(
 # plane of the active coordinate system. The starting point and the center point
 # must therefore have one coordinate value (X, Y, or Z) with the same value.
 #
-# Here ``start-point`` and ``center-point`` have a common Z position, ``"0mm"``.
-# The curve therefore lies in the XY plane at $ z = 0 $.
+# In this first code example, ``start-point`` and ``center-point`` have a common
+# Z position, ``"0mm"``. The curve therefore lies in the XY plane at $ z = 0 $.
 
 start_point = [100, 100, 0]
 center_point = [0, 0, 0]
@@ -128,8 +128,8 @@ line4 = modeler.create_polyline(
     name="PL04_center_point_arc",
 )
 
-# Here ``start_point`` and ``center_point`` have the same values for the Y and
-# Z coordinates, so the plane or rotation could be either XY or ZX.
+# In this second code example, ``start_point`` and ``center_point`` have the same
+# values for the Y and Z coordinates, so the plane or rotation could be either XY or ZX.
 # For these special cases when the rotation plane is ambiguous, you can specify
 # the plane explicitly.
 
@@ -150,7 +150,7 @@ line4_zx = modeler.create_polyline(
     name="PL04_center_point_arc_rot_ZX",
 )
 
-# ## Compound polylines
+# ## Create compound polylines
 #
 # You can pass a list of points to the ``create_polyline()`` method to create a multi-segment
 # polyline.
@@ -184,7 +184,7 @@ line_cover = modeler.create_polyline(
     points=test_points, cover_surface=True, name="SPL01_segmented_compound_line"
 )
 
-# ## Compound lines
+# ## Insert compound lines
 #
 # The following examples are for inserting compound lines.
 #
@@ -208,7 +208,7 @@ line8_segment.insert_segment(points=[insert_point, points_line8_segment])
 # ### Insert compound line with insert curve
 #
 # Insert a compound line starting a line segment at vertex 1 ``["100mm", "0mm", "0mm"]``
-# of an existing polyline and end at some new point ``["90mm", "20mm", "0mm"]``.
+# of an existing polyline and ending at some new point ``["90mm", "20mm", "0mm"]``.
 # By numerical comparison of the starting point, it is determined automatically
 # that the segment is inserted after the first segment of the original polyline.
 
@@ -226,7 +226,7 @@ line8_segment_arc.insert_segment(
 )
 # -
 
-# ## Insert compound line at end of a center-point arc
+# ### Insert compound line at end of a center-point arc
 #
 # Insert a compound line at the end of a center-point arc (``type="AngularArc"``).
 # This is a special case.
@@ -338,14 +338,12 @@ line_complex2 = modeler.create_polyline(
 
 maxwell.save_project()
 maxwell.release_desktop()
-time.sleep(
-    3
-)  # Allow Electronics Desktop to shut down before cleaning the temporary project folder.
+time.sleep(3)  # Allow AEDT to shut down before cleaning the temporary project folder.
 
-# ## Cleanup
+# ## Clean up
 #
 # All project files are saved in the folder ``temp_folder.name``.
-# If you've run this example as a Jupyter notebook you
+# If you've run this example as a Jupyter notebook, you
 # can retrieve those project files. The following cell removes
 # all temporary files, including the project folder.
 

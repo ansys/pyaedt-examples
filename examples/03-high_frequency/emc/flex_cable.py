@@ -1,6 +1,6 @@
 # # Flex cable CPWG
 #
-# This example shows how you can use PyAEDT to create a flex cable CPWG
+# This example shows how to use PyAEDT to create a flex cable CPWG
 # (coplanar waveguide with ground).
 #
 # Keywords: **HFSS**, **flex cable**, **CPWG**.
@@ -27,7 +27,7 @@ AEDT_VERSION = "2024.2"
 
 non_graphical = False
 
-# ## Create temporary directory and download files
+# ## Create temporary directory
 #
 # Create a temporary directory where we store downloaded data or
 # dumped data.

@@ -1,11 +1,11 @@
 # # Stripline analysis
 
-# This example shows how you can use PyAEDT to create a differential stripline design in
+# This example shows how to use PyAEDT to create a differential stripline design in
 # 2D Extractor and run a simulation.
 #
 # Keywords: **Q2D**, **Stripline**.
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports.
 
@@ -18,7 +18,7 @@ import ansys.aedt.core
 
 # -
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
@@ -26,9 +26,10 @@ NUM_CORES = 4
 
 # ## Create temporary directory
 #
-# Create temporary directory.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
-# the temporary folder name is given by ``temp_folder.name``.
+# the temporary folder name is given by ``temp_folder.name``
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
@@ -241,7 +242,7 @@ sweep.update()
 q2d.analyze(cores=NUM_CORES)
 plot_sources = matrix.get_sources_for_plot(category="Z0")
 
-# Get simulation results as a ``SolutionData`` object and plot as a jpg
+# Get simulation results as a ``SolutionData`` object and plot to a JPG file.
 
 data = q2d.post.get_solution_data(expressions=plot_sources, context=matrix.name)
 data.plot(snapshot_path=os.path.join(temp_folder.name, "plot.jpg"))
@@ -252,13 +253,13 @@ data.plot(snapshot_path=os.path.join(temp_folder.name, "plot.jpg"))
 
 q2d.save_project()
 q2d.release_desktop()
-# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-# ## Cleanup
+# ## Clean up
 #
 # All project files are saved in the folder ``temp_folder.name``.
-# If you've run this example as a Jupyter notebook you
+# If you've run this example as a Jupyter notebook, you
 # can retrieve those project files. The following cell
 # removes all temporary files, including the project folder.
 

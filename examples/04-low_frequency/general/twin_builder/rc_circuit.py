@@ -1,6 +1,6 @@
 # # RC circuit design analysis
 #
-# This example shows how you can use PyAEDT to create a Twin Builder design
+# This example shows how to use PyAEDT to create a Twin Builder design
 # and run a Twin Builder time-domain simulation.
 #
 # Keywords: **Twin Builder**, **RC**.
@@ -19,7 +19,7 @@ import ansys.aedt.core
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
-NG_MODE = False  # Open Electronics UI when the application is launched.
+NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
@@ -98,12 +98,12 @@ x.plot([E_Value, C_Value], x_label="Time", y_label="Capacitor Voltage vs Input P
 
 tb.save_project()
 tb.release_desktop()
-# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-# ## Cleanup
+# ## Clean up
 #
-# All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook you
+# All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook, you
 # can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 temp_folder.cleanup()

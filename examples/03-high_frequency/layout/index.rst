@@ -17,7 +17,7 @@ These examples use PyAEDT to show some layout examples
          :height: 150px
          :align: center
 
-      End-to-end examples show how you can use PyEDB.
+      End-to-end examples show how to use PyEDB.
 
    .. grid-item-card:: Power integrity
       :padding: 2 2 2 2

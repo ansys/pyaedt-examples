@@ -1,6 +1,6 @@
 General
 ~~~~~~~
-These examples use PyAEDT to show some general capabilities
+These examples show how to use some general PyAEDT capabilities.
 
 .. nbgallery::
 

@@ -7,7 +7,7 @@
 #
 # Keywords: **EMIT**, **Antenna**.
 
-# ## Perform required inputs
+# ## Perform imports and define constants
 #
 # Perform required imports.
 
@@ -19,15 +19,15 @@ import ansys.aedt.core
 
 # from ansys.aedt.core.emit_core.emit_constants import ResultType, TxRxMode
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
-NG_MODE = False  # Open Electronics UI when the application is launched.
+NG_MODE = False  # Open AEDT UI when it is launched.
 
-# ## Create temporary directory and download files
+# ## Create temporary directory
 #
-# Create a temporary directory where we store downloaded data or
-# dumped data.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -54,21 +54,21 @@ ant1 = aedtapp.modeler.components.create_component("Antenna")
 if rad1 and ant1:
     ant1.move_and_connect_to(rad1)
 
-# ## Place Antenna Radio Pairs
+# ## Place radio/antenna pair
 #
-# The method ``create_radio_antenna()`` places radio/antenna pair. The first
-# argument is the type of radio. The 2nd argument is the name that
-# will be assigned to the radio.
+# Use the ``create_radio_antenna()`` method to place the radio/antenna pair. The first
+# argument is the type of radio. The second argument is the name to
+# assign to the radio.
 
 rad2, ant2 = aedtapp.modeler.components.create_radio_antenna("GPS Receiver")
 rad3, ant3 = aedtapp.modeler.components.create_radio_antenna(
     "Bluetooth Low Energy (LE)", "Bluetooth"
 )
 
-# ## Define the RF Environment
+# ## Define the RF environment
 #
-# The next step in this workflow is to specify the RF coupling among antennas.
-# This functionality yet to be implemented in the API, but can be entered from the UI.
+# Specify the RF coupling among antennas.
+# This functionality is not yet implemented in the API, but it can be entered from the UI.
 #
 # <img src="_static/coupling.png" width="250">
 
@@ -79,7 +79,7 @@ rad3, ant3 = aedtapp.modeler.components.create_radio_antenna(
 #
 # This part of the example requires Ansys AEDT 2023 R2.
 
-# NOTE : The following code can be uncommented.
+# **Note:** You can uncomment the following code.
 #
 # if AEDT_VERSION > "2023.1":
 #     rev = aedtapp.results.analyze()
@@ -100,12 +100,12 @@ rad3, ant3 = aedtapp.modeler.components.create_radio_antenna(
 
 aedtapp.save_project()
 aedtapp.release_desktop()
-# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-# ## Cleanup
+# ## Clean up
 #
-# All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook you
+# All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook, you
 # can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 temp_folder.cleanup()

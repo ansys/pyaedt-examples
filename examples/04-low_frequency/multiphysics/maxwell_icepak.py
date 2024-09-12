@@ -22,9 +22,9 @@ from ansys.aedt.core.generic.constants import AXIS
 # ## Define constants
 
 AEDT_VERSION = "2024.2"
-NG_MODE = False  # Open Electronics UI when the application is launched.
+NG_MODE = False  # Open AEDT UI when it is launched.
 
-# ## Create temporary directory and download files
+# ## Create temporary directory
 #
 # Create a temporary directory where we store downloaded data or
 # dumped data.
@@ -323,10 +323,10 @@ time.sleep(
     3
 )  # Allow Electronics Desktop to shut down before cleaning the temporary project folder.
 
-# ## Cleanup
+# ## Clean up
 #
 # All project files are saved in the folder ``temp_folder.name``.
-# If you've run this example as a Jupyter notebook you
+# If you've run this example as a Jupyter notebook, you
 # can retrieve those project files. The following cell removes
 # all temporary files, including the project folder.
 

@@ -1,6 +1,6 @@
 # # Busbar analysis
 
-# This example shows how you can use PyAEDT to create a busbar design in
+# This example shows how to use PyAEDT to create a busbar design in
 # Q3D Extractor and run a simulation.
 #
 # Keywords: **Q3D**, **EMC*, **busbar**.
@@ -160,13 +160,13 @@ data.plot()
 
 q3d.save_project()
 q3d.release_desktop()
-# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-# ## Cleanup
+# ## Clean up
 #
 # All project files are saved in the folder ``temp_folder.name``.
-# If you've run this example as a Jupyter notebook you
+# If you've run this example as a Jupyter notebook, you
 # can retrieve those project files. The following cell
 # removes all temporary files, including the project folder.
 

@@ -1,6 +1,6 @@
 # # Graphic card thermal analysis
 
-# This example shows how you can use pyAEDT to create a graphic card setup in
+# This example shows how to use pyAEDT to create a graphic card setup in
 # Icepak and post-process results.
 # The example file is an Icepak project with a model that is already created and
 # has materials assigned.
@@ -301,13 +301,13 @@ plot4 = ipk.post.plot_field(
 
 ipk.save_project()
 ipk.release_desktop()
-# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-# ## Cleanup
+# ## Clean up
 #
 # All project files are saved in the folder ``temp_folder.name``.
-# If you've run this example as a Jupyter notebook you
+# If you've run this example as a Jupyter notebook, you
 # can retrieve those project files. The following cell
 # removes all temporary files, including the project folder.
 

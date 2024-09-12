@@ -23,7 +23,7 @@ from ansys.aedt.core.downloads import download_file
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
-NG_MODE = True  # Open Electronics UI when the application is launched.
+NG_MODE = True  # Open AEDT UI when it is launched.
 
 # Check if AEDT is launched in graphical mode.
 
@@ -84,13 +84,13 @@ h3d.modeler.fit_all()
 
 h3d.save_project()
 h3d.release_desktop()
-# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-# ## Cleanup
+# ## Clean up
 #
 # All project files are saved in the folder ``temp_folder.name``.
-# If you've run this example as a Jupyter notebook you
+# If you've run this example as a Jupyter notebook, you
 # can retrieve those project files. The following cell
 # removes all temporary files, including the project folder.
 

@@ -1,7 +1,7 @@
-Low Frequency
+Low frequency
 =============
 
-These end-to-end examples show how you can use PyAEDT for low frequency applications.
+These end-to-end examples show how to use PyAEDT for low-frequency applications.
 
 
 .. grid:: 2

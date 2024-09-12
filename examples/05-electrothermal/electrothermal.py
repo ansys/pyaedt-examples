@@ -30,7 +30,7 @@ from pyedb import Edb, Siwave
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
-NG_MODE = True  # Open Electronics UI when the application is launched.
+NG_MODE = True  # Open AEDT UI when it is launched.
 
 # Check if AEDT is launched in graphical mode.
 
@@ -38,7 +38,7 @@ if not NG_MODE:
     print("Warning: this example requires graphical mode enabled.")
     sys.exit()
 
-# ## Create temporary directory and download files
+# ## Create temporary directory
 #
 # Create a temporary directory where we store downloaded data or
 # dumped data.
@@ -207,7 +207,7 @@ siwave.close_project()
 
 siwave.quit_application()
 
-# ## Cleanup
+# ## Clean up
 #
 # All project files are saved in the folder ``temp_folder.dir``. If you've run this example as a Jupyter notbook you
 # can retrieve those project files. The following cell removes all temporary files, including the project folder.

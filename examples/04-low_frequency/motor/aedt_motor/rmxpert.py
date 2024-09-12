@@ -24,9 +24,9 @@ import ansys.aedt.core
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
-NG_MODE = False  # Open Electronics UI when the application is launched.
+NG_MODE = False  # Open AEDT UI when it is launched.
 
-# ## Create temporary directory and download files
+# ## Create temporary directory
 #
 # Create a temporary directory where we store downloaded data or
 # dumped data.

@@ -1,12 +1,11 @@
-# # FSS Unit Cell Simulation
+# # FSS unit cell simulation
 #
-# This example shows how you can use PyAEDT to model and simulation a unit cell
-# for a frequency-selective surface in
-# HFSS.
+# This example shows how to use PyAEDT to model and simulate a unit cell
+# for a frequency-selective surface in HFSS.
 #
 # Keywords: **HFSS**, **FSS**, **Floquet**.
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports.
 
@@ -16,15 +15,15 @@ import time
 
 import ansys.aedt.core
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
-NG_MODE = False  # Open Electronics UI when the application is launched.
+NG_MODE = False  # Open AEDT UI when it is launched.
 
-# ## Create temporary directory and download files
+# ## Create temporary directory
 #
-# Create a temporary directory where we store downloaded data or
-# dumped data.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -41,7 +40,7 @@ d = ansys.aedt.core.launch_desktop(
 
 # ## Launch HFSS
 #
-# Create a new HFSS design.
+# Create an HFSS design.
 
 hfss = ansys.aedt.core.Hfss(
     version=AEDT_VERSION, project=project_name, solution_type="Modal"
@@ -49,13 +48,13 @@ hfss = ansys.aedt.core.Hfss(
 
 # ## Define variable
 #
-# Define a variable for the 3D-component.
+# Define a variable for the 3D component.
 
 hfss["patch_dim"] = "10mm"
 
-# ## Model Setup
+# ## Set up model
 #
-# Download the 3D component from the example data and insert the 3D Component.
+# Download the 3D component from the example data and insert the 3D component.
 
 unitcell_3d_component_path = ansys.aedt.core.downloads.download_FSS_3dcomponent(
     destination=temp_folder.name
@@ -63,7 +62,7 @@ unitcell_3d_component_path = ansys.aedt.core.downloads.download_FSS_3dcomponent(
 unitcell_path = os.path.join(unitcell_3d_component_path, "FSS_unitcell_23R2.a3dcomp")
 comp = hfss.modeler.insert_3d_component(unitcell_path)
 
-# Assign parameter to the 3D component.
+# Assign the parameter to the 3D component.
 
 component_name = hfss.modeler.user_defined_component_names
 comp.parameters["a"] = "patch_dim"
@@ -84,11 +83,11 @@ region = hfss.modeler.create_air_region(
 [x_min, y_min, z_min, x_max, y_max, z_max] = region.bounding_box
 # -
 
-# Assigning lattice pair boundary condition.
+# Assign the lattice pair boundary condition.
 
 hfss.auto_assign_lattice_pairs(assignment=region.name)
 
-# Defie the Floquet port.
+# Define the Floquet port.
 
 id_z_pos = region.top_face_z
 hfss.create_floquet_port(
@@ -117,9 +116,9 @@ hfss.create_linear_count_sweep(
     save_fields=False,
 )
 
-# ## Post-processing
+# ## Postprocess
 #
-# Create S-parameter reports using create report.
+# Create S-parameter reports.
 
 # +
 all_quantities = hfss.post.available_report_quantities()
@@ -146,7 +145,7 @@ hfss.post.create_report(
 
 # ## Save and run simulation
 #
-# Save and run the simulation. Uncomment the line following line to run the analysis.
+# Save and run the simulation. Uncomment the following line to run the analysis.
 
 # hfss.analyze()
 hfss.save_project()
@@ -154,13 +153,13 @@ hfss.save_project()
 # ## Release AEDT
 
 hfss.release_desktop()
-# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-# ## Cleanup
+# ## Clean up
 #
 # All project files are saved in the folder ``temp_folder.name``.
-# If you've run this example as a Jupyter notebook you
+# If you've run this example as a Jupyter notebook, you
 # can retrieve those project files. The following cell removes
 # all temporary files, including the project folder.
 

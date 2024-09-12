@@ -1,7 +1,7 @@
-High Frequency
+High frequency
 ==============
 
-These end-to-end examples show how you can use PyAEDT for high frequency applications.
+These end-to-end examples show how to use PyAEDT for high-frequency applications.
 
 
 .. grid:: 2
@@ -17,7 +17,7 @@ These end-to-end examples show how you can use PyAEDT for high frequency applica
          :height: 200px
          :align: center
 
-      This section shows some Antenna workflows
+      Antenna examples
 
    .. grid-item-card:: IC-Package-PCB
       :padding: 2 2 2 2
@@ -30,7 +30,7 @@ These end-to-end examples show how you can use PyAEDT for high frequency applica
          :height: 200px
          :align: center
 
-      This section shows some layout automation examples
+      Layout automation examples
 
    .. grid-item-card:: Radio frequency and millimeter wave
       :padding: 2 2 2 2
@@ -43,7 +43,7 @@ These end-to-end examples show how you can use PyAEDT for high frequency applica
          :height: 200px
          :align: center
 
-      This section shows some RF and millimeter wave workflows
+      RF and millimeter wave examples
 
    .. grid-item-card:: EMC
       :padding: 2 2 2 2
@@ -56,7 +56,7 @@ These end-to-end examples show how you can use PyAEDT for high frequency applica
          :height: 200px
          :align: center
 
-      This section shows some EMC examples
+      EMC examples
 
    .. grid-item-card:: Multiphysics
       :padding: 2 2 2 2
@@ -69,7 +69,7 @@ These end-to-end examples show how you can use PyAEDT for high frequency applica
          :height: 200px
          :align: center
 
-      This section shows some multiphysics examples
+      Multiphysics examples
 
    .. grid-item-card:: Report
       :padding: 2 2 2 2
@@ -82,7 +82,7 @@ These end-to-end examples show how you can use PyAEDT for high frequency applica
          :height: 200px
          :align: center
 
-      This section shows report examples
+      Report examples
 
    .. toctree::
       :hidden:

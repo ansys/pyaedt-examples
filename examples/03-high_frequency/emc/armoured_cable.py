@@ -1,6 +1,6 @@
 # # Cable parameter identification
 
-# This example shows how you can use PyAEDT to perform these tasks:
+# This example shows how to use PyAEDT to perform these tasks:
 #
 #  - Create a Q2D design using modeler primitives and imported CAD.
 #  - Set up the simulation.
@@ -30,7 +30,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # Define constants.
 
 AEDT_VERSION = "2024.2"
-NG_MODE = False  # Open Electronics UI when the application is launched.
+NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Set up for model creation
 #
@@ -286,13 +286,13 @@ tb.add_q3d_dynamic_component(
 
 tb.save_project()
 tb.release_desktop()
-# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-# ## Cleanup
+# ## Clean up
 #
 # All project files are saved in the folder ``temp_folder.name``.
-# If you've run this example as a Jupyter notebook you
+# If you've run this example as a Jupyter notebook, you
 # can retrieve those project files. The following cell
 # removes all temporary files, including the project folder.
 

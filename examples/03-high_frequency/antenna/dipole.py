@@ -1,11 +1,11 @@
 # # Dipole antenna
 #
-# This example shows how you can use PyAEDT to create a dipole antenna in HFSS
+# This example shows how to use PyAEDT to create a dipole antenna in HFSS
 # and postprocess results.
 #
 # Keywords: **HFSS**, **modal**, **antenna**, **3D components**, **far field**.
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports.
 
@@ -15,16 +15,16 @@ import time
 
 import ansys.aedt.core
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
-NG_MODE = False  # Open Electronics UI when the application is launched.
+NG_MODE = False  # Open AEDT UI when it is launched.
 
-# ## Create temporary directory and download files
+# ## Create temporary directory
 #
-# Create a temporary directory where we store downloaded data or
-# dumped data.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -38,7 +38,7 @@ d = ansys.aedt.core.launch_desktop(
 
 # ## Launch HFSS
 #
-# Create a new HFSS design.
+# Create an HFSS design.
 
 project_name = os.path.join(temp_folder.name, "dipole.aedt")
 hfss = ansys.aedt.core.Hfss(
@@ -102,7 +102,7 @@ hfss.create_linear_count_sweep(
 
 hfss.analyze_setup(name="MySetup", cores=NUM_CORES)
 
-# ### Post-processing
+# ### Postprocess
 #
 # Plot s-parameters and far field.
 
@@ -120,7 +120,7 @@ hfss.post.create_report(
     report_category="Far Fields",
 )
 
-# Create a far fields report using the ``report_by_category.far field`` method.
+# Create a far fields report using the ``report_by_category.far field()`` method.
 
 new_report = hfss.post.reports_by_category.far_field(
     "db(RealizedGainTotal)", hfss.nominal_adaptive, "3D"
@@ -129,14 +129,14 @@ new_report.variations = variations
 new_report.primary_sweep = "Theta"
 new_report.create("Realized2D")
 
-# Generate multiple plots using the object ``new_report``. This code generates
+# Generate multiple plots using the ``new_report`` object. This code generates
 # 2D and 3D polar plots.
 
 new_report.report_type = "3D Polar Plot"
 new_report.secondary_sweep = "Phi"
 new_report.create("Realized3D")
 
-# Get solution data using the object ``new_report``` and postprocess or plot the
+# Get solution data using the ``new_report`` object and postprocess or plot the
 # data outside AEDT.
 
 solution_data = new_report.get_solution_data()
@@ -144,7 +144,7 @@ solution_data.plot()
 
 # Generate a far field plot by creating a postprocessing variable and assigning
 # it to a new coordinate system. You can use the ``post`` prefix to create a
-# postprocessing variable directly from a setter, or you can use the ``set_variable``
+# postprocessing variable directly from a setter, or you can use the ``set_variable()``
 # method with an arbitrary name.
 
 hfss["post_x"] = 2
@@ -154,7 +154,7 @@ hfss.insert_infinite_sphere(custom_coordinate_system="CS_Post", name="Sphere_Cus
 
 # ## Retrieve solution data
 #
-# Solution data can also be processed using python libraries like Matplotlib.
+# You can also process solution data using Python libraries like Matplotlib.
 
 new_report = hfss.post.reports_by_category.far_field(
     "GainTotal", hfss.nominal_adaptive, "3D"
@@ -181,7 +181,7 @@ solutions.plot(formula="db20", is_polar=True)
 # ## Retrieve far-field data
 #
 # After the simulation completes, the far
-# field data is generated port by port and stored in a data class, , user can use this data
+# field data is generated port by port and stored in a data class. You can use this data
 # once AEDT is released.
 
 ffdata = hfss.get_antenna_data(
@@ -192,7 +192,7 @@ ffdata = hfss.get_antenna_data(
 
 # ## Generate 2D cutout plot
 #
-# Generate 2D cutout plot. You can define the Theta scan
+# Generate a 2D cutout plot. You can define the Theta scan
 # and Phi scan.
 
 ffdata.farfield_data.plot_cut(
@@ -208,13 +208,13 @@ ffdata.farfield_data.plot_cut(
 
 hfss.save_project()
 d.release_desktop()
-# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-# ## Cleanup
+# ## Clean up
 #
 # All project files are saved in the folder ``temp_folder.name``.
-# If you've run this example as a Jupyter notebook you
+# If you've run this example as a Jupyter notebook, you
 # can retrieve those project files.
 # The following cell removes all temporary files, including the project folder.
 

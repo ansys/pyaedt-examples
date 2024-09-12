@@ -1,13 +1,13 @@
 # # Inductive iris waveguide filter
 #
-# This example shows how to build and analyze a 4-pole
+# This example shows how to build and analyze a four-pole
 # X-Band waveguide filter using inductive irises.
 #
 # Keywords: **HFSS**, **modal**, **waveguide filter**.
 
 # <img src="_static/wgf.png" width="500">
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports.
 #
@@ -18,23 +18,29 @@ import time
 
 import ansys.aedt.core
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
-NG_MODE = False  # Open Electronics UI when the application is launched.
+NG_MODE = False  # Open AEDT UI when it is launched.
 
 
-# ## Launch Ansys Electronics Desktop (AEDT)
+# ## Launch AEDT
 
 # ### Define parameters and values for waveguide iris filter
 #
+# Define these parameters:
+
 # l: Length of the cavity from the mid-point of one iris
-#    to the midpoint of the next iris.
-# w: Width of the iris opening.
+#    to the midpoint of the next iris
+#
+# w: Width of the iris opening
+#
 # a: Long dimension of the waveguide cross-section (X-Band)
-# b: Short dimension of the waveguide cross-section.
-# t: Metal thickness of the iris insert.
+#
+# b: Short dimension of the waveguide cross-section
+#
+# t: Metal thickness of the iris insert
 
 # +
 wgparams = {
@@ -47,16 +53,16 @@ wgparams = {
 }
 # -
 
-# ## Create temporary directory and download files
+# ## Create temporary directory
 #
-# Create a temporary directory where we store downloaded data or
-# dumped data.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ### Create the HFSS design
+# ### Create HFSS design
 
 project_name = os.path.join(temp_folder.name, "waveguide.aedt")
 hfss = ansys.aedt.core.Hfss(
@@ -70,7 +76,7 @@ hfss = ansys.aedt.core.Hfss(
 )
 
 
-# ### Initialize design parameters in HFSS.
+# ### Initialize design parameters
 
 # +
 hfss.modeler.model_units = "in"  # Set to inches
@@ -78,7 +84,7 @@ var_mapping = dict()  # Used by parse_expr to parse expressions.
 for key in wgparams:
     if type(wgparams[key]) in [int, float]:
         hfss[key] = str(wgparams[key]) + wgparams["units"]
-        var_mapping[key] = wgparams[key]  # Used for expression parsing
+        var_mapping[key] = wgparams[key]  # Used for expression parsing.
     elif type(wgparams[key]) == list:
         count = 1
         for v in wgparams[key]:
@@ -140,10 +146,10 @@ for count in reversed(range(1, len(wgparams["w"]) + 1)):
 
 # ### Draw full waveguide with ports
 #
-# Use ``hfss.variable_manager`` which acts like a dict() to return an instance of
+# Use ``hfss.variable_manager``, which acts like a dictionary, to return an instance of
 # the ``ansys.aedt.core.application.variables.VariableManager`` class for any variable.
 # The ``VariableManager`` instance takes the HFSS variable name as a key.
-# ``VariableManager`` properties enable access to update, modify and
+# ``VariableManager`` properties enable access to update, modify, and
 # evaluate variables.
 
 var_mapping["port_extension"] = 1.5 * wgparams["l"][0]
@@ -161,11 +167,11 @@ hfss.modeler.create_box(
     material="vacuum",
 )
 
-# ### Draw the whole waveguide.
+# ### Draw the entire waveguide
 #
-# wg_z is the total length of the waveguide, including port extension.
+# The variable ``# wg_z`` is the total length of the waveguide, including the port extension.
 # Note that the ``.evaluated_value`` provides access to the numerical value of
-# ``wg_z_start`` which is an expression in HFSS.
+# ``wg_z_start``, which is an expression in HFSS.
 
 wg_z = [
     wg_z_start.evaluated_value,
@@ -192,11 +198,12 @@ for n, z in enumerate(wg_z):
         )
     )
 
-# ### Insert the mesh adaptation setup using refinement at two frequencies.
+# ### Insert mesh adaptation setup
 #
-# This approach is useful for resonant structures as the coarse initial
-# mesh impacts the resonant frequency and hence, the field propagation through the
-# filter.  Adaptation at multiple frequencies helps to ensure that energy propagates
+# Insert a mesh adaptation setup using refinement at two frequencies.
+# This approach is useful for resonant structures because the coarse initial
+# mesh impacts the resonant frequency and, hence, the field propagation through the
+# filter. Adaptation at multiple frequencies helps to ensure that energy propagates
 # through the resonant structure while the mesh is refined.
 
 # +
@@ -222,11 +229,12 @@ setup.create_frequency_sweep(
 
 setup.analyze(num_tasks=2, num_cores=NUM_CORES)
 
-# ### Post-processing
+# ### Postprocess
 #
 #  The following commands fetch solution data from HFSS for plotting directly
 #  from the Python interpreter.
-#  Caution: The syntax for expressions must be identical to that used
+#
+#  **Caution:** The syntax for expressions must be identical to that used
 #  in HFSS.
 
 # +
@@ -252,17 +260,17 @@ plot = hfss.post.plot_field(
 
 # ## Release AEDT
 #
-#  The following command saves the project to a file and closes the desktop.
+#  The following command saves the project to a file and closes AEDT.
 
 hfss.save_project()
 hfss.release_desktop()
-# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-# ## Cleanup
+# ## Clean up
 #
 # All project files are saved in the folder ``temp_folder.name``.
-# If you've run this example as a Jupyter notebook you
+# If you've run this example as a Jupyter notebook, you
 # can retrieve those project files. The following cell removes
 # all temporary files, including the project folder.
 

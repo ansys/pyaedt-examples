@@ -8,7 +8,7 @@
 #
 # Keywords: **HFSS**, **terminal**, **antenna**., **patch**.
 #
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports.
 
@@ -19,16 +19,16 @@ import time
 import ansys.aedt.core
 from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
-NG_MODE = False  # Open Electronics UI when the application is launched.
+NG_MODE = False  # Open AEDT UI when it is launched.
 
-# ## Create temporary directory and download files
+# ## Create temporary directory
 #
-# Create a temporary directory where we store downloaded data or
-# dumped data.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -36,7 +36,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch HFSS
 #
-# Launch HFSS and change length units.
+# Launch HFSS and change the length units.
 
 project_name = os.path.join(temp_folder.name, "patch.aedt")
 hfss = ansys.aedt.core.Hfss(
@@ -107,13 +107,13 @@ plt = solution.plot(solution.expressions)
 
 hfss.save_project()
 hfss.release_desktop()
-# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-# ## Cleanup
+# ## Clean up
 #
 # All project files are saved in the folder ``temp_folder.name``.
-# If you've run this example as a Jupyter notebook you
+# If you've run this example as a Jupyter notebook, you
 # can retrieve those project files. The following cell removes
 # all temporary files, including the project folder.
 

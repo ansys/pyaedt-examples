@@ -6,8 +6,8 @@
 # Keywords: **Circuit**, **Automatic report**, **virtual compliance**.
 
 
-# ## Perform required imports
-#
+# ## Perform imports and define constants
+# Import the required packages.
 
 import os.path
 import tempfile
@@ -16,21 +16,23 @@ import time
 import ansys.aedt.core
 from ansys.aedt.core.generic.compliance import VirtualCompliance
 
-# ## Define constants
+# ## Define constants.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
-NG_MODE = False  # Open Electronics UI when the application is launched.
+NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
-# The temporary directory is used to run the example and save simulation data.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored. In this example, the temporary directory
+# in where the example is stored and simulation data is saved.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ## Download Example Data
+# ## Download example data
 
 download_folder = ansys.aedt.core.downloads.download_file(
     source="pcie_compliance", destination=temp_folder.name
@@ -57,7 +59,7 @@ touchstone_path = h3d.export_touchstone()
 
 # ## Create LNA project
 #
-# Use the LNA setup to retrieve Touchstone files
+# Use the LNA (linear network analysis) setup to retrieve Touchstone files
 # and generate frequency domain reports.
 
 circuit = ansys.aedt.core.Circuit(project=h3d.project_name, design="Touchstone")
@@ -204,13 +206,13 @@ v.create_compliance_report()
 
 h3d.save_project()
 h3d.release_desktop()
-# Wait 3 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-# ## Cleanup
+# ## Clean up
 #
 # All project files are saved in the folder ``temp_folder.name``.
-# If you've run this example as a Jupyter notebook you
+# If you've run this example as a Jupyter notebook, you
 # can retrieve those project files. The following cell
 # removes all temporary files, including the project folder.
 

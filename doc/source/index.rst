@@ -6,8 +6,8 @@ Examples
 `Source repository <https://github.com/ansys-internal/pyaedt-examples>`_ |
 `Issues <https://github.com/ansys-internal/pyaedt-examples/issues>`_
 
-Embedding examples for `PyAEDT <https://aedt.docs.pyansys.com/version/stable/>`_ are contained in this repository.
-These end-to-end examples show how you can use PyAEDT.
+This repository contains end-to-end embedding examples that demonstrate how to use
+`PyAEDT <https://aedt.docs.pyansys.com/version/stable/>`_.
 
 
 .. grid:: 2
@@ -23,7 +23,7 @@ These end-to-end examples show how you can use PyAEDT.
          :height: 200px
          :align: center
 
-      This section demonstrates basic PyAEDT capabilities
+      Links to brief tutorials provided in the PyAEDT documentation.
 
    .. grid-item-card:: General
       :padding: 2 2 2 2
@@ -36,7 +36,7 @@ These end-to-end examples show how you can use PyAEDT.
          :height: 200px
          :align: center
 
-      AEDT general capabilities
+      Provides examples of some general PyAEDT capabilities.
 
    .. grid-item-card:: High Frequency
       :padding: 2 2 2 2
@@ -49,7 +49,7 @@ These end-to-end examples show how you can use PyAEDT.
          :height: 200px
          :align: center
 
-      PyAEDT capabilities for High Frequency applications
+      Provides examples of PyAEDT capabilities for high-frequency applications.
 
    .. grid-item-card:: Low Frequency
       :padding: 2 2 2 2
@@ -62,7 +62,7 @@ These end-to-end examples show how you can use PyAEDT.
          :height: 200px
          :align: center
 
-      PyAEDT capabilities for Low Frequency applications
+      Provides examples of PyAEDT capabilities for low-frequency applications
 
    .. grid-item-card:: Electrothermal
       :padding: 2 2 2 2
@@ -75,7 +75,7 @@ These end-to-end examples show how you can use PyAEDT.
          :height: 200px
          :align: center
 
-      PyAEDT capabilities for Electrothermal applications
+      Provides examples of PyAEDT capabilities for electrothermal applications.
 
    .. grid-item-card:: Examples by AEDT application
       :padding: 2 2 2 2
@@ -88,7 +88,7 @@ These end-to-end examples show how you can use PyAEDT.
          :height: 200px
          :align: center
 
-      Examples divided by AEDT application
+      Provides examples organized by AEDT applications.
 
    .. toctree::
       :hidden:
