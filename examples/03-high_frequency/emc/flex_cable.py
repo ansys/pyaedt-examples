@@ -5,7 +5,7 @@
 #
 # Keywords: **HFSS**, **flex cable**, **CPWG**.
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports.
 
@@ -16,7 +16,7 @@ from math import cos, radians, sin, sqrt
 import ansys.aedt.core
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 
@@ -29,8 +29,8 @@ non_graphical = False
 
 # ## Create temporary directory
 #
-# Create a temporary directory where we store downloaded data or
-# dumped data.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -50,7 +50,7 @@ hfss.save_project(
     os.path.join(temp_folder.name, generate_unique_name("example") + ".aedt")
 )
 
-# ## Design settings
+# ## Modify design settings
 #
 # Modify some design settings.
 
@@ -79,7 +79,7 @@ xt = (total_length - r * radians(theta)) / 2
 
 # ## Create bend
 #
-# The ``create_bending`` method creates a list of points for
+# The ``create_bending()`` method creates a list of points for
 # the bend based on the curvature radius and extension.
 
 
@@ -208,7 +208,7 @@ for face in [fr4.top_face_y, fr4.bottom_face_y]:
 
 # ## Create ports
 #
-# Creates ports.
+# Create ports.
 
 for s, port_name in zip(port_faces, ["1", "2"]):
     reference = [i.name for i in gnd_objs + boundary + [bot]] + ["b1", "b2"]
@@ -249,6 +249,11 @@ my_plot.plot(
 
 hfss.release_desktop()
 
-# ## Clean temporary directory
+# ## Clean up
+#
+# All project files are saved in the folder ``temp_folder.name``.
+# If you've run this example as a Jupyter notebook, you
+# can retrieve those project files.
+# The following cell removes all temporary files, including the project folder.
 
 temp_folder.cleanup()

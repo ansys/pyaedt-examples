@@ -1,19 +1,20 @@
-# # Electrothermal Analysis
+# # Electrothermal analysis
 #
-# This example shows how to use the electronics database (EDB) for DC IR analysis and
-# electrothermal analysis. The EDB will be loaded into SIwave for analysis and post-processing.
+# This example shows how to use the EDB for DC IR analysis and
+# electrothermal analysis. The EDB is loaded into SIwave for analysis and postprocessing.
 # In the end, an Icepak project is exported from SIwave.
-# - Set up EDB
-#   - Assign package and heatsink model to components
-#   - Create voltage and current sources
-#   - Create SIwave DC analysis
-#   - Define cutout
-# - Import EDB into SIwave
-#   - Analyze DC IR
-#   - Export Icepak project
+#
+# - Set up EDB:
+#   - Assign package and heatsink model to components.
+#   - Create voltage and current sources.
+#   - Create SIwave DC analysis.
+#   - Define cutout.
+# - Import EDB into SIwave:
+#   - Analyze DC IR.
+#   - Export Icepak project.
 
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports.
 
@@ -26,7 +27,7 @@ import time
 from ansys.aedt.core.downloads import download_file
 from pyedb import Edb, Siwave
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
@@ -38,10 +39,10 @@ if not NG_MODE:
     print("Warning: this example requires graphical mode enabled.")
     sys.exit()
 
-# ## Create temporary directory
+# ## Create temporary directory and download files
 #
-# Create a temporary directory where we store downloaded data or
-# dumped data.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -51,14 +52,14 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 aedb = download_file(source="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name)
 
-# ## Create a configuration file
+# ## Create configuration file
 #
-# In this example, we are going to use a configuration file to set up layout for analysis.
+# This example uses a configuration file to set up the layout for analysis.
 # Create an empty dictionary to host all configurations.
 
 cfg = dict()
 
-# ## Add component thermal information and heats-ink definition
+# ## Add component thermal information and heatsink definition
 
 cfg["package_definitions"] = [
     {
@@ -81,21 +82,22 @@ cfg["package_definitions"] = [
     }
 ]
 
-# ## Create pin groups.
+# ## Create pin groups
 #
-# In this example, all pins on net "GND" on component J5 are grouped into one group.
-# Pin groups can be assigned by net name using the "net" key as shown here:
+# Group all pins on the "GND" net on the ``J5`` component into one group.
+# Pin groups are assigned by net name using the ``net`` key.
 
 cfg["pin_groups"] = [{"name": "J5_GND", "reference_designator": "J5", "net": "GND"}]
 
-# ## Create Current Sources
+# ## Create current sources
 #
-# In this example, two current sources are created on component J5.
+# Create two current sources on the ``J5`` component.
 # A current source is placed between positive and negative terminals.
-# When keyword "net" is used, all pins on the specified net are grouped into a
-# new pin group which is assigned as the positive terminal.
-# Negative terminal can be assigned by pin group name by using the keyword "pin_group".
-# The two current sources share the same pin group "J5_GND" as the negative terminal.
+# When the ``net`` keyword is used, all pins on the specified net are grouped into a
+# new pin group that is assigned as the positive terminal.
+#
+# Negative terminal can be assigned by pin group name by using the ``pin_group`` keyword.
+# The two current sources share the same ``J5_GND`` pin group as the negative terminal.
 
 i_src_1 = {
     "name": "J5_VCCR",
@@ -114,9 +116,9 @@ i_src_2 = {
     "negative_terminal": {"pin_group": "J5_GND"},  # Defined in "pin_groups" section.
 }
 
-# ## Create a Voltage Source
+# ## Create a voltage source
 #
-# Create a voltage source on component U4 between two nets using keyword "net".
+# Create a voltage source on the ``U4`` componebt between two nets using the ``net`` keyword.
 
 # +
 v_src = {
@@ -131,9 +133,9 @@ v_src = {
 cfg["sources"] = [v_src, i_src_1, i_src_2]
 # -
 
-# ## Cutout
+# ## Define cutout
 #
-# The following assignments will define the region of the PCB to be cut out for analysis.
+# The following assignments define the region of the PCB to be cut out for analysis.
 
 cfg["operations"] = {
     "cutout": {
@@ -154,7 +156,7 @@ cfg["setups"] = [
     }
 ]
 
-# ## Save configuration as a JSON file
+# ## Save configuration to a JSON file
 #
 # The configuration file can be saved in JSON format and applied to layout data using the EDB.
 
@@ -167,7 +169,7 @@ with open(pi_json, "w") as f:
 
 # ## Load configuration into EDB
 #
-# Load configuration from JSON
+# Load the configuration from the JSON file.
 
 edbapp = Edb(aedb, edbversion=AEDT_VERSION)
 edbapp.configuration.load(config_file=pi_json)
@@ -176,13 +178,13 @@ edbapp.save()
 edbapp.close()
 time.sleep(3)
 
-# The configured EDB file is saved in a temp folder.
+# The configured EDB file is saved in the temporary folder.
 
 print(temp_folder.name)
 
 # ## Analyze in SIwave
 #
-# Load edb into SIwave.
+# Load EDB into SIwave.
 
 siwave = Siwave(specified_version=AEDT_VERSION)
 time.sleep(10)
@@ -203,13 +205,13 @@ siwave.export_icepak_project(
 
 siwave.close_project()
 
-# ## Shut Down SIwave
+# ## Shut down SIwave
 
 siwave.quit_application()
 
 # ## Clean up
 #
-# All project files are saved in the folder ``temp_folder.dir``. If you've run this example as a Jupyter notbook you
+# All project files are saved in the folder ``temp_folder.dir``. If you've run this example as a Jupyter notbook, you
 # can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
 time.sleep(3)

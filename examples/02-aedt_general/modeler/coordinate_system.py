@@ -199,7 +199,7 @@ fcs5.props["YOffset"] = "0.1mm"
 # ### Create a dependent coordinate system
 #
 # The use of dependent coordinate systems can simplify model creation. The following
-# cell demonstrates how to create a coordinate system whose reference is the face coordinate system.
+# cell shows how to create a coordinate system whose reference is the face coordinate system.
 
 face = box.faces[1]
 fcs6 = hfss.modeler.create_face_coordinate_system(

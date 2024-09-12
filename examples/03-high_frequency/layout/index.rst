@@ -1,12 +1,12 @@
 IC-Package-PCB
 ==============
 
-These examples use PyAEDT to show some layout examples
+These examples use PyAEDT to show some layout applications.
 
 
 .. grid:: 3
 
-   .. grid-item-card:: Layout pre-processing
+   .. grid-item-card:: Layout preprocessing
       :padding: 2 2 2 2
       :link: https://edb.docs.pyansys.com/version/stable/examples/legacy_standalone/index.html
       :link-type: url
@@ -17,7 +17,7 @@ These examples use PyAEDT to show some layout examples
          :height: 150px
          :align: center
 
-      End-to-end examples show how to use PyEDB.
+      Links to examples in the AEDT documentation that show how to use the legacy PyEDB API as a standalone package.
 
    .. grid-item-card:: Power integrity
       :padding: 2 2 2 2
@@ -30,7 +30,7 @@ These examples use PyAEDT to show some layout examples
          :height: 150px
          :align: center
 
-      Power integrity examples.
+      Provides power integrity examples.
 
    .. grid-item-card:: Signal integrity
       :padding: 2 2 2 2
@@ -43,9 +43,9 @@ These examples use PyAEDT to show some layout examples
          :height: 150px
          :align: center
 
-      Signal integrity examples.
+      Provides signal integrity examples
 
-   .. grid-item-card:: Layout user interface
+   .. grid-item-card:: HFSS 3D Layout GUI modificatation
       :padding: 2 2 2 2
       :link: gui_manipulation
       :link-type: doc
@@ -56,9 +56,9 @@ These examples use PyAEDT to show some layout examples
          :height: 150px
          :align: center
 
-      HFSS 3D Layout Gui manipulation.
+      Provides HFSS 3D Layout GUI modification examples.
 
-   .. grid-item-card:: Configuration files
+   .. grid-item-card:: PyEDB configuration files
       :padding: 2 2 2 2
       :link: https://edb.docs.pyansys.com/version/stable/examples/use_configuration/index.html
       :link-type: url
@@ -69,4 +69,4 @@ These examples use PyAEDT to show some layout examples
          :height: 150px
          :align: center
 
-      PyEDB configuration file examples.
+      Links to examples in the PyAEDT documentation that show how to use PyEDB configuration files.

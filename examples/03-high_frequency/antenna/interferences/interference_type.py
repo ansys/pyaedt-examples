@@ -1,4 +1,4 @@
-# # Classify interference type GUI
+# # Interference type classification using a GUI
 #
 # This example uses a GUI to open an AEDT project with
 # an EMIT design and analyze the results to classify the

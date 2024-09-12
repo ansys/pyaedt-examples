@@ -1,7 +1,7 @@
 EMC
 ~~~
 
-These examples use PyAEDT to show some EMC examples
+These examples use PyAEDT to show some EMC applications.
 
 .. nbgallery::
 

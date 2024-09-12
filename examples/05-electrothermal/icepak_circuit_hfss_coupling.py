@@ -1,33 +1,34 @@
 # # Circuit-HFSS-Icepak coupling workflow
 #
-# This example demonstrates how to create a two-way coupling
+# This example shows how to create a two-way coupling
 # between HFSS and Icepak.
 #
-# Let’s consider a design where some components are simulated in
+# Consider a design where some components are simulated in
 # HFSS with a full 3D model, while others are simulated in Circuit as lumped elements.
 # The electrical simulation is done by placing the HFSS design into a Circuit design as
-# a subcomponent and by connecting the lumped components to its ports.
+# a subcomponent and connecting the lumped components to its ports.
 #
 # The purpose of the workflow is to perform a thermal simulation
 # of the Circuit-HFSS design, creating a two-way coupling with Icepak
 # that allows running multiple iterations. The losses from both designs
-# are accounted for: EM losses are evaluated by the HFSS
-# solver and fed into Icepak via a direct link, while losses
-# from the lumped components in the Circuit design are evaluated
+# are accounted for.
+# - EM losses are evaluated by the HFSS solver and fed into Icepak via a direct link.
+# - Losses from the lumped components in the Circuit design are evaluated
 # analytically and must be manually set into the Icepak boundary.
 #
-# On the way back of the coupling, temperature information
-# is handled differently for HFSS and Circuit. For HFSS, a temperature
-# map is exported from the Icepak design and used to create a
-# 3D dataset; then the material properties in the HFSS design
-# are updated based on this dataset. For Circuit, the average
-# temperature of the lumped components is extracted from the
-# Icepak design and used to update the temperature-dependent
-# characteristics of the lumped components in Circuit.
+# On the back of the coupling, temperature information
+# is handled differently for HFSS and Circuit.
+# 
+# - For HFSS, a temperature map is exported from the Icepak design and used to create a
+# 3D dataset. Then, the material properties in the HFSS design are updated based on this
+# dataset.
+# - For Circuit, the average temperature of the lumped components is extracted from the
+# Icepak design and used to update the temperature-dependent characteristics of the
+# lumped components in Circuit.
 #
-# In this example, the Circuit design contains only a
+# The Circuit design in this example contains only a
 # resistor component, with temperature-dependent resistance
-# described by this formula: 0.162*(1+0.004*(TempE-TempE0)),
+# described by this formula: ``0.162*(1+0.004*(TempE-TempE0))``,
 # where TempE is the current temperature and TempE0 is the
 # ambient temperature. The HFSS design includes only a cylinder
 # with temperature-dependent material conductivity, defined by
@@ -36,7 +37,7 @@
 #
 # Keywords: **Multiphysics**, **HFSS**, **Icepak**, **Circuit**.
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports.
 
@@ -46,7 +47,7 @@ import time
 
 import ansys.aedt.core as aedt
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
@@ -54,8 +55,8 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
-# Create a temporary directory where we store downloaded data or
-# dumped data.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -81,7 +82,7 @@ circuit = aedt.Circuit(
     non_graphical=NG_MODE,
 )
 
-# ## Variable names
+# ## Set variable names
 #
 # Set the name of the resistor in Circuit.
 
@@ -93,13 +94,13 @@ device3D_body_name = "Device_3D"
 
 # ## Get HFSS design
 #
-# Get the Hfss design and prepare the material for the thermal link
+# Get the HFSS design and prepare the material for the thermal link.
 
 hfss = aedt.Hfss(project=circuit.project_name)
 
-# ## Create new material
+# ## Create a material
 #
-# Create a new material that will be used to set the temperature map on it.
+# Create a material to be used to set the temperature map on it.
 # The material is created by duplicating the material assigned to the cylinder.
 
 material_name = hfss.modeler.objects_by_name[device3D_body_name].material_name
@@ -110,7 +111,7 @@ new_material = hfss.materials.duplicate_material(
 
 # ## Modify material properties
 #
-# Save the conductivity value. It will be used later in the iterations.
+# Save the conductivity value. It is used later in the iterations.
 
 old_conductivity = new_material.conductivity.value
 
@@ -118,8 +119,8 @@ old_conductivity = new_material.conductivity.value
 
 hfss.modeler.objects_by_name[device3D_body_name].material_name = new_material_name
 
-# Since this material has a high conductivity, HFSS automatically deactivate "Solve Inside".
-# It needs to be set back on as we need to evaluate the losses inside the cylinder.
+# Because this material has a high conductivity, HFSS automatically deactivates ``solve_inside``.
+# It must be turned back on to evaluate the losses inside the cylinder.
 
 hfss.modeler.objects_by_name[device3D_body_name].solve_inside = True
 
@@ -132,7 +133,7 @@ icepak = aedt.Icepak(project=circuit.project_name)
 model = icepak.plot(show=False)
 model.plot(os.path.join(temp_folder.name, "Image.jpg"))
 
-# ## Set the parameters for the iterations
+# ## Set parameters for iterations
 #
 # Set the initial temperature to a value closer to the final one, to speed up the convergence.
 
@@ -147,28 +148,28 @@ max_iter = 2
 temp_residual_limit = 0.02
 loss_residual_limit = 0.02
 
-# This variable will contain the iteration statistics.
+# This variable is to contain iteration statistics.
 
 stats = {}
 
-# ## Start the iterations
+# ## Start iterations
 #
-# Each for loop is a complete two-way iteration.
+# Each ``for`` loop is a complete two-way iteration.
 # The code is thoroughly commented.
-# Please read the inline comments carefully for a full understanding.
+# For a full understanding, read the inline comments carefully.
 
 for cp_iter in range(1, max_iter + 1):
     stats[cp_iter] = {}
 
-    # Step 1: Solve the HFSS design
+    # Step 1: Solve the HFSS design.
     #
-    # Solve the Hfss design.
+    # Solve the HFSS design.
     hfss.analyze(cores=NUM_CORES)
 
-    # Step 2: Refresh the dynamic link and solve the Circuit design
+    # Step 2: Refresh the dynamic link and solve the Circuit design.
     #
     # Find the HFSS subcomponent in Circuit.
-    # This information is required by refresh_dynamic_link and push_excitations methods.
+    # This information is required by the ``refresh_dynamic_link()`` and ``push_excitations()`` methods.
     hfss_component_name = ""
     hfss_instance_name = ""
     for component in circuit.modeler.components.components.values():
@@ -188,14 +189,14 @@ for cp_iter in range(1, max_iter + 1):
     # Solve the Circuit design.
     circuit.analyze()
 
-    # Step 3: Push excitations (HFSS design results are scaled automatically)
+    # Step 3: Push the excitations. (HFSS design results are scaled automatically.)
     #
-    # Push excitations.
+    # Push the excitations.
     circuit.push_excitations(instance=hfss_instance_name)
 
-    # Step 4: Extract the resistor's power loss value from the Circuit design
+    # Step 4: Extract the resistor's power loss value from the Circuit design.
     #
-    # Evaluate power loss on resistor.
+    # Evaluate the power loss on the resistor.
     r_losses = circuit.post.get_solution_data(
         expressions="0.5*mag(I(I1)*V(V1))"
     ).data_magnitude()[0]
@@ -205,7 +206,7 @@ for cp_iter in range(1, max_iter + 1):
 
     # Step 5: Set the resistor's power loss value in the Icepak design (block thermal condition)
     #
-    # Find the Solid Block boundary in Icepak.
+    # Find the solid block boundary in Icepak.
     boundaries = icepak.boundaries
     boundary = None
     for bb in boundaries:
@@ -218,17 +219,17 @@ for cp_iter in range(1, max_iter + 1):
     # Set the resistor's power loss in the Block Boundary.
     boundary.props["Total Power"] = str(r_losses) + "W"
 
-    # Step 6: Solve the Icepak design
+    # Step 6: Solve the Icepak design.
     #
-    # Clear linked data, otherwise Icepak continues to run simulation with the initial losses.
+    # Clear linked data. Otherwise, Icepak continues to run the simulation with the initial losses.
     icepak.clear_linked_data()
 
     # Solve the Icepak design.
     icepak.analyze(cores=NUM_CORES)
 
-    # Step 7: Export the temperature map from the Icepak and create a new 3D dataset with it
+    # Step 7: Export the temperature map from the Icepak design and create a new 3D dataset with it.
     #
-    # Export the temperature map into a file.
+    # Export the temperature map to a file.
     fld_filename = os.path.join(
         icepak.working_directory, f"temperature_map_{cp_iter}.fld"
     )
@@ -239,7 +240,7 @@ for cp_iter in range(1, max_iter + 1):
         objects_type="Vol",
     )
 
-    # Convert the fld file format into a dataset tab file compatible with dataset import.
+    # Convert the FLD file into a dataset tab file compatible with the dataset import.
     # The existing header lines must be removed and replaced with a single header line
     # containing the value unit.
     with open(fld_filename, "r") as f:
@@ -261,7 +262,7 @@ for cp_iter in range(1, max_iter + 1):
         input_file=tab_filename, name=dataset_name, is_project_dataset=True
     )
 
-    # Step 8: Update material properties in the HFSS design based on the new dataset
+    # Step 8: Update material properties in the HFSS design based on the new dataset.
     #
     # Set the new conductivity value.
     new_material.conductivity.value = (
@@ -271,19 +272,19 @@ for cp_iter in range(1, max_iter + 1):
     # Switch off the thermal modifier of the material, if any.
     new_material.conductivity.thermalmodifier = None
 
-    # Step 9: Extract the average temperature of the resistor from the Icepak design
+    # Step 9: Extract the average temperature of the resistor from the Icepak design.
     #
-    # Get the mean temp value on the high resistivity object.
+    # Get the mean temperature value on the high-resistivity object.
     mean_temp = icepak.post.get_scalar_field_value(
         quantity="Temp", scalar_function="Mean", object_name=resistor_body_name
     )
 
-    # Save the temperature in the iteration stats.
+    # Save the temperature in the iteration statistics.
     stats[cp_iter]["temp"] = mean_temp
 
-    # Step 10: Update the resistance value in the Circuit design
+    # Step 10: Update the resistance value in the Circuit design.
     #
-    # Set this temperature in circuit in variable TempE.
+    # Set this temperature in Circuit in the ``TempE`` variable.
     circuit["TempE"] = f"{mean_temp}cel"
 
     # Save the project
@@ -292,7 +293,7 @@ for cp_iter in range(1, max_iter + 1):
     # Check the convergence of the iteration
     #
     # Evaluate the relative residuals on temperature and losses.
-    # If the residuals are smaller than the threshold, set the convergence flag to `True`.
+    # If the residuals are smaller than the threshold, set the convergence flag to ``True```.
     # Residuals are calculated starting from the second iteration.
     converged = False
     stats[cp_iter]["converged"] = converged
@@ -318,9 +319,9 @@ for cp_iter in range(1, max_iter + 1):
     if converged:
         break
 
-# ## Print the overall statistics
+# ## Print overall statistics
 #
-# Print the overall statistics for the multi physic loop.
+# Print the overall statistics for the multiphysics loop.
 
 for i in stats:
     txt = "yes" if stats[i]["converged"] else "no"

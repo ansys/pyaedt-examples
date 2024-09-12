@@ -1,4 +1,4 @@
-# # AMI PostProcessing
+# # AMI Postprocessing
 #
 # This example demonstrates advanced postprocessing of AMI simulations.
 
@@ -6,9 +6,11 @@
 #
 # Keywords: **Circuit**, **AMI**.
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
-# Perform required imports. Note that [Numpy](https://numpy.org/)
+# Perform required imports.
+#
+# **Note:** [Numpy](https://numpy.org/)
 # and [Matplotlib](https://matplotlib.org/) are required to run this example.
 
 # +
@@ -22,20 +24,21 @@ from matplotlib import pyplot as plt
 
 # -
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
-# ## Create temporary directory
+# ## Create temporary directory and download example files
 #
-# Create temporary directory.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
-# the temporary folder name is given by ``temp_folder.name``.
+# the temporary folder name is given by ``temp_folder.name``
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ## Download Example Data
+# ## Download example data
 #
 # The ``download_file()`` method retrieves example
 # data from the PyAnsys
@@ -55,7 +58,7 @@ project_path = ansys.aedt.core.downloads.download_file(
 
 # ## Launch AEDT with Circuit and enable Pandas as the output format
 #
-# All outputs obtained with the `get_solution_data` method will have the
+# All outputs obtained with the `get_solution_data()` method are in the
 # [Pandas](https://pandas.pydata.org/docs/user_guide/index.html) format.
 # Launch AEDT with Circuit. The `ansys.aedt.core.Desktop` class initializes AEDT
 # and starts the specified version in the specified mode.
@@ -76,7 +79,7 @@ circuit.analyze()
 
 # ## Get AMI report
 #
-# Get AMI report data
+# Get AMI report data.
 
 plot_name = "WaveAfterProbe<b_input_43.int_ami_rx>"
 circuit.solution_type = "NexximAMI"
@@ -96,9 +99,9 @@ print(original_data_value)
 
 fig = original_data.plot()
 
-# ## Extract Wave Form
+# ## Extract wave form
 #
-# Use the _WaveAfterProbe_ plot type to extract the
+# Use the ``WaveAfterProbe`` plot type to extract the
 # waveform using an AMI receiver clock probe.
 # The signal is extracted at a specific clock
 # flank with additional half unit interval.
@@ -121,7 +124,7 @@ sample_waveform = circuit.post.sample_ami_waveform(
 
 # ## Plot waveform and samples
 #
-# Create the plot from a start time to stop time in seconds
+# Create the plot from a start time to stop time in seconds.
 
 # +
 tstop = 55e-9
@@ -184,9 +187,9 @@ ax.set_ylabel(original_data.units_data[plot_name])
 plt.show()
 # -
 
-# ## Plot Slicer Scatter
+# ## Plot slicer scatter
 #
-# Create the plot from a start time to stop time in seconds
+# Create the plot from a start time to stop time in seconds.
 
 fig, ax2 = plt.subplots()
 ax2.plot(sample_waveform[0].index, sample_waveform[0].values, "r*")
@@ -195,7 +198,7 @@ ax2.set_xlabel("s")
 ax2.set_ylabel("V")
 plt.show()
 
-# ## Plot Scatter Histogram
+# ## Plot scatter histogram
 #
 # Create the plot from a start time to stop time in seconds.
 
@@ -206,9 +209,7 @@ ax4.set_ylabel("V")
 ax4.grid()
 plt.show()
 
-# ## Transient Report
-#
-# Get Transient report data
+# ## Get transient report data
 
 plot_name = "V(b_input_43.int_ami_rx.eye_probe.out)"
 circuit.solution_type = "NexximTransient"
@@ -219,9 +220,9 @@ original_data = circuit.post.get_solution_data(
     variations=circuit.available_variations.nominal,
 )
 
-# ## Sample Waveform
+# ## Extract sample waveform
 #
-# Extract waveform at specific clock time plus half unit interval.
+# Extract a waveform at a specific clock time plus a half unit interval.
 
 # +
 original_data.enable_pandas_output = False
@@ -242,7 +243,7 @@ sample_waveform = circuit.post.sample_waveform(
 )
 # -
 
-# ## Plot Waveform
+# ## Plot waveform
 #
 # Create the plot from a start time to stop time in seconds.
 
@@ -304,7 +305,7 @@ ax.set_ylabel(waveform_unit)
 plt.show()
 # -
 
-# ## Plot Slicer Scatter
+# ## Plot slicer scatter
 #
 # Create the plot from a start time to stop time in seconds.
 

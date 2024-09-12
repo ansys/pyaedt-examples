@@ -1,7 +1,7 @@
 Multiphysics
 ~~~~~~~~~~~~
 
-These examples use PyAEDT to show some multiphysics examples
+These examples use PyAEDT to show some multiphysics applications.
 
 .. nbgallery::
 

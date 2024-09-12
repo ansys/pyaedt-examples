@@ -1,23 +1,23 @@
-# # Power Integrity Analysis
-# This example shows how to use the electronics database (EDB) for power integrity analysis. The
-# EDB will be loaded into HFSS 3D Layout for analysis and post-processing.
+# # Power integrity analysis
+# This example shows how to use the Ansys Electronics Database (EDB) for power integrity analysis. The
+# EDB is loaded into HFSS 3D Layout for analysis and postprocessing.
 #
-# - Set up EDB
+# - Set up EDB consists of these steps:
 #
-#     - Assign S-parameter model to components
-#     - Create pin groups
-#     - Create ports
-#     - Create SIwave SYZ analysis
-#     - Create cutout
+#     - Assign S-parameter model to components.
+#     - Create pin groups.
+#     - Create ports.
+#     - Create SIwave SYZ analysis.
+#     - Create cutout.
 #
-# - Import EDB into HFSS 3D Layout
+# - Import EDB into HFSS 3D Layout:
 #
-#     - Analyze
-#     - Plot $Z_{11}$
+#     - Analyze.
+#     - Plot ``$Z_{11}$``.
 #
-# Keywords: **HFSS 3D Layout**, **Power Integrity**.
+# Keywords: **HFSS 3D Layout**, **power integrity**.
 
-# ## Preparation
+# ## Perform imports and define constants
 # Import the required packages
 
 import json
@@ -28,7 +28,7 @@ import time
 import ansys.aedt.core
 from ansys.aedt.core.downloads import download_file
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
@@ -36,7 +36,8 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
-# Create temporary directory.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -51,21 +52,20 @@ download_file(
     destination=temp_folder.name,
 )
 
-# ## Create a configuration file
-# In this example, we are going to use a configuration file to set up the layout for analysis.
-# ### Initialize a dictionary
-# Create an empty dictionary to host all configurations.
+# ## Create configuration file
+# This example uses a configuration file to set up the layout for analysis.
+# Initialize and create an empty dictionary to host all configurations.
 
 cfg = dict()
 
-# In this example, we are going to assign S-parameter models to capacitors.
+# Assigns S-parameter models to capacitors.
 # The first step is to use the "general" key to specify where the S-parameter files can be found.
 
 cfg["general"] = {"s_parameter_library": os.path.join(temp_folder.name, "touchstone")}
 
-# ## Assign model to capactitors.
-# In this example, the model "GRM32_DC0V_25degC_series.s2p" is assigned to capacitors C3 and C4, which share the same component part number.
-# When "apply_to_all" is ``True``, all components having the part number "CAPC3216X180X20ML20" will be assigned the S-parameter model.
+# ## Assign model to capactitors
+# The model ``GRM32_DC0V_25degC_series.s2p`` is assigned to capacitors C3 and C4, which share the same component part number.
+# When "apply_to_all" is ``True``, all components having the part number "CAPC3216X180X20ML20" are assigned the S-parameter model.
 
 cfg["s_parameters"] = [
     {
@@ -79,9 +79,10 @@ cfg["s_parameters"] = [
     }
 ]
 
-# ## Create pin groups.
-# In this example, the listed pins on component U2 are combined into two pin groups.
-# Pins can be grouped explicitly by the pin name or pin groups can be assigned by net name using the "net" key as shown here:
+# ## Create pin groups
+# Pins can be grouped explicitly by the pin name, or pin groups can be assigned by net name using the ''net'' key.
+# The following code combine the listed pins on component U2 into two pin groups using the ``net`` key.
+
 
 cfg["pin_groups"] = [
     {
@@ -130,8 +131,8 @@ cfg["setups"] = [
     }
 ]
 
-# ## Cutout
-# The following assignments will define the region of the PCB to be cut out for analysis.
+# ## Define cutout
+# Define the region of the PCB to be cut out for analysis.
 
 cfg["operations"] = {
     "cutout": {
@@ -161,9 +162,9 @@ cfg["operations"] = {
     }
 }
 
-# ## Save the configuration
+# ## Save configuration
 #
-# The configuration file can be saved in JSON format and applied to layout data using the EDB.
+# Save the configuration file to a JSON file and apply it to layout data using the EDB.
 
 pi_json = os.path.join(temp_folder.name, "pi.json")
 with open(pi_json, "w") as f:
@@ -171,7 +172,7 @@ with open(pi_json, "w") as f:
 
 # ## Load configuration into EDB
 
-# Load configuration from JSON
+# Load the configuration into EDB from the JSON file.
 
 edbapp = ansys.aedt.core.Edb(aedb, edbversion=AEDT_VERSION)
 edbapp.configuration.load(config_file=pi_json)
@@ -179,13 +180,13 @@ edbapp.configuration.run()
 edbapp.save()
 edbapp.close()
 
-# The configured EDB file is saved in a temp folder.
+# The configured EDB file is saved in the temporay folder.
 
 print(temp_folder.name)
 
 # ## Analyze in HFSS 3D Layout
 
-# ### Load edb into HFSS 3D Layout.
+# ### Load EDB into HFSS 3D Layout
 
 h3d = ansys.aedt.core.Hfss3dLayout(
     aedb, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True

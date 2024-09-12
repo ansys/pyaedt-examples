@@ -1,6 +1,6 @@
 Antenna
 ~~~~~~~
-These examples use PyAEDT to show some antenna examples
+These examples use PyAEDT to show some antenna applications.
 
 .. nbgallery::
 

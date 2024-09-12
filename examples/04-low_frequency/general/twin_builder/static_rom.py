@@ -3,11 +3,11 @@
 # This example shows how to create a static reduced order model (ROM)
 # in Twin Builder and run a transient simulation.
 #
-# > **Note:** _This example uses functionality only available in Twin Builder 2024 R2 and later._
+# **Note:** This example uses functionality only available in Twin Builder 2024 R2 and later.
 #
 # Keywords: **Twin Builder**, **Static ROM**.
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports.
 
@@ -18,7 +18,7 @@ import time
 
 from ansys.aedt.core import TwinBuilder, downloads
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
@@ -26,7 +26,8 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
-# Create temporary directory.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -34,17 +35,17 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Set up input data
 #
-# The following files will be downloaded along with the
+# The following files are downloaded along with the
 # other project data used to run this example.
 
 source_snapshot_data_zipfilename = "Ex1_Fluent_StaticRom.zip"
 source_build_conf_file = "SROMbuild.conf"
 source_props_conf_file = "SROM_props.conf"
 
-# ## Download Example Data
+# ## Download example data
 #
 # The following cell downloads the required files needed to run this example and
-# extracts them in a local folder ``"Ex04"``
+# extracts them in a local folder named ``"Ex04"``.
 
 # +
 _ = downloads.download_twin_builder_data(
@@ -78,7 +79,7 @@ shutil.copyfile(
 # ## Launch Twin Builder and build ROM component
 #
 # Launch Twin Builder using an implicit declaration and add a new design with
-# a default setup for building the static ROM component.
+# the default setup for building the static ROM component.
 
 project_name = os.path.join(temp_folder.name, "static_rom.aedt")
 tb = TwinBuilder(
@@ -88,16 +89,16 @@ tb = TwinBuilder(
     new_desktop=True,
 )
 
-# ## Desktop Configuration
+# ## Configure AEDT
 #
-# > **Note:** Only run following cell if AEDT is not configured to run "Twin Builder".
-# >
-# > The following cell configures Electronics Desktop (AEDT) and the schematic editor
-# > to use the _"Twin Builder"_ configuration.
-# > The Static ROM feature is only available with a Twin Builder license.
-# > A cell at the end of this example restores the AEDT configuration. If your
-# > environment is set up_
-# > to use the "Twin Builder" configuration, you do not need to run these sections.
+# **Note:** Only run the following cell if AEDT is not configured to run Twin Builder.
+# 
+# The following cell configures AEDT and the schematic editor
+# to use the ``Twin Builder`` configuration.
+# The Static ROM feature is only available with a Twin Builder license.
+# A cell at the end of this example restores the AEDT configuration. If your
+# environment is set up to use the ``Twin Builder`` configuration, you do not
+# need to run these sections.
 
 current_desktop_config = tb._odesktop.GetDesktopConfiguration()
 current_schematic_environment = tb._odesktop.GetSchematicEnvironment()
@@ -105,37 +106,37 @@ tb._odesktop.SetDesktopConfiguration("Twin Builder")
 tb._odesktop.SetSchematicEnvironment(1)
 
 # +
-# Get the static ROM builder object
+# Get the static ROM builder object.
 rom_manager = tb._odesign.GetROMManager()
 static_rom_builder = rom_manager.GetStaticROMBuilder()
 
-# Build the static ROM with specified configuration file
+# Build the static ROM with the specified configuration file
 confpath = os.path.join(data_folder, source_build_conf_file)
 static_rom_builder.Build(confpath.replace("\\", "/"))
 
-# Test if ROM was created successfully
+# Test if the ROM was created successfully.
 static_rom_path = os.path.join(data_folder, "StaticRom.rom")
 if os.path.exists(static_rom_path):
     tb.logger.info("Built intermediate rom file successfully at: %s", static_rom_path)
 else:
     tb.logger.error("Intermediate rom file not found at: %s", static_rom_path)
 
-# Create the ROM component definition in Twin Builder
+# Create the ROM component definition in Twin Builder.
 rom_manager.CreateROMComponent(static_rom_path.replace("\\", "/"), "staticrom")
 # -
 
 # ## Create schematic
 #
-# Place components to create a schematic.
+# Place components to create the schematic.
 
 # +
-# Define the grid distance for ease in calculations
+# Define the grid distance for ease in calculations.
 G = 0.00254
 
-# Place a dynamic ROM component
+# Place a dynamic ROM component.
 rom1 = tb.modeler.schematic.create_component("ROM1", "", "staticrom", [40 * G, 25 * G])
 
-# Place two excitation sources
+# Place two excitation sources.
 source1 = tb.modeler.schematic.create_periodic_waveform_source(
     None, "SINE", 2.5, 0.01, 0, 7.5, 0, [20 * G, 29 * G]
 )
@@ -144,14 +145,14 @@ source2 = tb.modeler.schematic.create_periodic_waveform_source(
 )
 # -
 
-# Connect components with wires
+# Connect components with wires.
 
 tb.modeler.schematic.create_wire([[22 * G, 29 * G], [33 * G, 29 * G]])
 tb.modeler.schematic.create_wire(
     [[22 * G, 25 * G], [30 * G, 25 * G], [30 * G, 28 * G], [33 * G, 28 * G]]
 )
 
-# Enable storage of views
+# Enable storage of views.
 
 rom1.set_property("store_snapshots", 1)
 rom1.set_property("view1_storage_period", "10s")
@@ -170,9 +171,9 @@ tb.set_hmax("1s")
 
 # ## Solve transient setup
 #
-# Solve the transient setup. Skipping in case of documentation build.
+# Solve the transient setup. Skipping this step in case the documentation is being built.
 
-# NOTE : The following code can be uncommented.
+# **Note:** The following code can be uncommented.
 #
 # tb.analyze_setup("TR")
 
@@ -182,7 +183,7 @@ tb.set_hmax("1s")
 # the values for the voltage on the pulse voltage source and the values for the
 # output of the dynamic ROM.
 
-# NOTE : The following code can be uncommented but depends on the previous commented code.
+# **Note:** The following code can be uncommented, but it depends on the previous commented code.
 #
 # e_value = "ROM1.outfield_mode_1"
 # x = tb.post.get_solution_data(e_value, "TR", "Time")
@@ -200,13 +201,13 @@ tb.set_hmax("1s")
 
 # ## Close Twin Builder
 #
-# After the simulation is completed, you can close Twin Builder or release it.
+# After the simulation is completed, either close Twin Builder or release it.
 # All methods provide for saving the project before closing.
 
-# Clean up the downloaded data
+# Clean up the downloaded data.
 shutil.rmtree(source_data_folder)
 
-# Restore earlier desktop configuration and schematic environment
+# Restore earlier desktop configuration and schematic environment.
 tb._odesktop.SetDesktopConfiguration(current_desktop_config)
 tb._odesktop.SetSchematicEnvironment(current_schematic_environment)
 

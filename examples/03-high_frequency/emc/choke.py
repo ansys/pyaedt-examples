@@ -4,7 +4,7 @@
 #
 # Keywords: **HFSS**, **EMC**, **choke**, .
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports.
 
@@ -15,15 +15,15 @@ import time
 
 import ansys.aedt.core
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
-# Create a temporary directory where we store downloaded data or
-# dumped data.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -40,7 +40,7 @@ hfss = ansys.aedt.core.Hfss(
     solution_type="Terminal",
 )
 
-# ## Rules and information of use
+# ## Define parameters
 #
 # The dictionary values contain the different parameter values of the core and
 # the windings that compose the choke. You must not change the main structure of
@@ -58,23 +58,23 @@ hfss = ansys.aedt.core.Hfss(
 # correct one by default. For the dictionaries from ``"Core"`` through ``"Inner Winding"``,
 # values must be strings, floats, or integers.
 #
-# Descriptions follow for primary keys:
+# Descriptions follow for the primary keys:
 #
-# - ``"Number of Windings"``: Number of windings around the core
-# - ``"Layer"``: Number of layers of all windings
+# - ``"Number of Windings"``: Number of windings around the core.
+# - ``"Layer"``: Number of layers of all windings.
 # - ``"Layer Type"``: Whether layers of a winding are linked to each other
 # - ``"Similar Layer"``: Whether layers of a winding have the same number of turns and
-# same spacing between turns
-# - ``"Mode"``: When there are only two windows, whether they are in common or differential mode
-# - ``"Wire Section"``: Type of wire section and number of segments
-# - ``"Core"``: Design of the core
+# same spacing between turns.
+# - ``"Mode"``: When there are only two windows, whether they are in common or differential mode.
+# - ``"Wire Section"``: Type of wire section and number of segments.
+# - ``"Core"``: Design of the core.
 # - ``"Outer Winding"``: Design of the first layer or outer layer of a winding and the common
-# parameters for all layers
-# - ``"Mid Winding"``: Turns and turns spacing ("Coil Pit") for the second or
-# mid layer if it is necessary
-# - ``"Inner Winding"``: Turns and turns spacing ("Coil Pit") for the third or inner
-# layer if it is necessary
-# - ``"Occupation(%)"``: An informative parameter that is useless to modify
+# parameters for all layers.
+# - ``"Mid Winding"``: Turns and turns spacing (``Coil Pit``) for the second or
+# mid layer if it is necessary.
+# - ``"Inner Winding"``: Turns and turns spacing (``Coil Pit``) for the third or inner
+# layer if it is necessary.
+# - ``"Occupation(%)"``: An informative parameter that is useless to modify.
 #
 # The following parameter values work. You can modify them if you want.
 
@@ -110,7 +110,7 @@ values = {
 
 # ## Convert dictionary to JSON file
 #
-# Convert a dictionary to a JSON file. You must supply the path of the
+# Convert the dictionary to a JSON file. You must supply the path of the
 # JSON file as an argument.
 
 json_path = os.path.join(hfss.working_directory, "choke_example.json")
@@ -119,11 +119,11 @@ with open(json_path, "w") as outfile:
 
 # ## Verify parameters of JSON file
 #
-# Verify parameters of the JSON file. The ``check_choke_values`` method takes
+# Verify parameters of the JSON file. The ``check_choke_values()`` method takes
 # the JSON file path as an argument and does the following:
 #
-# - Checks if the JSON file is correctly written (as explained in the rules)
-# - Checks in equations on windings parameters to avoid having unintended intersections
+# - Checks if the JSON file is correctly written (as explained earlier).
+# - Checks equations on windings parameters to avoid having unintended intersections.
 
 dictionary_values = hfss.modeler.check_choke_values(
     json_path, create_another_file=False
@@ -142,8 +142,6 @@ first_winding_list = list_object[2]
 second_winding_list = list_object[3]
 
 # ## Create ground
-#
-# Create a ground.
 
 ground_radius = 1.2 * dictionary_values[1]["Outer Winding"]["Outer Radius"]
 ground_position = [0, 0, first_winding_list[1][0][2] - 2]
@@ -154,8 +152,6 @@ coat = hfss.assign_coating(ground, is_infinite_ground=True)
 ground.transparency = 0.9
 
 # ## Create lumped ports
-#
-# Create lumped ports.
 
 port_position_list = [
     [
@@ -192,8 +188,6 @@ for position in port_position_list:
     )
 
 # ## Create mesh
-#
-# Create the mesh.
 
 # +
 cylinder_height = 2.5 * dictionary_values[1]["Outer Winding"]["Height"]

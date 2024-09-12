@@ -5,7 +5,7 @@
 #
 # Keywords: **Multiphysics**, **HFSS**, **Mechanical AEDT**, **Circuit**.
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports.
 
@@ -18,7 +18,7 @@ import ansys.aedt.core
 
 # -
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
@@ -26,7 +26,10 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
-# Create temporary directory.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
@@ -59,7 +62,7 @@ hfss_comp = circuit.modeler.schematic.add_subcircuit_dynamic_link(pyaedt_app=hfs
 
 # ## Set up dynamic link options
 #
-# Set up dynamic link options. The argument for ``set_sim_option_on_hfss_subcircuit``
+# Set up dynamic link options. The argument for the ``set_sim_option_on_hfss_subcircuit()``
 # method can be the component name, component ID, or component object.
 
 circuit.modeler.schematic.refresh_dynamic_link(name=hfss_comp.composed_name)
@@ -99,8 +102,6 @@ source.phase = 0
 # -
 
 # ## Create setup
-#
-# Create a setup.
 
 setup_name = "MySetup"
 LNA_setup = circuit.create_setup(name=setup_name)
@@ -124,8 +125,6 @@ mech.copy_solid_bodies_from(design=hfss)
 mech.change_material_override(True)
 
 # ## Get losses from HFSS and assign convection to Mechanical
-#
-# Get losses from HFSS and assign the convection to Mechanical.
 
 mech.assign_em_losses(
     design=hfss.design_name,
@@ -142,8 +141,6 @@ for el in diels:
     )
 
 # ## Plot model
-#
-# Plot the model.
 
 mech.plot(
     show=False,
@@ -152,8 +149,6 @@ mech.plot(
 )
 
 # ## Solve and plot thermal results
-#
-# Solve and plot the thermal results.
 
 mech.create_setup()
 mech.save_project()

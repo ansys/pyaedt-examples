@@ -5,7 +5,7 @@
 #
 # Keywords: **Twin Builder**, **RC**.
 
-# ## Perform required imports
+# ## Perform imports and define constantss
 #
 # Perform required imports.
 
@@ -15,7 +15,7 @@ import time
 
 import ansys.aedt.core
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
@@ -23,7 +23,8 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
-# Create temporary directory.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -74,8 +75,6 @@ source.pins[0].connect_to_component(gnd.pins[0])
 tb.set_end_time("300ms")
 
 # ## Solve transient setup
-#
-# Solve the transient setup.
 
 tb.analyze_setup("TR")
 

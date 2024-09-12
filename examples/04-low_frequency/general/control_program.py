@@ -1,13 +1,13 @@
-# # Enabling Control Program
+# # Control program enablement
 
-# This example shows how to use PyAEDT to enable control program in a Maxwell 2D project.
-# It shows how to create the geometry, load material properties from an Excel file and
-# set up the mesh settings. Moreover, it focuses on post-processing operations, in particular how to
-# plot field line traces, relevant for an electrostatic analysis.
+# This example shows how to use PyAEDT to enable a control program in a Maxwell 2D project.
+# It shows how to create the geometry, load material properties from an Excel file, and
+# set up the mesh settings. Moreover, it focuses on postprocessing operations, in particular how to
+# plot field line traces, which are relevant for an electrostatic analysis.
 #
 # Keywords: **Maxwell 2D**, **control program**.
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports.
 
@@ -16,7 +16,7 @@ import time
 
 from ansys.aedt.core import Maxwell2d, downloads
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
@@ -24,15 +24,16 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
-# The temporary directory is used to run the example and save simulation data.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ## Download the project file
+# ## Download project file
 #
-# The files required to run this example will be downloaded to the temporary working folder.
+# The files required to run this example are downloaded to the temporary working folder.
 
 aedt_file = downloads.download_file(
     source="maxwell_ctrl_prg",
@@ -55,20 +56,18 @@ m2d = Maxwell2d(
 )
 
 # ## Set active design
-#
-# Set the active design.
 
 m2d.set_active_design("1 time step control")
 
-# ## Retrieve the setup
+# ## Get setup
 #
-# Get the simulation setup for this design so that the "control program" can be enabled.
+# Get the simulation setup for this design so that the control program can be enabled.
 
 setup = m2d.setups[0]
 
 # ## Enable control program
 #
-# Enable control program by giving the path to the file.
+# Enable the control program by giving the path to the file.
 
 setup.enable_control_program(control_program_path=ctrl_prg_file)
 

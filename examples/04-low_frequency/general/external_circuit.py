@@ -1,9 +1,9 @@
-# # External circuit
+# # External delta circuit
 #
 # This example shows how to create an external delta circuit and connect it with a Maxwell 2D design.
-# Keywords: **Maxwell2d**, **Circuit**, **netlist**
+# Keywords: **Maxwell 2D**, **Circuit**, **netlist**
 
-# ## Perform required imports
+# ## Perform imports and define constants
 
 import os
 import tempfile
@@ -11,7 +11,7 @@ import time
 
 import ansys.aedt.core
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
@@ -19,8 +19,8 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
-# Create a temporary directory where we store downloaded data or
-# dumped data.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -28,7 +28,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch AEDT and Maxwell 2D
 #
-# Launch AEDT and Maxwell 2D providing the version, path to the project and the graphical mode.
+# Launch AEDT and Maxwell 2D providing the version, path to the project, and the graphical mode.
 
 project_name = os.path.join(temp_folder.name, "Maxwell_circuit_example.aedt")
 design_name = "1 Maxwell"
@@ -45,7 +45,7 @@ m2d = ansys.aedt.core.Maxwell2d(
 
 # ## Initialize dictionaries and define variables
 #
-# Initialize dictionaries that contain all design variables definitions.
+# Initialize dictionaries that contain all design variable definitions.
 
 voltage = "230V"
 frequency = "50Hz"
@@ -69,7 +69,7 @@ for k, v in transient_parameters.items():
 
 # ## Create geometry
 #
-# Create copper coils and vacuum region, assign mesh operations, and assign balloon boundary to the region edges.
+# Create copper coils and a vacuum region. Assign mesh operations, and then assign a balloon boundary to the region edges.
 
 coil1_id = m2d.modeler.create_circle(
     orientation="Z", origin=[0, 0, 0], radius=10, name="coil1", material="copper"
@@ -117,7 +117,7 @@ wdg3 = m2d.assign_winding(
 
 # ## Create simulation setup
 #
-# Create simulation setup defining stop time and time step
+# Create the simulation setup, defining the stop time and time step.
 
 setup = m2d.create_setup()
 setup["StopTime"] = "stop_time"
@@ -125,7 +125,7 @@ setup["TimeStep"] = "time_step"
 
 # ## Create external circuit
 #
-# Create circuit design including all the windings of type ``External`` in the Maxwell design.
+# Create the circuit design, including all windings of type ``External`` in the Maxwell design.
 
 circuit = m2d.create_external_circuit(circuit_design=circuit_name)
 
@@ -144,7 +144,7 @@ windings = [
 
 # ## Finalize external circuit
 #
-# Draw other components: Resistances, voltage sources, and grounds
+# Draw these other components: resistors, voltage sources, and grounds
 
 circuit.modeler.schematic_units = "mil"
 
@@ -173,9 +173,9 @@ for i in range(len(windings)):
     g = circuit.modeler.schematic.create_gnd([2300, i * 1000], angle=90)
     ground.append(g)
 
-# ## Connect the components
+# ## Connect components
 #
-# Connect components by drawing wires
+# Connect the components by drawing wires.
 
 windings[2].pins[1].connect_to_component(resistors[2].pins[0], use_wire=True)
 windings[1].pins[1].connect_to_component(resistors[1].pins[0], use_wire=True)
@@ -213,9 +213,9 @@ circuit.modeler.schematic.create_wire(
     ]
 )
 
-# ## Export and import the netlist
+# ## Export and import netlist
 #
-# Export the netlist file, and import it to Maxwell
+# Export the netlist file and then import it to Maxwell 2D.
 
 netlist_file = os.path.join(temp_folder.name, "_netlist.sph")
 circuit.export_netlist_from_schematic(netlist_file)
@@ -224,9 +224,8 @@ m2d.edit_external_circuit(
     netlist_file_path=netlist_file, schematic_design_name=circuit_name
 )
 
-# ## Analyze the setup
+# ## Analyze setup
 #
-# Analyze the setup
 
 setup.analyze(cores=NUM_CORES)
 

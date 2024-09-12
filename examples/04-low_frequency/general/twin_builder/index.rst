@@ -1,7 +1,7 @@
 Twin Builder
 ~~~~~~~~~~~~
 
-These examples use PyAEDT to show some Twin Builder examples
+These examples use PyAEDT to show some Twin Builder applications.
 
 .. nbgallery::
 

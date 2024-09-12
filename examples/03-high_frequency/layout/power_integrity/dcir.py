@@ -1,25 +1,25 @@
-# # DC IR Analysis
-# This example shows how to configure EDB for DC IR analysis, and load EDB into the 3D Layout UI for analysis and
-# post-processing.
+# # DC IR analysis
+# This example shows how to configure EDB for DC IR analysis and load EDB into the HFSS 3D Layout UI for analysis and
+# postprocessing.
 #
-# - Set up EDB
+# - Set up EDB:
 #
-#     - Edit via padstack
-#     - Assign SPICE model to components
-#     - Create pin groups
-#     - Create voltage and current sources
-#     - Create SIwave DC analysis
-#     - Create cutout
+#     - Edit via padstack.
+#     - Assign SPICE model to components.
+#     - Create pin groups.
+#     - Create voltage and current sources.
+#     - Create SIwave DC analysis.
+#     - Create cutout.
 #
-# - Import EDB into HFSS 3D Layout
+# - Import EDB into HFSS 3D Layout:
 #
-#     - Analyze
-#     - Get DC IR analysis results
+#     - Analyze.
+#     - Get DC IR analysis results.
 #
-# Keywords: **HFSS 3D Layout**, **DCIR**.
+# Keywords: **HFSS 3D Layout**, **DC IR**.
 
-# # Preparation
-# Import required packages
+# ## Perform imports and define constants
+# Perform required imports.
 
 import json
 import os
@@ -30,7 +30,7 @@ import ansys.aedt.core
 from ansys.aedt.core.downloads import download_file
 from pyedb import Edb
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
@@ -44,9 +44,9 @@ download_file(
     source="spice", name="ferrite_bead_BLM15BX750SZ1.mod", destination=temp_folder.name
 )
 
-# # Create a configuration file
-# In this example, we are going to use a configure file to set up layout for analysis.
-# ## Initialize a dictionary
+# ## Create configuration file
+# This example uses a configuration file to set up the layout for analysis.
+# Initialize and create an empty dictionary to host all configurations.
 
 cfg = dict()
 
@@ -57,7 +57,7 @@ cfg["general"] = {
     "spice_model_library": os.path.join(temp_folder.name, "spice"),
 }
 
-# ## Change via hole size and plating thickness
+# ### Change via hole size and plating thickness
 
 cfg["padstacks"] = {
     "definitions": [
@@ -65,7 +65,7 @@ cfg["padstacks"] = {
     ],
 }
 
-# ## Assign SPICE models
+# ### Assign SPICE models
 
 cfg["spice_models"] = [
     {
@@ -79,8 +79,8 @@ cfg["spice_models"] = [
     }
 ]
 
-# ## Create a Voltage Source
-# Create a voltage source from net.
+# ### Create voltage source
+# Create a voltage source from a net.
 
 cfg["sources"] = [
     {
@@ -93,8 +93,8 @@ cfg["sources"] = [
     }
 ]
 
-# ## Create Current Sources
-# Create current sources between net and pin group.
+# ### Create current sources
+# Create current sources between the net and pin group.
 
 cfg["pin_groups"] = [{"name": "J5_GND", "reference_designator": "J5", "net": "GND"}]
 
@@ -123,11 +123,11 @@ cfg["sources"].append(
     }
 )
 
-# ## Create SIwave DC analysis
+# ### Create SIwave DC analysis
 
 cfg["setups"] = [{"name": "siwave_dc", "type": "siwave_dc", "dc_slider_position": 0}]
 
-# ## Do cutout
+# ### Create cutout
 
 cfg["operations"] = {
     "cutout": {
@@ -157,15 +157,15 @@ cfg["operations"] = {
     }
 }
 
-# ## Save configuration as a JSON file
+# ### Save configuration as a JSON file
 
 pi_json = os.path.join(temp_folder.name, "pi.json")
 with open(pi_json, "w") as f:
     json.dump(cfg, f, indent=4, ensure_ascii=False)
 
-# # Load configuration into EDB
+# ## Load configuration into EDB
 
-# Load configuration from JSON
+# Load the configuration from the JSON file into EDB.
 
 edbapp = Edb(aedb, edbversion=AEDT_VERSION)
 edbapp.configuration.load(config_file=pi_json)
@@ -174,31 +174,31 @@ edbapp.configuration.run()
 # # Load configuration into EDB
 edbapp.nets.plot(None, None, color_by_net=True)
 
-# # Save and close EDB
+# ## Save and close EDB
 
 edbapp.save()
 edbapp.close()
 
-# The configured EDB file is saved in a temp folder.
+# The configured EDB file is saved in the temporary folder.
 
 print(temp_folder.name)
 
-# # Analyze DCIR with SIwave
+# ## Analyze DCIR with SIwave
 #
-# The 3D Layout interface to SIwave is used to open the EDB and run the DCIR analysis
+# The HFSS 3D Layout interface to SIwave is used to open the EDB and run the DCIR analysis
 # using SIwave
 
-# ## Load edb into 3D Layout.
+# ### Load EDB into HFSS 3D Layout.
 
 siw = ansys.aedt.core.Hfss3dLayout(
     aedb, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True
 )
 
-# ## Analyze
+# ### Analyze
 
 siw.analyze(cores=NUM_CORES)
 
-# ## Get DC IR results
+# ### Get DC IR results
 
 siw.get_dcir_element_data_current_source("siwave_dc")
 

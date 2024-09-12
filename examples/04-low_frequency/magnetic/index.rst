@@ -1,7 +1,7 @@
 Magnetics
 ~~~~~~~~~
 
-These examples use PyAEDT to show some magnetics examples
+These examples use PyAEDT to show some magnetics applications.
 
 .. nbgallery::
 

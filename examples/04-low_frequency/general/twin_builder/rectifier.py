@@ -1,4 +1,4 @@
-# # Wiring a rectifier with a capacitor filter
+# # Wiring of a rectifier with a capacitor filter
 #
 # This example shows how to use PyAEDT to create a Twin Builder design
 # and run a Twin Builder time-domain simulation.
@@ -7,7 +7,7 @@
 #
 # Keywords: **Twin Builder**, **rectifier**, **filter**.
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports.
 
@@ -18,7 +18,7 @@ import time
 import ansys.aedt.core
 import matplotlib.pyplot as plt
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
@@ -26,7 +26,8 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
-# Create temporary directory.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -35,7 +36,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # ## Launch Twin Builder
 #
 # Launch Twin Builder using an implicit declaration and add a new design with
-# a default setup.
+# the default setup.
 
 project_name = os.path.join(temp_folder.name, "TB_Rectifier_Demo.aedt")
 tb = ansys.aedt.core.TwinBuilder(
@@ -45,13 +46,13 @@ tb = ansys.aedt.core.TwinBuilder(
     new_desktop=True,
 )
 
-# ## Create components for bridge rectifier
+# ## Create components for rectifier
 #
 # Place components for a bridge rectifier and a capacitor filter in the schematic editor.
 #
 # Specify the grid spacing to use for placement
 # of components in the schematic editor. Components are placed using the named
-# argument ``location`` as a list of ``[x, y]`` values in mm.
+# argument ``location`` as a list of ``[x, y]`` values in millimeters.
 
 G = 0.00254
 
@@ -95,9 +96,7 @@ gnd = tb.modeler.components.create_gnd(location=[5 * G, -16 * G])
 
 # ## Connect components
 #
-# Connect components with wires.
-
-# Connect the diode pins to create the bridge.
+# Connect components with wires, and connect the diode pins to create the bridge.
 
 tb.modeler.schematic.create_wire(
     points=[diode1.pins[0].location, diode3.pins[0].location]
@@ -139,13 +138,13 @@ tb.modeler.schematic.create_wire(points=[gnd.pins[0].location, [5 * G, 0], [8 * 
 # Zoom to fit the schematic
 tb.modeler.zoom_to_fit()
 
-# The circuit schematic will now be visible in the Twin Builder
-# schematic editor and should look like
+# The circuit schematic should now be visible in the Twin Builder
+# schematic editor and look like
 # the image shown at the beginning of the example.
 #
-# ## Run the Simulation
+# ## Run the simulation
 #
-# Update the total time to be simulated and run the analysis
+# Update the total time to be simulated and run the analysis.
 
 tb.set_end_time("100ms")
 tb.analyze_setup("TR")

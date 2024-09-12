@@ -1,10 +1,10 @@
 # # Simulate multi-zone layout with SIwave
 #
-# This example demonstrates simulation of multiple zones with SIwave.
+# This example shows how to simulate multiple zones with SIwave.
 #
 # Keywords: **Circuit**, **multi-zone**.
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports, which includes importing a section.
 
@@ -18,21 +18,20 @@ from ansys.aedt.core import Circuit, Edb
 
 # -
 
-# ## Define constants
+# Define constants.
 
 EDB_VERSION = "2024.2"
 
 # ## Create temporary directory
 #
-# Create temporary directory.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ## Download file
-#
-# Download the EDB folder.
+# ## Download EDB folder
 
 edb_file = ansys.aedt.core.downloads.download_file(
     directory="edb/siwave_multi_zones.aedb", destination=temp_folder.name
@@ -43,45 +42,44 @@ circuit_project_file = os.path.join(temp_folder.name, "multizone_clipped_circuit
 print(edb_file)
 
 
-# ## AEDT version
-#
-# Sets the AEDT version.
+# ## Set AEDT version
+
 
 edb_version = EDB_VERSION
 
-# ## Ground net
+# ## Define ground net
 #
-# Common reference net used across all sub-designs, Mandatory for this work flow.
+# Define the common reference net used across all subdesigns, which is mandatory for this workflow.
 
 common_reference_net = "GND"
 
-# ## Load the Project
+# ## Load project
 #
-# Load initial Edb file, checking if aedt file exists and remove to allow Edb loading.
+# Check if the AEDT file exists and remove it to allow EDB loading. Thn, load the initial EDB file.
 
 if os.path.isfile(aedt_file):
     os.remove(aedt_file)
 edb = Edb(edbversion=edb_version, edbpath=edb_file)
 
-# ## Project zones
+# ## Copy project zones
 #
-# Copy project zone into sub project.
+# Copy project zone into the subproject.
 
 edb_zones = edb.copy_zones(working_directory=work_folder)
 
 # ## Split zones
 #
-# Clip sub-designs along with corresponding zone definition
-# and create port of clipped signal traces.
+# Clip subdesigns along with corresponding zone definitions
+# and create a port of clipped signal traces.
 
 defined_ports, project_connexions = edb.cutout_multizone_layout(
     edb_zones, common_reference_net
 )
 
-# ## Circuit
+# ## Create circuit
 #
-# Create circuit design, import all sub-project as EM model and connect
-# all corresponding pins in circuit.
+# Create circuit design, import all subprojects as EM models, and connect
+# all corresponding pins in the circuit.
 
 circuit = Circuit(version=edb_version, project=circuit_project_file)
 circuit.connect_circuit_models_from_multi_zone_cutout(
@@ -91,15 +89,15 @@ circuit.connect_circuit_models_from_multi_zone_cutout(
     model_inc=70,
 )
 
-# ## Setup
+# ## Set up simulation
 #
 # Add Nexxim LNA simulation setup.
 
 circuit_setup = circuit.create_setup("Pyedt_LNA")
 
-# ## Frequency sweep
+# ## Add frequency sweep
 #
-# Add frequency sweep from 0GHt to 20GHz with 10NHz frequency step.
+# Add a frequency sweep from 0 GHt to 20 GHz with a 10 NHz frequency step.
 
 circuit_setup.props["SweepDefinition"]["Data"] = "LIN {} {} {}".format(
     "0GHz", "20GHz", "10MHz"
@@ -107,7 +105,7 @@ circuit_setup.props["SweepDefinition"]["Data"] = "LIN {} {} {}".format(
 
 # ## Start simulation
 #
-# Analyze all siwave projects and solves the circuit.
+# Analyze all SIwave projects and solve the circuit.
 
 circuit.analyze()
 
@@ -124,7 +122,7 @@ circuit.set_differential_pair(
     reference="U1.via_33.B2B_SIGN",
 )
 
-# Plot results
+# Plot results.
 
 circuit.post.create_report(
     expressions=["dB(S(U0,U0))", "dB(S(U1,U0))"], context="Differential Pairs"

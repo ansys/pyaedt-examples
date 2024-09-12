@@ -1,11 +1,11 @@
-# # Circuit Transient Analysis and Eye Diagram
+# # Circuit transient analysis and eye diagram
 #
-# This example demonstrates how to create a circuit design,
+# This example shows how to create a circuit design,
 # run a Nexxim time-domain simulation, and create an eye diagram.
 #
-# Keywords: **Circuit**, **Transient**, **Eye diagram**.
+# Keywords: **Circuit**, **transient**, **eye diagram**.
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports.
 
@@ -20,15 +20,15 @@ from matplotlib import pyplot as plt
 
 # -
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
-# Create a temporary directory where we store downloaded data or
-# dumped data.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -46,7 +46,7 @@ circuit = ansys.aedt.core.Circuit(
     non_graphical=NG_MODE,
 )
 
-# ## IBIS Buffer
+# ## Place IBIS buffer
 #
 # Read an IBIS file and place a buffer in the schematic editor.
 
@@ -55,7 +55,7 @@ ibis = circuit.get_ibis_model_from_file(
 )
 ibs = ibis.buffers["DQ_u26a_800"].insert(0, 0)
 
-# ## Ideal Transmission Line
+# ## Place ideal transmission line
 #
 # Place an ideal transmission line in the schematic and parametrize it.
 
@@ -64,14 +64,14 @@ tr1 = circuit.modeler.components.components_catalog["Ideal Distributed:TRLK_NX"]
 )
 tr1.parameters["P"] = "50mm"
 
-# ## Component Placement
+# ## Place components
 #
 # Create a resistor and ground in the schematic.
 
 res = circuit.modeler.components.create_resistor(name="R1", value="1Meg")
 gnd1 = circuit.modeler.components.create_gnd()
 
-# ## Connect Componennts
+# ## Connect componennts
 #
 # Connect the components in the schematic.
 
@@ -79,9 +79,9 @@ tr1.pins[0].connect_to_component(ibs.pins[0])
 tr1.pins[1].connect_to_component(res.pins[0])
 res.pins[1].connect_to_component(gnd1.pins[0])
 
-# ## Voltage Probe
+# ## Place a probe
 #
-# Place a probe and rename it to ``Vout``.
+# Place a voltage probe and rename it to ``Vout``.
 
 pr1 = circuit.modeler.components.components_catalog["Probes:VPROBE"].place("vout")
 pr1.parameters["Name"] = "Vout"
@@ -98,10 +98,10 @@ trans_setup = circuit.create_setup(name="TransientRun", setup_type="NexximTransi
 trans_setup.props["TransientData"] = ["0.01ns", "200ns"]
 circuit.analyze_setup("TransientRun")
 
-# ## Results
+# ## Create report
 #
 # Create a report using the ``get_solution_data()`` method. This
-# method allows you to view and post-process results using Python packages.
+# method allows you to view and postprocess results using Python packages.
 # The ``solutions.plot()`` method uses
 # [Matplotlib](https://matplotlib.org/).
 
@@ -111,7 +111,7 @@ if not NG_MODE:
 solutions = circuit.post.get_solution_data(domain="Time")
 solutions.plot("V(Vout)")
 
-# ## Visualize Results
+# ## Visualize results
 #
 # Create a report inside AEDT using the ``new_report`` object. This object is
 # fully customizable and usable with most of the reports available in AEDT.
@@ -147,7 +147,7 @@ new_report.create()
 sol = new_report.get_solution_data()
 sol.plot()
 
-# ## Eye Diagram in AEDT
+# ## Create eye diagram in AEDT
 #
 # Create an eye diagram inside AEDT using the ``new_eye`` object.
 
@@ -156,7 +156,7 @@ new_eye.unit_interval = "1e-9s"
 new_eye.time_stop = "100ns"
 new_eye.create()
 
-# ## Eye Diagram in Matplotlib
+# ## Crate eye diagram in Matplotlib
 #
 # Create the same eye diagram outside AEDT using Matplotlib and the
 # ``get_solution_data()`` method.

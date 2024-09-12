@@ -1,7 +1,7 @@
 T.E.A.M.
 ~~~~~~~~
 
-These examples use PyAEDT to show some T.E.A.M. examples
+These examples use PyAEDT to show some T.E.A.M. applications.
 
 .. nbgallery::
 

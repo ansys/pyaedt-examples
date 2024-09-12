@@ -1,14 +1,14 @@
 # # Schematic subcircuit management
 #
 # This example shows how to add a subcircuit to a circuit design.
-# In this example, the focus is changed within the hierarchy between
+# It changes the focus within the hierarchy between
 # the child subcircuit and the parent design.
 #
 # Keywords: **Circuit**, **EMC**, **schematic**.
 
-# ## Imports
+# ## Perform imports and define constants
 #
-# Perform the required import.
+# Perform required imports.
 
 import os
 import tempfile
@@ -16,14 +16,15 @@ import time
 
 import ansys.aedt.core
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
-# Create temporary directory.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -42,7 +43,7 @@ circuit = ansys.aedt.core.Circuit(
 )
 circuit.modeler.schematic_units = "mil"
 
-# ## Add Subcircuit
+# ## Add subcircuit
 #
 # Add a new subcircuit to the previously created circuit design, creating a
 # child circuit. Push this child circuit down into the child subcircuit.
@@ -51,12 +52,12 @@ subcircuit = circuit.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
 subcircuit_name = subcircuit.composed_name
 circuit.push_down(subcircuit)
 
-# ## Parametrization
+# ## Parametrize subcircuit
 #
 # Parametrize the subcircuit and add a resistor, inductor, and a capacitor with
-# the parameter values. Components are connected in series
+# parameter values. Components are connected in series,
 # and the focus is changed to the parent schematic using
-# the ``pop_up`` method.
+# the ``pop_up()`` method.
 
 circuit.variable_manager.set_variable(variable_name="R_val", expression="35ohm")
 circuit.variable_manager.set_variable(variable_name="L_val", expression="1e-7H")
@@ -77,7 +78,7 @@ circuit.pop_up()
 
 circuit.save_project()
 circuit.release_desktop()
-# Wait 5 seconds to allow Electronics Desktop to shut down before cleaning the temporary directory.
+# Wait 5 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(5)
 
 # ## Clean up

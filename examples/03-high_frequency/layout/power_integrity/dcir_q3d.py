@@ -1,11 +1,11 @@
 # # PCB DCIR analysis
 #
 # This example shows how to use PyAEDT to create a design in
-# Q3D Extractor and run a DC IR Drop simulation starting from an EDB Project.
+# Q3D Extractor and run a DC IR drop simulation starting from an EDB project.
 #
 # Keywords: **Q3D**, **layout**, **DCIR**.
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports.
 
@@ -16,7 +16,7 @@ import time
 import ansys.aedt.core
 import pyedb
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
@@ -24,7 +24,8 @@ NG_MODE = False
 
 # ## Create temporary directory
 #
-# Create temporary directory.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -48,7 +49,7 @@ project_name = "HSD"
 output_edb = os.path.join(temp_folder.name, project_name + ".aedb")
 output_q3d = os.path.join(temp_folder.name, project_name + "_q3d.aedt")
 
-# ## Open EDB
+# ## Open EDB project
 #
 # Open the EDB project and create a cutout on the selected nets
 # before exporting to Q3D.
@@ -78,8 +79,8 @@ pin_u11_r106 = [
 
 # ## Append Z Positions
 #
-# Compute Q3D 3D position. The units in EDB are meters so the
-# factor 1000 converts from "meters" to "mm".
+# Compute the Q3D 3D position. The units in EDB are meters so the
+# factor 1000 converts from meters to millimeters.
 
 # +
 location_u11_scl = [i * 1000 for i in pin_u11_scl[0].position]
@@ -135,7 +136,7 @@ time.sleep(3)
 
 # ## Open Q3D
 #
-# Launch the newly created q3d project.
+# Launch the newly created Q3D project.
 
 q3d = ansys.aedt.core.Q3d(output_q3d, version=AEDT_VERSION)
 q3d.modeler.delete("GND")
@@ -144,7 +145,7 @@ q3d.delete_all_nets()
 
 # ## Insert inductors
 #
-# Create new coordinate systems and place 3D component inductors.
+# Create coordinate systems and place 3D component inductors.
 
 # +
 q3d.modeler.create_coordinate_system(location_l2_1, name="L2")
@@ -172,7 +173,7 @@ q3d.modeler.set_working_coordinate_system("Global")
 
 # ## Delete dielectrics
 #
-# Delete all dielectric objects since not needed in DC analysis.
+# Delete all dielectric objects since they are not needed in DC analysis.
 
 # +
 q3d.modeler.delete(q3d.modeler.get_objects_by_material("Megtron4"))
@@ -193,7 +194,7 @@ q3d.plot(
 
 # ## Assign source and sink
 #
-# Use previously calculated positions to identify faces, select the net "1_Top" and
+# Use previously calculated positions to identify faces. Select the net ``1_Top`` and
 # assign sources and sinks on nets.
 
 # +
@@ -227,7 +228,7 @@ q3d.edit_sources(
 # ## Create setup
 #
 # Create a setup and a frequency sweep from DC to 2GHz.
-# Analyze project.
+# Then, analyze the project.
 
 setup = q3d.create_setup()
 setup.dc_enabled = True
@@ -242,9 +243,9 @@ setup.analyze()
 q3d.save_project()
 q3d.analyze_setup(setup.name, cores=NUM_CORES)
 
-# ## Field Calculator
+# ## Create a named expression
 #
-# We will create a named expression using field calculator.
+# Use the field calculator to create a named expression.
 
 drop_name = "Vdrop3_3"
 fields = q3d.ofieldsreporter
@@ -254,7 +255,7 @@ q3d.ofieldsreporter.EnterScalar(3.3)
 q3d.ofieldsreporter.CalcOp("+")
 q3d.ofieldsreporter.AddNamedExpression(drop_name, "DC R/L Fields")
 
-# ## Phi plot
+# ## Create Phi plot
 #
 # Compute ACL solutions and plot them.
 
@@ -278,10 +279,10 @@ q3d.post.plot_field_from_fieldplot(
 # -
 
 
-# ## Computing Voltage on Source Circles
+# ## Compute voltage on source circles
 #
-# Using Field Calculator we can compute the voltage on source circles and get the value
-# using get_solution_data method.
+# Use the field calculator to compute the voltage on source circles and get the value
+# using the ``get_solution_data()`` method.
 
 # +
 curves = []

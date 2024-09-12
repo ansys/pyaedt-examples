@@ -1,11 +1,11 @@
-# # Eddy Current analysis and reduced matrix
+# # Eddy current analysis and reduced matrix
 
-# This example shows how to leverage PyAEDT to assign matrix
+# This example shows how to leverage PyAEDT to assign a matrix
 # and perform series or parallel connections in a Maxwell 2D design.
 #
 # Keywords: **Maxwell 2D**, **eddy current**, *matrix**.
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports.
 
@@ -15,7 +15,7 @@ import time
 
 import ansys.aedt.core
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
@@ -23,16 +23,16 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
-# Create a temporary directory where we store downloaded data or
-# dumped data.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ## Download .aedt file
+# ## Download AEDT file
 #
-# Set local temporary folder to export the .aedt file to.
+# Set the local temporary folder to export the AEDT file to.
 
 project_path = ansys.aedt.core.downloads.download_file(
     source="maxwell_ec_reduced_matrix",
@@ -42,7 +42,7 @@ project_path = ansys.aedt.core.downloads.download_file(
 
 # ## Launch AEDT and Maxwell 2D
 #
-# Launch AEDT and Maxwell 2D providing the version, path to the project and the graphical mode.
+# Launch AEDT and Maxwell 2D, providing the version, path to the project, and the graphical mode.
 
 m2d = ansys.aedt.core.Maxwell2d(
     project=project_path,
@@ -62,8 +62,8 @@ matrix = m2d.assign_matrix(
 # ## Assign reduced matrices
 #
 # Assign reduced matrices to the parent matrix previously created.
-# For 2D/3D Eddy Current Solvers, two or more excitations can be joined
-# either in series or parallel connection. The result is known as reduced matrix.
+# For 2D/3D Eddy current solvers, two or more excitations can be joined
+# either in series or parallel connection. The result is known as a reduced matrix.
 
 series = matrix.join_series(sources=["pri", "sec"], matrix_name="ReducedMatrix1")
 parallel = matrix.join_parallel(sources=["sec", "terz"], matrix_name="ReducedMatrix2")

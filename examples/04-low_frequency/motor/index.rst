@@ -1,7 +1,7 @@
 Motor
 =====
 
-These examples use PyAEDT to show some motor examples
+These examples use PyAEDT to show some motor applications.
 
 
 .. grid:: 2

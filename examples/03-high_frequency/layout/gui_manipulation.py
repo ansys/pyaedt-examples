@@ -1,12 +1,12 @@
-# # User interface modification
+# # HFSS Layout UI modification
 #
-# This example shows how to modify the 3D Layout user interface.
+# This example shows how to modify the HFSS 3D Layout UI.
 # <img src="_static/user_interface.png" width="600">
 #
-# Keywords: **HFSS 3D Layout**, **User interface**.
+# Keywords: **HFSS 3D Layout**, **UI**, **user interface**.
 
-# # Preparation
-# Import required packages
+# ## Perform imports and define constants
+# Perform required imports.
 
 # +
 
@@ -19,7 +19,7 @@ from ansys.aedt.core.downloads import download_file
 
 # -
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
@@ -28,7 +28,7 @@ NG_MODE = True  # Open AEDT UI when it is launched.
 # Check if AEDT is launched in graphical mode.
 
 if not NG_MODE:
-    print("Warning: this example requires graphical mode enabled.")
+    print("Warning: This example requires graphical mode enabled.")
     sys.exit()
 
 # Download example board.
@@ -66,7 +66,7 @@ h3d.modeler.fit_all()
 
 # ## Disable component visibility
 
-# Disable component visibility for ``"1_Top"`` and ``"16_Bottom"`` layers.
+# Disable component visibility for the ``"1_Top"`` and ``"16_Bottom"`` layers.
 
 top = h3d.modeler.layers.layers[h3d.modeler.layers.layer_id("1_Top")]
 top.is_visible_component = False
@@ -74,7 +74,7 @@ top.is_visible_component = False
 bot = h3d.modeler.layers.layers[h3d.modeler.layers.layer_id("16_Bottom")]
 bot.is_visible_component = False
 
-# ## Display the Layout
+# ## Display the layout
 #
 # Fit all so that you can visualize all.
 

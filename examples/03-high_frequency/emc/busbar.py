@@ -5,7 +5,7 @@
 #
 # Keywords: **Q3D**, **EMC*, **busbar**.
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports.
 
@@ -15,7 +15,7 @@ import time
 
 import ansys.aedt.core
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
@@ -23,7 +23,8 @@ NG_MODE = False
 
 # ## Create temporary directory
 #
-# Create temporary directory.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -125,9 +126,9 @@ sweep.props["RangeEnd"] = "100MHz"
 sweep.props["RangeStep"] = "5MHz"
 sweep.update()
 
-# ### Setup for postprocessing
+# ### Set up for postprocessing
 #
-# Specify the traces that will be displayed after solving the model.
+# Specify the traces to display after solving the model.
 
 data_plot_self = q3d.matrices[0].get_sources_for_plot(
     get_self_terms=True, get_mutual_terms=False
@@ -136,7 +137,7 @@ data_plot_mutual = q3d.get_traces_for_plot(
     get_self_terms=False, get_mutual_terms=True, category="C"
 )
 
-# Define a plot and a data table in Electronics Desktop for visualizing results.
+# Define a plot and a data table in AEDT for visualizing results.
 
 q3d.post.create_report(expressions=data_plot_self)
 q3d.post.create_report(

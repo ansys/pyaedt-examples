@@ -97,9 +97,9 @@ via_outer = hfss.modeler.create_cylinder(
 # You can easily assign a boundary to a face or to an object by taking advantage of
 # Object-Oriented Programming (OOP) available in PyAEDT.
 
-# ### Assign perfect e to sheets
+# ### Assign Perfect E boundary to sheets
 #
-# Assign perfect e to sheets.
+# Assign a Perfect E boundary to sheets.
 
 hfss.assign_perfecte_to_sheets(patch)
 

@@ -1,4 +1,4 @@
-# # Classify Interference Type
+# # Interference type classification
 #
 # This example shows how to load an existing AEDT EMIT
 # design and analyze the results to classify the

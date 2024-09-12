@@ -5,7 +5,7 @@
 #
 # Keywords: **Maxwell 3D**, **DC**.
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports.
 
@@ -15,7 +15,7 @@ import time
 
 from ansys.aedt.core import Maxwell3d
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
@@ -24,7 +24,8 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
-# The temporary directory is used to run the example and save simulation data.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -33,7 +34,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # ## Launch AEDT
 #
 # Create an instance of the ``Maxwell3d`` class named ``m3d`` by providing
-# the project name, the version and the graphical mode.
+# the project name, the version, and the graphical mode.
 
 project_name = os.path.join(temp_folder.name, "conductor_example.aedt")
 m3d = Maxwell3d(
@@ -51,22 +52,18 @@ m3d.solution_type = m3d.SOLUTIONS.Maxwell3d.ElectroDCConduction
 
 # ## Create conductor
 #
-# Create a conductor using "copper" which is pre-defined in the Maxwell material library.
+# Create a conductor using copper, a predefined material in the Maxwell material library.
 
 conductor = m3d.modeler.create_box(
     origin=[7, 4, 22], sizes=[10, 5, 30], name="Conductor", material="copper"
 )
 
 # ## Create setup and assign voltage
-#
-# Create the setup and assign a voltage.
 
 m3d.assign_voltage(assignment=conductor.faces, amplitude=0)
 m3d.create_setup()
 
 # ## Plot model
-#
-# Plot the model.
 
 m3d.plot(
     show=False,
@@ -75,8 +72,6 @@ m3d.plot(
 )
 
 # ## Solve setup
-#
-# Solve the setup.
 
 m3d.analyze(cores=NUM_CORES)
 

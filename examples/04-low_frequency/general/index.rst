@@ -1,7 +1,7 @@
 General
 ~~~~~~~
 
-These examples use PyAEDT to show some general examples
+These examples use PyAEDT to show some general applications.
 
 .. nbgallery::
 

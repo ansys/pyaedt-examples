@@ -1,14 +1,14 @@
 # # Dynamic ROM
 #
-# This example shows how to use PyAEDT to create a dynamic ROM in Twin Builder
-# and run a Twin Builder time-domain simulation.
+# This example shows how to use PyAEDT to create a dynamic reduced order model (ROM)
+# in Twin Builder and run a Twin Builder time-domain simulation.
 #
-# > **Note:** This example uses functionality only available in Twin
-# > Builder 2023 R2 and later.
+# **Note:** This example uses functionality only available in Twin
+# Builder 2023 R2 and later.
 #
 # Keywords: **Twin Builder**, **Dynamic ROM**.
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports.
 
@@ -20,7 +20,7 @@ import time
 import ansys.aedt.core
 import matplotlib.pyplot as plt
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
@@ -28,7 +28,8 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
-# Create temporary directory.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -36,12 +37,12 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Set up input data
 #
-# Define needed file name
+# Define the file name.
 
 source_snapshot_data_zipfilename = "Ex1_Mechanical_DynamicRom.zip"
 source_build_conf_file = "dynarom_build.conf"
 
-# Download data from example_data repository
+# Download data from the ``example_data`` repository.
 
 _ = ansys.aedt.core.downloads.download_twin_builder_data(
     file_name=source_snapshot_data_zipfilename,
@@ -52,7 +53,7 @@ source_data_folder = ansys.aedt.core.downloads.download_twin_builder_data(
     source_build_conf_file, True, temp_folder.name
 )
 
-# Toggle these for local testing
+# Toggle these for local testing.
 
 data_folder = os.path.join(source_data_folder, "Ex03")
 
@@ -69,7 +70,7 @@ shutil.copyfile(
 # ## Launch Twin Builder and build ROM component
 #
 # Launch Twin Builder using an implicit declaration and add a new design with
-# a default setup for building the dynamic ROM component.
+# the default setup for building the dynamic ROM component.
 
 project_name = os.path.join(temp_folder.name, "dynamic_rom.aedt")
 tb = ansys.aedt.core.TwinBuilder(
@@ -79,16 +80,16 @@ tb = ansys.aedt.core.TwinBuilder(
     new_desktop=True,
 )
 
-# ## Desktop Configuration
+# ## Configure AEDT
 #
-# > **Note:** Only run following cell if AEDT is not configured to run _"Twin Builder"_.
-# >
-# > The following cell configures Electronics Desktop (AEDT) and the schematic editor
-# > to use the _"Twin Builder"_ configuration.
-# > The dynamic ROM feature is only available with a Twin Builder license.
-# > A cell at the end of this example restores the AEDT configuration. If your
-# > environment is set up
-# > to use the _"Twin Builder"_ configuration, you do not need to run these sections.
+# **Note:** Only run the following cell if AEDT is not configured to run Twin Builder.
+# 
+# The following cell configures AEDT and the schematic editor
+# to use the ``Twin Builder`` configuration.
+# The dynamic ROM feature is only available with a Twin Builder license.
+# A cell at the end of this example restores the AEDT configuration. If your
+# environment is set up to use the ``Twin Builder`` configuration, you do not
+# need to run these code blocks.
 # >
 
 current_desktop_config = tb._odesktop.GetDesktopConfiguration()
@@ -96,15 +97,15 @@ current_schematic_environment = tb._odesktop.GetSchematicEnvironment()
 tb._odesktop.SetDesktopConfiguration("Twin Builder")
 tb._odesktop.SetSchematicEnvironment(1)
 
-# Get the dynamic ROM builder object
+# Get the dynamic ROM builder object.
 rom_manager = tb._odesign.GetROMManager()
 dynamic_rom_builder = rom_manager.GetDynamicROMBuilder()
 
-# Build the dynamic ROM with specified configuration file
+# Build the dynamic ROM with the specified configuration file.
 conf_file_path = os.path.join(data_folder, source_build_conf_file)
 dynamic_rom_builder.Build(conf_file_path.replace("\\", "/"))
 
-# Test if ROM was created successfully
+# Test if the ROM was created successfully
 dynamic_rom_path = os.path.join(data_folder, "DynamicRom.dyn")
 if os.path.exists(dynamic_rom_path):
     tb._odesign.AddMessage(
@@ -115,7 +116,7 @@ else:
         "Info", "path does not exist: {}".format(dynamic_rom_path), ""
     )
 
-# Create the ROM component definition in Twin Builder
+# Create the ROM component definition in Twin Builder.
 rom_manager.CreateROMComponent(dynamic_rom_path.replace("\\", "/"), "dynarom")
 
 
@@ -123,15 +124,15 @@ rom_manager.CreateROMComponent(dynamic_rom_path.replace("\\", "/"), "dynarom")
 #
 # Place components to create a schematic.
 
-# Define the grid distance for ease in calculations
+# Define the grid distance for ease in calculations.
 
 G = 0.00254
 
-# Place a dynamic ROM component
+# Place a dynamic ROM component.
 
 rom1 = tb.modeler.schematic.create_component("ROM1", "", "dynarom", [36 * G, 28 * G])
 
-# Place two excitation sources
+# Place two excitation sources.
 
 source1 = tb.modeler.schematic.create_periodic_waveform_source(
     None, "PULSE", 190, 0.002, "300deg", 210, 0, [20 * G, 29 * G]
@@ -140,14 +141,14 @@ source2 = tb.modeler.schematic.create_periodic_waveform_source(
     None, "PULSE", 190, 0.002, "300deg", 210, 0, [20 * G, 25 * G]
 )
 
-# Connect components with wires
+# Connect components with wires.
 
 tb.modeler.schematic.create_wire([[22 * G, 29 * G], [33 * G, 29 * G]])
 tb.modeler.schematic.create_wire(
     [[22 * G, 25 * G], [30 * G, 25 * G], [30 * G, 28 * G], [33 * G, 28 * G]]
 )
 
-# Zoom to fit the schematic
+# Zoom to fit the schematic.
 tb.modeler.zoom_to_fit()
 
 # ## Parametrize transient setup
@@ -159,8 +160,6 @@ tb.set_hmin("1s")
 tb.set_hmax("1s")
 
 # ## Solve transient setup
-#
-# Solve the transient setup.
 
 tb.analyze_setup("TR", cores=NUM_CORES)
 
@@ -190,10 +189,10 @@ plt.show()
 # After the simulation is completed, you can close Twin Builder or release it.
 # All methods provide for saving the project before closing.
 
-# Clean up the downloaded data
+# Clean up the downloaded data.
 shutil.rmtree(source_data_folder)
 
-# Restore earlier desktop configuration and schematic environment
+# Restore the earlier AEDT configuration and schematic environment.
 tb._odesktop.SetDesktopConfiguration(current_desktop_config)
 tb._odesktop.SetSchematicEnvironment(current_schematic_environment)
 

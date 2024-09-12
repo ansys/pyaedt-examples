@@ -1,11 +1,11 @@
 # # PCB AC analysis
 
 # This example shows how to use PyAEDT to create a design in
-# Q3D Extractor and run a simulation starting from an EDB Project.
+# Q3D Extractor and run a simulation starting from an EDB project.
 #
 # Keywords: **Q3D**, **PCB**.
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports.
 
@@ -16,7 +16,7 @@ import time
 import ansys.aedt.core
 import pyedb
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
@@ -24,15 +24,16 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
-# Create temporary directory.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ## Setup project files and path
+# ## Set up project files and path
 #
-# Download of needed project file and setup of temporary project directory.
+# Download needed project file and set up temporary project directory.
 
 # +
 project_dir = os.path.join(temp_folder.name, "edb")
@@ -45,9 +46,9 @@ output_edb = os.path.join(project_dir, project_name + ".aedb")
 output_q3d = os.path.join(project_dir, project_name + "_q3d.aedt")
 # -
 
-# ## Open EDB
+# ## Open EDB and create cutout
 #
-# Open the edb project and created a cutout on the selected nets
+# Open the EDB project and create a cutout on the selected nets
 # before exporting to Q3D.
 
 edb = pyedb.Edb(aedb_project, edbversion=AEDT_VERSION)
@@ -59,10 +60,10 @@ cutout_points = edb.cutout(
 )
 
 
-# ## Identify the position of pins
+# ## Identify locations of pins
 #
 # Identify $(x,y)$ pin locations on the components to define where to assign sources
-# and sinks for Q3D and append Z elevation.
+# and sinks for Q3D.
 
 pin_u13_scl = [
     i for i in edb.components["U13"].pins.values() if i.net_name == "CLOCK_I2C_SCL"
@@ -77,9 +78,9 @@ pin_u1_sda = [
     i for i in edb.components["U1"].pins.values() if i.net_name == "CLOCK_I2C_SDA"
 ]
 
-# ## Append Z Positions
+# ## Append Z elevation positions
 #
-# Note: The factor 1000 converts from "meters" to "mm"
+# **Note:** The factor 1000 converts from meters to millimeters.
 
 # +
 location_u13_scl = [i * 1000 for i in pin_u13_scl[0].position]
@@ -95,9 +96,9 @@ location_u1_sda = [i * 1000 for i in pin_u1_sda[0].position]
 location_u1_sda.append(edb.components["U1"].upper_elevation * 1000)
 # -
 
-# ## Save and close the EDB
+# ## Save and close EDB
 #
-# Save, close Edb and open it in Hfss 3D Layout to generate the 3D model.
+# Save and close EDB. Then, open the EDB project in HFSS 3D Layout to generate the 3D model.
 
 # +
 edb.save_edb()
@@ -111,7 +112,7 @@ h3d = ansys.aedt.core.Hfss3dLayout(
 # ## Set up the Q3D Project
 #
 # Use HFSS 3D Layout to export the model to Q3D Extractor. The named parameter
-# ``keep_net_name=True`` ensures that net names are retained when the model is exported from Hfss 3D Layout.
+# ``keep_net_name=True`` ensures that net names are retained when the model is exported from HFSS 3D Layout.
 
 setup = h3d.create_setup()
 setup.export_to_q3d(output_q3d, keep_net_name=True)
@@ -128,7 +129,7 @@ q3d.plot(
     plot_air_objects=False,
 )
 
-# Use previously calculated position to identify faces and
+# Use the previously calculated positions to identify faces and
 # assign sources and sinks on nets.
 
 f1 = q3d.modeler.get_faceid_from_position(location_u13_scl, assignment="CLOCK_I2C_SCL")
@@ -151,14 +152,14 @@ sweep.add_subrange(
 )
 setup.analyze(num_cores=NUM_CORES)
 
-# ### Solve
+# ## Solve
 #
 # Compute AC inductance and resistance.
 
 traces_acl = q3d.post.available_report_quantities(quantities_category="ACL Matrix")
 solution = q3d.post.get_solution_data(traces_acl)
 
-# ## Post-Processing
+# ## Postprocess
 #
 # Plot AC inductance and resistance.
 

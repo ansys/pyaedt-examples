@@ -1,20 +1,24 @@
 # # HFSS-Mechanical MRI analysis
 #
-# The goal of this example is to use a coil tuned to 63.8 MHz to determine the temperature
+# This example uses a coil tuned to 63.8 MHz to determine the temperature
 # rise in a gel phantom near an implant given a background SAR of 1 W/kg.
 #
-# Steps to follow
-# Step 1: Simulate coil loaded by empty phantom:
-# Scale input to coil ports to produce desired background SAR of 1 W/kg at location
-# that will later contain the implant.
-# Step 2: Simulate coil loaded by phantom containing implant in proper location:
-# View SAR in tissue surrounding implant.
-# Step 3: Thermal simulation:
-# Link HFSS to transient thermal solver to find temperature rise in tissue near implant vs. time.
-#
-# Keywords: **Multiphysics**, **HFSS**, **Mechanical AEDT**, **Circuit**.
+# Here is the workflow:
 
-# ## Perform required imports
+# Step 1: Simulate the coil loaded by the empty phantom:
+# Scale input to coil ports to produce desired background SAR of 1 W/kg at the location
+# that is to contain the implant.
+
+# Step 2: Simulate the coil loaded by the phantom containing the implant in the proper location:
+# View SAR in the tissue surrounding implant.
+
+# Step 3: Thermal simulation:
+# Link HFSS to the transient thermal solver to find the temperature rise in the tissue near the implant
+# versus the time.
+#
+# Keywords: **multiphysics**, **HFSS**, **Mechanical AEDT**, **Circuit**.
+
+# ## Perform imports and define constants
 # Perform required imports.
 
 # +
@@ -26,7 +30,7 @@ from ansys.aedt.core import Hfss, Icepak, Mechanical, downloads
 
 # -
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
@@ -35,21 +39,20 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
-# Create a temporary directory where we store downloaded data or
-# dumped data.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 
-# ## Project load
+# ## Load project
 #
-# Open ANSYS Electronics Desktop
-# Open project background_SAR.aedt
-# Project contains phantom and airbox
-# Phantom consists of two objects: phantom and implant_box
-# Separate objects are used to selectively assign mesh operations
+# Open AEDT and the ``background_SAR.aedt`` project. This project
+# contains the phantom and airbox. The phantom consists of two objects: ``phantom`` and ``implant_box``.
+#
+# Separate objects are used to selectively assign mesh operations.
 # Material properties defined in  this project already contain electrical and thermal properties.
 
 project_path = downloads.download_file(source="mri", destination=temp_folder.name)
@@ -63,22 +66,23 @@ hfss = Hfss(
 
 # ## Insert 3D component
 #
-# The MRI Coil is saved as a separate 3D Component
-# ‒ 3D Components store geometry (including parameters),
+# The MRI coil is saved as a separate 3D component.
+
+# ‒ 3D components store geometry (including parameters),
 # material properties, boundary conditions, mesh assignments,
-# and excitations
-# ‒ 3D Components make it easy to reuse and share parts of a simulation
+# and excitations.
+# ‒ 3D components make it easy to reuse and share parts of a simulation.
 
 component_file = os.path.join(project_path, "coil.a3dcomp")
 hfss.modeler.insert_3d_component(input_file=component_file)
 
-# ## Expression Cache
+# ## Define convergence criteria
 #
-#  On the expression cache tab, define additional convergence criteria for self
-#  impedance of the four coil
-# ports
-# ‒ Set each of these convergence criteria to 2.5 ohm
-# For this demo number of passes is limited to 2 to reduce simulation time.
+#  On the **Expression Cache** tab, define additional convergence criteria for self
+#  impedance of the four coil ports.
+
+# Set each of these convergence criteria to 2.5 ohm.
+# This example limits the number of passes to two to reduce simulation time.
 
 # +
 im_traces = hfss.get_traces_for_plot(
@@ -96,28 +100,28 @@ hfss.setups[0].enable_expression_cache(
 hfss.setups[0].props["MaximumPasses"] = 1
 # -
 
-# ## Edit Sources
+# ## Edit sources
 #
-# The 3D Component of the MRI Coil contains all the ports,
+# The 3D component of the MRI coil contains all the ports,
 # but the sources for these ports are not yet defined.
-# Browse to and select sources.csv.
-# These sources were determined by tuning this coil at 63.8 MHz.
-# Notice the “*input_scale” multiplier to allow quick adjustment of the coil excitation power.
+# Browse to and select the ``sources.csv`` file.
+# The sources in this file were determined by tuning the coil at 63.8 MHz.
+# Notice that ``input_scale`` is a multiplier that lets you quickly adjust the coil excitation power.
 
 hfss.edit_sources_from_file(os.path.join(project_path, "sources.csv"))
 
-# ## Run Simulation
+# ## Run simulation
 #
 # Save and analyze the project.
 
 hfss.save_project(project_file=os.path.join(project_path, "solved.aedt"))
 hfss.analyze(cores=NUM_CORES)
 
-# ## Plot SAR on Cut Plane in Phantom
+# ## Plot SAR on cut plane in phantom
 #
-# Ensure that the SAR averaging method is set to Gridless
-# Plot averagedSAR on GlobalYZ plane
-# Draw Point1 at origin of the implant coordinate system
+# Ensure that the SAR averaging method is set to ``Gridless``.
+# Plot ``Average_SAR`` on the global YZ plane.
+# Draw ``Point1`` at the origin of the implant coordinate system.
 
 # +
 hfss.sar_setup(
@@ -144,12 +148,13 @@ plot = hfss.post.plot_field(
 )
 # -
 
-# ## Adjust Input Power to MRI Coil
+# ## Adjust input Power to MRI coil
 #
-# The goal is to adjust the MRI coil’s input power, so that the averageSAR at Point1 is 1 W/kg
-# Note that SAR and input power are linearly related
-# To determine required input, calculate
-# input_scale = 1/AverageSAR at Point1
+# Adjust the MRI coil’s input power so that the average SAR at ``Point1`` is 1 W/kg.
+# Note that the SAR and input power are linearly related.
+#
+# To determine therequired input, calculate 
+# ``input_scale = 1/AverageSAR`` at ``Point1``.
 
 # +
 sol_data = hfss.post.get_solution_data(
@@ -163,10 +168,10 @@ sol_data.data_real()
 hfss["input_scale"] = 1 / sol_data.data_real()[0]
 # -
 
-# ## Phantom with Implant
+# ## Analyze phantom with implant
 #
-# Import implant geometry.
-# Subtract rod from implant_box.
+# Import the implant geometry.
+# Subtract the rod from the implant box.
 # Assign titanium to the imported object rod.
 # Analyze the project.
 
@@ -179,16 +184,16 @@ hfss.analyze(cores=NUM_CORES)
 hfss.save_project()
 # -
 
-# ## Thermal Simulation
+# ## Run a thermal simulation
 #
-# Initialize a new Mechanical Transient Thermal analysis.
-# Mechanical Transient Thermal is available in AEDT from 2023 R2 as a Beta feature.
+# Initialize a new Mechanical transient thermal analysis.
+# This type of analysis is available in AEDT in 2023 R2 and later as a beta feature.
 
 mech = Mechanical(solution_type="Transient Thermal", version=AEDT_VERSION)
 
 # ## Copy geometries
 #
-# Copy bodies from the HFSS project. 3D Component will not be copied.
+# Copy bodies from the HFSS project. The 3D component is not copied.
 
 mech.copy_solid_bodies_from(hfss)
 
@@ -208,9 +213,9 @@ mech.assign_uniform_convection(
     assignment=mech.modeler["Region"].faces, convection_value=1
 )
 
-# ## Create Setup
+# ## Create setup
 #
-# Create a new setup and edit properties.
+# Create a setup and edit properties.
 
 # +
 setup = mech.create_setup()
@@ -226,16 +231,16 @@ setup.props["SaveFieldsType"] = "Every N Steps"
 setup.props["N Steps"] = "2"
 # -
 
-# ## Analyze Mechanical
+# ## Analyze project
 #
-# Analyze the project.
+# Analyze the Mechanical project.
 
 mech.analyze(cores=NUM_CORES)
 
-# ## Plot Fields
+# ## Plot fields
 #
-# Plot Temperature on cut plane.
-# Plot Temperature on point.
+# Plot the temperature on cut plane.
+# Plot the temperature on the point.
 
 # +
 mech.post.create_fieldplot_cutplane(
@@ -265,16 +270,16 @@ mech.post.plot_animated_field(
 )
 # -
 
-# ## Thermal Simulation
+# ## Run a new thermal simulation
 #
-# Initialize a new Icepak Transient Thermal analysis.
+# Initialize a new Icepak transient thermal analysis.
 
 ipk = Icepak(solution_type="Transient", version=AEDT_VERSION)
 ipk.design_solutions.problem_type = "TemperatureOnly"
 
 # ## Copy geometries
 #
-# Copy bodies from the HFSS project. 3D Component will not be copied.
+# Copy bodies from the HFSS project. The 3D component is not copied.
 
 ipk.modeler.delete("Region")
 ipk.copy_solid_bodies_from(hfss)
@@ -292,10 +297,10 @@ ipk.assign_em_losses(
     surface_objects=ipk.get_all_conductors_names(),
 )
 
-# ## Create Setup
+# ## Create setup
 #
-# Create a new setup and edit properties.
-# Simulation will be for 30 seconds.
+# Create a setup and edit properties.
+# Simulation takes 30 seconds.
 
 # +
 setup = ipk.create_setup()
@@ -306,9 +311,9 @@ setup.props["Time Step"] = 5
 setup.props["Convergence Criteria - Energy"] = 1e-12
 # -
 
-# ## Mesh Region
+# ## Create mesh region
 #
-# Create a new mesh region and change accuracy level to 4.
+# Create a mesh region and change the accuracy level to 4.
 
 bound = ipk.modeler["implant_box"].bounding_box
 mesh_box = ipk.modeler.create_box(
@@ -321,9 +326,9 @@ mesh_region.UserSpecifiedSettings = False
 mesh_region.Level = 4
 mesh_region.update()
 
-# ## n Point Monitor
+# ## Create point monitor
 #
-# Create a new point monitor.
+# Create a point monitor.
 
 ipk.modeler.set_working_coordinate_system("implant")
 ipk.monitor.assign_point_monitor(point_position=[0, 0, 0], monitor_name="Point1")
@@ -332,8 +337,8 @@ ipk.assign_openings(ipk.modeler["Region"].top_face_z)
 # ## Analyze and plot fields
 #
 # Analyze the project.
-# Plot Temperature on cut plane.
-# Plot Temperature on monitor point.
+# Plot the temperature on the cut plane.
+# Plot the temperature on the monitor point.
 
 # +
 ipk.analyze(cores=NUM_CORES, tasks=4)

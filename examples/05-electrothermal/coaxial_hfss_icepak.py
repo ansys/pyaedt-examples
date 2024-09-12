@@ -5,7 +5,7 @@
 #
 # Keywords: **Multiphysics**, **HFSS**, **Icepak**.
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports.
 
@@ -16,7 +16,7 @@ import time
 import ansys.aedt.core
 from ansys.aedt.core.generic.pdf import AnsysReport
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
@@ -24,8 +24,8 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
-# Create a temporary directory where we store downloaded data or
-# dumped data.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -45,11 +45,12 @@ hfss = ansys.aedt.core.Hfss(
     solution_type="Modal",
 )
 
-# ## Parameters
+# ## Define parameters
 #
 # Parameters can be instantiated by defining them as a key used for the application
-# instance as demonstrated below. The prefix ``$`` is used to define
-# project-wide scope for the parameter. Otherwise the parameter scope is limited the current design.
+# instance as demonstrated in the following code. The prefix ``$`` is used to define
+# a project-wide scope for the parameter. Otherwise, the parameter scope is limited to
+# the current design.
 
 hfss["$coax_dimension"] = "100mm"  # Project-wide scope.
 udp = hfss.modeler.Position(0, 0, 0)
@@ -58,9 +59,9 @@ hfss["inner"] = "3mm"  # Local "Design" scope.
 # ## Create coaxial and cylinders
 #
 # Create a coaxial and three cylinders. You can apply parameters
-# directly using the `ansys.aedt.core.modeler.Primitives3D.Primitives3D.create_cylinder`
+# directly using the `ansys.aedt.core.modeler.Primitives3D.Primitives3D.create_cylinder()`
 # method. You can assign a material directly to the object creation action.
-# Optionally, you can assign a material using the `assign_material` method.
+# Optionally, you can assign a material using the `assign_material()` method.
 
 o1 = hfss.modeler.create_cylinder(
     orientation=hfss.PLANE.ZX,
@@ -113,13 +114,12 @@ o3.material_name = "Copper"
 hfss.modeler.subtract(o3, o2, True)
 hfss.modeler.subtract(o2, o1, True)
 
-# ## Assign Mesh Operations
+# ## Assign mesh operations
 #
-# Most mesh operations are accessible using the ``mesh`` property
+# Most mesh operations are accessible using the ``mesh`` property,
 # which is an instance of the ``ansys.aedt.core.modules.MeshIcepak.IcepakMesh`` class.
 #
-# This example demonstrates the use of several common mesh
-# operations.
+# This code shows how to use several common mesh operations.
 
 hfss.mesh.assign_initial_mesh_from_slider(level=6)
 hfss.mesh.assign_model_resolution(assignment=[o1.name, o3.name], defeature_length=None)
@@ -127,12 +127,12 @@ hfss.mesh.assign_length_mesh(
     assignment=o2.faces, inside_selection=False, maximum_length=1, maximum_elements=2000
 )
 
-# ## Create HFSS Sources
+# ## Create HFSS sources
 #
-# The RF power dissipated in the HFSS model will act as the thermal
-# source for in Icepak. The ``create_wave_port_between_objects`` method
-# s used to assign the RF ports that inject RF power into the HFSS
-# model. If the parameter ``add_pec_cap=True``, then the method
+# The RF power dissipated in the HFSS model acts as the thermal
+# source for in Icepak. The ``create_wave_port_between_objects()`` method
+# is used to assign the RF ports that inject RF power into the HFSS
+# model. If ``add_pec_cap=True``, then the method
 # creates a perfectly conducting (lossless) cap covering the port.
 
 # +
@@ -158,10 +158,10 @@ port_names = hfss.get_all_sources()
 hfss.modeler.fit_all()
 # -
 
-# ## HFSS Simulation Setup
+# ## Set up simulation
 #
-# Create a setup. A setup is created with default values. After its creation,
-# you can change values and update the setup. The ``update`` method returns a Boolean
+# Create a HFSS setup with default values. After its creation,
+# you can change values and update the setup. The ``update()`` method returns a Boolean
 # value.
 
 hfss.set_active_design(hfss.design_name)
@@ -170,9 +170,9 @@ setup.props["Frequency"] = "1GHz"
 setup.props["BasisOrder"] = 2
 setup.props["MaximumPasses"] = 1
 
-# ## HFSS Frequency Sweep
+# ## Create frequency sweep
 #
-# The frequency sweep defines the RF frequency range over which the RF power is
+# The HFSS frequency sweep defines the RF frequency range over which the RF power is
 # injected into the structure.
 
 sweepname = hfss.create_linear_count_sweep(
@@ -187,15 +187,15 @@ sweepname = hfss.create_linear_count_sweep(
 # ## Create Icepak model
 #
 # After an HFSS setup has been defined, the model can be lnked to an Icepak
-# design and the coupled physics analysis can be run. The `FieldAnalysis3D.copy_solid_bodies_from()`
-# method imports a model from HFSS into Icepak including all material definitions.
+# design. The coupled physics analysis can then be run. The `FieldAnalysis3D.copy_solid_bodies_from()`
+# method imports a model from HFSS into Icepak, including all material definitions.
 
 ipk = ansys.aedt.core.Icepak(design="CalcTemp", version=AEDT_VERSION)
 ipk.copy_solid_bodies_from(hfss)
 
-# ## Link RF Thermal Source
+# ## Link RF thermal source
 #
-# The RF loss in HFSS will be used as the thermal source in Icepak.
+# The RF loss in HFSS is used as the thermal source in Icepak.
 
 surfaceobj = ["inner", "outer"]
 ipk.assign_em_losses(
@@ -207,30 +207,29 @@ ipk.assign_em_losses(
     parameters=["$coax_dimension", "inner"],
 )
 
-# ## Assign the Direction of Gravity
+# ## Set direction of gravity
 #
 # Set the direction of gravity for convection in Icepak. Gravity drives a temperature gradient
 # due to the dependence of gas density on temperature.
 
 ipk.edit_design_settings(hfss.GRAVITY.ZNeg)
 
-# ## Set up the Icepak Project
+# ## Set up Icepak Project
 #
 # The initial solution setup applies default values that can subsequently
-# be modified as shown here.
+# be modified as shown in the following code.
 # The ``props`` property enables access to all solution settings.
 #
-# The ``update`` function
-# applies the settings to the setup. The setup creation process is identical
-# for all tools.
+# The ``update`` function applies the settings to the setup. The setup creation
+# process is identical for all tools.
 
 setup_ipk = ipk.create_setup("SetupIPK")
 setup_ipk.props["Convergence Criteria - Max Iterations"] = 3
 
-# ### Icepak Solution Properties
+# ### Access Icepak solution properties
 #
-# The setup properties are accessible through the ``props`` property as
-# an ordered dict. The ``keys()`` method can be used to retrieve all settings for
+# Setup properties are accessible through the ``props`` property as
+# an ordered dictionary. You can use the ``keys()`` method to retrieve all settings for
 # the setup.
 #
 # Find properties that contain the string ``"Convergence"`` and print the default values.
@@ -240,7 +239,7 @@ print("Here are some default setup properties:")
 for p in conv_props:
     print('"' + p + '" -> ' + str(setup_ipk.props[p]))
 
-# ### Edit or Review Mesh Parameters
+# ### Edit or review mesh parameters
 #
 # Edit or review the mesh parameters. After a mesh is created, you can access
 # a mesh operation to edit or review parameter values.
@@ -250,14 +249,14 @@ ipk.modeler[airbox].display_wireframe = True
 airfaces = ipk.modeler.get_object_faces(airbox)
 ipk.assign_openings(airfaces)
 
-# Save project and attach to Icepak instance
+# Save the project and attach to the Icepak instance.
 
 hfss.save_project()
 ipk = ansys.aedt.core.Icepak(version=AEDT_VERSION)
 ipk.solution_type = ipk.SOLUTIONS.Icepak.SteadyTemperatureAndFlow
 ipk.modeler.fit_all()
 
-# ## Solve the Project
+# ## Solve models
 #
 # Solve the Icepak and HFSS models.
 
@@ -266,7 +265,7 @@ hfss.save_project()
 hfss.modeler.fit_all()
 hfss.setups[0].analyze()
 
-# ### Plot and Export Results
+# ### Plot and export results
 #
 # Generate field plots in the HFSS project and export them as images.
 
@@ -327,7 +326,7 @@ end_time = time.time() - start
 print("Total Time", end_time)
 # -
 
-# ## Postprocessing
+# ## Postprocess
 #
 # Create Icepak plots and export them as images using the same functions that
 # were used early. Only the quantity is different.
@@ -364,21 +363,21 @@ pdf_report = AnsysReport(
     project_name=hfss.project_name, design_name=hfss.design_name, version=AEDT_VERSION
 )
 
-# Create report
+# Create the report.
 
 pdf_report.create()
 
-# Add section for plots
+# Add a section for plots.
 
 pdf_report.add_section()
-pdf_report.add_chapter("Hfss Results")
-pdf_report.add_sub_chapter("Field Plot")
-pdf_report.add_text("This section contains Field plots of Hfss Coaxial.")
+pdf_report.add_chapter("HFSS Results")
+pdf_report.add_sub_chapter("Field plot")
+pdf_report.add_text("This section contains field plots of HFSS Coaxial.")
 pdf_report.add_image(
-    os.path.join(temp_folder.name, plot1.name + ".jpg"), caption="Coaxial Cable"
+    os.path.join(temp_folder.name, plot1.name + ".jpg"), caption="Coaxial cable"
 )
 
-# Add a page break and a subchapter for S Parameter results
+# Add a page break and a subchapter for S Parameter results.
 
 pdf_report.add_page_break()
 pdf_report.add_sub_chapter("S Parameters")
@@ -394,14 +393,14 @@ pdf_report.add_image(
     caption="Touchstone from Matplotlib",
 )
 
-# Add a new section for Icepak results
+# Add a new section for Icepak results.
 
 pdf_report.add_section()
 pdf_report.add_chapter("Icepak Results")
 pdf_report.add_sub_chapter("Temperature Plot")
 pdf_report.add_text("This section contains Multiphysics temperature plot.")
 
-# Add table of content and save PDF.
+# Add table of content and save the PDF.
 
 pdf_report.add_toc()
 pdf_report.save_pdf(file_path=temp_folder.name, file_name="AEDT_Results.pdf")

@@ -1,6 +1,6 @@
 # # Channel Operating Margin (COM)
 # This example shows how to use PyAEDT for COM analysis.
-# Supported standards are as below:
+# These standards are supported:
 #
 # - 50GAUI_1_C2C
 # - 100GAUI_2_C2C
@@ -11,11 +11,11 @@
 
 # <img src="_static\com_eye.png" width="500">
 
-# ## What is COM
+# ## What is COM?
 #
 # - COM was developed as part of IEEE 802.3bj, 100GBASE Ethernet.
-# - COM is a figure of merit for an S-parameter representing a high speed SerDes channel.
-# - COM is the ratio between eye height and noise
+# - COM is a figure of merit for an S-parameter representing a high-speed SerDes channel.
+# - COM is the ratio between eye height and noise.
 
 # ```math
 # COM = 20 * log10 (A_signal / A_noise)
@@ -23,8 +23,8 @@
 #
 # Keywords: **COM**, **signal integrity**, **virtual compliance**.
 
-# ## Preparation
-# Import required packages
+# ## Perform imports
+# Perform required imports.
 
 import os
 import tempfile
@@ -33,7 +33,12 @@ from ansys.aedt.core.generic.spisim import SpiSim
 from ansys.aedt.core.misc.spisim_com_configuration_files import com_parameters
 from pyedb.misc.downloads import download_file
 
-# Download example files into temporary folder
+# ## Create temporary directory and download example files
+#
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``
 
 # +
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
@@ -61,14 +66,15 @@ next_11_9 = download_file(
 # -
 
 # ## Run COM analysis
-# PyAEDT calls SPISim for COM analysis. Please check PyAEDT documentation for supported standards.
-# Set port_order="EvenOdd" when S-parameter has below port order.
+# PyAEDT calls SPISim for COM analysis. For supported standardes, see the PyAEDT documentation.
+
+# Set ``port_order="EvenOdd"`` when the S-parameter has this port order:
 #
 # 1 - 2
 #
 # 3 - 4
 #
-# Set port_order="Incremental" when S-parameter has below port order.
+# Set ``port_order="Incremental"`` when the S-parameter has this port order:
 #
 # 1 - 3
 #
@@ -83,15 +89,15 @@ com_results = spi_sim.compute_com(
 )
 
 # ## Print COM values
-# There are two COM values reported by the definition of the standard.
+# There are two COM values reported by the definition of the standard:
 #
-# - Case 0. COM value in dB when big package is used.
-# - Case 1. COM value in dB when small package is used.
+# - Case 0: COM value in dB when big package is used.
+# - Case 1: COM value in dB when small package is used.
 
 print(*com_results)
 
-# ## COM report
-# A complete COM report is generate in temporary folder in html format.
+# ## View COM report
+# A complete COM report is generated in the temporary folder in HTML format.
 
 print(temp_folder.name)
 
@@ -99,7 +105,7 @@ print(temp_folder.name)
 
 # ## Run COM analysis on custom configuration file
 
-# ### Export template configuration file in JSON format.
+# ### Export template configuration file in JSON format
 
 custom_json = os.path.join(temp_folder.name, "custom.json")
 spi_sim.export_com_configure_file(custom_json, standard=1)
@@ -118,7 +124,7 @@ com_results = spi_sim.compute_com(
 print(*com_results)
 
 # ## Export SPISim supported configuration file
-# The exported configuration file can be used in SPISim GUI.
+# You can use the exported configuration file in the SPISim GUI.
 
 # +
 
@@ -128,7 +134,7 @@ custom_cfg = os.path.join(temp_folder.name, "custom.cfg")
 com_param.export_spisim_cfg(custom_cfg)
 # -
 
-# PyAEDT support SPISim cfg file as well.
+# PyAEDT also supports the SPISim configuration file.
 
 com_results = spi_sim.compute_com(
     standard=0, config_file=custom_cfg, port_order="EvenOdd"

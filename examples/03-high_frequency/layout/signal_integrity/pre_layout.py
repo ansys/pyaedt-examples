@@ -1,32 +1,32 @@
-# # Pre-layout Signal Integrity
-# This example shows how to create a parameterized layout design,
-# and load the layout into HFSS 3D Layout for analysis and post-processing.
+# # Pre-layout signal integrity
+# This example shows how to create a parameterized layout design
+# and load the layout into HFSS 3D Layout for analysis and postprocessing.
 #
-# - Create EDB
+# - Create EDB:
 #
-#     - Add material
-#     - Create stackup
-#     - Create a parameterized via padstack definition
-#     - Create ground planes
-#     - Create a component
-#     - Create signal vias and traces
-#     - Create ground stitching vias
-#     - Create HFSS analysis setup and frequency sweep
+#     - Add material.
+#     - Create stackup.
+#     - Create a parameterized via padstack definition.
+#     - Create ground planes.
+#     - Create a component.
+#     - Create signal vias and traces.
+#     - Create ground stitching vias.
+#     - Create HFSS analysis setup and frequency sweep.
 #
-# - Import EDB into HFSS 3D Layout
+# - Import EDB into HFSS 3D Layout:
 #
-#     - Place SMA connector
-#     - Analysis
-#     - Plot return loss
+#     - Place SMA connector.
+#     - Analyze.
+#     - Plot return loss.
 
 # Here is an image of the model that is created in this example.
 #
 # <img src="_static/pre_layout_sma_connector_on_pcb.png" width="600">
 #
-# Keywords: **HFSS 3D Layout**, **Signal Integrity**.
+# Keywords: **HFSS 3D Layout**, **signal integrity**.
 
-# ## Preparation
-# Import the required packages
+# ## Perform imports and define constants
+# Perform required packages.
 
 # +
 import os
@@ -39,14 +39,19 @@ from pyedb import Edb
 
 # -
 
-# Set constant values
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 
-# Download example board.
+# ## Create temporary directory and download example files
+#
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 sma_rf_connector = download_file(
@@ -56,7 +61,7 @@ sma_rf_connector = download_file(
 )
 
 
-# # Create a layout design
+# # Create layout design
 
 # ## Import example design
 
@@ -90,14 +95,14 @@ edbapp.stackup.create_symmetric_stackup(
 
 # ## Create parameterized padstack definition
 
-# Create signal via padstack definition
+# Create signal via padstack definition.
 
 edbapp["$antipad"] = "0.7mm"
 edbapp.padstacks.create(
     padstackname="svia", holediam="0.3mm", antipaddiam="$antipad", paddiam="0.5mm"
 )
 
-# Create component pin padstack definition
+# Create component pin padstack definition.
 
 edbapp.padstacks.create(
     padstackname="comp_pin",
@@ -192,13 +197,13 @@ comp_u1.create_clearance_on_component(extra_soldermask_clearance=3.5e-3)
 
 # ## Place vias
 
-# Place a signal via
+# Place a signal via.
 
 edbapp.padstacks.place(
     position=[0, 0], definition_name="svia", net_name="SIG", is_pin=False
 )
 
-# Place ground stitching vias
+# Place ground stitching vias.
 
 edbapp.padstacks.place(
     position=["-1mm", 0], definition_name="svia", net_name="GND", is_pin=False
@@ -218,7 +223,7 @@ edbapp.padstacks.place(
 edbapp["width"] = "0.15mm"
 edbapp["gap"] = "0.1mm"
 
-# Signal fanout
+# Create signal fanout.
 
 sig_trace = edbapp.modeler.create_trace(
     path_list=[[0, 0]],
@@ -236,7 +241,7 @@ sig_trace.add_point(x="-0.5mm", y="0.5mm", incremental=True)
 sig_trace.add_point(x=0, y="1mm", incremental=True)
 sig_path = sig_trace.get_center_line()
 
-# Coplanar waveguide with ground with ground stitching vias
+# Create coplanar waveguide with ground with ground stitching vias.
 
 sig2_trace = edbapp.modeler.create_trace(
     path_list=[sig_path[-1]],
@@ -251,7 +256,7 @@ sig2_trace.add_point(x=0, y="6mm", incremental=True)
 sig2_trace.create_via_fence(distance="0.5mm", gap="1mm", padstack_name="svia")
 sig2_trace.add_point(x=0, y="1mm", incremental=True)
 
-# Create trace-to-ground clearance
+# Create trace-to-ground clearance.
 
 sig2_path = sig2_trace.get_center_line()
 path_list = [sig_path, sig2_path]
@@ -266,13 +271,13 @@ for i in path_list:
     )
     edbapp.modeler.add_void(shape=gnd_bottom, void_shape=void)
 
-# Review
+# Generate plot to review.
 
 edbapp.nets.plot()
 
 # ## Create ports
 
-# Create a Wave port
+# Create a wave port.
 
 sig2_trace.create_edge_port(
     name="p1_wave_port",
@@ -290,7 +295,7 @@ setup = edbapp.create_hfss_setup("Setup1")
 setup.set_solution_single_frequency("5GHz", max_num_passes=1, max_delta_s="0.02")
 setup.hfss_solver_settings.order_basis = "first"
 
-# Add a frequency sweep to setup.
+# Add a frequency sweep to the setup.
 #
 # When the simulation results are to
 # be used for transient SPICE analysis, you should
@@ -298,7 +303,7 @@ setup.hfss_solver_settings.order_basis = "first"
 #
 # - DC point
 # - Logarithmic sweep from 1 kHz to 100 MHz
-# - Linear scale for higher frequencies.
+# - Linear scale for higher frequencies
 
 setup.add_frequency_sweep(
     "Sweep1",
@@ -315,7 +320,7 @@ edbapp.close()
 
 # # Analyze in HFSS 3D Layout
 
-# ## Load edb into HFSS 3D Layout.
+# ## Load EDB into HFSS 3D Layout.
 
 h3d = Hfss3dLayout(aedb, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True)
 

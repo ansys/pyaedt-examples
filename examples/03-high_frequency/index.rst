@@ -43,7 +43,7 @@ These end-to-end examples show how to use PyAEDT for high-frequency applications
          :height: 200px
          :align: center
 
-      RF and millimeter wave examples
+      Radio frequency and millimeter wave examples
 
    .. grid-item-card:: EMC
       :padding: 2 2 2 2
