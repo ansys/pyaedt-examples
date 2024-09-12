@@ -190,7 +190,7 @@ plot = m2d.post.create_fieldplot_line_traces(
     plot_name="LineTracesTest",
 )
 
-# ## Update feld line traces plot
+# ## Update field line traces plot
 #
 # Update the field line traces plot.
 # Update the seeding points number, line style, and line width.

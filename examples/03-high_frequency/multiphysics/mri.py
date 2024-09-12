@@ -153,7 +153,7 @@ plot = hfss.post.plot_field(
 # Adjust the MRI coil’s input power so that the average SAR at ``Point1`` is 1 W/kg.
 # Note that the SAR and input power are linearly related.
 #
-# To determine therequired input, calculate 
+# To determine therequired input, calculate
 # ``input_scale = 1/AverageSAR`` at ``Point1``.
 
 # +

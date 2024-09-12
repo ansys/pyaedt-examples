@@ -55,7 +55,7 @@ common_reference_net = "GND"
 
 # ## Load project
 #
-# Check if the AEDT file exists and remove it to allow EDB loading. Thn, load the initial EDB file.
+# Check if the AEDT file exists and remove it to allow EDB loading. Then, load the initial EDB file.
 
 if os.path.isfile(aedt_file):
     os.remove(aedt_file)

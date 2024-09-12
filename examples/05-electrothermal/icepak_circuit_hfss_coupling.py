@@ -18,7 +18,7 @@
 #
 # On the back of the coupling, temperature information
 # is handled differently for HFSS and Circuit.
-# 
+#
 # - For HFSS, a temperature map is exported from the Icepak design and used to create a
 # 3D dataset. Then, the material properties in the HFSS design are updated based on this
 # dataset.

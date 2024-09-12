@@ -156,7 +156,7 @@ new_eye.unit_interval = "1e-9s"
 new_eye.time_stop = "100ns"
 new_eye.create()
 
-# ## Crate eye diagram in Matplotlib
+# ## Create eye diagram in Matplotlib
 #
 # Create the same eye diagram outside AEDT using Matplotlib and the
 # ``get_solution_data()`` method.

@@ -180,7 +180,7 @@ edbapp.configuration.run()
 edbapp.save()
 edbapp.close()
 
-# The configured EDB file is saved in the temporay folder.
+# The configured EDB file is saved in the temporary folder.
 
 print(temp_folder.name)
 

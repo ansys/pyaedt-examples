@@ -83,7 +83,7 @@ tb = ansys.aedt.core.TwinBuilder(
 # ## Configure AEDT
 #
 # **Note:** Only run the following cell if AEDT is not configured to run Twin Builder.
-# 
+#
 # The following cell configures AEDT and the schematic editor
 # to use the ``Twin Builder`` configuration.
 # The dynamic ROM feature is only available with a Twin Builder license.
