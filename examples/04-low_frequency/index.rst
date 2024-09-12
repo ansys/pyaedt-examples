@@ -30,7 +30,7 @@ These end-to-end examples show how you can use PyAEDT for low frequency applicat
          :height: 200px
          :align: center
 
-      This section shows some layout automation examples
+      This section shows some motor examples
 
    .. grid-item-card:: Magnetics
       :padding: 2 2 2 2
@@ -43,21 +43,27 @@ These end-to-end examples show how you can use PyAEDT for low frequency applicat
          :height: 200px
          :align: center
 
-      This section shows some RF and millimeter wave workflows
+      This section shows some Magnetics application examples
 
    .. grid-item-card:: TEAM problems
       :padding: 2 2 2 2
       :link: team_problem/index
       :link-type: doc
 
-      This section shows some T.E.A.M. examples
+      .. image:: _static/TEAM.png
+         :alt: Filter
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      This section show the TEAM problems set by COMPUMAG
 
    .. grid-item-card:: Multiphysics
       :padding: 2 2 2 2
       :link: multiphysics/index
       :link-type: doc
 
-      .. image:: _static/pcb_stress.png
+      .. image:: _static/CFD_coil.png
          :alt: Stress PCB
          :width: 250px
          :height: 200px
