@@ -51,13 +51,20 @@ These end-to-end examples show how to use PyAEDT for low-frequency applications.
       :link-type: doc
 
       T.E.A.M. examples
+      .. image:: _static/TEAM.png
+         :alt: Filter
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      T.E.A.M. problems set by COMPUMAG
 
    .. grid-item-card:: Multiphysics
       :padding: 2 2 2 2
       :link: multiphysics/index
       :link-type: doc
 
-      .. image:: _static/pcb_stress.png
+      .. image:: _static/CFD_coil.png
          :alt: Stress PCB
          :width: 250px
          :height: 200px
