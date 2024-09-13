@@ -1,13 +1,13 @@
 # # Graphic card thermal analysis
 
 # This example shows how to use pyAEDT to create a graphic card setup in
-# Icepak and post-process results.
+# Icepak and postprocess the results.
 # The example file is an Icepak project with a model that is already created and
 # has materials assigned.
 #
 # Keywords: **Icepak**, **boundary conditions**, **postprocessing**, **monitors**.
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports.
 
@@ -19,23 +19,26 @@ import ansys.aedt.core
 import pandas as pd
 from IPython.display import Image
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
-NG_MODE = False  # Do not show the graphical user-interface.
+NG_MODE = False  # Do not show the graphical user interface.
 
-
-# ## Open project
+# ## Create temporary directory and download project
 #
-# Download the project to a temporary folder.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 project_temp_name = ansys.aedt.core.downloads.download_icepak(
     destination=temp_folder.name
 )
-
-# Open the project in without the GUI.
+# ## Open project
+#
+# Open the project without the GUI.
 
 ipk = ansys.aedt.core.Icepak(
     project=project_temp_name,
@@ -46,8 +49,8 @@ ipk = ansys.aedt.core.Icepak(
 
 # ## Plot model and rotate
 #
-# Plot the model using the pyAEDT-pyVista integration and save the result to a file.
-# Rotate the model and plot again the rotated model.
+# Plot the model using the pyAEDT-PyVista integration and save the result to a file.
+# Rotate the model and plot the rotated model again.
 
 # +
 plot1 = ipk.plot(
@@ -65,7 +68,7 @@ plot2 = ipk.plot(
 )
 # -
 
-# ## Boundary conditions
+# ## Define boundary conditions
 #
 # Create source blocks on the CPU and memories.
 
@@ -85,9 +88,9 @@ ipk.assign_velocity_free_opening(
     velocity=["1m_per_sec", "0m_per_sec", "0m_per_sec"],
 )
 
-# ## Mesh Settings
+# ## Assign mesh settings
 #
-# ### Mesh Region
+# ### Assign mesh region
 # Assign a mesh region around the heat sink and CPU.
 
 mesh_region = ipk.mesh.assign_mesh_region(assignment=["HEAT_SINK", "CPU"])
@@ -96,12 +99,12 @@ mesh_region = ipk.mesh.assign_mesh_region(assignment=["HEAT_SINK", "CPU"])
 
 mesh_region.settings
 
-# Set the mesh region settings to manual and see new available settings
+# Set the mesh region settings to manual and see newly available settings.
 
 mesh_region.manual_settings = True
 mesh_region.settings
 
-# Modify settings and update
+# Modify settings and update.
 
 mesh_region.settings["MaxElementSizeX"] = "2mm"
 mesh_region.settings["MaxElementSizeY"] = "2mm"
@@ -111,7 +114,7 @@ mesh_region.settings["MaxLevels"] = "2"
 mesh_region.settings["MinElementsInGap"] = 4
 mesh_region.update()
 
-# Modify the slack of the subregion around the objects
+# Modify the slack of the subregion around the objects.
 
 subregion = mesh_region.assignment
 subregion.positive_x_padding = "20mm"
@@ -121,14 +124,14 @@ subregion.negative_x_padding = "5mm"
 subregion.negative_y_padding = "5mm"
 subregion.negative_z_padding = "10mm"
 
-# ### Global Mesh
-# Set global mesh resolution (using automatic settings) to 4.
+# ### Set global mesh resolution
+# Set the global mesh resolution (using automatic settings) to 4.
 
 ipk.mesh.global_mesh_region.settings["MeshRegionResolution"] = 4
 ipk.mesh.global_mesh_region.update()
 
 
-# ## Point monitors
+# ## Assign monitors
 #
 # Assign a temperature face monitor to the CPU face in contact with the heatsink.
 
@@ -150,7 +153,7 @@ for x_pos in range(0, 82, 2):
 
 # ## Solve project
 #
-# Create a setup, modify solver settings and run the simulation
+# Create a setup, modify solver settings, and run the simulation.
 
 setup1 = ipk.create_setup()
 setup1.props["Flow Regime"] = "Turbulent"
@@ -160,18 +163,18 @@ setup1.props["Linear Solver Type - Temperature"] = "flex"
 ipk.save_project()
 ipk.analyze(setup=setup1.name, cores=NUM_CORES, tasks=NUM_CORES)
 
-# ## PostProcess
+# ## Postprocess
 #
-# ### Quantitative post-processing
+# ### Perform quantitative postprocessing
 
-# Get the point monitor data. A dictionary is returned with 'Min', 'Max' and 'Mean' keys.
+# Get the point monitor data. A dictionary is returned with ``'Min'``, ``'Max'``, and ``'Mean'`` keys.
 
 temperature_data = ipk.post.evaluate_monitor_quantity(
     monitor=m1, quantity="Temperature"
 )
 temperature_data
 
-# It is also possible to get the data as pandas dataframe for advanced post-processing.
+# It is also possible to get the data as a Pandas dataframe for advanced postprocessing.
 
 speed_fs = ipk.post.create_field_summary()
 for m_name in speed_monitors:
@@ -180,7 +183,7 @@ for m_name in speed_monitors:
     )
 speed_data = speed_fs.get_field_summary_data(pandas_output=True)
 
-# All the data is now in a dataframe, easy to visualize and to manipulate.
+# All the data is now in a dataframe, making it easy to visualize and manipulate.
 
 speed_data.head()
 
@@ -218,17 +221,17 @@ for m_name in speed_monitors:
 temperature_fs = temperature_fs.get_field_summary_data(pandas_output=True)
 temperature_fs.head()
 
-# The two DataFrames can be merged using the `pd.merge()` function. With the merge, suffixes are
-# added to the column names to differentiate between the columns from each original DataFrame.
+# The two dataframes can be merged using the `pd.merge()` function. With the merge, suffixes are
+# added to the column names to differentiate between the columns from each original dataframe.
 
 merged_df = pd.merge(
     temperature_fs, speed_data, on="Entity", suffixes=("_temperature", "_speed")
 )
 merged_df.head()
 
-# The column names are renamed based on the 'Quantity' column of the original DataFrames.
-# Finally, only the 'Entity', mean temperature, and mean speed columns are selected and
-# assigned to the merged DataFrame.
+# The column names are renamed based on the ``Quantity`` column of the original dataframes.
+# Finally, only the ``'Entity'``, ``'Mean_temperature'``, and ``'Mean_speed'`` columns are selected and
+# assigned to the merged dataframe.
 
 temperature_quantity = temperature_fs["Quantity"].iloc[0]
 velocity_quantity = speed_data["Quantity"].iloc[0]
@@ -248,7 +251,7 @@ merged_df = merged_df[
 ]
 merged_df.head()
 
-# Compute the correlation coefficient between velocity and temperature from the merged DataFrame
+# Compute the correlation coefficient between velocity and temperature from the merged dataframe
 # and plot a scatter plot to visualize their relationship.
 
 correlation = merged_df[velocity_quantity].corr(merged_df[temperature_quantity])
@@ -258,11 +261,11 @@ ax.set_ylabel(temperature_quantity)
 ax.set_title(f"Correlation between Temperature and Velocity: {correlation:.2f}")
 
 # The further away from the assembly, the faster and colder the air due to mixing.
-# Despite being extremely simple, this example should demonstrate the potential of importing field
-# summary data into pandas.
+# Despite being extremely simple, this example demonstrates the potential of importing field
+# summary data into Pandas.
 
-# ### Qualitative Post-Processing
-# Create a temperature plot on main components and export it to a png file.
+# ### Perform qualitative Postprocessing
+# Create a temperature plot on main components and export it to a PNG file.
 
 surflist = [i.id for i in ipk.modeler["CPU"].faces]
 surflist += [i.id for i in ipk.modeler["MEMORY1"].faces]
@@ -277,7 +280,7 @@ path = plot3.export_image(
 )
 Image(filename=path)  # Display the image
 
-# pyVista can be used to display the temperature map.
+# Use PyVista to display the temperature map.
 
 plot4 = ipk.post.plot_field(
     quantity="Temperature",

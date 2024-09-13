@@ -1,12 +1,13 @@
 # # Asymmetric conductor analysis
 #
 # This example uses PyAEDT to set up the TEAM 7 problem for an asymmetric
-# conductor with a hole and solve it using the Maxwell 3D Eddy Current solver.
-# https://www.compumag.org/wp/wp-content/uploads/2018/06/problem7.pdf
+# conductor with a hole and solve it using the Maxwell 3D eddy current solver.
+# For more information on this problem, see this
+# [paper](https://www.compumag.org/wp/wp-content/uploads/2018/06/problem7.pdf).
 #
 # Keywords: **Maxwell 3D**, **Asymmetric conductor**.
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports.
 
@@ -18,7 +19,7 @@ import numpy as np
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.generic.general_methods import write_csv
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
@@ -26,7 +27,8 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
-# Create temporary directory.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -54,7 +56,7 @@ m3d.modeler.model_units = "mm"
 #
 # Add a Maxwell 3D setup with frequency points at DC, 50 Hz, and 200Hz.
 # Otherwise, the default PyAEDT setup values are used. To approximate a DC field in the
-# Eddy Current solver, use a low frequency value. Second-order shape functions improve
+# eddy current solver, use a low frequency value. Second-order shape functions improve
 # the smoothness of the induced currents in the plate.
 
 # +
@@ -102,8 +104,6 @@ P3 = [dim3, dim3, 0]
 P4 = [dim2, dim1, 0]
 
 # ## Create coordinate system for positioning coil
-#
-# Create a coordinate system for positioning the coil.
 
 m3d.modeler.create_coordinate_system(
     origin=coil_centre, mode="view", view="XY", name="Coil_CS"
@@ -119,8 +119,6 @@ test = m3d.modeler.create_polyline(
 test.set_crosssection_properties(type="Rectangle", width=coil_thk, height=coil_height)
 
 # ## Duplicate and unite polyline to create full coil
-#
-# Duplicate and unit the polyline to create a full coil.
 
 m3d.modeler.duplicate_around_axis(
     assignment="Coil",
@@ -159,7 +157,7 @@ m3d["Coil_Excitation"] = str(Coil_Excitation) + "A"
 m3d.assign_current(assignment="Coil_Section1", amplitude="Coil_Excitation", solid=False)
 m3d.modeler.set_working_coordinate_system("Global")
 
-# ## Add a material
+# ## Add material
 #
 # Add a material named ``team3_aluminium``.
 
@@ -177,7 +175,7 @@ m3d.modeler.fit_all()
 hole = m3d.modeler.create_box(origin=[18, 18, 0], sizes=[108, 108, 19], name="Hole")
 m3d.modeler.subtract(blank_list="Plate", tool_list=["Hole"], keep_originals=False)
 
-# ## Draw a background region
+# ## Draw background region
 #
 # Draw a background region that uses the default properties for an air region.
 
@@ -188,7 +186,7 @@ m3d.modeler.create_air_region(
 # ## Adjust eddy effects for plate and coil
 #
 # Adjust the eddy effects for the plate and coil by turning off displacement currents
-# for all parts. The setting for eddy effect is ignored for the stranded conductor type
+# for all parts. The setting for the eddy effect is ignored for the stranded conductor type
 # used in the coil.
 
 m3d.eddy_effects_on(assignment="Plate")
@@ -233,8 +231,6 @@ l2_mesh.set_crosssection_properties(type="Circle", width=mesh_diameter)
 # -
 
 # ## Plot model
-#
-# Plot the model.
 
 m3d.plot(
     show=False,
@@ -242,7 +238,7 @@ m3d.plot(
     plot_air_objects=False,
 )
 
-# Published measurement results are included with this script via the list below.
+# Published measurement results are included with this script via the following list.
 # Test results are used to create text files for import into a rectangular plot
 # and to overlay simulation results.
 
@@ -455,7 +451,7 @@ data = [
 ]
 # -
 
-# ## Write dataset values in a CSV file
+# ## Write dataset values to a CSV file
 #
 # Dataset details are used to encode test parameters in the text files.
 # For example, ``Bz A1_B1 050 0`` is the Z component of flux density ``B``
@@ -473,8 +469,8 @@ for i in range(len(dataset)):
 # ## Create rectangular plots and import test data into report
 #
 # Create rectangular plots, using text file encoding to control their formatting.
-# Import test data into correct plot and overlay with simulation results.
-# Variations for a DC plot must have different frequency and phase than the other plots.
+# Import test data into the correct plot and overlay with the simulation results.
+# Variations for a DC plot must have a different frequency and phase than the other plots.
 
 for item in range(len(dataset)):
     if item % 2 == 0:

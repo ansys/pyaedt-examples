@@ -1,4 +1,4 @@
-# # Maxwell 3D - Icepak electrothermal analysis
+# # Maxwell 3D-Icepak electrothermal analysis
 #
 # This example uses PyAEDT to set up a simple Maxwell design consisting of a coil and a ferrite core.
 # Coil current is set to 100A, and coil resistance and ohmic loss are analyzed.
@@ -8,7 +8,7 @@
 #
 # Keywords: **Multiphysics**, **Maxwell**, **Icepak**, **Wireless Charging**.
 #
-# ## Set up project
+# ## Perform imports and define constants
 #
 # Perform required imports.
 
@@ -19,26 +19,25 @@ import time
 import ansys.aedt.core
 from ansys.aedt.core.generic.constants import AXIS
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
-# Create a temporary directory where we store downloaded data or
-# dumped data.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ## Launch Application
+# ## Launch application
 #
 # The syntax for different applications in AEDT differ
-# only in the name of the class. In this template we use
-# ``Hfss()``. Modify
-# this text as needed for your example.
+# only in the name of the class. This template uses
+# the ``Hfss()`` class. Modify this text as needed.
 
 # +
 project_name = os.path.join(temp_folder.name, "Maxwell-Icepak-2way-Coupling")
@@ -54,7 +53,7 @@ m3d = ansys.aedt.core.Maxwell3d(
 )
 # -
 
-# ## Model setup
+# ## Set up model
 #
 # Create the coil, coil terminal, core, and region.
 
@@ -78,11 +77,11 @@ core.sweep_around_axis(axis=AXIS.Z)
 region = m3d.modeler.create_region(pad_percent=[20, 20, 20, 20, 500, 100])
 # -
 
-# ### Create a material
+# ### Create and assign material
 #
-# Copper AWG40 Litz wire, strand diameter = 0.08mm,
-# 24 parallel strands. Assign materials: Assign Coil to AWG40 copper,
-# core to ferrite, and region to vacuum.
+# Create a new cooper material: Copper AWG40 Litz wire, strand diameter = 0.08mm,
+# 24 parallel strands. Then assign materials: Assign the coil to AWG40 copper,
+# the core to ferrite, and the region to vacuum.
 
 # +
 no_strands = 24
@@ -99,8 +98,8 @@ m3d.assign_material(coil.name, "copper_litz")
 m3d.assign_material(core.name, "ferrite")
 # -
 
-# Assign coil current, coil consists of 20 turns, total current 10A.
-# Note that each coil turn consists of 24 parallel Litz strands, see above.
+# Assign coil current. The coil consists of 20 turns. The total current is 10A.
+# Note that each coil turn consists of 24 parallel Litz strands as indicated earlier.
 
 # +
 no_turns = 20
@@ -113,7 +112,8 @@ m3d.add_winding_coils(assignment="Winding1", coils=["Coil_terminal"])
 
 # ## Assign mesh operations
 #
-# Mesh operations are not necessary in eddy current solver because of auto-adaptive meshing. However, with appropriate mesh operations, less adaptive passes are needed
+# Mesh operations are not necessary in the eddy current solver because of auto-adaptive meshing.
+# However, with appropriate mesh operations, less adaptive passes are needed
 
 m3d.mesh.assign_length_mesh(
     ["Core"], maximum_length=15, maximum_elements=None, name="Inside_Core"
@@ -131,30 +131,30 @@ cu_litz.conductivity.add_thermal_modifier_free_form(
 
 # ## Set object temperature and enable feedback
 #
-# Set the temperature of the objects to default temperature (22deg C)
+# Set the temperature of the objects to the default temperature (22 degrees C)
 # and enable temperature feedback for two-way coupling.
 
 m3d.modeler.set_objects_temperature(["Coil"], ambient_temperature=22)
 
 # ## Assign matrix
 #
-# Resistance and inductance calculation.
+# Assign matrix for resistance and inductance calculation.
 
 m3d.assign_matrix(["Winding1"], matrix_name="Matrix1")
 
 # ## Create and analyze simulation setup
 #
-# Simulation frequency 150kHz.
+# The simulation frequency is 150 kHz.
 
 setup = m3d.create_setup(name="Setup1")
 setup.props["Frequency"] = "150kHz"
 m3d.analyze_setup("Setup1")
 
-# ## Postprocessing
+# ## Postprocess
 #
 # Calculate analytical DC resistance and compare it with the simulated coil
-# resistance, print them in the message manager, as well as ohmic loss in
-# coil before temperature feedback.
+# resistance. Print them in AEDT Message Manager, along with the ohmic loss in
+# coil before the temperature feedback.
 
 # +
 report = m3d.post.create_report(expressions="Matrix1.R(Winding1,Winding1)")
@@ -167,7 +167,7 @@ em_loss = solution_loss.data_magnitude()[0]
 
 # Analytical calculation of the DC resistance of the coil
 cu_cond = float(cu_litz.conductivity.value)
-# average radius of a coil turn = 0.125m
+# Average radius of a coil turn = 0.125m
 l_conductor = no_turns * 2 * 0.125 * 3.1415
 # R = resistivity * length / area / no_strand
 r_analytical_DC = (
@@ -177,7 +177,7 @@ r_analytical_DC = (
     / no_strands
 )
 
-# Print results in the Message Manager
+# Print results in AEDT Message Manager
 m3d.logger.info(
     "*******Coil analytical DC resistance =  {:.2f}Ohm".format(r_analytical_DC)
 )
@@ -193,9 +193,9 @@ m3d.logger.info(
 )
 # -
 
-# ## Icepak design
+# ## Insert Icepak design
 #
-# Insert Icepak design, copy solid objects from Maxwell, and modify region dimensions.
+# Insert Icepak design, copy solid objects from Maxwell 3D, and modify region dimensions.
 
 # +
 ipk = ansys.aedt.core.Icepak(design=icepak_design_name, version=AEDT_VERSION)
@@ -212,7 +212,7 @@ ipk.modeler.edit_region_dimensions(
 
 # ## Map coil losses
 #
-# Map ohmic losses from Maxwell to the Icepak design.
+# Map ohmic losses from Maxwell 3D to the Icepak design.
 
 ipk.assign_em_losses(
     design="1 Maxwell",
@@ -221,9 +221,9 @@ ipk.assign_em_losses(
     assignment=["Coil"],
 )
 
-# ### Boundary conditions
+# ### Define boundary conditions
 #
-# Assign opening.
+# Assign the opening.
 
 faces = ipk.modeler["Region"].faces
 face_names = [face.id for face in faces]
@@ -231,12 +231,11 @@ ipk.assign_free_opening(face_names, boundary_name="Opening1")
 
 # ### Assign monitor
 #
-# Temperature monitor on
-# the coil surface.
+# Assign the temperature monitor on the coil surface.
 
 temp_monitor = ipk.assign_point_monitor([70, 0, 0], monitor_name="PointMonitor1")
 
-# Icepak solution setup
+# Set up Icepak solution
 
 solution_setup = ipk.create_setup()
 solution_setup.props["Convergence Criteria - Max Iterations"] = 50
@@ -249,16 +248,16 @@ solution_setup.props["Solution Initialization - Z Velocity"] = "0.0005m_per_sec"
 solution_setup.props["Convergence Criteria - Flow"] = 0.0005
 solution_setup.props["Flow Iteration Per Radiation Iteration"] = "5"
 
-# ## Add 2-way coupling and solve the project
+# ## Add two-way coupling and solve the project
 #
-# Enable mapping temperature distribution back to Maxwell. Default number
-# Maxwell <–> Icepak iterations is 2, but for increased accuracy
-# it can be increased (number_of_iterations).
+# Enable mapping temperature distribution back to Maxwell 3D. The default number
+# for Maxwell <–> Icepak iterations is 2. However, for increased accuracy,
+# you can increate the value for the ``number_of_iterations`` parameter.
 
 ipk.assign_2way_coupling()
 ipk.analyze_setup(name=solution_setup.name)
 
-# ## Postprocessing
+# ## Postprocess
 #
 # Plot temperature on the object surfaces.
 
@@ -286,9 +285,9 @@ temp = solution_temp.data_magnitude()[0]
 m3d.logger.info("*******Coil temperature =  {:.2f}deg C".format(temp))
 # -
 
-# ### Get new resistance from Maxwell
+# ### Get new resistance from Maxwell 3D
 #
-# Temperature of the coil increases, and consequently also coil resistance increases.
+# The temperature of the coil increases, and consequently the coil resistance increases.
 
 # +
 report_new = m3d.post.create_report(expressions="Matrix1.R(Winding1,Winding1)")
@@ -319,9 +318,7 @@ m3d.logger.info(
 
 ipk.save_project()
 ipk.release_desktop()
-time.sleep(
-    3
-)  # Allow Electronics Desktop to shut down before cleaning the temporary project folder.
+time.sleep(3)  # Allow AEDT to shut down before cleaning the temporary project folder.
 
 # ## Clean up
 #

@@ -1,4 +1,4 @@
-# # Simulate multi-zone layout with SIwave
+# # Multi-zone simulation with SIwave
 #
 # This example shows how to simulate multiple zones with SIwave.
 #

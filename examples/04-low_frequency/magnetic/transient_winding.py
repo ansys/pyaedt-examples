@@ -10,7 +10,7 @@
 # - [Numpy](https://pypi.org/project/numpy/)
 # - [PyVista](https://pypi.org/project/pyvista/)
 #
-# Install these libraries with:
+# Install these libraries with this command:
 #
 # ```console
 #   pip install numpy pyvista matplotlib
@@ -18,7 +18,7 @@
 #
 # Keywords: **Maxwell 2D**, **transient**, **winding**.
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports.
 
@@ -28,7 +28,7 @@ import time
 
 import ansys.aedt.core
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
@@ -37,16 +37,14 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
-# Create a temporary directory where we store downloaded data or
-# dumped data.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Insert Maxwell 2D design
-#
-# Insert a Maxwell 2D design.
 
 project_name = os.path.join(temp_folder.name, "Transient.aedt")
 m2d = ansys.aedt.core.Maxwell2d(
@@ -58,8 +56,6 @@ m2d = ansys.aedt.core.Maxwell2d(
 )
 
 # ## Create rectangle and duplicate it
-#
-# Create a rectangle and duplicate it.
 
 rect1 = m2d.modeler.create_rectangle(
     origin=[0, 0, 0], sizes=[10, 20], name="winding", material="copper"
@@ -81,8 +77,6 @@ m2d.assign_winding(assignment=[rect1.name, rect2.name], name="PHA")
 m2d.assign_balloon(assignment=region.edges)
 
 # ## Plot model
-#
-# Plot the model.
 
 m2d.plot(
     show=False,
@@ -90,9 +84,7 @@ m2d.plot(
     plot_air_objects=True,
 )
 
-# ## Create setup
-#
-# Create the transient setup.
+# ## Create transient setup
 
 setup = m2d.create_setup()
 setup.props["StopTime"] = "0.02s"
@@ -103,8 +95,6 @@ setup.props["Steps From"] = "0s"
 setup.props["Steps To"] = "0.002s"
 
 # ## Create rectangular plot
-#
-# Create a rectangular plot.
 
 m2d.post.create_report(
     expressions="InputCurrent(PHA)",
@@ -114,14 +104,10 @@ m2d.post.create_report(
 )
 
 # ## Solve model
-#
-# Solve the model.
 
 m2d.analyze(cores=NUM_CORES, use_auto_settings=False)
 
 # ## Create output and plot using PyVista
-#
-# Create the output and plot it using PyVista.
 
 # +
 cutlist = ["Global:XY"]

@@ -1,11 +1,11 @@
 # # Magnet segmentation
 
 # This example shows how to use PyAEDT to segment magnets of an electric motor.
-# The method is valid and usable for any object the user would like to segment.
+# The method is valid and usable for any object you would like to segment.
 #
 # Keywords: **Maxwell 3D**, **Magnet segmentation**.
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports.
 
@@ -15,22 +15,23 @@ import time
 
 from ansys.aedt.core import Maxwell3d, downloads
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
-# Create temporary directory.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ## Download .aedt file example
+# ## Download AEDT file example
 #
-# Set local temporary folder to export the .aedt file to.
+# Set the local temporary folder to export the AEDT file to.
 
 aedt_file = downloads.download_file(
     source="object_segmentation",
@@ -40,7 +41,7 @@ aedt_file = downloads.download_file(
 
 # ## Launch Maxwell 3D
 #
-# Launch Maxwell 3D, providing the version, path to the project and the graphical mode.
+# Launch Maxwell 3D, providing the version, rgw path to the project, and the graphical mode.
 
 m3d = Maxwell3d(
     project=aedt_file,
@@ -49,14 +50,14 @@ m3d = Maxwell3d(
     non_graphical=NG_MODE,
 )
 
-# ## Segment first magnet by specifying the number of segments
+# ## Segment first magnet by specifying number of segments
 #
-# Select first magnet to segment by specifying the number of segments.
-# The method accepts in input either the list of magnets names to segment or
-# magnets ids or the magnet object :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`.
-# ``apply_mesh_sheets`` is enabled which means that the mesh sheets will
-# be applied in the geometry too.
-# In this specific case we give as input the name of the magnet.
+# Select the first magnet to segment by specifying the number of segments.
+# The method accepts as input the list of magnets names to segment,
+# magnet IDs, or the magnet :class:`ansys.aedt.core.modeler.cad.object3d.Object3d` object.
+# When ``apply_mesh_sheets`` is enabled, the mesh sheets are also
+# applied in the geometry.
+# In the following code, the name of the magnet is also given as an input.
 
 segments_number = 2
 object_name = "PM_I1"
@@ -67,10 +68,10 @@ sheets_1 = m3d.modeler.objects_segmentation(
     mesh_sheets=3,
 )
 
-# ## Segment second magnet by specifying the number of segments
+# ## Segment second magnet by specifying number of segments
 #
-# Select second magnet to segment by specifying the number of segments.
-# In this specific case we give as input the id of the magnet.
+# Select the second magnet to segment by specifying the number of segments.
+# The following code gives the ID of the magnet as an input.
 
 segments_number = 2
 object_name = "PM_I1_1"
@@ -79,11 +80,11 @@ sheets_2 = m3d.modeler.objects_segmentation(
     magnet_id, segments=segments_number, apply_mesh_sheets=True
 )
 
-# ## Segment third magnet by specifying the segmentation thickness
+# ## Segment third magnet by specifying segmentation thickness
 #
-# Select third magnet to segment by specifying the segmentation thickness.
-# In this specific case we give as input the magnet object
-# of type `ansys.aedt.core.modeler.cad.object3d.Object3d`.
+# Select the third magnet to segment by specifying the segmentation thickness.
+# The following code gives the magnet object type `ansys.aedt.core.modeler.cad.object3d.Object3d`
+# as an input.
 
 segmentation_thickness = 1
 object_name = "PM_O1"
@@ -92,10 +93,10 @@ sheets_3 = m3d.modeler.objects_segmentation(
     magnet, segmentation_thickness=segmentation_thickness, apply_mesh_sheets=True
 )
 
-# ## Segment fourth magnet by specifying the number of segments
+# ## Segment fourth magnet by specifying number of segments
 #
-# Select fourth magnet to segment by specifying the number of segments.
-# In this specific case we give as input the name of the magnet and we disable the mesh sheets.
+# Select the fourth magnet to segment by specifying the number of segments.
+# The following code gives the name of the magnet as input and disables the mesh sheets.
 
 object_name = "PM_O1_1"
 segments_number = 2

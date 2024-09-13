@@ -1,7 +1,7 @@
 AEDT Motor
 ~~~~~~~~~~
 
-These examples use PyAEDT to show some motor examples in AEDT
+These examples use PyAEDT to show some motor applications in AEDT.
 
 .. nbgallery::
 

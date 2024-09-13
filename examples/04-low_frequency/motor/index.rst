@@ -17,7 +17,7 @@ These examples use PyAEDT to show some motor applications.
          :height: 150px
          :align: center
 
-      End-to-end examples show how to use PyMotorCAD.
+      Links to examples in PyMotorCAD documentation.
 
    .. grid-item-card:: Motor
       :padding: 2 2 2 2

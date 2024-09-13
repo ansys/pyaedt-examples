@@ -3,9 +3,9 @@
 # This example uses PyAEDT to set up a Lorentz actuator
 # and solve it using the Maxwell 2D transient solver.
 #
-# Keywords: **Maxwell2D**, **Transient**, **translational motion**, **mechanical transient**
+# Keywords: **Maxwell2D**, **transient**, **translational motion**, **mechanical transient**
 
-# ## Perform required imports
+# ## Perform imports and define constantss
 #
 # Perform required imports.
 
@@ -15,7 +15,7 @@ import time
 
 import ansys.aedt.core
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
@@ -23,7 +23,8 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
-# Create temporary directory.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -31,9 +32,11 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Initialize dictionaries
 #
-# Initialize electric and geometric parameters for the actuator.
-# Initialize simulation specification.
-# Initialize materials for the actuator component.
+# Initialize the following:
+#
+# - Electric and geometric parameters for the actuator
+# - Simulation specifications
+# - Materials for the actuator component
 
 dimensions = {
     "Core_outer_x": "100mm",
@@ -73,7 +76,7 @@ materials = {
 # Launch AEDT and Maxwell 2D after first setting up the project name.
 # The following code also creates an instance of the
 # ``Maxwell2d`` class named ``m2d`` by providing
-# the project name, the design name, the solver, the version and the graphical mode.
+# the project name, the design name, the solver, the version, and the graphical mode.
 
 project_name = os.path.join(temp_folder.name, "Lorentz_actuator.aedt")
 m2d = ansys.aedt.core.Maxwell2d(
@@ -100,7 +103,7 @@ m2d.variable_manager.set_variable(name="Simulation data")
 for k, v in simulation_specifications.items():
     m2d[k] = v
 
-# Materials.
+# Definem materials.
 
 m2d.variable_manager.set_variable(name="Material data")
 m2d.logger.clear_messages()
@@ -119,7 +122,7 @@ m2d["Materials"] = "[{}]".format(s)
 
 # ## Create geometry
 #
-# Create magnetic core, coils, and magnets. Assign materials and create a new coordinate system to
+# Create magnetic core, coils, and magnets. Assign materials and create a coordinate system to
 # define the magnet orientation.
 
 core_id = m2d.modeler.create_rectangle(
@@ -203,8 +206,8 @@ m2d.add_winding_coils(
 
 # ## Assign motion
 #
-# Create band objects: all the objects within the band move. Inner band ensures that the mesh is good,
-# and additionally it is required when there more than 1 moving objects.
+# Create band objects. All the objects within the band move. The inner band ensures that the mesh is good,
+# and additionally it is required when there is more than one moving object.
 # Assign linear motion with mechanical transient.
 
 band_id = m2d.modeler.create_rectangle(
@@ -245,14 +248,14 @@ m2d.assign_translate_motion(
 
 # ## Create simulation domain
 #
-# Create region and assign zero vector potential on the region edges.
+# Create a region and assign zero vector potential on the region edges.
 
 region_id = m2d.modeler.create_region(pad_percent=2)
 m2d.assign_vector_potential(assignment=region_id.edges, boundary="VectorPotential1")
 
 # ## Assign mesh operations
 #
-# Transient solver does not have adaptive mesh refinement, so the mesh operations have to be assigned.
+# The transient solver does not have adaptive mesh refinement, so the mesh operations must be assigned.
 
 m2d.mesh.assign_length_mesh(
     assignment=[band_id, inner_band_id],
@@ -269,19 +272,17 @@ m2d.mesh.assign_length_mesh(
 
 # ## Turn on eddy effects
 #
-# Assign eddy effects to magnets.
+# Assign eddy effects to the magnets.
 
 m2d.eddy_effects_on(assignment=["magnet_n", "magnet_s"])
 
 # ## Turn on core loss
 #
-# Enable core loss for core.
+# Enable core loss for the core.
 
 m2d.set_core_losses(assignment="Core")
 
-# ## Create setup
-#
-# Create the simulation setup.
+# ## Create simulation setup
 
 setup = m2d.create_setup(name="Setup1")
 setup.props["StopTime"] = "Stop_time"
@@ -293,7 +294,8 @@ setup.props["Steps To"] = "Stop_time"
 
 # ## Create report
 #
-# Create a XY-report with force on coil and the position of the coil on Y-axis, time on X-axis.
+# Create an XY-report with force on the coil, the position of the coil on the Y axis,
+# and time on the X axis.
 
 m2d.post.create_report(
     expressions=["Moving1.Force_x", "Moving1.Position"],
@@ -302,8 +304,6 @@ m2d.post.create_report(
 )
 
 # ## Analyze project
-#
-# Analyze the project.
 
 setup.analyze(cores=NUM_CORES, use_auto_settings=False)
 

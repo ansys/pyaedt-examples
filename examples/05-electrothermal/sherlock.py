@@ -5,9 +5,9 @@
 #
 # Keywords: **Icepak**, **Sherlock**.
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
-# Perform required imports and set paths.
+# Perform required imports.
 
 # +
 import os
@@ -18,32 +18,32 @@ import ansys.aedt.core
 
 # -
 
-# ## Define constants
+# Define constants
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
-# ## Define input files and variables.
+# ## Set paths and define input files and variables
 #
 # Set paths.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 input_dir = ansys.aedt.core.downloads.download_sherlock(destination=temp_folder.name)
 
-# Define input files names.
+# Define input files.
 
 material_name = "MaterialExport.csv"
 component_properties = "TutorialBoardPartsList.csv"
 component_step = "TutorialBoard.stp"
 aedt_odb_project = "SherlockTutorial.aedt"
 
-# Define variables that will be needed later.
+# Define variables that are needed later.
 
 aedt_odb_design_name = "PCB"
 outline_polygon_name = "poly_14188"
 
-# Define input files with path
+# Define input files with paths.
 
 material_list = os.path.join(input_dir, material_name)
 component_list = os.path.join(input_dir, component_properties)
@@ -69,8 +69,8 @@ ipk.create_pcb_from_3dlayout(
 )
 
 # Create an offset coordinate system to match ODB++ with the Sherlock STEP file.
-# The thickness is computed from the ``"Board"`` component (``"Board1"`` is the
-# instance name of the ``"Board"`` native component) and used to offset the coordinate system.
+# The thickness is computed from the ``"Board"`` component. (``"Board1"`` is the
+# instance name of the ``"Board"`` native component and is used to offset the coordinate system.)
 
 bb = ipk.modeler.user_defined_components["Board1"].bounding_box
 stackup_thickness = bb[-1] - bb[2]
@@ -78,7 +78,7 @@ ipk.modeler.create_coordinate_system(
     origin=[0, 0, stackup_thickness / 2], mode="view", view="XY"
 )
 
-# Import the board components from a MCAD file and remove the PCB object as it is already
+# Import the board components from an MCAD file and remove the PCB object as it is already
 # imported with the ECAD.
 
 ipk.modeler.import_3d_cad(file_path, refresh_all_ids=False)
@@ -90,13 +90,13 @@ ipk.mesh.global_mesh_region.global_region.padding_values = [20, 20, 20, 20, 300,
 
 # ## Assign materials and power dissipation conditions from Sherlock
 #
-# Use Sherlock file to assign materials.
+# Use the Sherlock file to assign materials.
 
 ipk.assignmaterial_from_sherlock_files(
     component_file=component_list, material_file=material_list
 )
 
-# Delete objects with no materials assignments.
+# Delete objects with no material assignments.
 
 no_material_objs = ipk.modeler.get_objects_by_material(material="")
 ipk.modeler.delete(assignment=no_material_objs)
@@ -121,8 +121,7 @@ ipk.plot(
 )
 
 # ## Create simulation setup
-# ### Mesh settings
-# Set global mesh settings
+# ### Set global mesh settings
 
 ipk.globalMeshSettings(
     3,
@@ -135,14 +134,14 @@ ipk.globalMeshSettings(
 )
 
 
-# ### Add post-processing object
-# Create point monitor
+# ### Add postprocessing object
+# Create the point monitor.
 
 point1 = ipk.monitor.assign_point_monitor(
     point_position=ipk.modeler["COMP_U10"].top_face_z.center, monitor_name="Point1"
 )
 
-# Create line for reporting after the simulation
+# Create a line for reporting after the simulation.
 
 line = ipk.modeler.create_polyline(
     points=[
@@ -153,8 +152,8 @@ line = ipk.modeler.create_polyline(
 )
 
 # ### Solve
-# Max iterations are set to 20 for quick demonstration, please increase to at
-# least 100 for better accuracy.
+# To solve quickly, the maximum iterations are set to 20. For better accuracy, you
+# can increase the maximum to at least 100.
 
 setup1 = ipk.create_setup()
 setup1.props["Solution Initialization - Y Velocity"] = "1m_per_sec"
@@ -168,18 +167,19 @@ setup1.props["Convergence Criteria - Max Iterations"] = 100
 
 ipk.assign_priority_on_intersections()
 
-# # Analyze the model
+# ## Analyze the model
 
 # ipk.analyze(cores=4, tasks=4)
 # ipk.save_project()
 
-# # ## Post-Processing
-# # Get monitor point result
+# ## Postprocess
+# ### Get monitor point result
 
 # pt_monitor_result = ipk.monitor.all_monitors[point1].value()
 # print(pt_monitor_result)
 
-# # Create a report on the previously defined line and get data from it
+# ### Create report
+# # Create a report on the previously defined line and get data from it.
 
 # report = ipk.post.create_report(
 #     expressions=["Temperature", "Speed"],
@@ -197,7 +197,7 @@ ipk.assign_priority_on_intersections()
 # ]
 # speed = [v for _, v in report_data.full_matrix_mag_phase[0]["Speed"].items()]
 
-# # Plot the data
+# ### Plot data
 
 # fig, ax = plt.subplots(1, 1)
 # sc = ax.scatter(distance, speed, c=temperature)
@@ -207,7 +207,8 @@ ipk.assign_priority_on_intersections()
 # cbar = fig.colorbar(sc)
 # cbar.set_label("Temperature [cel]")
 
-# # Plot contours. The plot can be performed within AEDT...
+# ### Plot contours
+# # You can create the plot within AEDT.
 
 # plot1 = ipk.post.create_fieldplot_surface(
 #     assignment=ipk.modeler["COMP_U10"].faces, quantity="SurfTemperature"
@@ -217,7 +218,7 @@ ipk.assign_priority_on_intersections()
 # )
 # Image(filename=path)  # Display the image
 
-# # ... or using pyvista integration
+# # You can create the plot outside AEDT uding the PyVista integration.
 
 # ipk.post.plot_field(
 #     quantity="SurfPressure",

@@ -1,4 +1,4 @@
-# # Lumped element filter
+# # Lumped element filter design
 #
 # This example shows how to use PyAEDT to use the ``FilterSolutions`` module to design and
 # visualize the frequency response of a band-pass Butterworth filter.

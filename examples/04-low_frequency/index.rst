@@ -17,7 +17,7 @@ These end-to-end examples show how to use PyAEDT for low-frequency applications.
          :height: 200px
          :align: center
 
-      This section shows some general workflows
+      General examples
 
    .. grid-item-card:: Motor
       :padding: 2 2 2 2
@@ -30,7 +30,7 @@ These end-to-end examples show how to use PyAEDT for low-frequency applications.
          :height: 200px
          :align: center
 
-      This section shows some layout automation examples
+      Motor examples
 
    .. grid-item-card:: Magnetics
       :padding: 2 2 2 2
@@ -43,14 +43,14 @@ These end-to-end examples show how to use PyAEDT for low-frequency applications.
          :height: 200px
          :align: center
 
-      This section shows some RF and millimeter wave workflows
+      Magnetics examples
 
-   .. grid-item-card:: TEAM problems
+   .. grid-item-card:: T.E.A.M
       :padding: 2 2 2 2
       :link: team_problem/index
       :link-type: doc
 
-      This section shows some T.E.A.M. examples
+      T.E.A.M. examples
 
    .. grid-item-card:: Multiphysics
       :padding: 2 2 2 2
@@ -63,7 +63,7 @@ These end-to-end examples show how to use PyAEDT for low-frequency applications.
          :height: 200px
          :align: center
 
-      This section shows some multiphysics examples
+      Multiphysics examples
 
    .. grid-item-card:: Report
       :padding: 2 2 2 2
@@ -76,7 +76,7 @@ These end-to-end examples show how to use PyAEDT for low-frequency applications.
          :height: 200px
          :align: center
 
-      This section shows report examples
+      Report examples
 
    .. toctree::
       :hidden:

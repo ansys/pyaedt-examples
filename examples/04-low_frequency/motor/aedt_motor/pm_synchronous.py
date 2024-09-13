@@ -1,11 +1,11 @@
 # # PM synchronous motor transient analysis
 #
 # This example shows how to use PyAEDT to create a Maxwell 2D transient analysis for
-# an interior permanent magnet electric motor.
+# an interior permanent magnet (PM) electric motor.
 #
 # Keywords: **Maxwell 2D**, **transient**, **motor**.
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports.
 
@@ -17,16 +17,16 @@ from operator import attrgetter
 
 import ansys.aedt.core
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
-# ## Create temporary directory
+# ## Create temporary directory and download files
 #
-# Create a temporary directory where we store downloaded data or
-# dumped data.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -36,7 +36,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 #
 # Dictionaries contain all the definitions for the design variables and output variables.
 
-# ## Initialize definitions for stator, rotor, and shaft
+# ## Initialize definitions for th stator, rotor, and shaft
 #
 # Initialize geometry parameter definitions for the stator, rotor, and shaft.
 # The naming refers to RMxprt primitives.
@@ -123,8 +123,6 @@ m2d = ansys.aedt.core.Maxwell2d(
 )
 
 # ## Define modeler units
-#
-# Define modeler units.
 
 m2d.modeler.model_units = "mm"
 
@@ -162,9 +160,9 @@ mat_coils.permeability = "1"
 # ## Create second material
 #
 # Create the material ``"Arnold_Magnetics_N30UH_80C"``.
-# The BH curve is read from a tabbed CSV file, and a list (``BH_List_PM``)
+# The BH curve is read from a tabbed CSV file. A list named ``BH_List_PM``
 # is created. This list is passed to the ``mat_PM.permeability.value``
-# method.
+# variable.
 
 mat_PM = m2d.materials.add_material(name="Arnold_Magnetics_N30UH_80C_new")
 mat_PM.update()
@@ -206,7 +204,7 @@ mat_lam.permeability.value = BH_List_lam
 # ## Create geometry for stator
 #
 # Create the geometry for the stator. It is created via
-# the RMxprt user-defined primitive. A list of lists is
+# the RMxprt user-defined primitive (UDP). A list of lists is
 # created with the proper UDP parameters.
 
 # +
@@ -252,7 +250,7 @@ stator_id = m2d.modeler.create_udp(
 # ## Assign properties to stator
 #
 # Assign properties to the stator. The following code assigns
-# the material, name, color, and  ``solve_inside`` properties.
+# the ``material``, ``name``, ``color``, and  ``solve_inside`` properties.
 
 m2d.assign_material(assignment=stator_id, material="30DH_20C_smooth")
 stator_id.name = "Stator"
@@ -344,8 +342,6 @@ m2d.modeler.duplicate_and_mirror(
 id_PMs = m2d.modeler.get_objects_w_string(string_name="PM", case_sensitive=True)
 
 # ## Create coils
-#
-# Create the coils.
 
 coil_id = m2d.modeler.create_rectangle(
     origin=["DiaRotorLam/2+Airgap+Coil_SetBack", "-Coil_Edge_Short/2", 0],
@@ -361,8 +357,6 @@ coil_id.duplicate_around_axis(
 id_coils = m2d.modeler.get_objects_w_string(string_name="Coil", case_sensitive=True)
 
 # ## Create shaft and region
-#
-# Create the shaft and region.
 
 region_id = m2d.modeler.create_circle(
     origin=[0, 0, 0],
@@ -582,8 +576,6 @@ ph_b_current = "IPeak * cos(2*pi * ElectricFrequency*time - 120deg+Theta_i)"
 ph_c_current = "IPeak * cos(2*pi * ElectricFrequency*time - 240deg+Theta_i)"
 
 # ## Define windings in phase A
-#
-# Define windings in phase A.
 
 m2d.assign_coil(
     assignment=["Coil"],
@@ -610,8 +602,6 @@ m2d.add_winding_coils(
 )
 
 # ## Define windings in phase B
-#
-# Define windings in phase B.
 
 m2d.assign_coil(
     assignment="Coil_3",
@@ -638,8 +628,6 @@ m2d.add_winding_coils(
 )
 
 # ## Define windings in phase C
-#
-# Define windings in phase C.
 
 m2d.assign_coil(
     assignment="Coil_1",
@@ -674,8 +662,6 @@ for item in PM_list:
     m2d.assign_current(assignment=item, amplitude=0, solid=True, name=item + "_I0")
 
 # ## Create mesh operations
-#
-# Create the mesh operations.
 
 m2d.mesh.assign_length_mesh(
     assignment=id_coils,
@@ -700,42 +686,30 @@ m2d.mesh.assign_length_mesh(
 )
 
 # ## Turn on eddy effects
-#
-# Turn on eddy effects.
 
 # m2d.eddy_effects_on(eddy_effects_list,activate_eddy_effects=True,
 #                     activate_displacement_current=False)
 
 # ## Turn on core loss
-#
-# Turn on core loss.
 
 core_loss_list = ["Rotor", "Stator"]
 m2d.set_core_losses(core_loss_list, core_loss_on_field=True)
 
 # ## Compute transient inductance
-#
-# Compute the transient inductance.
 
 m2d.change_inductance_computation(
     compute_transient_inductance=True, incremental_matrix=False
 )
 
 # ## Set model depth
-#
-# Set the model depth.
 
 m2d.model_depth = "Magnetic_Axial_Length"
 
 # ## Set symmetry factor
-#
-# Set the symmetry factor.
 
 m2d.change_symmetry_multiplier("SymmetryFactor")
 
 # ## Create setup and validate
-#
-# Create the setup and validate it.
 
 # +
 setup_name = "MySetupAuto"
@@ -756,7 +730,7 @@ model.plot(os.path.join(temp_folder.name, "Image.jpg"))
 # ## Initialize definitions for output variables
 #
 # Initialize the definitions for the output variables.
-# These will be used later to generate reports.
+# These are used later to generate reports.
 
 output_vars = {
     "Current_A": "InputCurrent(Phase_A)",
@@ -800,21 +774,15 @@ output_vars = {
 }
 
 # ## Create output variables for postprocessing
-#
-# Create output variables for postprocessing.
 
 for k, v in output_vars.items():
     m2d.create_output_variable(k, v)
 
 # ## Initialize definition for postprocessing plots
-#
-# Initialize the definition for postprocessing plots.
 
 post_params = {"Moving1.Torque": "TorquePlots"}
 
 # ## Initialize definition for postprocessing multiplots
-#
-# Initialize the definition for postprocessing multiplots.
 
 post_params_multiplot = {  # reports
     ("U_A", "U_B", "U_C", "Ui_A", "Ui_B", "Ui_C"): "PhaseVoltages",
@@ -863,9 +831,7 @@ post_params_multiplot = {  # reports
     ): "SolidLoss",
 }
 
-# ## Create report
-#
-# Create a report.
+# ## Create report.
 
 for k, v in post_params.items():
     m2d.post.create_report(
@@ -884,8 +850,6 @@ for k, v in post_params.items():
     )
 
 # ## Create multiplot report
-#
-# Create a multiplot report.
 
 # +
 # for k, v in post_params_multiplot.items():
@@ -898,8 +862,6 @@ for k, v in post_params.items():
 # -
 
 # ## Analyze and save project
-#
-# Analyze and save the project.
 
 m2d.save_project()
 m2d.analyze_setup(setup_name, use_auto_settings=False, cores=NUM_CORES)
@@ -926,7 +888,7 @@ m2d.post.plot_field_from_fieldplot(plot1.name, show=False)
 # ## Get solution data
 #
 # Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
-# Plot the desired expression by using Matplotlib plot().
+# Plot the desired expression by using the Matplotlib ``plot()`` function.
 
 solutions = m2d.post.get_solution_data(
     expressions="Moving1.Torque", primary_sweep_variable="Time"
@@ -942,7 +904,7 @@ avg = sum(mag) / len(mag)
 
 # ## Export a report to a file
 #
-# Export a 2D Plot data to a .csv file.
+# Export 2D plot data to a CSV file.
 
 m2d.post.export_report_to_file(
     output_dir=temp_folder.name, plot_name="TorquePlots", extension=".csv"

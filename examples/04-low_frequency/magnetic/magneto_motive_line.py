@@ -2,14 +2,14 @@
 #
 # This example shows how to use PyAEDT to calculate
 # the magnetomotive force along a line that changes position.
-# It shows how to leverage PyAEDT advanced fields calculator
-# to insert a custom formula, in this case the integral
-# of the H field along a line
-# and compute the field for each position with a parametric sweep.
+# It shows how to leverage the PyAEDT advanced fields calculator
+# to insert a custom formula, which in this case is the integral
+# of the H field along a line. It computes the field for each position
+# with a parametric sweep.
 #
 # Keywords: **Maxwell 2D**, **magnetomotive force**.
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports.
 
@@ -19,7 +19,7 @@ import time
 
 import ansys.aedt.core
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
@@ -27,8 +27,8 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
-# Create a temporary directory where we store downloaded data or
-# dumped data.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -36,7 +36,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Import project
 #
-# The files required to run this example will be downloaded into the temporary working folder.
+# Download the files required to run this example to the temporary working folder.
 
 project_path = ansys.aedt.core.downloads.download_file(
     source="maxwell_magnetic_force",
@@ -55,15 +55,15 @@ m2d = ansys.aedt.core.Maxwell2d(
     design="Maxwell2DDesign1",
 )
 
-# ## Create a new design variable
+# ## Create a design variable
 #
-# Parametrize polyline x position.
+# Parametrize the polyline x position.
 
 m2d["xl"] = "10mm"
 
-# ## Create a polyline
+# ## Create polyline
 #
-# Create a polyline specifying its points.
+# Create a polyline, specifying its points.
 
 poly = m2d.modeler.create_polyline(
     points=[["xl", -10, 0], ["xl", 10, 0]], name="polyline"
@@ -74,7 +74,7 @@ poly = m2d.modeler.create_polyline(
 model = m2d.plot(show=False)
 model.plot(os.path.join(temp_folder.name, "Image.jpg"))
 
-# ## Add a parametric sweep
+# ## Add parametric sweep
 #
 # Add a parametric sweep where the parameter to sweep is ``xl``.
 # Create a linear step sweep from ``10mm`` to ``15mm`` every ``1mm`` step.
@@ -89,7 +89,7 @@ param_sweep = m2d.parametrics.add(
 
 # ## Compute magnetomotive force along the line
 #
-# Create and add a new formula to add in PyAEDT advanced fields calculator.
+# Create and add a new formula to add in the PyAEDT advanced fields calculator.
 
 quantity = "H_field_{}".format(poly.name)
 my_expression = {
@@ -120,10 +120,10 @@ param_sweep.add_calculation(calculation=quantity, report_type="Fields", ranges={
 
 param_sweep.analyze(cores=NUM_CORES)
 
-# ## Create a data table report
+# ## Create data table report
 #
 # Create a data table report to display H for each polyline position.
-# Afterward export results in a .csv file.
+# Afterwards, export results to a CSV file.
 
 report = m2d.post.create_report(
     expressions=quantity,

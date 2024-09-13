@@ -3,12 +3,12 @@
 # This example shows how to use PyAEDT to create a Maxwell 2D
 # magnetostatic analysis to calculate transformer leakage
 # inductance and reactance.
-# The analysis based on this document form page 8 on:
-# https://www.ee.iitb.ac.in/~fclab/FEM/FEM1.pdf
+# The analysis based on this document is from page 8 in Professor S. V.
+# Kulkami's paper, [Basis of Finite Element Method](https://www.ee.iitb.ac.in/~fclab/FEM/FEM1.pdf).
 #
 # Keywords: **Maxwell 2D**, **transformer**, **motor**.
 
-# ## Perform required imports
+# ## Perform imports and define constants
 
 import os
 import tempfile
@@ -16,7 +16,7 @@ import time
 
 from ansys.aedt.core import Maxwell2d
 
-# ## Define constants
+# Define constants,
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
@@ -25,8 +25,8 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
-# Create a temporary directory where we store downloaded data or
-# dumped data.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -34,8 +34,8 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Initialize and launch Maxwell 2D
 #
-# Initialize and launch Maxwell 2D, providing the version, path to the project, the design
-# name and type.
+# Initialize and launch Maxwell 2D, providing the version, the path to the project, the design
+# name, and the type.
 
 # +
 
@@ -113,7 +113,7 @@ for k, v in specifications.items():
 
 # ## Create design geometries
 #
-# Create transformer core, HV and LV windings, and the region.
+# Create the transformer core, the HV and LV windings, and the region.
 
 # +
 core = m2d.modeler.create_rectangle(
@@ -173,14 +173,14 @@ m2d.mesh.assign_length_mesh(
 
 # ## Define excitations
 #
-# Assign the same current in amp-turns but in opposite directions to HV and LV windings.
+# Assign the same current in amp-turns but in opposite directions to the HV and LV windings.
 
 m2d.assign_current(assignment=lv, amplitude="Amp_turns", name="LV")
 m2d.assign_current(assignment=hv, amplitude="Amp_turns", name="HV", swap_direction=True)
 
-# ## Create and analyze the setup
+# ## Create and analyze setup
 #
-# Create and analyze the setup. Setu no. of minimum passes to 3 to ensure accuracy.
+# Create and analyze the setup. Set the number of minimum passes to 3 to ensure accuracy.
 
 m2d.create_setup(name="Setup1", MinimumPasses=3)
 m2d.analyze_setup(use_auto_settings=False, cores=NUM_CORES)
@@ -239,7 +239,7 @@ m2d.post.create_report(
 )
 # -
 
-# ## Print leakage inductance and reactance values in the Message Manager
+# ## Print leakage inductance and reactance values in AEDT Message Manager
 
 m2d.logger.clear_messages()
 m2d.logger.info(

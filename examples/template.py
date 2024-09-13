@@ -9,7 +9,7 @@
 #
 # Keywords: **Template**, **Jupyter**
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports.
 
@@ -19,7 +19,7 @@ import time
 
 import ansys.aedt.core
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
@@ -27,7 +27,8 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
-# Create temporary directory.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -35,8 +36,8 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch AEDT and application
 #
-# Create an instance of the application (i.e. ``Maxwell3d``,``Hfss`` etc.)
-# class named (``m3d``,``hfss`` etc.) by providing
+# Create an instance of the application (such as ``Maxwell3d`` or``Hfss``)
+# with a class (such as ``m3d`` or``hfss``) by providing
 # the project and design names, the solver, and the version.
 
 project_name = os.path.join(temp_folder.name, "my_project.aedt")
@@ -50,16 +51,16 @@ m3d = ansys.aedt.core.Maxwell3d(
 )
 m3d.modeler.model_units = "mm"
 
-# ## Pre-Processing
+# ## Preprocess
 #
-# Description of pre-processing task.
-# Add as many sections as needed for pre-processing tasks.
+# Description of preprocessing task.
+# Add as many sections as needed for preprocessing tasks.
 
 
-# ## Post-Processing
+# ## Postprocess
 #
-# Description of post-processing task.
-# Add as many sections as needed for post-processing tasks.
+# Description of postprocessing task.
+# Add as many sections as needed for postprocessing tasks.
 
 
 # ## Release AEDT

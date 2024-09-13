@@ -1,11 +1,11 @@
 # # Transformer
 
 # This example shows how to use PyAEDT to set core loss given a set
-# of Power-Volume [kw/m^3] curves at different frequencies.
+# of power-volume [kw/m^3] curves at different frequencies.
 #
 # Keywords: **Maxwell 3D**, **Transformer**.
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports.
 
@@ -17,24 +17,23 @@ from ansys.aedt.core import Maxwell3d, downloads
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.general_methods import read_csv_pandas
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NG_MODE = False
 
 # ## Create temporary directory
 #
-# The temporary directory is used to run the example and save simulation data. If you run
-# this example as a Jupyter Notebook you can recover the project data and results by copying
-# the contents of the temporary folder to a local drive prior to executing the final cell of this
-# notebook.
-# The temporary folder name is given by ``temp_folder.name``.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ## Download .aedt file example
+# ## Download AEDT file example
 #
-# The files required to run this example will be downloaded to the temporary working folder.
+# Download the files required to run this example to the temporary working folder.
 
 # +
 aedt_file = downloads.download_file(
@@ -78,7 +77,7 @@ curves_csv_1MHz = list(zip(data[data.columns[0]], data[data.columns[1]]))
 # ## Launch AEDT and Maxwell 3D
 #
 # Create an instance of the ``Maxwell3d`` class named ``m3d`` by providing
-# the project and design names, the version and the graphical mode.
+# the project and design names, the version, and the graphical mode.
 
 m3d = Maxwell3d(
     project=aedt_file,
@@ -90,9 +89,9 @@ m3d = Maxwell3d(
 
 # ## Set core loss at frequencies
 #
-# Create a new material, create a dictionary of Power-Volume [kw/m^3] points
-# for a set of frequencies
-# retrieved from datasheet provided by supplier and finally set Power-Ferrite core loss model.
+# Create a new material, create a dictionary of power-volume [kw/m^3] points
+# for a set of frequencies retrieved from datasheet provided by a supplier,
+# and finally set the Power-Ferrite core loss model.
 
 mat = m3d.materials.add_material("newmat")
 freq_25kHz = unit_converter(

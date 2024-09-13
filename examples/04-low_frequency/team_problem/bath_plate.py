@@ -1,12 +1,13 @@
 # # Bath plate analysis
 #
 # This example uses PyAEDT to set up the TEAM 3 bath plate problem and
-# solve it using the Maxwell 3D Eddy Current solver.
-# https://www.compumag.org/wp/wp-content/uploads/2018/06/problem3.pdf
+# solve it using the Maxwell 3D eddy current solver.
+# # For more information on this problem, see this
+# [paper](https://www.compumag.org/wp/wp-content/uploads/2018/06/problem3.pdf).
 #
 # Keywords: **Maxwell 3D**, **TEAM 3 bath plate**
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
 # Perform required imports.
 
@@ -16,7 +17,7 @@ import time
 
 import ansys.aedt.core
 
-# ## Define constants
+# Define constants.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
@@ -24,7 +25,8 @@ NG_MODE = True  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
-# Create temporary directory.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
 # the temporary folder name is given by ``temp_folder.name``.
 
@@ -49,7 +51,7 @@ uom = m3d.modeler.model_units = "mm"
 
 # ## Add variable
 #
-# Add a design variable named ``Coil_Position`` that you use later to adjust the
+# Add a design variable named ``Coil_Position`` to use later to adjust the
 # position of the coil.
 
 Coil_Position = -20
@@ -89,8 +91,6 @@ m3d.modeler.subtract(
 )
 
 # ## Add mesh refinement to ladder plate
-#
-# Add a mesh refinement to the ladder plate.
 
 # m3d.mesh.assign_length_mesh(
 #     assignment="LadderPlate",
@@ -249,8 +249,6 @@ solutions = m3d.post.get_solution_data(
 # -
 
 # ## Set up sweep value and plot solution
-#
-# Set up a sweep value and plot the solution.
 
 solutions.active_variation["Coil_Position"] = -0.02
 solutions.plot()
