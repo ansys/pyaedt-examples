@@ -281,9 +281,9 @@ modeler.create_polyline(
     name="Compound_Polyline_One_Command",
 )
 
-# ## Insert two 3-point arcs forming a circle and covered
+# ## Insert two 3-point arcs forming a circle
 #
-# Insert two 3-point arcs forming a circle and covered.
+# Insert two 3-point arcs forming a circle.
 # Note that the last point of the second arc segment is not defined in
 # the position list.
 
