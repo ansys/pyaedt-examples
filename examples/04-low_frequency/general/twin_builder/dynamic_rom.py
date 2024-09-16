@@ -3,8 +3,8 @@
 # This example shows how to use PyAEDT to create a dynamic reduced order model (ROM)
 # in Twin Builder and run a Twin Builder time-domain simulation.
 #
-# **Note:** This example uses functionality only available in Twin
-# Builder 2023 R2 and later.
+# > **Note:** This example uses functionality only available in Twin
+# > Builder 2023 R2 and later.
 #
 # Keywords: **Twin Builder**, **Dynamic ROM**.
 
@@ -82,15 +82,14 @@ tb = ansys.aedt.core.TwinBuilder(
 
 # ## Configure AEDT
 #
-# **Note:** Only run the following cell if AEDT is not configured to run Twin Builder.
-#
-# The following cell configures AEDT and the schematic editor
-# to use the ``Twin Builder`` configuration.
-# The dynamic ROM feature is only available with a Twin Builder license.
-# A cell at the end of this example restores the AEDT configuration. If your
-# environment is set up to use the ``Twin Builder`` configuration, you do not
-# need to run these code blocks.
+# > **Note:** Only run the following cell if AEDT is not configured to run Twin Builder.
 # >
+# > The following cell configures AEDT and the schematic editor
+# > to use the ``Twin Builder`` configuration.
+# > The dynamic ROM feature is only available with a Twin Builder license.
+# > A cell at the end of this example restores the AEDT configuration. If your
+# > environment is set up to use the ``Twin Builder`` configuration, you do not
+# > need to run these code blocks.
 
 current_desktop_config = tb._odesktop.GetDesktopConfiguration()
 current_schematic_environment = tb._odesktop.GetSchematicEnvironment()

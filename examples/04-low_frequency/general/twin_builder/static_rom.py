@@ -3,7 +3,7 @@
 # This example shows how to create a static reduced order model (ROM)
 # in Twin Builder and run a transient simulation.
 #
-# **Note:** This example uses functionality only available in Twin Builder 2024 R2 and later.
+# > **Note:** This example uses functionality only available in Twin Builder 2024 R2 and later.
 #
 # Keywords: **Twin Builder**, **Static ROM**.
 
@@ -91,14 +91,14 @@ tb = TwinBuilder(
 
 # ## Configure AEDT
 #
-# **Note:** Only run the following cell if AEDT is not configured to run Twin Builder.
-#
-# The following cell configures AEDT and the schematic editor
-# to use the ``Twin Builder`` configuration.
-# The Static ROM feature is only available with a Twin Builder license.
-# A cell at the end of this example restores the AEDT configuration. If your
-# environment is set up to use the ``Twin Builder`` configuration, you do not
-# need to run these sections.
+# > **Note:** Only run the following cell if AEDT is not configured to run Twin Builder.
+# >
+# > The following cell configures AEDT and the schematic editor
+# > to use the ``Twin Builder`` configuration.
+# > The Static ROM feature is only available with a Twin Builder license.
+# > A cell at the end of this example restores the AEDT configuration. If your
+# > environment is set up to use the ``Twin Builder`` configuration, you do not
+# > need to run these sections.
 
 current_desktop_config = tb._odesktop.GetDesktopConfiguration()
 current_schematic_environment = tb._odesktop.GetSchematicEnvironment()
@@ -173,7 +173,7 @@ tb.set_hmax("1s")
 #
 # Solve the transient setup. Skipping this step in case the documentation is being built.
 
-# **Note:** The following code can be uncommented.
+# > **Note:** The following code can be uncommented.
 #
 # tb.analyze_setup("TR")
 
@@ -183,7 +183,7 @@ tb.set_hmax("1s")
 # the values for the voltage on the pulse voltage source and the values for the
 # output of the dynamic ROM.
 
-# **Note:** The following code can be uncommented, but it depends on the previous commented code.
+# > **Note:** The following code can be uncommented, but it depends on the previous commented code.
 #
 # e_value = "ROM1.outfield_mode_1"
 # x = tb.post.get_solution_data(e_value, "TR", "Time")

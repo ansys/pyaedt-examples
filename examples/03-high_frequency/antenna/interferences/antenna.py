@@ -79,7 +79,7 @@ rad3, ant3 = aedtapp.modeler.components.create_radio_antenna(
 #
 # This part of the example requires Ansys AEDT 2023 R2.
 
-# **Note:** You can uncomment the following code.
+# > **Note:** You can uncomment the following code.
 #
 # if AEDT_VERSION > "2023.1":
 #     rev = aedtapp.results.analyze()

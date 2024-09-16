@@ -243,7 +243,7 @@ def create_scenario_view(emis, colors, tx_radios, rx_radios):
 #
 # Get lists of all transmitters and receivers in the project.
 
-# **Note:** You can uncomment the following code.
+# > **Note:** You can uncomment the following code.
 #
 # rev = emitapp.results.current_revision
 # rx_radios = rev.get_receiver_names()
@@ -256,7 +256,7 @@ def create_scenario_view(emis, colors, tx_radios, rx_radios):
 # at the input to each receiver due to each of the transmitters. Computes
 # which protection levels are exceeded by these power levels, if any.
 
-# **Note:** Your ability to uncomment the following code depends on whether you uncommented the earlier code.
+# > **Note:** Your ability to uncomment the following code depends on whether you uncommented the earlier code.
 #
 # power_matrix = []
 # all_colors = []

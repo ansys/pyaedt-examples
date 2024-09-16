@@ -10,8 +10,8 @@
 #
 # Perform required imports.
 #
-# **Note:** [Numpy](https://numpy.org/)
-# and [Matplotlib](https://matplotlib.org/) are required to run this example.
+# > **Note:** [Numpy](https://numpy.org/)
+# > and [Matplotlib](https://matplotlib.org/) are required to run this example.
 
 # +
 import os

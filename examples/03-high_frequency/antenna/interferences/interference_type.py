@@ -4,7 +4,7 @@
 # an EMIT design and analyze the results to classify the
 # worst-case interference.
 #
-# **Note:** This example requires PySide6.
+# > **Note:** This example requires PySide6.
 #
 # Keywords: **EMIT**, **user interface**.
 

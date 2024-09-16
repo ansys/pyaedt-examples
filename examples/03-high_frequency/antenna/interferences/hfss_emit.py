@@ -5,9 +5,9 @@
 #
 # <img src="_static/emit_hfss.png" width="400">
 #
-# **Note:** This example uses the ``Cell Phone RFI Desense``
-# project that is available with the AEDT installation in the
-# ``\Examples\EMIT\`` directory.
+# > **Note:** This example uses the ``Cell Phone RFI Desense``
+# > project that is available with the AEDT installation in the
+# > ``\Examples\EMIT\`` directory.
 #
 # Keywords: **EMIT**, **Coupling**.
 
@@ -53,11 +53,11 @@ d = ansys.aedt.core.launch_desktop(
 # installed ``Examples`` directory to the temporary working
 # directory.
 #
-# **Note:** The HFSS design from the installed example
-# used to model the RF environment
-# has been pre-solved. Hence, the results folder is copied and
-# the RF interference between transceivers is calculated in EMIT using
-# results from the linked HFSS design.
+# > **Note:** The HFSS design from the installed example
+# > used to model the RF environment
+# > has been pre-solved. Hence, the results folder is copied and
+# > the RF interference between transceivers is calculated in EMIT using
+# > results from the linked HFSS design.
 #
 # The following lambda functions help create file and directory
 # names when copying data from the ``Examples`` directory.

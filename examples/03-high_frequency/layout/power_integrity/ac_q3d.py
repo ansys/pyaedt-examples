@@ -80,7 +80,7 @@ pin_u1_sda = [
 
 # ## Append Z elevation positions
 #
-# **Note:** The factor 1000 converts from meters to millimeters.
+# > **Note:** The factor 1000 converts from meters to millimeters.
 
 # +
 location_u13_scl = [i * 1000 for i in pin_u13_scl[0].position]
