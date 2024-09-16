@@ -77,7 +77,9 @@ region = m2d.modeler.create_region([100, 100, 100, 100])
 #
 # Assigns windings to the sheets and a balloon to the air region.
 
-m2d.assign_winding(assignment=[rect1.name, rect2.name], name="PHA")
+m2d.assign_winding(assignment=[rect1.name, rect2.name],
+                   current="1*sin(2*pi*50*Time)",
+                   name="PHA")
 m2d.assign_balloon(assignment=region.edges)
 
 # ## Plot model
@@ -108,7 +110,7 @@ setup.props["Steps To"] = "0.002s"
 
 m2d.post.create_report(
     expressions="InputCurrent(PHA)",
-    domain="Time",
+    domain="Sweep",
     primary_sweep_variable="Time",
     plot_name="Winding Plot 1",
 )
