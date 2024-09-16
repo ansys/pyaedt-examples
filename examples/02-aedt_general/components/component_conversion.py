@@ -71,7 +71,7 @@ app_comp = cmp.edit_definition(password="ansys")
 
 # ## Create an encrypted 3D component in Parasolid
 #
-# Launch the new AEDT release,
+# Launch the new AEDT release
 
 aedt = Desktop(new_desktop_session=True, specified_version=AEDT_VERSION)
 

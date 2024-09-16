@@ -9,7 +9,7 @@
 
 # ## Perform imports and define constants
 #
-# Perform required imports and set paths.
+# Import the required packages.
 
 # +
 import os

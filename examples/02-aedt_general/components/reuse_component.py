@@ -56,7 +56,7 @@ hfss["width"] = "1mm"
 
 # ##  Create modeler objects
 #
-# PyAEDT supports all modeler functionalities available in the AEDT.
+# PyAEDT supports all modeler functionalities available in AEDT.
 # You can create, delete, and modify objects using all available Boolean operations.
 # PyAEDT can also fully access history.
 

@@ -62,7 +62,7 @@ This repository contains end-to-end embedding examples that demonstrate how to u
          :height: 200px
          :align: center
 
-      Provides examples of PyAEDT capabilities for low-frequency applications
+      Provides examples of PyAEDT capabilities for low-frequency applications.
 
    .. grid-item-card:: Electrothermal
       :padding: 2 2 2 2

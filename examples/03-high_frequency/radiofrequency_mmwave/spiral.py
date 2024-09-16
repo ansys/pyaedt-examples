@@ -141,7 +141,7 @@ hfss.modeler.create_box(
 )
 # -
 
-# ## set up model
+# ## Set up model
 #
 # Create the air box and radiation boundary condition.
 

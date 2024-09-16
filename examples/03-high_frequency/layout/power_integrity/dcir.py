@@ -127,7 +127,7 @@ cfg["sources"].append(
 
 cfg["setups"] = [{"name": "siwave_dc", "type": "siwave_dc", "dc_slider_position": 0}]
 
-# ### Create cutout
+# ### Define cutout
 
 cfg["operations"] = {
     "cutout": {

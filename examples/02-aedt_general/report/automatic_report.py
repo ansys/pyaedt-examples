@@ -7,7 +7,7 @@
 
 # ## Perform imports and define constants
 #
-# Import the required packages and set the local path to the path for PyAEDT. This example uses
+# Import the required packages. This example uses
 # data from the [example-data repository](https://github.com/ansys/example-data/tree/master)
 # located in ``pyaedt\custom_reports``.
 

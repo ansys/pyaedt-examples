@@ -29,7 +29,7 @@ NUM_CORES = 4
 # Create a temporary directory where downloaded data or
 # dumped data can be stored.
 # If you'd like to retrieve the project data for subsequent use,
-# the temporary folder name is given by ``temp_folder.name``
+# the temporary folder name is given by ``temp_folder.name``.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 

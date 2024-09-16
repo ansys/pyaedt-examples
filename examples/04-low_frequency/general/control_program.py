@@ -33,7 +33,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Download project file
 #
-# The files required to run this example Download the files required to run this example to the temporary working folder.
+# Download the files required to run this example to the temporary working folder.
 
 aedt_file = downloads.download_file(
     source="maxwell_ctrl_prg",

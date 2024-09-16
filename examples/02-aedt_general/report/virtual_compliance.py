@@ -16,7 +16,7 @@ import time
 import ansys.aedt.core
 from ansys.aedt.core.generic.compliance import VirtualCompliance
 
-# ## Define constants.
+# ## Define constants
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
