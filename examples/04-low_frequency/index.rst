@@ -50,7 +50,6 @@ These end-to-end examples show how to use PyAEDT for low-frequency applications.
       :link: team_problem/index
       :link-type: doc
 
-      T.E.A.M. examples
       .. image:: _static/TEAM.png
          :alt: Filter
          :width: 250px
