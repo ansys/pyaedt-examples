@@ -46,7 +46,7 @@ tb = ansys.aedt.core.TwinBuilder(
     new_desktop=True,
 )
 
-# ## Create components for rectifier
+# ## Create components
 #
 # Place components for a bridge rectifier and a capacitor filter in the schematic editor.
 #
