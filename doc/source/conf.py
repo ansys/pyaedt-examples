@@ -440,6 +440,7 @@ nbsphinx_thumbnails = {
     "examples/04-low_frequency/general/external_circuit": "_static/thumbnails/external_circuit.png",
     "examples/04-low_frequency/general/twin_builder/index": "_static/thumbnails/rectifier.png",
     "examples/04-low_frequency/general/twin_builder/static_rom": "_static/thumbnails/static_rom.png",
+    "examples/04-low_frequency/magnetic/lorentz_actuator": "_static/thumbnails/lorentz_actuator.png",
     "examples/04-low_frequency/motor/aedt_motor/rmxpert": "_static/thumbnails/rmxpert.png",
     "examples/04-low_frequency/multiphysics/maxwell_icepak": "_static/thumbnails/charging.png",
     "examples/05-electrothermal/icepak_circuit_hfss_coupling": "_static/thumbnails/ring.png",
