@@ -97,7 +97,7 @@ m2d.assign_matrix(assignment=["1V"], group_sources=["0V"], matrix_name="Matrix1"
 
 # ## Assign mesh operation
 #
-# Assign 3 millimeters as the maximum length.
+# Assign three millimeters as the maximum length.
 
 m2d.mesh.assign_length_mesh(
     assignment=["ANSYS_LOGO_2D_3"],
