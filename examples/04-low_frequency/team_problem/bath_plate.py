@@ -92,6 +92,8 @@ m3d.modeler.subtract(
 
 # ## Add mesh refinement to ladder plate
 
+# > **Note:** You can uncomment the following code.
+
 # m3d.mesh.assign_length_mesh(
 #     assignment="LadderPlate",
 #     maximum_length=3,
