@@ -2,12 +2,12 @@
 
 ## Project Lead
 
-* [Massimo Capodiferro](https://github.com/maxcapodi78)
+* [Samuel Lopez](https://github.com/Samuelopez-ansys)
 
 ## Individual Contributors
 
 * [Devin Crawford](https://github.com/dcrawforAtAnsys)
-* [Samuel Lopez](https://github.com/Samuelopez-ansys)
+* [Massimo Capodiferro](https://github.com/maxcapodi78)
 * [Giulia Malinverno](https://github.com/gmalinve)
 * [Sébastien Morais](https://github.com/SMoraisAnsys)
 * [Alberto Di Maria](https://github.com/Alberto-DM)
