@@ -685,11 +685,6 @@ m2d.mesh.assign_length_mesh(
     name="rotor",
 )
 
-# ## Turn on eddy effects
-
-# m2d.eddy_effects_on(eddy_effects_list,activate_eddy_effects=True,
-#                     activate_displacement_current=False)
-
 # ## Turn on core loss
 
 core_loss_list = ["Rotor", "Stator"]
