@@ -4,11 +4,11 @@
    :hidden:
    :maxdepth: 2
 
-   02-aedt_general/index
-   03-high_frequency/index
-   04-low_frequency/index
-   05-electrothermal/index
-   06-AEDT/index
+   aedt_general/index
+   high_frequency/index
+   low_frequency/index
+   electrothermal/index
+   aedt/index
 
 
 Examples

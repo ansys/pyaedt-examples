@@ -17,7 +17,7 @@ This repository contains end-to-end embedding examples that demonstrate how to u
       :link: https://aedt.docs.pyansys.com/version/stable/User_guide/index.html
       :link-type: url
 
-      .. image:: examples/01-basic/_static/logo.png
+      .. image:: examples/basic/_static/logo.png
          :alt: PyAEDT logo
          :width: 250px
          :height: 200px
@@ -27,10 +27,10 @@ This repository contains end-to-end embedding examples that demonstrate how to u
 
    .. grid-item-card:: General
       :padding: 2 2 2 2
-      :link: examples/02-aedt_general/index
+      :link: examples/aedt_general/index
       :link-type: doc
 
-      .. image:: examples/02-aedt_general/_static/aedt_electronics.png
+      .. image:: examples/aedt_general/_static/aedt_electronics.png
          :alt: AEDT electronics
          :width: 250px
          :height: 200px
@@ -40,10 +40,10 @@ This repository contains end-to-end embedding examples that demonstrate how to u
 
    .. grid-item-card:: High Frequency
       :padding: 2 2 2 2
-      :link: examples/03-high_frequency/index
+      :link: examples/high_frequency/index
       :link-type: doc
 
-      .. image:: examples/03-high_frequency/_static/hf.png
+      .. image:: examples/high_frequency/_static/hf.png
          :alt: High frequency IC
          :width: 250px
          :height: 200px
@@ -53,10 +53,10 @@ This repository contains end-to-end embedding examples that demonstrate how to u
 
    .. grid-item-card:: Low Frequency
       :padding: 2 2 2 2
-      :link: examples/04-low_frequency/index
+      :link: examples/low_frequency/index
       :link-type: doc
 
-      .. image:: examples/04-low_frequency/_static/motor_maxwell.png
+      .. image:: examples/low_frequency/_static/motor_maxwell.png
          :alt: Low frequency motor
          :width: 250px
          :height: 200px
@@ -66,10 +66,10 @@ This repository contains end-to-end embedding examples that demonstrate how to u
 
    .. grid-item-card:: Electrothermal
       :padding: 2 2 2 2
-      :link: examples/05-electrothermal/index
+      :link: examples/electrothermal/index
       :link-type: doc
 
-      .. image:: examples/05-electrothermal/_static/icepak_logo.png
+      .. image:: examples/electrothermal/_static/icepak_logo.png
          :alt: Icepak
          :width: 250px
          :height: 200px
@@ -79,10 +79,10 @@ This repository contains end-to-end embedding examples that demonstrate how to u
 
    .. grid-item-card:: Examples by AEDT application
       :padding: 2 2 2 2
-      :link: examples/06-AEDT/index
+      :link: examples/aedt/index
       :link-type: doc
 
-      .. image:: examples/06-AEDT/_static/aedt.png
+      .. image:: examples/aedt/_static/aedt.png
          :alt: AEDT
          :width: 250px
          :height: 200px
