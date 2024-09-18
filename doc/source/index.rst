@@ -3,165 +3,92 @@ Examples
 
 **Useful links**:
 `Installation <https://aedt.docs.pyansys.com/version/stable/Getting_started/Installation.html>`_ |
-`Source Repository <https://github.com/ansys-internal/pyaedt-examples>`_ |
+`Source repository <https://github.com/ansys-internal/pyaedt-examples>`_ |
 `Issues <https://github.com/ansys-internal/pyaedt-examples/issues>`_
 
-Embedding examples for `PyAEDT <https://aedt.docs.pyansys.com/version/stable/>`_ are contained in this repository.
-These end-to-end examples show how you can use PyAEDT.
+This repository contains end-to-end embedding examples that demonstrate how to use
+`PyAEDT <https://aedt.docs.pyansys.com/version/stable/>`_.
 
 
-.. grid:: 3
+.. grid:: 2
 
-   .. grid-item-card:: Modeling and setup
+   .. grid-item-card:: PyAEDT basics
       :padding: 2 2 2 2
-      :link: examples/01-Modeling-Setup/index
-      :link-type: doc
+      :link: https://aedt.docs.pyansys.com/version/stable/User_guide/index.html
+      :link-type: url
 
-      .. image:: examples/01-Modeling-Setup/_static/Project_manager.png
-         :alt: AEDT Project Manager
-         :width: 200px
-         :height: 150px
+      .. image:: examples/basic/_static/logo.png
+         :alt: PyAEDT logo
+         :width: 250px
+         :height: 200px
+         :align: center
 
-      Explore general model and simulation setup features inside AEDT
-
-   .. grid-item-card:: HFSS
-      :padding: 2 2 2 2
-      :link: examples/02-HFSS/index
-      :link-type: doc
-
-      .. image:: examples/02-HFSS/_static/array_w_ff.png
-         :alt: Phased array antenna
-         :width: 200px
-         :height: 150px
-
-      Explore end-to-end workflows for HFSS 3D
-
-   .. grid-item-card:: Maxwell 3D
-      :padding: 2 2 2 2
-      :link: examples/03-Maxwell3D/index
-      :link-type: doc
-
-      .. image:: examples/03-Maxwell3D/_static/motor.png
-         :alt: Motor fields
-         :width: 200px
-         :height: 150px
-
-      Uncover the various uses of Maxwell 3D
-
-   .. grid-item-card:: Maxwell 2D
-      :padding: 2 2 2 2
-      :link: examples/03-Maxwell2D/index
-      :link-type: doc
-
-      .. image:: examples/03-Maxwell2D/_static/motor.png
-         :alt: Motor fields
-         :width: 200px
-         :height: 150px
-
-      Uncover the various uses of Maxwell 2D
-
-   .. grid-item-card:: Layout
-      :padding: 2 2 2 2
-      :link: examples/04-Layout/index
-      :link-type: doc
-
-      .. image:: examples/04-Layout/hfss_3d_layout/_static/HFSS_3DL.png
-         :alt: Flex assembly
-         :width: 200px
-         :height: 150px
-
-      Explore end-to-end workflows for Layout automation
-
-   .. grid-item-card:: Icepak
-      :padding: 2 2 2 2
-      :link: examples/05-Icepak/index
-      :link-type: doc
-
-      .. image:: examples/05-Icepak/_static/pcb_icepak.png
-         :alt: PCB temperature
-         :width: 200px
-         :height: 150px
-
-      Discover use cases of Icepak
-
-   .. grid-item-card:: Q3D
-      :padding: 2 2 2 2
-      :link: examples/06-Q3D/index
-      :link-type: doc
-
-      .. image:: examples/06-Q3D/_static/busbar.png
-         :alt: PCB temperature
-         :width: 200px
-         :height: 150px
-
-      Discover end-to-end workflows for 2D Extractor and Q3D Extractor
-
-   .. grid-item-card:: SBR+
-      :padding: 2 2 2 2
-      :link: examples/07-SBR+/index
-      :link-type: doc
-
-      .. image:: examples/07-SBR+/_static/car_w_pedestrians.png
-         :alt: Automotive radar
-         :width: 200px
-         :height: 150px
-
-      Venture into the diverse applications of SBR+
-
-   .. grid-item-card:: Circuit
-      :padding: 2 2 2 2
-      :link: examples/08-Circuit/index
-      :link-type: doc
-
-      .. image:: examples/08-Circuit/_static/circuit.png
-         :alt: Circuit example
-         :width: 200px
-         :height: 150px
-
-      Investigate some examples of Circuit in action
-
-   .. grid-item-card:: Multiphysics
-      :padding: 2 2 2 2
-      :link: examples/09-Multiphysics/index
-      :link-type: doc
-
-      .. image:: examples/09-Multiphysics/_static/pcb_stress.png
-         :alt: PCB stress
-         :width: 200px
-         :height: 150px
-
-      Create some multiphysics workflows
-
-   .. grid-item-card:: EMIT
-      :padding: 2 2 2 2
-      :link: examples/10-EMIT/index
-      :link-type: doc
-
-      .. image:: examples/10-EMIT/_static/emit_simple_cosite.png
-         :alt: Simple cosite
-         :width: 200px
-         :height: 150px
-
-      Study the practical uses of EMIT
-
-   .. grid-item-card:: Twin Builder
-      :padding: 2 2 2 2
-      :link: examples/11-twin_builder/index
-      :link-type: doc
-
-      .. image:: examples/11-twin_builder/_static/rectifier.png
-         :alt: Rectifier
-         :width: 200px
-         :height: 150px
-
-      Inspect how Twin Builder is applied in different scenarios
+      Links to brief tutorials provided in the PyAEDT documentation.
 
    .. grid-item-card:: General
       :padding: 2 2 2 2
-      :link: examples/12-general/index
+      :link: examples/aedt_general/index
       :link-type: doc
 
-      Discover some general end-to-end workflows
+      .. image:: examples/aedt_general/_static/aedt_electronics.png
+         :alt: AEDT electronics
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      Provides examples of some general PyAEDT capabilities.
+
+   .. grid-item-card:: High Frequency
+      :padding: 2 2 2 2
+      :link: examples/high_frequency/index
+      :link-type: doc
+
+      .. image:: examples/high_frequency/_static/hf.png
+         :alt: High frequency IC
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      Provides examples of PyAEDT capabilities for high-frequency applications.
+
+   .. grid-item-card:: Low Frequency
+      :padding: 2 2 2 2
+      :link: examples/low_frequency/index
+      :link-type: doc
+
+      .. image:: examples/low_frequency/_static/motor_maxwell.png
+         :alt: Low frequency motor
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      Provides examples of PyAEDT capabilities for low-frequency applications.
+
+   .. grid-item-card:: Electrothermal
+      :padding: 2 2 2 2
+      :link: examples/electrothermal/index
+      :link-type: doc
+
+      .. image:: examples/electrothermal/_static/icepak_logo.png
+         :alt: Icepak
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      Provides examples of PyAEDT capabilities for electrothermal applications.
+
+   .. grid-item-card:: Examples by AEDT application
+      :padding: 2 2 2 2
+      :link: examples/aedt/index
+      :link-type: doc
+
+      .. image:: examples/aedt/_static/aedt.png
+         :alt: AEDT
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      Provides examples organized by AEDT applications.
 
    .. toctree::
       :hidden:
