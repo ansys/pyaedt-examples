@@ -83,28 +83,31 @@ polys.extend(poly.duplicate_along_line(vector=[-0.5, 0, 0], clones=10))
 # Create the fields report object and get field data.
 # Create a data table report for the H field along each line and export it to a .csv file.
 
+my_expression = {
+    "name": None,
+    "description": "Magnetomotive force along a line",
+    "design_type": ["Maxwell 2D", "Maxwell 3D"],
+    "fields_type": ["Fields"],
+    "primary_sweep": "distance",
+    "assignment": None,
+    "assignment_type": ["Line"],
+    "operations": [
+        "Fundamental_Quantity('H')",
+        "Operation('Tangent')",
+        "Operation('Dot')",
+        "EnterLine('assignment')",
+        "Operation('LineValue')",
+        "Operation('Integrate')",
+    ],
+    "report": ["Data Table"],
+}
+
 quantities = []
 for p in polys:
     quantity = "H_field_{}".format(p)
     quantities.append(quantity)
-    my_expression = {
-        "name": quantity,
-        "description": "Magnetomotive force along a line",
-        "design_type": ["Maxwell 2D", "Maxwell 3D"],
-        "fields_type": ["Fields"],
-        "primary_sweep": "distance",
-        "assignment": p,
-        "assignment_type": ["Line"],
-        "operations": [
-            "Fundamental_Quantity('H')",
-            "Operation('Tangent')",
-            "Operation('Dot')",
-            "EnterLine('assignment')",
-            "Operation('LineValue')",
-            "Operation('Integrate')",
-        ],
-        "report": ["Data Table"],
-    }
+    my_expression["name"] = quantity
+    my_expression["assignment"] = quantity
     m2d.post.fields_calculator.add_expression(my_expression, p)
     report = m2d.post.create_report(
         expressions=quantity,
@@ -149,24 +152,8 @@ param_sweep = m2d.parametrics.add(
 # Create and add a new formula to add in the PyAEDT advanced fields calculator.
 
 quantity_sweep = "H_field_{}".format(poly.name)
-my_expression = {
-    "name": quantity_sweep,
-    "description": "Magnetomotive force along a line",
-    "design_type": ["Maxwell 2D", "Maxwell 3D"],
-    "fields_type": ["Fields"],
-    "primary_sweep": "distance",
-    "assignment": poly.name,
-    "assignment_type": ["Line"],
-    "operations": [
-        "Fundamental_Quantity('H')",
-        "Operation('Tangent')",
-        "Operation('Dot')",
-        "EnterLine('assignment')",
-        "Operation('LineValue')",
-        "Operation('Integrate')",
-    ],
-    "report": ["Data Table"],
-}
+my_expression["name"] = quantity_sweep
+my_expression["assignment"] = poly.name
 m2d.post.fields_calculator.add_expression(my_expression, poly.name)
 
 # ## Add parametric sweep calculation specifying the quantity (H) and save fields.
