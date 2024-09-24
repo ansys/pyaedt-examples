@@ -17,6 +17,7 @@
 #
 # Perform required imports.
 
+import os
 import tempfile
 import time
 
@@ -57,6 +58,11 @@ m2d = ansys.aedt.core.Maxwell2d(
     project=project_path,
     design="Maxwell2DDesign1",
 )
+
+# ## Plot model
+
+model = m2d.plot(show=False)
+model.plot(os.path.join(temp_folder.name, "Image.jpg"))
 
 # # First option
 
