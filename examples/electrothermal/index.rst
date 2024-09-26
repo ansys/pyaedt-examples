@@ -15,4 +15,3 @@ These examples use PyAEDT to show electrothermal capabilities of AEDT
     icepak_circuit_hfss_coupling.py
     electrothermal.py
     ../low_frequency/multiphysics/maxwell_icepak.py
-    ../aedt_general/report/virtual_compliance.py
