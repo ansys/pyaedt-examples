@@ -14,7 +14,7 @@ import tempfile
 import time
 
 import ansys.aedt.core
-from ansys.aedt.core.generic.compliance import VirtualCompliance
+from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
 
 # ## Define constants
 

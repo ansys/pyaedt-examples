@@ -15,3 +15,4 @@ These examples use PyAEDT to show signal integrity examples.
     ../../../aedt_general/modeler/netlist_to_schematic.py
     ../../emc/subcircuit.py
     ../../../aedt_general/report/touchstone_file.py
+    ../../../aedt_general/report/virtual_compliance.py
