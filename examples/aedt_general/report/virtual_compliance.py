@@ -46,7 +46,9 @@ project_path = os.path.join(project_folder, "PCIE_GEN5_only_layout.aedtz")
 # Before solving, this code ensures that the model is solved from DC to 70GHz and that
 # causality and passivity are enforced.
 
-h3d = ansys.aedt.core.Hfss3dLayout(project_path)
+h3d = ansys.aedt.core.Hfss3dLayout(
+    project=project_path, version=AEDT_VERSION, non_graphical=NG_MODE
+)
 h3d.remove_all_unused_definitions()
 h3d.edit_cosim_options(simulate_missing_solution=False)
 h3d.setups[0].sweeps[0].props["EnforcePassivity"] = True
@@ -54,7 +56,7 @@ h3d.setups[0].sweeps[0].props["Sweeps"]["Data"] = "LIN 0MHz 70GHz 0.1GHz"
 h3d.setups[0].sweeps[0].props["EnforceCausality"] = True
 h3d.setups[0].sweeps[0].update()
 h3d.analyze(cores=NUM_CORES)
-h3d = ansys.aedt.core.Hfss3dLayout(version=242)
+h3d = ansys.aedt.core.Hfss3dLayout()
 touchstone_path = h3d.export_touchstone()
 
 # ## Create LNA project
