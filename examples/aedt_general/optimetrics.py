@@ -41,7 +41,9 @@ hfss = ansys.aedt.core.Hfss(
     version=AEDT_VERSION,
     new_desktop=True,
     non_graphical=NG_MODE,
+    solution_type="Modal",
 )
+
 hfss["w1"] = "1mm"
 hfss["w2"] = "100mm"
 # -
@@ -81,12 +83,12 @@ hfss.wave_port(p2, integration_line=hfss.AxisDir.ZPos, name="2")
 
 setup = hfss.create_setup()
 hfss.create_linear_step_sweep(
-    setupname=setup.name,
+    setup=setup.name,
     unit="GHz",
-    freqstart=1,
-    freqstop=5,
+    start_frequency=1,
+    stop_frequency=5,
     step_size=0.1,
-    sweepname="Sweep1",
+    name="Sweep1",
     save_fields=True,
 )
 
@@ -106,7 +108,7 @@ sweep.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 # Create an optimetrics sensitivity analysis with output calculations.
 
 sweep2 = hfss.optimizations.add(
-    calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="Sensitivity"
+    calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, optimization_type="Sensitivity"
 )
 sweep2.add_variation("w1", 0.1, 3, 0.5)
 sweep2.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
@@ -130,7 +132,9 @@ sweep3.add_goal(
 # Create a DesignXplorer optimization based on a goal and a calculation.
 
 sweep4 = hfss.optimizations.add(
-    calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="DesignExplorer"
+    calculation="dB(S(1,1))",
+    ranges={"Freq": "2.5GHz"},
+    optimization_type="DesignExplorer",
 )
 sweep4.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 
@@ -139,7 +143,7 @@ sweep4.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 # Create a DOE based on a goal and a calculation.
 
 sweep5 = hfss.optimizations.add(
-    calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="DXDOE"
+    calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, optimization_type="DXDOE"
 )
 
 # ### Create another DOE
