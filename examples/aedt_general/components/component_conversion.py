@@ -55,7 +55,7 @@ settings.use_multi_desktop = True
 #
 # Launch the old AEDT release.
 
-aedt_old = Desktop(new_desktop_session=True, specified_version=OLD_AEDT_VERSION)
+aedt_old = Desktop(new_desktop=True, version=OLD_AEDT_VERSION)
 
 # Insert an empty HFSS design.
 
@@ -86,9 +86,7 @@ hfss2.copy_solid_bodies_from(design=app_comp, no_vacuum=False, no_pec=False)
 # Create the new encrypted 3D component.
 
 hfss2.modeler.create_3dcomponent(
-    component_file=os.path.join(
-        temp_folder.name, r"SMA_Edge_Connector_encrypted.a3dcomp"
-    ),
+    input_file=os.path.join(temp_folder.name, r"SMA_Edge_Connector_encrypted.a3dcomp"),
     is_encrypted=True,
     edit_password="ansys",
     hide_contents=False,
