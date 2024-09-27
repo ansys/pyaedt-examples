@@ -29,8 +29,9 @@
 import os
 import tempfile
 
-from ansys.aedt.core.generic.spisim import SpiSim
-from ansys.aedt.core.misc.spisim_com_configuration_files import com_parameters
+from ansys.aedt.core.visualization.post.spisim import SpiSim
+from ansys.aedt.core.visualization.post.spisim_com_configuration_files import \
+    com_parameters
 from pyedb.misc.downloads import download_file
 
 # ## Create temporary directory and download example files
