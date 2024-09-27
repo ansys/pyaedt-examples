@@ -78,7 +78,7 @@ project_name = aedt.downloads.download_file(
 circuit = aedt.Circuit(
     project=project_name,
     new_desktop=True,
-    specified_version=AEDT_VERSION,
+    version=AEDT_VERSION,
     non_graphical=NG_MODE,
 )
 
