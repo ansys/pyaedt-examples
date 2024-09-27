@@ -55,7 +55,7 @@ ipk = ansys.aedt.core.Icepak(
 # +
 plot1 = ipk.plot(
     show=False,
-    export_path=os.path.join(temp_folder.name, "Graphics_card_1.jpg"),
+    output_file=os.path.join(temp_folder.name, "Graphics_card_1.jpg"),
     plot_air_objects=False,
 )
 
@@ -63,7 +63,7 @@ ipk.modeler.rotate(ipk.modeler.object_names, "X")
 
 plot2 = ipk.plot(
     show=False,
-    export_path=os.path.join(temp_folder.name, "Graphics_card_2.jpg"),
+    output_file=os.path.join(temp_folder.name, "Graphics_card_2.jpg"),
     plot_air_objects=False,
 )
 # -
