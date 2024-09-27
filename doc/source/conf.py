@@ -445,6 +445,7 @@ nbsphinx_thumbnails = {
     "examples/low_frequency/multiphysics/maxwell_icepak": "_static/thumbnails/charging.png",
     "examples/electrothermal/icepak_circuit_hfss_coupling": "_static/thumbnails/ring.png",
     "examples/electrothermal/electrothermal": "_static/thumbnails/electrothermal.png",
+    "examples/electrothermal/ecad_import": "_static/thumbnails/idf_icepak.png",
 }
 
 

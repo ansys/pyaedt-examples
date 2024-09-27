@@ -83,27 +83,21 @@ hfss3d_lo.save_project()
 # Create a PCB component in Icepak linked to the HFSS 3D Layout project. The polygon ``"poly_0"``
 # is used as the outline of the PCB, and a dissipation of ``"1W"`` is applied to the PCB.
 
+project_file = hfss3d_lo.project_file
+design_name = hfss3d_lo.design_name
+
 ipk.create_pcb_from_3dlayout(
     component_name="PCB_pyAEDT",
-    project_name=hfss3d_lo.project_file,
-    design_name=hfss3d_lo.design_name,
-    extenttype="Polygon",
-    outlinepolygon="poly_0",
+    project_name=project_file,
+    design_name=design_name,
+    extent_type="Polygon",
+    outline_polygon="poly_0",
     power_in=1,
 )
 
 # Delete the simplified PCB object coming from the IDF import.
 
-ipk.modeler["IDF_BoardOutline"].delete()
-
-# ## Plot model
-
-ipk.plot(
-    show=False,
-    export_path=os.path.join(temp_folder.name, "ECAD_import.jpg"),
-    plot_air_objects=False,
-    force_opacity_value=1,
-)
+ipk.modeler.delete_objects_containing("IDF_BoardOutline", False)
 
 # ## Release AEDT
 
