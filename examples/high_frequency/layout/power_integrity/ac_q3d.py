@@ -150,7 +150,7 @@ sweep = setup.add_sweep()
 sweep.add_subrange(
     "LinearStep", 0, end=2, count=0.05, unit="GHz", save_single_fields=False, clear=True
 )
-setup.analyze(num_cores=NUM_CORES)
+setup.analyze(cores=NUM_CORES)
 
 # ## Solve
 #
