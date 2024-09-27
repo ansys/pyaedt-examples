@@ -78,7 +78,7 @@ or Jupyter notebooks and run them locally.
       :link: aedt/index
       :link-type: doc
 
-      .. image:: examples/aedt/_static/aedt.png
+      .. image:: aedt/_static/aedt.png
          :alt: AEDT
          :width: 250px
          :height: 200px
