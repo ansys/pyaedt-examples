@@ -107,11 +107,9 @@ ipk.monitor.assign_point_monitor_in_object(
 
 os.mkdir(os.path.join(temp_folder.name, "componentLibrary"))
 ipk.modeler.create_3dcomponent(
-    component_file=os.path.join(
-        temp_folder.name, "componentLibrary", "Heatsink.a3dcomp"
-    ),
-    component_name="Heatsink",
-    auxiliary_dict=True,
+    input_file=os.path.join(temp_folder.name, "componentLibrary", "Heatsink.a3dcomp"),
+    name="Heatsink",
+    export_auxiliary=True,
 )
 ipk.close_project(save=False)
 
@@ -166,9 +164,9 @@ ipk.monitor.assign_surface_monitor(
 # used for the power source assignment.
 
 ipk.modeler.create_3dcomponent(
-    component_file=os.path.join(temp_folder.name, "componentLibrary", "QFP.a3dcomp"),
-    component_name="QFP",
-    auxiliary_dict=True,
+    input_file=os.path.join(temp_folder.name, "componentLibrary", "QFP.a3dcomp"),
+    name="QFP",
+    export_auxiliary=True,
     datasets=["PowerDissipationDataset"],
 )
 ipk.release_desktop(close_projects=False, close_desktop=False)
@@ -182,9 +180,9 @@ ipk = Icepak(
     non_graphical=NG_MODE,
 )
 ipk.plot(
-    objects=[o for o in ipk.modeler.object_names if not o.startswith("DomainBox")],
+    assignment=[o for o in ipk.modeler.object_names if not o.startswith("DomainBox")],
     show=False,
-    export_path=os.path.join(temp_folder.name, "electronic_package_missing_obj.jpg"),
+    output_file=os.path.join(temp_folder.name, "electronic_package_missing_obj.jpg"),
 )
 
 # The heatsink and the QFP are missing. They can be inserted as 3D components.
@@ -234,19 +232,19 @@ cs_pcb_assembly = ipk.modeler.create_coordinate_system(
 )
 
 # Export the entire assembly as a 3D component and close the project. First, the nested
-# hierarchy must be flattned because nested 3D components are currently not supported. Subsequently,
+# hierarchy must be flattened because nested 3D components are currently not supported. Subsequently,
 # the whole package can be exported as a 3D component. The auxiliary dictionary is needed
 # to export monitor objects, datasets, and native components.
 
 ipk.flatten_3d_components()
 ipk.modeler.create_3dcomponent(
-    component_file=os.path.join(
+    input_file=os.path.join(
         temp_folder.name, "componentLibrary", "PCBAssembly.a3dcomp"
     ),
-    component_name="PCBAssembly",
-    auxiliary_dict=True,
-    included_cs=["Global", "HeatsinkCS", "PCB_Assembly"],
-    reference_cs="PCB_Assembly",
+    name="PCBAssembly",
+    export_auxiliary=True,
+    coordinate_systems=["Global", "HeatsinkCS", "PCB_Assembly"],
+    reference_coordinate_system="PCB_Assembly",
 )
 
 # ## Release AEDT
