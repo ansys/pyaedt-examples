@@ -17,7 +17,7 @@ This repository contains end-to-end embedding examples that demonstrate how to u
       :link: https://aedt.docs.pyansys.com/version/stable/User_guide/index.html
       :link-type: url
 
-      .. image:: examples/basic/_static/logo.png
+      .. image:: basic/_static/logo.png
          :alt: PyAEDT logo
          :width: 250px
          :height: 200px
@@ -25,25 +25,25 @@ This repository contains end-to-end embedding examples that demonstrate how to u
 
       Links to brief tutorials provided in the PyAEDT documentation.
 
-   .. grid-item-card:: General
+   .. grid-item-card:: Examples by AEDT application
       :padding: 2 2 2 2
-      :link: examples/aedt_general/index
+      :link: aedt/index
       :link-type: doc
 
-      .. image:: examples/aedt_general/_static/aedt_electronics.png
-         :alt: AEDT electronics
+      .. image:: aedt/_static/aedt.png
+         :alt: AEDT
          :width: 250px
          :height: 200px
          :align: center
 
-      Provides examples of some general PyAEDT capabilities.
+      Provides examples organized by AEDT applications.
 
    .. grid-item-card:: High Frequency
       :padding: 2 2 2 2
-      :link: examples/high_frequency/index
+      :link: high_frequency/index
       :link-type: doc
 
-      .. image:: examples/high_frequency/_static/hf.png
+      .. image:: high_frequency/_static/hf.png
          :alt: High frequency IC
          :width: 250px
          :height: 200px
@@ -53,10 +53,10 @@ This repository contains end-to-end embedding examples that demonstrate how to u
 
    .. grid-item-card:: Low Frequency
       :padding: 2 2 2 2
-      :link: examples/low_frequency/index
+      :link: low_frequency/index
       :link-type: doc
 
-      .. image:: examples/low_frequency/_static/motor_maxwell.png
+      .. image:: low_frequency/_static/motor_maxwell.png
          :alt: Low frequency motor
          :width: 250px
          :height: 200px
@@ -66,10 +66,10 @@ This repository contains end-to-end embedding examples that demonstrate how to u
 
    .. grid-item-card:: Electrothermal
       :padding: 2 2 2 2
-      :link: examples/electrothermal/index
+      :link: electrothermal/index
       :link-type: doc
 
-      .. image:: examples/electrothermal/_static/icepak_logo.png
+      .. image:: electrothermal/_static/icepak_logo.png
          :alt: Icepak
          :width: 250px
          :height: 200px
@@ -77,18 +77,18 @@ This repository contains end-to-end embedding examples that demonstrate how to u
 
       Provides examples of PyAEDT capabilities for electrothermal applications.
 
-   .. grid-item-card:: Examples by AEDT application
+   .. grid-item-card:: Pre-processing and post-processing
       :padding: 2 2 2 2
-      :link: examples/aedt/index
+      :link: aedt_general/index
       :link-type: doc
 
-      .. image:: examples/aedt/_static/aedt.png
-         :alt: AEDT
+      .. image:: aedt_general/_static/aedt_electronics.png
+         :alt: AEDT electronics
          :width: 250px
          :height: 200px
          :align: center
 
-      Provides examples organized by AEDT applications.
+      Provides examples of some general PyAEDT pre-processing and post-processing capabilities.
 
    .. toctree::
       :hidden:

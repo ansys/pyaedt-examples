@@ -21,18 +21,18 @@ or Jupyter notebooks and run them locally.
 
       Links to brief tutorials provided in the PyAEDT documentation.
 
-   .. grid-item-card:: General
+   .. grid-item-card:: Examples by AEDT application
       :padding: 2 2 2 2
-      :link: aedt_general/index
+      :link: aedt/index
       :link-type: doc
 
-      .. image:: aedt_general/_static/aedt_electronics.png
-         :alt: AEDT electronics
+      .. image:: aedt/_static/aedt.png
+         :alt: AEDT
          :width: 250px
          :height: 200px
          :align: center
 
-      Provides examples of some general PyAEDT capabilities.
+      Provides examples organized by AEDT applications.
 
    .. grid-item-card:: High Frequency
       :padding: 2 2 2 2
@@ -73,25 +73,26 @@ or Jupyter notebooks and run them locally.
 
       Provides examples of PyAEDT capabilities for electrothermal applications.
 
-   .. grid-item-card:: Examples by AEDT application
+   .. grid-item-card:: Pre-processing and post-processing
       :padding: 2 2 2 2
-      :link: aedt/index
+      :link: aedt_general/index
       :link-type: doc
 
-      .. image:: aedt/_static/aedt.png
-         :alt: AEDT
+      .. image:: aedt_general/_static/aedt_electronics.png
+         :alt: AEDT electronics
          :width: 250px
          :height: 200px
          :align: center
 
-      Provides examples organized by AEDT applications.
+      Provides examples of some general PyAEDT pre-processing and post-processing capabilities.
+
 
 .. toctree::
    :hidden:
    :maxdepth: 2
 
-   aedt_general/index
+   aedt/index
    high_frequency/index
    low_frequency/index
    electrothermal/index
-   aedt/index
+   aedt_general/index
