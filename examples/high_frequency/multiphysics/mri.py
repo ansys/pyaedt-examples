@@ -114,7 +114,7 @@ hfss.edit_sources_from_file(os.path.join(project_path, "sources.csv"))
 #
 # Save and analyze the project.
 
-hfss.save_project(project_file=os.path.join(project_path, "solved.aedt"))
+hfss.save_project(file_name=os.path.join(project_path, "solved.aedt"))
 hfss.analyze(cores=NUM_CORES)
 
 # ## Plot SAR on cut plane in phantom
@@ -265,8 +265,9 @@ mech.post.plot_animated_field(
     plot_type="CutPlane",
     intrinsics={"Time": "10s"},
     variation_variable="Time",
-    variation_list=["10s", "20s", "30s"],
+    variations=["10s", "30s"],
     filter_objects=["implant_box"],
+    show=False,
 )
 # -
 
@@ -333,29 +334,6 @@ mesh_region.update()
 ipk.modeler.set_working_coordinate_system("implant")
 ipk.monitor.assign_point_monitor(point_position=[0, 0, 0], monitor_name="Point1")
 ipk.assign_openings(ipk.modeler["Region"].top_face_z)
-
-# ## Analyze and plot fields
-#
-# Analyze the project.
-# Plot the temperature on the cut plane.
-# Plot the temperature on the monitor point.
-
-# +
-ipk.analyze(cores=NUM_CORES, tasks=4)
-ipk.post.create_fieldplot_cutplane(
-    assignment=["implant:YZ"],
-    quantity="Temperature",
-    filter_objects=["implant_box"],
-    intrinsics={"Time": "0s"},
-)
-ipk.save_project()
-
-data = ipk.post.get_solution_data(
-    expressions="Point1.Temperature",
-    primary_sweep_variable="Time",
-    report_category="Monitor",
-)
-data.plot()
 # -
 
 # ## Release AEDT
