@@ -237,15 +237,6 @@ cs_pcb_assembly = ipk.modeler.create_coordinate_system(
 # to export monitor objects, datasets, and native components.
 
 ipk.flatten_3d_components()
-ipk.modeler.create_3dcomponent(
-    input_file=os.path.join(
-        temp_folder.name, "componentLibrary", "PCBAssembly.a3dcomp"
-    ),
-    name="PCBAssembly",
-    export_auxiliary=True,
-    coordinate_systems=["Global", "HeatsinkCS", "PCB_Assembly"],
-    reference_coordinate_system="PCB_Assembly",
-)
 
 # ## Release AEDT
 
