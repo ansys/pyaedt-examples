@@ -404,7 +404,13 @@ solutions = h3d.post.get_solution_data(
     expressions=["dB(S(In,In))", "dB(S(In,Out))"], context="Differential Pairs"
 )
 solutions.plot()
+
+# ## Release AEDT
+
+h3d.save_project()
 h3d.release_desktop()
+# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
+time.sleep(3)
 
 # Note that the ground nets are only connected to each other due
 # to the wave ports. The problem with poor grounding can be seen in the
@@ -413,5 +419,4 @@ h3d.release_desktop()
 #
 # The final cell cleans up the temporary directory, removing all files.
 
-time.sleep(3)
 temp_folder.cleanup()
