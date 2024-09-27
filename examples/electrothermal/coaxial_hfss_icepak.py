@@ -14,7 +14,7 @@ import tempfile
 import time
 
 import ansys.aedt.core
-from ansys.aedt.core.generic.pdf import AnsysReport
+from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 
 # Define constants.
 
@@ -260,7 +260,7 @@ ipk.modeler.fit_all()
 #
 # Solve the Icepak and HFSS models.
 
-ipk.setups[0].analyze(num_cores=NUM_CORES)
+ipk.setups[0].analyze(cores=NUM_CORES, tasks=NUM_CORES)
 hfss.save_project()
 hfss.modeler.fit_all()
 hfss.setups[0].analyze()
