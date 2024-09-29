@@ -5,7 +5,6 @@ These examples show how to use some general PyAEDT capabilities.
 
 .. grid:: 3
 
-
    .. grid-item-card:: Configuration files
       :padding: 2 2 2 2
       :link: configuration_files
@@ -37,7 +36,7 @@ These examples show how to use some general PyAEDT capabilities.
       :link: optimetrics
       :link-type: doc
 
-      .. image:: _static/user_interface.png
+      .. image:: _static/optimetrics.png
          :alt: Optimetrics
          :width: 200px
          :height: 150px
@@ -70,3 +69,13 @@ These examples show how to use some general PyAEDT capabilities.
          :align: center
 
       These examples use PyAEDT to show some report capabilities.
+
+
+.. toctree::
+    :hidden:
+
+    configuration_files
+    modeler/index
+    optimetrics
+    components/index
+    report/index
