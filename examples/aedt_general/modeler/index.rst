@@ -18,7 +18,7 @@ These examples use PyAEDT to show some modeler capabilities.
     This example shows how to use PyAEDT to create and modify coordinate systems in the modeler.
 
 
-    .. grid-item-card:: Polyline creation
+   .. grid-item-card:: Polyline creation
       :padding: 2 2 2 2
       :link: polyline
       :link-type: doc
@@ -31,7 +31,7 @@ These examples use PyAEDT to show some modeler capabilities.
 
       This example shows how to use PyAEDT to create and manipulate polylines.
 
-    .. grid-item-card:: Circuit schematic creation and analysis
+   .. grid-item-card:: Circuit schematic creation and analysis
       :padding: 2 2 2 2
       :link: circuit_schematic
       :link-type: doc
@@ -44,7 +44,7 @@ These examples use PyAEDT to show some modeler capabilities.
 
       This example shows how to build a circuit schematic and run a transient circuit simulation.
 
-    .. grid-item-card:: Circuit Netlist to Schematic
+   .. grid-item-card:: Circuit Netlist to Schematic
       :padding: 2 2 2 2
       :link: netlist_to_schematic
       :link-type: doc
