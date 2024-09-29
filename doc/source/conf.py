@@ -415,10 +415,6 @@ nbsphinx_allow_errors = False
 
 # Define static thumbnails
 nbsphinx_thumbnails = {
-    "examples/aedt_general/modeler/coordinate_system": "_static/thumbnails/coordinate_system.png",
-    "examples/aedt_general/modeler/polyline": "_static/thumbnails/polyline.png",
-    "examples/aedt_general/modeler/netlist_to_schematic": "_static/thumbnails/netlist.png",
-    "examples/aedt_general/components/component_conversion": "_static/thumbnails/e3dcomp.png",
     "examples/aedt_general/report/virtual_compliance": "_static/thumbnails/virtual_compliance_eye.png",
     "examples/high_frequency/antenna/fss_unitcell": "_static/thumbnails/unitcell.png",
     "examples/high_frequency/antenna/large_scenarios/index": "_static/thumbnails/car_w_pedestrians.png",
