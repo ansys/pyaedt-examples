@@ -415,14 +415,10 @@ nbsphinx_allow_errors = False
 
 # Define static thumbnails
 nbsphinx_thumbnails = {
-    "examples/aedt_general/configuration_files": "_static/thumbnails/configuration_file_icepak.png",
-    "examples/aedt_general/modeler/index": "_static/thumbnails/modeler.png",
     "examples/aedt_general/modeler/coordinate_system": "_static/thumbnails/coordinate_system.png",
     "examples/aedt_general/modeler/polyline": "_static/thumbnails/polyline.png",
     "examples/aedt_general/modeler/netlist_to_schematic": "_static/thumbnails/netlist.png",
-    "examples/aedt_general/components/index": "_static/thumbnails/components.png",
     "examples/aedt_general/components/component_conversion": "_static/thumbnails/e3dcomp.png",
-    "examples/aedt_general/report/index": "_static/thumbnails/touchstone.png",
     "examples/aedt_general/report/virtual_compliance": "_static/thumbnails/virtual_compliance_eye.png",
     "examples/high_frequency/antenna/fss_unitcell": "_static/thumbnails/unitcell.png",
     "examples/high_frequency/antenna/large_scenarios/index": "_static/thumbnails/car_w_pedestrians.png",
