@@ -18,7 +18,7 @@ These examples use PyAEDT to show some report capabilities.
          :height: 150px
          :align: center
 
-    This example shows how to generate a compliance report in PyAEDT using the VirtualCompliance class.
+      This example shows how to generate a compliance report in PyAEDT using the VirtualCompliance class.
 
    .. grid-item-card:: Touchstone files
 
@@ -32,7 +32,7 @@ These examples use PyAEDT to show some report capabilities.
          :height: 150px
          :align: center
 
-    This example shows how to use objects in a Touchstone file without opening AEDT.
+      This example shows how to use objects in a Touchstone file without opening AEDT.
 
    .. grid-item-card:: Automatic report creation
 
@@ -46,7 +46,7 @@ These examples use PyAEDT to show some report capabilities.
          :height: 150px
          :align: center
 
-    This example shows how to create reports from a JSON template file.
+      This example shows how to create reports from a JSON template file.
 
 .. toctree::
     :hidden:

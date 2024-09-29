@@ -15,7 +15,7 @@ These examples use PyAEDT to show some modeler capabilities.
          :height: 150px
          :align: center
 
-    This example shows how to use PyAEDT to create and modify coordinate systems in the modeler.
+      This example shows how to use PyAEDT to create and modify coordinate systems in the modeler.
 
 
    .. grid-item-card:: Polyline creation
