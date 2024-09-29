@@ -415,7 +415,6 @@ nbsphinx_allow_errors = False
 
 # Define static thumbnails
 nbsphinx_thumbnails = {
-    "examples/aedt_general/report/virtual_compliance": "_static/thumbnails/virtual_compliance_eye.png",
     "examples/high_frequency/antenna/fss_unitcell": "_static/thumbnails/unitcell.png",
     "examples/high_frequency/antenna/large_scenarios/index": "_static/thumbnails/car_w_pedestrians.png",
     "examples/high_frequency/antenna/interferences/index": "_static/thumbnails/emit_simple_cosite.png",
