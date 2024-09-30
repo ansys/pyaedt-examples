@@ -11,7 +11,7 @@ These end-to-end examples show how to use PyAEDT for high-frequency applications
       :link: antenna/index
       :link-type: doc
 
-      .. image:: ./_static/array.png
+      .. image:: antenna/_static/array.png
          :alt: Antenna
          :width: 250px
          :height: 200px
