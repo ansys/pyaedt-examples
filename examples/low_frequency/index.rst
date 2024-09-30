@@ -12,7 +12,7 @@ These end-to-end examples show how to use PyAEDT for low-frequency applications.
       :link-type: doc
 
       .. image:: _static/general.png
-         :alt: Antenna
+         :alt: Maxwell general
          :width: 250px
          :height: 200px
          :align: center

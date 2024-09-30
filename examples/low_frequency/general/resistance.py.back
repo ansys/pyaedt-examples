@@ -133,12 +133,12 @@ m2d.analyze(setup=setup.name, cores=NUM_CORES, use_auto_settings=False)
 # Save fields and mesh. Use the mesh for all the materials.
 
 sweep = m2d.parametrics.add(
-    sweep_var="MaterialIndex",
+    variable="MaterialIndex",
     start_point=0,
     end_point=no_materials - 1,
     step=1,
     variation_type="LinearStep",
-    parametricname="MaterialSweep",
+    name="MaterialSweep",
 )
 sweep["SaveFields"] = True
 sweep["CopyMesh"] = True
