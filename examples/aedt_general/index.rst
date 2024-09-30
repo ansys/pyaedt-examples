@@ -36,7 +36,7 @@ Provides examples of some general AEDT pre-processing and post-processing capabi
       :link: optimetrics
       :link-type: doc
 
-      .. image:: _static/optimetrics.png
+      .. image:: /../../_images/examples_aedt_general_optimetrics_11_2.png
          :alt: Optimetrics
          :width: 250px
          :height: 200px
