@@ -16,6 +16,7 @@ These examples use PyAEDT to show some 3D component capabilities.
          :height: 150px
          :align: center
 
+      This example shows how to create and use 3D components.
 
    .. grid-item-card:: Encrypted 3D component conversion
       :padding: 2 2 2 2
