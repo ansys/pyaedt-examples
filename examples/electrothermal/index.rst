@@ -10,7 +10,7 @@ These examples use PyAEDT to show electrothermal capabilities of AEDT
       :link: components_csv
       :link-type: doc
 
-      .. image:: /../../_images/examples_electrothermal_components_csv_29_0.png
+      .. image:: _static/icepak_csv.png
          :alt: Icepak CSV
          :width: 250px
          :height: 200px
@@ -24,7 +24,7 @@ These examples use PyAEDT to show electrothermal capabilities of AEDT
       :link: ecad_import
       :link-type: doc
 
-      .. image:: /../../_images/examples_electrothermal_ecad_import_24_2.png
+      .. image:: _statc/ecad.png
          :alt: Icepak ECAD
          :width: 250px
          :height: 200px
@@ -39,7 +39,7 @@ These examples use PyAEDT to show electrothermal capabilities of AEDT
       :link: component_3d
       :link-type: doc
 
-      .. image:: /../../_images/examples_electrothermal_component_3d_38_2.png
+      .. image:: _static/component.png
          :alt: Thermal component
          :width: 250px
          :height: 200px
@@ -53,7 +53,7 @@ These examples use PyAEDT to show electrothermal capabilities of AEDT
       :link: graphic_card
       :link-type: doc
 
-      .. image:: /../../_images/examples_electrothermal_graphic_card_11_4.png
+      .. image:: _static/graphic.png
          :alt: Graphic card
          :width: 250px
          :height: 200px
@@ -68,7 +68,7 @@ These examples use PyAEDT to show electrothermal capabilities of AEDT
       :link: coaxial_hfss_icepak
       :link-type: doc
 
-      .. image:: /../../_images/examples_electrothermal_coaxial_hfss_icepak_47_1.png
+      .. image:: _static/coaxial.png
          :alt: Coaxial
          :width: 250px
          :height: 200px
@@ -82,7 +82,7 @@ These examples use PyAEDT to show electrothermal capabilities of AEDT
       :link: sherlock
       :link-type: doc
 
-      .. image::  /../../_images/examples_electrothermal_sherlock_34_2.png
+      .. image:: _static/sherlock.png
          :alt: PyAEDT logo
          :width: 250px
          :height: 200px

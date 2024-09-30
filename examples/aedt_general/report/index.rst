@@ -23,7 +23,7 @@ These examples use PyAEDT to show some report capabilities.
       :link: touchstone_file
       :link-type: doc
 
-      .. image:: /../../_images/examples_aedt_general_report_touchstone_file_8_0.png
+      .. image:: _static/touchstone_skitrf.png
          :alt: Touchstone file
          :width: 250px
          :height: 200px
@@ -36,7 +36,7 @@ These examples use PyAEDT to show some report capabilities.
       :link: automatic_report
       :link-type: doc
 
-      .. image:: /../../_images/examples_aedt_general_report_automatic_report_16_1.jpg
+      .. image:: _static/automatic_report.png
          :alt: Automatic report
          :width: 250px
          :height: 200px
