@@ -10,7 +10,7 @@ These examples use PyAEDT to show some 3D component capabilities.
       :link: reuse_component
       :link-type: doc
 
-      .. image:: _static/component_3d.png
+      .. image:: /../../_images/examples_aedt_general_components_reuse_component_39_2.png
          :alt: Component creation
          :width: 250px
          :height: 200px
