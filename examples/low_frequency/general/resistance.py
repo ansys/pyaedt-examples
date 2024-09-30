@@ -145,6 +145,15 @@ sweep["CopyMesh"] = True
 sweep["SolveWithCopiedMeshOnly"] = True
 sweep.analyze(cores=NUM_CORES)
 
+# ## Output variable
+#
+# Define output variable.
+
+expression = "1/Matrix1.G(1V,1V)/MaterialThickness"
+m2d.ooutput_variable.CreateOutputVariable(
+    "out1", expression, m2d.nominal_sweep, "DCConduction", []
+)
+
 # ## Create report
 #
 # Create a material resistance versus material index report.
@@ -152,7 +161,7 @@ sweep.analyze(cores=NUM_CORES)
 # +
 variations = {"MaterialIndex": ["All"], "MaterialThickness": ["Nominal"]}
 report = m2d.post.create_report(
-    expressions="1/Matrix1.G(1V,1V)/MaterialThickness",
+    expressions="out1",
     primary_sweep_variable="MaterialIndex",
     report_category="DCConduction",
     plot_type="Data Table",
