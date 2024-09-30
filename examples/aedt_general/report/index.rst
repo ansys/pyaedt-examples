@@ -1,5 +1,3 @@
-.. _ref_report:
-
 Report
 ~~~~~~
 
@@ -40,7 +38,7 @@ These examples use PyAEDT to show some report capabilities.
       :link: automatic_report
       :link-type: doc
 
-      .. image:: _static/automatic_report.jpg
+      .. image:: _static/automatic_report.png
          :alt: Touchstone file
          :width: 200px
          :height: 150px
