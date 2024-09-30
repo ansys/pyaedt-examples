@@ -433,9 +433,6 @@ nbsphinx_thumbnails = {
     "examples/low_frequency/general/twin_builder/static_rom": "_static/thumbnails/static_rom.png",
     "examples/low_frequency/magnetic/lorentz_actuator": "_static/thumbnails/lorentz_actuator.png",
     "examples/low_frequency/motor/aedt_motor/rmxpert": "_static/thumbnails/rmxpert.png",
-    "examples/low_frequency/multiphysics/maxwell_icepak": "_static/thumbnails/charging.png",
-    "examples/electrothermal/icepak_circuit_hfss_coupling": "_static/thumbnails/ring.png",
-    "examples/electrothermal/electrothermal": "_static/thumbnails/electrothermal.png",
 }
 
 
