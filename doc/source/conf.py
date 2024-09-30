@@ -428,11 +428,6 @@ nbsphinx_thumbnails = {
     "examples/high_frequency/layout/signal_integrity/com_analysis": "_static/thumbnails/com_eye.png",
     "examples/high_frequency/layout/signal_integrity/multizone": "_static/thumbnails/multizone.png",
     "examples/high_frequency/multiphysics/index": "_static/thumbnails/multizone.png",
-    "examples/low_frequency/general/external_circuit": "_static/thumbnails/external_circuit.png",
-    "examples/low_frequency/general/twin_builder/index": "_static/thumbnails/rectifier.png",
-    "examples/low_frequency/general/twin_builder/static_rom": "_static/thumbnails/static_rom.png",
-    "examples/low_frequency/magnetic/lorentz_actuator": "_static/thumbnails/lorentz_actuator.png",
-    "examples/low_frequency/motor/aedt_motor/rmxpert": "_static/thumbnails/rmxpert.png",
 }
 
 

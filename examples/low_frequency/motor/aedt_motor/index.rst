@@ -10,7 +10,7 @@ These examples use PyAEDT to show some motor applications in AEDT.
       :link: pm_synchronous
       :link-type: doc
 
-      .. image:: _static/control_program.png
+      .. image:: _static/pm_synchronous.png
          :alt: Maxwell general
          :width: 250px
          :height: 200px
@@ -23,7 +23,7 @@ These examples use PyAEDT to show some motor applications in AEDT.
       :link: magnet_segmentation
       :link-type: doc
 
-      .. image:: _static/control_program.png
+      .. image:: _static/magnet_segmentation.png
          :alt: Maxwell general
          :width: 250px
          :height: 200px
@@ -31,12 +31,12 @@ These examples use PyAEDT to show some motor applications in AEDT.
 
       This example shows how to use PyAEDT to segment magnets of an electric motor. The method is valid and usable for any object you would like to segment.
 
-.. grid-item-card:: Transformer
+   .. grid-item-card:: Transformer
       :padding: 2 2 2 2
       :link: transformer
       :link-type: doc
 
-      .. image:: _static/control_program.png
+      .. image:: _static/transformer.png
          :alt: Maxwell general
          :width: 250px
          :height: 200px
@@ -50,7 +50,7 @@ These examples use PyAEDT to show some motor applications in AEDT.
       :link: transformer_inductance
       :link-type: doc
 
-      .. image:: _static/control_program.png
+      .. image:: _static/transformer2.png
          :alt: Maxwell general
          :width: 250px
          :height: 200px
@@ -64,7 +64,7 @@ These examples use PyAEDT to show some motor applications in AEDT.
       :link: rmxpert
       :link-type: doc
 
-      .. image:: _static/control_program.png
+      .. image:: _static/rmxpert.png
          :alt: Maxwell general
          :width: 250px
          :height: 200px

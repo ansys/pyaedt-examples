@@ -10,8 +10,8 @@ These examples use PyAEDT to show some magnetics applications.
       :link: transient_winding
       :link-type: doc
 
-      .. image:: _static/control_program.png
-         :alt: Maxwell general
+      .. image:: _static/transient.png
+         :alt: Maxwell transient
          :width: 250px
          :height: 200px
          :align: center
@@ -23,8 +23,8 @@ These examples use PyAEDT to show some magnetics applications.
       :link: choke
       :link-type: doc
 
-      .. image:: _static/control_program.png
-         :alt: Maxwell general
+      .. image:: _static/choke.png
+         :alt: Maxwell choke
          :width: 250px
          :height: 200px
          :align: center
@@ -37,8 +37,8 @@ These examples use PyAEDT to show some magnetics applications.
       :link: magneto_motive_line
       :link-type: doc
 
-      .. image:: _static/control_program.png
-         :alt: Maxwell general
+      .. image:: _static/magneto.png
+         :alt: Maxwell magneto force
          :width: 250px
          :height: 200px
          :align: center
@@ -51,7 +51,7 @@ These examples use PyAEDT to show some magnetics applications.
       :link: lorentz_actuator
       :link-type: doc
 
-      .. image:: _static/control_program.png
+      .. image:: _static/lorentz_actuator.png
          :alt: Maxwell general
          :width: 250px
          :height: 200px
