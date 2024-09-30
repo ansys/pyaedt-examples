@@ -3,7 +3,7 @@
 
 These examples use PyAEDT to show some 3D component capabilities.
 
-.. grid:: 3
+.. grid:: 2
 
    .. grid-item-card:: 3D component creation and reuse
       :padding: 2 2 2 2
@@ -12,8 +12,8 @@ These examples use PyAEDT to show some 3D component capabilities.
 
       .. image:: _static/component_3d.png
          :alt: Component creation
-         :width: 200px
-         :height: 150px
+         :width: 250px
+         :height: 200px
          :align: center
 
       This example shows how to create and use 3D components.
@@ -25,8 +25,8 @@ These examples use PyAEDT to show some 3D component capabilities.
 
       .. image:: _static/e3dcomp.png
          :alt: Connector component
-         :width: 200px
-         :height: 150px
+         :width: 250px
+         :height: 200px
          :align: center
 
       This example shows how to convert an encrypted 3D component from ACIS to Parasolid in different AEDT releases.

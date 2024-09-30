@@ -1,9 +1,9 @@
 Pre-processing and post-processing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-These examples show how to use some general PyAEDT capabilities.
+Provides examples of some general AEDT pre-processing and post-processing capabilities.
 
 
-.. grid:: 3
+.. grid:: 2
 
    .. grid-item-card:: Configuration files
       :padding: 2 2 2 2
@@ -12,8 +12,8 @@ These examples show how to use some general PyAEDT capabilities.
 
       .. image:: _static/configuration_file_icepak.png
          :alt: Configuration file
-         :width: 200px
-         :height: 150px
+         :width: 250px
+         :height: 200px
          :align: center
 
       This example shows how to use PyAEDT to export configuration files and reuse them to import in a new project.
@@ -25,8 +25,8 @@ These examples show how to use some general PyAEDT capabilities.
 
       .. image:: _static/modeler.png
          :alt: Modeler
-         :width: 200px
-         :height: 150px
+         :width: 250px
+         :height: 200px
          :align: center
 
       These examples use PyAEDT to show some modeler capabilities.
@@ -38,8 +38,8 @@ These examples show how to use some general PyAEDT capabilities.
 
       .. image:: _static/optimetrics.png
          :alt: Optimetrics
-         :width: 200px
-         :height: 150px
+         :width: 250px
+         :height: 200px
          :align: center
 
       This example shows how to use PyAEDT to create a project in HFSS and create all optimetrics setups.
@@ -51,8 +51,8 @@ These examples show how to use some general PyAEDT capabilities.
 
       .. image:: _static/components.png
          :alt: Components
-         :width: 200px
-         :height: 150px
+         :width: 250px
+         :height: 200px
          :align: center
 
       These examples use PyAEDT to show some 3D component capabilities.
@@ -64,8 +64,8 @@ These examples show how to use some general PyAEDT capabilities.
 
       .. image:: _static/touchstone.png
          :alt: Components
-         :width: 200px
-         :height: 150px
+         :width: 250px
+         :height: 200px
          :align: center
 
       These examples use PyAEDT to show some report capabilities.

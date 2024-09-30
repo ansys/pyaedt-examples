@@ -88,7 +88,7 @@ This repository contains end-to-end embedding examples that demonstrate how to u
          :height: 200px
          :align: center
 
-      Provides examples of some general PyAEDT pre-processing and post-processing capabilities.
+      Provides examples of some general AEDT pre-processing and post-processing capabilities.
 
    .. toctree::
       :hidden:
