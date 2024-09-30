@@ -13,7 +13,8 @@
 # Import the required packages.
 
 from ansys.aedt.core import downloads
-from visualization.advanced.touchstone_parser import read_touchstone
+from ansys.aedt.core.visualization.advanced.touchstone_parser import \
+    read_touchstone
 
 # ## Download example data
 
