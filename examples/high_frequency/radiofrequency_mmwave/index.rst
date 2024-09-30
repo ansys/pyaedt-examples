@@ -87,7 +87,7 @@ These examples use PyAEDT to show some radio frequency and millimeter wave appli
 
       This example shows how to use PyAEDT to create a flex cable CPWG (coplanar waveguide with ground).
 
-.. grid-item-card:: Eigenmode filter
+   .. grid-item-card:: Eigenmode filter
       :padding: 2 2 2 2
       :link: ../emc/eigenmode
       :link-type: doc

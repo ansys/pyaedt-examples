@@ -24,7 +24,7 @@ These examples use PyAEDT to show electrothermal capabilities of AEDT
       :link: ecad_import
       :link-type: doc
 
-      .. image:: _statc/ecad.png
+      .. image:: _static/ecad.png
          :alt: Icepak ECAD
          :width: 250px
          :height: 200px
@@ -125,7 +125,7 @@ These examples use PyAEDT to show electrothermal capabilities of AEDT
       :link: ../low_frequency/multiphysics/maxwell_icepak
       :link-type: doc
 
-      .. image:: ../low_frequency/_static/charging.png
+      .. image:: ../low_frequency/multiphysics/_static/charging.png
          :alt: Charging
          :width: 250px
          :height: 200px

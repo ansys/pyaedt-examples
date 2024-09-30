@@ -11,7 +11,8 @@ These examples use PyAEDT to show some T.E.A.M. applications.
       :link-type: doc
 
       .. image:: _static/asymmetric_conductor.png
-         :alt: Maxwell general         :width: 250px
+         :alt: Asymmetric conductor
+         :width: 250px
          :height: 200px
          :align: center
 
@@ -22,8 +23,8 @@ These examples use PyAEDT to show some T.E.A.M. applications.
       :link: bath_plate
       :link-type: doc
 
-      .. image:: _static/control_program.png
-         :alt: Maxwell general
+      .. image:: _static/bath.png
+         :alt: Bath
          :width: 250px
          :height: 200px
          :align: center
