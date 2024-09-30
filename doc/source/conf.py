@@ -414,21 +414,7 @@ nbsphinx_execute = "always"
 nbsphinx_allow_errors = False
 
 # Define static thumbnails
-nbsphinx_thumbnails = {
-    "examples/high_frequency/antenna/fss_unitcell": "_static/thumbnails/unitcell.png",
-    "examples/high_frequency/antenna/large_scenarios/index": "_static/thumbnails/car_w_pedestrians.png",
-    "examples/high_frequency/antenna/interferences/index": "_static/thumbnails/emit_simple_cosite.png",
-    "examples/high_frequency/antenna/interferences/antenna": "_static/thumbnails/emit.png",
-    "examples/high_frequency/antenna/interferences/hfss_emit": "_static/thumbnails/emit_hfss.png",
-    "examples/high_frequency/antenna/interferences/interference": "_static/thumbnails/interference.png",
-    "examples/high_frequency/antenna/interferences/protection": "_static/thumbnails/protection.png",
-    "examples/high_frequency/antenna/interferences/interference_type": "_static/thumbnails/interference_type.png",
-    "examples/high_frequency/emc/subcircuit": "_static/thumbnails/subcircuit.png",
-    "examples/high_frequency/radiofrequency_mmwave/lumped_element": "_static/thumbnails/lumped_filter.png",
-    "examples/high_frequency/layout/signal_integrity/com_analysis": "_static/thumbnails/com_eye.png",
-    "examples/high_frequency/layout/signal_integrity/multizone": "_static/thumbnails/multizone.png",
-    "examples/high_frequency/multiphysics/index": "_static/thumbnails/multizone.png",
-}
+nbsphinx_thumbnails = {}
 
 
 # Define custom notebook format

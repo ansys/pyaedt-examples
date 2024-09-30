@@ -1,8 +1,6 @@
 # # AMI Postprocessing
 #
 # This example demonstrates advanced postprocessing of AMI simulations.
-
-# <img src='_static/spectrum_plot.png' width="500">
 #
 # Keywords: **Circuit**, **AMI**.
 
