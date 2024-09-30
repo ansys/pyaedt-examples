@@ -10,7 +10,7 @@ These examples use PyAEDT to show signal integrity examples.
       :link: com_analysis
       :link-type: doc
 
-      .. image:: ./_static/com_eye.png
+      .. image:: _static/com_eye.png
          :alt: COM
          :width: 250px
          :height: 200px
@@ -23,7 +23,7 @@ These examples use PyAEDT to show signal integrity examples.
       :link: pre_layout
       :link-type: doc
 
-      .. image:: ./_static/pre_layout_sma_connector_on_pcb.png
+      .. image:: _static/pre_layout_sma_connector_on_pcb.png
          :alt: Pre layout connector
          :width: 250px
          :height: 200px
@@ -37,7 +37,7 @@ These examples use PyAEDT to show signal integrity examples.
       :link: pre_layout_parametrized
       :link-type: doc
 
-      .. image:: ./_static/pre_layout_sma_connector_on_pcb.png
+      .. image:: _static/pre_layout_parameterized_pcb.png
          :alt: Pre layout parametrized
          :width: 250px
          :height: 200px
@@ -50,7 +50,7 @@ These examples use PyAEDT to show signal integrity examples.
       :link: ami
       :link-type: doc
 
-      .. image:: ./_static/ami.png
+      .. image:: _static/ami.png
          :alt: AMI
          :width: 250px
          :height: 200px
@@ -63,7 +63,7 @@ These examples use PyAEDT to show signal integrity examples.
       :link: multizone
       :link-type: doc
 
-      .. image:: ./_static/multizone.png
+      .. image:: _static/multizone.png
          :alt: Multizone
          :width: 250px
          :height: 200px
@@ -76,7 +76,7 @@ These examples use PyAEDT to show signal integrity examples.
       :link: circuit_transient
       :link-type: doc
 
-      .. image:: ./_static/circuit_transient.png
+      .. image:: _static/circuit_transient.png
          :alt: Circuit transient
          :width: 250px
          :height: 200px
@@ -112,10 +112,10 @@ These examples use PyAEDT to show signal integrity examples.
 
    .. grid-item-card:: Schematic subcircuit management
       :padding: 2 2 2 2
-      :link: subcircuit
+      :link: ../../emc/subcircuit
       :link-type: doc
 
-      .. image:: _static/subcircuit.png
+      .. image:: ../../emc/_static/subcircuit.png
          :alt: Cable
          :width: 250px
          :height: 200px
@@ -126,10 +126,10 @@ These examples use PyAEDT to show signal integrity examples.
 
    .. grid-item-card:: Touchstone files
       :padding: 2 2 2 2
-      :link: ../../emc/aedt_general/report/touchstone_file
+      :link: ../../../aedt_general/report/touchstone_file
       :link-type: doc
 
-      .. image:: ../../emc/aedt_general/report/_static/touchstone_skitrf.png
+      .. image:: ../../../aedt_general/report/_static/touchstone_skitrf.png
          :alt: Touchstone file
          :width: 250px
          :height: 200px

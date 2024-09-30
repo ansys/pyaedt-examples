@@ -10,7 +10,7 @@ These examples use PyAEDT to show power integrity examples.
       :link: power_integrity
       :link-type: doc
 
-      .. image:: ./_static/power_integrity.png
+      .. image:: _static/power_integrity.png
          :alt: Power integrity
          :width: 250px
          :height: 200px
@@ -23,7 +23,7 @@ These examples use PyAEDT to show power integrity examples.
       :link: dcir
       :link-type: doc
 
-      .. image:: ./_static/dcir.png
+      .. image:: _static/dcir.png
          :alt: DCIR
          :width: 250px
          :height: 200px
@@ -37,7 +37,7 @@ These examples use PyAEDT to show power integrity examples.
       :link: dcir_q3d
       :link-type: doc
 
-      .. image:: ./_static/dcir_q3d.png
+      .. image:: _static/dcir_q3d.png
          :alt: DCIR
          :width: 250px
          :height: 200px
@@ -51,8 +51,8 @@ These examples use PyAEDT to show power integrity examples.
       :link: ac_q3d
       :link-type: doc
 
-      .. image:: ./_static/ac_q3d.png
-         :alt: DCIR
+      .. image:: _static/ac_q3d.png
+         :alt: AC Q3D
          :width: 250px
          :height: 200px
          :align: center
@@ -88,10 +88,10 @@ These examples use PyAEDT to show power integrity examples.
 
    .. grid-item-card:: Touchstone files
       :padding: 2 2 2 2
-      :link: ./../../aedt_general/report/touchstone_file
+      :link: ../../../aedt_general/report/touchstone_file
       :link-type: doc
 
-      .. image:: ./../../aedt_general/report/_static/touchstone_skitrf.png
+      .. image:: ../../../aedt_general/report/_static/touchstone_skitrf.png
          :alt: Touchstone file
          :width: 250px
          :height: 200px
