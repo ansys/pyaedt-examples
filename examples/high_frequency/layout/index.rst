@@ -11,7 +11,7 @@ These examples use PyAEDT to show some layout applications.
       :link: https://edb.docs.pyansys.com/version/stable/examples/legacy_standalone/index.html
       :link-type: url
 
-      .. image:: ./_static/pyedb.png
+      .. image:: _static/pyedb.png
          :alt: PyEDB
          :width: 250px
          :height: 200px
@@ -24,7 +24,7 @@ These examples use PyAEDT to show some layout applications.
       :link: https://edb.docs.pyansys.com/version/stable/examples/use_configuration/index.html
       :link-type: url
 
-      .. image:: ./_static/pyedb2.png
+      .. image:: _static/pyedb2.png
          :alt: PyEDB2
          :width: 250px
          :height: 200px
@@ -37,7 +37,7 @@ These examples use PyAEDT to show some layout applications.
       :link: power_integrity/index
       :link-type: doc
 
-      .. image:: ./_static/power_integrity.png
+      .. image:: _static/power_integrity.png
          :alt: Power
          :width: 250px
          :height: 200px
@@ -50,7 +50,7 @@ These examples use PyAEDT to show some layout applications.
       :link: signal_integrity/index
       :link-type: doc
 
-      .. image:: ./_static/signal_integrity.png
+      .. image:: _static/signal_integrity.png
          :alt: Signal
          :width: 250px
          :height: 200px
@@ -63,7 +63,7 @@ These examples use PyAEDT to show some layout applications.
       :link: gui_manipulation
       :link-type: doc
 
-      .. image:: ./_static/user_interface.png
+      .. image:: _static/user_interface.png
          :alt: UI 3D Layout
          :width: 250px
          :height: 200px
