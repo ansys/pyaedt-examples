@@ -15,3 +15,8 @@ These examples use PyAEDT to show some multiphysics applications.
          :align: center
 
       This example uses PyAEDT to set up a simple Maxwell design consisting of a coil and a ferrite core.
+
+.. toctree::
+      :hidden:
+
+      maxwell_icepak
