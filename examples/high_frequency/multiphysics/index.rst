@@ -39,7 +39,7 @@ These examples use PyAEDT to show some multiphysics applications.
       :link: ../../electrothermal/ecad_import
       :link-type: doc
 
-      .. image:: ../../electrothermal/_statc/ecad.png
+      .. image:: ../../electrothermal/_static/ecad.png
          :alt: Icepak ECAD
          :width: 250px
          :height: 200px
