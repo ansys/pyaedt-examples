@@ -31,6 +31,19 @@ These examples use PyAEDT to show some motor applications in AEDT.
 
       This example shows how to use PyAEDT to segment magnets of an electric motor. The method is valid and usable for any object you would like to segment.
 
+    .. grid-item-card:: IPM motor design optimization
+      :padding: 2 2 2 2
+      :link: ipm_optimization
+      :link-type: doc
+
+      .. image:: _static/ipm_optimization.png
+         :alt: Maxwell general
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      This example shows how to use PyAEDT to find the best machine 2D geometry to achieve high torque and low losses with an optimetrics analysis.
+
    .. grid-item-card:: Transformer
       :padding: 2 2 2 2
       :link: transformer
