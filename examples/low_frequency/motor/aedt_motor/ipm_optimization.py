@@ -3,9 +3,8 @@
 # This example shows how to use PyAEDT to find the best machine 2D geometry
 # to achieve high torque and low losses.
 # The example shows how to setup an optimetrics analysis to sweep geometries
-# and for each geometry sweep the stator current angle.
+# for a single value of stator current angle.
 # The torque and losses results are then exported in a .csv file.
-# TO LOCATE THE MTP POINT FOR EACH DESIGN??
 #
 # Keywords: **Maxwell 2D**, **transient**, **motor**, **optimization**.
 
@@ -63,7 +62,9 @@ model.plot(os.path.join(temp_folder.name, "Image.jpg"))
 
 # ## Add parametric setup
 #
-# Add a parametric setup made up of geometry variable sweep definitions, single current value and stator current angle.
+# Add a parametric setup made up of geometry variable sweep definitions and single value for the stator current angle.
+# Note: Step variations have been minimized to reduce the analysis time. If needed they can be increased by changing
+# the ``step`` argument.
 
 param_sweep = m2d.parametrics.add(
     variable="bridge",
@@ -72,12 +73,11 @@ param_sweep = m2d.parametrics.add(
     step="0.5mm",
     variation_type="LinearStep",
 )
-
 param_sweep.add_variation(
     sweep_variable="din",
     start_point=70,
     end_point=80,
-    step=5,
+    step=10,
     units="mm",
     variation_type="LinearStep",
 )
@@ -85,7 +85,7 @@ param_sweep.add_variation(
     sweep_variable="phase_advance",
     start_point=0,
     end_point=45,
-    step=15,
+    step=45,
     units="deg",
     variation_type="LinearStep",
 )
@@ -183,7 +183,7 @@ for var in core_loss_data.variations:
     )
 
     with open(
-        os.path.join(temp_folder, "motor_optimization.csv"), "w", newline=""
+        os.path.join(temp_folder.name, "motor_optimization.csv"), "w", newline=""
     ) as csvfile:
         fields = [
             "active_variation",
