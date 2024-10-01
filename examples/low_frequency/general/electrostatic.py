@@ -136,11 +136,6 @@ m2d.modeler.split(assignment=[poly1_id, poly2_id], plane="YZ", sides="NegativeOn
 m2d.modeler.create_region(pad_value=[20, 100, 20, 100])
 # -
 
-# ## Plot model
-
-model = m2d.plot(show=False)
-model.plot(os.path.join(temp_folder.name, "Image.jpg"))
-
 # ## Define excitations
 #
 # Assign voltage excitations to the rectangle and circle.

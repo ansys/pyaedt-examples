@@ -9,7 +9,6 @@
 #
 # Perform required imports.
 
-import os
 import tempfile
 import time
 
@@ -101,11 +100,6 @@ sheets_3 = m3d.modeler.objects_segmentation(
 object_name = "PM_O1_1"
 segments_number = 2
 sheets_4 = m3d.modeler.objects_segmentation(object_name, segments=segments_number)
-
-# ## Plot model
-
-model = m3d.plot(show=False)
-model.plot(os.path.join(temp_folder.name, "Image.jpg"))
 
 # ## Release AEDT
 

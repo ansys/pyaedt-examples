@@ -9,7 +9,6 @@
 #
 # Perform required imports.
 
-import os
 import tempfile
 import time
 
@@ -124,12 +123,6 @@ m3d.materials[mat.name].set_coreloss_at_frequency(
 coefficients = m3d.materials[mat.name].get_core_loss_coefficients(
     points_at_frequency=pv, coefficient_setup="kw_per_cubic_meter"
 )
-
-# ## Plot model
-
-model = m3d.plot(show=False)
-model.plot(os.path.join(temp_folder.name, "Image.jpg"))
-
 
 # ## Release AEDT
 

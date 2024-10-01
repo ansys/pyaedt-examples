@@ -9,7 +9,6 @@
 #
 # Perform required imports.
 
-import os
 import tempfile
 import time
 
@@ -67,11 +66,6 @@ matrix = m2d.assign_matrix(
 
 series = matrix.join_series(sources=["pri", "sec"], matrix_name="ReducedMatrix1")
 parallel = matrix.join_parallel(sources=["sec", "terz"], matrix_name="ReducedMatrix2")
-
-# ## Plot model
-
-model = m2d.plot(show=False)
-model.plot(os.path.join(temp_folder.name, "Image.jpg"))
 
 # ## Analyze setup
 #

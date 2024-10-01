@@ -111,15 +111,6 @@ total_power = ipk.assign_block_from_sherlock_file(csv_name=component_list)
 # Assign opening boundary condition to all the faces of the region.
 ipk.assign_openings(ipk.modeler.get_object_faces("Region"))
 
-# ## Plot model
-
-ipk.plot(
-    show=False,
-    output_file=os.path.join(temp_folder.name, "Sherlock_Example.jpg"),
-    plot_air_objects=False,
-    plot_as_separate_objects=False,
-)
-
 # ## Create simulation setup
 # ### Set global mesh settings
 

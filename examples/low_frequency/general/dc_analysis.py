@@ -63,14 +63,6 @@ conductor = m3d.modeler.create_box(
 m3d.assign_voltage(assignment=conductor.faces, amplitude=0)
 m3d.create_setup()
 
-# ## Plot model
-
-m3d.plot(
-    show=False,
-    output_file=os.path.join(temp_folder.name, "Image.jpg"),
-    plot_air_objects=True,
-)
-
 # ## Solve setup
 
 m3d.analyze(cores=NUM_CORES)

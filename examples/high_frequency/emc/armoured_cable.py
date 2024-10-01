@@ -240,11 +240,6 @@ q2d.assign_single_conductor(
 )
 q2d.modeler.fit_all()
 
-# ## Plot model
-
-model = q2d.plot(show=False)
-model.plot(os.path.join(temp_folder.name, "Image.jpg"))
-
 # Specify the design settings.
 
 lumped_length = "100m"

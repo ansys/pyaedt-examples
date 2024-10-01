@@ -72,7 +72,7 @@ plot_obj.zoom = 1.5
 plot_obj.show_grid = False
 plot_obj.show_axes = False
 plot_obj.bounding_box = False
-plot_obj.plot(os.path.join(app.working_directory, "Source.jpg"))
+plot_obj.plot(os.path.join(temp_folder.name, "Source.jpg"))
 
 # ## Release AEDT
 #

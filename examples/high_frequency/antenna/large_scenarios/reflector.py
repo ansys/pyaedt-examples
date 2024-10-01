@@ -10,7 +10,6 @@
 # Perform required imports and set up the local path to the path for the PyAEDT
 # directory.
 
-import os
 import tempfile
 import time
 
@@ -71,21 +70,6 @@ target.create_sbr_linked_antenna(
 
 target.assign_perfecte_to_sheets(["Reflector", "Subreflector"])
 target.mesh.assign_curvilinear_elements(["Reflector", "Subreflector"])
-
-# ## Plot model
-#
-# Plot the model
-
-source.plot(
-    show=False,
-    output_file=os.path.join(target.working_directory, "Source.jpg"),
-    plot_air_objects=True,
-)
-target.plot(
-    show=False,
-    output_file=os.path.join(target.working_directory, "Target.jpg"),
-    plot_air_objects=False,
-)
 
 # ## Create setup and solve
 #

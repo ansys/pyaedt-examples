@@ -128,11 +128,6 @@ hfss.modeler.objects_by_name[device3D_body_name].solve_inside = True
 
 icepak = aedt.Icepak(project=circuit.project_name)
 
-# ## Plot model
-
-model = icepak.plot(show=False)
-model.plot(os.path.join(temp_folder.name, "Image.jpg"))
-
 # ## Set parameters for iterations
 #
 # Set the initial temperature to a value closer to the final one, to speed up the convergence.

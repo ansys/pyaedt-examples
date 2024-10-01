@@ -147,12 +147,6 @@ hv = m2d.modeler.create_rectangle(
 
 region = m2d.modeler.create_region(pad_percent=[20, 10, 0, 10])
 
-# ## Plot model
-
-model = m2d.plot(show=False)
-model.plot(os.path.join(temp_folder.name, "Image.jpg"))
-
-
 # ## Assign boundary condition
 #
 # Assign vector potential to zero on all region boundaries. This makes x=0 edge a symmetry boundary.

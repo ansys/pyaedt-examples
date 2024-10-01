@@ -230,14 +230,6 @@ l2_mesh = m3d.modeler.create_polyline(points=line_points_2, name=lines[1] + "mes
 l2_mesh.set_crosssection_properties(type="Circle", width=mesh_diameter)
 # -
 
-# ## Plot model
-
-m3d.plot(
-    show=False,
-    output_file=os.path.join(m3d.working_directory, "Image.jpg"),
-    plot_air_objects=False,
-)
-
 # Published measurement results are included with this script via the following list.
 # Test results are used to create text files for import into a rectangular plot
 # and to overlay simulation results.

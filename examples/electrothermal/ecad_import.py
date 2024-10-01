@@ -100,16 +100,6 @@ ipk.create_pcb_from_3dlayout(
 
 ipk.modeler.delete_objects_containing("IDF_BoardOutline", False)
 
-# ## Plot model
-
-ipk.plot(
-    show=False,
-    output_file=os.path.join(temp_folder.name, "ECAD_import.jpg"),
-    plot_air_objects=False,
-    force_opacity_value=0.5,
-    plot_as_separate_objects=False,
-)
-
 # ## Release AEDT
 
 ipk.save_project()
