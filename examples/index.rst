@@ -2,9 +2,8 @@
 
 Examples
 ========
-End-to-end examples show how to use PyAEDT. If PyAEDT is installed
-on your machine, you can download these examples and use them as Python files
-or Jupyter notebooks and run them locally.
+This repository contains end-to-end embedding examples that demonstrate how to use
+`PyAEDT <https://aedt.docs.pyansys.com/version/stable/>`_.
 
 .. grid:: 2
 

@@ -73,16 +73,16 @@ These end-to-end examples show how to use PyAEDT for low-frequency applications.
 
    .. grid-item-card:: Report
       :padding: 2 2 2 2
-      :link: ref_report
-      :link-type: ref
+      :link: ../aedt_general/report/index
+      :link-type: doc
 
-      .. image:: _static/touchstone.png
-         :alt: Touchstone
+      .. image:: ../aedt_general/_static/touchstone.png
+         :alt: Components
          :width: 250px
          :height: 200px
          :align: center
 
-      Report examples
+      These examples use PyAEDT to show some report capabilities.
 
    .. toctree::
       :hidden:
@@ -92,3 +92,4 @@ These end-to-end examples show how to use PyAEDT for low-frequency applications.
       magnetic/index
       team_problem/index
       multiphysics/index
+      ../aedt_general/report/index
