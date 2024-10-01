@@ -248,4 +248,3 @@ These examples use PyAEDT to show HFSS capabilities
       ../../high_frequency/radiofrequency_mmwave/spiral
       ../../electrothermal/coaxial_hfss_icepak
       ../../electrothermal/icepak_circuit_hfss_coupling
-
