@@ -154,16 +154,6 @@ setup, sweep = app.create_sbr_pulse_doppler_setup(sweep_time_duration=2)
 app.set_sbr_current_sources_options()
 app.validate_simple()
 
-# ## Plot model
-#
-# Plot the model.
-
-app.plot(
-    show=False,
-    output_file=os.path.join(app.working_directory, "Image.jpg"),
-    plot_air_objects=True,
-)
-
 # ## Solve and release AEDT
 #
 # Solve and release AEDT. To solve, uncomment the ``app.analyze_setup`` command

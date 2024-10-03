@@ -43,6 +43,7 @@ hfss = Hfss(
     new_desktop=True,
     close_on_exit=True,
     non_graphical=NG_MODE,
+    solution_type="Modal",
 )
 hfss.save_project(os.path.join(temp_folder.name, "example.aedt"))
 
@@ -64,7 +65,7 @@ hfss["width"] = "1mm"
 substrate = hfss.modeler.create_box(
     ["-width", "-width", "-thick"],
     ["2*width", "2*width", "thick"],
-    matname="FR4_epoxy",
+    material="FR4_epoxy",
     name="sub",
 )
 
@@ -77,7 +78,7 @@ via1 = hfss.modeler.create_cylinder(
     ["-width/8", "-width/4", "-thick"],
     "0.01mm",
     "thick",
-    matname="copper",
+    material="copper",
     name="via_inner",
 )
 
@@ -86,7 +87,7 @@ via_outer = hfss.modeler.create_cylinder(
     ["-width/8", "-width/4", "-thick"],
     "0.025mm",
     "thick",
-    matname="Teflon_based",
+    material="Teflon_based",
     name="via_teflon",
 )
 # -
@@ -141,7 +142,12 @@ hfss.modeler.create_3dcomponent(component_path, "patch_antenna")
 # PyAEDT lets you control multiple projects, designs, and solution types at the same time.
 
 new_project = os.path.join(temp_folder.name, "new_project.aedt")
-hfss2 = Hfss(version=AEDT_VERSION, project=new_project, design="new_design")
+hfss2 = Hfss(
+    version=AEDT_VERSION,
+    project=new_project,
+    design="new_design",
+    solution_type="Modal",
+)
 
 # ## Insert 3D component
 #

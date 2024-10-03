@@ -414,38 +414,7 @@ nbsphinx_execute = "always"
 nbsphinx_allow_errors = False
 
 # Define static thumbnails
-nbsphinx_thumbnails = {
-    "examples/aedt_general/configuration_files": "_static/thumbnails/configuration_file_icepak.png",
-    "examples/aedt_general/modeler/index": "_static/thumbnails/modeler.png",
-    "examples/aedt_general/modeler/coordinate_system": "_static/thumbnails/coordinate_system.png",
-    "examples/aedt_general/modeler/polyline": "_static/thumbnails/polyline.png",
-    "examples/aedt_general/modeler/netlist_to_schematic": "_static/thumbnails/netlist.png",
-    "examples/aedt_general/components/index": "_static/thumbnails/components.png",
-    "examples/aedt_general/components/component_conversion": "_static/thumbnails/e3dcomp.png",
-    "examples/aedt_general/report/index": "_static/thumbnails/touchstone.png",
-    "examples/aedt_general/report/virtual_compliance": "_static/thumbnails/virtual_compliance_eye.png",
-    "examples/high_frequency/antenna/fss_unitcell": "_static/thumbnails/unitcell.png",
-    "examples/high_frequency/antenna/large_scenarios/index": "_static/thumbnails/car_w_pedestrians.png",
-    "examples/high_frequency/antenna/interferences/index": "_static/thumbnails/emit_simple_cosite.png",
-    "examples/high_frequency/antenna/interferences/antenna": "_static/thumbnails/emit.png",
-    "examples/high_frequency/antenna/interferences/hfss_emit": "_static/thumbnails/emit_hfss.png",
-    "examples/high_frequency/antenna/interferences/interference": "_static/thumbnails/interference.png",
-    "examples/high_frequency/antenna/interferences/protection": "_static/thumbnails/protection.png",
-    "examples/high_frequency/antenna/interferences/interference_type": "_static/thumbnails/interference_type.png",
-    "examples/high_frequency/emc/subcircuit": "_static/thumbnails/subcircuit.png",
-    "examples/high_frequency/radiofrequency_mmwave/lumped_element": "_static/thumbnails/lumped_filter.png",
-    "examples/high_frequency/layout/signal_integrity/com_analysis": "_static/thumbnails/com_eye.png",
-    "examples/high_frequency/layout/signal_integrity/multizone": "_static/thumbnails/multizone.png",
-    "examples/high_frequency/multiphysics/index": "_static/thumbnails/multizone.png",
-    "examples/low_frequency/general/external_circuit": "_static/thumbnails/external_circuit.png",
-    "examples/low_frequency/general/twin_builder/index": "_static/thumbnails/rectifier.png",
-    "examples/low_frequency/general/twin_builder/static_rom": "_static/thumbnails/static_rom.png",
-    "examples/low_frequency/magnetic/lorentz_actuator": "_static/thumbnails/lorentz_actuator.png",
-    "examples/low_frequency/motor/aedt_motor/rmxpert": "_static/thumbnails/rmxpert.png",
-    "examples/low_frequency/multiphysics/maxwell_icepak": "_static/thumbnails/charging.png",
-    "examples/electrothermal/icepak_circuit_hfss_coupling": "_static/thumbnails/ring.png",
-    "examples/electrothermal/electrothermal": "_static/thumbnails/electrothermal.png",
-}
+nbsphinx_thumbnails = {}
 
 
 # Define custom notebook format
@@ -474,8 +443,8 @@ nbsphinx_epilog = """
 
 .. admonition:: Download this example
 
-    Download this example as a `Jupyter Notebook <{examples_url}/{notebook_path}>`_
-    or as a `Python script <{examples_url}/{python_script_path}>`_.
+    Download this example as a `Jupyter Notebook <{examples_url}/version/dev/{notebook_path}>`_
+    or as a `Python script <{examples_url}/version/dev/{python_script_path}>`_.
 
 """.format(
     examples_url=f"https://{cname}",

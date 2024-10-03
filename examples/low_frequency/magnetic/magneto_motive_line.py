@@ -4,16 +4,19 @@
 # the magnetomotive force along a line that changes position.
 # It shows how to leverage the PyAEDT advanced fields calculator
 # to insert a custom formula, which in this case is the integral
-# of the H field along a line. It computes the field for each position
-# with a parametric sweep.
-#
+# of the H field along a line.
+# The example shows two options to achieve the intent.
+# The first one creates many lines as to simulate a contour that changes position.
+# The integral of the H field is computed for each line.
+# The second option creates one parametric polyline and then uses a parametric sweep to change its position.
+# The integral of the H field is computed for each position.
+
 # Keywords: **Maxwell 2D**, **magnetomotive force**.
 
 # ## Perform imports and define constants
 #
 # Perform required imports.
 
-import os
 import tempfile
 import time
 
@@ -55,6 +58,62 @@ m2d = ansys.aedt.core.Maxwell2d(
     design="Maxwell2DDesign1",
 )
 
+# # First option
+
+# ## Create a polyline
+#
+# Create a polyline, specifying its ends.
+
+poly = m2d.modeler.create_polyline(points=[[10, -10, 0], [10, 10, 0]], name="polyline")
+
+# Duplicate the polyline along a vector.
+
+polys = [poly.name]
+polys.extend(poly.duplicate_along_line(vector=[-0.5, 0, 0], clones=10))
+
+# ## Compute magnetomotive force along each line
+#
+# Create and add a new formula to add in the PyAEDT advanced fields calculator.
+# Create the fields report object and get field data.
+# Create a data table report for the H field along each line and export it to a .csv file.
+
+my_expression = {
+    "name": None,
+    "description": "Magnetomotive force along a line",
+    "design_type": ["Maxwell 2D", "Maxwell 3D"],
+    "fields_type": ["Fields"],
+    "primary_sweep": "distance",
+    "assignment": None,
+    "assignment_type": ["Line"],
+    "operations": [
+        "Fundamental_Quantity('H')",
+        "Operation('Tangent')",
+        "Operation('Dot')",
+        "EnterLine('assignment')",
+        "Operation('LineValue')",
+        "Operation('Integrate')",
+    ],
+    "report": ["Data Table"],
+}
+
+quantities = []
+for p in polys:
+    quantity = "H_field_{}".format(p)
+    quantities.append(quantity)
+    my_expression["name"] = quantity
+    my_expression["assignment"] = quantity
+    m2d.post.fields_calculator.add_expression(my_expression, p)
+    report = m2d.post.create_report(
+        expressions=quantity,
+        context=p,
+        polyline_points=1,
+        report_category="Fields",
+        plot_type="Data Table",
+        plot_name=quantity,
+    )
+
+# # Second option
+
 # ## Create a design variable
 #
 # Parametrize the polyline x position.
@@ -63,16 +122,11 @@ m2d["xl"] = "10mm"
 
 # ## Create polyline
 #
-# Create a polyline, specifying its points.
+# Create a parametrized polyline, specifying its ends.
 
 poly = m2d.modeler.create_polyline(
-    points=[["xl", -10, 0], ["xl", 10, 0]], name="polyline"
+    points=[["xl", -10, 0], ["xl", 10, 0]], name="polyline_sweep"
 )
-
-# ## Plot model
-
-model = m2d.plot(show=False)
-model.plot(os.path.join(temp_folder.name, "Image.jpg"))
 
 # ## Add parametric sweep
 #
@@ -91,51 +145,51 @@ param_sweep = m2d.parametrics.add(
 #
 # Create and add a new formula to add in the PyAEDT advanced fields calculator.
 
-quantity = "H_field_{}".format(poly.name)
-my_expression = {
-    "name": quantity,
-    "description": "Magnetomotive force along a line",
-    "design_type": ["Maxwell 2D", "Maxwell 3D"],
-    "fields_type": ["Fields"],
-    "primary_sweep": "distance",
-    "assignment": poly.name,
-    "assignment_type": ["Line"],
-    "operations": [
-        "Fundamental_Quantity('H')",
-        "Operation('Tangent')",
-        "Operation('Dot')",
-        "EnterLine('assignment')",
-        "Operation('LineValue')",
-        "Operation('Integrate')",
-    ],
-    "report": ["Data Table"],
-}
+quantity_sweep = "H_field_{}".format(poly.name)
+my_expression["name"] = quantity_sweep
+my_expression["assignment"] = poly.name
 m2d.post.fields_calculator.add_expression(my_expression, poly.name)
 
-# ## Add parametric sweep calculation specifying the quantity (H).
+# ## Add parametric sweep calculation specifying the quantity (H) and save fields.
 
-param_sweep.add_calculation(calculation=quantity, report_type="Fields", ranges={})
+param_sweep.add_calculation(calculation=quantity_sweep, report_type="Fields", ranges={})
+param_sweep.props["ProdOptiSetupDataV2"]["SaveFields"] = True
+
+# ## Create data table report
+#
+# Create a data table report to display H for each polyline position.
+
+report_sweep = m2d.post.create_report(
+    expressions=quantity_sweep,
+    report_category="Fields",
+    plot_type="Data Table",
+    plot_name=quantity_sweep,
+    primary_sweep_variable="xl",
+    variations={"xl": "All"},
+)
 
 # ## Analyze parametric sweep
 
 param_sweep.analyze(cores=NUM_CORES)
 
-# ## Create data table report
+# ## Export results
 #
-# Create a data table report to display H for each polyline position.
-# Afterwards, export results to a CSV file.
+# Export results in a .csv file for the parametric sweep analysis (second option).
 
-report = m2d.post.create_report(
-    expressions=quantity,
-    report_category="Fields",
-    plot_type="Data Table",
-    plot_name=quantity,
-    primary_sweep_variable="xl",
-)
 m2d.post.export_report_to_csv(
     project_dir=temp_folder.name,
-    plot_name=quantity,
+    plot_name=quantity_sweep,
 )
+
+# Export results in a .csv file for each polyline (first option).
+
+[
+    m2d.post.export_report_to_csv(
+        project_dir=temp_folder.name,
+        plot_name=q,
+    )
+    for q in quantities
+]
 
 # ## Release AEDT
 

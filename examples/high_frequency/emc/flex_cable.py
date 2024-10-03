@@ -234,17 +234,6 @@ hfss.create_linear_count_sweep(
     sweep_type="Interpolating",
 )
 
-# ## Plot model
-#
-# Plot the model.
-
-my_plot = hfss.plot(show=False, plot_air_objects=False)
-my_plot.show_axes = False
-my_plot.show_grid = False
-my_plot.plot(
-    os.path.join(hfss.working_directory, "Image.jpg"),
-)
-
 # ## Release AEDT
 
 hfss.release_desktop()

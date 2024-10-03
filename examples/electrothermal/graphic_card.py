@@ -55,7 +55,7 @@ ipk = ansys.aedt.core.Icepak(
 # +
 plot1 = ipk.plot(
     show=False,
-    export_path=os.path.join(temp_folder.name, "Graphics_card_1.jpg"),
+    output_file=os.path.join(temp_folder.name, "Graphics_card_1.jpg"),
     plot_air_objects=False,
 )
 
@@ -63,7 +63,7 @@ ipk.modeler.rotate(ipk.modeler.object_names, "X")
 
 plot2 = ipk.plot(
     show=False,
-    export_path=os.path.join(temp_folder.name, "Graphics_card_2.jpg"),
+    output_file=os.path.join(temp_folder.name, "Graphics_card_2.jpg"),
     plot_air_objects=False,
 )
 # -
@@ -124,12 +124,6 @@ subregion.negative_x_padding = "5mm"
 subregion.negative_y_padding = "5mm"
 subregion.negative_z_padding = "10mm"
 
-# ### Set global mesh resolution
-# Set the global mesh resolution (using automatic settings) to 4.
-
-ipk.mesh.global_mesh_region.settings["MeshRegionResolution"] = 4
-ipk.mesh.global_mesh_region.update()
-
 
 # ## Assign monitors
 #
@@ -145,7 +139,7 @@ m1 = ipk.monitor.assign_face_monitor(
 # Assign multiple speed point monitors downstream of the assembly.
 
 speed_monitors = []
-for x_pos in range(0, 82, 2):
+for x_pos in range(0, 10, 2):
     m = ipk.monitor.assign_point_monitor(
         point_position=[f"{x_pos}mm", "40mm", "15mm"], monitor_quantity="Speed"
     )

@@ -10,7 +10,6 @@
 # Perform required imports.
 
 # +
-import os
 import tempfile
 import time
 
@@ -139,14 +138,6 @@ for el in diels:
         assignment=[mech.modeler[el].top_face_y, mech.modeler[el].bottom_face_y],
         convection_value=3,
     )
-
-# ## Plot model
-
-mech.plot(
-    show=False,
-    output_file=os.path.join(temp_folder.name, "Mech.jpg"),
-    plot_air_objects=False,
-)
 
 # ## Solve and plot thermal results
 

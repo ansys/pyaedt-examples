@@ -11,7 +11,6 @@
 #
 # Perform required imports.
 
-import os
 import tempfile
 import time
 
@@ -63,11 +62,6 @@ setup.props["N Steps"] = "2"
 setup.props["Steps From"] = "0s"
 setup.props["Steps To"] = "0.02s"
 setup.update()
-
-# ## Plot model
-
-model = m3d.plot(show=False)
-model.plot(os.path.join(temp_folder.name, "Image.jpg"))
 
 # ## Create field expressions
 #

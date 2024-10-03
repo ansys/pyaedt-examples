@@ -78,7 +78,7 @@ project_name = aedt.downloads.download_file(
 circuit = aedt.Circuit(
     project=project_name,
     new_desktop=True,
-    specified_version=AEDT_VERSION,
+    version=AEDT_VERSION,
     non_graphical=NG_MODE,
 )
 
@@ -127,11 +127,6 @@ hfss.modeler.objects_by_name[device3D_body_name].solve_inside = True
 # ## Get Icepak design
 
 icepak = aedt.Icepak(project=circuit.project_name)
-
-# ## Plot model
-
-model = icepak.plot(show=False)
-model.plot(os.path.join(temp_folder.name, "Image.jpg"))
 
 # ## Set parameters for iterations
 #

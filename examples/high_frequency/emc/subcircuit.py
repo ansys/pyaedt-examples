@@ -59,16 +59,16 @@ circuit.push_down(subcircuit)
 # and the focus is changed to the parent schematic using
 # the ``pop_up()`` method.
 
-circuit.variable_manager.set_variable(variable_name="R_val", expression="35ohm")
-circuit.variable_manager.set_variable(variable_name="L_val", expression="1e-7H")
-circuit.variable_manager.set_variable(variable_name="C_val", expression="5e-10F")
+circuit.variable_manager.set_variable(name="R_val", expression="35ohm")
+circuit.variable_manager.set_variable(name="L_val", expression="1e-7H")
+circuit.variable_manager.set_variable(name="C_val", expression="5e-10F")
 p1 = circuit.modeler.schematic.create_interface_port(name="In")
 r1 = circuit.modeler.schematic.create_resistor(value="R_val")
 l1 = circuit.modeler.schematic.create_inductor(value="L_val")
 c1 = circuit.modeler.schematic.create_capacitor(value="C_val")
 p2 = circuit.modeler.schematic.create_interface_port(name="Out")
 circuit.modeler.schematic.connect_components_in_series(
-    components_to_connect=[p1, r1, l1, c1, p2], use_wire=True
+    assignment=[p1, r1, l1, c1, p2], use_wire=True
 )
 circuit.pop_up()
 

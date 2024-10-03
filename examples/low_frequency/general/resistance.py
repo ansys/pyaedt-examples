@@ -14,7 +14,7 @@ import tempfile
 import time
 
 import ansys.aedt.core
-from ansys.aedt.core.generic.pdf import AnsysReport
+from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 
 # Define constants.
 
@@ -60,7 +60,7 @@ m2d = ansys.aedt.core.Maxwell2d(
 # m2d.import_dxf(DXFPath, dxf_layers, scale=1E-05)
 
 parasolid_path = ansys.aedt.core.downloads.download_file(
-    directory="x_t", filename="Ansys_logo_2D.x_t", destination=temp_folder.name
+    source="x_t", name="Ansys_logo_2D.x_t", destination=temp_folder.name
 )
 m2d.modeler.import_3d_cad(parasolid_path)
 # -
@@ -81,7 +81,7 @@ no_materials = 4
 # Voltage ports are defined as gold. The conductor
 # gets the material defined by the 0th entry of the material array.
 
-m2d.assign_material(obj=["ANSYS_LOGO_2D_1", "ANSYS_LOGO_2D_2"], mat="gold")
+m2d.assign_material(assignment=["ANSYS_LOGO_2D_1", "ANSYS_LOGO_2D_2"], material="gold")
 m2d.modeler["ANSYS_LOGO_2D_3"].material_name = "ConductorMaterial[MaterialIndex]"
 
 # ## Assign voltages
@@ -111,7 +111,7 @@ m2d.mesh.assign_length_mesh(
 # Create the simulation setup with a minimum of four adaptive passes to ensure convergence.
 # Enable the expression cache to observe the convergence.
 
-setup = m2d.create_setup(setupname="Setup1", MinimumPasses=4)
+setup = m2d.create_setup(name="Setup1", MinimumPasses=4)
 setup.enable_expression_cache(
     report_type="DCConduction",
     expressions="1/Matrix1.G(1V,1V)/MaterialThickness",
@@ -133,17 +133,26 @@ m2d.analyze(setup=setup.name, cores=NUM_CORES, use_auto_settings=False)
 # Save fields and mesh. Use the mesh for all the materials.
 
 sweep = m2d.parametrics.add(
-    sweep_var="MaterialIndex",
+    variable="MaterialIndex",
     start_point=0,
     end_point=no_materials - 1,
     step=1,
     variation_type="LinearStep",
-    parametricname="MaterialSweep",
+    name="MaterialSweep",
 )
 sweep["SaveFields"] = True
 sweep["CopyMesh"] = True
 sweep["SolveWithCopiedMeshOnly"] = True
 sweep.analyze(cores=NUM_CORES)
+
+# ## Output variable
+#
+# Define output variable.
+
+expression = "1/Matrix1.G(1V,1V)/MaterialThickness"
+m2d.ooutput_variable.CreateOutputVariable(
+    "out1", expression, m2d.nominal_sweep, "DCConduction", []
+)
 
 # ## Create report
 #
@@ -152,7 +161,7 @@ sweep.analyze(cores=NUM_CORES)
 # +
 variations = {"MaterialIndex": ["All"], "MaterialThickness": ["Nominal"]}
 report = m2d.post.create_report(
-    expressions="1/Matrix1.G(1V,1V)/MaterialThickness",
+    expressions="out1",
     primary_sweep_variable="MaterialIndex",
     report_category="DCConduction",
     plot_type="Data Table",

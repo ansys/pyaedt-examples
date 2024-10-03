@@ -68,16 +68,6 @@ hfss.modeler.insert_3d_component(compfile, geometryparams)
 
 hfss.create_open_region(frequency="1GHz")
 
-# ## Plot model
-
-my_plot = hfss.plot(show=False, plot_air_objects=False)
-my_plot.show_axes = False
-my_plot.show_grid = False
-my_plot.isometric_view = False
-my_plot.plot(
-    os.path.join(hfss.working_directory, "Image.jpg"),
-)
-
 # ## Create setup
 #
 # Create a setup with a sweep to run the simulation.

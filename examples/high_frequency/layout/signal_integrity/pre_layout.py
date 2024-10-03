@@ -337,18 +337,6 @@ comp = h3d.modeler.place_3d_component(
 )
 comp.angle = "90deg"
 
-# ## Analyze
-
-h3d.analyze(cores=NUM_CORES)
-
-# ## Plot results
-
-h3d.post.create_report("dB(S(port_1, port_1))")
-
-traces = h3d.get_traces_for_plot(category="S")
-solutions = h3d.post.get_solution_data(traces)
-solutions.plot(traces, math_formula="db20")
-
 # ## Release AEDT
 
 h3d.save_project()

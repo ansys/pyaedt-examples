@@ -4,30 +4,43 @@ IC-Package-PCB
 These examples use PyAEDT to show some layout applications.
 
 
-.. grid:: 3
+.. grid:: 2
 
    .. grid-item-card:: Layout preprocessing
       :padding: 2 2 2 2
       :link: https://edb.docs.pyansys.com/version/stable/examples/legacy_standalone/index.html
       :link-type: url
 
-      .. image:: ./_static/pyedb.png
+      .. image:: _static/pyedb.png
          :alt: PyEDB
-         :width: 200px
-         :height: 150px
+         :width: 250px
+         :height: 200px
          :align: center
 
       Links to examples in the AEDT documentation that show how to use the legacy PyEDB API as a standalone package.
+
+   .. grid-item-card:: PyEDB configuration files
+      :padding: 2 2 2 2
+      :link: https://edb.docs.pyansys.com/version/stable/examples/use_configuration/index.html
+      :link-type: url
+
+      .. image:: _static/pyedb2.png
+         :alt: PyEDB2
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      Links to examples in the PyAEDT documentation that show how to use PyEDB configuration files.
 
    .. grid-item-card:: Power integrity
       :padding: 2 2 2 2
       :link: power_integrity/index
       :link-type: doc
 
-      .. image:: ./_static/power_integrity.png
+      .. image:: _static/power_integrity.png
          :alt: Power
-         :width: 200px
-         :height: 150px
+         :width: 250px
+         :height: 200px
          :align: center
 
       Provides power integrity examples.
@@ -37,10 +50,10 @@ These examples use PyAEDT to show some layout applications.
       :link: signal_integrity/index
       :link-type: doc
 
-      .. image:: ./_static/signal_integrity.png
+      .. image:: _static/signal_integrity.png
          :alt: Signal
-         :width: 200px
-         :height: 150px
+         :width: 250px
+         :height: 200px
          :align: center
 
       Provides signal integrity examples
@@ -50,23 +63,18 @@ These examples use PyAEDT to show some layout applications.
       :link: gui_manipulation
       :link-type: doc
 
-      .. image:: ./_static/user_interface.png
+      .. image:: _static/user_interface.png
          :alt: UI 3D Layout
-         :width: 200px
-         :height: 150px
+         :width: 250px
+         :height: 200px
          :align: center
 
       Provides HFSS 3D Layout GUI modification examples.
 
-   .. grid-item-card:: PyEDB configuration files
-      :padding: 2 2 2 2
-      :link: https://edb.docs.pyansys.com/version/stable/examples/use_configuration/index.html
-      :link-type: url
 
-      .. image:: ./_static/pyedb2.png
-         :alt: PyEDB2
-         :width: 200px
-         :height: 150px
-         :align: center
+   .. toctree::
+      :hidden:
 
-      Links to examples in the PyAEDT documentation that show how to use PyEDB configuration files.
+      power_integrity/index
+      signal_integrity/index
+      gui_manipulation

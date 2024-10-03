@@ -73,18 +73,10 @@ region = m2d.modeler.create_region([100, 100, 100, 100])
 #
 # Assigns windings to the sheets and a balloon to the air region.
 
-m2d.assign_winding(assignment=[rect1.name, rect2.name],
-                   current="1*sin(2*pi*50*Time)",
-                   name="PHA")
-m2d.assign_balloon(assignment=region.edges)
-
-# ## Plot model
-
-m2d.plot(
-    show=False,
-    output_file=os.path.join(temp_folder.name, "Image.jpg"),
-    plot_air_objects=True,
+m2d.assign_winding(
+    assignment=[rect1.name, rect2.name], current="1*sin(2*pi*50*Time)", name="PHA"
 )
+m2d.assign_balloon(assignment=region.edges)
 
 # ## Create transient setup
 

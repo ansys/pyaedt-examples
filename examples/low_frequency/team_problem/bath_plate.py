@@ -144,11 +144,6 @@ m3d.modeler.create_polyline(points=line_points, name="Line_AB")
 poly = m3d.modeler.create_polyline(points=line_points, name="Line_AB_MeshRefinement")
 poly.set_crosssection_properties(type="Circle", width="0.5mm")
 
-# ## Plot model
-
-model = m3d.plot(show=False)
-model.plot(os.path.join(temp_folder.name, "Image.jpg"))
-
 # ## Add Maxwell 3D setup
 #
 # Add a Maxwell 3D setup with frequency points at 50 Hz and 200 Hz.

@@ -9,11 +9,10 @@
 #
 # Perform required imports.
 
-import os
 import tempfile
 import time
 
-from ansys.aedt.core import Maxwell3d, downloads
+import ansys.aedt.core
 
 # Define constants.
 
@@ -33,7 +32,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 #
 # Set the local temporary folder to export the AEDT file to.
 
-aedt_file = downloads.download_file(
+aedt_file = ansys.aedt.core.downloads.download_file(
     source="object_segmentation",
     name="Motor3D_obj_segments.aedt",
     destination=temp_folder.name,
@@ -43,7 +42,7 @@ aedt_file = downloads.download_file(
 #
 # Launch Maxwell 3D, providing the version, rgw path to the project, and the graphical mode.
 
-m3d = Maxwell3d(
+m3d = ansys.aedt.core.Maxwell3d(
     project=aedt_file,
     version=AEDT_VERSION,
     new_desktop=True,
@@ -101,11 +100,6 @@ sheets_3 = m3d.modeler.objects_segmentation(
 object_name = "PM_O1_1"
 segments_number = 2
 sheets_4 = m3d.modeler.objects_segmentation(object_name, segments=segments_number)
-
-# ## Plot model
-
-model = m3d.plot(show=False)
-model.plot(os.path.join(temp_folder.name, "Image.jpg"))
 
 # ## Release AEDT
 

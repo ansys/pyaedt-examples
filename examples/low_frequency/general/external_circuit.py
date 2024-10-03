@@ -1,6 +1,7 @@
 # # External delta circuit
 #
 # This example shows how to create an external delta circuit and connect it with a Maxwell 2D design.
+#
 # Keywords: **Maxwell 2D**, **Circuit**, **netlist**
 
 # ## Perform imports and define constants

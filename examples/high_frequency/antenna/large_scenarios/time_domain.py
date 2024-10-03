@@ -45,7 +45,7 @@ hfss = Hfss(
     new_desktop=True,
 )
 
-hfss.analyze(num_cores=NUM_CORES)
+hfss.analyze(cores=NUM_CORES)
 
 # ## Get solution data
 #

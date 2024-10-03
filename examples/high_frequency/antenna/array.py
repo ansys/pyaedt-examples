@@ -6,18 +6,19 @@
 #
 # Keywords: **HFSS**, **antenna array**, **3D components**, **far field**.
 
-
 # ## Perform imports and define constants
-# Import the required packages.
+#
+# Perform required imports.
 
 import os
 import tempfile
 import time
 
 import ansys.aedt.core
-from ansys.aedt.core.generic.farfield_visualization import FfdSolutionData
+from ansys.aedt.core.visualization.advanced.farfield_visualization import \
+    FfdSolutionData
 
-# Define constants.
+# Define constants
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
