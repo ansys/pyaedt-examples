@@ -158,66 +158,6 @@ setup1.props["Convergence Criteria - Max Iterations"] = 100
 
 ipk.assign_priority_on_intersections()
 
-# ## Analyze the model
-
-# ipk.analyze(cores=4, tasks=4)
-# ipk.save_project()
-
-# ## Postprocess
-# ### Get monitor point result
-
-# pt_monitor_result = ipk.monitor.all_monitors[point1].value()
-# print(pt_monitor_result)
-
-# ### Create report
-# # Create a report on the previously defined line and get data from it.
-
-# report = ipk.post.create_report(
-#     expressions=["Temperature", "Speed"],
-#     context=line.name,
-#     primary_sweep_variable="Distance",
-#     report_category="Fields",
-#     polyline_points=500,
-# )
-# report_data = report.get_solution_data()
-# distance = [
-#     k[0] for k, _ in report_data.full_matrix_mag_phase[0]["Temperature"].items()
-# ]
-# temperature = [
-#     v for _, v in report_data.full_matrix_mag_phase[0]["Temperature"].items()
-# ]
-# speed = [v for _, v in report_data.full_matrix_mag_phase[0]["Speed"].items()]
-
-# ### Plot data
-
-# fig, ax = plt.subplots(1, 1)
-# sc = ax.scatter(distance, speed, c=temperature)
-# ax.grid()
-# ax.set_xlabel("Distance [mm]")
-# ax.set_ylabel("Speed [m/s]")
-# cbar = fig.colorbar(sc)
-# cbar.set_label("Temperature [cel]")
-
-# ### Plot contours
-# # You can create the plot within AEDT.
-
-# plot1 = ipk.post.create_fieldplot_surface(
-#     assignment=ipk.modeler["COMP_U10"].faces, quantity="SurfTemperature"
-# )
-# path = plot1.export_image(
-#     full_path=os.path.join(temp_folder.name, "temperature.png"), show_region=False
-# )
-# Image(filename=path)  # Display the image
-
-# # You can create the plot outside AEDT uding the PyVista integration.
-
-# ipk.post.plot_field(
-#     quantity="SurfPressure",
-#     assignment=ipk.modeler["COMP_U10"].faces,
-#     export_path=ipk.working_directory,
-#     show=False,
-# )
-
 # ## Release AEDT
 
 ipk.save_project()

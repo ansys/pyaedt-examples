@@ -428,8 +428,8 @@ nbsphinx_prolog = """
 
 .. admonition:: Download this example
 
-    Download this example as a `Jupyter Notebook <{examples_url}/{notebook_path}>`_
-    or as a `Python script <{examples_url}/{python_script_path}>`_.
+    Download this example as a `Jupyter Notebook <{examples_url}/version/dev/{notebook_path}>`_
+    or as a `Python script <{examples_url}/version/dev/{python_script_path}>`_.
 
 ----
 """.format(
