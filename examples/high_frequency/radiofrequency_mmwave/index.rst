@@ -65,7 +65,7 @@ These examples use PyAEDT to show some radio frequency and millimeter wave appli
       :link-type: doc
 
       .. image:: _static/lumped_filter.png
-         :alt: Stripline
+         :alt: Lumped element filter
          :width: 250px
          :height: 200px
          :align: center

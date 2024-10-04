@@ -83,7 +83,7 @@ These examples use PyAEDT to show electrothermal capabilities of AEDT
       :link-type: doc
 
       .. image:: _static/sherlock.png
-         :alt: PyAEDT logo
+         :alt: Sherlock PCB
          :width: 250px
          :height: 200px
          :align: center
