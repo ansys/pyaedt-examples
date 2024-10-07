@@ -40,6 +40,7 @@ input_dir = downloads.download_twin_builder_data(
 data_folder = os.path.join(input_dir, "LTI_training")
 
 # Unzip training data and parse ports names
+
 downloads.unzip(os.path.join(input_dir, training_data_folder), data_folder)
 ports_names_file = "Input_PortNames.txt"
 
@@ -240,6 +241,7 @@ tb.save_project()
 tb.release_desktop()
 
 # Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
+
 time.sleep(3)
 
 # ## Clean up
