@@ -58,6 +58,20 @@ These examples use PyAEDT to show some Twin Builder applications.
 
       This example shows how to use PyAEDT to create a dynamic reduced order model (ROM) in Twin Builder and run a Twin Builder time-domain simulation.
 
+   .. grid-item-card:: LTI ROM
+      :padding: 2 2 2 2
+      :link: lti_rom_sml
+      :link-type: doc
+
+      .. image:: _static/lti_rom.png
+         :alt: LTI ROM plot
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      This example shows how you can use PyAEDT to create a Linear Time Invariant (LTI) ROM in Twin Builder
+      and run a Twin Builder time-domain simulation.
+
 
    .. toctree::
       :hidden:
@@ -66,3 +80,4 @@ These examples use PyAEDT to show some Twin Builder applications.
       rectifier
       static_rom
       dynamic_rom
+      lti_rom
