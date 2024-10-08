@@ -50,20 +50,20 @@ ports_names_file = "Input_PortNames.txt"
 
 def get_ports_info(ports_file):
     with open(ports_file, "r") as PortNameFile:
-        My_s = []
+        res = []
         line = PortNameFile.readline()
         line_list = list(line.split())
         for i in range(len(line_list)):
-            My_s.append("Input" + str(i + 1) + "_" + line_list[i])
+            res.append("Input" + str(i + 1) + "_" + line_list[i])
 
         line = PortNameFile.readline()
         line_list = list(line.split())
         for i in range(len(line_list)):
-            My_s.append("Output" + str(i + 1) + "_" + line_list[i])
-    return My_s
+            res.append("Output" + str(i + 1) + "_" + line_list[i])
+    return res
 
 
-My_s = get_ports_info(os.path.join(data_folder, ports_names_file))
+pin_names = get_ports_info(os.path.join(data_folder, ports_names_file))
 
 # ## Launch Twin Builder
 #
@@ -113,7 +113,7 @@ else:
 # ## Import the ROM component model
 
 is_created = tb.modeler.schematic.create_component_from_sml(
-    input_file=rom_file, model=model_name_sml, pins_names=My_s
+    input_file=rom_file, model=model_name_sml, pins_names=pin_names
 )
 os.remove(rom_file)
 tb.logger.info("LTI ROM model successfully imported.")
@@ -204,7 +204,7 @@ tb.analyze_setup("TR")
 # Units used are based on AEDT default units.
 
 variables_postprocessing = []
-pin_names_str = ",".join(My_s)
+pin_names_str = ",".join(pin_names)
 rom_pins = pin_names_str.lower().split(",")
 fig, ax = plt.subplots(ncols=1, nrows=2, figsize=(18, 7))
 fig.subplots_adjust(hspace=0.5)
