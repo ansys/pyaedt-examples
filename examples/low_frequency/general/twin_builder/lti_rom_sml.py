@@ -124,12 +124,12 @@ tb.logger.info("LTI ROM model successfully imported.")
 
 # Define the grid distance for ease in calculations
 
-G = 0.00254
+grid_distance = 0.00254
 
 # Place the ROM component
 
 rom1 = tb.modeler.schematic.create_component(
-    "ROM1", "", model_name_sml, [36 * G, 28 * G]
+    "ROM1", "", model_name_sml, [36 * grid_distance, 28 * grid_distance]
 )
 
 # Place datapairs blocks for inputs definition
@@ -138,13 +138,13 @@ source1 = tb.modeler.schematic.create_component(
     "source1",
     "",
     "Simplorer Elements\\Basic Elements\\Tools\\Time Functions:DATAPAIRS",
-    [20 * G, 29 * G],
+    [20 * grid_distance, 29 * grid_distance],
 )
 source2 = tb.modeler.schematic.create_component(
     "source2",
     "",
     "Simplorer Elements\\Basic Elements\\Tools\\Time Functions:DATAPAIRS",
-    [20 * G, 25 * G],
+    [20 * grid_distance, 25 * grid_distance],
 )
 
 # Import Datasets
