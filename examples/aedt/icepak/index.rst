@@ -137,7 +137,7 @@ These examples use PyAEDT to show Icepak capabilities.
    .. toctree::
       :hidden:
 
-      ../../electrothermal/component_csv
+      ../../electrothermal/components_csv
       ../../electrothermal/ecad_import
       ../../electrothermal/component_3d
       ../../electrothermal/graphic_card

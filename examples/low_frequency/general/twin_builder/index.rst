@@ -80,4 +80,4 @@ These examples use PyAEDT to show some Twin Builder applications.
       rectifier
       static_rom
       dynamic_rom
-      lti_rom
+      lti_rom_sml

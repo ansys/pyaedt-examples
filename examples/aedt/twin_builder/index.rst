@@ -79,4 +79,4 @@ These examples use PyAEDT to show Twin Builder capabilities.
       ../../low_frequency/general/twin_builder/rc_circuit
       ../../low_frequency/general/twin_builder/rectifier
       ../../low_frequency/general/twin_builder/static_rom
-      ../../low_frequency/general/twin_builder/lti_rom
+      ../../low_frequency/general/twin_builder/lti_rom_sml
