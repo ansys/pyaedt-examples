@@ -50,17 +50,17 @@ ports_names_file = "Input_PortNames.txt"
 
 def get_ports_info(ports_file):
     with open(ports_file, "r") as PortNameFile:
-        My_s = []
+        res = []
         line = PortNameFile.readline()
         line_list = list(line.split())
         for i in range(len(line_list)):
-            My_s.append("Input" + str(i + 1) + "_" + line_list[i])
+            res.append("Input" + str(i + 1) + "_" + line_list[i])
 
         line = PortNameFile.readline()
         line_list = list(line.split())
         for i in range(len(line_list)):
-            My_s.append("Output" + str(i + 1) + "_" + line_list[i])
-    return My_s
+            res.append("Output" + str(i + 1) + "_" + line_list[i])
+    return res
 
 
 My_s = get_ports_info(os.path.join(data_folder, ports_names_file))
