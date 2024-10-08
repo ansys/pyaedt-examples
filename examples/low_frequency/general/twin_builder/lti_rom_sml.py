@@ -113,7 +113,7 @@ else:
 # ## Import the ROM component model
 
 is_created = tb.modeler.schematic.create_component_from_sml(
-    input_file=rom_file, model=model_name_sml, pins_names=My_s
+    input_file=rom_file, model=model_name_sml, pins_names=pin_names
 )
 os.remove(rom_file)
 tb.logger.info("LTI ROM model successfully imported.")
