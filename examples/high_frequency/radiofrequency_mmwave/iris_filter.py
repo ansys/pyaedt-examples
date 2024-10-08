@@ -227,7 +227,7 @@ setup.create_frequency_sweep(
 #  Each frequency point is solved simultaneously.
 
 
-setup.analyze(num_tasks=2, num_cores=NUM_CORES)
+setup.analyze(cores=NUM_CORES)
 
 # ### Postprocess
 #
