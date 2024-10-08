@@ -204,7 +204,7 @@ tb.analyze_setup("TR")
 # Units used are based on AEDT default units.
 
 variables_postprocessing = []
-pin_names_str = ",".join(My_s)
+pin_names_str = ",".join(pin_names)
 rom_pins = pin_names_str.lower().split(",")
 fig, ax = plt.subplots(ncols=1, nrows=2, figsize=(18, 7))
 fig.subplots_adjust(hspace=0.5)
