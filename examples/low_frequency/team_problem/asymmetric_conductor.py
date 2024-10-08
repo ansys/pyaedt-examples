@@ -198,7 +198,7 @@ m3d.eddy_effects_on(
 
 # ## Create expression for Z component of B in Gauss
 #
-# Create an expression for the Z component of B in Gauss using the fields calculator.
+# Create an expression for the Z component of B in Gauss using PyAEDT advanced fields calculator.
 
 my_expression = {
     "name": "Bz",
