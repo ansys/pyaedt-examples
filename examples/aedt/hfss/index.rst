@@ -206,7 +206,7 @@ These examples use PyAEDT to show HFSS capabilities
       :link: ../../electrothermal/ccoaxial_hfss_icepak
       :link-type: doc
 
-      .. image:: ../../electrothermal/c_static/coaxial.png
+      .. image:: ../../electrothermal/_static/coaxial.png
          :alt: Coaxial
          :width: 250px
          :height: 200px
