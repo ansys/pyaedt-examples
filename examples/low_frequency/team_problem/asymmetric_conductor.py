@@ -200,15 +200,26 @@ m3d.eddy_effects_on(
 #
 # Create an expression for the Z component of B in Gauss using the fields calculator.
 
-Fields = m3d.ofieldsreporter
-Fields.EnterQty("B")
-Fields.CalcOp("ScalarZ")
-Fields.EnterScalarFunc("Phase")
-Fields.CalcOp("AtPhase")
-Fields.EnterScalar(10000)
-Fields.CalcOp("*")
-Fields.CalcOp("Smooth")
-Fields.AddNamedExpression("Bz", "Fields")
+my_expression = {
+    "name": "Bz",
+    "description": "Z component of B in Gauss",
+    "design_type": ["Maxwell 3D"],
+    "fields_type": ["Fields"],
+    "primary_sweep": "Distance",
+    "assignment": "",
+    "assignment_type": ["Line"],
+    "operations": [
+        "NameOfExpression('<Bx,By,Bz>')",
+        "Operation('ScalarZ')",
+        "Scalar_Function(FuncValue='Phase')",
+        "Operation('AtPhase')",
+        "Scalar_Constant(10000)",
+        "Operation('*')",
+        "Operation('Smooth')",
+    ],
+    "report": ["Field_3D"],
+}
+m3d.post.fields_calculator.add_expression(my_expression, None)
 
 # ## Draw two lines along which to plot Bz
 #
@@ -235,7 +246,7 @@ l2_mesh.set_crosssection_properties(type="Circle", width=mesh_diameter)
 # and to overlay simulation results.
 
 # +
-project_dir = m3d.working_directory
+project_dir = temp_folder.name
 dataset = [
     "Bz A1_B1 000 0",
     "Bz A1_B1 050 0",
