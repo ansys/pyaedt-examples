@@ -63,7 +63,7 @@ def get_ports_info(ports_file):
     return res
 
 
-My_s = get_ports_info(os.path.join(data_folder, ports_names_file))
+pin_names = get_ports_info(os.path.join(data_folder, ports_names_file))
 
 # ## Launch Twin Builder
 #
