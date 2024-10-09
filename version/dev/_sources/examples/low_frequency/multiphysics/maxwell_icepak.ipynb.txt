@@ -1,0 +1,658 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "afdd4255",
+   "metadata": {},
+   "source": [
+    "# Maxwell 3D-Icepak electrothermal analysis\n",
+    "\n",
+    "This example uses PyAEDT to set up a simple Maxwell design consisting of a coil and a ferrite core.\n",
+    "Coil current is set to 100A, and coil resistance and ohmic loss are analyzed.\n",
+    "Ohmic loss is mapped to Icepak, and a thermal analysis is performed.\n",
+    "Icepak calculates a temperature distribution, and it is mapped back to Maxwell (2-way coupling).\n",
+    "Coil resistance and ohmic loss are analyzed again in Maxwell. Results are printed in AEDT Message Manager.\n",
+    "\n",
+    "Keywords: **Multiphysics**, **Maxwell**, **Icepak**, **Wireless Charging**.\n",
+    "\n",
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "42d24641",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "79ae2dae",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import ansys.aedt.core\n",
+    "from ansys.aedt.core.generic.constants import AXIS"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "dd0ddc6a",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "921668e4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2024.2\"\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8f57d36f",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "cbe4ddf1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "611fe018",
+   "metadata": {},
+   "source": [
+    "## Launch application\n",
+    "\n",
+    "The syntax for different applications in AEDT differ\n",
+    "only in the name of the class. This template uses\n",
+    "the ``Hfss()`` class. Modify this text as needed."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b2567d32",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_name = os.path.join(temp_folder.name, \"Maxwell-Icepak-2way-Coupling\")\n",
+    "maxwell_design_name = \"1 Maxwell\"\n",
+    "icepak_design_name = \"2 Icepak\"\n",
+    "\n",
+    "m3d = ansys.aedt.core.Maxwell3d(\n",
+    "    project=project_name,\n",
+    "    design=maxwell_design_name,\n",
+    "    solution_type=\"EddyCurrent\",\n",
+    "    version=AEDT_VERSION,\n",
+    "    non_graphical=NG_MODE,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "26a29a20",
+   "metadata": {},
+   "source": [
+    "## Set up model\n",
+    "\n",
+    "Create the coil, coil terminal, core, and region."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4c6d9b6a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "coil = m3d.modeler.create_rectangle(\n",
+    "    orientation=\"XZ\", origin=[70, 0, -11], sizes=[11, 110], name=\"Coil\"\n",
+    ")\n",
+    "\n",
+    "coil.sweep_around_axis(axis=AXIS.Z)\n",
+    "\n",
+    "coil_terminal = m3d.modeler.create_rectangle(\n",
+    "    orientation=\"XZ\", origin=[70, 0, -11], sizes=[11, 110], name=\"Coil_terminal\"\n",
+    ")\n",
+    "\n",
+    "core = m3d.modeler.create_rectangle(\n",
+    "    orientation=\"XZ\", origin=[45, 0, -18], sizes=[7, 160], name=\"Core\"\n",
+    ")\n",
+    "core.sweep_around_axis(axis=AXIS.Z)\n",
+    "\n",
+    "# Magnetic flux is not concentrated by the core in +z-direction. Therefore, more padding is needed in that direction.\n",
+    "region = m3d.modeler.create_region(pad_percent=[20, 20, 20, 20, 500, 100])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "26447b14",
+   "metadata": {},
+   "source": [
+    "### Create and assign material\n",
+    "\n",
+    "Create a new cooper material: Copper AWG40 Litz wire, strand diameter = 0.08mm,\n",
+    "24 parallel strands. Then assign materials: Assign the coil to AWG40 copper,\n",
+    "the core to ferrite, and the region to vacuum."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7333eb8b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "no_strands = 24\n",
+    "strand_diameter = 0.08\n",
+    "\n",
+    "cu_litz = m3d.materials.duplicate_material(\"copper\", \"copper_litz\")\n",
+    "cu_litz.stacking_type = \"Litz Wire\"\n",
+    "cu_litz.wire_diameter = str(strand_diameter) + \"mm\"\n",
+    "cu_litz.wire_type = \"Round\"\n",
+    "cu_litz.strand_number = no_strands\n",
+    "\n",
+    "m3d.assign_material(region.name, \"vacuum\")\n",
+    "m3d.assign_material(coil.name, \"copper_litz\")\n",
+    "m3d.assign_material(core.name, \"ferrite\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ed081496",
+   "metadata": {},
+   "source": [
+    "Assign coil current. The coil consists of 20 turns. The total current is 10A.\n",
+    "Note that each coil turn consists of 24 parallel Litz strands as indicated earlier."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "68e8390f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "no_turns = 20\n",
+    "coil_current = 10\n",
+    "m3d.assign_coil([\"Coil_terminal\"], conductors_number=no_turns, name=\"Coil_terminal\")\n",
+    "m3d.assign_winding(is_solid=False, current=coil_current, name=\"Winding1\")\n",
+    "\n",
+    "m3d.add_winding_coils(assignment=\"Winding1\", coils=[\"Coil_terminal\"])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1e4b5c28",
+   "metadata": {},
+   "source": [
+    "## Assign mesh operations\n",
+    "\n",
+    "Mesh operations are not necessary in the eddy current solver because of auto-adaptive meshing.\n",
+    "However, with appropriate mesh operations, less adaptive passes are needed"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "bf258e36",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m3d.mesh.assign_length_mesh(\n",
+    "    [\"Core\"], maximum_length=15, maximum_elements=None, name=\"Inside_Core\"\n",
+    ")\n",
+    "m3d.mesh.assign_length_mesh(\n",
+    "    [\"Coil\"], maximum_length=30, maximum_elements=None, name=\"Inside_Coil\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c4e4ac5b",
+   "metadata": {},
+   "source": [
+    "Set conductivity as a function of temperature. Resistivity increases by 0.393% per K."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "166ea1a8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cu_resistivity_temp_coefficient = 0.00393\n",
+    "cu_litz.conductivity.add_thermal_modifier_free_form(\n",
+    "    \"1.0/(1.0+{}*(Temp-20))\".format(cu_resistivity_temp_coefficient)\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d9a7130e",
+   "metadata": {},
+   "source": [
+    "## Set object temperature and enable feedback\n",
+    "\n",
+    "Set the temperature of the objects to the default temperature (22 degrees C)\n",
+    "and enable temperature feedback for two-way coupling."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ff75d59f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m3d.modeler.set_objects_temperature([\"Coil\"], ambient_temperature=22)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "46a961f3",
+   "metadata": {},
+   "source": [
+    "## Assign matrix\n",
+    "\n",
+    "Assign matrix for resistance and inductance calculation."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0e45fa2d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m3d.assign_matrix([\"Winding1\"], matrix_name=\"Matrix1\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "afaa9e23",
+   "metadata": {},
+   "source": [
+    "## Create and analyze simulation setup\n",
+    "\n",
+    "The simulation frequency is 150 kHz."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "80d2af75",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup = m3d.create_setup(name=\"Setup1\")\n",
+    "setup.props[\"Frequency\"] = \"150kHz\"\n",
+    "m3d.analyze_setup(\"Setup1\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9cbbbe9a",
+   "metadata": {},
+   "source": [
+    "## Postprocess\n",
+    "\n",
+    "Calculate analytical DC resistance and compare it with the simulated coil\n",
+    "resistance. Print them in AEDT Message Manager, along with the ohmic loss in\n",
+    "coil before the temperature feedback."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7a624f44",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "report = m3d.post.create_report(expressions=\"Matrix1.R(Winding1,Winding1)\")\n",
+    "solution = report.get_solution_data()\n",
+    "resistance = solution.data_magnitude()[0]\n",
+    "\n",
+    "report_loss = m3d.post.create_report(expressions=\"StrandedLossAC\")\n",
+    "solution_loss = report_loss.get_solution_data()\n",
+    "em_loss = solution_loss.data_magnitude()[0]\n",
+    "\n",
+    "# Analytical calculation of the DC resistance of the coil\n",
+    "cu_cond = float(cu_litz.conductivity.value)\n",
+    "# Average radius of a coil turn = 0.125m\n",
+    "l_conductor = no_turns * 2 * 0.125 * 3.1415\n",
+    "# R = resistivity * length / area / no_strand\n",
+    "r_analytical_DC = (\n",
+    "    (1.0 / cu_cond)\n",
+    "    * l_conductor\n",
+    "    / (3.1415 * (strand_diameter / 1000 / 2) ** 2)\n",
+    "    / no_strands\n",
+    ")\n",
+    "\n",
+    "# Print results in AEDT Message Manager\n",
+    "m3d.logger.info(\n",
+    "    \"*******Coil analytical DC resistance =  {:.2f}Ohm\".format(r_analytical_DC)\n",
+    ")\n",
+    "m3d.logger.info(\n",
+    "    \"*******Coil resistance at 150kHz BEFORE temperature feedback =  {:.2f}Ohm\".format(\n",
+    "        resistance\n",
+    "    )\n",
+    ")\n",
+    "m3d.logger.info(\n",
+    "    \"*******Ohmic loss in coil BEFORE temperature feedback =  {:.2f}W\".format(\n",
+    "        em_loss / 1000\n",
+    "    )\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3b7ddd09",
+   "metadata": {},
+   "source": [
+    "## Insert Icepak design\n",
+    "\n",
+    "Insert Icepak design, copy solid objects from Maxwell 3D, and modify region dimensions."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c0a39244",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk = ansys.aedt.core.Icepak(design=icepak_design_name, version=AEDT_VERSION)\n",
+    "ipk.copy_solid_bodies_from(m3d, no_pec=False)\n",
+    "\n",
+    "# Set domain dimensions suitable for natural convection using the diameter of the coil\n",
+    "ipk.modeler[\"Region\"].delete()\n",
+    "coil_dim = coil.bounding_dimension[0]\n",
+    "ipk.modeler.create_region(0, False)\n",
+    "ipk.modeler.edit_region_dimensions(\n",
+    "    [coil_dim / 2, coil_dim / 2, coil_dim / 2, coil_dim / 2, coil_dim * 2, coil_dim]\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6b1ed141",
+   "metadata": {},
+   "source": [
+    "## Map coil losses\n",
+    "\n",
+    "Map ohmic losses from Maxwell 3D to the Icepak design."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c243b15c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.assign_em_losses(\n",
+    "    design=\"1 Maxwell\",\n",
+    "    setup=m3d.setups[0].name,\n",
+    "    sweep=\"LastAdaptive\",\n",
+    "    assignment=[\"Coil\"],\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fbda39e1",
+   "metadata": {},
+   "source": [
+    "### Define boundary conditions\n",
+    "\n",
+    "Assign the opening."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9a51b809",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "faces = ipk.modeler[\"Region\"].faces\n",
+    "face_names = [face.id for face in faces]\n",
+    "ipk.assign_free_opening(face_names, boundary_name=\"Opening1\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "cf9b0858",
+   "metadata": {},
+   "source": [
+    "### Assign monitor\n",
+    "\n",
+    "Assign the temperature monitor on the coil surface."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2edc884c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_monitor = ipk.assign_point_monitor([70, 0, 0], monitor_name=\"PointMonitor1\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3e88a1a8",
+   "metadata": {},
+   "source": [
+    "Set up Icepak solution"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ccf43fd6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "solution_setup = ipk.create_setup()\n",
+    "solution_setup.props[\"Convergence Criteria - Max Iterations\"] = 50\n",
+    "solution_setup.props[\"Flow Regime\"] = \"Turbulent\"\n",
+    "solution_setup.props[\"Turbulent Model Eqn\"] = \"ZeroEquation\"\n",
+    "solution_setup.props[\"Radiation Model\"] = \"Discrete Ordinates Model\"\n",
+    "solution_setup.props[\"Include Flow\"] = True\n",
+    "solution_setup.props[\"Include Gravity\"] = True\n",
+    "solution_setup.props[\"Solution Initialization - Z Velocity\"] = \"0.0005m_per_sec\"\n",
+    "solution_setup.props[\"Convergence Criteria - Flow\"] = 0.0005\n",
+    "solution_setup.props[\"Flow Iteration Per Radiation Iteration\"] = \"5\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5157ffc9",
+   "metadata": {},
+   "source": [
+    "## Add two-way coupling and solve the project\n",
+    "\n",
+    "Enable mapping temperature distribution back to Maxwell 3D. The default number\n",
+    "for Maxwell <–> Icepak iterations is 2. However, for increased accuracy,\n",
+    "you can increate the value for the ``number_of_iterations`` parameter."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7a86abcf",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.assign_2way_coupling()\n",
+    "ipk.analyze_setup(name=solution_setup.name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "80ed8dd8",
+   "metadata": {},
+   "source": [
+    "## Postprocess\n",
+    "\n",
+    "Plot temperature on the object surfaces."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "19120e6f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "surface_list = []\n",
+    "for name in [\"Coil\", \"Core\"]:\n",
+    "    surface_list.extend(ipk.modeler.get_object_faces(name))\n",
+    "\n",
+    "surf_temperature = ipk.post.create_fieldplot_surface(\n",
+    "    surface_list, quantity=\"SurfTemperature\", plot_name=\"Surface Temperature\"\n",
+    ")\n",
+    "\n",
+    "velocity_cutplane = ipk.post.create_fieldplot_cutplane(\n",
+    "    assignment=[\"Global:XZ\"], quantity=\"Velocity Vectors\", plot_name=\"Velocity Vectors\"\n",
+    ")\n",
+    "\n",
+    "surf_temperature.export_image()\n",
+    "velocity_cutplane.export_image(orientation=\"right\")\n",
+    "\n",
+    "report_temp = ipk.post.create_report(\n",
+    "    expressions=\"PointMonitor1.Temperature\", primary_sweep_variable=\"X\"\n",
+    ")\n",
+    "solution_temp = report_temp.get_solution_data()\n",
+    "temp = solution_temp.data_magnitude()[0]\n",
+    "m3d.logger.info(\"*******Coil temperature =  {:.2f}deg C\".format(temp))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "48f068b1",
+   "metadata": {},
+   "source": [
+    "### Get new resistance from Maxwell 3D\n",
+    "\n",
+    "The temperature of the coil increases, and consequently the coil resistance increases."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a47643bc",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "report_new = m3d.post.create_report(expressions=\"Matrix1.R(Winding1,Winding1)\")\n",
+    "solution_new = report_new.get_solution_data()\n",
+    "resistance_new = solution_new.data_magnitude()[0]\n",
+    "resistance_increase = (resistance_new - resistance) / resistance * 100\n",
+    "\n",
+    "report_loss_new = m3d.post.create_report(expressions=\"StrandedLossAC\")\n",
+    "solution_loss_new = report_loss_new.get_solution_data()\n",
+    "em_loss_new = solution_loss_new.data_magnitude()[0]\n",
+    "\n",
+    "m3d.logger.info(\n",
+    "    \"*******Coil resistance at 150kHz AFTER temperature feedback =  {:.2f}Ohm\".format(\n",
+    "        resistance_new\n",
+    "    )\n",
+    ")\n",
+    "m3d.logger.info(\n",
+    "    \"*******Coil resistance increased by {:.2f}%\".format(resistance_increase)\n",
+    ")\n",
+    "m3d.logger.info(\n",
+    "    \"*******Ohmic loss in coil AFTER temperature feedback =  {:.2f}W\".format(\n",
+    "        em_loss_new / 1000\n",
+    "    )\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5472151d",
+   "metadata": {},
+   "source": [
+    "### Save project"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4465e71a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.save_project()\n",
+    "ipk.release_desktop()\n",
+    "time.sleep(3)  # Allow AEDT to shut down before cleaning the temporary project folder."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e55bec6f",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell removes\n",
+    "all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9016a24c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
