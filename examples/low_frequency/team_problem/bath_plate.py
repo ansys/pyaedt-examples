@@ -21,7 +21,7 @@ import ansys.aedt.core
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
-NG_MODE = True  # Open AEDT UI when it is launched.
+NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
@@ -198,15 +198,26 @@ param.analyze(cores=NUM_CORES)
 
 # ## Create expression for Bz
 #
-# Create an expression for Bz using the fields calculator.
+# Create an expression for Bz using PyAEDT advanced fields calculator.
 
-Fields = m3d.ofieldsreporter
-Fields.EnterQty("B")
-Fields.CalcOp("ScalarZ")
-Fields.EnterScalar(1000)
-Fields.CalcOp("*")
-Fields.CalcOp("Smooth")
-Fields.AddNamedExpression("Bz", "Fields")
+bz = {
+    "name": "Bz",
+    "description": "Z component of B",
+    "design_type": ["Maxwell 3D"],
+    "fields_type": ["Fields"],
+    "primary_sweep": "Distance",
+    "assignment": "",
+    "assignment_type": ["Line"],
+    "operations": [
+        "NameOfExpression('<Bx,By,Bz>')",
+        "Operation('ScalarZ')",
+        "Scalar_Constant(1000)",
+        "Operation('*')",
+        "Operation('Smooth')",
+    ],
+    "report": ["Field_3D"],
+}
+m3d.post.fields_calculator.add_expression(bz, None)
 
 # ## Plot mag(Bz) as a function of frequency
 #

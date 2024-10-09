@@ -21,7 +21,6 @@ AEDT_VERSION = "2024.2"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
-
 # ## Create temporary directory
 #
 # Create a temporary directory where downloaded data or
@@ -69,21 +68,37 @@ m3d.analyze(cores=NUM_CORES)
 
 # ## Compute mass center
 #
-# Compute mass center using the fields calculator.
+# Compute mass center using PyAEDT advanced fields calculator.
 
-m3d.post.ofieldsreporter.EnterScalarFunc("X")
-m3d.post.ofieldsreporter.EnterVol(conductor.name)
-m3d.post.ofieldsreporter.CalcOp("Mean")
-m3d.post.ofieldsreporter.AddNamedExpression("CM_X", "Fields")
-m3d.post.ofieldsreporter.EnterScalarFunc("Y")
-m3d.post.ofieldsreporter.EnterVol(conductor.name)
-m3d.post.ofieldsreporter.CalcOp("Mean")
-m3d.post.ofieldsreporter.AddNamedExpression("CM_Y", "Fields")
-m3d.post.ofieldsreporter.EnterScalarFunc("Z")
-m3d.post.ofieldsreporter.EnterVol(conductor.name)
-m3d.post.ofieldsreporter.CalcOp("Mean")
-m3d.post.ofieldsreporter.AddNamedExpression("CM_Z", "Fields")
-m3d.post.ofieldsreporter.CalcStack("clear")
+scalar_function = ""
+mass_center = {
+    "name": "",
+    "description": "Mass center computation",
+    "design_type": ["Maxwell 3D"],
+    "fields_type": ["Fields"],
+    "primary_sweep": "distance",
+    "assignment": "",
+    "assignment_type": ["Solid"],
+    "operations": [
+        scalar_function,
+        "EnterVolume('assignment')",
+        "Operation('VolumeValue')",
+        "Operation('Mean')",
+    ],
+    "report": ["Data Table"],
+}
+mass_center["name"] = "CM_X"
+scalar_function = "Scalar_Function(FuncValue='X')"
+mass_center["operations"][0] = scalar_function
+m3d.post.fields_calculator.add_expression(mass_center, conductor.name)
+mass_center["name"] = "CM_Y"
+scalar_function = "Scalar_Function(FuncValue='Y')"
+mass_center["operations"][0] = scalar_function
+m3d.post.fields_calculator.add_expression(mass_center, conductor.name)
+mass_center["name"] = "CM_Z"
+scalar_function = "Scalar_Function(FuncValue='Z')"
+mass_center["operations"][0] = scalar_function
+m3d.post.fields_calculator.add_expression(mass_center, conductor.name)
 
 # ## Get mass center
 #

@@ -245,15 +245,9 @@ q3d.analyze_setup(setup.name, cores=NUM_CORES)
 
 # ## Create a named expression
 #
-# Use the field calculator to create a named expression.
+# Use PyAEDT advanced fields calculator to add from the expressions catalog the voltage drop.
 
-drop_name = "Vdrop3_3"
-fields = q3d.ofieldsreporter
-q3d.ofieldsreporter.CalcStack("clear")
-q3d.ofieldsreporter.EnterQty("Phidc")
-q3d.ofieldsreporter.EnterScalar(3.3)
-q3d.ofieldsreporter.CalcOp("+")
-q3d.ofieldsreporter.AddNamedExpression(drop_name, "DC R/L Fields")
+voltage_drop = q3d.post.fields_calculator.add_expression("voltage_drop", None)
 
 # ## Create Phi plot
 #
@@ -262,7 +256,7 @@ q3d.ofieldsreporter.AddNamedExpression(drop_name, "DC R/L Fields")
 # +
 plot1 = q3d.post.create_fieldplot_surface(
     q3d.modeler.get_objects_by_material("copper"),
-    quantity=drop_name,
+    quantity=voltage_drop,
     intrinsics={"Freq": "1GHz"},
 )
 
@@ -281,33 +275,38 @@ q3d.post.plot_field_from_fieldplot(
 
 # ## Compute voltage on source circles
 #
-# Use the field calculator to compute the voltage on source circles and get the value
+# Use PyAEDT advanced field calculator to compute the voltage on source circles and get the value
 # using the ``get_solution_data()`` method.
 
 # +
-curves = []
+v_surface = {
+    "name": "",
+    "description": "Maximum value of voltage on a surface",
+    "design_type": ["Q3D Extractor"],
+    "fields_type": ["DC R/L Fields"],
+    "primary_sweep": "Freq",
+    "assignment": "",
+    "assignment_type": ["Face", "Sheet"],
+    "operations": [
+        f"NameOfExpression({voltage_drop})",
+        "EnterSurface('assignment')",
+        "Operation('SurfaceValue')",
+        "Operation('Maximum')",
+    ],
+    "report": ["Field_3D"],
+}
 for source_circle, source_bound in zip(sources_objs, sources_bounds):
-    source_sheet_name = source_circle.name
+    v_surface["name"] = "V{}".format(source_bound.name)
+    q3d.post.fields_calculator.add_expression(v_surface, source_circle.name)
 
-    curves.append("V{}".format(source_bound.name))
-
-    q3d.ofieldsreporter.CalcStack("clear")
-    q3d.ofieldsreporter.CopyNamedExprToStack(drop_name)
-    q3d.ofieldsreporter.EnterSurf(source_sheet_name)
-    q3d.ofieldsreporter.CalcOp("Maximum")
-    q3d.ofieldsreporter.AddNamedExpression(
-        "V{}".format(source_bound.name), "DC R/L Fields"
+    data = q3d.post.get_solution_data(
+        "V{}".format(source_bound.name),
+        q3d.nominal_adaptive,
+        variations={"Freq": "1GHz"},
+        report_category="DC R/L Fields",
     )
-
-data = q3d.post.get_solution_data(
-    curves,
-    q3d.nominal_adaptive,
-    variations={"Freq": "1GHz"},
-    report_category="DC R/L Fields",
-)
-if data:
-    for curve in curves:
-        print(data.data_real(curve))
+    if data:
+        print(data.data_real("V{}".format(source_bound.name)))
 # -
 
 # ## Release AEDT

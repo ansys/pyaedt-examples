@@ -22,7 +22,6 @@ AEDT_VERSION = "2024.2"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
-
 # ## Create temporary directory
 #
 # Create a temporary directory where downloaded data or
@@ -181,48 +180,69 @@ m2d.analyze_setup(use_auto_settings=False, cores=NUM_CORES)
 
 # ## Calculate transformer leakage inductance and reactance
 #
-# Calculate transformer leakage inductance from the magnetic energy.
+# Calculate transformer leakage inductance from the magnetic energy with PyAEDT advanced fields calculator.
 
 # +
-field_calculator = m2d.ofieldsreporter
+leakage_inductance = {
+    "name": "Leakage_inductance",
+    "description": "Leakage inductance from the magnetic energy",
+    "design_type": ["Maxwell 2D"],
+    "fields_type": ["Fields"],
+    "primary_sweep": "Distance",
+    "assignment": "",
+    "assignment_type": ["Line"],
+    "operations": [
+        "Fundamental_Quantity('Energy')",
+        "EnterSurface('HV')",
+        "Operation('SurfaceValue')",
+        "Operation('Integrate')",
+        "Scalar_Function(FuncValue='HV_mean_turn_length')",
+        "Operation('*')",
+        "Fundamental_Quantity('Energy')",
+        "EnterSurface('LV')",
+        "Operation('SurfaceValue')",
+        "Operation('Integrate')",
+        "Scalar_Function(FuncValue='LV_mean_turn_length')",
+        "Operation('*')",
+        "Fundamental_Quantity('Energy')",
+        "EnterSurface('Region')",
+        "Operation('SurfaceValue')",
+        "Operation('Integrate')",
+        "Scalar_Function(FuncValue='HV_LV_gap_length')",
+        "Operation('*')",
+        "Operation('+')",
+        "Operation('+')",
+        "Scalar_Constant(2)",
+        "Operation('*')",
+        "Scalar_Function(FuncValue='HV_current')",
+        "Scalar_Function(FuncValue='HV_current')",
+        "Operation('*')",
+        "Operation('/')",
+    ],
+    "report": ["Data Table", "Rectangular Plot"],
+}
+m2d.post.fields_calculator.add_expression(leakage_inductance, None)
 
-field_calculator.EnterQty("Energy")
-field_calculator.EnterSurf("HV")
-field_calculator.CalcOp("Integrate")
-field_calculator.EnterScalarFunc("HV_mean_turn_length")
-field_calculator.CalcOp("*")
-
-field_calculator.EnterQty("Energy")
-field_calculator.EnterSurf("LV")
-field_calculator.CalcOp("Integrate")
-field_calculator.EnterScalarFunc("LV_mean_turn_length")
-field_calculator.CalcOp("*")
-
-field_calculator.EnterQty("Energy")
-field_calculator.EnterSurf("Region")
-field_calculator.CalcOp("Integrate")
-field_calculator.EnterScalarFunc("HV_LV_gap_length")
-field_calculator.CalcOp("*")
-
-field_calculator.CalcOp("+")
-field_calculator.CalcOp("+")
-
-field_calculator.EnterScalar(2)
-field_calculator.CalcOp("*")
-field_calculator.EnterScalarFunc("HV_current")
-field_calculator.EnterScalarFunc("HV_current")
-field_calculator.CalcOp("*")
-field_calculator.CalcOp("/")
-field_calculator.AddNamedExpression("Leakage_inductance", "Fields")
-
-field_calculator.CopyNamedExprToStack("Leakage_inductance")
-field_calculator.EnterScalar(2)
-field_calculator.EnterScalar(3.14159265358979)
-field_calculator.EnterScalarFunc("Frequency")
-field_calculator.CalcOp("*")
-field_calculator.CalcOp("*")
-field_calculator.CalcOp("*")
-field_calculator.AddNamedExpression("Leakage_reactance", "Fields")
+leakage_reactance = {
+    "name": "Leakage_reactance",
+    "description": "Leakage reactance from the magnetic energy",
+    "design_type": ["Maxwell 2D"],
+    "fields_type": ["Fields"],
+    "primary_sweep": "Distance",
+    "assignment": "",
+    "assignment_type": ["Line"],
+    "operations": [
+        "NameOfExpression('Leakage_inductance')",
+        "Scalar_Constant(2)",
+        "Scalar_Constant(3.14159)",
+        "Scalar_Function(FuncValue='Frequency')",
+        "Operation('*')",
+        "Operation('*')",
+        "Operation('*')",
+    ],
+    "report": ["Data Table", "Rectangular Plot"],
+}
+m2d.post.fields_calculator.add_expression(leakage_reactance, None)
 
 m2d.post.create_report(
     expressions=["Leakage_inductance", "Leakage_reactance"],
