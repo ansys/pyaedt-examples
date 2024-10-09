@@ -279,7 +279,7 @@ q3d.post.plot_field_from_fieldplot(
 # using the ``get_solution_data()`` method.
 
 # +
-my_expression = {
+v_surface = {
     "name": "",
     "description": "Maximum value of voltage on a surface",
     "design_type": ["Q3D Extractor"],
@@ -296,8 +296,8 @@ my_expression = {
     "report": ["Field_3D"],
 }
 for source_circle, source_bound in zip(sources_objs, sources_bounds):
-    my_expression["name"] = "V{}".format(source_bound.name)
-    q3d.post.fields_calculator.add_expression(my_expression, source_circle.name)
+    v_surface["name"] = "V{}".format(source_bound.name)
+    q3d.post.fields_calculator.add_expression(v_surface, source_circle.name)
 
     data = q3d.post.get_solution_data(
         "V{}".format(source_bound.name),

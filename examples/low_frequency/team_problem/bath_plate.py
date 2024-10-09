@@ -200,7 +200,7 @@ param.analyze(cores=NUM_CORES)
 #
 # Create an expression for Bz using PyAEDT advanced fields calculator.
 
-my_expression = {
+bz = {
     "name": "Bz",
     "description": "Z component of B",
     "design_type": ["Maxwell 3D"],
@@ -217,7 +217,7 @@ my_expression = {
     ],
     "report": ["Field_3D"],
 }
-m3d.post.fields_calculator.add_expression(my_expression, None)
+m3d.post.fields_calculator.add_expression(bz, None)
 
 # ## Plot mag(Bz) as a function of frequency
 #

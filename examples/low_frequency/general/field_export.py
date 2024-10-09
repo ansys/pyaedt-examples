@@ -68,7 +68,7 @@ setup.update()
 # Create a field expression to evaluate the J field normal to a surface using the advanced fields calculator.
 # The expression is created as a dictionary and then provided as an argument to the ``add_expression()`` method.
 
-my_expression = {
+j_normal = {
     "name": "Jn",
     "description": "J field normal to a surface",
     "design_type": ["Maxwell 3D"],
@@ -83,11 +83,11 @@ my_expression = {
     ],
     "report": ["Field_3D"],
 }
-m3d.post.fields_calculator.add_expression(my_expression, None)
+m3d.post.fields_calculator.add_expression(j_normal, None)
 
 # Calculate the average value of the J field normal using the advanced fields calculator.
 
-my_expression = {
+j_avg = {
     "name": "Jn_avg",
     "description": "Average J field normal to a surface",
     "design_type": ["Maxwell 3D"],
@@ -103,7 +103,7 @@ my_expression = {
     ],
     "report": ["Field_3D"],
 }
-m3d.post.fields_calculator.add_expression(my_expression, None)
+m3d.post.fields_calculator.add_expression(j_avg, None)
 
 # ## Analyze setup specifying setup name
 

@@ -200,7 +200,7 @@ m3d.eddy_effects_on(
 #
 # Create an expression for the Z component of B in Gauss using PyAEDT advanced fields calculator.
 
-my_expression = {
+bz = {
     "name": "Bz",
     "description": "Z component of B in Gauss",
     "design_type": ["Maxwell 3D"],
@@ -219,7 +219,7 @@ my_expression = {
     ],
     "report": ["Field_3D"],
 }
-m3d.post.fields_calculator.add_expression(my_expression, None)
+m3d.post.fields_calculator.add_expression(bz, None)
 
 # ## Draw two lines along which to plot Bz
 #

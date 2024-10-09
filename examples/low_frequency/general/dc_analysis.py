@@ -71,7 +71,7 @@ m3d.analyze(cores=NUM_CORES)
 # Compute mass center using PyAEDT advanced fields calculator.
 
 scalar_function = ""
-my_expression = {
+mass_center = {
     "name": "",
     "description": "Mass center computation",
     "design_type": ["Maxwell 3D"],
@@ -87,18 +87,18 @@ my_expression = {
     ],
     "report": ["Data Table"],
 }
-my_expression["name"] = "CM_X"
+mass_center["name"] = "CM_X"
 scalar_function = "Scalar_Function(FuncValue='X')"
-my_expression["operations"][0] = scalar_function
-m3d.post.fields_calculator.add_expression(my_expression, conductor.name)
-my_expression["name"] = "CM_Y"
+mass_center["operations"][0] = scalar_function
+m3d.post.fields_calculator.add_expression(mass_center, conductor.name)
+mass_center["name"] = "CM_Y"
 scalar_function = "Scalar_Function(FuncValue='Y')"
-my_expression["operations"][0] = scalar_function
-m3d.post.fields_calculator.add_expression(my_expression, conductor.name)
-my_expression["name"] = "CM_Z"
+mass_center["operations"][0] = scalar_function
+m3d.post.fields_calculator.add_expression(mass_center, conductor.name)
+mass_center["name"] = "CM_Z"
 scalar_function = "Scalar_Function(FuncValue='Z')"
-my_expression["operations"][0] = scalar_function
-m3d.post.fields_calculator.add_expression(my_expression, conductor.name)
+mass_center["operations"][0] = scalar_function
+m3d.post.fields_calculator.add_expression(mass_center, conductor.name)
 
 # ## Get mass center
 #
