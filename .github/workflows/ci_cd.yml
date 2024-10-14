@@ -62,13 +62,11 @@ jobs:
           .venv\Scripts\Activate.ps1
           pip install --no-cache-dir -r requirements/requirements_doc.txt
 
-      # Use environment variable speed up build for PDF pages
       - name: Create HTML documentation
-        env:
-          SPHINXBUILD_HTML_AND_PDF_WORKFLOW: "1"
         run: |
           .venv\Scripts\Activate.ps1
           . .\doc\make.bat html --color
+          . .\doc\make.bat pdf
 
       # NOTE: Ugly HTML checking but redirecting errors with our docs either leads
       # to errors in powershell or workflows getting stuck in Github CICD.
@@ -87,15 +85,6 @@ jobs:
           name: documentation-html
           path: doc/_build/html
           retention-days: 7
-
-      # Use environment variable to remove the doctree after the build of PDF pages
-      # Keeping doctree could cause an issue, see https://github.com/ansys/pyaedt/pull/3844/files
-      - name: Create PDF documentation
-        env:
-          SPHINXBUILD_HTML_AND_PDF_WORKFLOW: "1"
-        run: |
-          .venv\Scripts\Activate.ps1
-          . .\doc\make.bat pdf
 
       - name: Upload PDF documentation artifact
         uses: actions/upload-artifact@v4
