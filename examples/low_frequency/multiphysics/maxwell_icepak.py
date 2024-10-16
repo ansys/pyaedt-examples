@@ -19,6 +19,7 @@ import time
 
 import ansys.aedt.core
 from ansys.aedt.core.generic.constants import AXIS
+
 # -
 
 # Define constants.
@@ -29,10 +30,10 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 # ## Create temporary directory
 #
 # Create a temporary working directory.
-# The name of the working folder is stored in ``temp_folder.name``. 
+# The name of the working folder is stored in ``temp_folder.name``.
 #
 # > **Note:** The final cell in the notebook cleans up the temporary folder. If you want to
-# > retrieve the AEDT project and data, do so before executing the final cell in the notebook. 
+# > retrieve the AEDT project and data, do so before executing the final cell in the notebook.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
@@ -61,7 +62,7 @@ m3d = ansys.aedt.core.Maxwell3d(
 # -
 
 # ### Units
-# The default units are "mm". Model units can be queried or changed using the 
+# The default units are "mm". Model units can be queried or changed using the
 # property ``m3d.modeler.model_units``.
 
 print(f'Model units are "{m3d.modeler.model_units}"')
@@ -72,13 +73,13 @@ print(f'Model units are "{m3d.modeler.model_units}"')
 # are created by drawing a rectangle and sweeping it about the z-axis.
 
 # +
-coil_origin = [70, 0, -11] # [x, y, z] position of the rectangle origin.
+coil_origin = [70, 0, -11]  # [x, y, z] position of the rectangle origin.
 coil_xsection = [11, 110]  # [z-size, x-size]
 core_origin = [45, 0, -18]
 core_xsection = [7, 160]
 
 coil = m3d.modeler.create_rectangle(
-    orientation="XZ", origin=coil_origin, sizes=coil_xsection, name="Coil"  
+    orientation="XZ", origin=coil_origin, sizes=coil_xsection, name="Coil"
 )
 coil.sweep_around_axis(axis=AXIS.Z)
 coil_terminal = m3d.modeler.create_rectangle(
@@ -90,7 +91,7 @@ core = m3d.modeler.create_rectangle(
 )
 core.sweep_around_axis(axis=AXIS.Z)
 
-# The air region should be sufficiently large to avoid interaction with the 
+# The air region should be sufficiently large to avoid interaction with the
 # coil magnetic field.
 
 region = m3d.modeler.create_region(pad_percent=[20, 20, 20, 20, 500, 100])
@@ -98,11 +99,11 @@ region = m3d.modeler.create_region(pad_percent=[20, 20, 20, 20, 500, 100])
 
 # ### Restore view
 #
-# If you are using PyAEDT with an interactive desktop, you may want to fit the visible view to fit the model. 
+# If you are using PyAEDT with an interactive desktop, you may want to fit the visible view to fit the model.
 # PyAEDT uses the direct
 # access to the native API for this command using the property `m3d.odesktop`.
 #
-# Uncomment and run the following cell if you are running PyAEDT interactively and would like to automatically fit the 
+# Uncomment and run the following cell if you are running PyAEDT interactively and would like to automatically fit the
 # window to the model.
 
 # +
@@ -112,11 +113,11 @@ region = m3d.modeler.create_region(pad_percent=[20, 20, 20, 20, 500, 100])
 # ### Create and assign material
 #
 # Define a new material for the AWG40 Litz wire copper strands:
-# - Strand diamter = 0.08 mm
+# - Strand diameter = 0.08 mm
 # - Number of parallel strands in the Litz wire = 24
 #
-# The built-in material "ferrite" will be assigned to the core. 
-# The material "vacuum" will be assigned to the outer region. 
+# The built-in material "ferrite" will be assigned to the core.
+# The material "vacuum" will be assigned to the outer region.
 #
 # You will also see the return value when
 #  ``True`` printed when material is successfully assigned.
@@ -149,7 +150,7 @@ m3d.add_winding_coils(assignment="Winding1", coils=["Coil_terminal"])
 
 # ### Assign mesh operations
 #
-# Mesh "seeding" is used to retain solution accuracy and accellerate the auto-adaptive mesh refinement.
+# Mesh "seeding" is used to retain solution accuracy and accelerate the auto-adaptive mesh refinement.
 
 m3d.mesh.assign_length_mesh(
     ["Core"], maximum_length=15, maximum_elements=None, name="Inside_Core"
@@ -160,7 +161,7 @@ m3d.mesh.assign_length_mesh(
 
 # ### Set object temperature and enable feedback
 #
-# The impact of Joule heating on conductivity can be considered 
+# The impact of Joule heating on conductivity can be considered
 # by adding a "thermal modifier" to the ``cu_litz`` material definition.
 # In this example, conductivity increases by 0.393% per $\Delta$K. The temperature of the objects is set to the default value ($22^0$ C).
 
@@ -193,9 +194,9 @@ m3d.analyze_setup("Setup1")
 
 # ## Postprocessing
 #
-# The DC resistance of the coil can be calculated analyticially. The following cell compares the known 
+# The DC resistance of the coil can be calculated analyticially. The following cell compares the known
 # DC resistance with the simulated coil
-# resistance. 
+# resistance.
 #
 # The values can be displayed in the AEDT "Message Manager". The Ohmic loss in
 # coil is calculated and displayed so we can see the change when Joule
@@ -204,7 +205,7 @@ m3d.analyze_setup("Setup1")
 # +
 report = m3d.post.create_report(expressions="Matrix1.R(Winding1,Winding1)")
 solution = report.get_solution_data()
-resistance = solution.data_magnitude()[0] # Resistance is the first matrix element.
+resistance = solution.data_magnitude()[0]  # Resistance is the first matrix element.
 
 report_loss = m3d.post.create_report(expressions="StrandedLossAC")
 solution_loss = report_loss.get_solution_data()
@@ -215,7 +216,9 @@ em_loss = solution_loss.data_magnitude()[0]
 cu_cond = float(cu_litz.conductivity.value)
 
 # Average radius of a coil turn = 125 mm
-avg_coil_radius = (coil_xsection[1]/2 + coil_origin[0]/2) * 0.001 # Convert to meters
+avg_coil_radius = (
+    coil_xsection[1] / 2 + coil_origin[0] / 2
+) * 0.001  # Convert to meters
 l_conductor = turns * 2 * avg_coil_radius * 3.1415
 
 # R = resistivity * length / area / no_strand
@@ -227,14 +230,12 @@ r_analytic_DC = (
 )
 
 # Print results in AEDT Message Manager
+m3d.logger.info(f"*******Coil analytical DC resistance =  {r_analytic_DC:.2f}Ohm")
 m3d.logger.info(
-    f'*******Coil analytical DC resistance =  {r_analytic_DC:.2f}Ohm'
+    f"*******Coil resistance at 150kHz BEFORE temperature feedback =  {resistance:.2f}Ohm"
 )
 m3d.logger.info(
-    f'*******Coil resistance at 150kHz BEFORE temperature feedback =  {resistance:.2f}Ohm'
-)
-m3d.logger.info(
-    f'*******Ohmic loss in coil BEFORE temperature feedback =  {em_loss / 1000:.2f}W'
+    f"*******Ohmic loss in coil BEFORE temperature feedback =  {em_loss / 1000:.2f}W"
 )
 # -
 
