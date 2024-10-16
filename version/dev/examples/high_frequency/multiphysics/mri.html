@@ -1,0 +1,1369 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>HFSS-Mechanical MRI analysis &#8212; PyAEDT Examples</title>
+
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css\ansys_sphinx_theme.css?v=d2ac875c" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=9233c59b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/highlight.css?v=500661c4" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+ 
+<link href="../../../_static/css/breadcrumbs.css" rel="stylesheet" />
+
+    <script src="../../../_static/documentation_options.js?v=e7fb764e"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=49e1bf35"></script>
+    <script src="../../../_static/js\table.js?v=b64f5182"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/high_frequency/multiphysics/mri';</script>
+    <link rel="icon" href="../../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="HFSS-Mechanical multiphysics analysis" href="hfss_mechanical.html" />
+    <link rel="prev" title="Multiphysics" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container"><!-- Debugging: html_theme_options =  -->
+
+  <!-- If there is no MeiliSearch enabled, use the PyData search -->
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+   
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="https://www.ansys.com/">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/ansys_logo_transparent_black.png" class="logo__image only-light" alt="PyAEDT Examples - Home"/>
+    <script>document.write(`<img src="../../../_static/ansys_logo_transparent_white.png" class="logo__image only-dark" alt="PyAEDT Examples - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Examples
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+    
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Examples
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../aedt/index.html">Examples by AEDT application</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">High frequency</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../antenna/index.html">Antenna</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../radiofrequency_mmwave/index.html">Radio frequency and millimeter wave</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../layout/index.html">IC-Package-PCB</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../emc/index.html">EMC</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Multiphysics</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">HFSS-Mechanical MRI analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hfss_mechanical.html">HFSS-Mechanical multiphysics analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../electrothermal/ecad_import.html">Import of a PCB and its components via IDF and EDB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../electrothermal/coaxial_hfss_icepak.html">Coaxial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../electrothermal/electrothermal.html">Electrothermal analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../electrothermal/icepak_circuit_hfss_coupling.html">Circuit-HFSS-Icepak coupling workflow</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../aedt_general/report/index.html">Report</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../low_frequency/index.html">Low frequency</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../electrothermal/index.html">Electrothermal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aedt_general/index.html">Pre-processing and post-processing</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+       
+    <li class="breadcrumb-item">
+      <a href="https://aedt.docs.pyansys.com/" class="nav-link">PyAEDT</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="../../../index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../../index.html" class="nav-link">Examples</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../index.html" class="nav-link">High frequency</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="index.html" class="nav-link">Multiphysics</a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page">HFSS-Mechanical MRI analysis</li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="admonition-download-this-example admonition">
+<p class="admonition-title">Download this example</p>
+<p>Download this example as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/multiphysics/mri.ipynb">Jupyter Notebook</a>
+or as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/multiphysics/mri.py">Python script</a>.</p>
+</div>
+<hr class="docutils" />
+<section id="HFSS-Mechanical-MRI-analysis">
+<h1>HFSS-Mechanical MRI analysis<a class="headerlink" href="#HFSS-Mechanical-MRI-analysis" title="Link to this heading">#</a></h1>
+<p>This example uses a coil tuned to 63.8 MHz to determine the temperature rise in a gel phantom near an implant given a background SAR of 1 W/kg.</p>
+<p>Here is the workflow:</p>
+<p>Step 1: Simulate the coil loaded by the empty phantom: Scale input to coil ports to produce desired background SAR of 1 W/kg at the location that is to contain the implant.</p>
+<p>Step 2: Simulate the coil loaded by the phantom containing the implant in the proper location: View SAR in the tissue surrounding implant.</p>
+<p>Step 3: Thermal simulation: Link HFSS to the transient thermal solver to find the temperature rise in the tissue near the implant versus the time.</p>
+<p>Keywords: <strong>multiphysics</strong>, <strong>HFSS</strong>, <strong>Mechanical AEDT</strong>, <strong>Circuit</strong>.</p>
+<section id="Perform-imports-and-define-constants">
+<h2>Perform imports and define constants<a class="headerlink" href="#Perform-imports-and-define-constants" title="Link to this heading">#</a></h2>
+<p>Perform required imports.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">from</span> <span class="nn">ansys.aedt.core</span> <span class="kn">import</span> <span class="n">Hfss</span><span class="p">,</span> <span class="n">Icepak</span><span class="p">,</span> <span class="n">Mechanical</span><span class="p">,</span> <span class="n">downloads</span>
+<br/></pre></div>
+</div>
+</div>
+<p>Define constants.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">AEDT_VERSION</span> <span class="o">=</span> <span class="s2">&quot;2024.2&quot;</span>
+<span class="n">NUM_CORES</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">NG_MODE</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Open AEDT UI when it is launched.</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Create-temporary-directory">
+<h2>Create temporary directory<a class="headerlink" href="#Create-temporary-directory" title="Link to this heading">#</a></h2>
+<p>Create a temporary directory where downloaded data or dumped data can be stored. If you’d like to retrieve the project data for subsequent use, the temporary folder name is given by <code class="docutils literal notranslate"><span class="pre">temp_folder.name</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">temp_folder</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.ansys&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Load-project">
+<h2>Load project<a class="headerlink" href="#Load-project" title="Link to this heading">#</a></h2>
+<p>Open AEDT and the <code class="docutils literal notranslate"><span class="pre">background_SAR.aedt</span></code> project. This project contains the phantom and airbox. The phantom consists of two objects: <code class="docutils literal notranslate"><span class="pre">phantom</span></code> and <code class="docutils literal notranslate"><span class="pre">implant_box</span></code>.</p>
+<p>Separate objects are used to selectively assign mesh operations. Material properties defined in this project already contain electrical and thermal properties.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">project_path</span> <span class="o">=</span> <span class="n">downloads</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;mri&quot;</span><span class="p">,</span> <span class="n">destination</span><span class="o">=</span><span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<span class="n">project_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">project_path</span><span class="p">,</span> <span class="s2">&quot;background_SAR.aedt&quot;</span><span class="p">)</span>
+<span class="n">hfss</span> <span class="o">=</span> <span class="n">Hfss</span><span class="p">(</span>
+    <span class="n">project</span><span class="o">=</span><span class="n">project_name</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="n">AEDT_VERSION</span><span class="p">,</span>
+    <span class="n">non_graphical</span><span class="o">=</span><span class="n">NG_MODE</span><span class="p">,</span>
+    <span class="n">new_desktop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Parsing C:\Users\ansys\AppData\Local\Temp\tmp2br5txjr.ansys\mri\background_SAR.aedt.
+PyAEDT INFO: Python version 3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)]
+PyAEDT INFO: PyAEDT version 0.12.dev0.
+PyAEDT INFO: Initializing new Desktop session.
+PyAEDT INFO: Log on console is enabled.
+PyAEDT INFO: Log on file C:\Users\ansys\AppData\Local\Temp\pyaedt_ansys_af9f3e5d-7e85-439e-ace3-dd0b18f9e7b2.log is enabled.
+PyAEDT INFO: Log on AEDT is enabled.
+PyAEDT INFO: Debug logger is disabled. PyAEDT methods will not be logged.
+PyAEDT INFO: Launching PyAEDT with gRPC plugin.
+PyAEDT INFO: New AEDT session is starting on gRPC port 61862
+PyAEDT INFO: File C:\Users\ansys\AppData\Local\Temp\tmp2br5txjr.ansys\mri\background_SAR.aedt correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: AEDT installation Path C:\Program Files\AnsysEM\v242\Win64
+PyAEDT INFO: Ansoft.ElectronicsDesktop.2024.2 version started with process ID 6184.
+PyAEDT INFO: Project background_SAR has been opened.
+PyAEDT INFO: Active Design set to backgroundSAR
+PyAEDT INFO: Aedt Objects correctly read
+</pre></div></div>
+</div>
+</section>
+<section id="Insert-3D-component">
+<h2>Insert 3D component<a class="headerlink" href="#Insert-3D-component" title="Link to this heading">#</a></h2>
+<p>The MRI coil is saved as a separate 3D component.</p>
+<p>‒ 3D components store geometry (including parameters), material properties, boundary conditions, mesh assignments, and excitations. ‒ 3D components make it easy to reuse and share parts of a simulation.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">component_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">project_path</span><span class="p">,</span> <span class="s2">&quot;coil.a3dcomp&quot;</span><span class="p">)</span>
+<span class="n">hfss</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">insert_3d_component</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="n">component_file</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Modeler class has been initialized! Elapsed time: 0m 1sec
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;ansys.aedt.core.modeler.cad.components_3d.UserDefinedComponent at 0x2a05156ad10&gt;
+</pre></div></div>
+</div>
+</section>
+<section id="Define-convergence-criteria">
+<h2>Define convergence criteria<a class="headerlink" href="#Define-convergence-criteria" title="Link to this heading">#</a></h2>
+<p>On the <strong>Expression Cache</strong> tab, define additional convergence criteria for self impedance of the four coil ports.</p>
+<p>Set each of these convergence criteria to 2.5 ohm. This example limits the number of passes to two to reduce simulation time.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">im_traces</span> <span class="o">=</span> <span class="n">hfss</span><span class="o">.</span><span class="n">get_traces_for_plot</span><span class="p">(</span>
+    <span class="n">get_mutual_terms</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="s2">&quot;im(Z&quot;</span><span class="p">,</span> <span class="n">first_element_filter</span><span class="o">=</span><span class="s2">&quot;Coil1_p*&quot;</span>
+<span class="p">)</span>
+
+<span class="n">hfss</span><span class="o">.</span><span class="n">setups</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">enable_expression_cache</span><span class="p">(</span>
+    <span class="n">report_type</span><span class="o">=</span><span class="s2">&quot;Modal Solution Data&quot;</span><span class="p">,</span>
+    <span class="n">expressions</span><span class="o">=</span><span class="n">im_traces</span><span class="p">,</span>
+    <span class="n">isconvergence</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">isrelativeconvergence</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">conv_criteria</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span>
+    <span class="n">use_cache_for_freq</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">hfss</span><span class="o">.</span><span class="n">setups</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;MaximumPasses&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Edit-sources">
+<h2>Edit sources<a class="headerlink" href="#Edit-sources" title="Link to this heading">#</a></h2>
+<p>The 3D component of the MRI coil contains all the ports, but the sources for these ports are not yet defined. Browse to and select the <code class="docutils literal notranslate"><span class="pre">sources.csv</span></code> file. The sources in this file were determined by tuning the coil at 63.8 MHz. Notice that <code class="docutils literal notranslate"><span class="pre">input_scale</span></code> is a multiplier that lets you quickly adjust the coil excitation power.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">hfss</span><span class="o">.</span><span class="n">edit_sources_from_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">project_path</span><span class="p">,</span> <span class="s2">&quot;sources.csv&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+</section>
+<section id="Run-simulation">
+<h2>Run simulation<a class="headerlink" href="#Run-simulation" title="Link to this heading">#</a></h2>
+<p>Save and analyze the project.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">hfss</span><span class="o">.</span><span class="n">save_project</span><span class="p">(</span><span class="n">file_name</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">project_path</span><span class="p">,</span> <span class="s2">&quot;solved.aedt&quot;</span><span class="p">))</span>
+<span class="n">hfss</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span><span class="n">cores</span><span class="o">=</span><span class="n">NUM_CORES</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Project solved Saved correctly
+PyAEDT INFO: Key Desktop/ActiveDSOConfigurations/HFSS correctly changed.
+PyAEDT INFO: Solving all design setups.
+PyAEDT INFO: Key Desktop/ActiveDSOConfigurations/HFSS correctly changed.
+PyAEDT INFO: Design setup None solved correctly in 0.0h 1.0m 54.0s
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+</section>
+<section id="Plot-SAR-on-cut-plane-in-phantom">
+<h2>Plot SAR on cut plane in phantom<a class="headerlink" href="#Plot-SAR-on-cut-plane-in-phantom" title="Link to this heading">#</a></h2>
+<p>Ensure that the SAR averaging method is set to <code class="docutils literal notranslate"><span class="pre">Gridless</span></code>. Plot <code class="docutils literal notranslate"><span class="pre">Average_SAR</span></code> on the global YZ plane. Draw <code class="docutils literal notranslate"><span class="pre">Point1</span></code> at the origin of the implant coordinate system.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">hfss</span><span class="o">.</span><span class="n">sar_setup</span><span class="p">(</span>
+    <span class="n">assignment</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">average_sar_method</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">tissue_mass</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">material_density</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">hfss</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">create_fieldplot_cutplane</span><span class="p">(</span>
+    <span class="n">assignment</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;implant:YZ&quot;</span><span class="p">],</span> <span class="n">quantity</span><span class="o">=</span><span class="s2">&quot;Average_SAR&quot;</span><span class="p">,</span> <span class="n">filter_objects</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;implant_box&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+
+<span class="n">hfss</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">set_working_coordinate_system</span><span class="p">(</span><span class="s2">&quot;implant&quot;</span><span class="p">)</span>
+<span class="n">hfss</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_point</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Point1&quot;</span><span class="p">)</span>
+
+<span class="n">plot</span> <span class="o">=</span> <span class="n">hfss</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">plot_field</span><span class="p">(</span>
+    <span class="n">quantity</span><span class="o">=</span><span class="s2">&quot;Average_SAR&quot;</span><span class="p">,</span>
+    <span class="n">assignment</span><span class="o">=</span><span class="s2">&quot;implant:YZ&quot;</span><span class="p">,</span>
+    <span class="n">plot_type</span><span class="o">=</span><span class="s2">&quot;CutPlane&quot;</span><span class="p">,</span>
+    <span class="n">show_legend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">filter_objects</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;implant_box&quot;</span><span class="p">],</span>
+    <span class="n">export_path</span><span class="o">=</span><span class="n">hfss</span><span class="o">.</span><span class="n">working_directory</span><span class="p">,</span>
+    <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: SAR settings are correctly applied.
+PyAEDT INFO: Parsing C:/Users/ansys/AppData/Local/Temp/tmp2br5txjr.ansys/mri/solved.aedt.
+PyAEDT INFO: File C:/Users/ansys/AppData/Local/Temp/tmp2br5txjr.ansys/mri/solved.aedt correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: aedt file load time 0.20551776885986328
+PyAEDT INFO: PostProcessor class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Post class has been initialized! Elapsed time: 0m 0sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+C:\actions-runner\_work\pyaedt-examples\pyaedt-examples\.venv\lib\site-packages\pyvista\jupyter\notebook.py:37: UserWarning: Failed to use notebook backend:
+
+No module named &#39;trame&#39;
+
+Falling back to a static output.
+  warnings.warn(
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/examples_high_frequency_multiphysics_mri_23_2.png" src="../../../_images/examples_high_frequency_multiphysics_mri_23_2.png" />
+</div>
+</div>
+</section>
+<section id="Adjust-input-Power-to-MRI-coil">
+<h2>Adjust input Power to MRI coil<a class="headerlink" href="#Adjust-input-Power-to-MRI-coil" title="Link to this heading">#</a></h2>
+<p>Adjust the MRI coil’s input power so that the average SAR at <code class="docutils literal notranslate"><span class="pre">Point1</span></code> is 1 W/kg. Note that the SAR and input power are linearly related.</p>
+<p>To determine therequired input, calculate <code class="docutils literal notranslate"><span class="pre">input_scale</span> <span class="pre">=</span> <span class="pre">1/AverageSAR</span></code> at <code class="docutils literal notranslate"><span class="pre">Point1</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sol_data</span> <span class="o">=</span> <span class="n">hfss</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">get_solution_data</span><span class="p">(</span>
+    <span class="n">expressions</span><span class="o">=</span><span class="s2">&quot;Average_SAR&quot;</span><span class="p">,</span>
+    <span class="n">primary_sweep_variable</span><span class="o">=</span><span class="s2">&quot;Freq&quot;</span><span class="p">,</span>
+    <span class="n">context</span><span class="o">=</span><span class="s2">&quot;Point1&quot;</span><span class="p">,</span>
+    <span class="n">report_category</span><span class="o">=</span><span class="s2">&quot;Fields&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">sol_data</span><span class="o">.</span><span class="n">data_real</span><span class="p">()</span>
+
+<span class="n">hfss</span><span class="p">[</span><span class="s2">&quot;input_scale&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">sol_data</span><span class="o">.</span><span class="n">data_real</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Solution Data Correctly Loaded.
+</pre></div></div>
+</div>
+</section>
+<section id="Analyze-phantom-with-implant">
+<h2>Analyze phantom with implant<a class="headerlink" href="#Analyze-phantom-with-implant" title="Link to this heading">#</a></h2>
+<p>Import the implant geometry. Subtract the rod from the implant box. Assign titanium to the imported object rod. Analyze the project.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">hfss</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">import_3d_cad</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">project_path</span><span class="p">,</span> <span class="s2">&quot;implant_rod.sat&quot;</span><span class="p">))</span>
+
+<span class="n">hfss</span><span class="o">.</span><span class="n">modeler</span><span class="p">[</span><span class="s2">&quot;implant_box&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">tool_list</span><span class="o">=</span><span class="s2">&quot;rod&quot;</span><span class="p">,</span> <span class="n">keep_originals</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">hfss</span><span class="o">.</span><span class="n">modeler</span><span class="p">[</span><span class="s2">&quot;rod&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">material_name</span> <span class="o">=</span> <span class="s2">&quot;titanium&quot;</span>
+<span class="n">hfss</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span><span class="n">cores</span><span class="o">=</span><span class="n">NUM_CORES</span><span class="p">)</span>
+<span class="n">hfss</span><span class="o">.</span><span class="n">save_project</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Step file C:\Users\ansys\AppData\Local\Temp\tmp2br5txjr.ansys\mri\implant_rod.sat imported
+PyAEDT INFO: Materials class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Key Desktop/ActiveDSOConfigurations/HFSS correctly changed.
+PyAEDT INFO: Solving all design setups.
+PyAEDT INFO: Key Desktop/ActiveDSOConfigurations/HFSS correctly changed.
+PyAEDT INFO: Design setup None solved correctly in 0.0h 1.0m 57.0s
+PyAEDT INFO: Project solved Saved correctly
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+</section>
+<section id="Run-a-thermal-simulation">
+<h2>Run a thermal simulation<a class="headerlink" href="#Run-a-thermal-simulation" title="Link to this heading">#</a></h2>
+<p>Initialize a new Mechanical transient thermal analysis. This type of analysis is available in AEDT in 2023 R2 and later as a beta feature.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mech</span> <span class="o">=</span> <span class="n">Mechanical</span><span class="p">(</span><span class="n">solution_type</span><span class="o">=</span><span class="s2">&quot;Transient Thermal&quot;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">AEDT_VERSION</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Python version 3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)]
+PyAEDT INFO: PyAEDT version 0.12.dev0.
+PyAEDT INFO: Returning found Desktop session with PID 6184!
+PyAEDT INFO: No project is defined. Project solved exists and has been read.
+PyAEDT INFO: No consistent unique design is present. Inserting a new design.
+PyAEDT INFO: Added design &#39;Mechanical_SI0&#39; of type Mechanical.
+PyAEDT INFO: Aedt Objects correctly read
+</pre></div></div>
+</div>
+</section>
+<section id="Copy-geometries">
+<h2>Copy geometries<a class="headerlink" href="#Copy-geometries" title="Link to this heading">#</a></h2>
+<p>Copy bodies from the HFSS project. The 3D component is not copied.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mech</span><span class="o">.</span><span class="n">copy_solid_bodies_from</span><span class="p">(</span><span class="n">hfss</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Modeler class has been initialized! Elapsed time: 0m 0sec
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+</section>
+<section id="Link-sources-to-EM-losses">
+<h2>Link sources to EM losses<a class="headerlink" href="#Link-sources-to-EM-losses" title="Link to this heading">#</a></h2>
+<p>Link sources to the EM losses. Assign external convection.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">exc</span> <span class="o">=</span> <span class="n">mech</span><span class="o">.</span><span class="n">assign_em_losses</span><span class="p">(</span>
+    <span class="n">design</span><span class="o">=</span><span class="n">hfss</span><span class="o">.</span><span class="n">design_name</span><span class="p">,</span>
+    <span class="n">setup</span><span class="o">=</span><span class="n">hfss</span><span class="o">.</span><span class="n">setups</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+    <span class="n">sweep</span><span class="o">=</span><span class="s2">&quot;LastAdaptive&quot;</span><span class="p">,</span>
+    <span class="n">map_frequency</span><span class="o">=</span><span class="n">hfss</span><span class="o">.</span><span class="n">setups</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Frequency&quot;</span><span class="p">],</span>
+    <span class="n">surface_objects</span><span class="o">=</span><span class="n">mech</span><span class="o">.</span><span class="n">get_all_conductors_names</span><span class="p">(),</span>
+<span class="p">)</span>
+<span class="n">mech</span><span class="o">.</span><span class="n">assign_uniform_convection</span><span class="p">(</span>
+    <span class="n">assignment</span><span class="o">=</span><span class="n">mech</span><span class="o">.</span><span class="n">modeler</span><span class="p">[</span><span class="s2">&quot;Region&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">faces</span><span class="p">,</span> <span class="n">convection_value</span><span class="o">=</span><span class="mi">1</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Materials class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Mapping HFSS EM Loss
+PyAEDT INFO: EM losses mapped from design backgroundSAR.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;ansys.aedt.core.modules.boundary.BoundaryObject at 0x2a05c506590&gt;
+</pre></div></div>
+</div>
+</section>
+<section id="Create-setup">
+<h2>Create setup<a class="headerlink" href="#Create-setup" title="Link to this heading">#</a></h2>
+<p>Create a setup and edit properties.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">setup</span> <span class="o">=</span> <span class="n">mech</span><span class="o">.</span><span class="n">create_setup</span><span class="p">()</span>
+<span class="c1"># setup.add_mesh_link(&quot;backgroundSAR&quot;)</span>
+<span class="c1"># mech.create_dataset1d_design(&quot;PowerMap&quot;, [0, 239, 240, 360], [1, 1, 0, 0])</span>
+<span class="c1"># exc.props[&quot;LossMultiplier&quot;] = &quot;pwl(PowerMap,Time)&quot;</span>
+
+<span class="n">mech</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">set_working_coordinate_system</span><span class="p">(</span><span class="s2">&quot;implant&quot;</span><span class="p">)</span>
+<span class="n">mech</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_point</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Point1&quot;</span><span class="p">)</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Stop Time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">30</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Time Step&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;10s&quot;</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;SaveFieldsType&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Every N Steps&quot;</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;N Steps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;2&quot;</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Analyze-project">
+<h2>Analyze project<a class="headerlink" href="#Analyze-project" title="Link to this heading">#</a></h2>
+<p>Analyze the Mechanical project.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mech</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span><span class="n">cores</span><span class="o">=</span><span class="n">NUM_CORES</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Key Desktop/ActiveDSOConfigurations/Mechanical correctly changed.
+PyAEDT INFO: Solving all design setups.
+PyAEDT INFO: Key Desktop/ActiveDSOConfigurations/Mechanical correctly changed.
+PyAEDT INFO: Design setup None solved correctly in 0.0h 5.0m 8.0s
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+</section>
+<section id="Plot-fields">
+<h2>Plot fields<a class="headerlink" href="#Plot-fields" title="Link to this heading">#</a></h2>
+<p>Plot the temperature on cut plane. Plot the temperature on the point.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mech</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">create_fieldplot_cutplane</span><span class="p">(</span>
+    <span class="n">assignment</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;implant:YZ&quot;</span><span class="p">],</span>
+    <span class="n">quantity</span><span class="o">=</span><span class="s2">&quot;Temperature&quot;</span><span class="p">,</span>
+    <span class="n">filter_objects</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;implant_box&quot;</span><span class="p">],</span>
+    <span class="n">intrinsics</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Time&quot;</span><span class="p">:</span> <span class="s2">&quot;10s&quot;</span><span class="p">},</span>
+<span class="p">)</span>
+<span class="n">mech</span><span class="o">.</span><span class="n">save_project</span><span class="p">()</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">mech</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">get_solution_data</span><span class="p">(</span>
+    <span class="n">expressions</span><span class="o">=</span><span class="s2">&quot;Temperature&quot;</span><span class="p">,</span>
+    <span class="n">primary_sweep_variable</span><span class="o">=</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span>
+    <span class="n">context</span><span class="o">=</span><span class="s2">&quot;Point1&quot;</span><span class="p">,</span>
+    <span class="n">report_category</span><span class="o">=</span><span class="s2">&quot;Fields&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">data</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+
+<span class="n">mech</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">plot_animated_field</span><span class="p">(</span>
+    <span class="n">quantity</span><span class="o">=</span><span class="s2">&quot;Temperature&quot;</span><span class="p">,</span>
+    <span class="n">assignment</span><span class="o">=</span><span class="s2">&quot;implant:YZ&quot;</span><span class="p">,</span>
+    <span class="n">plot_type</span><span class="o">=</span><span class="s2">&quot;CutPlane&quot;</span><span class="p">,</span>
+    <span class="n">intrinsics</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Time&quot;</span><span class="p">:</span> <span class="s2">&quot;10s&quot;</span><span class="p">},</span>
+    <span class="n">variation_variable</span><span class="o">=</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span>
+    <span class="n">variations</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;10s&quot;</span><span class="p">,</span> <span class="s2">&quot;30s&quot;</span><span class="p">],</span>
+    <span class="n">filter_objects</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;implant_box&quot;</span><span class="p">],</span>
+    <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Parsing C:/Users/ansys/AppData/Local/Temp/tmp2br5txjr.ansys/mri/solved.aedt.
+PyAEDT INFO: File C:/Users/ansys/AppData/Local/Temp/tmp2br5txjr.ansys/mri/solved.aedt correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: aedt file load time 0.18994736671447754
+PyAEDT INFO: PostProcessor class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Post class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Project solved Saved correctly
+PyAEDT INFO: Solution Data Correctly Loaded.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;ansys.aedt.core.visualization.plot.pyvista.ModelPlotter at 0x2a05c507370&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/examples_high_frequency_multiphysics_mri_39_2.png" src="../../../_images/examples_high_frequency_multiphysics_mri_39_2.png" />
+</div>
+</div>
+</section>
+<section id="Run-a-new-thermal-simulation">
+<h2>Run a new thermal simulation<a class="headerlink" href="#Run-a-new-thermal-simulation" title="Link to this heading">#</a></h2>
+<p>Initialize a new Icepak transient thermal analysis.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ipk</span> <span class="o">=</span> <span class="n">Icepak</span><span class="p">(</span><span class="n">solution_type</span><span class="o">=</span><span class="s2">&quot;Transient&quot;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">AEDT_VERSION</span><span class="p">)</span>
+<span class="n">ipk</span><span class="o">.</span><span class="n">design_solutions</span><span class="o">.</span><span class="n">problem_type</span> <span class="o">=</span> <span class="s2">&quot;TemperatureOnly&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Python version 3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)]
+PyAEDT INFO: PyAEDT version 0.12.dev0.
+PyAEDT INFO: Returning found Desktop session with PID 6184!
+PyAEDT INFO: No project is defined. Project solved exists and has been read.
+PyAEDT INFO: No consistent unique design is present. Inserting a new design.
+PyAEDT INFO: Added design &#39;Icepak_81Y&#39; of type Icepak.
+PyAEDT INFO: Aedt Objects correctly read
+PyAEDT INFO: Parsing C:/Users/ansys/AppData/Local/Temp/tmp2br5txjr.ansys/mri/solved.aedt.
+PyAEDT INFO: File C:/Users/ansys/AppData/Local/Temp/tmp2br5txjr.ansys/mri/solved.aedt correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: aedt file load time 0.3485867977142334
+</pre></div></div>
+</div>
+</section>
+<section id="id1">
+<h2>Copy geometries<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<p>Copy bodies from the HFSS project. The 3D component is not copied.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ipk</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="s2">&quot;Region&quot;</span><span class="p">)</span>
+<span class="n">ipk</span><span class="o">.</span><span class="n">copy_solid_bodies_from</span><span class="p">(</span><span class="n">hfss</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Modeler class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Deleted 1 Objects: Region.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+</section>
+<section id="id2">
+<h2>Link sources to EM losses<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<p>Link sources to the EM losses. Assign external convection.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ipk</span><span class="o">.</span><span class="n">assign_em_losses</span><span class="p">(</span>
+    <span class="n">design</span><span class="o">=</span><span class="n">hfss</span><span class="o">.</span><span class="n">design_name</span><span class="p">,</span>
+    <span class="n">setup</span><span class="o">=</span><span class="n">hfss</span><span class="o">.</span><span class="n">setups</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+    <span class="n">sweep</span><span class="o">=</span><span class="s2">&quot;LastAdaptive&quot;</span><span class="p">,</span>
+    <span class="n">map_frequency</span><span class="o">=</span><span class="n">hfss</span><span class="o">.</span><span class="n">setups</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Frequency&quot;</span><span class="p">],</span>
+    <span class="n">surface_objects</span><span class="o">=</span><span class="n">ipk</span><span class="o">.</span><span class="n">get_all_conductors_names</span><span class="p">(),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Materials class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Mapping EM losses.
+PyAEDT INFO: EM losses mapped from design: backgroundSAR.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;ansys.aedt.core.modules.boundary.BoundaryObject at 0x2a055cd3850&gt;
+</pre></div></div>
+</div>
+</section>
+<section id="id3">
+<h2>Create setup<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+<p>Create a setup and edit properties. Simulation takes 30 seconds.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">setup</span> <span class="o">=</span> <span class="n">ipk</span><span class="o">.</span><span class="n">create_setup</span><span class="p">()</span>
+
+<span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Stop Time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">30</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;N Steps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Time Step&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Convergence Criteria - Energy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-12</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Create-mesh-region">
+<h2>Create mesh region<a class="headerlink" href="#Create-mesh-region" title="Link to this heading">#</a></h2>
+<p>Create a mesh region and change the accuracy level to 4.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bound</span> <span class="o">=</span> <span class="n">ipk</span><span class="o">.</span><span class="n">modeler</span><span class="p">[</span><span class="s2">&quot;implant_box&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">bounding_box</span>
+<span class="n">mesh_box</span> <span class="o">=</span> <span class="n">ipk</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_box</span><span class="p">(</span>
+    <span class="n">origin</span><span class="o">=</span><span class="n">bound</span><span class="p">[:</span><span class="mi">3</span><span class="p">],</span>
+    <span class="n">sizes</span><span class="o">=</span><span class="p">[</span><span class="n">bound</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">bound</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bound</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">-</span> <span class="n">bound</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">bound</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">-</span> <span class="n">bound</span><span class="p">[</span><span class="mi">2</span><span class="p">]],</span>
+<span class="p">)</span>
+<span class="n">mesh_box</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">mesh_region</span> <span class="o">=</span> <span class="n">ipk</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">assign_mesh_region</span><span class="p">([</span><span class="n">mesh_box</span><span class="o">.</span><span class="n">name</span><span class="p">])</span>
+<span class="n">mesh_region</span><span class="o">.</span><span class="n">UserSpecifiedSettings</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">mesh_region</span><span class="o">.</span><span class="n">Level</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">mesh_region</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT WARNING: No mesh operation found.
+PyAEDT WARNING: No mesh region found.
+PyAEDT INFO: Mesh class has been initialized! Elapsed time: 0m 0sec
+PyAEDT ERROR: Setting name Level is not available. Available parameters are: Enable2DCutCell, Enforce2dot5DCutCell, EnforceCutCellMeshing, OptimizePCBMesh, ProximitySizeFunction, StairStepMeshing, CurvatureSizeFunction, EnableTransition, MeshRegionResolution.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+</section>
+<section id="Create-point-monitor">
+<h2>Create point monitor<a class="headerlink" href="#Create-point-monitor" title="Link to this heading">#</a></h2>
+<p>Create a point monitor.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ipk</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">set_working_coordinate_system</span><span class="p">(</span><span class="s2">&quot;implant&quot;</span><span class="p">)</span>
+<span class="n">ipk</span><span class="o">.</span><span class="n">monitor</span><span class="o">.</span><span class="n">assign_point_monitor</span><span class="p">(</span><span class="n">point_position</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">monitor_name</span><span class="o">=</span><span class="s2">&quot;Point1&quot;</span><span class="p">)</span>
+<span class="n">ipk</span><span class="o">.</span><span class="n">assign_openings</span><span class="p">(</span><span class="n">ipk</span><span class="o">.</span><span class="n">modeler</span><span class="p">[</span><span class="s2">&quot;Region&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">top_face_z</span><span class="p">)</span>
+<span class="c1"># -</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Opening Assigned
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;ansys.aedt.core.modules.boundary.BoundaryObject at 0x2a055f402b0&gt;
+</pre></div></div>
+</div>
+</section>
+<section id="Release-AEDT">
+<h2>Release AEDT<a class="headerlink" href="#Release-AEDT" title="Link to this heading">#</a></h2>
+<p>Release AEDT and close the example.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">hfss</span><span class="o">.</span><span class="n">save_project</span><span class="p">()</span>
+<span class="n">hfss</span><span class="o">.</span><span class="n">release_desktop</span><span class="p">()</span>
+<span class="c1"># Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.</span>
+<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Project solved Saved correctly
+PyAEDT INFO: Desktop has been released and closed.
+</pre></div></div>
+</div>
+</section>
+<section id="Clean-up">
+<h2>Clean up<a class="headerlink" href="#Clean-up" title="Link to this heading">#</a></h2>
+<p>All project files are saved in the folder <code class="docutils literal notranslate"><span class="pre">temp_folder.name</span></code>. If you’ve run this example as a Jupyter notebook, you can retrieve those project files. The following cell removes all temporary files, including the project folder.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">temp_folder</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<div class="admonition-download-this-example admonition">
+<p class="admonition-title">Download this example</p>
+<p>Download this example as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/multiphysics/mri.ipynb">Jupyter Notebook</a>
+or as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/multiphysics/mri.py">Python script</a>.</p>
+</div>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Perform-imports-and-define-constants">Perform imports and define constants</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-temporary-directory">Create temporary directory</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Load-project">Load project</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Insert-3D-component">Insert 3D component</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Define-convergence-criteria">Define convergence criteria</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Edit-sources">Edit sources</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Run-simulation">Run simulation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Plot-SAR-on-cut-plane-in-phantom">Plot SAR on cut plane in phantom</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Adjust-input-Power-to-MRI-coil">Adjust input Power to MRI coil</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Analyze-phantom-with-implant">Analyze phantom with implant</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Run-a-thermal-simulation">Run a thermal simulation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Copy-geometries">Copy geometries</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Link-sources-to-EM-losses">Link sources to EM losses</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-setup">Create setup</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Analyze-project">Analyze project</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Plot-fields">Plot fields</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Run-a-new-thermal-simulation">Run a new thermal simulation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Copy geometries</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Link sources to EM losses</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Create setup</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-mesh-region">Create mesh region</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-point-monitor">Create point monitor</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Release-AEDT">Release AEDT</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Clean-up">Clean up</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item"> 
+<div class="tocsection editthispage">
+  <a href="https://github.com/ansys/pyaedt-examples/edit/main/doc/source/examples/high_frequency/multiphysics/mri.ipynb">
+    <i class="fa-solid fa-pencil"></i>
+       Edit
+    on GitHub  
+  </a>
+</div>
+
+</div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../../../_sources/examples/high_frequency/multiphysics/mri.ipynb.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright (c) 2021 - 2024 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the
+  <a href="https://sphinxdocs.ansys.com/version/stable/index.html"
+    >Ansys Sphinx Theme</a
+  >
+  1.0.5. <br />Last updated on
+  <span id="date"></span>
+</p>
+<script>
+  var options = { day: "numeric", month: "long", year: "numeric" };
+  var lastModifiedDate = new Date(document.lastModified);
+  var date = lastModifiedDate.toLocaleDateString("en-US", options);
+  document.getElementById("date").innerHTML = date;
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
