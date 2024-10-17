@@ -100,8 +100,7 @@ region = m3d.modeler.create_region(pad_percent=[20, 20, 20, 20, 500, 100])
 # ### Restore view
 #
 # If you are using PyAEDT with an interactive desktop, you may want to fit the visible view to fit the model.
-# PyAEDT uses the direct
-# access to the native API for this command using the property `m3d.odesktop`.
+# PyAEDT uses the direct access to the native API for this command using the property `m3d.odesktop`.
 #
 # Uncomment and run the following cell if you are running PyAEDT interactively and would like to automatically fit the
 # window to the model.
