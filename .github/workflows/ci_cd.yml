@@ -30,7 +30,7 @@ jobs:
     name: Documentation style
     runs-on: ubuntu-latest
     steps:
-      - uses: ansys/actions/doc-style@v4
+      - uses: ansys/actions/doc-style@v8
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
