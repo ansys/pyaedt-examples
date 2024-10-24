@@ -1,0 +1,314 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "ea11ada4",
+   "metadata": {},
+   "source": [
+    "# HFSS Layout UI modification\n",
+    "\n",
+    "This example shows how to modify the HFSS 3D Layout UI.\n",
+    "<img src=\"_static/user_interface.png\" width=\"600\">\n",
+    "\n",
+    "Keywords: **HFSS 3D Layout**, **UI**, **user interface**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "23d7c5f6",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8efcc4e3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "\n",
+    "import sys\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "from ansys.aedt.core import Hfss3dLayout\n",
+    "from ansys.aedt.core.downloads import download_file\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0534d697",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9bfad562",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2024.2\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = True  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "740ac8d5",
+   "metadata": {},
+   "source": [
+    "Check if AEDT is launched in graphical mode."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ef293fa7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "if not NG_MODE:\n",
+    "    print(\"Warning: This example requires graphical mode enabled.\")\n",
+    "    sys.exit()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8a595b52",
+   "metadata": {},
+   "source": [
+    "Download example board."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "95b25ca9",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")\n",
+    "aedb = download_file(source=\"edb/ANSYS-HSD_V1.aedb\", destination=temp_folder.name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "cd3d0a3a",
+   "metadata": {},
+   "source": [
+    "## Launch HFSS 3D Layout\n",
+    "\n",
+    "Initialize AEDT and launch HFSS 3D Layout."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b87439af",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d = Hfss3dLayout(aedb, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True)\n",
+    "h3d.save_project()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d0c9e813",
+   "metadata": {},
+   "source": [
+    "## Net visibility\n",
+    "Hide all nets."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f5207742",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d.modeler.change_net_visibility(visible=False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f9aed77e",
+   "metadata": {},
+   "source": [
+    "Show two specified nets."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f290a253",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d.modeler.change_net_visibility([\"5V\", \"1V0\"], visible=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3ab7dd1e",
+   "metadata": {},
+   "source": [
+    "Show all layers."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0da93be3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "for layer in h3d.modeler.layers.all_signal_layers:\n",
+    "    layer.is_visible = True"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "56efb62a",
+   "metadata": {},
+   "source": [
+    "Change the layer color."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9d9b39e3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "layer = h3d.modeler.layers.layers[h3d.modeler.layers.layer_id(\"1_Top\")]\n",
+    "layer.set_layer_color(0, 255, 0)\n",
+    "h3d.modeler.fit_all()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "00bc1cda",
+   "metadata": {},
+   "source": [
+    "## Disable component visibility"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "51b294ef",
+   "metadata": {},
+   "source": [
+    "Disable component visibility for the ``\"1_Top\"`` and ``\"16_Bottom\"`` layers."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6d3610d0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "top = h3d.modeler.layers.layers[h3d.modeler.layers.layer_id(\"1_Top\")]\n",
+    "top.is_visible_component = False"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "80721076",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "bot = h3d.modeler.layers.layers[h3d.modeler.layers.layer_id(\"16_Bottom\")]\n",
+    "bot.is_visible_component = False"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "21155f3b",
+   "metadata": {},
+   "source": [
+    "## Display the layout\n",
+    "\n",
+    "Fit all so that you can visualize all."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4add36ff",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d.modeler.fit_all()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "580f38f1",
+   "metadata": {},
+   "source": [
+    "## Release AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8e2abb3d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d.save_project()\n",
+    "h3d.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e544d968",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "086013a7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  },
+  "nbsphinx": {
+   "execute": "never"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
