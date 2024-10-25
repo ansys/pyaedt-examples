@@ -5,7 +5,7 @@ pushd %~dp0
 REM Command file for Sphinx documentation
 
 if "%SPHINXOPTS%" == "" (
-	set SPHINXOPTS=-j auto --color -W
+	set SPHINXOPTS=-j auto --color -W -v
 )
 if "%SPHINXBUILD%" == "" (
 	set SPHINXBUILD=sphinx-build
