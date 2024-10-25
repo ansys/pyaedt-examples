@@ -3,7 +3,6 @@
 import colorama
 from colorama import Fore, Style
 import datetime
-from importlib import import_module
 import logging
 import os
 from pathlib import Path
@@ -21,11 +20,9 @@ from ansys_sphinx_theme import (
 import numpy as np
 import pyvista
 from sphinx.builders.latex import LaTeXBuilder
-from sphinx.util import logging as sphinx_logging
 
 LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml"]
 
-logger: logging.Logger = sphinx_logging.getLogger(__name__)
 path = Path(__file__).parent.parent.parent / "examples"
 EXAMPLES_DIRECTORY = path.resolve()
 REPOSITORY_NAME = "pyaedt-examples"
@@ -40,22 +37,34 @@ cname = os.getenv("DOCUMENTATION_CNAME", "nocname.com")
 release = version = "0.1.dev0"
 
 
-# # -- Connect functions (hooks) to Sphinx events  -----------------------------
-
-class ColoredFormatter(logging.ColorizeFormatter):
+class ColoredFormatter(logging.Formatter):
     """Custom log formatter to add colors to different log levels."""
 
     def format(self, record: logging.LogRecord):
         if record.levelno == logging.ERROR:
             record.msg = f"{Fore.RED}{record.msg}{Style.RESET_ALL}"
+            record.levelname = f"{Fore.RED}{record.levelname}{Style.RESET_ALL}"
         if record.levelno == logging.WARNING:
-            record.msg = f"{Fore.YELLOW}{record.msg}{Style.RESET_ALL}"
+            record.msg = f"{Fore.LIGHTYELLOW_EX}{record.msg}{Style.RESET_ALL}"
+            record.levelname = f"{Fore.LIGHTYELLOW_EX}{record.levelname}{Style.RESET_ALL}"
         if record.levelno == logging.INFO:
             record.msg = f"{Fore.GREEN}{record.msg}{Style.RESET_ALL}"
+            record.levelname = f"{Fore.GREEN}{record.levelname}{Style.RESET_ALL}"
         else:
             record.msg = f"{Fore.CYAN}{record.msg}{Style.RESET_ALL}"
+            record.levelname = f"{Fore.CYAN}{record.levelname}{Style.RESET_ALL}"
         return super().format(record)
 
+colorama.init(autoreset=True)
+root_logger = logging.getLogger()
+root_logger.setLevel(logging.INFO)
+colored_formatter = ColoredFormatter('%(levelname)s: %(message)s')
+stream_handler = logging.StreamHandler()
+stream_handler.setFormatter(colored_formatter)
+root_logger.addHandler(stream_handler)
+logger = logging.getLogger(__name__)
+
+# # -- Connect functions (hooks) to Sphinx events  -----------------------------
 
 def directory_size(directory_path: Path):
     """Compute the size (in mega bytes) of a directory.
@@ -297,10 +306,6 @@ def convert_examples_into_notebooks(app):
 
 def setup(app):
     """Run different hook functions during the documentation build."""
-    colored_formatter = ColoredFormatter('%(levelname)s: %(message)s')
-    for handler in logger.handlers:
-        handler.setFormatter(colored_formatter)
-    logger.setLevel(logging.INFO)
 
     # Configuration inited hooks
     app.connect("config-inited", check_pandoc_installed)
