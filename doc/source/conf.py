@@ -113,7 +113,7 @@ def copy_examples_structure(app: Sphinx, config: Config):
     logger.info(f"Copy performed.")
 
 
-def copy_script_examples(app: Sphinx, config: Config):
+def copy_script_examples(app: Sphinx, exception: Exception | None):
     """Copy root directory examples script into Sphinx application out directory.
     
     This is required to allow users to download python scripts in the admonition.
@@ -125,15 +125,18 @@ def copy_script_examples(app: Sphinx, config: Config):
     config : sphinx.config.Config
         Configuration file abstraction.
     """
-    destination_dir = Path(app.outdir, "examples").resolve()
-    logger.info(f"Copying script examples into out directory {destination_dir}.")
+    if exception is None:
+        destination_dir = Path(app.outdir, "examples").resolve()
+        logger.info(f"Copying script examples into out directory {destination_dir}.")
 
-    EXAMPLES = EXAMPLES_DIRECTORY.glob("**/*.py")
-    for example in EXAMPLES:
-        example_path = str(example).split("examples" + os.sep)[-1]
-        shutil.copyfile(example, str(destination_dir / example_path))
+        EXAMPLES = EXAMPLES_DIRECTORY.glob("**/*.py")
+        for example in EXAMPLES:
+            example_path = str(example).split("examples" + os.sep)[-1]
+            shutil.copyfile(example, str(destination_dir / example_path))
 
-    logger.info(f"Copy performed.")
+        logger.info(f"Copy performed.")
+    else:
+        logger.warning(f"An exception occured. Skipping copy_script_examples.")
 
 
 def adjust_image_path(app: Sphinx, docname, source):
