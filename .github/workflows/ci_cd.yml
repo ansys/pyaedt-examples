@@ -19,6 +19,7 @@ env:
   PYAEDT_NON_GRAPHICAL: '1'
   # To keep as it impacts pyaedt behavior
   PYAEDT_DOC_GENERATION: '1'
+  SPHINXBUILD_HTML_AND_PDF_WORKFLOW: '1'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
