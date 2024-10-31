@@ -112,6 +112,7 @@ region = m3d.modeler.create_region(pad_percent=[20, 20, 20, 20, 500, 100])
 # ### Create and assign material
 #
 # Define a new material for the AWG40 Litz wire copper strands:
+#
 # - Strand diameter = 0.08 mm
 # - Number of parallel strands in the Litz wire = 24
 #
