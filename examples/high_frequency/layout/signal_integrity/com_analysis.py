@@ -16,7 +16,7 @@
 # - COM was developed as part of IEEE 802.3bj, 100GBASE Ethernet.
 # - COM is a figure of merit for an S-parameter representing a high-speed SerDes channel.
 # - COM is the ratio between eye height and noise.
-#
+
 # ```math
 # COM = 20 * log10 (A_signal / A_noise)
 # ```
