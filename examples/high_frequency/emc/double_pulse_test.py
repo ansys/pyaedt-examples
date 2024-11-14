@@ -39,19 +39,18 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # ## Launch AEDT and application
 #
 # Create an instance of the application (such as ``Maxwell3d`` or``Hfss``)
-# with a class (such as ``aedt_app`` or``hfss``) by providing
+# with a class (such as ``circuit`` or``hfss``) by providing
 # the project and design names, the solver, and the version.
 
 project_name = os.path.join(temp_folder.name, "my_project.aedt")
-setup_name = "MyTransient"
 
-aedt_app = ansys.aedt.core.Circuit(
-    project=ansys.aedt.core.generate_unique_project_name(),
+circuit = ansys.aedt.core.Circuit(
+    project=project_name,
     version=AEDT_VERSION,
     non_graphical=NG_MODE,
     new_desktop=True,
 )
-aedt_app.modeler.schematic.schematic_units = "mil"
+circuit.modeler.schematic.schematic_units = "mil"
 
 # ## Preprocess
 #
@@ -59,20 +58,20 @@ aedt_app.modeler.schematic.schematic_units = "mil"
 
 des_properties = {
     "VoltageDCbus": "400V",
-    "Rg1": "2.2",
-    "Rg2": "2.2",
-    "Cdclink": "0.0005farad",
-    "lload": "7.7e-5",
+    "r_g1": "2.2",
+    "r_g2": "2.2",
+    "c_dclink": "0.0005farad",
+    "l_load": "7.7e-5",
     "Vgate_top": "-5V",
-    "rload": "0.1",
-    "Rdclink": "1e6",
-    "Vpwl_high": "18.0V",
-    "Vpwl_low": "-5.0V",
+    "r_load": "0.1",
+    "r_dclink": "1e6",
+    "v_pwl_high": "18.0V",
+    "v_pwl_low": "-5.0V",
 }
 
 # Define design variables from the created dictionaries.
 for k, v in des_properties.items():
-    aedt_app[k] = v
+    circuit[k] = v
 
 # Insert circuit elements.
 y_upper_pin = 5200
@@ -90,303 +89,296 @@ time_list_pwl = [
     1.3001e-05,
 ]
 volt_list_pwl = [
-    "Vpwl_low",
-    "Vpwl_low",
-    "Vpwl_high",
-    "Vpwl_high",
-    "Vpwl_low",
-    "Vpwl_low",
-    "Vpwl_high",
-    "Vpwl_high",
-    "Vpwl_low",
+    "v_pwl_low",
+    "v_pwl_low",
+    "v_pwl_high",
+    "v_pwl_high",
+    "v_pwl_low",
+    "v_pwl_low",
+    "v_pwl_high",
+    "v_pwl_high",
+    "v_pwl_low",
 ]
-vpwl = aedt_app.modeler.components.create_voltage_pwl(
-    name="Vpwl",
+v_pwl = circuit.modeler.components.create_voltage_pwl(
+    name="v_pwl",
     time_list=time_list_pwl,
     voltage_list=volt_list_pwl,
     location=[600, 2800],
 )
-vgatetop = aedt_app.modeler.components.create_voltage_dc(
+v_gatetop = circuit.modeler.components.create_voltage_dc(
     name="Vgate_top", value="Vgate_top", location=[600, 4500]
 )
-vdcbus = aedt_app.modeler.components.create_voltage_dc(
-    name="Vdcbus", value="VoltageDCbus", location=[-1800, 3800]
+v_dcbus = circuit.modeler.components.create_voltage_dc(
+    name="v_dcbus", value="VoltageDCbus", location=[-1800, 3800]
 )
 
-cdclink = aedt_app.modeler.schematic.create_capacitor(
-    name="C_DClink", value="Cdclink", location=[-1300, 3800], angle=90
+c_dclink = circuit.modeler.schematic.create_capacitor(
+    name="C_DClink", value="c_dclink", location=[-1300, 3800], angle=90
 )
-rdclink = aedt_app.modeler.schematic.create_resistor(
-    name="R_DClink", value="Rdclink", location=[-700, 3800], angle=90
+r_dclink = circuit.modeler.schematic.create_resistor(
+    name="R_DClink", value="r_dclink", location=[-700, 3800], angle=90
 )
-lload = aedt_app.modeler.schematic.create_inductor(
-    name="Lload", value="lload", location=[3000, 4800], angle=-90
+l_load = circuit.modeler.schematic.create_inductor(
+    name="l_load", value="l_load", location=[3000, 4800], angle=-90
 )
-rload = aedt_app.modeler.schematic.create_resistor(
-    name="Rload", value="rload", location=[3000, 4300], angle=90
+r_load = circuit.modeler.schematic.create_resistor(
+    name="r_load", value="r_load", location=[3000, 4300], angle=90
 )
-rg1 = aedt_app.modeler.schematic.create_resistor(
-    name="Rg1", value="Rg1", location=[1400, 4700], angle=180
+r_g1 = circuit.modeler.schematic.create_resistor(
+    name="r_g1", value="r_g1", location=[1400, 4700], angle=180
 )
-rg2 = aedt_app.modeler.schematic.create_resistor(
-    name="Rg2", value="Rg2", location=[1400, 3100], angle=180
+r_g2 = circuit.modeler.schematic.create_resistor(
+    name="r_g2", value="r_g2", location=[1400, 3100], angle=180
 )
 
-voltm_g = aedt_app.modeler.components.components_catalog["Probes:VPROBE_DIFF"].place(
-    "voltage_g"
+voltm_g = circuit.modeler.components.components_catalog["Probes:VPROBE_DIFF"].place(
+    assignment="voltage_g", location=[100, 2900], angle=270
 )
-voltm_g.parameters["Name"] = "voltage_g"  # does not work with amm.top.name = 'Itop'
-voltm_g.location = [100, 2900]
-voltm_g.angle = 270
+voltm_g.parameters["Name"] = "voltage_g"
 
-voltm_ds = aedt_app.modeler.components.components_catalog["Probes:VPROBE_DIFF"].place(
-    "voltage_ds"
+voltm_ds = circuit.modeler.components.components_catalog["Probes:VPROBE_DIFF"].place(
+    assignment="voltage_ds", location=[2500, 3300], angle=0
 )
-voltm_ds.parameters["Name"] = "voltage_ds"  # does not work with amm.top.name = 'Itop'
-voltm_ds.location = [2500, 3300]
-voltm_ds.angle = 0
+voltm_ds.parameters["Name"] = "voltage_ds"
 
-amm_top = aedt_app.modeler.components.components_catalog["Probes:IPROBE"].place(
-    "Itop"
-)  # 1100 , 5200, angle=180
-amm_top.parameters["Name"] = "Itop"  # does not work with amm.top.name = 'Itop'
-amm_top.location = [1100, 5200]
-amm_top.angle = 0
+amm_top = circuit.modeler.components.components_catalog["Probes:IPROBE"].place(
+    assignment="Itop", location=[1100, 5200], angle=0
+)
+amm_top.parameters["Name"] = "Itop"
 
-amm_ind = aedt_app.modeler.components.components_catalog["Probes:IPROBE"].place(
-    "Iload"
-)  # 1100 , 4000, angle = 0
+amm_ind = circuit.modeler.components.components_catalog["Probes:IPROBE"].place(
+    assignment="Iinductor", location=[2500, 4000], angle=0
+)
 amm_ind.parameters["Name"] = "Iinductor"
-amm_ind.location = [2500, 4000]
-amm_ind.angle = 0
 
-amm_bot = aedt_app.modeler.components.components_catalog["Probes:IPROBE"].place(
-    "Ibottom"
-)  # 2000 , 3600, angle = 270
+amm_bot = circuit.modeler.components.components_catalog["Probes:IPROBE"].place(
+    assignment="Ibottom", location=[2000, 3600], angle=270
+)
 amm_bot.parameters["Name"] = "Ibottom"
-amm_bot.location = [2000, 3600]
-amm_bot.angle = 270
+
 
 # Add nmos component from Component Library.
 # Please check that chosen component has the attribute .place
-# If you need to insert a component from a spice model, please use the method: aedt_app.modeler.components.create_component_from_spicemodel
+# If you need to insert a component from a spice model, please use the method: circuit.modeler.components.create_component_from_spicemodel
 
-nmos_h = aedt_app.modeler.components.components_catalog[
+nmos_h = circuit.modeler.components.components_catalog[
     "Power Electronics Tools\\Power Semiconductors\\MOSFET\\STMicroelectronics:SCT040H65G3AG_V2"
-].place("NMOS_HS")
-nmos_h.location = [1500, 4700]
-nmos_h.angle = 0
+].place(assignment="NMOS_HS", location=[1500, 4700], angle=0)
 
-nmos_l = aedt_app.modeler.components.components_catalog[
+nmos_l = circuit.modeler.components.components_catalog[
     "Power Electronics Tools\\Power Semiconductors\\MOSFET\\STMicroelectronics:SCT040H65G3AG_V2"
-].place("NMOS_LS")
-nmos_l.location = [1500, 3100]
-nmos_l.angle = 0
+].place("NMOS_LS", location=[1500, 3100], angle=0)
 
 # Create wiring to complete the schematic.
 
-aedt_app.modeler.schematic.connect_components_in_series(
-    assignment=[lload, rload], use_wire=True
+circuit.modeler.schematic.connect_components_in_series(
+    assignment=[l_load, r_load], use_wire=True
 )
-aedt_app.modeler.schematic.connect_components_in_series(
-    assignment=[vgatetop, rg1], use_wire=True
+circuit.modeler.schematic.connect_components_in_series(
+    assignment=[v_gatetop, r_g1], use_wire=True
 )
-aedt_app.modeler.schematic.connect_components_in_series(
-    assignment=[vpwl, rg2], use_wire=True
+circuit.modeler.schematic.connect_components_in_series(
+    assignment=[v_pwl, r_g2], use_wire=True
 )
 
-aedt_app.modeler.schematic.create_wire(
+circuit.modeler.schematic.create_wire(
     [
-        [vdcbus.pins[1].location[0], vdcbus.pins[1].location[1]],
-        [vdcbus.pins[1].location[0], y_upper_pin],
+        [v_dcbus.pins[1].location[0], v_dcbus.pins[1].location[1]],
+        [v_dcbus.pins[1].location[0], y_upper_pin],
     ]
 )
-aedt_app.modeler.schematic.create_wire(
+circuit.modeler.schematic.create_wire(
     [
-        [cdclink.pins[1].location[0], cdclink.pins[1].location[1]],
-        [cdclink.pins[1].location[0], y_upper_pin],
+        [c_dclink.pins[1].location[0], c_dclink.pins[1].location[1]],
+        [c_dclink.pins[1].location[0], y_upper_pin],
     ]
 )
-aedt_app.modeler.schematic.create_wire(
+circuit.modeler.schematic.create_wire(
     [
-        [rdclink.pins[0].location[0], rdclink.pins[0].location[1]],
-        [rdclink.pins[0].location[0], y_upper_pin],
+        [r_dclink.pins[0].location[0], r_dclink.pins[0].location[1]],
+        [r_dclink.pins[0].location[0], y_upper_pin],
     ]
 )
-aedt_app.modeler.schematic.create_wire(
+circuit.modeler.schematic.create_wire(
     [
-        [lload.pins[0].location[0], lload.pins[0].location[1]],
-        [lload.pins[0].location[0], y_upper_pin],
+        [l_load.pins[0].location[0], l_load.pins[0].location[1]],
+        [l_load.pins[0].location[0], y_upper_pin],
     ]
 )
-aedt_app.modeler.schematic.create_wire(
+circuit.modeler.schematic.create_wire(
     [
-        [lload.pins[0].location[0], y_upper_pin],
+        [l_load.pins[0].location[0], y_upper_pin],
         [nmos_h.pins[0].location[0], y_upper_pin],
     ]
 )
-aedt_app.modeler.schematic.create_wire(
+circuit.modeler.schematic.create_wire(
     [
-        [vdcbus.pins[0].location[0], y_upper_pin],
+        [v_dcbus.pins[0].location[0], y_upper_pin],
         [amm_top.pins[0].location[0], amm_top.pins[0].location[1]],
     ]
 )
-aedt_app.modeler.schematic.create_wire(
+circuit.modeler.schematic.create_wire(
     [
         [amm_top.pins[1].location[0], amm_top.pins[1].location[1]],
         [nmos_h.pins[0].location[0], y_upper_pin],
     ]
 )
-aedt_app.modeler.schematic.create_wire(
+circuit.modeler.schematic.create_wire(
     [
         [nmos_h.pins[0].location[0], y_upper_pin],
         [nmos_h.pins[0].location[0], nmos_h.pins[0].location[1]],
     ]
 )
-aedt_app.modeler.schematic.create_wire(
+circuit.modeler.schematic.create_wire(
     [
         [voltm_g.pins[1].location[0], voltm_g.pins[1].location[1]],
-        [voltm_g.pins[1].location[0], vpwl.pins[0].location[1]],
-        [vpwl.pins[0].location[0], vpwl.pins[0].location[1]],
+        [voltm_g.pins[1].location[0], v_pwl.pins[0].location[1]],
+        [v_pwl.pins[0].location[0], v_pwl.pins[0].location[1]],
     ]
 )
-aedt_app.modeler.schematic.create_wire(
+circuit.modeler.schematic.create_wire(
     [
-        [vpwl.pins[0].location[0], vpwl.pins[0].location[1]],
-        [nmos_l.pins[3].location[0], vpwl.pins[0].location[1]],
+        [v_pwl.pins[0].location[0], v_pwl.pins[0].location[1]],
+        [nmos_l.pins[3].location[0], v_pwl.pins[0].location[1]],
         [nmos_l.pins[3].location[0], nmos_l.pins[3].location[1]],
     ]
 )
-aedt_app.modeler.schematic.create_wire(
+circuit.modeler.schematic.create_wire(
     [
-        [vgatetop.pins[0].location[0], vgatetop.pins[0].location[1]],
-        [nmos_h.pins[3].location[0], vgatetop.pins[0].location[1]],
+        [v_gatetop.pins[0].location[0], v_gatetop.pins[0].location[1]],
+        [nmos_h.pins[3].location[0], v_gatetop.pins[0].location[1]],
         [nmos_h.pins[3].location[0], nmos_h.pins[3].location[1]],
     ]
 )
 
-aedt_app.modeler.schematic.create_wire(
+circuit.modeler.schematic.create_wire(
     [
         [nmos_h.pins[0].location[0], y_upper_pin],
         [nmos_h.pins[0].location[0], nmos_h.pins[0].location[1]],
     ]
 )
 
-aedt_app.modeler.schematic.create_wire(
+circuit.modeler.schematic.create_wire(
     [
-        [rload.pins[1].location[0], rload.pins[1].location[1]],
-        [rload.pins[1].location[0], amm_ind.pins[1].location[1]],
+        [r_load.pins[1].location[0], r_load.pins[1].location[1]],
+        [r_load.pins[1].location[0], amm_ind.pins[1].location[1]],
         [amm_ind.pins[1].location[0], amm_ind.pins[1].location[1]],
     ]
 )
-aedt_app.modeler.schematic.create_wire(
+circuit.modeler.schematic.create_wire(
     [
         [amm_ind.pins[0].location[0], amm_ind.pins[0].location[1]],
         [amm_bot.pins[0].location[0], amm_ind.pins[0].location[1]],
     ]
 )
-aedt_app.modeler.schematic.create_wire(
+circuit.modeler.schematic.create_wire(
     [
         [voltm_g.pins[0].location[0], voltm_g.pins[0].location[1]],
-        [vpwl.pins[0].location[0], voltm_g.pins[0].location[1]],
+        [v_pwl.pins[0].location[0], voltm_g.pins[0].location[1]],
     ]
 )
 
-aedt_app.modeler.schematic.create_wire(
+circuit.modeler.schematic.create_wire(
     [
-        [vdcbus.pins[0].location[0], vdcbus.pins[0].location[1]],
-        [vdcbus.pins[0].location[0], y_lower_pin],
+        [v_dcbus.pins[0].location[0], v_dcbus.pins[0].location[1]],
+        [v_dcbus.pins[0].location[0], y_lower_pin],
     ]
 )
-aedt_app.modeler.schematic.create_wire(
+circuit.modeler.schematic.create_wire(
     [
-        [cdclink.pins[0].location[0], cdclink.pins[0].location[1]],
-        [cdclink.pins[0].location[0], y_lower_pin],
+        [c_dclink.pins[0].location[0], c_dclink.pins[0].location[1]],
+        [c_dclink.pins[0].location[0], y_lower_pin],
     ]
 )
-aedt_app.modeler.schematic.create_wire(
+circuit.modeler.schematic.create_wire(
     [
-        [rdclink.pins[1].location[0], rdclink.pins[1].location[1]],
-        [rdclink.pins[1].location[0], y_lower_pin],
+        [r_dclink.pins[1].location[0], r_dclink.pins[1].location[1]],
+        [r_dclink.pins[1].location[0], y_lower_pin],
     ]
 )
-aedt_app.modeler.schematic.create_wire(
+circuit.modeler.schematic.create_wire(
     [
         [nmos_l.pins[2].location[0], nmos_l.pins[2].location[1]],
         [nmos_l.pins[2].location[0], y_lower_pin],
     ]
 )
-aedt_app.modeler.schematic.create_wire(
+circuit.modeler.schematic.create_wire(
     [
         [voltm_ds.pins[1].location[0], voltm_ds.pins[1].location[1]],
         [voltm_ds.pins[1].location[0], y_lower_pin],
     ]
 )
-aedt_app.modeler.schematic.create_wire(
+circuit.modeler.schematic.create_wire(
     [
         [nmos_l.pins[2].location[0], nmos_l.pins[2].location[1]],
         [nmos_l.pins[2].location[0], y_lower_pin],
     ]
 )
-aedt_app.modeler.schematic.create_wire(
+circuit.modeler.schematic.create_wire(
     [
         [nmos_h.pins[2].location[0], nmos_h.pins[2].location[1]],
         [amm_bot.pins[0].location[0], amm_bot.pins[0].location[1]],
     ]
 )
-aedt_app.modeler.schematic.create_wire(
+circuit.modeler.schematic.create_wire(
     [
         [nmos_l.pins[0].location[0], nmos_l.pins[0].location[1]],
         [amm_bot.pins[1].location[0], amm_bot.pins[1].location[1]],
     ]
 )
-aedt_app.modeler.schematic.create_wire(
+circuit.modeler.schematic.create_wire(
     [
         [nmos_l.pins[0].location[0], nmos_l.pins[0].location[1]],
         [voltm_ds.pins[0].location[0], voltm_ds.pins[0].location[1]],
     ]
 )
 
-aedt_app.modeler.schematic.create_wire(
+circuit.modeler.schematic.create_wire(
     [
-        [vdcbus.pins[1].location[0], y_lower_pin],
+        [v_dcbus.pins[1].location[0], y_lower_pin],
         [voltm_ds.pins[1].location[0], y_lower_pin],
     ]
 )
-gnd = aedt_app.modeler.components.create_gnd(
+gnd = circuit.modeler.components.create_gnd(
     location=[voltm_ds.pins[1].location[0], y_lower_pin - 100]
 )
 
-rg1.pins[1].connect_to_component(assignment=nmos_h.pins[1], use_wire=True)
-rg2.pins[1].connect_to_component(assignment=nmos_l.pins[1], use_wire=True)
+r_g1.pins[1].connect_to_component(assignment=nmos_h.pins[1], use_wire=True)
+r_g2.pins[1].connect_to_component(assignment=nmos_l.pins[1], use_wire=True)
 
 # Create a transient setup
 
-setup1 = aedt_app.create_setup(
-    name=setup_name, setup_type=aedt_app.SETUPS.NexximTransient
+setup_name = "MyTransient"
+setup1 = circuit.create_setup(
+    name=setup_name, setup_type=circuit.SETUPS.NexximTransient
 )
 setup1.props["TransientData"] = ["0.05ns", "15us"]
-aedt_app.modeler.zoom_to_fit()
+circuit.modeler.zoom_to_fit()
 
 # Solve transient setup
 
-aedt_app.analyze_setup(setup_name)
+circuit.analyze_setup(setup_name)
 
 # ## Postprocess
 #
 # Create a report
 
-new_report = aedt_app.post.reports_by_category.standard(
-    ["V(voltage_g)", "V(voltage_ds)", "Ipositive(Ibottom)", "Ipositive(Iinductor)"]
+new_report = circuit.post.create_report(
+    expressions=[
+        "V(voltage_g)",
+        "V(voltage_ds)",
+        "Ipositive(Ibottom)",
+        "Ipositive(Iinductor)",
+    ],
+    domain="Time",
+    plot_name="Plot V,I",
 )
-new_report.domain = "Time"
-new_report.plot_name = "Plot V,I"
-new_report.create()
+
 
 # ## Release AEDT
 
-aedt_app.save_project()
-aedt_app.release_desktop()
+circuit.save_project()
+circuit.release_desktop()
 # Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
