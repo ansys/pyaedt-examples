@@ -36,11 +36,8 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ## Launch AEDT and application
+# ## Launch AEDT and Circuit
 #
-# Create an instance of the application (such as ``Maxwell3d`` or``Hfss``)
-# with a class (such as ``circuit`` or``hfss``) by providing
-# the project and design names, the solver, and the version.
 
 project_name = os.path.join(temp_folder.name, "my_project.aedt")
 
@@ -60,11 +57,11 @@ des_properties = {
     "VoltageDCbus": "400V",
     "r_g1": "2.2",
     "r_g2": "2.2",
-    "c_dclink": "0.0005farad",
+    "c_dc_link": "0.0005farad",
     "l_load": "7.7e-5",
     "Vgate_top": "-5V",
     "r_load": "0.1",
-    "r_dclink": "1e6",
+    "r_dc_link": "1e6",
     "v_pwl_high": "18.0V",
     "v_pwl_low": "-5.0V",
 }
@@ -73,10 +70,10 @@ des_properties = {
 for k, v in des_properties.items():
     circuit[k] = v
 
-# Insert circuit elements.
+# ## Insert Circuit Elements into the Schematic
+#
 y_upper_pin = 5200
 y_lower_pin = 2000
-
 time_list_pwl = [
     0.0,
     5.0e-6,
@@ -99,24 +96,25 @@ volt_list_pwl = [
     "v_pwl_high",
     "v_pwl_low",
 ]
+
+# Add circuit components to the schematic.
 v_pwl = circuit.modeler.components.create_voltage_pwl(
     name="v_pwl",
     time_list=time_list_pwl,
     voltage_list=volt_list_pwl,
     location=[600, 2800],
 )
-v_gatetop = circuit.modeler.components.create_voltage_dc(
+v_gate_top = circuit.modeler.components.create_voltage_dc(
     name="Vgate_top", value="Vgate_top", location=[600, 4500]
 )
-v_dcbus = circuit.modeler.components.create_voltage_dc(
-    name="v_dcbus", value="VoltageDCbus", location=[-1800, 3800]
+v_dc_bus = circuit.modeler.components.create_voltage_dc(
+    name="v_dc_bus", value="VoltageDCbus", location=[-1800, 3800]
 )
-
-c_dclink = circuit.modeler.schematic.create_capacitor(
-    name="C_DClink", value="c_dclink", location=[-1300, 3800], angle=90
+c_dc_link = circuit.modeler.schematic.create_capacitor(
+    name="c_dc_link", value="c_dc_link", location=[-1300, 3800], angle=90
 )
-r_dclink = circuit.modeler.schematic.create_resistor(
-    name="R_DClink", value="r_dclink", location=[-700, 3800], angle=90
+r_dc_link = circuit.modeler.schematic.create_resistor(
+    name="r_dc_link", value="r_dc_link", location=[-700, 3800], angle=90
 )
 l_load = circuit.modeler.schematic.create_inductor(
     name="l_load", value="l_load", location=[3000, 4800], angle=-90
@@ -130,34 +128,30 @@ r_g1 = circuit.modeler.schematic.create_resistor(
 r_g2 = circuit.modeler.schematic.create_resistor(
     name="r_g2", value="r_g2", location=[1400, 3100], angle=180
 )
-
 voltm_g = circuit.modeler.components.components_catalog["Probes:VPROBE_DIFF"].place(
     assignment="voltage_g", location=[100, 2900], angle=270
 )
 voltm_g.parameters["Name"] = "voltage_g"
-
 voltm_ds = circuit.modeler.components.components_catalog["Probes:VPROBE_DIFF"].place(
     assignment="voltage_ds", location=[2500, 3300], angle=0
 )
 voltm_ds.parameters["Name"] = "voltage_ds"
-
 amm_top = circuit.modeler.components.components_catalog["Probes:IPROBE"].place(
     assignment="Itop", location=[1100, 5200], angle=0
 )
 amm_top.parameters["Name"] = "Itop"
-
 amm_ind = circuit.modeler.components.components_catalog["Probes:IPROBE"].place(
     assignment="Iinductor", location=[2500, 4000], angle=0
 )
 amm_ind.parameters["Name"] = "Iinductor"
-
 amm_bot = circuit.modeler.components.components_catalog["Probes:IPROBE"].place(
     assignment="Ibottom", location=[2000, 3600], angle=270
 )
 amm_bot.parameters["Name"] = "Ibottom"
 
 
-# Add nmos component from Component Library.
+# ## Add nmos components from Component Library.
+#
 # Please check that chosen component has the attribute .place
 # If you need to insert a component from a spice model, please use the method: circuit.modeler.components.create_component_from_spicemodel
 
@@ -169,34 +163,34 @@ nmos_l = circuit.modeler.components.components_catalog[
     "Power Electronics Tools\\Power Semiconductors\\MOSFET\\STMicroelectronics:SCT040H65G3AG_V2"
 ].place("NMOS_LS", location=[1500, 3100], angle=0)
 
-# Create wiring to complete the schematic.
+# ## Create wiring to complete the schematic.
+#
 
 circuit.modeler.schematic.connect_components_in_series(
     assignment=[l_load, r_load], use_wire=True
 )
 circuit.modeler.schematic.connect_components_in_series(
-    assignment=[v_gatetop, r_g1], use_wire=True
+    assignment=[v_gate_top, r_g1], use_wire=True
 )
 circuit.modeler.schematic.connect_components_in_series(
     assignment=[v_pwl, r_g2], use_wire=True
 )
-
 circuit.modeler.schematic.create_wire(
     [
-        [v_dcbus.pins[1].location[0], v_dcbus.pins[1].location[1]],
-        [v_dcbus.pins[1].location[0], y_upper_pin],
+        [v_dc_bus.pins[1].location[0], v_dc_bus.pins[1].location[1]],
+        [v_dc_bus.pins[1].location[0], y_upper_pin],
     ]
 )
 circuit.modeler.schematic.create_wire(
     [
-        [c_dclink.pins[1].location[0], c_dclink.pins[1].location[1]],
-        [c_dclink.pins[1].location[0], y_upper_pin],
+        [c_dc_link.pins[1].location[0], c_dc_link.pins[1].location[1]],
+        [c_dc_link.pins[1].location[0], y_upper_pin],
     ]
 )
 circuit.modeler.schematic.create_wire(
     [
-        [r_dclink.pins[0].location[0], r_dclink.pins[0].location[1]],
-        [r_dclink.pins[0].location[0], y_upper_pin],
+        [r_dc_link.pins[0].location[0], r_dc_link.pins[0].location[1]],
+        [r_dc_link.pins[0].location[0], y_upper_pin],
     ]
 )
 circuit.modeler.schematic.create_wire(
@@ -213,7 +207,7 @@ circuit.modeler.schematic.create_wire(
 )
 circuit.modeler.schematic.create_wire(
     [
-        [v_dcbus.pins[0].location[0], y_upper_pin],
+        [v_dc_bus.pins[0].location[0], y_upper_pin],
         [amm_top.pins[0].location[0], amm_top.pins[0].location[1]],
     ]
 )
@@ -245,19 +239,17 @@ circuit.modeler.schematic.create_wire(
 )
 circuit.modeler.schematic.create_wire(
     [
-        [v_gatetop.pins[0].location[0], v_gatetop.pins[0].location[1]],
-        [nmos_h.pins[3].location[0], v_gatetop.pins[0].location[1]],
+        [v_gate_top.pins[0].location[0], v_gate_top.pins[0].location[1]],
+        [nmos_h.pins[3].location[0], v_gate_top.pins[0].location[1]],
         [nmos_h.pins[3].location[0], nmos_h.pins[3].location[1]],
     ]
 )
-
 circuit.modeler.schematic.create_wire(
     [
         [nmos_h.pins[0].location[0], y_upper_pin],
         [nmos_h.pins[0].location[0], nmos_h.pins[0].location[1]],
     ]
 )
-
 circuit.modeler.schematic.create_wire(
     [
         [r_load.pins[1].location[0], r_load.pins[1].location[1]],
@@ -277,23 +269,22 @@ circuit.modeler.schematic.create_wire(
         [v_pwl.pins[0].location[0], voltm_g.pins[0].location[1]],
     ]
 )
-
 circuit.modeler.schematic.create_wire(
     [
-        [v_dcbus.pins[0].location[0], v_dcbus.pins[0].location[1]],
-        [v_dcbus.pins[0].location[0], y_lower_pin],
+        [v_dc_bus.pins[0].location[0], v_dc_bus.pins[0].location[1]],
+        [v_dc_bus.pins[0].location[0], y_lower_pin],
     ]
 )
 circuit.modeler.schematic.create_wire(
     [
-        [c_dclink.pins[0].location[0], c_dclink.pins[0].location[1]],
-        [c_dclink.pins[0].location[0], y_lower_pin],
+        [c_dc_link.pins[0].location[0], c_dc_link.pins[0].location[1]],
+        [c_dc_link.pins[0].location[0], y_lower_pin],
     ]
 )
 circuit.modeler.schematic.create_wire(
     [
-        [r_dclink.pins[1].location[0], r_dclink.pins[1].location[1]],
-        [r_dclink.pins[1].location[0], y_lower_pin],
+        [r_dc_link.pins[1].location[0], r_dc_link.pins[1].location[1]],
+        [r_dc_link.pins[1].location[0], y_lower_pin],
     ]
 )
 circuit.modeler.schematic.create_wire(
@@ -332,21 +323,20 @@ circuit.modeler.schematic.create_wire(
         [voltm_ds.pins[0].location[0], voltm_ds.pins[0].location[1]],
     ]
 )
-
 circuit.modeler.schematic.create_wire(
     [
-        [v_dcbus.pins[1].location[0], y_lower_pin],
+        [v_dc_bus.pins[1].location[0], y_lower_pin],
         [voltm_ds.pins[1].location[0], y_lower_pin],
     ]
 )
 gnd = circuit.modeler.components.create_gnd(
     location=[voltm_ds.pins[1].location[0], y_lower_pin - 100]
 )
-
 r_g1.pins[1].connect_to_component(assignment=nmos_h.pins[1], use_wire=True)
 r_g2.pins[1].connect_to_component(assignment=nmos_l.pins[1], use_wire=True)
 
-# Create a transient setup
+# ## Create a transient setup
+#
 
 setup_name = "MyTransient"
 setup1 = circuit.create_setup(

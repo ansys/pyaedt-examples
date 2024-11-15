@@ -98,6 +98,19 @@ These examples use PyAEDT to show some EMC applications.
 
       This example shows how to build a circuit schematic and run a transient circuit simulation.
 
+   .. grid-item-card:: Double Pulse Test schematic creation and analysis
+      :padding: 2 2 2 2
+      :link: ../../aedt_general/modeler/circuit_schematic
+      :link-type: doc
+
+      .. image:: ../../aedt_general/modeler/_static/dpt.png
+         :alt: Circuit
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      This example shows how to build a double pulse test circuit and run a transient simulation.
+
    .. grid-item-card:: RF interference
       :padding: 2 2 2 2
       :link: ../antenna/interferences/index
@@ -120,5 +133,6 @@ These examples use PyAEDT to show some EMC applications.
       armoured_cable
       busbar
       subcircuit
+      double_pulse_test
       ../../aedt_general/modeler/circuit_schematic
       ../antenna/interferences/index
