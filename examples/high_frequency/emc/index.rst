@@ -100,10 +100,10 @@ These examples use PyAEDT to show some EMC applications.
 
    .. grid-item-card:: Double Pulse Test schematic creation and analysis
       :padding: 2 2 2 2
-      :link: ../../aedt_general/modeler/circuit_schematic
+      :link: double_pulse_test
       :link-type: doc
 
-      .. image:: ../../aedt_general/modeler/_static/dpt.png
+      .. image:: _static/dpt.png
          :alt: Circuit
          :width: 250px
          :height: 200px

@@ -2,9 +2,8 @@
 #
 # Description: build the equivalent circuit of a DPT
 #
-# Most examples can be described as a series of steps that comprise a workflow.
-# 1. Import packages and instantiate the application.
-# 2. Insert Circuit Components
+# In this example the steps to build up the circuit schematic are shown.
+# 1. Insert Circuit Components
 # 3. Create the Wiring
 # 4. Insert simulation set up
 # 3. View the results.
@@ -37,10 +36,8 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch AEDT and Circuit
-#
 
 project_name = os.path.join(temp_folder.name, "my_project.aedt")
-
 circuit = ansys.aedt.core.Circuit(
     project=project_name,
     version=AEDT_VERSION,
@@ -49,11 +46,11 @@ circuit = ansys.aedt.core.Circuit(
 )
 circuit.modeler.schematic.schematic_units = "mil"
 
-# ## Preprocess
+# ## Variable initialization to create a parametric design
 #
-# Initialize dictionaries that contain all the definitions for the design variables.
+# Initialize dictionary that contain all the definitions for the design variables.
 
-des_properties = {
+design_properties = {
     "VoltageDCbus": "400V",
     "r_g1": "2.2",
     "r_g2": "2.2",
@@ -67,13 +64,19 @@ des_properties = {
 }
 
 # Define design variables from the created dictionaries.
-for k, v in des_properties.items():
+
+for k, v in design_properties.items():
     circuit[k] = v
 
 # ## Insert Circuit Elements into the Schematic
 #
+# Define starting position for component placement.
+
 y_upper_pin = 5200
 y_lower_pin = 2000
+
+# Define parametrically high and low voltage level for pwl voltage source.
+
 time_list_pwl = [
     0.0,
     5.0e-6,
@@ -98,6 +101,7 @@ volt_list_pwl = [
 ]
 
 # Add circuit components to the schematic.
+
 v_pwl = circuit.modeler.components.create_voltage_pwl(
     name="v_pwl",
     time_list=time_list_pwl,
@@ -150,21 +154,19 @@ amm_bot = circuit.modeler.components.components_catalog["Probes:IPROBE"].place(
 amm_bot.parameters["Name"] = "Ibottom"
 
 
-# ## Add nmos components from Component Library.
+# ## Add nMOS components from Component Library.
 #
-# Please check that chosen component has the attribute .place
+# Please check that chosen component can access the method place()
 # If you need to insert a component from a spice model, please use the method: circuit.modeler.components.create_component_from_spicemodel
 
 nmos_h = circuit.modeler.components.components_catalog[
     "Power Electronics Tools\\Power Semiconductors\\MOSFET\\STMicroelectronics:SCT040H65G3AG_V2"
 ].place(assignment="NMOS_HS", location=[1500, 4700], angle=0)
-
 nmos_l = circuit.modeler.components.components_catalog[
     "Power Electronics Tools\\Power Semiconductors\\MOSFET\\STMicroelectronics:SCT040H65G3AG_V2"
 ].place("NMOS_LS", location=[1500, 3100], angle=0)
 
 # ## Create wiring to complete the schematic.
-#
 
 circuit.modeler.schematic.connect_components_in_series(
     assignment=[l_load, r_load], use_wire=True
@@ -336,7 +338,6 @@ r_g1.pins[1].connect_to_component(assignment=nmos_h.pins[1], use_wire=True)
 r_g2.pins[1].connect_to_component(assignment=nmos_l.pins[1], use_wire=True)
 
 # ## Create a transient setup
-#
 
 setup_name = "MyTransient"
 setup1 = circuit.create_setup(
@@ -347,9 +348,9 @@ circuit.modeler.zoom_to_fit()
 
 # Solve transient setup
 
-circuit.analyze_setup(setup_name)
+circuit.analyze(setup_name, cores=NUM_CORES)
 
-# ## Postprocess
+# ## Plot Double Pulse Test results
 #
 # Create a report
 
@@ -363,7 +364,6 @@ new_report = circuit.post.create_report(
     domain="Time",
     plot_name="Plot V,I",
 )
-
 
 # ## Release AEDT
 
