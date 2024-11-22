@@ -153,11 +153,11 @@ amm_bot = circuit.modeler.components.components_catalog["Probes:IPROBE"].place(
 )
 amm_bot.parameters["Name"] = "Ibottom"
 
-
 # ## Add nMOS components from Component Library.
 #
 # Please check that chosen component can access the method place()
-# If you need to insert a component from a spice model, please use the method: circuit.modeler.components.create_component_from_spicemodel
+# If you need to insert a component from a spice model,
+# please use the method: circuit.modeler.components.create_component_from_spicemodel
 
 nmos_h = circuit.modeler.components.components_catalog[
     "Power Electronics Tools\\Power Semiconductors\\MOSFET\\STMicroelectronics:SCT040H65G3AG_V2"
