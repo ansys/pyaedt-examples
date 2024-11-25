@@ -17,7 +17,6 @@ These examples use PyAEDT to show some modeler capabilities.
 
       This example shows how to use PyAEDT to create and modify coordinate systems in the modeler.
 
-
    .. grid-item-card:: Polyline creation
       :padding: 2 2 2 2
       :link: polyline
