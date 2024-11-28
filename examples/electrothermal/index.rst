@@ -106,7 +106,7 @@ These examples use PyAEDT to show electrothermal capabilities of AEDT
 
    .. grid-item-card:: Electrothermal analysis
       :padding: 2 2 2 2
-      :link: electrothermal
+      :link: pcb_electro_thermal
       :link-type: doc
 
       .. image:: _static/electrothermal.png
