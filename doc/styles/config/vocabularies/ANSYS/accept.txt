@@ -44,6 +44,7 @@ Maxwell 2D
 Maxwell 3D
 Maxwell Circuit
 [Mm]echanical
+[Mm]onostatic
 multiphysics
 multiplot
 namespaces
