@@ -215,7 +215,7 @@ rep_red_m1_self_acl = q3d.post.create_report(
     context="MR_1_Series",
     plot_name="MR_1_Series, Self Inductances",
 )
-rep_red_m2_self_acl = q3d.post.create_report(
+reduced_matrix_2_self_report = q3d.post.create_report(
     expressions=data_red_m2_plot_self,
     context="MR_2_Series",
     plot_name="MR_2_Series, Self Inductances",
