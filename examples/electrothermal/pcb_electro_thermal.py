@@ -140,12 +140,6 @@ cfg["setups"] = [
     }
 ]
 
-# ## Define Cutout
-
-cfg["operations"] = {
-    "cutout": {"signal_list": ["1V0"], "reference_list": ["GND"], "extent_type": "ConvexHull", "expansion_size": "20mm"}
-}
-
 # ## Define package for thermal analysis (optional)
 
 cfg["package_definitions"] = [
@@ -207,6 +201,34 @@ voltage = h3d.post.create_fieldplot_layers_nets(
     setup="siwave_1",
 )
 
+# ## Plot power density
+
+power_density = h3d.post.create_fieldplot_layers_nets(
+    layers_nets=[
+        ["Inner2", "1V0"],
+    ],
+    quantity="Power Density",
+    setup="siwave_1",
+)
+
+# ## Plot current
+
+current = h3d.post.create_fieldplot_layers_nets(
+    layers_nets=[
+        ["Inner2", "1V0"],
+    ],
+    quantity="VolumeJdc",
+    setup="siwave_1",
+)
+
+# Adjust arrow size
+
+h3d.save_project()
+h3d.post.field_plots[current.name].folder_settings.arrow_settings.arrow_size = 0.1
+h3d.post.field_plots[current.name].folder_settings.update()
+
+# ## Export field plots to image files
+
 file_path_image = os.path.join(temp_folder.name, "voltage.jpg")
 voltage.export_image(
     full_path=file_path_image,
@@ -220,19 +242,21 @@ voltage.export_image(
     show_grid=True,
     show_ruler=True,
 )
-
-# ## Plot power density
-
-power_density = h3d.post.create_fieldplot_layers_nets(
-    layers_nets=[
-        ["Inner2", "no-net"],
-    ],
-    quantity="Power Density",
-    setup="siwave_1",
-)
-
 file_path_image = os.path.join(temp_folder.name, "power_density.jpg")
 power_density.export_image(
+    full_path=file_path_image,
+    width=640,
+    height=480,
+    orientation="isometric",
+    display_wireframe=True,
+    selections=None,
+    show_region=True,
+    show_axis=True,
+    show_grid=True,
+    show_ruler=True,
+)
+file_path_image = os.path.join(temp_folder.name, "current.jpg")
+current.export_image(
     full_path=file_path_image,
     width=640,
     height=480,
@@ -319,11 +343,29 @@ setup1 = ipk.create_setup(MaxIterations=10)
 
 ipk.assign_2way_coupling(number_of_iterations=1)
 
+# Solve
+
+ipk.analyze(setup=setup1.name, cores=4, tasks=4)
+
 # ## Save
 
 ipk.save_project()
 
+# +
+plot3 = ipk.post.create_fieldplot_surface(
+    assignment=ipk.modeler["PCB_pyAEDT_000_Top_BBox"].top_face_x,
+    quantity="SurfTemperature"
+)
+
+path = plot3.export_image(
+    full_path=os.path.join(temp_folder.name, "temperature.png"),
+    orientation="top",
+    show_region=False,
+)
+# -
+
 # ## Shut Down Electronics Desktop
+
 
 ipk.release_desktop()
 
