@@ -156,16 +156,18 @@ mr_series2.add_operation(
     new_net_name="MR_2_Series1",
 )
 
-# Create the solution setup and define the frequency range for the solution.
+# ## Add a solution Setup and an interpolating frequency sweep
+#
 
 freq_sweep_name = "my_sweep"
 setup1 = q3d.create_setup(props={"AdaptiveFreq": "1000MHz"})
-sweep = setup1.add_sweep(name=freq_sweep_name)
-sweep.props["RangeStart"] = "0Hz"
-sweep.props["RangeEnd"] = "20GHz"
-sweep.props["RangeStep"] = "5MHz"
-sweep.update()
-sweep.update()
+sweep = setup1.create_linear_step_sweep(
+    freqstart=0,
+    freqstop=10,
+    step_size=0.05,
+    sweepname=freq_sweep_name,
+    sweep_type="Interpolating",
+)
 
 # ## Analyze
 #
@@ -174,9 +176,9 @@ sweep.update()
 q3d.analyze(cores=NUM_CORES)
 q3d.save_project()
 
-# ### Set up for postprocessing
+# ## Postprocessing: specify the traces to display and create the Reports.
 #
-# Specify the traces to display after solving the model. Capacitances - Original Matrix
+# Capacitances - Original Matrix.
 
 data_plot_self = q3d.matrices[0].get_sources_for_plot(
     get_self_terms=True, get_mutual_terms=False
@@ -185,13 +187,13 @@ data_plot_mutual = q3d.get_traces_for_plot(
     get_self_terms=False, get_mutual_terms=True, category="C"
 )
 
-# Specify the traces to display after solving the model. ACL - Reduced Matrix MR_1_Series
+# ACL - Reduced Matrix MR_1_Series
 
 data_red_m1_plot_self = q3d.matrices[1].get_sources_for_plot(
     get_self_terms=True, get_mutual_terms=False, category="ACL"
 )
 
-# Specify the traces to display after solving the model. ACL - Reduced Matrix MR_2_Series
+# ACL - Reduced Matrix MR_2_Series
 
 data_red_m2_plot_self = q3d.matrices[2].get_sources_for_plot(
     get_self_terms=True, get_mutual_terms=False, category="ACL"
