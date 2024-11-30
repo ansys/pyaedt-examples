@@ -9,10 +9,8 @@ import json
 import os
 import tempfile
 
-from ansys.aedt.core import Hfss3dLayout, Icepak
+from ansys.aedt.core import Hfss3dLayout, Icepak, Desktop, Edb
 from ansys.aedt.core.downloads import download_file
-
-from pyedb import Edb
 
 AEDT_VERSION = "2024.2"
 NG_MODE = False
@@ -179,9 +177,21 @@ edbapp.close()
 
 print(temp_folder.name)
 
+# ## Launch AEDT
+
+ds = Desktop(version=AEDT_VERSION,
+             non_graphical=NG_MODE,
+             new_desktop=True,
+             close_on_exit=True,
+             student_version=False)
+
 # ## Load edb into HFSS 3D Layout.
 
-h3d = Hfss3dLayout(edbapp.edbpath, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True)
+h3d = Hfss3dLayout(edbapp.edbpath,
+                   version=ds.aedt_version_id,
+                   non_graphical=NG_MODE,
+                   new_desktop=False,
+                   port=ds.port, aedt_process_id=ds.aedt_process_id)
 
 # ## Prepare for electro-thermal analysis in Icepak (Optional)
 
@@ -283,7 +293,10 @@ h3d.save_project()
 
 # ## Create an Icepak design
 
-ipk = Icepak(version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=False)
+ipk = Icepak(version=ds.aedt_version_id,
+             non_graphical=NG_MODE,
+             new_desktop=False,
+             port=ds.port, aedt_process_id=ds.aedt_process_id)
 
 # ## Create PCB
 
@@ -367,7 +380,7 @@ path = plot3.export_image(
 # ## Shut Down Electronics Desktop
 
 
-ipk.release_desktop()
+ipk.release_desktop(close_desktop=False, close_projects=False)
 
 # All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notebook you
 # can retrieve those project files.
