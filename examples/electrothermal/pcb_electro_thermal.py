@@ -11,6 +11,7 @@ import tempfile
 
 from ansys.aedt.core import Hfss3dLayout, Icepak, Desktop, Edb
 from ansys.aedt.core.downloads import download_file
+from IPython.display import Image
 
 AEDT_VERSION = "2024.2"
 NG_MODE = False
@@ -210,6 +211,12 @@ voltage = h3d.post.create_fieldplot_layers_nets(
     quantity="Voltage",
     setup="siwave_1",
 )
+path = voltage.export_image(
+    full_path=os.path.join(temp_folder.name, "voltage.jpg"),
+    orientation="top",
+    show_region=False,
+)
+Image(filename=path)  # Display the image
 
 # ## Plot power density
 
@@ -220,6 +227,13 @@ power_density = h3d.post.create_fieldplot_layers_nets(
     quantity="Power Density",
     setup="siwave_1",
 )
+
+path = power_density.export_image(
+    full_path=os.path.join(temp_folder.name, "power_density.jpg"),
+    orientation="top",
+    show_region=False,
+)
+Image(filename=path)  # Display the image
 
 # ## Plot current
 
@@ -237,47 +251,12 @@ h3d.save_project()
 h3d.post.field_plots[current.name].folder_settings.arrow_settings.arrow_size = 0.1
 h3d.post.field_plots[current.name].folder_settings.update()
 
-# ## Export field plots to image files
-
-file_path_image = os.path.join(temp_folder.name, "voltage.jpg")
-voltage.export_image(
-    full_path=file_path_image,
-    width=640,
-    height=480,
-    orientation="isometric",
-    display_wireframe=True,
-    selections=None,
-    show_region=True,
-    show_axis=True,
-    show_grid=True,
-    show_ruler=True,
+path = current.export_image(
+    full_path=os.path.join(temp_folder.name, "current.jpg"),
+    orientation="top",
+    show_region=False,
 )
-file_path_image = os.path.join(temp_folder.name, "power_density.jpg")
-power_density.export_image(
-    full_path=file_path_image,
-    width=640,
-    height=480,
-    orientation="isometric",
-    display_wireframe=True,
-    selections=None,
-    show_region=True,
-    show_axis=True,
-    show_grid=True,
-    show_ruler=True,
-)
-file_path_image = os.path.join(temp_folder.name, "current.jpg")
-current.export_image(
-    full_path=file_path_image,
-    width=640,
-    height=480,
-    orientation="isometric",
-    display_wireframe=True,
-    selections=None,
-    show_region=True,
-    show_axis=True,
-    show_grid=True,
-    show_ruler=True,
-)
+Image(filename=path)  # Display the image
 
 # ## Compute power loss
 
@@ -326,7 +305,6 @@ glob_msh.global_region.positive_z_padding_type = "Absolute Offset"
 glob_msh.global_region.positive_z_padding = "50 mm"
 glob_msh.global_region.negative_z_padding_type = "Absolute Offset"
 glob_msh.global_region.negative_z_padding = "80 mm"
-
 glob_msh = ipk.mesh.global_mesh_region
 glob_msh.manual_settings = True
 glob_msh.settings["EnableMLM"] = True
@@ -336,7 +314,6 @@ glob_msh.settings["MaxElementSizeY"] = "2mm"
 glob_msh.settings["MaxElementSizeX"] = "2mm"
 glob_msh.settings["MaxElementSizeZ"] = "3mm"
 glob_msh.settings["MaxLevels"] = "2"
-
 glob_msh.update()
 
 # ## Place monitor
@@ -352,33 +329,27 @@ m1 = ipk.monitor.assign_face_monitor(
 
 setup1 = ipk.create_setup(MaxIterations=10)
 
-# Add 2-way coupling to the setup
+# ## Add 2-way coupling to the setup
 
 ipk.assign_2way_coupling(number_of_iterations=1)
 
-# Solve
+# Solve and Save
 
 ipk.analyze(setup=setup1.name, cores=4, tasks=4)
-
-# ## Save
-
 ipk.save_project()
 
-# +
 plot3 = ipk.post.create_fieldplot_surface(
     assignment=ipk.modeler["PCB_pyAEDT_000_Top_BBox"].top_face_x,
     quantity="SurfTemperature"
 )
-
 path = plot3.export_image(
     full_path=os.path.join(temp_folder.name, "temperature.png"),
     orientation="top",
     show_region=False,
 )
-# -
+Image(filename=path)  # Display the image
 
 # ## Shut Down Electronics Desktop
-
 
 ipk.release_desktop(close_desktop=False, close_projects=False)
 
