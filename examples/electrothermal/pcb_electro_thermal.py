@@ -351,7 +351,7 @@ Image(filename=path)  # Display the image
 
 # ## Shut Down Electronics Desktop
 
-ipk.release_desktop(close_desktop=False, close_projects=False)
+ipk.release_desktop(close_desktop=True, close_projects=True)
 
 # All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notebook you
 # can retrieve those project files.
