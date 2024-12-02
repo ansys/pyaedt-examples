@@ -5,7 +5,7 @@ git+https://github.com/ansys/pyaedt@main
 imageio==2.36.0
 matplotlib==3.9.2
 numpy==1.26.4
-openpyxl==3.1.4
+openpyxl==3.1.5
 osmnx==1.9.0
 pandas==2.2.0
 pyvista==0.44.0
