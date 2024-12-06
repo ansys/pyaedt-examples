@@ -399,19 +399,6 @@ bandOUT_id = m2d.modeler.create_circle(
     name="Outer_Band",
 )
 
-# ## Assign motion setup to object
-#
-# Assign a motion setup to a ``Band`` object named ``RotatingBand_mid``.
-
-m2d.assign_rotate_motion(
-    assignment="Band",
-    coordinate_system="Global",
-    axis="Z",
-    positive_movement=True,
-    start_position="InitialPositionMD",
-    angular_velocity="MachineRPM",
-)
-
 # ## Create list of vacuum objects
 #
 # Create a list of vacuum objects and assign color.
@@ -703,6 +690,19 @@ m2d.model_depth = "Magnetic_Axial_Length"
 # ## Set symmetry factor
 
 m2d.change_symmetry_multiplier("SymmetryFactor")
+
+# ## Assign motion setup to object
+#
+# Assign a motion setup to a ``Band`` object named ``RotatingBand_mid``.
+
+m2d.assign_rotate_motion(
+    assignment="Band",
+    coordinate_system="Global",
+    axis="Z",
+    positive_movement=True,
+    start_position="InitialPositionMD",
+    angular_velocity="MachineRPM",
+)
 
 # ## Create setup and validate
 

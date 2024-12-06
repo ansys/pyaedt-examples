@@ -12,12 +12,15 @@
 #
 # Perform required imports.
 
+# +
 import os
 import tempfile
 import time
 
 import ansys.aedt.core
 from ansys.aedt.core.generic.constants import AXIS
+
+# -
 
 # Define constants.
 
@@ -26,18 +29,23 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
-# Create a temporary directory where downloaded data or
-# dumped data can be stored.
-# If you'd like to retrieve the project data for subsequent use,
-# the temporary folder name is given by ``temp_folder.name``.
+# Create a temporary working directory.
+# The name of the working folder is stored in ``temp_folder.name``.
+#
+# > **Note:** The final cell in the notebook cleans up the temporary folder. If you want to
+# > retrieve the AEDT project and data, do so before executing the final cell in the notebook.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch application
 #
 # The syntax for different applications in AEDT differ
-# only in the name of the class. This template uses
-# the ``Hfss()`` class. Modify this text as needed.
+# only in the name of the class. This example demonstrates the use of the
+# ``Maxwell3d`` class.
+#
+# > **Note:** An AEDT _Project_ is created when the ``Maxwell3d`` class is instantiated. An instance of
+# > the ``Icepak`` class will be used to insert and simulate an Icepak design and demonstrate
+# > the coupled electrical-thermal workflow.
 
 # +
 project_name = os.path.join(temp_folder.name, "Maxwell-Icepak-2way-Coupling")
@@ -53,35 +61,66 @@ m3d = ansys.aedt.core.Maxwell3d(
 )
 # -
 
+# ### Units
+# The default units are "mm". Model units can be queried or changed using the
+# property ``m3d.modeler.model_units``.
+
+print(f'Model units are "{m3d.modeler.model_units}"')
+
 # ## Set up model
 #
-# Create the coil, coil terminal, core, and region.
+# Create the coil, coil terminal, core, and surrounding air region. The coil and core
+# are created by drawing a rectangle and sweeping it about the z-axis.
 
 # +
+coil_origin = [70, 0, -11]  # [x, y, z] position of the rectangle origin.
+coil_xsection = [11, 110]  # [z-size, x-size]
+core_origin = [45, 0, -18]
+core_xsection = [7, 160]
+
 coil = m3d.modeler.create_rectangle(
-    orientation="XZ", origin=[70, 0, -11], sizes=[11, 110], name="Coil"
+    orientation="XZ", origin=coil_origin, sizes=coil_xsection, name="Coil"
 )
-
 coil.sweep_around_axis(axis=AXIS.Z)
-
 coil_terminal = m3d.modeler.create_rectangle(
-    orientation="XZ", origin=[70, 0, -11], sizes=[11, 110], name="Coil_terminal"
+    orientation="XZ", origin=coil_origin, sizes=coil_xsection, name="Coil_terminal"
 )
 
 core = m3d.modeler.create_rectangle(
-    orientation="XZ", origin=[45, 0, -18], sizes=[7, 160], name="Core"
+    orientation="XZ", origin=core_origin, sizes=core_xsection, name="Core"
 )
 core.sweep_around_axis(axis=AXIS.Z)
 
-# Magnetic flux is not concentrated by the core in +z-direction. Therefore, more padding is needed in that direction.
+# The air region should be sufficiently large to avoid interaction with the
+# coil magnetic field.
+
 region = m3d.modeler.create_region(pad_percent=[20, 20, 20, 20, 500, 100])
+# -
+
+# ### Restore view
+#
+# If you are using PyAEDT with an interactive desktop, you may want to fit the visible view to fit the model.
+# PyAEDT uses the direct access to the native API for this command using the property `m3d.odesktop`.
+#
+# Uncomment and run the following cell if you are running PyAEDT interactively and would like to automatically fit the
+# window to the model.
+
+# +
+# desktop=m3d.odesktop.RestoreWindow()  # Fit the active view
 # -
 
 # ### Create and assign material
 #
-# Create a new cooper material: Copper AWG40 Litz wire, strand diameter = 0.08mm,
-# 24 parallel strands. Then assign materials: Assign the coil to AWG40 copper,
-# the core to ferrite, and the region to vacuum.
+# Define a new material for the AWG40 Litz wire copper strands:
+#
+# - Strand diameter = 0.08 mm
+# - Number of parallel strands in the Litz wire = 24
+#
+# The built-in material "ferrite" will be assigned to the core.
+# The material "vacuum" will be assigned to the outer region.
+#
+# You will also see the return value when
+#  ``True`` printed when material is successfully assigned.
 
 # +
 no_strands = 24
@@ -98,22 +137,20 @@ m3d.assign_material(coil.name, "copper_litz")
 m3d.assign_material(core.name, "ferrite")
 # -
 
-# Assign coil current. The coil consists of 20 turns. The total current is 10A.
-# Note that each coil turn consists of 24 parallel Litz strands as indicated earlier.
+# The coil carries 0.5 A and 20 turns.
 
 # +
-no_turns = 20
-coil_current = 10
-m3d.assign_coil(["Coil_terminal"], conductors_number=no_turns, name="Coil_terminal")
-m3d.assign_winding(is_solid=False, current=coil_current, name="Winding1")
+turns = 20
+wire_current = 0.5
+m3d.assign_coil(["Coil_terminal"], conductors_number=turns, name="Coil_terminal")
+m3d.assign_winding(is_solid=False, current=wire_current * turns, name="Winding1")
 
 m3d.add_winding_coils(assignment="Winding1", coils=["Coil_terminal"])
 # -
 
-# ## Assign mesh operations
+# ### Assign mesh operations
 #
-# Mesh operations are not necessary in the eddy current solver because of auto-adaptive meshing.
-# However, with appropriate mesh operations, less adaptive passes are needed
+# Mesh "seeding" is used to retain solution accuracy and accelerate the auto-adaptive mesh refinement.
 
 m3d.mesh.assign_length_mesh(
     ["Core"], maximum_length=15, maximum_elements=None, name="Inside_Core"
@@ -122,80 +159,90 @@ m3d.mesh.assign_length_mesh(
     ["Coil"], maximum_length=30, maximum_elements=None, name="Inside_Coil"
 )
 
-# Set conductivity as a function of temperature. Resistivity increases by 0.393% per K.
+# ### Set object temperature and enable feedback
+#
+# The impact of Joule heating on conductivity can be considered
+# by adding a "thermal modifier" to the ``cu_litz`` material definition.
+# In this example, conductivity increases by 0.393% per $\Delta$K. The temperature of the objects is set to the default value ($22^0$ C).
 
 cu_resistivity_temp_coefficient = 0.00393
 cu_litz.conductivity.add_thermal_modifier_free_form(
     "1.0/(1.0+{}*(Temp-20))".format(cu_resistivity_temp_coefficient)
 )
-
-# ## Set object temperature and enable feedback
-#
-# Set the temperature of the objects to the default temperature (22 degrees C)
-# and enable temperature feedback for two-way coupling.
-
 m3d.modeler.set_objects_temperature(["Coil"], ambient_temperature=22)
 
-# ## Assign matrix
+# ### Assign matrix
 #
-# Assign matrix for resistance and inductance calculation.
+# The resistance and inductance calculations for the coil are enabled by
+# adding the matrix assignment.
 
 m3d.assign_matrix(["Winding1"], matrix_name="Matrix1")
 
-# ## Create and analyze simulation setup
+# ### Create the simulation setup
 #
-# The simulation frequency is 150 kHz.
+# The simulation frequency is 150 kHz. You can query and modify the properties of the simulation setup using ``setup.props``. The "PercentError" establishes the minimum allowed change in energy due to the change in mesh size and ensure a small global solution error.
 
 setup = m3d.create_setup(name="Setup1")
 setup.props["Frequency"] = "150kHz"
+setup.props["MaximumPasses"] = 4
+setup.props["PercentError"] = 0.5
+setup.props["MinimumConvergedPasses"] = 2
+
+# ## Run the Maxwell 3D analysis
+
 m3d.analyze_setup("Setup1")
 
-# ## Postprocess
+# ## Postprocessing
 #
-# Calculate analytical DC resistance and compare it with the simulated coil
-# resistance. Print them in AEDT Message Manager, along with the ohmic loss in
-# coil before the temperature feedback.
+# The DC resistance of the coil can be calculated analyticially. The following cell compares the known
+# DC resistance with the simulated coil
+# resistance.
+#
+# The values can be displayed in the AEDT "Message Manager". The Ohmic loss in
+# coil is calculated and displayed so we can see the change when Joule
+# heating is considered.
 
 # +
 report = m3d.post.create_report(expressions="Matrix1.R(Winding1,Winding1)")
 solution = report.get_solution_data()
-resistance = solution.data_magnitude()[0]
+resistance = solution.data_magnitude()[0]  # Resistance is the first matrix element.
 
 report_loss = m3d.post.create_report(expressions="StrandedLossAC")
 solution_loss = report_loss.get_solution_data()
 em_loss = solution_loss.data_magnitude()[0]
 
+# +
 # Analytical calculation of the DC resistance of the coil
 cu_cond = float(cu_litz.conductivity.value)
-# Average radius of a coil turn = 0.125m
-l_conductor = no_turns * 2 * 0.125 * 3.1415
+
+# Average radius of a coil turn = 125 mm
+avg_coil_radius = (
+    coil_xsection[1] / 2 + coil_origin[0] / 2
+) * 0.001  # Convert to meters
+l_conductor = turns * 2 * avg_coil_radius * 3.1415
+
 # R = resistivity * length / area / no_strand
-r_analytical_DC = (
+r_analytic_DC = (
     (1.0 / cu_cond)
     * l_conductor
-    / (3.1415 * (strand_diameter / 1000 / 2) ** 2)
+    / (3.1415 * (strand_diameter * 0.001 / 2) ** 2)
     / no_strands
 )
 
 # Print results in AEDT Message Manager
+m3d.logger.info(f"*******Coil analytical DC resistance =  {r_analytic_DC:.2f}Ohm")
 m3d.logger.info(
-    "*******Coil analytical DC resistance =  {:.2f}Ohm".format(r_analytical_DC)
+    f"*******Coil resistance at 150kHz BEFORE temperature feedback =  {resistance:.2f}Ohm"
 )
 m3d.logger.info(
-    "*******Coil resistance at 150kHz BEFORE temperature feedback =  {:.2f}Ohm".format(
-        resistance
-    )
-)
-m3d.logger.info(
-    "*******Ohmic loss in coil BEFORE temperature feedback =  {:.2f}W".format(
-        em_loss / 1000
-    )
+    f"*******Ohmic loss in coil BEFORE temperature feedback =  {em_loss / 1000:.2f}W"
 )
 # -
 
 # ## Insert Icepak design
 #
-# Insert Icepak design, copy solid objects from Maxwell 3D, and modify region dimensions.
+# The following commands insert an Icepak design into the AEDT project, copies the solid objects from Maxwell 3D, and modifies the region dimensions so they're suitable
+# for thermal convection analysis.
 
 # +
 ipk = ansys.aedt.core.Icepak(design=icepak_design_name, version=AEDT_VERSION)
@@ -223,7 +270,7 @@ ipk.assign_em_losses(
 
 # ### Define boundary conditions
 #
-# Assign the opening.
+# Assign the opening in the Icepak model to allow free airflow.
 
 faces = ipk.modeler["Region"].faces
 face_names = [face.id for face in faces]
@@ -231,7 +278,7 @@ ipk.assign_free_opening(face_names, boundary_name="Opening1")
 
 # ### Assign monitor
 #
-# Assign the temperature monitor on the coil surface.
+# Assign a temperature monitor on the coil surface.
 
 temp_monitor = ipk.assign_point_monitor([70, 0, 0], monitor_name="PointMonitor1")
 
@@ -250,16 +297,19 @@ solution_setup.props["Flow Iteration Per Radiation Iteration"] = "5"
 
 # ## Add two-way coupling and solve the project
 #
-# Enable mapping temperature distribution back to Maxwell 3D. The default number
-# for Maxwell <–> Icepak iterations is 2. However, for increased accuracy,
-# you can increate the value for the ``number_of_iterations`` parameter.
+# The temperature update from Icepak to Maxwell 3D is activated using the method ``assign_2way_coupling()``. The Ohmic
+# loss in Maxwell will change due to the temperature increase, which in turn will change the results
+# from the Icepak simulation. By default, this iteration occurs twice. However, the named argument
+# ``number_of_iterations`` can be passed to the ``assign_2way_coupling`` method to increase the number of iterations.
+#
+# The full electro-thermal analysis is run by calling the ``analyze_setup()`` method.
 
 ipk.assign_2way_coupling()
 ipk.analyze_setup(name=solution_setup.name)
 
 # ## Postprocess
 #
-# Plot temperature on the object surfaces.
+# Plot the temperature on object surfaces.
 
 # +
 surface_list = []
