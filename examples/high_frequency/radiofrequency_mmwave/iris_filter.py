@@ -242,7 +242,7 @@ traces_to_plot = hfss.get_traces_for_plot(second_element_filter="P1*")
 report = hfss.post.create_report(traces_to_plot)  # Creates a report in HFSS
 solution = report.get_solution_data()
 
-plt = solution.plot(solution.expressions)  # Matplotlib axes object.
+plt = solution.plot(solution.expressions, formula="dB20")  # Matplotlib axes object.
 # -
 
 #  The following command generates a field plot in HFSS and uses PyVista
