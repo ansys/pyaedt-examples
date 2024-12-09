@@ -16,7 +16,7 @@ PySide6==6.7.2
 # Never directly imported but required when loading ML related file
 # See https://github.com/ansys/pyaedt/pull/4713
 scikit-learn==1.5.0
-scikit-rf==1.2.0
+scikit-rf==1.5.0
 SRTM.py
 utm
 
