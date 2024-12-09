@@ -1,0 +1,438 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "1aa189e7",
+   "metadata": {},
+   "source": [
+    "# PCB AC analysis"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9270b7b2",
+   "metadata": {},
+   "source": [
+    "This example shows how to use PyAEDT to create a design in\n",
+    "Q3D Extractor and run a simulation starting from an EDB project.\n",
+    "\n",
+    "Keywords: **Q3D**, **PCB**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "54427968",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0f541134",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e39853d9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import ansys.aedt.core\n",
+    "import pyedb"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0c6a5783",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6c2120b2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2024.2\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "81afbef3",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f07c89a0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "84141986",
+   "metadata": {},
+   "source": [
+    "## Set up project files and path\n",
+    "\n",
+    "Download needed project file and set up temporary project directory."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "24489d77",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_dir = os.path.join(temp_folder.name, \"edb\")\n",
+    "aedb_project = ansys.aedt.core.downloads.download_file(\n",
+    "    source=\"edb/ANSYS-HSD_V1.aedb\", destination=project_dir\n",
+    ")\n",
+    "\n",
+    "project_name = os.path.join(temp_folder.name, \"HSD\")\n",
+    "output_edb = os.path.join(project_dir, project_name + \".aedb\")\n",
+    "output_q3d = os.path.join(project_dir, project_name + \"_q3d.aedt\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ef3c33df",
+   "metadata": {},
+   "source": [
+    "## Open EDB and create cutout\n",
+    "\n",
+    "Open the EDB project and create a cutout on the selected nets\n",
+    "before exporting to Q3D."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "eba51e49",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "edb = pyedb.Edb(aedb_project, edbversion=AEDT_VERSION)\n",
+    "cutout_points = edb.cutout(\n",
+    "    [\"CLOCK_I2C_SCL\", \"CLOCK_I2C_SDA\"],\n",
+    "    [\"GND\"],\n",
+    "    output_aedb_path=output_edb,\n",
+    "    use_pyaedt_extent_computing=True,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a8d13466",
+   "metadata": {},
+   "source": [
+    "## Identify locations of pins\n",
+    "\n",
+    "Identify $(x,y)$ pin locations on the components to define where to assign sources\n",
+    "and sinks for Q3D."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "500f9d06",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pin_u13_scl = [\n",
+    "    i for i in edb.components[\"U13\"].pins.values() if i.net_name == \"CLOCK_I2C_SCL\"\n",
+    "]\n",
+    "pin_u1_scl = [\n",
+    "    i for i in edb.components[\"U1\"].pins.values() if i.net_name == \"CLOCK_I2C_SCL\"\n",
+    "]\n",
+    "pin_u13_sda = [\n",
+    "    i for i in edb.components[\"U13\"].pins.values() if i.net_name == \"CLOCK_I2C_SDA\"\n",
+    "]\n",
+    "pin_u1_sda = [\n",
+    "    i for i in edb.components[\"U1\"].pins.values() if i.net_name == \"CLOCK_I2C_SDA\"\n",
+    "]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "24905de5",
+   "metadata": {},
+   "source": [
+    "## Append Z elevation positions\n",
+    "\n",
+    "> **Note:** The factor 1000 converts from meters to millimeters."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1ef9478b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "location_u13_scl = [i * 1000 for i in pin_u13_scl[0].position]\n",
+    "location_u13_scl.append(edb.components[\"U13\"].upper_elevation * 1000)\n",
+    "\n",
+    "location_u1_scl = [i * 1000 for i in pin_u1_scl[0].position]\n",
+    "location_u1_scl.append(edb.components[\"U1\"].upper_elevation * 1000)\n",
+    "\n",
+    "location_u13_sda = [i * 1000 for i in pin_u13_sda[0].position]\n",
+    "location_u13_sda.append(edb.components[\"U13\"].upper_elevation * 1000)\n",
+    "\n",
+    "location_u1_sda = [i * 1000 for i in pin_u1_sda[0].position]\n",
+    "location_u1_sda.append(edb.components[\"U1\"].upper_elevation * 1000)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ba25c966",
+   "metadata": {},
+   "source": [
+    "## Save and close EDB\n",
+    "\n",
+    "Save and close EDB. Then, open the EDB project in HFSS 3D Layout to generate the 3D model."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "09e4c443",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.save_edb()\n",
+    "edb.close_edb()\n",
+    "\n",
+    "h3d = ansys.aedt.core.Hfss3dLayout(\n",
+    "    output_edb, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "dd69ccc7",
+   "metadata": {},
+   "source": [
+    "## Set up the Q3D Project\n",
+    "\n",
+    "Use HFSS 3D Layout to export the model to Q3D Extractor. The named parameter\n",
+    "``keep_net_name=True`` ensures that net names are retained when the model is exported from HFSS 3D Layout."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e3f925a8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup = h3d.create_setup()\n",
+    "setup.export_to_q3d(output_q3d, keep_net_name=True)\n",
+    "h3d.close_project()\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "23e69cbc",
+   "metadata": {},
+   "source": [
+    "Open the newly created Q3D project and display the layout."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "85c8aec8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "q3d = ansys.aedt.core.Q3d(output_q3d, version=AEDT_VERSION)\n",
+    "q3d.plot(\n",
+    "    show=False,\n",
+    "    assignment=[\"CLOCK_I2C_SCL\", \"CLOCK_I2C_SDA\"],\n",
+    "    output_file=os.path.join(temp_folder.name, \"Q3D.jpg\"),\n",
+    "    plot_air_objects=False,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2ec6bd95",
+   "metadata": {},
+   "source": [
+    "Use the previously calculated positions to identify faces and\n",
+    "assign sources and sinks on nets."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e22d19ce",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "f1 = q3d.modeler.get_faceid_from_position(location_u13_scl, assignment=\"CLOCK_I2C_SCL\")\n",
+    "q3d.source(f1, net_name=\"CLOCK_I2C_SCL\")\n",
+    "f1 = q3d.modeler.get_faceid_from_position(location_u13_sda, assignment=\"CLOCK_I2C_SDA\")\n",
+    "q3d.source(f1, net_name=\"CLOCK_I2C_SDA\")\n",
+    "f1 = q3d.modeler.get_faceid_from_position(location_u1_scl, assignment=\"CLOCK_I2C_SCL\")\n",
+    "q3d.sink(f1, net_name=\"CLOCK_I2C_SCL\")\n",
+    "f1 = q3d.modeler.get_faceid_from_position(location_u1_sda, assignment=\"CLOCK_I2C_SDA\")\n",
+    "q3d.sink(f1, net_name=\"CLOCK_I2C_SDA\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "08d7f4ca",
+   "metadata": {},
+   "source": [
+    "Define the solution setup and the frequency sweep ranging from DC to 2GHz."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8496283e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup = q3d.create_setup()\n",
+    "setup.dc_enabled = True\n",
+    "setup.capacitance_enabled = False\n",
+    "sweep = setup.add_sweep()\n",
+    "sweep.add_subrange(\n",
+    "    \"LinearStep\", 0, end=2, count=0.05, unit=\"GHz\", save_single_fields=False, clear=True\n",
+    ")\n",
+    "setup.analyze(cores=NUM_CORES)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d6a26d54",
+   "metadata": {},
+   "source": [
+    "## Solve\n",
+    "\n",
+    "Compute AC inductance and resistance."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "33ea9ec1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "traces_acl = q3d.post.available_report_quantities(quantities_category=\"ACL Matrix\")\n",
+    "solution = q3d.post.get_solution_data(traces_acl)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "21fca512",
+   "metadata": {},
+   "source": [
+    "## Postprocess\n",
+    "\n",
+    "Plot AC inductance and resistance."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7acb3af0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "solution.plot()\n",
+    "traces_acr = q3d.post.available_report_quantities(quantities_category=\"ACR Matrix\")\n",
+    "solution2 = q3d.post.get_solution_data(traces_acr)\n",
+    "solution2.plot()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "104e2f09",
+   "metadata": {},
+   "source": [
+    "## Release AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4d14142a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "q3d.save_project()\n",
+    "q3d.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "496d5819",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ac8ad957",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
