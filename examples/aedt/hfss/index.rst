@@ -203,7 +203,7 @@ These examples use PyAEDT to show HFSS capabilities
 
    .. grid-item-card:: Coaxial
       :padding: 2 2 2 2
-      :link: ../../electrothermal/ccoaxial_hfss_icepak
+      :link: ../../electrothermal/coaxial_hfss_icepak
       :link-type: doc
 
       .. image:: ../../electrothermal/_static/coaxial.png
