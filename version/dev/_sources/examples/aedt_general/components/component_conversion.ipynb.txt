@@ -1,0 +1,356 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "535d8987",
+   "metadata": {},
+   "source": [
+    "# Encrypted 3D component conversion\n",
+    "\n",
+    "This example shows how to convert an encrypted\n",
+    "3D component from ACIS to Parasolid in different AEDT releases.\n",
+    "If you have models previous to Ansys AEDT 2023 R1 with an ACIS kernel,\n",
+    "you can convert it to Parasolid.\n",
+    "\n",
+    "Keywords: **HFSS**, **Encrypted**, **3D component**, **Modeler kernel**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "dcfcf816",
+   "metadata": {},
+   "source": [
+    "<img src=\"_static/e3dcomp.png\" width=\"500\">"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3aa090eb",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Import the required packages.\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "990ebf3d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "83959703",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from pyaedt import Desktop, Hfss, settings\n",
+    "from pyedb.misc.downloads import download_file"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6b222b95",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a017188c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2024.2\"\n",
+    "OLD_AEDT_VERSION = \"2024.1\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d4db4b5d",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d9b44977",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "785f1e3b",
+   "metadata": {},
+   "source": [
+    "## Download encrypted example\n",
+    "\n",
+    "Download the encrypted 3D component example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0fb4db6f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "a3dcomp = download_file(\n",
+    "    directory=\"component_3d\",\n",
+    "    filename=\"SMA_Edge_Connector_23r2_encrypted_password_ansys.a3dcomp\",\n",
+    "    destination=temp_folder.name,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6503f217",
+   "metadata": {},
+   "source": [
+    "## Enable multiple desktop support"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "149cfcf3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "settings.use_multi_desktop = True"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "bb359d34",
+   "metadata": {},
+   "source": [
+    "## Prepare encrypted 3D component in ACIS\n",
+    "\n",
+    "Launch the old AEDT release."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b06d5525",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "aedt_old = Desktop(new_desktop=True, version=OLD_AEDT_VERSION)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "62ba2bab",
+   "metadata": {},
+   "source": [
+    "Insert an empty HFSS design."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "bbc1c0b4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss1 = Hfss(aedt_process_id=aedt_old.aedt_process_id, solution_type=\"Terminal\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2f927bd2",
+   "metadata": {},
+   "source": [
+    "Insert the encrypted 3D component."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "21d96001",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cmp = hfss1.modeler.insert_3d_component(comp_file=a3dcomp, password=\"ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d71452cb",
+   "metadata": {},
+   "source": [
+    "Open the 3D component in an HFSS design."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6f0f87bb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "app_comp = cmp.edit_definition(password=\"ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "631cd721",
+   "metadata": {},
+   "source": [
+    "## Create an encrypted 3D component in Parasolid\n",
+    "\n",
+    "Launch the new AEDT release"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d9861e6e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "aedt = Desktop(new_desktop_session=True, specified_version=AEDT_VERSION)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "bf590c44",
+   "metadata": {},
+   "source": [
+    "Insert an empty HFSS design."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0796940f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss2 = Hfss(aedt_process_id=aedt.aedt_process_id, solution_type=\"Terminal\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b46c8ddf",
+   "metadata": {},
+   "source": [
+    "Copy objects from the old design."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0dc2fa5f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss2.copy_solid_bodies_from(design=app_comp, no_vacuum=False, no_pec=False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "13bb3ba0",
+   "metadata": {},
+   "source": [
+    "Create the new encrypted 3D component."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "03e6bc5d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss2.modeler.create_3dcomponent(\n",
+    "    input_file=os.path.join(temp_folder.name, r\"SMA_Edge_Connector_encrypted.a3dcomp\"),\n",
+    "    is_encrypted=True,\n",
+    "    edit_password=\"ansys\",\n",
+    "    hide_contents=False,\n",
+    "    allow_edit=True,\n",
+    "    password_type=\"InternalPassword\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5eb1616e",
+   "metadata": {},
+   "source": [
+    "## Release AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "092d2ecb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "aedt.save_project()\n",
+    "aedt_old.save_project()\n",
+    "aedt.release_desktop()\n",
+    "aedt_old.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e951e0f3",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d63738ba",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

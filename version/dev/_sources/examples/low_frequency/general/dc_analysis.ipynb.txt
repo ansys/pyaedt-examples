@@ -1,0 +1,373 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "fd6bae34",
+   "metadata": {},
+   "source": [
+    "# Electro DC analysis"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fd636587",
+   "metadata": {},
+   "source": [
+    "This example shows how to use PyAEDT to create a Maxwell DC analysis,\n",
+    "compute mass center, and move coordinate systems.\n",
+    "\n",
+    "Keywords: **Maxwell 3D**, **DC**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6057dc0d",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1d32ce38",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "edcbb11c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from ansys.aedt.core import Maxwell3d"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ace5a555",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "14690578",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2024.2\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "111f50aa",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "33b0343c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ab273a5b",
+   "metadata": {},
+   "source": [
+    "## Launch AEDT\n",
+    "\n",
+    "Create an instance of the ``Maxwell3d`` class named ``m3d`` by providing\n",
+    "the project name, the version, and the graphical mode."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "856befb1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_name = os.path.join(temp_folder.name, \"conductor_example.aedt\")\n",
+    "m3d = Maxwell3d(\n",
+    "    project=project_name,\n",
+    "    version=AEDT_VERSION,\n",
+    "    new_desktop=True,\n",
+    "    non_graphical=NG_MODE,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3c580eeb",
+   "metadata": {},
+   "source": [
+    "## Set up Maxwell solution\n",
+    "\n",
+    "Set up the Maxwell solution to DC."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "26760a4a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m3d.solution_type = m3d.SOLUTIONS.Maxwell3d.ElectroDCConduction"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ba6becf3",
+   "metadata": {},
+   "source": [
+    "## Create conductor\n",
+    "\n",
+    "Create a conductor using copper, a predefined material in the Maxwell material library."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6c4bab32",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "conductor = m3d.modeler.create_box(\n",
+    "    origin=[7, 4, 22], sizes=[10, 5, 30], name=\"Conductor\", material=\"copper\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "cbc1f735",
+   "metadata": {},
+   "source": [
+    "## Create setup and assign voltage"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5da75045",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m3d.assign_voltage(assignment=conductor.faces, amplitude=0)\n",
+    "m3d.create_setup()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "11cf5eb1",
+   "metadata": {},
+   "source": [
+    "## Solve setup"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b742b8c8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m3d.analyze(cores=NUM_CORES)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6007baeb",
+   "metadata": {},
+   "source": [
+    "## Compute mass center\n",
+    "\n",
+    "Compute mass center using PyAEDT advanced fields calculator."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "348ef8eb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "scalar_function = \"\"\n",
+    "mass_center = {\n",
+    "    \"name\": \"\",\n",
+    "    \"description\": \"Mass center computation\",\n",
+    "    \"design_type\": [\"Maxwell 3D\"],\n",
+    "    \"fields_type\": [\"Fields\"],\n",
+    "    \"primary_sweep\": \"distance\",\n",
+    "    \"assignment\": \"\",\n",
+    "    \"assignment_type\": [\"Solid\"],\n",
+    "    \"operations\": [\n",
+    "        scalar_function,\n",
+    "        \"EnterVolume('assignment')\",\n",
+    "        \"Operation('VolumeValue')\",\n",
+    "        \"Operation('Mean')\",\n",
+    "    ],\n",
+    "    \"report\": [\"Data Table\"],\n",
+    "}\n",
+    "mass_center[\"name\"] = \"CM_X\"\n",
+    "scalar_function = \"Scalar_Function(FuncValue='X')\"\n",
+    "mass_center[\"operations\"][0] = scalar_function\n",
+    "m3d.post.fields_calculator.add_expression(mass_center, conductor.name)\n",
+    "mass_center[\"name\"] = \"CM_Y\"\n",
+    "scalar_function = \"Scalar_Function(FuncValue='Y')\"\n",
+    "mass_center[\"operations\"][0] = scalar_function\n",
+    "m3d.post.fields_calculator.add_expression(mass_center, conductor.name)\n",
+    "mass_center[\"name\"] = \"CM_Z\"\n",
+    "scalar_function = \"Scalar_Function(FuncValue='Z')\"\n",
+    "mass_center[\"operations\"][0] = scalar_function\n",
+    "m3d.post.fields_calculator.add_expression(mass_center, conductor.name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c276816b",
+   "metadata": {},
+   "source": [
+    "## Get mass center\n",
+    "\n",
+    "Get mass center using the fields calculator."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3621ff35",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "xval = m3d.post.get_scalar_field_value(quantity=\"CM_X\")\n",
+    "yval = m3d.post.get_scalar_field_value(quantity=\"CM_Y\")\n",
+    "zval = m3d.post.get_scalar_field_value(quantity=\"CM_Z\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e2343be0",
+   "metadata": {},
+   "source": [
+    "## Create variables\n",
+    "\n",
+    "Create variables with mass center values."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "11306aa6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m3d[conductor.name + \"x\"] = str(xval * 1e3) + \"mm\"\n",
+    "m3d[conductor.name + \"y\"] = str(yval * 1e3) + \"mm\"\n",
+    "m3d[conductor.name + \"z\"] = str(zval * 1e3) + \"mm\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "31ace2e0",
+   "metadata": {},
+   "source": [
+    "## Create coordinate system\n",
+    "\n",
+    "Create a parametric coordinate system."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6de24f04",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cs1 = m3d.modeler.create_coordinate_system(\n",
+    "    origin=[conductor.name + \"x\", conductor.name + \"y\", conductor.name + \"z\"],\n",
+    "    reference_cs=\"Global\",\n",
+    "    name=conductor.name + \"CS\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0a864722",
+   "metadata": {},
+   "source": [
+    "## Release AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "35d68b3f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m3d.save_project()\n",
+    "m3d.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3ca705b9",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6ad3899a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

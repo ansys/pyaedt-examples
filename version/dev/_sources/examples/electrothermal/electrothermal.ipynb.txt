@@ -1,0 +1,540 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "4dd99d6a",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "source": [
+    "# Electrothermal analysis\n",
+    "\n",
+    "This example shows how to use the EDB for DC IR analysis and\n",
+    "electrothermal analysis. The EDB is loaded into SIwave for analysis and postprocessing.\n",
+    "In the end, an Icepak project is exported from SIwave.\n",
+    "\n",
+    "- Set up EDB:\n",
+    "  - Assign package and heatsink model to components.\n",
+    "  - Create voltage and current sources.\n",
+    "  - Create SIwave DC analysis.\n",
+    "  - Define cutout.\n",
+    "- Import EDB into SIwave:\n",
+    "  - Analyze DC IR.\n",
+    "  - Export Icepak project."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f815587a",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "49ca2ae1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import json\n",
+    "import os\n",
+    "import sys\n",
+    "import tempfile\n",
+    "import time"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d1cedd78",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from ansys.aedt.core.downloads import download_file\n",
+    "from pyedb import Edb, Siwave"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "32a1bc9a",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "10a1f5b1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2024.2\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = True  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c391108d",
+   "metadata": {},
+   "source": [
+    "Check if AEDT is launched in graphical mode."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ee4ae6d5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "if not NG_MODE:\n",
+    "    print(\"Warning: this example requires graphical mode enabled.\")\n",
+    "    sys.exit()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "eda047d2",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory and download files\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4c9220f7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b90f15e7",
+   "metadata": {},
+   "source": [
+    "Download the example PCB data."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "08f5fab9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "aedb = download_file(source=\"edb/ANSYS-HSD_V1.aedb\", destination=temp_folder.name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "507c7ef7",
+   "metadata": {},
+   "source": [
+    "## Create configuration file\n",
+    "\n",
+    "This example uses a configuration file to set up the layout for analysis.\n",
+    "Create an empty dictionary to host all configurations."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5739aab7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg = dict()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "34027251",
+   "metadata": {},
+   "source": [
+    "## Add component thermal information and heatsink definition"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "62a91742",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg[\"package_definitions\"] = [\n",
+    "    {\n",
+    "        \"name\": \"package_1\",\n",
+    "        \"component_definition\": \"SMTC-MECT-110-01-M-D-RA1_V\",\n",
+    "        \"maximum_power\": 1,\n",
+    "        \"therm_cond\": 1,\n",
+    "        \"theta_jb\": 1,\n",
+    "        \"theta_jc\": 1,\n",
+    "        \"height\": \"2mm\",\n",
+    "        \"heatsink\": {\n",
+    "            \"fin_base_height\": \"2mm\",\n",
+    "            \"fin_height\": \"4mm\",\n",
+    "            \"fin_orientation\": \"x_oriented\",\n",
+    "            \"fin_spacing\": \"1mm\",\n",
+    "            \"fin_thickness\": \"1mm\",\n",
+    "        },\n",
+    "        \"apply_to_all\": False,\n",
+    "        \"components\": [\"J5\"],\n",
+    "    }\n",
+    "]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "db5318d1",
+   "metadata": {},
+   "source": [
+    "## Create pin groups\n",
+    "\n",
+    "Group all pins on the \"GND\" net on the ``J5`` component into one group.\n",
+    "Pin groups are assigned by net name using the ``net`` key."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2b010781",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg[\"pin_groups\"] = [{\"name\": \"J5_GND\", \"reference_designator\": \"J5\", \"net\": \"GND\"}]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b663cebc",
+   "metadata": {},
+   "source": [
+    "## Create current sources\n",
+    "\n",
+    "Create two current sources on the ``J5`` component.\n",
+    "A current source is placed between positive and negative terminals.\n",
+    "When the ``net`` keyword is used, all pins on the specified net are grouped into a\n",
+    "new pin group that is assigned as the positive terminal.\n",
+    "\n",
+    "Negative terminal can be assigned by pin group name by using the ``pin_group`` keyword.\n",
+    "The two current sources share the same ``J5_GND`` pin group as the negative terminal."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "faedae55",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "i_src_1 = {\n",
+    "    \"name\": \"J5_VCCR\",\n",
+    "    \"reference_designator\": \"J5\",\n",
+    "    \"type\": \"current\",\n",
+    "    \"magnitude\": 0.5,\n",
+    "    \"positive_terminal\": {\"net\": \"SFPA_VCCR\"},\n",
+    "    \"negative_terminal\": {\"pin_group\": \"J5_GND\"},  # Defined in \"pin_groups\" section.\n",
+    "}\n",
+    "i_src_2 = {\n",
+    "    \"name\": \"J5_VCCT\",\n",
+    "    \"reference_designator\": \"J5\",\n",
+    "    \"type\": \"current\",\n",
+    "    \"magnitude\": 0.5,\n",
+    "    \"positive_terminal\": {\"net\": \"SFPA_VCCT\"},\n",
+    "    \"negative_terminal\": {\"pin_group\": \"J5_GND\"},  # Defined in \"pin_groups\" section.\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e9596eb8",
+   "metadata": {},
+   "source": [
+    "## Create a voltage source\n",
+    "\n",
+    "Create a voltage source on the ``U4`` componebt between two nets using the ``net`` keyword."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a5d4c05e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "v_src = {\n",
+    "    \"name\": \"VSOURCE_5V\",\n",
+    "    \"reference_designator\": \"U4\",\n",
+    "    \"type\": \"voltage\",\n",
+    "    \"magnitude\": 5,\n",
+    "    \"positive_terminal\": {\"net\": \"5V\"},\n",
+    "    \"negative_terminal\": {\"net\": \"GND\"},\n",
+    "}\n",
+    "\n",
+    "cfg[\"sources\"] = [v_src, i_src_1, i_src_2]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ace97df3",
+   "metadata": {},
+   "source": [
+    "## Define cutout\n",
+    "\n",
+    "The following assignments define the region of the PCB to be cut out for analysis."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5e024e83",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg[\"operations\"] = {\n",
+    "    \"cutout\": {\n",
+    "        \"signal_list\": [\"SFPA_VCCR\", \"SFPA_VCCT\", \"5V\"],\n",
+    "        \"reference_list\": [\"GND\"],\n",
+    "        \"extent_type\": \"Bounding\",\n",
+    "    }\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8ae63364",
+   "metadata": {},
+   "source": [
+    "## Create SIwave DC analysis"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b66011be",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg[\"setups\"] = [\n",
+    "    {\n",
+    "        \"name\": \"siwave_dc\",\n",
+    "        \"type\": \"siwave_dc\",\n",
+    "        \"dc_slider_position\": 0,\n",
+    "        \"dc_ir_settings\": {\"export_dc_thermal_data\": True},\n",
+    "    }\n",
+    "]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4b381811",
+   "metadata": {},
+   "source": [
+    "## Save configuration to a JSON file\n",
+    "\n",
+    "The configuration file can be saved in JSON format and applied to layout data using the EDB."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "24b16cb4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pi_json = os.path.join(temp_folder.name, \"pi.json\")\n",
+    "\n",
+    "with open(pi_json, \"w\") as f:\n",
+    "    json.dump(cfg, f, indent=4, ensure_ascii=False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "18fcdfe2",
+   "metadata": {},
+   "source": [
+    "## Load configuration into EDB\n",
+    "\n",
+    "Load the configuration from the JSON file."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7a392041",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp = Edb(aedb, edbversion=AEDT_VERSION)\n",
+    "edbapp.configuration.load(config_file=pi_json)\n",
+    "edbapp.configuration.run()\n",
+    "edbapp.save()\n",
+    "edbapp.close()\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "df522f60",
+   "metadata": {},
+   "source": [
+    "The configured EDB file is saved in the temporary folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4d00dc26",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print(temp_folder.name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2aab25e2",
+   "metadata": {},
+   "source": [
+    "## Analyze in SIwave\n",
+    "\n",
+    "Load EDB into SIwave."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e3e74709",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "siwave = Siwave(specified_version=AEDT_VERSION)\n",
+    "time.sleep(10)\n",
+    "siwave.open_project(proj_path=aedb)\n",
+    "siwave.save_project(projectpath=temp_folder.name, projectName=\"ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "686fc082",
+   "metadata": {},
+   "source": [
+    "## Analyze"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5ee0830f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "siwave.run_dc_simulation()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f1bc77e9",
+   "metadata": {},
+   "source": [
+    "## Export Icepak project"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6e774f2e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "siwave.export_icepak_project(\n",
+    "    os.path.join(temp_folder.name, \"from_siwave.aedt\"), \"siwave_dc\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "25f366b5",
+   "metadata": {},
+   "source": [
+    "## Close SIWave project"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "93297f91",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "siwave.close_project()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "71e64111",
+   "metadata": {},
+   "source": [
+    "## Shut down SIwave"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ad98f4d1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "siwave.quit_application()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "76a08ce1",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.dir``. If you've run this example as a Jupyter notbook, you\n",
+    "can retrieve those project files. The following cell removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e98e870f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "time.sleep(3)\n",
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  },
+  "nbsphinx": {
+   "execute": "never"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
