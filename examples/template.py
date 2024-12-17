@@ -16,7 +16,6 @@
 import os
 import tempfile
 import time
-
 import ansys.aedt.core
 
 # Define constants.
@@ -27,18 +26,20 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
-# Create a temporary directory where downloaded data or
-# dumped data can be stored.
-# If you'd like to retrieve the project data for subsequent use,
-# the temporary folder name is given by ``temp_folder.name``.
+# Create a temporary working directory.
+# The name of the working folder is stored in ``temp_folder.name``.
+#
+# > **Note:** The final cell in this example removes the temporary folder and
+# > all contents. If you want to
+# > retrieve the AEDT project and data, do so before executing the final cell in the notebook.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ## Launch AEDT and application
+# ## Launch application
 #
-# Create an instance of the application (such as ``Maxwell3d`` or``Hfss``)
-# with a class (such as ``m3d`` or``hfss``) by providing
-# the project and design names, the solver, and the version.
+# The syntax for different applications in AEDT differ
+# only in the name of the class that instantiates the 
+# application. For example ``Maxwell3d``, ``Hfss`` or ``Icepak``.
 
 project_name = os.path.join(temp_folder.name, "my_project.aedt")
 m3d = ansys.aedt.core.Maxwell3d(
@@ -51,19 +52,38 @@ m3d = ansys.aedt.core.Maxwell3d(
 )
 m3d.modeler.model_units = "mm"
 
-# ## Preprocess
+# ## Set up model
 #
 # Description of preprocessing task.
 # Add as many sections as needed for preprocessing tasks.
+#
+# Subsequent steps in the model creation process should be labled with a
+# H3 title.
+# ### This is a H3 title
+#
+# Markdown syntax:
+# ``` markdown
+# ### This is a H3 title
+# ```
 
 
-# ## Postprocess
+# ## Run the analysis
+#
+# The analysis is generally run with a single call that launches the solve
+# process:
+# ``` python
+# app.analyze_setup()
+# ```
+
+# ## Postprocessing
 #
 # Description of postprocessing task.
-# Add as many sections as needed for postprocessing tasks.
+# Add subsections with H3 titles as needed to 
+# describe postprocessing steps such as
+# visualizing or analyzing simulation results.
 
 
-# ## Release AEDT
+# ### Save project
 
 m3d.save_project()
 m3d.release_desktop()

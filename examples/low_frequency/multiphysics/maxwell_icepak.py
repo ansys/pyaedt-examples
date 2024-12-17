@@ -12,15 +12,11 @@
 #
 # Perform required imports.
 
-# +
 import os
 import tempfile
 import time
-
 import ansys.aedt.core
 from ansys.aedt.core.generic.constants import AXIS
-
-# -
 
 # Define constants.
 
@@ -32,7 +28,8 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 # Create a temporary working directory.
 # The name of the working folder is stored in ``temp_folder.name``.
 #
-# > **Note:** The final cell in the notebook cleans up the temporary folder. If you want to
+# > **Note:** The final cell in this example removes the temporary folder and
+# > all contents. If you want to
 # > retrieve the AEDT project and data, do so before executing the final cell in the notebook.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
@@ -257,7 +254,8 @@ ipk.modeler.edit_region_dimensions(
 )
 # -
 
-# ## Map coil losses
+# ## Setup Icepak model
+# ### Map coil losses
 #
 # Map ohmic losses from Maxwell 3D to the Icepak design.
 
@@ -295,7 +293,7 @@ solution_setup.props["Solution Initialization - Z Velocity"] = "0.0005m_per_sec"
 solution_setup.props["Convergence Criteria - Flow"] = 0.0005
 solution_setup.props["Flow Iteration Per Radiation Iteration"] = "5"
 
-# ## Add two-way coupling and solve the project
+# ### Add two-way coupling
 #
 # The temperature update from Icepak to Maxwell 3D is activated using the method ``assign_2way_coupling()``. The Ohmic
 # loss in Maxwell will change due to the temperature increase, which in turn will change the results
@@ -305,6 +303,9 @@ solution_setup.props["Flow Iteration Per Radiation Iteration"] = "5"
 # The full electro-thermal analysis is run by calling the ``analyze_setup()`` method.
 
 ipk.assign_2way_coupling()
+
+# ## Run Icepak analysis
+
 ipk.analyze_setup(name=solution_setup.name)
 
 # ## Postprocess
@@ -335,7 +336,7 @@ temp = solution_temp.data_magnitude()[0]
 m3d.logger.info("*******Coil temperature =  {:.2f}deg C".format(temp))
 # -
 
-# ### Get new resistance from Maxwell 3D
+# ### Get updated resistance from Maxwell 3D
 #
 # The temperature of the coil increases, and consequently the coil resistance increases.
 
