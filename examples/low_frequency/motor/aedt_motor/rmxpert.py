@@ -76,19 +76,19 @@ rmxprt.stator["Steel Type"] = "steel_1008"
 rmxprt.stator["Number of Slots"] = 24
 rmxprt.stator["Slot Type"] = 2
 
-rmxprt.stator.properties.children["Slot"].props["Auto Design"] = False
-rmxprt.stator.properties.children["Slot"].props["Hs0"] = "0.5mm"
-rmxprt.stator.properties.children["Slot"].props["Hs1"] = "1.2mm"
-rmxprt.stator.properties.children["Slot"].props["Hs2"] = "8.2mm"
-rmxprt.stator.properties.children["Slot"].props["Bs0"] = "2.5mm"
-rmxprt.stator.properties.children["Slot"].props["Bs1"] = "5.6mm"
-rmxprt.stator.properties.children["Slot"].props["Bs2"] = "7.6mm"
+rmxprt.stator.properties.children["Slot"].properties["Auto Design"] = False
+rmxprt.stator.properties.children["Slot"].properties["Hs0"] = "0.5mm"
+rmxprt.stator.properties.children["Slot"].properties["Hs1"] = "1.2mm"
+rmxprt.stator.properties.children["Slot"].properties["Hs2"] = "8.2mm"
+rmxprt.stator.properties.children["Slot"].properties["Bs0"] = "2.5mm"
+rmxprt.stator.properties.children["Slot"].properties["Bs1"] = "5.6mm"
+rmxprt.stator.properties.children["Slot"].properties["Bs2"] = "7.6mm"
 
-rmxprt.stator.properties.children["Winding"].props["Winding Layers"] = 2
-rmxprt.stator.properties.children["Winding"].props["Parallel Branches"] = 1
-rmxprt.stator.properties.children["Winding"].props["Conductors per Slot"] = 52
-rmxprt.stator.properties.children["Winding"].props["Coil Pitch"] = 5
-rmxprt.stator.properties.children["Winding"].props["Number of Strands"] = 1
+rmxprt.stator.properties.children["Winding"].properties["Winding Layers"] = 2
+rmxprt.stator.properties.children["Winding"].properties["Parallel Branches"] = 1
+rmxprt.stator.properties.children["Winding"].properties["Conductors per Slot"] = 52
+rmxprt.stator.properties.children["Winding"].properties["Coil Pitch"] = 5
+rmxprt.stator.properties.children["Winding"].properties["Number of Strands"] = 1
 
 # ## Define rotor
 #
@@ -101,13 +101,13 @@ rmxprt.rotor["Stacking Factor"] = 0.95
 rmxprt.rotor["Steel Type"] = "steel_1008"
 rmxprt.rotor["Pole Type"] = 1
 
-rmxprt.rotor.properties.children["Pole"].props["Embrace"] = 0.7
-rmxprt.rotor.properties.children["Pole"].props["Offset"] = "0mm"
-rmxprt.rotor.properties.children["Pole"].props["Magnet Type"] = [
+rmxprt.rotor.properties.children["Pole"].properties["Embrace"] = 0.7
+rmxprt.rotor.properties.children["Pole"].properties["Offset"] = "0mm"
+rmxprt.rotor.properties.children["Pole"].properties["Magnet Type"] = [
     "Material:=",
     "Alnico9",
 ]
-rmxprt.rotor.properties.children["Pole"].props["Magnet Thickness"] = "3.5mm"
+rmxprt.rotor.properties.children["Pole"].properties["Magnet Thickness"] = "3.5mm"
 
 # ## Create setup
 #
