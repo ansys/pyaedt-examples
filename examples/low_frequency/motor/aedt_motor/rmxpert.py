@@ -72,7 +72,10 @@ rmxprt.stator["Outer Diameter"] = "122mm"
 rmxprt.stator["Inner Diameter"] = "75mm"
 rmxprt.stator["Length"] = "65mm"
 rmxprt.stator["Stacking Factor"] = 0.95
-rmxprt.stator["Steel Type"] = "steel_1008"
+rmxprt.stator.properties.properties["Steel Type"] = [
+    "Material:=",
+    "steel_1008",
+]
 rmxprt.stator["Number of Slots"] = 24
 rmxprt.stator["Slot Type"] = 2
 
@@ -98,7 +101,10 @@ rmxprt.rotor["Outer Diameter"] = "74mm"
 rmxprt.rotor["Inner Diameter"] = "26mm"
 rmxprt.rotor["Length"] = "65mm"
 rmxprt.rotor["Stacking Factor"] = 0.95
-rmxprt.rotor["Steel Type"] = "steel_1008"
+rmxprt.rotor["Steel Type"] = [
+    "Material:=",
+    "steel_1008",
+]
 rmxprt.rotor["Pole Type"] = 1
 
 rmxprt.rotor.properties.children["Pole"].properties["Embrace"] = 0.7
