@@ -115,16 +115,19 @@ hfss.post.create_report(
 new_report = hfss.post.reports_by_category.far_field(
     "db(RealizedGainTotal)", hfss.nominal_adaptive, "3D"
 )
-new_report.variations = variations
-new_report.primary_sweep = "Theta"
-new_report.create("Realized2D")
-
-# Generate multiple plots using the ``new_report`` object. This code generates
-# 2D and 3D polar plots.
-
 new_report.report_type = "3D Polar Plot"
 new_report.secondary_sweep = "Phi"
 new_report.create("Realized3D")
+
+# This code generates 2D plots.
+
+hfss.field_setups[2].phi_step = 90
+new_report2 = hfss.post.reports_by_category.far_field(
+    "db(RealizedGainTotal)", hfss.nominal_adaptive, hfss.field_setups[2].name
+)
+new_report2.variations = variations
+new_report2.primary_sweep = "Theta"
+new_report2.create("Realized2D")
 
 # Get solution data using the ``new_report`` object and postprocess or plot the
 # data outside AEDT.
