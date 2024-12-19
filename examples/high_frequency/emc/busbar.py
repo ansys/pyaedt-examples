@@ -117,31 +117,54 @@ print(q3d.net_sources("Bar1"))
 print(q3d.net_sources("Bar2"))
 print(q3d.net_sources("Bar3"))
 
-# Create the solution setup and define the frequency range for the solution.
-
-setup1 = q3d.create_setup(props={"AdaptiveFreq": "100MHz"})
-sweep = setup1.add_sweep()
-sweep.props["RangeStart"] = "1MHz"
-sweep.props["RangeEnd"] = "100MHz"
-sweep.props["RangeStep"] = "5MHz"
-sweep.update()
-
-# ### Set up for postprocessing
+# ## Create Matrix Reduction Operations
 #
-# Specify the traces to display after solving the model.
+# Series of Bar1 and Bar2
 
-data_plot_self = q3d.matrices[0].get_sources_for_plot(
-    get_self_terms=True, get_mutual_terms=False
+mr_series = q3d.insert_reduced_matrix(
+    operation_name="JoinSeries",
+    assignment=["Sink1", "Source2"],
+    reduced_matrix="MR_1_Series",
+    new_net_name="Series1",
 )
-data_plot_mutual = q3d.get_traces_for_plot(
-    get_self_terms=False, get_mutual_terms=True, category="C"
+
+# Add Parallel with Bar3
+
+mr_series.add_operation(
+    operation_type="JoinParallel",
+    source_names=["Source1", "Source3"],
+    new_net_name="SeriesPar",
+    new_source_name="src_par",
+    new_sink_name="snk_par",
 )
 
-# Define a plot and a data table in AEDT for visualizing results.
+# Series of Bar1 and Bar2
 
-q3d.post.create_report(expressions=data_plot_self)
-q3d.post.create_report(
-    expressions=data_plot_mutual, context="Original", plot_type="Data Table"
+mr_series2 = q3d.insert_reduced_matrix(
+    operation_name="JoinSeries",
+    assignment=["Sink1", "Source2"],
+    reduced_matrix="MR_2_Series",
+    new_net_name="Series2",
+)
+
+# Add Series with Bar3
+
+mr_series2.add_operation(
+    operation_type="JoinSeries",
+    source_names=["Sink3", "Source1"],
+    new_net_name="MR_2_Series1",
+)
+
+# ## Add a solution Setup and an interpolating frequency sweep
+
+freq_sweep_name = "my_sweep"
+setup1 = q3d.create_setup(props={"AdaptiveFreq": "1000MHz"})
+sweep = setup1.create_linear_step_sweep(
+    freqstart=0,
+    freqstop=10,
+    step_size=0.05,
+    sweepname=freq_sweep_name,
+    sweep_type="Interpolating",
 )
 
 # ## Analyze
@@ -151,10 +174,55 @@ q3d.post.create_report(
 q3d.analyze(cores=NUM_CORES)
 q3d.save_project()
 
+# ## Specify the traces to display and create the Reports.
+#
+# Capacitances - Original Matrix.
+
+original_matrix_self = q3d.matrices[0].get_sources_for_plot(
+    get_self_terms=True, get_mutual_terms=False
+)
+original_matrix_mutual = q3d.matrices[0].get_sources_for_plot(
+    get_self_terms=False, get_mutual_terms=True
+)
+
+# ACL - Reduced Matrix MR_1_Series
+
+reduced_matrix_1_self = mr_series.get_sources_for_plot(
+    get_self_terms=True, get_mutual_terms=False, category="ACL"
+)
+
+# ACL - Reduced Matrix MR_2_Series
+
+reduced_matrix_2_self = mr_series2.get_sources_for_plot(
+    get_self_terms=True, get_mutual_terms=False, category="ACL"
+)
+
+# Define plots and a data table in AEDT for visualizing results.
+
+original_matrix_self_report = q3d.post.create_report(
+    expressions=original_matrix_self, plot_name="Original, Self Capacitances"
+)
+original_matrix_mutual_report = q3d.post.create_report(
+    expressions=original_matrix_mutual,
+    context="Original",
+    plot_type="Data Table",
+    plot_name="Original, Mutual Capacitances",
+)
+reduced_matrix_1_self_report = q3d.post.create_report(
+    expressions=reduced_matrix_1_self,
+    context="MR_1_Series",
+    plot_name="MR_1_Series, Self Inductances",
+)
+reduced_matrix_2_self_report = q3d.post.create_report(
+    expressions=reduced_matrix_2_self,
+    context="MR_2_Series",
+    plot_name="MR_2_Series, Self Inductances",
+)
+reduced_matrix_2_self_report.edit_x_axis_scaling(linear_scaling=False)
+
 # Retrieve solution data for processing in Python.
 
-data = q3d.post.get_solution_data(expressions=data_plot_self, context="Original")
-data.data_magnitude()
+data = q3d.post.get_solution_data(expressions=original_matrix_self, context="Original")
 data.plot()
 
 # ## Release AEDT
