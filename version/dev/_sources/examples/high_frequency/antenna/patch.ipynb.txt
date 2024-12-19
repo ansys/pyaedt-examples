@@ -1,0 +1,275 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "c0b07a65",
+   "metadata": {},
+   "source": [
+    "# Probe-fed patch antenna\n",
+    "\n",
+    "This example shows how to use the ``Stackup3D`` class\n",
+    "to create and analyze a patch antenna in HFSS.\n",
+    "\n",
+    "Note that the HFSS 3D Layout interface may offer advantages for\n",
+    "laminate structures such as the patch antenna.\n",
+    "\n",
+    "Keywords: **HFSS**, **terminal**, **antenna**., **patch**.\n",
+    "\n",
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "bdda7d9d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "43ff8bc0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import ansys.aedt.core\n",
+    "from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8511baef",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fc2160e6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2024.2\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9a3b32d9",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fc6e4566",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "15b694d9",
+   "metadata": {},
+   "source": [
+    "## Launch HFSS\n",
+    "\n",
+    "Launch HFSS and change the length units."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ca54909a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_name = os.path.join(temp_folder.name, \"patch.aedt\")\n",
+    "hfss = ansys.aedt.core.Hfss(\n",
+    "    project=project_name,\n",
+    "    solution_type=\"Terminal\",\n",
+    "    design=\"patch\",\n",
+    "    non_graphical=NG_MODE,\n",
+    "    new_desktop=True,\n",
+    "    version=AEDT_VERSION,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0ef22752",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "length_units = \"mm\"\n",
+    "freq_units = \"GHz\"\n",
+    "hfss.modeler.model_units = length_units"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "70d708fb",
+   "metadata": {},
+   "source": [
+    "## Create patch\n",
+    "\n",
+    "Create the patch."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "81e40ecd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "stackup = Stackup3D(hfss)\n",
+    "ground = stackup.add_ground_layer(\n",
+    "    \"ground\", material=\"copper\", thickness=0.035, fill_material=\"air\"\n",
+    ")\n",
+    "dielectric = stackup.add_dielectric_layer(\n",
+    "    \"dielectric\", thickness=\"0.5\" + length_units, material=\"Duroid (tm)\"\n",
+    ")\n",
+    "signal = stackup.add_signal_layer(\n",
+    "    \"signal\", material=\"copper\", thickness=0.035, fill_material=\"air\"\n",
+    ")\n",
+    "patch = signal.add_patch(\n",
+    "    patch_length=9.57, patch_width=9.25, patch_name=\"Patch\", frequency=1e10\n",
+    ")\n",
+    "\n",
+    "stackup.resize_around_element(patch)\n",
+    "pad_length = [3, 3, 3, 3, 3, 3]  # Air bounding box buffer in mm.\n",
+    "region = hfss.modeler.create_region(pad_length, is_percentage=False)\n",
+    "hfss.assign_radiation_boundary_to_objects(region)\n",
+    "\n",
+    "patch.create_probe_port(ground, rel_x_offset=0.485)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5601190f",
+   "metadata": {},
+   "source": [
+    "## Set up simulation\n",
+    "Set up a simulation and analyze it."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c69a0216",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup = hfss.create_setup(name=\"Setup1\", setup_type=\"HFSSDriven\", Frequency=\"10GHz\")\n",
+    "\n",
+    "setup.create_frequency_sweep(\n",
+    "    unit=\"GHz\",\n",
+    "    name=\"Sweep1\",\n",
+    "    start_frequency=8,\n",
+    "    stop_frequency=12,\n",
+    "    sweep_type=\"Interpolating\",\n",
+    ")\n",
+    "\n",
+    "hfss.save_project()\n",
+    "hfss.analyze(cores=NUM_CORES)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "09625392",
+   "metadata": {},
+   "source": [
+    "## Plot S11\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "87768643",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plot_data = hfss.get_traces_for_plot()\n",
+    "report = hfss.post.create_report(plot_data)\n",
+    "solution = report.get_solution_data()\n",
+    "plt = solution.plot(solution.expressions)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "175a2a20",
+   "metadata": {},
+   "source": [
+    "## Release AEDT\n",
+    "\n",
+    "Release AEDT."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4c0e2377",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss.save_project()\n",
+    "hfss.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7a476e58",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell removes\n",
+    "all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9111a7d1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
