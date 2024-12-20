@@ -4,7 +4,7 @@
 #
 # Most examples can be described as a series of steps that comprise a workflow.
 # 1. Import packages and instantiate the application.
-# 2. Do something useful and interesting like creating the geometric model, assing materials and boundary conditions, etc.
+# 2. Do something useful and interesting like creating the model, assing materials and boundary conditions, etc.
 # 3. Run one or more analyses.
 # 4. View the results.
 #
@@ -14,13 +14,16 @@
 #
 # ### Perform imports
 
+# +
 import os
 import tempfile
 import time
+
 import ansys.aedt.core  # Interface to Ansys Electronics Desktop
+# -
 
 # ### Define constants
-# Constants defined here help ensure consistency and avoid repetition throughout the example.
+# Constants help ensure consistency and avoid repetition throughout the example.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
@@ -50,8 +53,8 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 #
 # > **Note:** Some examples access multiple applications. When the first
 # > application is
-# > instantiated, an AEDT _Project_ is created.
-# > When a 2nd application instance for a different AET
+# > started, an AEDT _Project_ is created.
+# > When a 2nd application instance for a different AEDT
 # > application is created, the corresponding design
 # > type will be inserted into the project.
 
@@ -70,14 +73,6 @@ m3d = ansys.aedt.core.Maxwell3d(
 # Description of steps used to create and prepare the model for simulation.
 # Add as many sections as needed for preprocessing tasks. Use level 3 headers
 # for subsequent headers in this section.
-
-# #### Units
-#
-# Model units can be queried or changed using the
-# property ``m3d.modeler.model_units``.
-
-m3d.modeler.model_units = "mm"
-print(f'Model units are "{m3d.modeler.model_units}"')
 
 # ### Create 3D model
 #

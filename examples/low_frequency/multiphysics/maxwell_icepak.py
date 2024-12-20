@@ -20,8 +20,7 @@ from ansys.aedt.core.generic.constants import AXIS
 
 # ### Define constants
 #
-# Set the version of AEDT and define whether or not this example
-# runs in _non-graphical_ mode.
+# Constants help ensure consistency and avoid repetition throughout the example.
 
 AEDT_VERSION = "2024.2"
 NG_MODE = False  # Open AEDT UI when it is launched.
@@ -109,6 +108,7 @@ region = m3d.modeler.create_region(pad_percent=[20, 20, 20, 20, 500, 100])
 
 # +
 # desktop=m3d.odesktop.RestoreWindow()  # Fit the active view
+# desktop = m3d.post.still_focus_oneditor()
 # -
 
 # ### Create and assign material
@@ -267,7 +267,6 @@ ipk.modeler.edit_region_dimensions(
 )
 # -
 
-# ## Setup Icepak model
 # ### Map coil losses
 #
 # Map ohmic losses from Maxwell 3D to the Icepak design.
@@ -293,7 +292,9 @@ ipk.assign_free_opening(face_names, boundary_name="Opening1")
 
 temp_monitor = ipk.assign_point_monitor([70, 0, 0], monitor_name="PointMonitor1")
 
-# Set up Icepak solution
+# ### Set up Icepak solution
+#
+# Icepak solution settings are modified by updating the ``props`` associated with the solution setup.
 
 solution_setup = ipk.create_setup()
 solution_setup.props["Convergence Criteria - Max Iterations"] = 50
@@ -317,7 +318,7 @@ solution_setup.props["Flow Iteration Per Radiation Iteration"] = "5"
 
 ipk.assign_2way_coupling()
 
-# ## Run Icepak analysis
+# ### Run Icepak analysis
 
 ipk.analyze_setup(name=solution_setup.name)
 
@@ -378,17 +379,17 @@ m3d.logger.info(
 )
 # -
 
-# ### Save project
+# ### Save the project
 
 ipk.save_project()
 ipk.release_desktop()
 time.sleep(3)  # Allow AEDT to shut down before cleaning the temporary project folder.
 
-# ## Clean up
+# ### Clean up
 #
 # All project files are saved in the folder ``temp_folder.name``.
 # If you've run this example as a Jupyter notebook, you
-# can retrieve those project files. The following cell removes
-# all temporary files, including the project folder.
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
 temp_folder.cleanup()
