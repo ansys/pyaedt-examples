@@ -90,6 +90,21 @@ These examples use PyAEDT to show some multiphysics applications.
       This example shows how to create a two-way coupling between HFSS and Icepak.
 
 
+   .. grid-item-card:: HFSS-Icepak microwave oven analysis
+      :padding: 2 2 2 2
+      :link: microwave_oven
+      :link-type: doc
+
+      .. image:: _static/oven.png
+         :alt: HFSS Icepak
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      This example shows how to couple together HFSS and Icepak to run multiphysics
+      analysis on a well know problem of microwave oven.
+
+
    .. toctree::
       :hidden:
 
@@ -99,4 +114,5 @@ These examples use PyAEDT to show some multiphysics applications.
       ../../electrothermal/coaxial_hfss_icepak
       ../../electrothermal/electrothermal
       ../../electrothermal/icepak_circuit_hfss_coupling
+      oven
 
