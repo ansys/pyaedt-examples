@@ -110,7 +110,7 @@ hfss.post.create_report(
     report_category="Far Fields",
 )
 
-# Create a far fields report using the ``report_by_category.far field()`` method.
+# Create a far field report.
 
 new_report = hfss.post.reports_by_category.far_field(
     "db(RealizedGainTotal)", hfss.nominal_adaptive, "3D"
@@ -119,7 +119,7 @@ new_report.report_type = "3D Polar Plot"
 new_report.secondary_sweep = "Phi"
 new_report.create("Realized3D")
 
-# This code generates 2D plots.
+# This code generates a 2D plot.
 
 hfss.field_setups[2].phi_step = 90
 new_report2 = hfss.post.reports_by_category.far_field(
