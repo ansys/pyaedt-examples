@@ -7,50 +7,51 @@
 # Coil resistance and ohmic loss are analyzed again in Maxwell. Results are printed in AEDT Message Manager.
 #
 # Keywords: **Multiphysics**, **Maxwell**, **Icepak**, **Wireless Charging**.
-#
-# ## Perform imports and define constants
-#
-# Perform required imports.
 
-# +
+# ## Prerequisites
+#
+# ### Perform imports
+
 import os
 import tempfile
 import time
-
-import ansys.aedt.core
+import ansys.aedt.core  # Interface to Ansys Electronics Desktop
 from ansys.aedt.core.generic.constants import AXIS
 
-# -
-
-# Define constants.
+# ### Define constants
+#
+# Constants help ensure consistency and avoid repetition throughout the example.
 
 AEDT_VERSION = "2024.2"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
-# ## Create temporary directory
+# ### Create temporary directory
 #
 # Create a temporary working directory.
 # The name of the working folder is stored in ``temp_folder.name``.
 #
-# > **Note:** The final cell in the notebook cleans up the temporary folder. If you want to
+# > **Note:** The final cell in this example removes the temporary folder and
+# > all contents. If you want to
 # > retrieve the AEDT project and data, do so before executing the final cell in the notebook.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ## Launch application
+# ### Launch application
 #
 # The syntax for different applications in AEDT differ
 # only in the name of the class. This example demonstrates the use of the
-# ``Maxwell3d`` class.
+# ``Maxwell3d`` and ``Icepak`` classes.
 #
 # > **Note:** An AEDT _Project_ is created when the ``Maxwell3d`` class is instantiated. An instance of
-# > the ``Icepak`` class will be used to insert and simulate an Icepak design and demonstrate
+# > the ``Icepak`` class will be used later to insert and simulate an
+# > Icepak design to demonstrate
 # > the coupled electrical-thermal workflow.
 
 # +
-project_name = os.path.join(temp_folder.name, "Maxwell-Icepak-2way-Coupling")
 maxwell_design_name = "1 Maxwell"
 icepak_design_name = "2 Icepak"
+
+project_name = os.path.join(temp_folder.name, "Maxwell-Icepak-2way-Coupling")
 
 m3d = ansys.aedt.core.Maxwell3d(
     project=project_name,
@@ -61,13 +62,9 @@ m3d = ansys.aedt.core.Maxwell3d(
 )
 # -
 
-# ### Units
-# The default units are "mm". Model units can be queried or changed using the
-# property ``m3d.modeler.model_units``.
-
-print(f'Model units are "{m3d.modeler.model_units}"')
-
-# ## Set up model
+# ## Model Preparation
+#
+# ### Build the model
 #
 # Create the coil, coil terminal, core, and surrounding air region. The coil and core
 # are created by drawing a rectangle and sweeping it about the z-axis.
@@ -97,16 +94,21 @@ core.sweep_around_axis(axis=AXIS.Z)
 region = m3d.modeler.create_region(pad_percent=[20, 20, 20, 20, 500, 100])
 # -
 
-# ### Restore view
+# #### Restore view
 #
 # If you are using PyAEDT with an interactive desktop, you may want to fit the visible view to fit the model.
-# PyAEDT uses the direct access to the native API for this command using the property `m3d.odesktop`.
+# PyAEDT allows direct access to the native API for this command using the property `m3d.odesktop`.
 #
 # Uncomment and run the following cell if you are running PyAEDT interactively and would like to automatically fit the
 # window to the model.
+#
+# > **Note:** Native API calls do not allow for introspection or follow PIP
+# > syntax guidelines. Full documentation for the native API is available in
+# > the built-in AEDT [help](https://ansyshelp.ansys.com/account/secured?returnurl=/Views/Secured/Electronics/v242/en//Subsystems/Maxwell/Subsystems/Maxwell%20Scripting/Maxwell%20Scripting.htm).
 
 # +
 # desktop=m3d.odesktop.RestoreWindow()  # Fit the active view
+# desktop = m3d.post.still_focus_oneditor()
 # -
 
 # ### Create and assign material
@@ -137,6 +139,8 @@ m3d.assign_material(coil.name, "copper_litz")
 m3d.assign_material(core.name, "ferrite")
 # -
 
+# ### Define the source
+#
 # The coil carries 0.5 A and 20 turns.
 
 # +
@@ -150,7 +154,7 @@ m3d.add_winding_coils(assignment="Winding1", coils=["Coil_terminal"])
 
 # ### Assign mesh operations
 #
-# Mesh "seeding" is used to retain solution accuracy and accelerate the auto-adaptive mesh refinement.
+# Mesh "seeding" is used to accelerate the auto-adaptive mesh refinement.
 
 m3d.mesh.assign_length_mesh(
     ["Core"], maximum_length=15, maximum_elements=None, name="Inside_Core"
@@ -163,7 +167,7 @@ m3d.mesh.assign_length_mesh(
 #
 # The impact of Joule heating on conductivity can be considered
 # by adding a "thermal modifier" to the ``cu_litz`` material definition.
-# In this example, conductivity increases by 0.393% per $\Delta$K. The temperature of the objects is set to the default value ($22^0$ C).
+# In this example, conductivity increases by 0.393% per $\Delta^o$C. The temperature of the objects is set to the default value ($22^o$C).
 
 cu_resistivity_temp_coefficient = 0.00393
 cu_litz.conductivity.add_thermal_modifier_free_form(
@@ -171,10 +175,10 @@ cu_litz.conductivity.add_thermal_modifier_free_form(
 )
 m3d.modeler.set_objects_temperature(["Coil"], ambient_temperature=22)
 
-# ### Assign matrix
+# ### Assign the matrix calculation to the winding
 #
 # The resistance and inductance calculations for the coil are enabled by
-# adding the matrix assignment.
+# adding the matrix assignment to the winding.
 
 m3d.assign_matrix(["Winding1"], matrix_name="Matrix1")
 
@@ -188,11 +192,15 @@ setup.props["MaximumPasses"] = 4
 setup.props["PercentError"] = 0.5
 setup.props["MinimumConvergedPasses"] = 2
 
-# ## Run the Maxwell 3D analysis
+# ### Run the Maxwell 3D analysis
+#
+# The following command runs the 3D finite element analysis in Maxwell.
 
 m3d.analyze_setup("Setup1")
 
 # ## Postprocessing
+#
+# ### DC resistance
 #
 # The DC resistance of the coil can be calculated analyticially. The following cell compares the known
 # DC resistance with the simulated coil
@@ -210,9 +218,11 @@ resistance = solution.data_magnitude()[0]  # Resistance is the first matrix elem
 report_loss = m3d.post.create_report(expressions="StrandedLossAC")
 solution_loss = report_loss.get_solution_data()
 em_loss = solution_loss.data_magnitude()[0]
+# -
+
+# ### Analyitic calculation of DC resistance
 
 # +
-# Analytical calculation of the DC resistance of the coil
 cu_cond = float(cu_litz.conductivity.value)
 
 # Average radius of a coil turn = 125 mm
@@ -239,7 +249,7 @@ m3d.logger.info(
 )
 # -
 
-# ## Insert Icepak design
+# ## Create the thermal model
 #
 # The following commands insert an Icepak design into the AEDT project, copies the solid objects from Maxwell 3D, and modifies the region dimensions so they're suitable
 # for thermal convection analysis.
@@ -257,7 +267,7 @@ ipk.modeler.edit_region_dimensions(
 )
 # -
 
-# ## Map coil losses
+# ### Map coil losses
 #
 # Map ohmic losses from Maxwell 3D to the Icepak design.
 
@@ -282,7 +292,9 @@ ipk.assign_free_opening(face_names, boundary_name="Opening1")
 
 temp_monitor = ipk.assign_point_monitor([70, 0, 0], monitor_name="PointMonitor1")
 
-# Set up Icepak solution
+# ### Set up Icepak solution
+#
+# Icepak solution settings are modified by updating the ``props`` associated with the solution setup.
 
 solution_setup = ipk.create_setup()
 solution_setup.props["Convergence Criteria - Max Iterations"] = 50
@@ -295,7 +307,7 @@ solution_setup.props["Solution Initialization - Z Velocity"] = "0.0005m_per_sec"
 solution_setup.props["Convergence Criteria - Flow"] = 0.0005
 solution_setup.props["Flow Iteration Per Radiation Iteration"] = "5"
 
-# ## Add two-way coupling and solve the project
+# ### Add two-way coupling
 #
 # The temperature update from Icepak to Maxwell 3D is activated using the method ``assign_2way_coupling()``. The Ohmic
 # loss in Maxwell will change due to the temperature increase, which in turn will change the results
@@ -305,6 +317,9 @@ solution_setup.props["Flow Iteration Per Radiation Iteration"] = "5"
 # The full electro-thermal analysis is run by calling the ``analyze_setup()`` method.
 
 ipk.assign_2way_coupling()
+
+# ### Run Icepak analysis
+
 ipk.analyze_setup(name=solution_setup.name)
 
 # ## Postprocess
@@ -335,7 +350,7 @@ temp = solution_temp.data_magnitude()[0]
 m3d.logger.info("*******Coil temperature =  {:.2f}deg C".format(temp))
 # -
 
-# ### Get new resistance from Maxwell 3D
+# ### Get updated resistance from Maxwell 3D
 #
 # The temperature of the coil increases, and consequently the coil resistance increases.
 
@@ -364,17 +379,17 @@ m3d.logger.info(
 )
 # -
 
-# ### Save project
+# ### Save the project
 
 ipk.save_project()
 ipk.release_desktop()
 time.sleep(3)  # Allow AEDT to shut down before cleaning the temporary project folder.
 
-# ## Clean up
+# ### Clean up
 #
 # All project files are saved in the folder ``temp_folder.name``.
 # If you've run this example as a Jupyter notebook, you
-# can retrieve those project files. The following cell removes
-# all temporary files, including the project folder.
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
 temp_folder.cleanup()

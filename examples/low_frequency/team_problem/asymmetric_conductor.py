@@ -7,10 +7,11 @@
 #
 # Keywords: **Maxwell 3D**, **Asymmetric conductor**.
 
-# ## Perform imports and define constants
+# ## Prerequisites
 #
-# Perform required imports.
+# ### Perform imports
 
+# +
 import os
 import tempfile
 import time
@@ -18,28 +19,30 @@ import time
 import numpy as np
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.generic.general_methods import write_csv
+# -
 
-# Define constants.
+# ### Define constants
+# Constants help ensure consistency and avoid repetition throughout the example.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
-# ## Create temporary directory
+# ### Create temporary directory
 #
-# Create a temporary directory where downloaded data or
-# dumped data can be stored.
-# If you'd like to retrieve the project data for subsequent use,
-# the temporary folder name is given by ``temp_folder.name``.
+# Create a temporary working directory.
+# The name of the working folder is stored in ``temp_folder.name``.
+#
+# > **Note:** The final cell in the notebook cleans up the temporary folder. If you want to
+# > retrieve the AEDT project and data, do so before executing the final cell in the notebook.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ## Launch AEDT and Maxwell 3D
+# ### Launch Maxwell 3D
 #
 # Create an instance of the ``Maxwell3d`` class named ``m3d`` by providing
 # the project and design names, the solver, and the version.
 
-# +
 project_name = os.path.join(temp_folder.name, "COMPUMAG2.aedt")
 m3d = Maxwell3d(
     project=project_name,
@@ -50,9 +53,10 @@ m3d = Maxwell3d(
     new_desktop=True,
 )
 m3d.modeler.model_units = "mm"
-# -
 
-# ## Add Maxwell 3D setup
+# ## Model Preparation
+#
+# ### Define the Maxwell 3D analysis setup
 #
 # Add a Maxwell 3D setup with frequency points at DC, 50 Hz, and 200Hz.
 # Otherwise, the default PyAEDT setup values are used. To approximate a DC field in the
@@ -77,7 +81,7 @@ setup.props["UseHighOrderShapeFunc"] = True
 setup.props["PercentError"] = 0.4
 # -
 
-# ## Define coil dimensions
+# ### Define coil dimensions
 #
 # Define coil dimensions as shown on the TEAM7 drawing of the coil.
 
@@ -89,6 +93,7 @@ coil_thk = coil_r2 - coil_r1
 coil_height = 100
 coil_centre = [294 - 25 - 150 / 2, 25 + 150 / 2, 19 + 30 + 100 / 2]
 
+# ### Define expressions to evaluate solution data
 # Use expressions to construct the three dimensions needed to describe the midpoints of
 # the coil.
 
@@ -96,6 +101,7 @@ dim1 = coil_internal / 2 + (coil_external - coil_internal) / 4
 dim2 = coil_internal / 2 - coil_r1
 dim3 = dim2 + np.sqrt(((coil_r1 + (coil_r2 - coil_r1) / 2) ** 2) / 2)
 
+# ### Draw the coil
 # Use coordinates to draw a polyline along which to sweep the coil cross sections.
 
 P1 = [dim1, -dim2, 0]
@@ -103,14 +109,12 @@ P2 = [dim1, dim2, 0]
 P3 = [dim3, dim3, 0]
 P4 = [dim2, dim1, 0]
 
-# ## Create coordinate system for positioning coil
+# Create a coordinate system to use as a reference for the coil.
 
 m3d.modeler.create_coordinate_system(
     origin=coil_centre, mode="view", view="XY", name="Coil_CS"
 )
 
-# ## Create polyline
-#
 # Create a polyline. One quarter of the coil is modeled by sweeping a 2D sheet along a polyline.
 
 test = m3d.modeler.create_polyline(
@@ -118,7 +122,7 @@ test = m3d.modeler.create_polyline(
 )
 test.set_crosssection_properties(type="Rectangle", width=coil_thk, height=coil_height)
 
-# ## Duplicate and unite polyline to create full coil
+# Duplicate and unite the polyline to create the full coil.
 
 m3d.modeler.duplicate_around_axis(
     assignment="Coil",
@@ -132,7 +136,7 @@ m3d.modeler.unite("Coil, Coil_1, Coil_2")
 m3d.modeler.unite("Coil, Coil_3")
 m3d.modeler.fit_all()
 
-# ## Assign material and if solution is allowed inside coil
+# ### Assign material and enable the field solution inside the copper coil
 #
 # Assign the material ``Cooper`` from the Maxwell internal library to the coil and
 # allow a solution inside the coil.
@@ -140,7 +144,7 @@ m3d.modeler.fit_all()
 m3d.assign_material(assignment="Coil", material="Copper")
 m3d.solve_inside("Coil")
 
-# ## Create terminal
+# ### Create terminal
 #
 # Create a terminal for the coil from a cross-section that is split and one half deleted.
 
@@ -148,25 +152,26 @@ m3d.modeler.section(assignment="Coil", plane="YZ")
 m3d.modeler.separate_bodies(assignment="Coil_Section1")
 m3d.modeler.delete(assignment="Coil_Section1_Separate1")
 
-# ## Add variable for coil excitation
+# ### Add variable for coil excitation
 #
-# Add a design variable for coil excitation. The NB units here are AmpereTurns.
+# Use a parameter to define the coil current.
+# The units in this case are Ampere$\times$Turns.
 
 Coil_Excitation = 2742
 m3d["Coil_Excitation"] = str(Coil_Excitation) + "A"
 m3d.assign_current(assignment="Coil_Section1", amplitude="Coil_Excitation", solid=False)
 m3d.modeler.set_working_coordinate_system("Global")
 
-# ## Add material
+# ### Add material
 #
 # Add a material named ``team3_aluminium``.
 
 mat = m3d.materials.add_material("team7_aluminium")
 mat.conductivity = 3.526e7
 
-# ## Model aluminium plate with a hole
+# ### Create the aluminium plate with a hole
 #
-# Model the aluminium plate with a hole by subtracting two rectangular cuboids.
+# Draw the aluminium plate with a hole by subtracting two cuboids.
 
 plate = m3d.modeler.create_box(
     origin=[0, 0, 0], sizes=[294, 294, 19], name="Plate", material="team7_aluminium"
@@ -175,19 +180,17 @@ m3d.modeler.fit_all()
 hole = m3d.modeler.create_box(origin=[18, 18, 0], sizes=[108, 108, 19], name="Hole")
 m3d.modeler.subtract(blank_list="Plate", tool_list=["Hole"], keep_originals=False)
 
-# ## Draw background region
+# ### Draw background region
 #
-# Draw a background region that uses the default properties for an air region.
+# The background air region defines the full volumetric solution domain.
 
 m3d.modeler.create_air_region(
     x_pos=100, y_pos=100, z_pos=100, x_neg=100, y_neg=100, z_neg=100
 )
 
-# ## Adjust eddy effects for plate and coil
+# ### Adjust eddy effects for plate and coil
 #
-# Adjust the eddy effects for the plate and coil by turning off displacement currents
-# for all parts. The setting for the eddy effect is ignored for the stranded conductor type
-# used in the coil.
+# Disable the eddy effects for the plate and coil. This forces the current to flow uniformly through the coils cross-section as would be the case for stranded wires.
 
 m3d.eddy_effects_on(assignment="Plate")
 m3d.eddy_effects_on(
@@ -196,9 +199,9 @@ m3d.eddy_effects_on(
     enable_displacement_current=False,
 )
 
-# ## Create expression for Z component of B in Gauss
+# ### Create expression for $B_z$ in Gauss
 #
-# Create an expression for the Z component of B in Gauss using PyAEDT advanced fields calculator.
+# Create an expression for the $z$-component of $\bf{B}$ in Gauss using PyAEDT advanced fields calculator.
 
 bz = {
     "name": "Bz",
@@ -221,7 +224,7 @@ bz = {
 }
 m3d.post.fields_calculator.add_expression(bz, None)
 
-# ## Draw two lines along which to plot Bz
+# ### Draw two lines along which to plot $B_z$
 #
 # Draw two lines along which to plot Bz. The following code also adds a small cylinder
 # to refine the mesh locally around each line.
@@ -454,22 +457,20 @@ data = [
 ]
 # -
 
-# ## Write dataset values to a CSV file
+# ### Write dataset values to a CSV file
 #
 # Dataset details are used to encode test parameters in the text files.
 # For example, ``Bz A1_B1 050 0`` is the Z component of flux density ``B``
 # along line ``A1_B1`` at 50 Hz and 0 deg.
 
-# +
 line_length.insert(0, header[0])
 for i in range(len(dataset)):
     data[i].insert(0, header[1])
     ziplist = zip(line_length, data[i])
     file_path = os.path.join(temp_folder.name, str(dataset[i]) + ".csv")
     write_csv(output_file=file_path, list_data=ziplist)
-# -
 
-# ## Create rectangular plots and import test data into report
+# ### Create rectangular plots and import test data into report
 #
 # Create rectangular plots, using text file encoding to control their formatting.
 # Import test data into the correct plot and overlay with the simulation results.
@@ -508,7 +509,7 @@ for item in range(len(dataset)):
 
 m3d.analyze(cores=NUM_CORES)
 
-# ## Create plots of induced current and flux density on surface of plate
+# ### Create plots of induced current and flux density on surface of plate
 #
 # Create two plots of the induced current (``Mag_J``) and the flux density (``Mag_B``) on the
 # surface of the plate.
@@ -531,7 +532,9 @@ m3d.post.create_fieldplot_surface(
     assignment=surf_list, quantity="Mesh", intrinsics=intrinsic_dict, plot_name="Mesh"
 )
 
-# ## Release AEDT
+# ## Finish
+#
+# ### Save the project
 
 m3d.save_project()
 m3d.release_desktop()
