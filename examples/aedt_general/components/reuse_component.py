@@ -1,201 +1,273 @@
 # # 3D component creation and reuse
+#
+# This example demonstrates how to create and use an HFSS 3D component by
+# performing the following:
+# 1. Create a patch antenna using the HFSS 3D Modeler.
+# 2. Save the antenna as a 3D component on the disk.
+# 3. Import multiple instances of patch antenna as
+#    a 3D component in a new project to create a small array.
+# 5. Set up the new design for simulation and optimization.
+#
+# Keywords: **AEDT**, **Antenna**, **3D component**.
 
-# Here is a workflow for creating a 3D component and reusing it:
+# ## Prerequisites
 #
-# Step 1: Create an antenna using PyAEDT and HFSS 3D Modeler. (The antenna can also be created using EDB and
-# HFSS 3D Layout).
-#
-# Step 2. Store the object as a 3D component on the disk.
-#
-# Step 3. Reuse the 3D component in another project.
-#
-# Step 4. Parametrize and optimize the target design.
-#
-# Keywords: **AEDT**, **General**, **3D component**.
+# ### Perform imports
 
-# ## Perform imports and define constants
-# Import the required packages.
-
+# +
 import os
 import tempfile
 import time
 
 from ansys.aedt.core import Hfss
+# -
 
-# Define constants.
+# ### Define constants
+# Constants help ensure consistency and avoid repetition throughout the example.
 
 AEDT_VERSION = "2024.2"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
-# ## Create temporary directory
+# ### Create temporary directory
 #
-# Create a temporary directory where downloaded data or
-# dumped data can be stored.
-# If you'd like to retrieve the project data for subsequent use,
-# the temporary folder name is given by ``temp_folder.name``.
+# Create a temporary working directory.
+# The name of the working folder is stored in ``temp_folder.name``.
+#
+# > **Note:** The final cell in the notebook cleans up the temporary folder. If you want to
+# > retrieve the AEDT project and data, do so before executing the final cell in the notebook.
+#
+# This example creates two projects defined in `project_names. 
+# The first will be used to
+# create the patch antenna model and the 2nd project
+# will be used to demonstrate the use 3D components.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
+project_names = [os.path.join(temp_folder.name, "start_project.aedt"),
+                 os.path.join(temp_folder.name, "final_project.aedt"),
+                ]
 
-# Create an HFSS object.
+# ### Launch HFSS
+# AEDT is started when an instance of the ``Hfss()`` class is
+# instantiated. An HFSS design is automatically inserted in the
+# AEDT project.
 
 hfss = Hfss(
     version=AEDT_VERSION,
-    new_desktop=True,
+    design="build_comp",
+    new_desktop=True,  # Set to False if you want to connect to an existing AEDT session.
     close_on_exit=True,
     non_graphical=NG_MODE,
     solution_type="Modal",
 )
-hfss.save_project(os.path.join(temp_folder.name, "example.aedt"))
+hfss.save_project(project_names[0])
 
-# ## Define variables
+# ## Model preparation
 #
-# PyAEDT can create and store all variables available in AEDT (such as design, project,
-# and postprocessing).
+# ### Define parameters
+#
+# Parameters can be defined in the HFSS design and subsequently 
+# used to optimiuze
+# performance, run parametric studies or 
+# explore the impact of tolerance on performance.
 
-hfss["thick"] = "0.1mm"
+hfss["thickness"] = "0.1mm"
 hfss["width"] = "1mm"
 
-# ##  Create modeler objects
+# ###  Build the antenna model
 #
-# PyAEDT supports all modeler functionalities available in AEDT.
-# You can create, delete, and modify objects using all available Boolean operations.
-# PyAEDT can also fully access history.
+# The compact, 
+# [pythonic syntax](https://docs.python-guide.org/writing/style/#code-style) 
+# allows you to create the model from simple
+# primitives. This patch antenna is comprised of the FR-4 substrate, a rectangle, 
+# and the coaxial
+# probe feed. Each primitive is of type ``Object3D``.
+#
+# > **Note: ** The feed length of the patch antenna is fixed and is not
+# > parametric in HFSS.
 
 # +
 substrate = hfss.modeler.create_box(
-    ["-width", "-width", "-thick"],
-    ["2*width", "2*width", "thick"],
+    ["-width", "-width", "-thickness"],
+    ["2*width", "2*width", "thickness"],
     material="FR4_epoxy",
-    name="sub",
+    name="substrate",
 )
+
+feed_length = "0.1mm"  # This parameter is defined only in Python and is not varied
 
 patch = hfss.modeler.create_rectangle(
-    "XY", ["-width/2", "-width/2", "0mm"], ["width", "width"], name="patch1"
+    "XY", ["-width/2", "-width/2", "0mm"], ["width", "width"], name="patch"
 )
 
-via1 = hfss.modeler.create_cylinder(
+inner_conductor = hfss.modeler.create_cylinder(
     2,
-    ["-width/8", "-width/4", "-thick"],
+    ["-width/8", "-width/4", f"-thickness - {feed_length}"],
     "0.01mm",
-    "thick",
+    f"thickness + {feed_length}",
     material="copper",
     name="via_inner",
 )
 
 via_outer = hfss.modeler.create_cylinder(
     2,
-    ["-width/8", "-width/4", "-thick"],
+    ["-width/8", "-width/4", "-thickness"],
     "0.025mm",
-    "thick",
+    f"-{feed_length}",
     material="Teflon_based",
     name="via_teflon",
 )
 # -
 
-# ## Assign bundaries
+# ### Assign boundaries
 #
-# Most of HFSS boundaries and excitations are already available in PyAEDT.
-# You can easily assign a boundary to a face or to an object by taking advantage of
-# Object-Oriented Programming (OOP) available in PyAEDT.
+# Boundary conditions can be assigned to faces or bodies in the model
+# using methods of the ``Hfss`` class.
 
-# ### Assign Perfect E boundary to sheets
+hfss.assign_perfecte_to_sheets(patch, name="patch_bc")
+
+# ### Assign boundaries to the via
 #
-# Assign a Perfect E boundary to sheets.
-
-hfss.assign_perfecte_to_sheets(patch)
-
-# ### Assign boundaries to faces
-#
-# Assign boundaries to the top and bottom faces of an object.
+# The following statement selects the outer surface of the cylinder 
+# ``via_outer``, excluding the upper and lower faces, and assigns
+# the "perfect conductor" boundary condition.
 
 # +
-side_face = [
-    i
-    for i in via_outer.faces
-    if i.id not in [via_outer.top_face_z.id, via_outer.bottom_face_z.id]
-]
+side_face = [i for i in via_outer.faces if i.id not in 
+             [via_outer.top_face_z.id, via_outer.bottom_face_z.id]
+            ]
 
-hfss.assign_perfecte_to_sheets(side_face)
-hfss.assign_perfecte_to_sheets(substrate.bottom_face_z)
+hfss.assign_perfecte_to_sheets(side_face, name="feed_gnd")
+hfss.assign_perfecte_to_sheets(substrate.bottom_face_z, name="ground_plane")
+hfss.assign_perfecth_to_sheets(via_outer.top_face_z, name="feed_thru")  # Ensure power flows through the ground plane.
+hfss.change_material_override(material_override=True)  # Allow the probe feed to extend outside the substrate.
 # -
 
-# ## Create wave port
+# ### Create wave port
 #
-# You can assign a wave port to a sheet or to a face of an object.
+# A wave port is assigned to the bottom face of the via. Note that the property `via_outer.bottom_face_z` 
+# is a ``FacePrimitive`` object.
 
-hfss.wave_port(
+p1 = hfss.wave_port(
     via_outer.bottom_face_z,
     name="P1",
+    create_pec_cap=True
 )
+
+# ### Query the object properties
+#
+# Everything in Python is an object. You can use the object
+# properties to obtain detailed information as shown below:
+
+out_str = f"A port named '{p1.name}' was assigned to a surface object"
+out_str += f" of type \n   {type(via_outer.bottom_face_z)}\n"
+out_str += f"which is located at the bottom surface of the object '{via_outer.name}'\n"
+out_str += f"at the z-elevation: {via_outer.bottom_face_z.bottom_edge_z} "
+out_str += f"{hfss.modeler.model_units}\n"
+out_str += f"and has the face ID: {via_outer.bottom_face_z.id}."
+print(out_str)
 
 # ## Create 3D component
 #
-# Once the model is ready, you can create a 3D component.
-# Multiple options are available to partially select objects, coordinate systems,
-# boundaries, and mesh operations. You can also create encrypted 3D components.
+# You can now create a 3D component from the antenna model. The following statements
+# save the component to the specified location with the name "patch_antenna".
 
-component_path = os.path.join(temp_folder.name, "component_test.aedbcomp")
-hfss.modeler.create_3dcomponent(component_path, "patch_antenna")
+component_path = os.path.join(temp_folder.name, "patch_antenna.a3dcomp")
+hfss.modeler.create_3dcomponent(component_path, name="patch_antenna")
 
-# ## Manage multiple project
-#
-# PyAEDT lets you control multiple projects, designs, and solution types at the same time.
+# A 2nd instance of HFSS is created to demonstrate how the new 3D component can be
+# used within a new design.
 
-new_project = os.path.join(temp_folder.name, "new_project.aedt")
 hfss2 = Hfss(
     version=AEDT_VERSION,
-    project=new_project,
+    project=project_names[1],
     design="new_design",
     solution_type="Modal",
 )
+hfss2.change_material_override(material_override=True)
 
-# ## Insert 3D component
+# ### Insert 3D components
 #
-# You can insert a 3D component without supplying additional information.
-# All needed information is read from the file itself.
+# Place 4 antennas to make a small array. 
+# - The substrate thickness is modified by creating the parameter "p_thick" and
+#   assigning it to the "thickness" parameter of the components.
+# - The first antenna is placed at the origin.
+# - The spacing between elements is defined by the parameter $2\times w$
 
-hfss2.modeler.insert_3d_component(component_path)
+# +
+# Define a parameter to use for the substrate thickness.
+hfss2["p_thick"] = "0.2mm"
 
-# ## Parametrize 3D components
+# Define a parameter to specify the patch width.
+hfss2["w"] = "1mm"
+
+# [x, y, z] location of the patch elements.
+positions = [["2*w", "w", 0], ["-2*w", "w", 0], [0, "2.5*w", 0]]
+
+# Keep track of patch elements and their coordinate systems in Python lists:
+elements = []
+cs = []
+
+# The first patch is located at the origin.
+elements.append(hfss2.modeler.insert_3d_component(component_path, name="patch_0"))
+elements[0].parameters["thickness"] = "p_thick"
+elements[0].parameters["width"] = "w"
+
+# Now place the other 3 patches:
+count = 1
+for p in positions:
+    cs.append(hfss2.modeler.create_coordinate_system(origin=p, name="cs_" + str(count)))  # Create the patch coordinate system.
+    elements.append(hfss2.modeler.insert_3d_component(component_path,  # Place the patch element.
+                                                      coordinate_system=cs[-1].name,
+                                                      name="patch_" + str(count))
+                    )
+    count +=1
+
+    elements[-1].parameters["thickness"] = "p_thick"
+    elements[-1].parameters["width"] = "w"
+# -
+
+# You can inspect the component parameters.
+
+units = hfss2.modeler.model_units  # Retrieve the length units as a string.
+for e in elements:
+    print(f"Component '{e.name}' is located at (x={e.center[0]} {units}, y={e.center[1]} {units})")
+
+# ### Move 3D components
 #
-# You can specify parameters for any 3D components.
+# The position of each 3D component can be changed by modifying the ``origin`` 
+# of the corresponding coordinate system.
 
-hfss2.modeler.user_defined_components["patch_antenna1"].parameters
-hfss2["p_thick"] = "1mm"
-hfss2.modeler.user_defined_components["patch_antenna1"].parameters["thick"] = "p_thick"
+hfss2.modeler.coordinate_systems[0].origin = [0, "2*w", 0]
 
-# ## Insert multiple 3D components
+# ### Create air region
 #
-# There is no limit to the number of 3D components that can be inserted in a design.
-# These components can be the same or linked to different files.
+# The volume of the solution domain is defined
+# by an air region object. The following cell creates the
+# region object and assigns the radiation boundary to the outer surfaces of 
+# the region.
 
-hfss2.modeler.create_coordinate_system(origin=[20, 20, 10], name="Second_antenna")
-ant2 = hfss2.modeler.insert_3d_component(
-    component_path, coordinate_system="Second_antenna"
-)
-
-# ## Move 3D components
-#
-# Move a 3D component by either changing its position or moving the relative coordinate system.
-
-hfss2.modeler.coordinate_systems[0].origin = [10, 10, 3]
-
-# ## Create air region
-#
-# Create an air region and assign a boundary to a face or an object.
-
-hfss2.modeler.create_air_region(30, 30, 30, 30, 30, 30)
+hfss2.modeler.create_air_region( x_pos=2, y_pos=2, z_pos=2.5, x_neg=2, y_neg=2, z_neg=2, is_percentage=False)
 hfss2.assign_radiation_boundary_to_faces(hfss2.modeler["Region"].faces)
 
-# ## Create setup and optimetrics analysis
+# ### Create solution setup and optimetrics analysis
 #
-# Once a project is ready to be solved, use PyAEDT to create a setup and parametrics analysis.
-# All setup parameters can be edited.
+# Once a project is ready to be solved, define the solution setup and parametric analysis.
 
-setup1 = hfss2.create_setup()
-optim = hfss2.parametrics.add("p_thick", "0.2mm", "1.5mm", step=14)
+# +
+setup1 = hfss2.create_setup(RangeStart="60GHz", RangeEnd="80GHz")
+optim = hfss2.parametrics.add("w", start_point="0.8mm",
+                              end_point="1.2mm",
+                              step="0.05mm",
+                              variation_type="LinearStep",
+                              name="Sweep Patch Width")
 
-# ## Plot objects
+if hfss.valid_design:
+    print(f"The HFSS design '{hfss.design_name}' is ready to solve.")
+else:
+    print(f"Something is not quite right.")
+# -
+
+# ### Visualize the model
 
 hfss2.modeler.fit_all()
 hfss2.plot(
@@ -204,18 +276,20 @@ hfss2.plot(
     plot_air_objects=True,
 )
 
-# ## Release AEDT
+# ## Finish
+#
+# ### Save the project
 
 hfss2.save_project()
 hfss2.release_desktop()
 # Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-# ## Clean up
+# ### Clean up
 #
 # All project files are saved in the folder ``temp_folder.name``.
 # If you've run this example as a Jupyter notebook, you
-# can retrieve those project files. The following cell removes
-# all temporary files, including the project folder.
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
 temp_folder.cleanup()
