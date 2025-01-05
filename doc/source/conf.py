@@ -1,13 +1,12 @@
 # Configuration file for the Sphinx_PyAEDT documentation builder.
 
-# -- Project information -----------------------------------------------------
+import colorama
+from colorama import Fore, Style
 import datetime
-from importlib import import_module
+import logging
 import os
 from pathlib import Path
-from pprint import pformat
 import shutil
-from typing import Any
 from sphinx.application import Sphinx
 from sphinx.config import Config
 
@@ -18,17 +17,12 @@ from ansys_sphinx_theme import (
     latex,
     watermark,
 )
-from docutils import nodes
-from docutils.parsers.rst import Directive
 import numpy as np
 import pyvista
-from sphinx import addnodes
 from sphinx.builders.latex import LaTeXBuilder
-from sphinx.util import logging
 
 LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml"]
 
-logger = logging.getLogger(__name__)
 path = Path(__file__).parent.parent.parent / "examples"
 EXAMPLES_DIRECTORY = path.resolve()
 REPOSITORY_NAME = "pyaedt-examples"
@@ -43,27 +37,34 @@ cname = os.getenv("DOCUMENTATION_CNAME", "nocname.com")
 release = version = "0.1.dev0"
 
 
-# -- Connect functions (hooks) to Sphinx events  -----------------------------
+class ColoredFormatter(logging.Formatter):
+    """Custom log formatter to add colors to different log levels."""
 
-class PrettyPrintDirective(Directive):
-    """Renders a constant using ``pprint.pformat`` and inserts into the document."""
+    def format(self, record: logging.LogRecord):
+        if record.levelno == logging.ERROR:
+            record.msg = f"{Fore.RED}{record.msg}{Style.RESET_ALL}"
+            record.levelname = f"{Fore.RED}{record.levelname}{Style.RESET_ALL}"
+        if record.levelno == logging.WARNING:
+            record.msg = f"{Fore.LIGHTYELLOW_EX}{record.msg}{Style.RESET_ALL}"
+            record.levelname = f"{Fore.LIGHTYELLOW_EX}{record.levelname}{Style.RESET_ALL}"
+        if record.levelno == logging.INFO:
+            record.msg = f"{Fore.GREEN}{record.msg}{Style.RESET_ALL}"
+            record.levelname = f"{Fore.GREEN}{record.levelname}{Style.RESET_ALL}"
+        else:
+            record.msg = f"{Fore.CYAN}{record.msg}{Style.RESET_ALL}"
+            record.levelname = f"{Fore.CYAN}{record.levelname}{Style.RESET_ALL}"
+        return super().format(record)
 
-    required_arguments = 1
+colorama.init(autoreset=True)
+root_logger = logging.getLogger()
+root_logger.setLevel(logging.INFO)
+colored_formatter = ColoredFormatter('%(levelname)s: %(message)s')
+stream_handler = logging.StreamHandler()
+stream_handler.setFormatter(colored_formatter)
+root_logger.addHandler(stream_handler)
+logger = logging.getLogger(__name__)
 
-    def run(self):
-        module_path, member_name = self.arguments[0].rsplit(".", 1)
-
-        member_data = getattr(import_module(module_path), member_name)
-        code = pformat(member_data, 2, width=68)
-
-        literal = nodes.literal_block(code, code)
-        literal["language"] = "python"
-
-        return [addnodes.desc_name(text=member_name), addnodes.desc_content("", literal)]
-
-
-# Sphinx generic event hooks
-
+# # -- Connect functions (hooks) to Sphinx events  -----------------------------
 
 def directory_size(directory_path: Path):
     """Compute the size (in mega bytes) of a directory.
@@ -305,7 +306,7 @@ def convert_examples_into_notebooks(app):
 
 def setup(app):
     """Run different hook functions during the documentation build."""
-    app.add_directive("pprint", PrettyPrintDirective)
+
     # Configuration inited hooks
     app.connect("config-inited", check_pandoc_installed)
     app.connect("config-inited", copy_examples_structure)
