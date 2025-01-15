@@ -69,24 +69,11 @@ hfss.modeler.insert_3d_component(compfile, geometryparams)
 hfss.create_open_region(frequency="1GHz")
 
 # ## Create setup
-#
-# Create a setup with a sweep to run the simulation.
 
 setup = hfss.create_setup("MySetup")
 setup.props["Frequency"] = "1GHz"
 setup.props["MaximumPasses"] = 1
-hfss.create_linear_count_sweep(
-    setup=setup.name,
-    units="GHz",
-    start_frequency=0.5,
-    stop_frequency=1.5,
-    num_of_freq_points=101,
-    name="sweep1",
-    sweep_type="Interpolating",
-    interpolation_tol=3,
-    interpolation_max_solutions=255,
-    save_fields=False,
-)
+
 
 # ## Run simulation
 
@@ -180,7 +167,7 @@ solutions.plot(formula="db20", is_polar=True)
 ffdata = hfss.get_antenna_data(
     sphere="Sphere_Custom",
     setup=hfss.nominal_adaptive,
-    frequencies=["1000MHz"],
+    frequencies=1
 )
 
 # ## Generate 2D cutout plot
