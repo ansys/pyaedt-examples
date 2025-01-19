@@ -1,0 +1,277 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "ae043445",
+   "metadata": {},
+   "source": [
+    "# Antenna\n",
+    "\n",
+    "This example shows how to create a project in EMIT for\n",
+    "the simulation of an antenna using HFSS.\n",
+    "\n",
+    "<img src=\"_static/emit_simple_cosite.png\" width=\"400\">\n",
+    "\n",
+    "Keywords: **EMIT**, **Antenna**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e4c28ad7",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6b15e4e9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import tempfile\n",
+    "import time"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "dc85b1ff",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import ansys.aedt.core"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "10a2bf37",
+   "metadata": {},
+   "source": [
+    "from ansys.aedt.core.emit_core.emit_constants import ResultType, TxRxMode"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "285477a9",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "91b98e9f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2024.2\"\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7f64a41d",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9e5d86ff",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9467165f",
+   "metadata": {},
+   "source": [
+    "## Launch AEDT with EMIT\n",
+    "\n",
+    "Launch AEDT with EMIT. The ``launch_desktop()`` method initializes AEDT\n",
+    "using the specified version. The second argument can be set to ``True`` to\n",
+    "run AEDT in non-graphical mode."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c23c98ee",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_name = ansys.aedt.core.generate_unique_project_name(\n",
+    "    root_name=temp_folder.name, project_name=\"antenna_cosite\"\n",
+    ")\n",
+    "d = ansys.aedt.core.launch_desktop(AEDT_VERSION, NG_MODE, new_desktop=True)\n",
+    "aedtapp = ansys.aedt.core.Emit(project_name, version=AEDT_VERSION)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "67a2867f",
+   "metadata": {},
+   "source": [
+    "## Create and connect EMIT components\n",
+    "\n",
+    "Create three radios and connect an antenna to each one."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "71e55ddc",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "rad1 = aedtapp.modeler.components.create_component(\"New Radio\")\n",
+    "ant1 = aedtapp.modeler.components.create_component(\"Antenna\")\n",
+    "if rad1 and ant1:\n",
+    "    ant1.move_and_connect_to(rad1)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b21c48ae",
+   "metadata": {},
+   "source": [
+    "## Place radio/antenna pair\n",
+    "\n",
+    "Use the ``create_radio_antenna()`` method to place the radio/antenna pair. The first\n",
+    "argument is the type of radio. The second argument is the name to\n",
+    "assign to the radio."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2c8b9112",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "rad2, ant2 = aedtapp.modeler.components.create_radio_antenna(\"GPS Receiver\")\n",
+    "rad3, ant3 = aedtapp.modeler.components.create_radio_antenna(\n",
+    "    \"Bluetooth Low Energy (LE)\", \"Bluetooth\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "48b3c639",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "source": [
+    "## Define the RF environment\n",
+    "\n",
+    "Specify the RF coupling among antennas.\n",
+    "This functionality is not yet implemented in the API, but it can be entered from the UI.\n",
+    "\n",
+    "<img src=\"_static/coupling.png\" width=\"250\">"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5a7cd63d",
+   "metadata": {},
+   "source": [
+    "## Run EMIT simulation\n",
+    "\n",
+    "Run the EMIT simulation.\n",
+    "\n",
+    "This part of the example requires Ansys AEDT 2023 R2."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7e9d6d29",
+   "metadata": {},
+   "source": [
+    "> **Note:** You can uncomment the following code.\n",
+    "\n",
+    "if AEDT_VERSION > \"2023.1\":\n",
+    "    rev = aedtapp.results.analyze()\n",
+    "    rx_bands = rev.get_band_names(rad2.name, TxRxMode.RX)\n",
+    "    tx_bands = rev.get_band_names(rad3.name, TxRxMode.TX)\n",
+    "    domain = aedtapp.results.interaction_domain()\n",
+    "    domain.set_receiver(rad2.name, rx_bands[0], -1)\n",
+    "    domain.set_interferer(rad3.name, tx_bands[0])\n",
+    "    interaction = rev.run(domain)\n",
+    "    worst = interaction.get_worst_instance(ResultType.EMI)\n",
+    "    if worst.has_valid_values():\n",
+    "        emi = worst.get_value(ResultType.EMI)\n",
+    "        print(\"Worst case interference is: {} dB\".format(emi))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "33b8f130",
+   "metadata": {},
+   "source": [
+    "## Release AEDT\n",
+    "\n",
+    "Release AEDT and close the example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b0fee931",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "aedtapp.save_project()\n",
+    "aedtapp.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "88c25ce6",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "38b7766d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

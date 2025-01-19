@@ -1,0 +1,202 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "01310678",
+   "metadata": {},
+   "source": [
+    "# Lumped element filter design\n",
+    "\n",
+    "This example shows how to use PyAEDT to use the ``FilterSolutions`` module to design and\n",
+    "visualize the frequency response of a band-pass Butterworth filter.\n",
+    "\n",
+    "Keywords: **filter solutions**"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "944e108b",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e9646cf8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import ansys.aedt.core\n",
+    "import matplotlib.pyplot as plt\n",
+    "from ansys.aedt.core.filtersolutions_core.attributes import (\n",
+    "    FilterClass, FilterImplementation, FilterType)\n",
+    "from ansys.aedt.core.filtersolutions_core.ideal_response import \\\n",
+    "    FrequencyResponseColumn"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "44460a4d",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3e45c28f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.1\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8081d517",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "source": [
+    "## Define function used for plotting\n",
+    "\n",
+    "Define formal plot function."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7a6e96a0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def format_plot():\n",
+    "    plt.xlabel(\"Frequency (Hz)\")\n",
+    "    plt.ylabel(\"Magnitude S21 (dB)\")\n",
+    "    plt.title(\"Ideal Frequency Response\")\n",
+    "    plt.xscale(\"log\")\n",
+    "    plt.legend()\n",
+    "    plt.grid()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4a238173",
+   "metadata": {},
+   "source": [
+    "## Create lumped filter design\n",
+    "\n",
+    "Create a lumped element filter design and assign the class, type, frequency, and order."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "bc9d581b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "design = ansys.aedt.core.FilterSolutions(\n",
+    "    version=AEDT_VERSION, implementation_type=FilterImplementation.LUMPED\n",
+    ")\n",
+    "design.attributes.filter_class = FilterClass.BAND_PASS\n",
+    "design.attributes.filter_type = FilterType.BUTTERWORTH\n",
+    "design.attributes.pass_band_center_frequency = \"1G\"\n",
+    "design.attributes.pass_band_width_frequency = \"500M\"\n",
+    "design.attributes.filter_order = 5"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "40522647",
+   "metadata": {},
+   "source": [
+    "## Plot frequency response of filter\n",
+    "\n",
+    "Plot the frequency response of the filter without any transmission zeros."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d609e90d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "freq, mag_db = design.ideal_response.frequency_response(\n",
+    "    FrequencyResponseColumn.MAGNITUDE_DB\n",
+    ")\n",
+    "plt.plot(freq, mag_db, linewidth=2.0, label=\"Without Tx Zero\")\n",
+    "format_plot()\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3f3648d5",
+   "metadata": {},
+   "source": [
+    "## Add a transmission zero to filter design\n",
+    "\n",
+    "Add a transmission zero that yields nulls separated by two times the pass band width (1 GHz).\n",
+    "Plot the frequency response of the filter with the transmission zero."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "eaf9b9c2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "design.transmission_zeros_ratio.append_row(\"2.0\")\n",
+    "freq_with_zero, mag_db_with_zero = design.ideal_response.frequency_response(\n",
+    "    FrequencyResponseColumn.MAGNITUDE_DB\n",
+    ")\n",
+    "plt.plot(freq, mag_db, linewidth=2.0, label=\"Without Tx Zero\")\n",
+    "plt.plot(freq_with_zero, mag_db_with_zero, linewidth=2.0, label=\"With Tx Zero\")\n",
+    "format_plot()\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8c19802c",
+   "metadata": {},
+   "source": [
+    "## Generate netlist for designed filter\n",
+    "\n",
+    "Generate and print the netlist for the designed filter with the added transmission zero to\n",
+    "the filter."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "71cc28cf",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "netlist = design.topology.circuit_response()\n",
+    "print(\"Netlist: \\n\", netlist)"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  },
+  "nbsphinx": {
+   "execute": "never"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
