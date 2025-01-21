@@ -83,8 +83,8 @@ array_definition = general_methods.read_json(
 # of the 3D component for each element.
 #
 # > **Note:** The ``array_definition["cells"]`` is of type ``dict`` and the key
-# > values use the row, column indices in a string. For example: ``"(1,2)"`` for
-# > the cell in the first row and the 2nd column.
+# > is builta as a string from the _(row, column)_ indices of the array element. For example:
+# > the key for the element in the first row and 2nd column is ``"(1,2)"``.
 
 print("Element\t\tName")
 print("--------\t-------------")

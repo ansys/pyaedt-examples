@@ -1,94 +1,130 @@
 # # Dipole antenna
 #
-# This example shows how to use PyAEDT to create a dipole antenna in HFSS
-# and postprocess results.
+# This example shows how to create a dipole antenna in HFSS
+# and view the simulation results.
 #
 # Keywords: **HFSS**, **modal**, **antenna**, **3D components**, **far field**.
 
-# ## Perform imports and define constants
+# ## Prerequisites
 #
-# Perform required imports.
+# ### Perform imports
 
+# +
 import os
 import tempfile
 import time
 
 import ansys.aedt.core
+# -
 
-# Define constants.
+# ### Define constants
+# Constants help ensure consistency and avoid repetition throughout the example.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
-# ## Create temporary directory
+# ### Create temporary directory
 #
-# Create a temporary directory where downloaded data or
-# dumped data can be stored.
-# If you'd like to retrieve the project data for subsequent use,
-# the temporary folder name is given by ``temp_folder.name``.
+# Create a temporary working directory.
+# The name of the working folder is stored in ``temp_folder.name``.
+#
+# > **Note:** The final cell in the notebook cleans up the temporary folder. If you want to
+# > retrieve the AEDT project and data, do so before executing the final cell in the notebook.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ## Launch AEDT
+# ### Launch the Ansys Electronics Desktop
+#
+# You can start Ansys Electronics Desktop (AEDT) either by
+# creating an instance of the ``Desktop`` class or by
+# directly creating an application instance like ``Hfss``.
+#
+# > **Note:** If a Desktop instance is already running, the
+# > application will connect to it automatically as shown below.
 
 d = ansys.aedt.core.launch_desktop(
     AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True
 )
 
-# ## Launch HFSS
+# ### Create an HFSS Design
 #
-# Create an HFSS design.
+# Create an instance of
+# the ``Hfss`` class. An HFSS design is inserted into the
+# Desktop. The ``hfss`` object is subsequently used to
+# create and simulate the dipole antenna.
 
 project_name = os.path.join(temp_folder.name, "dipole.aedt")
 hfss = ansys.aedt.core.Hfss(
     version=AEDT_VERSION, project=project_name, solution_type="Modal"
 )
 
-# ## Define variable
+# ## Model Preparation
 #
-# Define a variable for the dipole length.
-
-hfss["l_dipole"] = "13.5cm"
-
-# ## Get 3D component from system library
+# ### Define the dipole length as a parameter
 #
-# Get a 3D component from the ``syslib`` directory. For this example to run
-# correctly, you must get all geometry parameters of the 3D component or, in
-# case of an encrypted 3D component, create a dictionary of the parameters.
+# The parameter ``l_dipole`` can be modified to change
+# the length of the dipole antenna.
 
-compfile = hfss.components3d["Dipole_Antenna_DM"]
-geometryparams = hfss.get_components3d_vars("Dipole_Antenna_DM")
-geometryparams["dipole_length"] = "l_dipole"
-hfss.modeler.insert_3d_component(compfile, geometryparams)
+hfss["l_dipole"] = "10.2cm"
+component_name = "Dipole_Antenna_DM"
+freq_range = ["1GHz", "2GHz"]      # Frequency range for analysis and post-processing.
+center_freq = "1.5GHz"             # Center frequency
+freq_step = "0.5GHz"
 
-# ## Create boundaries
+
+# ### Insert the dipole antenna
 #
-# Create an open region.
-
-hfss.create_open_region(frequency="1GHz")
-
-# ## Create setup
+# The 3D component "Dipole_Antenna_DM" will be inserted from
+# the built-in ``syslib`` folder. The full path to 3D components
+# can be retrieved from 
+# ``hfss.components3d`` which provides the full path to all
+# 3D components located in the _syslib_ or _userlib_.
 #
-# Create a setup with a sweep to run the simulation.
+# The component is inserted using the method
+# ``hfss.modeler.insert_3d_component()``.
+#
+#   - The first argument passed to ``insert_3d_component()`` 
+#     full name of the
+#       ``*.a3dcomp`` file.
+#   - The second argument is a ``dict`` whose keys are the parameter names
+#     defined in the 3D component. In this case, we pass the
+#     dipole length, ``"l_dipole"`` as the value of ``dipole_length``
+#     and leave other values unchanged.
 
-setup = hfss.create_setup("MySetup")
-setup.props["Frequency"] = "1GHz"
-setup.props["MaximumPasses"] = 1
-hfss.create_linear_count_sweep(
-    setup=setup.name,
-    units="GHz",
-    start_frequency=0.5,
-    stop_frequency=1.5,
-    num_of_freq_points=101,
-    name="sweep1",
-    sweep_type="Interpolating",
-    interpolation_tol=3,
-    interpolation_max_solutions=255,
-    save_fields=False,
-)
+compfile = hfss.components3d[component_name]              # Full file name.
+comp_params = hfss.get_components3d_vars(component_name)  # Dict of name/value pairs.
+comp_params["dipole_length"] = "l_dipole"                 # Update the dipole length.
+hfss.modeler.insert_3d_component(compfile, geometry_parameters=comp_params)
 
-# ## Run simulation
+# ### Define the solution domain
+#
+# An open region object places a an airbox around the dipole antenna 
+# and assigns a radition boundary to the outer surfaces of the region.
+
+hfss.create_open_region(frequency=center_freq)
+
+# ### Define the solution setup
+#
+# The solution setup is used to specify parameters used to generate the HFSS solution:
+# - ``"Frequency"`` specifies the solution frequency used
+#   to adapt the finite element mesh.
+# - ``"MaximumPasses"`` specifies the maximum number of passes used for automatic
+#   adaptive mesh refinement.
+# - ``"MultipleAdaptiveFreqsSetup"`` specifies the solution frequencies at which
+#   the antenna will be solved during adaptive mesh refinement. For resonant structures
+#   it is advisable to select at least two frequencies, one above and one below the
+#   expected resonance frequency.
+
+setup = hfss.create_setup(name="MySetup", MultipleAdaptiveFreqsSetup=freq_range, MaximumPasses=4)
+
+disc_sweep = setup.add_sweep(name="DiscreteSweep", sweep_type="Discrete",
+                             RangeStart=freq_range[0], RangeEnd=freq_range[1], RangeStep=freq_step,
+                             SaveFields=True)
+interp_sweep = setup.add_sweep(name="InterpolatingSweep", sweep_type="Interpolating",
+                               RangeStart=freq_range[0], RangeEnd=freq_range[1])
+
+# ### Run simulation
 
 hfss.analyze_setup(name="MySetup", cores=NUM_CORES)
 
@@ -96,7 +132,7 @@ hfss.analyze_setup(name="MySetup", cores=NUM_CORES)
 #
 # Plot s-parameters and far field.
 
-hfss.create_scattering("MyScattering")
+hfss.create_scattering("MyScattering", sweep=interp_sweep.name)
 variations = hfss.available_variations.nominal_w_values_dict
 variations["Freq"] = ["1GHz"]
 variations["Theta"] = ["All"]
