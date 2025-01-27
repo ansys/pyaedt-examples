@@ -106,7 +106,7 @@ test_results-*.xml
 .env
 .venv
 env/
-venv/
+venv*/
 /venv/
 ENV/
 env.bak/
