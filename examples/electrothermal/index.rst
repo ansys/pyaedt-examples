@@ -139,7 +139,7 @@ These examples use PyAEDT to show electrothermal capabilities of AEDT
       :link-type: doc
 
       .. image:: ../hig_frequency/multiphysics/_static/oven.png
-         :alt: Mircrowave Oven
+         :alt: Microwave Oven
          :width: 250px
          :height: 200px
          :align: center
