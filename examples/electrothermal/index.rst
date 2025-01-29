@@ -133,6 +133,22 @@ These examples use PyAEDT to show electrothermal capabilities of AEDT
 
       This example uses PyAEDT to set up a simple Maxwell design consisting of a coil and a ferrite core.
 
+    .. grid-item-card:: HFSS-Icepak microwave oven analysis
+      :padding: 2 2 2 2
+      :link: microwave_oven
+      :link-type: doc
+
+      .. image:: ../hig_frequency/multiphysics/_static/oven.png
+         :alt: Mircrowave Oven
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      This example shows how to couple together HFSS and Icepak to run multiphysics
+      analysis on a well know problem of microwave oven.
+
+
+
 .. toctree::
    :hidden:
 
