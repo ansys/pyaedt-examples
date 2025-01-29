@@ -29,22 +29,22 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 # +
 working_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
-#parasolid_path = ansys.aedt.core.downloads.download_file(
-#    source="oven", name="gingerbread.x_t", destination=working_dir.name
-#)
-#oven_path = ansys.aedt.core.downloads.download_file(
-#    source="oven", name="microwave_oven.aedt", destination=working_dir.name
-#)
+parasolid_path = ansys.aedt.core.downloads.download_file(
+   source="oven", name="gingerbread.x_t", destination=working_dir.name
+)
+oven_path = ansys.aedt.core.downloads.download_file(
+   source="oven", name="microwave_oven.aedt", destination=working_dir.name
+)
 
-parasolid_path = r'C:\ansysdev\repos\example-data\pyaedt\oven\gingerbread.x_t'
-oven_path =  r'C:\ansysdev\repos\example-data\pyaedt\oven\microwave_oven.aedt'
 
-             
+
 # -
 
 
 # ## Launch HFSS
 # Open AEDT and initialize the microwave oven project.
+#
+# After the project is opened, we save it in our working directory.
 
 hfss = ansys.aedt.core.Hfss(version=AEDT_VERSION, 
                             project=oven_path, 
@@ -55,6 +55,7 @@ hfss.save_project(file_name=os.path.join(working_dir.name,'lets_cook.aedt'))
 # ### Assign material
 # This phase is fundamental because we need to assign correct material properties both, electrical and thermal.
 #
+# PyAEDT makes easy the creation and editing of a material using getter and setters. In this example we edit 5 parameters with their floating values.
 
 ginger_material = hfss.materials.add_material(name="ginger_material")
 ginger_material.permittivity = 41
@@ -65,7 +66,10 @@ ginger_material.specific_heat = 3520
 
 # ### Import Gingerbread and assign material to it
 # Once object is imported all its properties can be edited. 
-# In the example below the transparency and material name is changed.
+#
+# We are gonna move the gingerbread at the center of the plate and assign material to it.
+#
+# Finally, we are gonna change the transparency of the glass bowl.
 
 hfss.modeler.import_3d_cad(input_file=parasolid_path)
 ginger_biscuit = hfss.modeler["plateauPainEpices_Unnamed_5"]
@@ -74,10 +78,14 @@ ginger_biscuit.material_name=ginger_material.name
 hfss.modeler["glassBowl"].transparency = 0.75
 
 # ### Export model picture for pdf report
+# At the end of this example we will generate a pdf containing multiple info about all the workflow.
+#
+# Here we save the model picture as a png file.
 
 hfss.post.export_model_picture(full_name=os.path.join(working_dir.name,'gingerbiscuit.png'))
 
 # ## Launch Icepak
+# In order to run a multiphysics analysis we need to create an Icepak project that will be coupled to HFSS and will get EM Losses from it.
 
 
 ipk = ansys.aedt.core.Icepak(solution_type="Transient Thermal")
@@ -94,6 +102,9 @@ exc = ipk.assign_em_losses(
 )
 
 # ### Icepak boundaries
+# Main thermal boundaries will be free opening of the microwave oven. 
+#
+# In this example we will set 2 different types of openings on the two faces of the oven.
 
 ipk.modeler["ovenCavity"].transparency = 1
 ipk.assign_free_opening(assignment=ipk.modeler["ovenCavity"].top_face_y.id,
@@ -104,6 +115,7 @@ ipk.assign_free_opening(assignment=ipk.modeler["ovenCavity"].bottom_face_y.id,
 
 
 # #### Icepak MRF
+# MRF assumes a mesh rotation of a solid block. In this example is useful to assume the rotation of the oven plate and the biscuit for a better cooking time.
 
 rot_cyl= ipk.modeler.create_cylinder(orientation="Z",
                                      origin=[158.75 ,228.6 ,0],
@@ -118,6 +130,7 @@ block.props["MRF"]="6rpm"
 block.props["Is Cylinder MRF"]=True
 
 # ### Icepak Mesh settings
+# Mesh settings are important in Icepak to optimize the simulation time vs accuracy. 
 
 ipk.mesh.global_mesh_region.manual_settings = True
 ipk.mesh.global_mesh_region.settings["MaxElementSizeX"] = "15mm"
@@ -128,6 +141,7 @@ ipk.mesh.global_mesh_region.settings["MaxLevels"]='2'
 ipk.mesh.global_mesh_region.update()
 
 # ### Icepak Setup
+# In this example we are limiting the number of steps to a maximum of 5 steps to make the example quick to run. Ideally this number has to be increased to improve the simulation accuracy and obtain more precise results.
 
 setup = ipk.create_setup()
 setup.props["SaveFieldsType"] = "Every N Steps"
@@ -295,6 +309,7 @@ def generate_temps(stop):
 
 
 # ## Loop to determine transient time
+# This is the core of our optimization process. We will increase the Icepak stop time by steps of 5 seconds until the mean temperature of the gingerbread reaches the 50 degrees. We could also have used an optimizer (Optislang) or run a longer time and plot the average temperature over time.
 
 while not solved:
     stop_time = stop_time + 5
@@ -319,6 +334,7 @@ while not solved:
         ipk.save_project()
 
 # ## Generate PDF
+# PyAEDT offers the possibility generate advanced pdf reports using a class called AnsysReport.
 
 report.add_toc()
 report.save_pdf(working_dir.name, "Gingerbread_ansys_recipe.pdf")
@@ -329,8 +345,6 @@ report.save_pdf(working_dir.name, "Gingerbread_ansys_recipe.pdf")
 
 ipk.save_project()
 hfss.release_desktop()
-
-# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
 # ### Clean up
