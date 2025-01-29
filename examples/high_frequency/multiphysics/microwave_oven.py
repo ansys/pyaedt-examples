@@ -7,6 +7,10 @@
 
 # <img src="_static/oven.png" width="500">
 
+# ## Prerequisites
+#
+# ### Perform imports
+
 import ansys.aedt.core
 import os
 import time
@@ -17,17 +21,23 @@ from ansys.aedt.core import generate_unique_name
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 
 # ### Define constants.
+#
+# Constants help ensure consistency and avoid repetition throughout the example.
 
 AEDT_VERSION = "2024.2"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
-# ### Download and open project
-# Download and open the project. Save it to the temporary folder.
+# ### Create temporary directory
+#
+# Create a temporary working directory.
+# The name of the working folder is stored in ``working_dir.name``.
 
-
-# +
 working_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+
+# ### Download the project
+# Download and open the project. Save it to the temporary working folder.
+
 
 parasolid_path = ansys.aedt.core.downloads.download_file(
    source="oven", name="gingerbread.x_t", destination=working_dir.name
@@ -37,11 +47,7 @@ oven_path = ansys.aedt.core.downloads.download_file(
 )
 
 
-
-# -
-
-
-# ## Launch HFSS
+# ### Launch HFSS
 # Open AEDT and initialize the microwave oven project.
 #
 # After the project is opened, we save it in our working directory.
@@ -52,40 +58,42 @@ hfss = ansys.aedt.core.Hfss(version=AEDT_VERSION,
                             new_desktop=True)
 hfss.save_project(file_name=os.path.join(working_dir.name,'lets_cook.aedt'))
 
-# ### Assign material
-# This phase is fundamental because we need to assign correct material properties both, electrical and thermal.
+# ## Model Preparation
 #
-# PyAEDT makes easy the creation and editing of a material using getter and setters. In this example we edit 5 parameters with their floating values.
+# ### Assign material
+# This phase is fundamental because we need to assign correct material properties that are valid for both electrical and thermal analysis.
+#
+# PyAEDT simplifies the creation and modification of a material 
+# definitions using _getter_ and _setter_ methods. In this example we modify 5 material parameters.
 
-ginger_material = hfss.materials.add_material(name="ginger_material")
+ginger_material = hfss.materials.add_material(name="ginger_bread")
 ginger_material.permittivity = 41
 ginger_material.dielectric_loss_tangent = 0.32
 ginger_material.thermal_conductivity = 0.38
 ginger_material.mass_density = 1831
 ginger_material.specific_heat = 3520
 
-# ### Import Gingerbread and assign material to it
-# Once object is imported all its properties can be edited. 
-#
+# ### Import the gingerbread man and assign material
+# Once the object is imported all of its properties can be edited. 
 # We are gonna move the gingerbread at the center of the plate and assign material to it.
 #
 # Finally, we are gonna change the transparency of the glass bowl.
 
 hfss.modeler.import_3d_cad(input_file=parasolid_path)
-ginger_biscuit = hfss.modeler["plateauPainEpices_Unnamed_5"]
-hfss.modeler.move(assignment=ginger_biscuit, vector=["-0.5in", "-0.2in","-38.1mm"])
-ginger_biscuit.material_name=ginger_material.name
+ginger_bread = hfss.modeler["plateauPainEpices_Unnamed_5"]
+hfss.modeler.move(assignment=ginger_bread, vector=["-0.5in", "-0.2in","-38.1mm"])
+ginger_bread.material_name=ginger_material.name
 hfss.modeler["glassBowl"].transparency = 0.75
 
-# ### Export model picture for pdf report
-# At the end of this example we will generate a pdf containing multiple info about all the workflow.
+# ### Export an image
+# At the end of this example we will generate a pdf report that summarizes the workflow and simulation results.
 #
-# Here we save the model picture as a png file.
+# We now save an image of the model as a png file to insert into the report later.
 
-hfss.post.export_model_picture(full_name=os.path.join(working_dir.name,'gingerbiscuit.png'))
+hfss.post.export_model_picture(full_name=os.path.join(working_dir.name,'ginger_bread_cookie.png'))
 
-# ## Launch Icepak
-# In order to run a multiphysics analysis we need to create an Icepak project that will be coupled to HFSS and will get EM Losses from it.
+# ### Launch Icepak
+# In order to run a multiphysics analysis we need to create an Icepak project that will be retrieve the loss data from HFSS to use as a heat source.
 
 
 ipk = ansys.aedt.core.Icepak(solution_type="Transient Thermal")
@@ -98,10 +106,10 @@ exc = ipk.assign_em_losses(
     sweep="LastAdaptive",
     map_frequency=hfss.setups[0].props["Frequency"],
     surface_objects=[],
-    assignment=["glassBowl", ginger_biscuit.name]
+    assignment=["glassBowl", ginger_bread.name]
 )
 
-# ### Icepak boundaries
+# ### Thermal boundaries
 # Main thermal boundaries will be free opening of the microwave oven. 
 #
 # In this example we will set 2 different types of openings on the two faces of the oven.
@@ -114,8 +122,8 @@ ipk.assign_free_opening(assignment=ipk.modeler["ovenCavity"].bottom_face_y.id,
                         flow_type="Pressure")
 
 
-# #### Icepak MRF
-# MRF assumes a mesh rotation of a solid block. In this example is useful to assume the rotation of the oven plate and the biscuit for a better cooking time.
+# #### Icepak multiple reference frame (MRF)
+# The MRF assumes mesh rotation as a solid block. In this example is useful to rotate the oven plate and cookie to reduce cooking time.
 
 rot_cyl= ipk.modeler.create_cylinder(orientation="Z",
                                      origin=[158.75 ,228.6 ,0],
@@ -129,8 +137,8 @@ block.props["Use MRF"]=True
 block.props["MRF"]="6rpm"
 block.props["Is Cylinder MRF"]=True
 
-# ### Icepak Mesh settings
-# Mesh settings are important in Icepak to optimize the simulation time vs accuracy. 
+# ### Icepak mesh settings
+# Icepak mesh settings are used to optimize the simulation time and accuracy. 
 
 ipk.mesh.global_mesh_region.manual_settings = True
 ipk.mesh.global_mesh_region.settings["MaxElementSizeX"] = "15mm"
@@ -140,7 +148,7 @@ ipk.mesh.global_mesh_region.settings["BufferLayers"]='2'
 ipk.mesh.global_mesh_region.settings["MaxLevels"]='2'
 ipk.mesh.global_mesh_region.update()
 
-# ### Icepak Setup
+# ### Icepak solution setup
 # In this example we are limiting the number of steps to a maximum of 5 steps to make the example quick to run. Ideally this number has to be increased to improve the simulation accuracy and obtain more precise results.
 
 setup = ipk.create_setup()
@@ -153,17 +161,22 @@ stop_time = 0
 
 # ### Icepak report preparation
 
+# +
 ipk.save_project()
-ginger_biscuit = ipk.modeler["plateauPainEpices_Unnamed_5"]
-ginger_biscuit.transparency = 1
+ginger_bread_thermal = ipk.modeler["plateauPainEpices_Unnamed_5"]
+ginger_bread_thermal.transparency = 1
 objects = ipk.modeler.non_model_objects[::] + ["glassBowl"]
 
 microwave_objects = ipk.post.export_model_obj(objects, export_as_multiple_objects=True, )
+# -
 
-# ## Inizialize Ansys Report
-# AnsysReport class is a pyaedt class that allows to create simple and effective pdf reports
-# which includes text, images, tables and charts.
+# ### Initialize Ansys report
+#
+# ``AnsysReport`` pyaedt class that allows creation of
+# simple and effective pdf reports
+# that include text, images, tables and charts.
 
+# +
 report = AnsysReport(
         version=ipk.aedt_version_id, design_name=ipk.design_name, project_name=ipk.project_name
     )
@@ -175,19 +188,19 @@ report.add_sub_chapter("Ingredients")
 report.add_text("Step 1: Melt the sugar, golden syrup and butter in a saucepan, then bubble for 1-2 mins.")
 report.add_text("Leave to cool for about 10 mins.")
 
-report.add_text("Step 2: Tip the flour, bicarbonate of soda and spices into a large bowl.")
+report.add_text("Step 2: Tip the flour, baking soda and spices into a large bowl.")
 report.add_text("Add the warm syrup mixture and the egg, stir everything together, then gently knead in the bowl until smooth and streak-free.")
 report.add_text("The dough will firm up once cooled. Wrap in cling film and chill for at least 30 mins.")
 
 report.add_text("Step 3: Remove the dough from the fridge, leave at room temperature until softened. ")
-report.add_text("Heat the  microwave oven to 1200W but be careful about the time!!!")
+report.add_text("Set the microwave oven power to 1200W but be careful about the time!!!")
 report.add_page_break()
 report.add_sub_chapter("Design the Microwave Oven... with HFSS")
 report.add_text("An accurate Microwave Oven design requires:")
 report.add_text("1- Ansys HFSS")
 report.add_text("2- PyAEDT")
 
-report.add_image(path=os.path.join(working_dir.name,'gingerbiscuit.png'),
+report.add_image(path=os.path.join(working_dir.name,'ginger_bread_cookie.png'),
                  caption="HFSS Design of Ansys Microwave Oven")
 
 report.add_page_break()
@@ -202,7 +215,10 @@ report.add_text("4- Accurate EM Losses from HFSS")
 report.add_page_break()
 report.add_sub_chapter("Recipe experiments")
 
-# ### Compute average temperature on biscuit
+
+# -
+
+# ### Compute average temperature of the cookie
 # The following set of commands show how to use Icepak field summary to
 # compute the temperature on the gingerbread biscuit and get the mean value of it.
 
@@ -210,16 +226,16 @@ def get_average_temperature():
     fs = ipk.post.create_field_summary()
     fs.add_calculation(entity="Object",
                        geometry="Surface",
-                       geometry_name=ginger_biscuit.name,
+                       geometry_name=ginger_bread_thermal.name,
                        quantity="Temperature",
                        time=f"{stop_time}s")
     df = fs.get_field_summary_data(pandas_output=True)
     return float(df["Mean"])
 
-# ### Method to generate streamline plot on gingerbread
+# ### Method to generate streamline plot on gingerbread cookie
 # This method encapsulate a set of action to plot and arrange the view of
 # the gingerbread inside the microwave oven with velocity streamline plot.
-# The view is set to front (yz).
+# The view is set to front $(y-z)$.
 
 def generate_streamline(stop):
     def generate_case(quantity_in, field_time, assignment=["ovenCavity", "rotating_cylinder"]):
@@ -282,15 +298,15 @@ def generate_streamline(stop):
     return os.path.join(working_dir.name, "streamlines.png")
 
 
-# ### Method to generate Temperature plot on gingerbread
-# This method encapsulate a set of action to plot and arrange the view of
-# the gingerbread inside the microwave oven. The view is set to front (yz).
+# ### Method to generate temperature plot on gingerbread
+# This method encapsulates a set of actions to plot and arrange the view of
+# the gingerbread inside the microwave oven. The view is set to front $(y-z)$.
 
 
 def generate_temps(stop):
     pl = ipk.post.plot_field(
         quantity="Temperature",
-        assignment=ginger_biscuit.faces,
+        assignment=ginger_bread_thermal.faces,
         plot_cad_objs=True,
         show=False,
         intrinsics={"Time": f"{stop}s"},
@@ -308,7 +324,8 @@ def generate_temps(stop):
     return pl
 
 
-# ## Loop to determine transient time
+# ## Cook the gingerbread
+# ### Loop to determine transient time
 # This is the core of our optimization process. We will increase the Icepak stop time by steps of 5 seconds until the mean temperature of the gingerbread reaches the 50 degrees. We could also have used an optimizer (Optislang) or run a longer time and plot the average temperature over time.
 
 while not solved:
@@ -333,7 +350,7 @@ while not solved:
             report.add_text(f"Take a cup of tea and relax. It will take longer.")
         ipk.save_project()
 
-# ## Generate PDF
+# ### Generate PDF
 # PyAEDT offers the possibility generate advanced pdf reports using a class called AnsysReport.
 
 report.add_toc()
@@ -344,7 +361,8 @@ report.save_pdf(working_dir.name, "Gingerbread_ansys_recipe.pdf")
 # Release AEDT and close the example.
 
 ipk.save_project()
-hfss.release_desktop()
+ipk.release_desktop()
+# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
 # ### Clean up
