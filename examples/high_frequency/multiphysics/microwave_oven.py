@@ -326,7 +326,7 @@ def generate_temps(stop):
 
 # ## Cook the gingerbread
 # ### Loop to determine transient time
-# This is the core of our optimization process. We will increase the Icepak stop time by steps of 5 seconds until the mean temperature of the gingerbread reaches the 50 degrees. We could also have used an optimizer (Optislang) or run a longer time and plot the average temperature over time.
+# This is the core of our optimization process. We increase the Icepak stop time by steps of 5 seconds until the mean temperature of the gingerbread reaches the 50 degrees. We could also have used an optimizer (Optislang) or run a longer time and plot the average temperature over time.
 
 while not solved:
     stop_time = stop_time + 5
