@@ -112,7 +112,7 @@ exc = ipk.assign_em_losses(
 # ### Thermal boundaries
 # Main thermal boundaries will be free opening of the microwave oven. 
 #
-# In this example we will set 2 different types of openings on the two faces of the oven.
+# In this example we set 2 different types of openings on the two faces of the oven.
 
 ipk.modeler["ovenCavity"].transparency = 1
 ipk.assign_free_opening(assignment=ipk.modeler["ovenCavity"].top_face_y.id,
