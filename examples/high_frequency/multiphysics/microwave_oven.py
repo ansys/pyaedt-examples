@@ -351,7 +351,6 @@ while not solved:
         ipk.save_project()
 
 # ### Generate PDF
-# PyAEDT offers the possibility generate advanced pdf reports using a class called AnsysReport.
 
 report.add_toc()
 report.save_pdf(working_dir.name, "Gingerbread_ansys_recipe.pdf")
