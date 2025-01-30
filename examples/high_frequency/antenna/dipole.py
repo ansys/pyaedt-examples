@@ -116,6 +116,7 @@ hfss.create_open_region(frequency=center_freq)
 #   it is advisable to select at least two frequencies, one above and one below the
 #   expected resonance frequency.
 
+# +
 setup = hfss.create_setup(name="MySetup", MultipleAdaptiveFreqsSetup=freq_range, MaximumPasses=4)
 
 disc_sweep = setup.add_sweep(name="DiscreteSweep", sweep_type="Discrete",
@@ -123,6 +124,7 @@ disc_sweep = setup.add_sweep(name="DiscreteSweep", sweep_type="Discrete",
                              SaveFields=True)
 interp_sweep = setup.add_sweep(name="InterpolatingSweep", sweep_type="Interpolating",
                                RangeStart=freq_range[0], RangeEnd=freq_range[1])
+# -
 
 # ### Run simulation
 
