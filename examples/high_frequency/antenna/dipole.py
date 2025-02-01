@@ -34,30 +34,21 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ### Launch the Ansys Electronics Desktop
-#
-# You can start Ansys Electronics Desktop (AEDT) either by
-# creating an instance of the ``Desktop`` class or by
-# directly creating an application instance like ``Hfss``.
-#
-# > **Note:** If a Desktop instance is already running, the
-# > application will connect to it automatically as shown below.
-
-d = ansys.aedt.core.launch_desktop(
-    AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True
-)
-
 # ### Create an HFSS Design
 #
 # Create an instance of
-# the ``Hfss`` class. An HFSS design is inserted into the
-# Desktop. The ``hfss`` object is subsequently used to
+# the ``Hfss`` class. The Ansys Electronics Desktop will be launched
+# with an active HFSS design. The ``hfss`` object is subsequently
+# used to
 # create and simulate the dipole antenna.
 
 project_name = os.path.join(temp_folder.name, "dipole.aedt")
-hfss = ansys.aedt.core.Hfss(
-    version=AEDT_VERSION, project=project_name, solution_type="Modal"
-)
+hfss = ansys.aedt.core.Hfss( version=AEDT_VERSION,
+                            non_graphical=NG_MODE,
+                            project=project_name,
+                            new_desktop=True,
+                            solution_type="Modal",
+                            )
 
 # ## Model Preparation
 #
@@ -104,7 +95,7 @@ hfss.modeler.insert_3d_component(compfile, geometry_parameters=comp_params)
 
 hfss.create_open_region(frequency=center_freq)
 
-# ### Define the solution setup
+# ### Specify the solution setup
 #
 # The solution setup is used to specify parameters used to generate the HFSS solution:
 # - ``"Frequency"`` specifies the solution frequency used
@@ -117,7 +108,7 @@ hfss.create_open_region(frequency=center_freq)
 #   expected resonance frequency.
 
 # +
-setup = hfss.create_setup(name="MySetup", MultipleAdaptiveFreqsSetup=freq_range, MaximumPasses=4)
+setup = hfss.create_setup(name="MySetup", MultipleAdaptiveFreqsSetup=freq_range, MaximumPasses=2)
 
 disc_sweep = setup.add_sweep(name="DiscreteSweep", sweep_type="Discrete",
                              RangeStart=freq_range[0], RangeEnd=freq_range[1], RangeStep=freq_step,
