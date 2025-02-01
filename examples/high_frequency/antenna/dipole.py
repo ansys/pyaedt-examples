@@ -151,7 +151,7 @@ hfss.post.create_report(
 # Create a far field report.
 
 new_report = hfss.post.reports_by_category.far_field(
-    "db(RealizedGainTotal)", hfss.nominal_adaptive, "3D"
+    "db(RealizedGainTotal)", disc_sweep, "3D", Freq=center_freq,
 )
 new_report.report_type = "3D Polar Plot"
 new_report.secondary_sweep = "Phi"
