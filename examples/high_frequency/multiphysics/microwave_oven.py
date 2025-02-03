@@ -86,9 +86,9 @@ ginger_bread.material_name=ginger_material.name
 hfss.modeler["glassBowl"].transparency = 0.75
 
 # ### Export an image
-# At the end of this example we will generate a pdf report that summarizes the workflow and simulation results.
+# At the end of this example we will generate a PDF report that summarizes the workflow and simulation results.
 #
-# We now save an image of the model as a png file to insert into the report later.
+# We now save an image of the model as a PNG file to insert into the report later.
 
 hfss.post.export_model_picture(full_name=os.path.join(working_dir.name,'ginger_bread_cookie.png'))
 
@@ -172,8 +172,8 @@ microwave_objects = ipk.post.export_model_obj(objects, export_as_multiple_object
 
 # ### Initialize Ansys report
 #
-# ``AnsysReport`` pyaedt class that allows creation of
-# simple and effective pdf reports
+# ``AnsysReport`` PyAEDT class that allows creation of
+# simple and effective PDF reports
 # that include text, images, tables and charts.
 
 # +
