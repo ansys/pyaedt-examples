@@ -127,42 +127,46 @@ hfss.analyze_setup(name="MySetup", cores=NUM_CORES)
 
 hfss.create_scattering("MyScattering", sweep=interp_sweep.name)
 variations = hfss.available_variations.nominal_w_values_dict
-variations["Freq"] = ["1GHz"]
+variations["Freq"] = [center_freq]
 variations["Theta"] = ["All"]
 variations["Phi"] = ["All"]
-hfss.post.create_report(
-    "db(GainTotal)",
-    hfss.nominal_adaptive,
-    variations,
-    primary_sweep_variable="Theta",
-    context="3D",
-    report_category="Far Fields",
-)
+elevation_ffd_plot = hfss.post.create_report(expressions="db(GainTheta)",
+                                             setup_sweep_name=disc_sweep.name,
+                                             variations=variations,
+                                             primary_sweep_variable="Theta",
+                                             context="Elevation",           # Far-field setup is pre-defined.
+                                             report_category="Far Fields",
+                                             plot_type="Radiation Pattern",
+                                             plot_name="Elevation"
+                                            )
 
 # Create a far field report.
 
-new_report = hfss.post.reports_by_category.far_field(
-    "db(RealizedGainTotal)", disc_sweep, "3D", Freq=center_freq,
-)
-new_report.report_type = "3D Polar Plot"
-new_report.secondary_sweep = "Phi"
-new_report.create("Realized3D")
+# +
+report_3d = hfss.post.reports_by_category.far_field("db(RealizedGainTheta)",
+                                                      disc_sweep.name,
+                                                      sphere_name="3D",
+                                                      Freq= [center_freq],)
 
-# This code generates a 2D plot.
+report_3d.report_type = "3D Polar Plot"
+report_3d.create(name="Realized3D")
+# -
 
-hfss.field_setups[2].phi_step = 90
-new_report2 = hfss.post.reports_by_category.far_field(
-    "db(RealizedGainTotal)", hfss.nominal_adaptive, hfss.field_setups[2].name
-)
-new_report2.variations = variations
-new_report2.primary_sweep = "Theta"
-new_report2.create("Realized2D")
+# View cross-polarization.
+
+xpol = hfss.post.reports_by_category.far_field(["db(RealizedGainTheta)", "db(RealizedGainPhi)"],
+                                                disc_sweep.name,
+                                                sphere_name="Azimuth",
+                                                Freq= [center_freq],)
+
+xpol.report_type = "Radiation Pattern"
+xpol.create(name="xpol")
 
 # Get solution data using the ``new_report`` object and postprocess or plot the
 # data outside AEDT.
 
-solution_data = new_report.get_solution_data()
-solution_data.plot()
+solution_data = report_3d.get_solution_data()
+solution_data.plot(formula="dB20", x_label="X", y_label="Y", is_polar=True)
 
 # Generate a far field plot by creating a postprocessing variable and assigning
 # it to a new coordinate system. You can use the ``post`` prefix to create a
