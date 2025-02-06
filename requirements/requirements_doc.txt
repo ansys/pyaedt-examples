@@ -2,7 +2,7 @@
 git+https://github.com/ansys/pyaedt@main
 
 # Examples dependencies
-imageio==2.34.2
+imageio==2.36.0
 matplotlib==3.9.2
 numpy==1.26.4
 openpyxl==3.1.5
@@ -23,7 +23,7 @@ utm
 # Documentation dependencies
 ansys-sphinx-theme==1.0.5
 ipython==8.26.0
-jupyterlab==4.2.4
+jupyterlab==4.2.5
 nbsphinx==0.9.5
 numpydoc==1.7.0
 pypandoc==1.13.0
