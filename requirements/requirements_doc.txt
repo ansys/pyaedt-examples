@@ -12,7 +12,7 @@ pyvista==0.44.0
 fast-simplification==0.1.7
 joblib==1.4.0
 plotly==5.24.0
-PySide6==6.7.2
+PySide6==6.8.2.1
 # Never directly imported but required when loading ML related file
 # See https://github.com/ansys/pyaedt/pull/4713
 scikit-learn==1.5.0
