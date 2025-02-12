@@ -32,6 +32,76 @@ These examples use PyAEDT to show signal integrity examples.
       This example shows how to create a parameterized layout design and load the layout into HFSS 3D Layout
       for analysis and postprocessing.
 
+   .. grid-item-card:: Siwave differential pairs in Hfss 3D Layout
+      :padding: 2 2 2 2
+      :link: 15_ac_analysis
+      :link-type: doc
+
+      .. image:: _static/parametrized_edb.png
+         :alt: Parametrized differential pairs
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      This example shows how to use PyAEDT to set up SYZ analysis on a
+      serdes channel.
+
+   .. grid-item-card:: Siwave project from BOM
+      :link: Configuration
+      :link-type: doc
+
+      .. image:: _static/parametrized_edb.png
+         :alt: Parametrized differential pairs
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      This example demonstrates the use of the Electronics
+      Database (EDB) interface to create a layout using the BOM and
+      a configuration file.
+
+   .. grid-item-card:: Fully parametrized differential pair transition in Hfss 3D Layout
+      :padding: 2 2 2 2
+      :link: 04_edb_parametrized_design
+      :link-type: doc
+
+      .. image:: _static/parametrized_design.png
+         :alt: Differential pairs
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      This example shows how to use the EDB interface along with HFSS 3D Layout to create and solve a
+      parameterized layout.
+
+   .. grid-item-card:: 3D Component on PCB
+      :padding: 2 2 2 2
+      :link: 12_edb_sma_connector_on_board
+      :link-type: doc
+
+      .. image:: _static/connector_example.png
+         :alt: Connector
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      This example shows how to create a parameterized PCB with an SMA connector footprint for a single-ended
+      SMA connector launch footprint.
+
+   .. grid-item-card:: 3D Component on PCB
+      :padding: 2 2 2 2
+      :link: 14_edb_create_parametrized_design
+      :link-type: doc
+
+      .. image:: _static/parametrized_design.png
+         :alt: Connector
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      This example shows how to Set up an HFSS project using SimulationConfiguration class and
+      create automatically parametrized design.
+
    .. grid-item-card:: Pre-layout Parameterized PCB
       :padding: 2 2 2 2
       :link: pre_layout_parametrized

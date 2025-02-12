@@ -56,6 +56,19 @@ These examples use PyAEDT to show some antenna applications.
 
       This example shows how to use PyAEDT to model and simulate a unit cell for a frequency-selective surface in HFSS.
 
+   .. grid-item-card:: Planar Antenna with EDB
+      :padding: 2 2 2 2
+      :link: 03_5G_antenna_example_parametrics
+      :link-type: doc
+
+      .. image:: _static/patch_edb.png
+         :alt: FSS
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      This example shows how to use PyAEDT to model and simulate a unit cell for a frequency-selective surface in HFSS.
+
    .. grid-item-card:: Circuit schematic creation and analysis
       :padding: 2 2 2 2
       :link: ../../aedt_general/modeler/circuit_schematic

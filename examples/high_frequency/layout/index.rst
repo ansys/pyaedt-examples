@@ -8,7 +8,7 @@ These examples use PyAEDT to show some layout applications.
 
    .. grid-item-card:: Layout preprocessing
       :padding: 2 2 2 2
-      :link: https://edb.docs.pyansys.com/version/stable/examples/legacy_standalone/index.html
+      :link: ../edb/legacy_standalone/index
       :link-type: url
 
       .. image:: _static/pyedb.png
@@ -21,7 +21,7 @@ These examples use PyAEDT to show some layout applications.
 
    .. grid-item-card:: PyEDB configuration files
       :padding: 2 2 2 2
-      :link: https://edb.docs.pyansys.com/version/stable/examples/use_configuration/index.html
+      :link: ../edb/legacy_standalone/use_configuration/index
       :link-type: url
 
       .. image:: _static/pyedb2.png
