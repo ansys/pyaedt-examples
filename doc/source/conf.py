@@ -26,6 +26,9 @@ from sphinx import addnodes
 from sphinx.builders.latex import LaTeXBuilder
 from sphinx.util import logging
 
+os.environ["PYAEDT_NON_GRAPHICAL"] = "1"
+os.environ["PYAEDT_DOC_GENERATION"] = "1"
+
 LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml"]
 
 logger = logging.getLogger(__name__)
