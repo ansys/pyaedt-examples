@@ -7,10 +7,10 @@ These examples create end-to-end workflows with PyAEDT and PyEDB.
 
    .. grid-item-card:: Configuration Files
       :padding: 2 2 2 2
-      :link: ../../../edb/use_configuration/index
+      :link: ../../../00_edb/use_configuration/index
       :link-type: doc
 
-      .. image:: ../../../edb/use_configuration/_static/configurator_2.png
+      .. image:: ../../../00_edb/use_configuration/_static/configurator_2.png
          :alt: PyEDB2
          :width: 250px
          :height: 200px
@@ -20,10 +20,10 @@ These examples create end-to-end workflows with PyAEDT and PyEDB.
 
    .. grid-item-card:: IPC2581
       :padding: 2 2 2 2
-      :link: ../../../edb/legacy_standalone/edb_to_ipc2581
+      :link: ../../../00_edb/legacy_standalone/edb_to_ipc2581
       :link-type: doc
 
-      .. image:: ../../../edb/legacy_standalone/_static/ipc.png
+      .. image:: ../../../00_edb/legacy_standalone/_static/ipc.png
          :alt: PyEDB2
          :width: 250px
          :height: 200px
@@ -33,9 +33,9 @@ These examples create end-to-end workflows with PyAEDT and PyEDB.
 
    .. grid-item-card:: Plot Layout
       :padding: 2 2 2 2
-      :link: ../../../edb/legacy_standalone/Plot_nets
+      :link: ../../../00_edb/legacy_standalone/Plot_nets
       :link-type: doc
-      .. image:: ../../../edb/legacy_standalone/_static/plot_nets.png
+      .. image:: ../../../00_edb/legacy_standalone/_static/plot_nets.png
          :alt: PyEDB2
          :width: 250px
          :height: 200px
@@ -45,10 +45,10 @@ These examples create end-to-end workflows with PyAEDT and PyEDB.
 
    .. grid-item-card:: IC Workflow using GDS
       :padding: 2 2 2 2
-      :link: ../../../edb/legacy_standalone/GDS_workflow
+      :link: ../../../00_edb/legacy_standalone/GDS_workflow
       :link-type: doc
 
-      .. image:: ../../../edb/legacy_standalone/_static/gds.png
+      .. image:: ../../../00_edb/legacy_standalone/_static/gds.png
          :alt: GDS
          :width: 250px
          :height: 200px
@@ -72,8 +72,8 @@ These examples create end-to-end workflows with PyAEDT and PyEDB.
    .. toctree::
       :hidden:
 
-      ../../../edb/use_configuration/index
-      ../../../edb/legacy_standalone/edb_to_ipc2581
-      ../../../edb/legacy_standalone/Plot_nets
-      ../../../edb/legacy_standalone/GDS_workflow
+      ../../../00_edb/use_configuration/index
+      ../../../00_edb/legacy_standalone/edb_to_ipc2581
+      ../../../00_edb/legacy_standalone/Plot_nets
+      ../../../00_edb/legacy_standalone/GDS_workflow
       ../gui_manipulation
