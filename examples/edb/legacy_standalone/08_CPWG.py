@@ -7,7 +7,7 @@
 # ## Perform required imports
 
 # Perform required imports. Importing the ``Hfss3dlayout`` object initializes it
-# on version 2023 R2.
+# on version 2024 R2.
 
 import os
 

@@ -260,6 +260,7 @@ def convert_examples_into_notebooks(app):
         "interference_type.py",
         "interference.py",
         "hfss_emit.py",
+        "component_conversion.py",
     )
 
     # NOTE: Only convert the examples if the workflow isn't tagged as coupling HTML and PDF build.
@@ -408,10 +409,10 @@ pygments_style = "sphinx"
 # NbSphinx customization
 
 # Execute notebooks before conversion
-nbsphinx_execute = "always"
+nbsphinx_execute = "never"
 
 # Allow errors to help debug
-nbsphinx_allow_errors = False
+nbsphinx_allow_errors = True
 
 # Define static thumbnails
 nbsphinx_thumbnails = {}

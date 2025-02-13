@@ -9,61 +9,140 @@ PyAEDT offers a GUI which utilizes config file. Please refer to `Configure Layou
 
 .. grid:: 2
 
-   .. grid-item-card:: PCB component definition from CSV file and model image exports
+   .. grid-item-card:: Power Integrity PDN analysis
       :padding: 2 2 2 2
       :link: pdn_analysis
       :link-type: doc
 
-   .. grid-item-card:: Import of a PCB and its components via IDF and EDB
+      .. image:: _static/configurator_2.png
+         :alt: Configurator
+         :width: 250px
+         :height: 200px
+         :align: center
+
+   .. grid-item-card:: Serdes Signal Integrity Setup
       :padding: 2 2 2 2
       :link: serdes
       :link-type: doc
 
-   .. grid-item-card:: Thermal analysis with 3D components
+      .. image:: _static/configurator_2.png
+         :alt: Configurator
+         :width: 250px
+         :height: 200px
+         :align: center
+
+   .. grid-item-card:: PCB Power Integrity DCIR analysys
       :padding: 2 2 2 2
       :link: pcb_dc_ir
       :link-type: doc
 
-   .. grid-item-card:: Graphic card thermal analysis
+      .. image:: _static/configurator_2.png
+         :alt: Configurator
+         :width: 250px
+         :height: 200px
+         :align: center
+
+   .. grid-item-card:: Package Power Integrity DCIR analysys
       :padding: 2 2 2 2
       :link: dcir
       :link-type: doc
 
-   .. grid-item-card:: Coaxial
+      .. image:: _static/configurator_2.png
+         :alt: Configurator
+         :width: 250px
+         :height: 200px
+         :align: center
+
+   .. grid-item-card:: Create Parametric Design
+      :padding: 2 2 2 2
+      :link: 14_edb_create_parametrized_design
+      :link-type: doc
+
+      .. image:: _static/parametrized_design.png
+         :alt: Connector
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      Create automatically parametrized design.
+
+   .. grid-item-card:: Stackup management
       :padding: 2 2 2 2
       :link: import_stackup
       :link-type: doc
 
-.. grid-item-card:: Setup from Sherlock inputs
+      .. image:: _static/configurator.png
+         :alt: Configurator
+         :width: 250px
+         :height: 200px
+         :align: center
+
+   .. grid-item-card:: Material management
       :padding: 2 2 2 2
       :link: import_material
       :link-type: doc
 
-   .. grid-item-card:: Circuit-HFSS-Icepak coupling workflow
+      .. image:: _static/configurator.png
+         :alt: Configurator
+         :width: 250px
+         :height: 200px
+         :align: center
+
+   .. grid-item-card:: Ports setup
       :padding: 2 2 2 2
       :link: import_ports
       :link-type: doc
 
-   .. grid-item-card:: Electrothermal analysis
+      .. image:: _static/configurator.png
+         :alt: Configurator
+         :width: 250px
+         :height: 200px
+         :align: center
+
+   .. grid-item-card:: Simulation setup management
       :padding: 2 2 2 2
       :link: import_setup_ac
       :link-type: doc
 
+      .. image:: _static/configurator.png
+         :alt: Configurator
+         :width: 250px
+         :height: 200px
+         :align: center
 
-   .. grid-item-card:: Maxwell 3D-Icepak electrothermal analysis
+
+   .. grid-item-card:: Padstack Definition management
       :padding: 2 2 2 2
       :link: import_padstack_definitions
       :link-type: doc
 
-   .. grid-item-card:: Maxwell 3D-Icepak electrothermal analysis
+      .. image:: _static/configurator.png
+         :alt: Configurator
+         :width: 250px
+         :height: 200px
+         :align: center
+
+   .. grid-item-card:: Components management
       :padding: 2 2 2 2
       :link: import_components
       :link-type: doc
 
-   .. grid-item-card:: Maxwell 3D-Icepak electrothermal analysis
+      .. image:: _static/configurator.png
+         :alt: Configurator
+         :width: 250px
+         :height: 200px
+         :align: center
+
+   .. grid-item-card:: Sources management
       :padding: 2 2 2 2
       :link: import_sources
       :link-type: doc
+
+      .. image:: _static/configurator.png
+         :alt: Configurator
+         :width: 250px
+         :height: 200px
+         :align: center
 
 .. toctree::
    :hidden:

@@ -34,7 +34,7 @@ These examples use PyAEDT to show signal integrity examples.
 
    .. grid-item-card:: Siwave differential pairs in Hfss 3D Layout
       :padding: 2 2 2 2
-      :link: 15_ac_analysis
+      :link: 09_Configuration
       :link-type: doc
 
       .. image:: _static/parametrized_edb.png
@@ -45,34 +45,6 @@ These examples use PyAEDT to show signal integrity examples.
 
       This example shows how to use PyAEDT to set up SYZ analysis on a
       serdes channel.
-
-   .. grid-item-card:: Siwave project from BOM
-      :link: Configuration
-      :link-type: doc
-
-      .. image:: _static/parametrized_edb.png
-         :alt: Parametrized differential pairs
-         :width: 250px
-         :height: 200px
-         :align: center
-
-      This example demonstrates the use of the Electronics
-      Database (EDB) interface to create a layout using the BOM and
-      a configuration file.
-
-   .. grid-item-card:: Fully parametrized differential pair transition in Hfss 3D Layout
-      :padding: 2 2 2 2
-      :link: 04_edb_parametrized_design
-      :link-type: doc
-
-      .. image:: _static/parametrized_design.png
-         :alt: Differential pairs
-         :width: 250px
-         :height: 200px
-         :align: center
-
-      This example shows how to use the EDB interface along with HFSS 3D Layout to create and solve a
-      parameterized layout.
 
    .. grid-item-card:: 3D Component on PCB
       :padding: 2 2 2 2
@@ -87,20 +59,6 @@ These examples use PyAEDT to show signal integrity examples.
 
       This example shows how to create a parameterized PCB with an SMA connector footprint for a single-ended
       SMA connector launch footprint.
-
-   .. grid-item-card:: 3D Component on PCB
-      :padding: 2 2 2 2
-      :link: 14_edb_create_parametrized_design
-      :link-type: doc
-
-      .. image:: _static/parametrized_design.png
-         :alt: Connector
-         :width: 250px
-         :height: 200px
-         :align: center
-
-      This example shows how to Set up an HFSS project using SimulationConfiguration class and
-      create automatically parametrized design.
 
    .. grid-item-card:: Pre-layout Parameterized PCB
       :padding: 2 2 2 2
@@ -220,6 +178,20 @@ These examples use PyAEDT to show signal integrity examples.
 
       This example shows how to generate a compliance report in PyAEDT using the VirtualCompliance class.
 
+   .. grid-item-card:: Coplanar Waveguide using PyEDB
+      :padding: 2 2 2 2
+      :link: ../../../edb/legacy_standalone/08_CPWG
+      :link-type: doc
+
+      .. image:: ../../../edb/legacy_standalone//_static/cpwg.png
+         :alt: CPWG
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      This example shows how you can use HFSS 3D Layout to create a parametric design
+      for a CPWG (coplanar waveguide with ground).
+
    .. toctree::
       :hidden:
 
@@ -234,3 +206,4 @@ These examples use PyAEDT to show signal integrity examples.
       ../../emc/subcircuit
       ../../../aedt_general/report/touchstone_file
       ../../../aedt_general/report/virtual_compliance
+      ../../../edb/legacy_standalone/08_CPWG

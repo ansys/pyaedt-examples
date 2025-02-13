@@ -56,6 +56,22 @@ edb.nets.plot(None, ["1_Top"], color_by_net=True, plot_components_on_top=True)
 
 edb.stackup.plot(scale_elevation=False, plot_definitions=["c100hn140", "c35"])
 
+# ## Creating coaxial port on component U1 and all ddr4_dqs nets
+# Selecting all nets from ddr4_dqs and component U1 and create coaxial ports
+# On corresponding pins.
+
+comp_u1 = edb.components.instances["U1"]
+signal_nets = [net for net in comp_u1.nets if "ddr4_dqs" in net.lower()]
+edb.hfss.create_coax_port_on_component("U1", net_list=signal_nets)
+edb.components.set_solder_ball(component="U1", sball_diam="0.3mm", sball_height="0.3mm")
+
+# ## Renaming all ports
+# Renaming all port with _renamed string as suffix example.
+
+for port_name, port in edb.ports.items():
+    port.name = f"{port_name}_renamed"
+
+
 # Close the EDB.
 
 edb.close_edb()

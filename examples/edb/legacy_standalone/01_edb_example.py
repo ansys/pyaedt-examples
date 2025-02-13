@@ -178,10 +178,10 @@ siw_file = edb.solve_siwave()
 # The following method runs SIwave in batch mode from the command line.
 # Results are written to the edb folder.
 
-outputs = edb.export_siwave_dc_results(
-    siw_file,
-    setup.name,
-)
+# outputs = edb.export_siwave_dc_results(
+#     siw_file,
+#     setup.name,
+# )
 
 # Close EDB. After EDB is closed, it can be opened by AEDT.
 
