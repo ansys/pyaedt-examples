@@ -409,10 +409,10 @@ pygments_style = "sphinx"
 # NbSphinx customization
 
 # Execute notebooks before conversion
-nbsphinx_execute = "never"
+nbsphinx_execute = "always"
 
 # Allow errors to help debug
-nbsphinx_allow_errors = True
+nbsphinx_allow_errors = False
 
 # Define static thumbnails
 nbsphinx_thumbnails = {}
