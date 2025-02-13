@@ -170,14 +170,16 @@ setup.add_source_terminal_to_ground("V1", 1)
 edb.save_edb()
 edb.nets.plot(None, "1_Top", plot_components_on_top=True)
 
-siw_file = edb.solve_siwave()
+
 
 # ## Export results
 #
 # Export all quantities calculated from the DC-IR analysis.
 # The following method runs SIwave in batch mode from the command line.
 # Results are written to the edb folder.
+# Un-commment following lines to analyze with SIwave and export results.
 
+#siw_file = edb.solve_siwave()
 # outputs = edb.export_siwave_dc_results(
 #     siw_file,
 #     setup.name,
