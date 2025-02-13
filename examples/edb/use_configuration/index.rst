@@ -55,7 +55,7 @@ PyAEDT offers a GUI which utilizes config file. Please refer to `Configure Layou
 
    .. grid-item-card:: Create Parametric Design
       :padding: 2 2 2 2
-      :link: 14_edb_create_parametrized_design
+      :link: post_layout_parametrize
       :link-type: doc
 
       .. image:: _static/parametrized_design.png
@@ -158,4 +158,5 @@ PyAEDT offers a GUI which utilizes config file. Please refer to `Configure Layou
    import_padstack_definitions
    import_components
    import_sources
+   post_layout_parametrize
 

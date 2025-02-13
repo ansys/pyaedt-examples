@@ -58,7 +58,7 @@ These examples use PyAEDT to show some antenna applications.
 
    .. grid-item-card:: Planar Antenna with EDB
       :padding: 2 2 2 2
-      :link: 03_5G_antenna_example_parametrics
+      :link: 5G_antenna_parametrics
       :link-type: doc
 
       .. image:: _static/patch_edb.png
@@ -118,3 +118,4 @@ These examples use PyAEDT to show some antenna applications.
       ../../aedt_general/modeler/circuit_schematic
       large_scenarios/index
       interferences/index
+      5G_antenna_parametrics

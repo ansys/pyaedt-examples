@@ -21,7 +21,7 @@ These examples use PyAEDT to show power integrity examples.
 
    .. grid-item-card:: Via Array
       :padding: 2 2 2 2
-      :link: ../../../edb/legacy_standalone/00_EDB_Create_VIA
+      :link: ../../../edb/legacy_standalone/differential_vias
       :link-type: doc
 
       .. image:: ../../../edb/legacy_standalone/_static/diff_via.png
@@ -138,5 +138,5 @@ These examples use PyAEDT to show power integrity examples.
       ../../../aedt_general/modeler/circuit_schematic
       ../../../aedt_general/modeler/netlist_to_schematic
       ../../../aedt_general/report/touchstone_file
-      ../../../edb/legacy_standalone/00_EDB_Create_VIA
+      ../../../edb/legacy_standalone/differential_vias
       ../../../edb/legacy_standalone/01_edb_example

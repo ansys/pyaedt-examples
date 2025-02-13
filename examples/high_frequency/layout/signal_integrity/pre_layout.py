@@ -337,6 +337,28 @@ comp = h3d.modeler.place_3d_component(
 )
 comp.angle = "90deg"
 
+# ## Run simulation
+
+h3d.analyze(num_cores=4)
+
+# ## Visualize the return loss.
+
+h3d.post.create_report("dB(S(port_1, port_1))")
+
+# -
+
+# ## Create Field Plot on clip plane
+
+
+# solutions = h3d.get_touchstone_data()[0]
+# solutions.log_x = False
+# solutions.plot()
+cp_name = h3d.modeler.clip_plane()
+
+plot = h3d.post.create_fieldplot_cutplane(
+    cp_name, "Mag_E", h3d.nominal_adaptive, intrinsincDict={"Freq": "5GHz", "Phase": "0deg"}
+)
+
 # ## Release AEDT
 
 h3d.save_project()
