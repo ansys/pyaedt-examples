@@ -72,11 +72,8 @@ These examples create end-to-end workflows with PyAEDT and PyEDB.
    .. toctree::
       :hidden:
 
-      power_integrity
-      dcir
-      dcir_q3d
-      ac_q3d
-      ../../../aedt_general/modeler/circuit_schematic
-      ../../../aedt_general/modeler/netlist_to_schematic
-      ../../../aedt_general/report/touchstone_file
+      ../../../edb/use_configuration/index
+      ../../../edb/legacy_standalone/02_edb_to_ipc2581
+      ../../../edb/legacy_standalone/05_Plot_nets
+      ../../../edb/legacy_standalone/10_GDS_workflow
       ../gui_manipulation
