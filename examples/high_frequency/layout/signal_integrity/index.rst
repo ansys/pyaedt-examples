@@ -164,20 +164,6 @@ These examples use PyAEDT to show signal integrity examples.
 
       This example shows how to generate a compliance report in PyAEDT using the VirtualCompliance class.
 
-   .. grid-item-card:: Coplanar Waveguide using PyEDB
-      :padding: 2 2 2 2
-      :link: ../../../edb/legacy_standalone/CPWG
-      :link-type: doc
-
-      .. image:: ../../../edb/legacy_standalone//_static/cpwg.png
-         :alt: CPWG
-         :width: 250px
-         :height: 200px
-         :align: center
-
-      This example shows how you can use HFSS 3D Layout to create a parametric design
-      for a CPWG (coplanar waveguide with ground).
-
    .. toctree::
       :hidden:
 
@@ -194,4 +180,3 @@ These examples use PyAEDT to show signal integrity examples.
       ../../emc/subcircuit
       ../../../aedt_general/report/touchstone_file
       ../../../aedt_general/report/virtual_compliance
-      ../../../edb/legacy_standalone/CPWG

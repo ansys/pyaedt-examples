@@ -356,7 +356,7 @@ h3d.post.create_report("dB(S(port_1, port_1))")
 cp_name = h3d.modeler.clip_plane()
 
 plot = h3d.post.create_fieldplot_cutplane(
-    cp_name, "Mag_E", h3d.nominal_adaptive, intrinsincDict={"Freq": "5GHz", "Phase": "0deg"}
+    cp_name, "Mag_E", h3d.nominal_adaptive, intrinsics={"Freq": "5GHz", "Phase": "0deg"}
 )
 
 # ## Release AEDT
