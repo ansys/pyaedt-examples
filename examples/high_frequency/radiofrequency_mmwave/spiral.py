@@ -57,13 +57,8 @@ Np = 8
 Nr = 10
 gap = 3
 hfss["Tsub"] = "6" + hfss.modeler.model_units
-hfss["rin"] = rin
-hfss["width"] = width
-hfss["spacing"] = spacing
 hfss["thickness"] = f"{thickness} {hfss.modeler.model_units}"
-hfss["Np"] = Np
-hfss["Nr"] = Nr
-hfss["gap"] = f"{gap} {hfss.modeler.model_units}"
+
 # ## Standardize polyline
 #
 # Define a function that creates a polyline using the ``create_line()`` method. This
@@ -74,8 +69,8 @@ def create_line(pts):
     hfss.modeler.create_polyline(
         pts,
         xsection_type="Rectangle",
-        xsection_width="width",
-        xsection_height="thickness",
+        xsection_width=width,
+        xsection_height=thickness,
         material="copper",
     )
 
@@ -103,30 +98,30 @@ ind = hfss.modeler.create_spiral(
 
 x0, y0, z0 = ind.points[0]
 x1, y1, z1 = ind.points[-1]
-create_line([(f"{x0} - width / 2", y0, "-gap"), (abs(x1) + 5, y0, "-gap")])
+create_line([(x0 - width / 2, y0, -gap), (abs(x1) + 5, y0, -gap)])
 hfss.modeler.create_box(
-    [f"{x0} - width / 2", f"{y0} - width / 2", "-gap - thickness / 2"],
-    ["width", "width", "gap + thickness"],
-    matname="copper",
+    [x0 - width / 2, y0 - width / 2, -gap - thickness / 2],
+    [width, width, gap + thickness],
+    material="copper",
 )
 
 # Create port 1.
 
 hfss.modeler.create_rectangle(
     orientation=ansys.aedt.core.constants.PLANE.YZ,
-    origin=[abs(x1) + 5, f"{y0} - width / 2", "-gap - thickness / 2"],
-    sizes=["width", "-Tsub+gap"],
+    origin=[abs(x1) + 5, y0 - width / 2, -gap - thickness / 2],
+    sizes=[width, "-Tsub+{}{}".format(gap, hfss.modeler.model_units)],
     name="port1",
 )
 hfss.lumped_port(assignment="port1", integration_line=ansys.aedt.core.constants.AXIS.Z)
 
 # Create port 2.
 
-create_line([(f"{x1} + width / 2", y1, 0), (x1 - 5, y1, 0)])
+create_line([(x1 + width / 2, y1, 0), (x1 - 5, y1, 0)])
 hfss.modeler.create_rectangle(
     ansys.aedt.core.constants.PLANE.YZ,
-    [x1 - 5, f"{y1} - width / 2", "-thickness / 2"],
-    ["width", "-Tsub"],
+    [x1 - 5, y1 - width / 2, -thickness / 2],
+    [width, "-Tsub"],
     name="port2",
 )
 hfss.lumped_port(assignment="port2", integration_line=ansys.aedt.core.constants.AXIS.Z)
@@ -156,7 +151,7 @@ box = hfss.modeler.create_box(
     [
         x1 - 20,
         x1 - 20,
-        "-Tsub-thickness/2 - 0.1{}".format(hfss.modeler.model_units        ),
+        "-Tsub-thickness/2 - 0.1{}".format(hfss.modeler.model_units),
     ],
     [-2 * x1 + 40, -2 * x1 + 40, 100],
     name="airbox",
