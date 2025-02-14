@@ -104,6 +104,7 @@ new_report = hfss.post.reports_by_category.far_field(
 )
 new_report.report_type = "3D Polar Plot"
 new_report.secondary_sweep = "Phi"
+new_report.variations["Freq"] = ["1000MHz"]
 new_report.create("Realized3D")
 
 # This code generates a 2D plot.
@@ -141,6 +142,7 @@ new_report = hfss.post.reports_by_category.far_field(
 )
 new_report.primary_sweep = "Theta"
 new_report.far_field_sphere = "3D"
+new_report.variations["Freq"] = ["1000MHz"]
 solutions = new_report.get_solution_data()
 
 # Generate a 3D plot using Matplotlib.
