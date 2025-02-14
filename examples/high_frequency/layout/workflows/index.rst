@@ -35,6 +35,7 @@ These examples create end-to-end workflows with PyAEDT and PyEDB.
       :padding: 2 2 2 2
       :link: ../../../00_edb/legacy_standalone/Plot_nets
       :link-type: doc
+
       .. image:: ../../../00_edb/legacy_standalone/_static/plot_nets.png
          :alt: PyEDB2
          :width: 250px
