@@ -1,9 +1,9 @@
 # # Dipole antenna
 #
-# This example shows how to create a dipole antenna in HFSS
-# and view the simulation results.
+# This example shows how to create, analyze and review simulation results for a
+# half-wavelength dipole antenna in HFSS.
 #
-# Keywords: **HFSS**, **modal**, **antenna**, **3D components**, **far field**.
+# Keywords: **HFSS**, **antenna**, **3D component**, **far field**.
 
 # ## Prerequisites
 #
@@ -14,7 +14,7 @@ import os
 import tempfile
 import time
 
-import ansys.aedt.core
+from ansys.aedt.core import Hfss
 # -
 
 # ### Define constants
@@ -34,7 +34,7 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ### Create an HFSS Design
+# ### Launch HFSS
 #
 # Create an instance of
 # the ``Hfss`` class. The Ansys Electronics Desktop will be launched
@@ -43,12 +43,12 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # create and simulate the dipole antenna.
 
 project_name = os.path.join(temp_folder.name, "dipole.aedt")
-hfss = ansys.aedt.core.Hfss( version=AEDT_VERSION,
-                            non_graphical=NG_MODE,
-                            project=project_name,
-                            new_desktop=True,
-                            solution_type="Modal",
-                            )
+hfss = Hfss(version=AEDT_VERSION,
+            non_graphical=NG_MODE,
+            project=project_name,
+            new_desktop=True,
+            solution_type="Modal",
+            )
 
 # ## Model Preparation
 #
@@ -64,7 +64,7 @@ center_freq = "1.5GHz"             # Center frequency
 freq_step = "0.5GHz"
 
 
-# ### Insert the dipole antenna
+# ### Insert the dipole antenna model
 #
 # The 3D component "Dipole_Antenna_DM" will be inserted from
 # the built-in ``syslib`` folder. The full path to 3D components
@@ -83,12 +83,12 @@ freq_step = "0.5GHz"
 #     dipole length, ``"l_dipole"`` as the value of ``dipole_length``
 #     and leave other values unchanged.
 
-compfile = hfss.components3d[component_name]              # Full file name.
-comp_params = hfss.get_components3d_vars(component_name)  # Dict of name/value pairs.
+component_fn = hfss.components3d[component_name]          # Full file name.
+comp_params = hfss.get_components3d_vars(component_name)  # Retrieve dipole parameters.
 comp_params["dipole_length"] = "l_dipole"                 # Update the dipole length.
-hfss.modeler.insert_3d_component(compfile, geometry_parameters=comp_params)
+hfss.modeler.insert_3d_component(component_fn, geometry_parameters=comp_params)
 
-# ### Define the solution domain
+# ### Create the 3D domain region
 #
 # An open region object places a an airbox around the dipole antenna 
 # and assigns a radition boundary to the outer surfaces of the region.
@@ -97,15 +97,25 @@ hfss.create_open_region(frequency=center_freq)
 
 # ### Specify the solution setup
 #
-# The solution setup is used to specify parameters used to generate the HFSS solution:
-# - ``"Frequency"`` specifies the solution frequency used
-#   to adapt the finite element mesh.
+# The solution setup defines parameters that govern the HFSS solution process. This example demonstrates
+# how to set up the solution to use two solution frequencies for adaptive refinement. This approach can improve solution
+# efficiency for resonant structures wherein the final resonance frequency may not be known.
 # - ``"MaximumPasses"`` specifies the maximum number of passes used for automatic
 #   adaptive mesh refinement.
 # - ``"MultipleAdaptiveFreqsSetup"`` specifies the solution frequencies at which
 #   the antenna will be solved during adaptive mesh refinement. For resonant structures
 #   it is advisable to select at least two frequencies, one above and one below the
 #   expected resonance frequency.
+#
+# > **Note:** The parameter names used here are passed directly to the native AEDT API and therfore
+# > do not adhere to [PEP-8](https://peps.python.org/pep-0008/). Readability and adherence to
+# > PEP-8 will improve as PyAEDT evolves.
+#
+# Both a discrete frequency sweep and an interpolating sweep are added to the solution setup. The discrete
+# sweep provides access to field solution data for post-processing. The interpolating sweep builds the
+# rational fit of network parameters over the frequency interval defined by ``RangeStart`` and
+# ``RangeEnd``.  The solutions from the discrete sweep are used as the starting
+# solutions for the interpolating sweep.
 
 # +
 setup = hfss.create_setup(name="MySetup", MultipleAdaptiveFreqsSetup=freq_range, MaximumPasses=2)
@@ -114,18 +124,31 @@ disc_sweep = setup.add_sweep(name="DiscreteSweep", sweep_type="Discrete",
                              RangeStart=freq_range[0], RangeEnd=freq_range[1], RangeStep=freq_step,
                              SaveFields=True)
 interp_sweep = setup.add_sweep(name="InterpolatingSweep", sweep_type="Interpolating",
-                               RangeStart=freq_range[0], RangeEnd=freq_range[1])
+                               RangeStart=freq_range[0], RangeEnd=freq_range[1],
+                               SaveFields=False)
 # -
 
 # ### Run simulation
 
-hfss.analyze_setup(name="MySetup", cores=NUM_CORES)
+setup.analyze()
 
 # ### Postprocess
 #
 # Plot s-parameters and far field.
 
-hfss.create_scattering("MyScattering", sweep=interp_sweep.name)
+#spar_plot = hfss.post.create_report_from_configuration(input_file=spar_template,solution_name=interp_sweep.name)
+spar_plot = hfss.create_scattering(plot="Return Loss", sweep=interp_sweep.name)
+
+# ### Visualize far-field data
+#
+# Parameters passed to ``hfss.post.create_report()`` specify the details of the report that will be created in AEDT.
+# Below you can see how the parameters map to the reporter user interface.
+#
+# <img src="_static/ff_report_ui_1.png" width="800">
+# <img src="_static/ff_report_ui_2.png" width="800">
+#
+# > **Note:** These images are from the 24R2 release
+
 variations = hfss.available_variations.nominal_w_values_dict
 variations["Freq"] = [center_freq]
 variations["Theta"] = ["All"]
@@ -137,10 +160,19 @@ elevation_ffd_plot = hfss.post.create_report(expressions="db(GainTheta)",
                                              context="Elevation",           # Far-field setup is pre-defined.
                                              report_category="Far Fields",
                                              plot_type="Radiation Pattern",
-                                             plot_name="Elevation"
+                                             plot_name="Elevation Gain (dB)"
                                             )
+elevation_ffd_plot.children["Legend"].properties["Show Trace Name"] = False
+elevation_ffd_plot.children["Legend"].properties["Show Solution Name"] = False
 
-# Create a far field report.
+# ### Create a far-field report
+#
+# The ``hfss.post.reports_by_category`` provides direct access to specific post-processing capabilities and can simplify
+# syntax. Note that the variation is not passed to the method. In this case, the currently active variation will be used. The concept of a "variation" is useful when you generate multiple parametric solutions for a single HFSS design.
+#
+# The argument ``sphere_name`` specifies the far-field sphere used to generate the plot. In this case, the far-field sphere "3D" was automatically created when HFSS was launched by instantiating the ``Hfss`` class.
+#
+# <img src="_static/sphere_3d.png" width="550">
 
 # +
 report_3d = hfss.post.reports_by_category.far_field("db(RealizedGainTheta)",
@@ -149,93 +181,81 @@ report_3d = hfss.post.reports_by_category.far_field("db(RealizedGainTheta)",
                                                       Freq= [center_freq],)
 
 report_3d.report_type = "3D Polar Plot"
-report_3d.create(name="Realized3D")
+report_3d.create(name="Realized Gain (dB)")
 # -
 
-# View cross-polarization.
+# ### Retrieve solution data for external post-processing
+#
+# An instance of the ``SolutionData`` class can be created from the report by calling the ``get_solution_data()`` 
+# method. This class makes data accessible for further post-processing using
+# [Matplotlib](https://matplotlib.org/) and is used, for example, to create plots that can be viewed
+# directly in the browser or in PDF reports as shown below.
 
+report_3d_data = report_3d.get_solution_data()
+new_plot = report_3d_data.plot_3d()
+
+# The dipole is linearly polarized as can be seen from the comparison of $\theta$-polarized
+# and $\phi$-polarized gain at $\theta=90\degree$. The following code creates the gain plots
+# in AEDT.
+
+# +
+xpol_expressions = ["db(RealizedGainTheta)", "db(RealizedGainPhi)"]
 xpol = hfss.post.reports_by_category.far_field(["db(RealizedGainTheta)", "db(RealizedGainPhi)"],
                                                 disc_sweep.name,
+                                                name="Cross Polarization",
                                                 sphere_name="Azimuth",
                                                 Freq= [center_freq],)
 
 xpol.report_type = "Radiation Pattern"
 xpol.create(name="xpol")
+xpol.children["Legend"].properties["Show Solution Name"] = False
+xpol.children["Legend"].properties["Show Variation Key"] = False
+# -
 
-# Get solution data using the ``new_report`` object and postprocess or plot the
-# data outside AEDT.
+# The ``get_solution_data()`` method is again used to create an inline plot of cross-polarization from
+# the report in HFSS.
 
-solution_data = report_3d.get_solution_data()
-solution_data.plot(formula="dB20", x_label="X", y_label="Y", is_polar=True)
+ff_el_data = elevation_ffd_plot.get_solution_data()
+ff_el_data.plot(x_label="Theta", y_label="Gain", is_polar=True)
 
-# Generate a far field plot by creating a postprocessing variable and assigning
-# it to a new coordinate system. You can use the ``post`` prefix to create a
-# postprocessing variable directly from a setter, or you can use the ``set_variable()``
-# method with an arbitrary name.
 
-hfss["post_x"] = 2
-hfss.variable_manager.set_variable(name="y_post", expression=1, is_post_processing=True)
-hfss.modeler.create_coordinate_system(origin=["post_x", "y_post", 0], name="CS_Post")
-hfss.insert_infinite_sphere(custom_coordinate_system="CS_Post", name="Sphere_Custom")
-
-# ## Retrieve solution data
+# A new coordinate system can be created for post-processing to change the phase-center for the far-field plots.
+# In this example, the coordinate system is shifted by 13mm in the $+z$ direction.
 #
-# You can also process solution data using Python libraries like Matplotlib.
-
-new_report = hfss.post.reports_by_category.far_field(
-    "GainTotal", hfss.nominal_adaptive, "3D"
-)
-new_report.primary_sweep = "Theta"
-new_report.far_field_sphere = "3D"
-solutions = new_report.get_solution_data()
-
-# Generate a 3D plot using Matplotlib.
-
-solutions.plot_3d()
-
-# Generate a far fields plot using Matplotlib.
-
-new_report.far_field_sphere = "Sphere_Custom"
-solutions_custom = new_report.get_solution_data()
-solutions_custom.plot_3d()
-
-# Generate a 2D plot using Matplotlib where you specify whether it is a polar
-# plot or a rectangular plot.
-
-solutions.plot(formula="db20", is_polar=True)
-
-# ## Retrieve far-field data
+# The ``sweep`` parameter is used here to modify the plot in AEDT by updating the ``ff_setup.properties``. 
 #
-# After the simulation completes, the far
-# field data is generated port by port and stored in a data class. You can use this data
-# once AEDT is released.
+# > **Note:** Properties of many PyAEDT objects can be accessed through the ``properties`` property as shown
+# > here. The keywords used to access properties are documented in the native AEDT API.
 
-ffdata = hfss.get_antenna_data(
-    sphere="Sphere_Custom",
-    setup=hfss.nominal_adaptive,
-    frequencies=["1000MHz"],
+# +
+hfss.modeler.create_coordinate_system(origin=[0, 0, "13mm"], name="Offset_CS")
+ff_setup = hfss.insert_infinite_sphere(custom_coordinate_system="Offset_CS", name="Offset")
+sweep = dict(ThetaStart="-180deg", ThetaStop="180deg", ThetaStep="5deg",
+             PhiStart="0deg", PhiStop="180deg", PhiStep="10deg",
+             )
+for key, value in sweep.items():
+    ff_setup.properties[key] = value
+
+gain_dB = hfss.post.reports_by_category.far_field(
+    "dB(GainTotal)", disc_sweep.name, "3D", Freq= [center_freq],
 )
+# -
 
-# ## Generate 2D cutout plot
-#
-# Generate a 2D cutout plot. You can define the Theta scan
-# and Phi scan.
+# Again use ``get_solution_data()`` to create the far-field plot for rendering and 
+# post-processing outside the Ansys Electronics Desktop.
 
-ffdata.farfield_data.plot_cut(
-    primary_sweep="theta",
-    secondary_sweep_value=0,
-    quantity="RealizedGain",
-    title="FarField",
-    quantity_format="dB20",
-    is_polar=True,
-)
+gain_offset_data = gain_dB.get_solution_data()
+gain_offset_data.plot()
 
 # ## Release AEDT
 
+# +
 hfss.save_project()
-d.release_desktop()
+hfss.release_desktop()
+
 # Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
+# -
 
 # ## Clean up
 #
