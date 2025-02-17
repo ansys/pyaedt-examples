@@ -194,6 +194,8 @@ report_3d.create(name="Realized Gain (dB)")
 report_3d_data = report_3d.get_solution_data()
 new_plot = report_3d_data.plot_3d()
 
+# ### View Cross-Polarization
+#
 # The dipole is linearly polarized as can be seen from the comparison of $\theta$-polarized
 # and $\phi$-polarized gain at $\theta=90\degree$. The following code creates the gain plots
 # in AEDT.
@@ -219,6 +221,8 @@ ff_el_data = elevation_ffd_plot.get_solution_data()
 ff_el_data.plot(x_label="Theta", y_label="Gain", is_polar=True)
 
 
+# ### Change the antenna phase center
+#
 # A new coordinate system can be created for post-processing to change the phase-center for the far-field plots.
 # In this example, the coordinate system is shifted by 13mm in the $+z$ direction.
 #
@@ -241,6 +245,8 @@ gain_dB = hfss.post.reports_by_category.far_field(
 )
 # -
 
+# ### Plot far-field outside of AEDT
+#
 # Again use ``get_solution_data()`` to create the far-field plot for rendering and 
 # post-processing outside the Ansys Electronics Desktop.
 
