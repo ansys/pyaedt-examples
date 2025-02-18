@@ -53,6 +53,17 @@ PyAEDT offers a GUI which utilizes config file. Please refer to `Configure Layou
          :height: 200px
          :align: center
 
+   .. grid-item-card:: Create Transmission Line
+      :padding: 2 2 2 2
+      :link: modeler_simple_transmission_line
+      :link-type: doc
+
+      .. image:: _static/configurator_2.png
+         :alt: Configurator
+         :width: 250px
+         :height: 200px
+         :align: center
+
    .. grid-item-card:: Create Parametric Design
       :padding: 2 2 2 2
       :link: post_layout_parametrize
@@ -159,4 +170,5 @@ PyAEDT offers a GUI which utilizes config file. Please refer to `Configure Layou
    import_components
    import_sources
    post_layout_parametrize
+   modeler_simple_transmission_line
 
