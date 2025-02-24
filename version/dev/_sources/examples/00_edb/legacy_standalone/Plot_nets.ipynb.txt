@@ -1,0 +1,251 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "aaa53c50",
+   "metadata": {},
+   "source": [
+    "# EDB: plot nets with Matplotlib\n",
+    "\n",
+    "This example shows how to use the ``Edb`` class to view nets, layers and\n",
+    "via geometry directly in Python. The methods demonstrated in this example\n",
+    "rely on\n",
+    "[matplotlib](https://matplotlib.org/cheatsheets/_images/cheatsheets-1.png)."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "312a7f4e",
+   "metadata": {},
+   "source": [
+    "## Perform required imports\n",
+    "\n",
+    "Perform required imports, which includes importing a section."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "90f4da3c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import tempfile\n",
+    "\n",
+    "import pyedb\n",
+    "from pyedb.misc.downloads import download_file\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7f4f7691",
+   "metadata": {},
+   "source": [
+    "## Download the EDB and copy it into the temporary folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "22fb6ed7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_dir = tempfile.TemporaryDirectory(suffix=\".ansys\")\n",
+    "targetfolder = download_file(\"edb/ANSYS-HSD_V1.aedb\", destination=temp_dir.name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3470ec08",
+   "metadata": {},
+   "source": [
+    "## Create an instance of the Electronics Database using the `pyedb.Edb` class.\n",
+    "\n",
+    "> Note that units are SI."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0a309308",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Select EDB version (change it manually if needed, e.g. \"2024.2\")\n",
+    "edb_version = \"2024.2\"\n",
+    "print(f\"EDB version: {edb_version}\")\n",
+    "\n",
+    "edb = pyedb.Edb(edbpath=targetfolder, edbversion=edb_version)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c016d1f8",
+   "metadata": {},
+   "source": [
+    "Display the nets on a layer. You can display the net geometry directly in Python using\n",
+    "``matplotlib`` from the ``pyedb.Edb`` class."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "118b54da",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.nets.plot(\"AVCC_1V3\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "bc239161",
+   "metadata": {},
+   "source": [
+    "You can view multiple nets by passing a list containing the net\n",
+    "names to the ``plot()`` method."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "17fca242",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.nets.plot([\"GND\", \"GND_DP\", \"AVCC_1V3\"], color_by_net=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d126a97d",
+   "metadata": {},
+   "source": [
+    "You can display all copper on a single layer by passing ``None``\n",
+    "as the first argument. The second argument is a list\n",
+    "of layers to plot. In this case, only one\n",
+    "layer is to be displayed."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "bef3faa9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.nets.plot(None, [\"1_Top\"], color_by_net=True, plot_components_on_top=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8786601c",
+   "metadata": {},
+   "source": [
+    "Display a side view of the layers and padstack geometry using the\n",
+    "``Edb.stackup.plot()`` method."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0ea2dce0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.stackup.plot(scale_elevation=False, plot_definitions=[\"c100hn140\", \"c35\"])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "11646246",
+   "metadata": {},
+   "source": [
+    "## Creating coaxial port on component U1 and all ddr4_dqs nets\n",
+    "Selecting all nets from ddr4_dqs and component U1 and create coaxial ports\n",
+    "On corresponding pins."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "83dc343d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "comp_u1 = edb.components.instances[\"U1\"]\n",
+    "signal_nets = [net for net in comp_u1.nets if \"ddr4_dqs\" in net.lower()]\n",
+    "edb.hfss.create_coax_port_on_component(\"U1\", net_list=signal_nets)\n",
+    "edb.components.set_solder_ball(component=\"U1\", sball_diam=\"0.3mm\", sball_height=\"0.3mm\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "78fdb805",
+   "metadata": {},
+   "source": [
+    "## Renaming all ports\n",
+    "Renaming all port with _renamed string as suffix example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ce5e3a36",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "for port_name, port in edb.ports.items():\n",
+    "    port.name = f\"{port_name}_renamed\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b5e78b4e",
+   "metadata": {},
+   "source": [
+    "Close the EDB."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f3a419c0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.close_edb()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3089752f",
+   "metadata": {},
+   "source": [
+    "Remove all files and the temporary directory."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4ab1b21e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_dir.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

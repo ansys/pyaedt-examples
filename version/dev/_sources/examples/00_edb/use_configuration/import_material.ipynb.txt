@@ -1,0 +1,282 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "d15c7494",
+   "metadata": {},
+   "source": [
+    "# Import Materials\n",
+    "This example shows how to import materials."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "64ee421a",
+   "metadata": {},
+   "source": [
+    "### Import the required packages"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "70c1a9df",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import json\n",
+    "from pathlib import Path\n",
+    "import tempfile\n",
+    "\n",
+    "from IPython.display import display\n",
+    "from ansys.aedt.core.downloads import download_file\n",
+    "import pandas as pd\n",
+    "\n",
+    "from pyedb import Edb\n",
+    "\n",
+    "AEDT_VERSION = \"2024.2\"\n",
+    "NG_MODE = False\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "52d2d247",
+   "metadata": {},
+   "source": [
+    "Download the example PCB data."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "58309d60",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")\n",
+    "file_edb = download_file(source=\"edb/ANSYS-HSD_V1.aedb\", destination=temp_folder.name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c945e767",
+   "metadata": {},
+   "source": [
+    "## Load example layout."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d750f383",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp = Edb(file_edb, edbversion=AEDT_VERSION)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0d7df24f",
+   "metadata": {},
+   "source": [
+    "## Review materials from layout"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3e18219e",
+   "metadata": {},
+   "source": [
+    "Get materials from layout in a dictionary. Materials are exported together with stadckup."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5fe9cd35",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "data_cfg = edbapp.configuration.get_data_from_db(stackup=True)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a30eacaf",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df = pd.DataFrame(data=data_cfg[\"stackup\"][\"materials\"])\n",
+    "display(df)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4d11fae8",
+   "metadata": {},
+   "source": [
+    "## Add a new material"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "63707fde",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "data_cfg[\"stackup\"][\"materials\"].append(\n",
+    "    {\"name\": \"soldermask\", \"permittivity\": 3.3, \"dielectric_loss_tangent\": 0.02},\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "88aaebef",
+   "metadata": {},
+   "source": [
+    "## Edit existing material properties"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c5831697",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "data_cfg[\"stackup\"][\"materials\"][1][\"name\"] = \"fr4_epoxy\"\n",
+    "data_cfg[\"stackup\"][\"materials\"][1][\"dielectric_loss_tangent\"] = 0.015"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e91c59da",
+   "metadata": {},
+   "source": [
+    "## Review modified materials"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "eadfeb15",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df = pd.DataFrame(data=data_cfg[\"stackup\"][\"materials\"])\n",
+    "display(df)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "49b80a21",
+   "metadata": {},
+   "source": [
+    "## Write material definition into a json file"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0dee5403",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "file_cfg = Path(temp_folder.name) / \"edb_configuration.json\"\n",
+    "with open(file_cfg, \"w\") as f:\n",
+    "    json.dump(data_cfg, f, indent=4, ensure_ascii=False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "79a4d4c2",
+   "metadata": {},
+   "source": [
+    "## Load materials from json configuration file"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "05d0c5ad",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.configuration.load(str(file_cfg), apply_file=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5cf59d15",
+   "metadata": {},
+   "source": [
+    "## Review materials from layout"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e4757cda",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.materials.materials"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1f3da7f4",
+   "metadata": {},
+   "source": [
+    "## Check modified material properties"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5a3a61d8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.materials[\"fr4_epoxy\"].loss_tangent"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4ee8e3be",
+   "metadata": {},
+   "source": [
+    "## Save and close Edb\n",
+    "The temporary folder will be deleted once the execution of this script is finished. Replace **edbapp.save()** with\n",
+    "**edbapp.save_as(\"C:/example.aedb\")** to keep the example project."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "275d88b6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.save()\n",
+    "edbapp.close()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
