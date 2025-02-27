@@ -253,7 +253,7 @@ ipk.assign_openings(airfaces)
 
 hfss.save_project()
 ipk = ansys.aedt.core.Icepak(version=AEDT_VERSION)
-ipk.solution_type = ipk.SOLUTIONS.Icepak.SteadyTemperatureAndFlow
+ipk.solution_type = ipk.SOLUTIONS.Icepak.SteadyState
 ipk.modeler.fit_all()
 
 # ## Solve models

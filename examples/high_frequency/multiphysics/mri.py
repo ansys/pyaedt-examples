@@ -324,8 +324,8 @@ mesh_box = ipk.modeler.create_box(
 mesh_box.model = False
 mesh_region = ipk.mesh.assign_mesh_region([mesh_box.name])
 mesh_region.UserSpecifiedSettings = False
-mesh_region.Level = 4
 mesh_region.update()
+mesh_region.properties["Mesh Resolution"] = 4
 
 # ## Create point monitor
 #

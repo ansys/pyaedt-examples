@@ -57,6 +57,7 @@ Np = 8
 Nr = 10
 gap = 3
 hfss["Tsub"] = "6" + hfss.modeler.model_units
+hfss["thickness"] = f"{thickness} {hfss.modeler.model_units}"
 
 # ## Standardize polyline
 #
@@ -101,7 +102,7 @@ create_line([(x0 - width / 2, y0, -gap), (abs(x1) + 5, y0, -gap)])
 hfss.modeler.create_box(
     [x0 - width / 2, y0 - width / 2, -gap - thickness / 2],
     [width, width, gap + thickness],
-    matname="copper",
+    material="copper",
 )
 
 # Create port 1.
@@ -129,13 +130,13 @@ hfss.lumped_port(assignment="port2", integration_line=ansys.aedt.core.constants.
 
 # +
 hfss.modeler.create_box(
-    [x1 - 20, x1 - 20, "-Tsub-{}{}/2".format(thickness, hfss.modeler.model_units)],
+    [x1 - 20, x1 - 20, "-Tsub-thickness/2"],
     [-2 * x1 + 40, -2 * x1 + 40, "Tsub"],
     material="silicon",
 )
 
 hfss.modeler.create_box(
-    [x1 - 20, x1 - 20, "-Tsub-{}{}/2".format(thickness, hfss.modeler.model_units)],
+    [x1 - 20, x1 - 20, "-Tsub-thickness/2"],
     [-2 * x1 + 40, -2 * x1 + 40, -0.1],
     material="PEC",
 )
@@ -150,9 +151,7 @@ box = hfss.modeler.create_box(
     [
         x1 - 20,
         x1 - 20,
-        "-Tsub-{}{}/2 - 0.1{}".format(
-            thickness, hfss.modeler.model_units, hfss.modeler.model_units
-        ),
+        "-Tsub-thickness/2 - 0.1{}".format(hfss.modeler.model_units),
     ],
     [-2 * x1 + 40, -2 * x1 + 40, 100],
     name="airbox",
