@@ -82,8 +82,7 @@ freq_step = "0.5GHz"
 #   - The second argument is a ``dict`` whose keys are the names of the parameters
 #     accessible in the 3D component. In this case, we assign the
 #     dipole length, ``"l_dipole"`` to the 3D Component
-#     parameter ``dipole_length``
-#     and leave other parameters unchanged.
+#     parameter ``dipole_length`` and leave other parameters unchanged.
 
 component_fn = hfss.components3d[component_name]          # Full file name.
 comp_params = hfss.get_components3d_vars(component_name)  # Retrieve dipole parameters.
