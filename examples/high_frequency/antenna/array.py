@@ -27,7 +27,7 @@ from ansys.aedt.core import general_methods
 # ### Define constants
 # Constants help ensure consistency and avoid repetition throughout the example.
 
-AEDT_VERSION = "2024.2"
+AEDT_VERSION = "2025.1"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
@@ -110,7 +110,7 @@ array_definition["Circ_Patch_5GHz1"] = os.path.join(path_to_3dcomp, "Circ_Patch_
 # ``array_definition``.
 # If a 3D component is not available in the design, it is loaded
 # into the dictionary from the path that you specify. The following
-# code edits the dictionary to point to the location of the ``*.a3dcomp`` file.
+# code edits the dictionary to point to the location of the ``A3DCOMP`` file.
 
 array = hfss.add_3d_component_array_from_json(array_definition, name="circ_patch_array")
 
@@ -169,7 +169,8 @@ time.sleep(3)
 
 # ### Load far field data
 #
-# The ``FfdSolutionData`` method can be instantiated from the metadata file. Embedded element
+# An instance of the ``FfdSolutionData`` class
+# can be instantiated from the metadata file. Embedded element
 # patters are linked through the metadata file.
 
 ffdata = FfdSolutionData(input_file=metadata_file)
@@ -180,7 +181,7 @@ ffdata = FfdSolutionData(input_file=metadata_file)
 # and Phi scan.
 
 ffdata.plot_contour(
-    quantity="RealizedGain", title=f"Contour at {ffdata.frequency*1e-9:.1f}GHz"
+    quantity="RealizedGain", title=f"Contour at {ffdata.frequency * 1e-9:.1f} GHz"
 )
 
 # ### Generate 2D cutout plots
@@ -193,7 +194,7 @@ ffdata.plot_cut(
     quantity="RealizedGain",
     primary_sweep="theta",
     secondary_sweep_value=[-180, -75, 75],
-    title=f"Azimuth at {ffdata.frequency*1E-9:.1f}GHz",
+    title=f"Azimuth at {ffdata.frequency * 1E-9:.1f} GHz",
     quantity_format="dB10",
 )
 
