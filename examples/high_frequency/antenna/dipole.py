@@ -70,8 +70,7 @@ freq_step = "0.5GHz"
 #
 # The 3D component "Dipole_Antenna_DM" will be inserted from
 # the built-in ``syslib`` folder. The full path to the 3D components
-# can be retrieved from 
-# ``hfss.components3d``.
+# can be retrieved from ``hfss.components3d``.
 #
 # The component is inserted using the method
 # ``hfss.modeler.insert_3d_component()``.
