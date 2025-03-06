@@ -18,7 +18,35 @@ These examples use PyAEDT to show power integrity examples.
 
       This example shows how to use the Ansys Electronics Database (EDB) for power integrity analysis.
 
-   .. grid-item-card:: DC IR analysis
+
+   .. grid-item-card:: Via Array
+      :padding: 2 2 2 2
+      :link: ../../../00_edb/legacy_standalone/differential_vias
+      :link-type: doc
+
+      .. image:: ../../../00_edb/legacy_standalone/_static/diff_via.png
+         :alt: Differential Vias
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      This example shows how you can use EDB to create a layout.
+
+   .. grid-item-card::  SIwave DC-IR Analysis
+      :padding: 2 2 2 2
+      :link: ../../../00_edb/legacy_standalone/01_edb_example
+      :link-type: doc
+
+      .. image:: ../../../00_edb/legacy_standalone/_static/siwave_dcir.png
+         :alt: SIwave DCIR
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      This example demonstrates the use of EDB to interact with a PCB layout and run DC-IR analysis in SIwave.
+
+
+   .. grid-item-card:: SIwave DC IR analysis (HFSS 3D Layout)
       :padding: 2 2 2 2
       :link: dcir
       :link-type: doc
@@ -32,7 +60,7 @@ These examples use PyAEDT to show power integrity examples.
       This example shows how to configure EDB for DC IR analysis and load EDB into the HFSS 3D Layout UI for analysis
       and postprocessing.
 
-   .. grid-item-card:: PCB DCIR analysis
+   .. grid-item-card:: Q3D DCIR analysis
       :padding: 2 2 2 2
       :link: dcir_q3d
       :link-type: doc
@@ -110,3 +138,5 @@ These examples use PyAEDT to show power integrity examples.
       ../../../aedt_general/modeler/circuit_schematic
       ../../../aedt_general/modeler/netlist_to_schematic
       ../../../aedt_general/report/touchstone_file
+      ../../../00_edb/legacy_standalone/differential_vias
+      ../../../00_edb/legacy_standalone/01_edb_example

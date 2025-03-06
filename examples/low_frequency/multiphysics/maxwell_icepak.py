@@ -225,7 +225,6 @@ em_loss = solution_loss.data_magnitude()[0]
 # -
 
 # ### Analytic calculation of DC resistance
-
 # +
 cu_cond = float(cu_litz.conductivity.value)
 
