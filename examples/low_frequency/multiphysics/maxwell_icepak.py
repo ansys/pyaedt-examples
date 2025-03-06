@@ -24,7 +24,7 @@ from ansys.aedt.core.generic.constants import AXIS
 
 # Define constants.
 
-AEDT_VERSION = "2024.2"
+AEDT_VERSION = "2025.1"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
@@ -180,7 +180,10 @@ m3d.assign_matrix(["Winding1"], matrix_name="Matrix1")
 
 # ### Create the simulation setup
 #
-# The simulation frequency is 150 kHz. You can query and modify the properties of the simulation setup using ``setup.props``. The "PercentError" establishes the minimum allowed change in energy due to the change in mesh size and ensure a small global solution error.
+# The simulation frequency is 150 kHz. You can query and modify the properties
+# of the simulation setup using ``setup.props``. The "PercentError" establishes
+# the minimum allowed change in energy due to the change in mesh size and ensure
+# a small global solution error.
 
 setup = m3d.create_setup(name="Setup1")
 setup.props["Frequency"] = "150kHz"
@@ -194,13 +197,13 @@ m3d.analyze_setup("Setup1")
 
 # ## Postprocessing
 #
-# The DC resistance of the coil can be calculated analyticially. The following cell compares the known
-# DC resistance with the simulated coil
-# resistance.
+# The DC resistance of the coil can be calculated analytically.
+# The following cell compares the known DC resistance
+# with the simulated coil resistance.
 #
-# The values can be displayed in the AEDT "Message Manager". The Ohmic loss in
-# coil is calculated and displayed so we can see the change when Joule
-# heating is considered.
+# The values can be displayed in the AEDT "Message Manager".
+# The Ohmic loss in coil is calculated and displayed so we can
+# see the change when Joule heating is considered.
 
 # +
 report = m3d.post.create_report(expressions="Matrix1.R(Winding1,Winding1)")
