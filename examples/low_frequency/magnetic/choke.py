@@ -17,7 +17,7 @@ import ansys.aedt.core
 
 # Define constants.
 
-AEDT_VERSION = "2024.2"
+AEDT_VERSION = "2025.1"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 
@@ -32,7 +32,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch Maxwell3D
 #
-# Launch Maxwell 3D 2024 R2 in graphical mode.
+# Launch Maxwell 3D 2025 R1 in graphical mode.
 
 project_name = os.path.join(temp_folder.name, "choke.aedt")
 m3d = ansys.aedt.core.Maxwell3d(
