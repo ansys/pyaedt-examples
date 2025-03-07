@@ -21,7 +21,7 @@ from IPython.display import Image
 
 # Define constants.
 
-AEDT_VERSION = "2024.2"
+AEDT_VERSION = "2025.1"
 NUM_CORES = 4
 NG_MODE = False  # Do not show the graphical user interface.
 

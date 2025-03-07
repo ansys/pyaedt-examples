@@ -20,7 +20,7 @@ from ansys.aedt.core import Circuit, Edb
 
 # Define constants.
 
-EDB_VERSION = "2024.2"
+EDB_VERSION = "2025.1"
 
 # ## Create temporary directory
 #

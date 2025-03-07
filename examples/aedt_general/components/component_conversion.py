@@ -32,7 +32,7 @@ from ansys.aedt.core.downloads import download_file
 # ### Define constants
 # Constants help ensure consistency and avoid repetition throughout the example.
 
-AEDT_VERSION = "2024.2"
+AEDT_VERSION = "2025.1"
 OLD_AEDT_VERSION = "2024.1"
 NG_MODE = False  # Open AEDT UI when AEDT is launched.
 
