@@ -18,7 +18,7 @@ from ansys.aedt.core.generic.general_methods import read_csv_pandas
 
 # Define constants.
 
-AEDT_VERSION = "2024.2"
+AEDT_VERSION = "2025.1"
 NG_MODE = False
 
 # ## Create temporary directory

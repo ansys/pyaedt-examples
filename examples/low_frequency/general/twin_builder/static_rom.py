@@ -20,7 +20,7 @@ from ansys.aedt.core import TwinBuilder, downloads
 
 # Define constants.
 
-AEDT_VERSION = "2024.2"
+AEDT_VERSION = "2025.1"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
