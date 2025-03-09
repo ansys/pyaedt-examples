@@ -61,7 +61,7 @@ print("Project name " + project_name)
 #
 # Read array definition from the JSON file.
 
-dict_in = ansys.aedt.core.general_methods.read_json(
+dict_in = ansys.aedt.core.generic.file_utils.read_json(
     os.path.join(example_path, "array_simple.json")
 )
 

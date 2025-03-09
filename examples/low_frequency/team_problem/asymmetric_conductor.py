@@ -18,7 +18,7 @@ import time
 
 import numpy as np
 from ansys.aedt.core import Maxwell3d
-from ansys.aedt.core.generic.general_methods import write_csv
+from ansys.aedt.core.generic.file_utils import write_csv
 # -
 
 # ### Define constants
