@@ -14,7 +14,7 @@ import tempfile
 from math import cos, radians, sin, sqrt
 
 import ansys.aedt.core
-from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.file_utils import generate_unique_name
 
 # Define constants.
 

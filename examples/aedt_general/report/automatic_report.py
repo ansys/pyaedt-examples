@@ -23,7 +23,7 @@ from IPython.display import Image
 # Define constants.
 
 AEDT_VERSION = "2025.1"
-NG_MODE = False  # Open AEDT UI when it is launched.
+NG_MODE = True  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
 #
@@ -97,7 +97,7 @@ Image(os.path.join(circuit.working_directory, report1_full.plot_name + ".jpg"))
 # The following code modifies the trace rendering prior to creating the report.
 
 # +
-props = ansys.aedt.core.general_methods.read_json(
+props = ansys.aedt.core.generic.file_utils.read_json(
     os.path.join(project_path, "Transient_CISPR_Custom.json")
 )
 

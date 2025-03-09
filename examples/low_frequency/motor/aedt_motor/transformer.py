@@ -14,7 +14,7 @@ import time
 
 from ansys.aedt.core import Maxwell3d, downloads
 from ansys.aedt.core.generic.constants import unit_converter
-from ansys.aedt.core.generic.general_methods import read_csv_pandas
+from ansys.aedt.core.generic.file_utils import read_csv_pandas
 
 # Define constants.
 
