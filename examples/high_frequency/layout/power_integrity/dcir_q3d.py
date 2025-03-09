@@ -236,12 +236,10 @@ setup.capacitance_enabled = False
 setup.ac_rl_enabled = False
 setup.props["SaveFields"] = True
 setup.props["DC"]["Cond"]["MaxPass"] = 3
-setup.analyze()
 
 # ## Solve setup
 
 q3d.save_project()
-q3d.analyze_setup(setup.name, cores=NUM_CORES)
 
 # ## Create a named expression
 #
@@ -249,28 +247,34 @@ q3d.analyze_setup(setup.name, cores=NUM_CORES)
 
 voltage_drop = q3d.post.fields_calculator.add_expression("voltage_drop", None)
 
+# ## Following post-processing workflow is not supported in 2025R1
+
 # ## Create Phi plot
 #
-# Compute ACL solutions and plot them.
+# Compute ACL solutions and plot them. This report does not work in 2025R1.
+
+# ## Analyze project
+
+# setup.analyze(cores=NUM_CORES)
 
 # +
-plot1 = q3d.post.create_fieldplot_surface(
-    q3d.modeler.get_objects_by_material("copper"),
-    quantity=voltage_drop,
-    intrinsics={"Freq": "1GHz"},
-)
-
-q3d.post.plot_field_from_fieldplot(
-    plot1.name,
-    project_path=temp_folder.name,
-    mesh_plot=False,
-    image_format="jpg",
-    view="isometric",
-    show=False,
-    plot_cad_objs=False,
-    log_scale=False,
-)
-# -
+# plot1 = q3d.post.create_fieldplot_surface(
+#     q3d.modeler.get_objects_by_material("copper"),
+#     quantity=voltage_drop,
+#     intrinsics={"Freq": "1GHz"},
+# )
+#
+# q3d.post.plot_field_from_fieldplot(
+#     plot1.name,
+#     project_path=temp_folder.name,
+#     mesh_plot=False,
+#     image_format="jpg",
+#     view="isometric",
+#     show=False,
+#     plot_cad_objs=False,
+#     log_scale=False,
+# )
+# # -
 
 
 # ## Compute voltage on source circles
@@ -279,34 +283,34 @@ q3d.post.plot_field_from_fieldplot(
 # using the ``get_solution_data()`` method.
 
 # +
-v_surface = {
-    "name": "",
-    "description": "Maximum value of voltage on a surface",
-    "design_type": ["Q3D Extractor"],
-    "fields_type": ["DC R/L Fields"],
-    "primary_sweep": "Freq",
-    "assignment": "",
-    "assignment_type": ["Face", "Sheet"],
-    "operations": [
-        f"NameOfExpression({voltage_drop})",
-        "EnterSurface('assignment')",
-        "Operation('SurfaceValue')",
-        "Operation('Maximum')",
-    ],
-    "report": ["Field_3D"],
-}
-for source_circle, source_bound in zip(sources_objs, sources_bounds):
-    v_surface["name"] = "V{}".format(source_bound.name)
-    q3d.post.fields_calculator.add_expression(v_surface, source_circle.name)
-
-    data = q3d.post.get_solution_data(
-        "V{}".format(source_bound.name),
-        q3d.nominal_adaptive,
-        variations={"Freq": "1GHz"},
-        report_category="DC R/L Fields",
-    )
-    if data:
-        print(data.data_real("V{}".format(source_bound.name)))
+# v_surface = {
+#     "name": "",
+#     "description": "Maximum value of voltage on a surface",
+#     "design_type": ["Q3D Extractor"],
+#     "fields_type": ["DC R/L Fields"],
+#     "primary_sweep": "Freq",
+#     "assignment": "",
+#     "assignment_type": ["Face", "Sheet"],
+#     "operations": [
+#         f"NameOfExpression({voltage_drop})",
+#         "EnterSurface('assignment')",
+#         "Operation('SurfaceValue')",
+#         "Operation('Maximum')",
+#     ],
+#     "report": ["Field_3D"],
+# }
+# for source_circle, source_bound in zip(sources_objs, sources_bounds):
+#     v_surface["name"] = "V{}".format(source_bound.name)
+#     q3d.post.fields_calculator.add_expression(v_surface, source_circle.name)
+#
+#     data = q3d.post.get_solution_data(
+#         "V{}".format(source_bound.name),
+#         q3d.nominal_adaptive,
+#         variations={"Freq": "1GHz"},
+#         report_category="DC R/L Fields",
+#     )
+#     if data:
+#         print(data.data_real("V{}".format(source_bound.name)))
 # -
 
 # ## Release AEDT
