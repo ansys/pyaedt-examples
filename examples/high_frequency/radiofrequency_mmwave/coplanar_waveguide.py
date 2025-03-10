@@ -104,7 +104,7 @@ base_line_obj = q2d.modeler.create_polyline(
 top_line_obj = q2d.modeler.create_polyline(
     points=[[0, layer_2_uh, 0], [co_gnd_top_w, layer_2_uh, 0]]
 )
-q2d.modeler.move(objid=[top_line_obj], vector=[delta_w_half, 0, 0])
+q2d.modeler.move(assignment=[top_line_obj], vector=[delta_w_half, 0, 0])
 q2d.modeler.connect([base_line_obj, top_line_obj])
 
 base_line_obj = q2d.modeler.create_polyline(
@@ -113,7 +113,7 @@ base_line_obj = q2d.modeler.create_polyline(
 top_line_obj = q2d.modeler.create_polyline(
     points=[[0, layer_2_uh, 0], [co_gnd_top_w, layer_2_uh, 0]]
 )
-q2d.modeler.move(objid=[top_line_obj], vector=[delta_w_half, 0, 0])
+q2d.modeler.move(assignment=[top_line_obj], vector=[delta_w_half, 0, 0])
 q2d.modeler.connect([base_line_obj, top_line_obj])
 q2d.modeler.move(
     assignment=[base_line_obj],
@@ -152,7 +152,7 @@ for obj_name in ["signal", "co_gnd_left", "co_gnd_right"]:
         e_obj_list.append(e_obj)
     e_obj_1 = e_obj_list[0]
     q2d.modeler.unite(e_obj_list)
-    new_obj = q2d.modeler.sweep_along_vector(
+    _ = q2d.modeler.sweep_along_vector(
         assignment=e_obj_1.id, sweep_vector=[0, sm_h, 0]
     )
     sm_obj_list.append(e_obj_1)
@@ -162,11 +162,11 @@ new_obj = q2d.modeler.create_rectangle(
 )
 sm_obj_list.append(new_obj)
 
-new_obj = q2d.modeler.create_rectangle(
+new_obj2 = q2d.modeler.create_rectangle(
     origin=[co_gnd_w, layer_2_lh, 0], sizes=[clearance, sm_h]
 )
-q2d.modeler.move(assignment=[new_obj], vector=[sig_bot_w + "+" + clearance, 0, 0])
-sm_obj_list.append(new_obj)
+q2d.modeler.move(assignment=[new_obj2], vector=[sig_bot_w + "+" + clearance, 0, 0])
+sm_obj_list.append(new_obj2)
 
 sm_obj = sm_obj_list[0]
 q2d.modeler.unite(sm_obj_list)
