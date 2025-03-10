@@ -21,6 +21,7 @@ import tempfile
 import time
 
 import ansys.aedt.core
+from examples.low_frequency.general.field_export import quantity
 
 # Define constants.
 
@@ -106,7 +107,8 @@ for p in polys:
     report = m2d.post.create_report(
         expressions=quantity,
         report_category="Fields",
-        plot_type="Data Table"
+        plot_type="Data Table",
+        plot_name=quantity
     )
 
 # # Second option
