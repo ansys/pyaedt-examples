@@ -64,9 +64,7 @@ m2d = ansys.aedt.core.Maxwell2d(
 param_sweep = m2d.parametrics.add(
     variable="bridge",
     start_point="0.5mm",
-    end_point="1mm",
-    step="0.5mm",
-    variation_type="LinearStep",
+    variation_type="SingleValue",
 )
 param_sweep.add_variation(
     sweep_variable="din",
@@ -78,11 +76,9 @@ param_sweep.add_variation(
 )
 param_sweep.add_variation(
     sweep_variable="phase_advance",
-    start_point=0,
-    end_point=45,
-    step=45,
+    start_point=45,
     units="deg",
-    variation_type="LinearStep",
+    variation_type="SingleValue",
 )
 param_sweep.add_variation(
     sweep_variable="Ipeak", start_point=200, units="A", variation_type="SingleValue"
