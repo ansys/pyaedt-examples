@@ -137,7 +137,7 @@ gif.animate()
 # Generate the same plot outside AEDT.
 
 solutions = m2d.post.get_solution_data(
-    expressions="InputCurrent(PHA)", primary_sweep_variable="Time"
+    expressions="InputCurrent(PHA)", primary_sweep_variable="Time", domain="Sweep"
 )
 solutions.plot()
 
