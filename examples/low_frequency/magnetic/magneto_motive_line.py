@@ -105,11 +105,8 @@ for p in polys:
     m2d.post.fields_calculator.add_expression(my_expression, p)
     report = m2d.post.create_report(
         expressions=quantity,
-        context=p,
-        polyline_points=1,
         report_category="Fields",
-        plot_type="Data Table",
-        plot_name=quantity,
+        plot_type="Data Table"
     )
 
 # # Second option
