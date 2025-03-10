@@ -145,7 +145,7 @@ m3d.assign_current(
 line_points = [["0mm", "-55mm", "0.5mm"], ["0mm", "55mm", "0.5mm"]]
 m3d.modeler.create_polyline(points=line_points, name="Line_AB")
 poly = m3d.modeler.create_polyline(points=line_points, name="Line_AB_MeshRefinement")
-poly.set_crosssection_properties(type="Circle", width="0.5mm")
+poly.set_crosssection_properties(section="Circle", width="0.5mm")
 
 # ### Add Maxwell 3D setup
 #
@@ -156,7 +156,7 @@ setup.props["Frequency"] = "200Hz"
 setup.props["HasSweepSetup"] = True
 setup.props["MaximumPasses"] = 1
 setup.add_eddy_current_sweep(
-    range_type="LinearStep", start=50, end=200, count=150, clear=True
+    sweep_type="LinearStep", start_frequency=50, stop_frequency=200, step_size=150, clear=True
 )
 
 # ### Adjust eddy effects
