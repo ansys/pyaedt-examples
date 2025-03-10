@@ -244,7 +244,12 @@ setup.props["PercentRefinement"] = 15
 setup.props["MaximumPasses"] = 10
 setup.props["HasSweepSetup"] = True
 setup.add_eddy_current_sweep(
-    range_type="LinearCount", start=100, end=1000, count=12, units="kHz", clear=True
+    sweep_type="LinearCount",
+    start_frequency=100,
+    stop_frequency=1000,
+    step_size=12,
+    units="kHz",
+    clear=True
 )
 
 # ## Save project
