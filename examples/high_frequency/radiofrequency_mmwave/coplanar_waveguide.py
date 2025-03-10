@@ -130,10 +130,10 @@ q2d.modeler.create_rectangle(
 # Define the substrate.
 
 q2d.modeler.create_rectangle(
-    position=[0, layer_1_uh, 0],
-    dimension_list=[model_w, d_h],
+    origin=[0, layer_1_uh, 0],
+    sizes=[model_w, d_h],
     name="Dielectric",
-    matname="FR4_epoxy",
+    material="FR4_epoxy",
 )
 
 # Assign a conformal coating.
