@@ -34,7 +34,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # ## Download EDB folder
 
 edb_file = ansys.aedt.core.downloads.download_file(
-    directory="edb/siwave_multi_zones.aedb", destination=temp_folder.name
+    source="edb/siwave_multi_zones.aedb", destination=temp_folder.name
 )
 work_folder = os.path.join(temp_folder.name, "work")
 aedt_file = os.path.splitext(edb_file)[0] + ".aedt"
@@ -105,9 +105,9 @@ circuit_setup.props["SweepDefinition"]["Data"] = "LIN {} {} {}".format(
 
 # ## Start simulation
 #
-# Analyze all SIwave projects and solve the circuit.
+# Analyze all SIwave projects and solve the circuit. Uncomment the following line to run the analysis.
 
-circuit.analyze()
+# circuit.analyze()
 
 # Define differential pairs
 
