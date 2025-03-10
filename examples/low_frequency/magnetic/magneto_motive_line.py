@@ -19,9 +19,7 @@
 
 import tempfile
 import time
-
 import ansys.aedt.core
-from examples.low_frequency.general.field_export import quantity
 
 # Define constants.
 
