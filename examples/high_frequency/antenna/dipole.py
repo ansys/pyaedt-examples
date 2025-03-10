@@ -58,7 +58,7 @@ hfss["l_dipole"] = "13.5cm"
 # case of an encrypted 3D component, create a dictionary of the parameters.
 
 compfile = hfss.components3d["Dipole_Antenna_DM"]
-geometryparams = hfss.get_components3d_vars("Dipole_Antenna_DM")
+geometryparams = hfss.get_component_variables("Dipole_Antenna_DM")
 geometryparams["dipole_length"] = "l_dipole"
 hfss.modeler.insert_3d_component(compfile, geometryparams)
 
@@ -84,7 +84,7 @@ hfss.analyze_setup(name="MySetup", cores=NUM_CORES)
 # Plot s-parameters and far field.
 
 hfss.create_scattering("MyScattering")
-variations = hfss.available_variations.nominal_w_values_dict
+variations = hfss.available_variations.nominal_values
 variations["Freq"] = ["1GHz"]
 variations["Theta"] = ["All"]
 variations["Phi"] = ["All"]
@@ -169,7 +169,7 @@ solutions.plot(formula="db20", is_polar=True)
 ffdata = hfss.get_antenna_data(
     sphere="Sphere_Custom",
     setup=hfss.nominal_adaptive,
-    frequencies=1
+    frequencies="1GHz"
 )
 
 # ## Generate 2D cutout plot
