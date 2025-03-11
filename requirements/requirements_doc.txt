@@ -2,19 +2,17 @@
 git+https://github.com/ansys/pyaedt@main
 
 # Examples dependencies
-imageio==2.36.0
-matplotlib==3.9.2
+imageio==2.37.0
+matplotlib==3.10.1
 numpy==2.2.3
 openpyxl==3.1.5
-osmnx==1.9.0
-pandas==2.2.0
-pyvista==0.44.0
-fast-simplification==0.1.7
-joblib==1.4.0
+osmnx==2.0.1
+pandas==2.2.3
+pyvista==0.44.2
+fast-simplification==0.1.9
+joblib==1.4.2
 plotly==5.24.0
-scikit-rf==1.2.0
-SRTM.py
-utm
+scikit-rf==1.6.2
 
 # Documentation dependencies
 ansys-sphinx-theme==1.0.5
