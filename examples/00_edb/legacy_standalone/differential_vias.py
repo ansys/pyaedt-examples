@@ -18,8 +18,8 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 aedb_path = os.path.join(temp_dir.name, "create_via.aedb")
 print(f"AEDB file path: {aedb_path}")
 
-# Select EDB version (change it manually if needed, e.g. "2024.2")
-edb_version = "2024.2"
+# Select EDB version (change it manually if needed, e.g. "2025.1")
+edb_version = "2025.1"
 print(f"EDB version: {edb_version}")
 
 edb = pyedb.Edb(edbpath=aedb_path, edbversion=edb_version)

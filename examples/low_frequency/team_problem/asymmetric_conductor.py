@@ -18,13 +18,13 @@ import time
 
 import numpy as np
 from ansys.aedt.core import Maxwell3d
-from ansys.aedt.core.generic.general_methods import write_csv
+from ansys.aedt.core.generic.file_utils import write_csv
 # -
 
 # ### Define constants
 # Constants help ensure consistency and avoid repetition throughout the example.
 
-AEDT_VERSION = "2024.2"
+AEDT_VERSION = "2025.1"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
@@ -71,10 +71,10 @@ setup = m3d.create_setup(name="Setup1")
 setup.props["Frequency"] = "200Hz"
 setup.props["HasSweepSetup"] = True
 setup.add_eddy_current_sweep(
-    range_type="LinearStep",
-    start=dc_freq,
-    end=stop_freq,
-    count=stop_freq - dc_freq,
+    sweep_type="LinearStep",
+    start_frequency=dc_freq,
+    stop_frequency=stop_freq,
+    step_size=stop_freq - dc_freq,
     clear=True,
 )
 setup.props["UseHighOrderShapeFunc"] = True
@@ -120,7 +120,7 @@ m3d.modeler.create_coordinate_system(
 test = m3d.modeler.create_polyline(
     points=[P1, P2, P3, P4], segment_type=["Line", "Arc"], name="Coil"
 )
-test.set_crosssection_properties(type="Rectangle", width=coil_thk, height=coil_height)
+test.set_crosssection_properties(section="Rectangle", width=coil_thk, height=coil_height)
 
 # Duplicate and unite the polyline to create the full coil.
 
@@ -236,12 +236,12 @@ mesh_diameter = "2mm"
 line_points_1 = [["0mm", "72mm", "34mm"], ["288mm", "72mm", "34mm"]]
 polyline = m3d.modeler.create_polyline(points=line_points_1, name=lines[0])
 l1_mesh = m3d.modeler.create_polyline(points=line_points_1, name=lines[0] + "mesh")
-l1_mesh.set_crosssection_properties(type="Circle", width=mesh_diameter)
+l1_mesh.set_crosssection_properties(section="Circle", width=mesh_diameter)
 
 line_points_2 = [["0mm", "144mm", "34mm"], ["288mm", "144mm", "34mm"]]
 polyline2 = m3d.modeler.create_polyline(points=line_points_2, name=lines[1])
 l2_mesh = m3d.modeler.create_polyline(points=line_points_2, name=lines[1] + "mesh")
-l2_mesh.set_crosssection_properties(type="Circle", width=mesh_diameter)
+l2_mesh.set_crosssection_properties(section="Circle", width=mesh_diameter)
 # -
 
 # Published measurement results are included with this script via the following list.

@@ -17,7 +17,7 @@ import ansys.aedt.core
 
 # Define constants.
 
-AEDT_VERSION = "2024.2"
+AEDT_VERSION = "2025.1"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 
@@ -244,7 +244,12 @@ setup.props["PercentRefinement"] = 15
 setup.props["MaximumPasses"] = 10
 setup.props["HasSweepSetup"] = True
 setup.add_eddy_current_sweep(
-    range_type="LinearCount", start=100, end=1000, count=12, units="kHz", clear=True
+    sweep_type="LinearCount",
+    start_frequency=100,
+    stop_frequency=1000,
+    step_size=12,
+    units="kHz",
+    clear=True
 )
 
 # ## Save project

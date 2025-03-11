@@ -32,7 +32,7 @@ from ansys.aedt.core import Hfss, Icepak, Mechanical, downloads
 
 # Define constants.
 
-AEDT_VERSION = "2024.2"
+AEDT_VERSION = "2025.1"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
@@ -108,7 +108,7 @@ hfss.setups[0].props["MaximumPasses"] = 1
 # The sources in this file were determined by tuning the coil at 63.8 MHz.
 # Notice that ``input_scale`` is a multiplier that lets you quickly adjust the coil excitation power.
 
-hfss.edit_sources_from_file(os.path.join(project_path, "sources.csv"))
+hfss.edit_source_from_file(os.path.join(project_path, "sources.csv"))
 
 # ## Run simulation
 #
@@ -209,6 +209,7 @@ exc = mech.assign_em_losses(
     map_frequency=hfss.setups[0].props["Frequency"],
     surface_objects=mech.get_all_conductors_names(),
 )
+
 mech.assign_uniform_convection(
     assignment=mech.modeler["Region"].faces, convection_value=1
 )

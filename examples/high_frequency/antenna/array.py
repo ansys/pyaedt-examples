@@ -20,7 +20,7 @@ from ansys.aedt.core.visualization.advanced.farfield_visualization import \
 
 # Define constants
 
-AEDT_VERSION = "2024.2"
+AEDT_VERSION = "2025.1"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
@@ -61,7 +61,7 @@ print("Project name " + project_name)
 #
 # Read array definition from the JSON file.
 
-dict_in = ansys.aedt.core.general_methods.read_json(
+dict_in = ansys.aedt.core.generic.file_utils.read_json(
     os.path.join(example_path, "array_simple.json")
 )
 

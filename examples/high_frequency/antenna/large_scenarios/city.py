@@ -18,7 +18,7 @@ import ansys.aedt.core
 
 # Define constants.
 
-AEDT_VERSION = "2024.2"
+AEDT_VERSION = "2025.1"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
@@ -58,7 +58,7 @@ app.modeler.import_from_openstreet_map(
     ansys_home,
     terrain_radius=250,
     road_step=3,
-    plot_before_importing=False,
+    plot_before_importing=True,
     import_in_aedt=True,
 )
 
