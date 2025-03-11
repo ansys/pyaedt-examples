@@ -200,13 +200,15 @@ edbapp.configuration.run()
 edbapp.save()
 edbapp.close()
 
-# ## Load edb into HFSS 3D Layout.
+# ## Uncomment to load edb into HFSS 3D Layout.
 
-h3d = Hfss3dLayout(edbapp.edbpath, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True)
+# h3d = Hfss3dLayout(edbapp.edbpath, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True)
 
-# Shut Down Electronics Desktop
+# ## Clean up
+#
+# All project files are saved in the folder ``temp_folder.name``.
+# If you've run this example as a Jupyter notebook, you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
-h3d.close_desktop()
-
-# All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notebook you
-# can retrieve those project files.
+temp_folder.cleanup()
