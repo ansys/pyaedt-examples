@@ -30,7 +30,7 @@ import ansys.aedt.core
 
 # Define constants.
 
-AEDT_VERSION = "2024.2"
+AEDT_VERSION = "2025.1"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
@@ -137,7 +137,7 @@ gif.animate()
 # Generate the same plot outside AEDT.
 
 solutions = m2d.post.get_solution_data(
-    expressions="InputCurrent(PHA)", primary_sweep_variable="Time"
+    expressions="InputCurrent(PHA)", primary_sweep_variable="Time", domain="Sweep"
 )
 solutions.plot()
 

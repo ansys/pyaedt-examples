@@ -19,7 +19,7 @@ import ansys.aedt.core
 
 # Define constants.
 
-AEDT_VERSION = "2024.2"
+AEDT_VERSION = "2025.1"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
@@ -886,7 +886,7 @@ m2d.post.plot_field_from_fieldplot(plot1.name, show=False)
 # Plot the desired expression by using the Matplotlib ``plot()`` function.
 
 solutions = m2d.post.get_solution_data(
-    expressions="Moving1.Torque", primary_sweep_variable="Time"
+    expressions="Moving1.Torque", primary_sweep_variable="Time", domain="Sweep"
 )
 # solutions.plot()
 

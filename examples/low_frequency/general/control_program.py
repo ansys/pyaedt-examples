@@ -18,7 +18,7 @@ from ansys.aedt.core import Maxwell2d, downloads
 
 # Define constants.
 
-AEDT_VERSION = "2024.2"
+AEDT_VERSION = "2025.1"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
@@ -86,6 +86,7 @@ sols = m2d.post.get_solution_data(
     expressions="FluxLinkage(Winding1)",
     variations={"Time": ["All"]},
     primary_sweep_variable="Time",
+    domain="Sweep"
 )
 sols.plot()
 
