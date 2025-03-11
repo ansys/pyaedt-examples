@@ -54,6 +54,7 @@ m2d = ansys.aedt.core.Maxwell2d(
     version=AEDT_VERSION,
     non_graphical=NG_MODE,
     project=project_path,
+    new_desktop=True,
     design="Maxwell2DDesign1",
 )
 
