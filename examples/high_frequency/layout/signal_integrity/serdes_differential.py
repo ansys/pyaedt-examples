@@ -32,8 +32,8 @@ print("Project folder is", target_aedb)
 # Launch the ``pyedb.Edb`` class using EDB 2023 R2. Length units are SI.
 
 # +
-# Select EDB version (change it manually if needed, e.g. "2024.2")
-edb_version = "2024.2"
+# Select EDB version (change it manually if needed, e.g. "2025.1")
+edb_version = "2025.1"
 print(f"EDB version: {edb_version}")
 
 edbapp = pyedb.Edb(target_aedb, edbversion=edb_version)
