@@ -21,7 +21,7 @@ from ansys.aedt.core import Hfss
 from ansys.aedt.core.visualization.advanced.farfield_visualization import \
     FfdSolutionData
 from ansys.aedt.core.downloads import download_3dcomponent
-from ansys.aedt.core import general_methods
+from ansys.aedt.core.generic import file_utils
 # -
 
 # ### Define constants
@@ -70,7 +70,7 @@ print("Project name " + project_name)
 #
 # Read array definition from the JSON file.
 
-array_definition = general_methods.read_json(
+array_definition = file_utils.read_json(
     os.path.join(path_to_3dcomp, "array_simple.json")
 )
 
