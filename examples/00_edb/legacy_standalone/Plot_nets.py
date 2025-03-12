@@ -27,8 +27,8 @@ targetfolder = download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
 # > Note that units are SI.
 
 # +
-# Select EDB version (change it manually if needed, e.g. "2024.2")
-edb_version = "2024.2"
+# Select EDB version (change it manually if needed, e.g. "2025.1")
+edb_version = "2025.1"
 print(f"EDB version: {edb_version}")
 
 edb = pyedb.Edb(edbpath=targetfolder, edbversion=edb_version)

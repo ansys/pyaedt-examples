@@ -19,12 +19,11 @@
 
 import tempfile
 import time
-
 import ansys.aedt.core
 
 # Define constants.
 
-AEDT_VERSION = "2024.2"
+AEDT_VERSION = "2025.1"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
@@ -55,6 +54,7 @@ m2d = ansys.aedt.core.Maxwell2d(
     version=AEDT_VERSION,
     non_graphical=NG_MODE,
     project=project_path,
+    new_desktop=True,
     design="Maxwell2DDesign1",
 )
 
@@ -105,11 +105,9 @@ for p in polys:
     m2d.post.fields_calculator.add_expression(my_expression, p)
     report = m2d.post.create_report(
         expressions=quantity,
-        context=p,
-        polyline_points=1,
         report_category="Fields",
         plot_type="Data Table",
-        plot_name=quantity,
+        plot_name=quantity
     )
 
 # # Second option

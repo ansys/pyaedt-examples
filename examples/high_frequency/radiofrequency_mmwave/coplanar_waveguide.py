@@ -17,7 +17,7 @@ import ansys.aedt.core
 
 # Define constants.
 
-AEDT_VERSION = "2024.2"
+AEDT_VERSION = "2025.1"
 NUM_CORES = 4
 NG_MODE = False  # Run the example without opening the UI.
 
@@ -33,7 +33,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch AEDT and 2D Extractor
 #
-# Launch AEDT 2024.2 in graphical mode and launch 2D Extractor. This example
+# Launch AEDT 2025.1 in graphical mode and launch 2D Extractor. This example
 # uses SI units.
 
 q2d = ansys.aedt.core.Q2d(
@@ -104,7 +104,7 @@ base_line_obj = q2d.modeler.create_polyline(
 top_line_obj = q2d.modeler.create_polyline(
     points=[[0, layer_2_uh, 0], [co_gnd_top_w, layer_2_uh, 0]]
 )
-q2d.modeler.move(objid=[top_line_obj], vector=[delta_w_half, 0, 0])
+q2d.modeler.move(assignment=[top_line_obj], vector=[delta_w_half, 0, 0])
 q2d.modeler.connect([base_line_obj, top_line_obj])
 
 base_line_obj = q2d.modeler.create_polyline(
@@ -113,7 +113,7 @@ base_line_obj = q2d.modeler.create_polyline(
 top_line_obj = q2d.modeler.create_polyline(
     points=[[0, layer_2_uh, 0], [co_gnd_top_w, layer_2_uh, 0]]
 )
-q2d.modeler.move(objid=[top_line_obj], vector=[delta_w_half, 0, 0])
+q2d.modeler.move(assignment=[top_line_obj], vector=[delta_w_half, 0, 0])
 q2d.modeler.connect([base_line_obj, top_line_obj])
 q2d.modeler.move(
     assignment=[base_line_obj],
@@ -130,10 +130,10 @@ q2d.modeler.create_rectangle(
 # Define the substrate.
 
 q2d.modeler.create_rectangle(
-    position=[0, layer_1_uh, 0],
-    dimension_list=[model_w, d_h],
+    origin=[0, layer_1_uh, 0],
+    sizes=[model_w, d_h],
     name="Dielectric",
-    matname="FR4_epoxy",
+    material="FR4_epoxy",
 )
 
 # Assign a conformal coating.
@@ -152,7 +152,7 @@ for obj_name in ["signal", "co_gnd_left", "co_gnd_right"]:
         e_obj_list.append(e_obj)
     e_obj_1 = e_obj_list[0]
     q2d.modeler.unite(e_obj_list)
-    new_obj = q2d.modeler.sweep_along_vector(
+    _ = q2d.modeler.sweep_along_vector(
         assignment=e_obj_1.id, sweep_vector=[0, sm_h, 0]
     )
     sm_obj_list.append(e_obj_1)
@@ -162,11 +162,11 @@ new_obj = q2d.modeler.create_rectangle(
 )
 sm_obj_list.append(new_obj)
 
-new_obj = q2d.modeler.create_rectangle(
+new_obj2 = q2d.modeler.create_rectangle(
     origin=[co_gnd_w, layer_2_lh, 0], sizes=[clearance, sm_h]
 )
-q2d.modeler.move(assignment=[new_obj], vector=[sig_bot_w + "+" + clearance, 0, 0])
-sm_obj_list.append(new_obj)
+q2d.modeler.move(assignment=[new_obj2], vector=[sig_bot_w + "+" + clearance, 0, 0])
+sm_obj_list.append(new_obj2)
 
 sm_obj = sm_obj_list[0]
 q2d.modeler.unite(sm_obj_list)

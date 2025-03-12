@@ -27,8 +27,8 @@ print(targetfile)
 # > Note that length dimensions passed to EDB are in SI units.
 
 # +
-# Select EDB version (change it manually if needed, e.g. "2024.2")
-edb_version = "2024.2"
+# Select EDB version (change it manually if needed, e.g. "2025.1")
+edb_version = "2025.1"
 print(f"EDB version: {edb_version}")
 
 edb = pyedb.Edb(edbpath=targetfile, edbversion=edb_version)

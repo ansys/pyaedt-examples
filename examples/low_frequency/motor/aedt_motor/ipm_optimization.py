@@ -21,7 +21,7 @@ import ansys.aedt.core
 
 # Define constants.
 
-AEDT_VERSION = "2024.2"
+AEDT_VERSION = "2025.1"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
@@ -64,9 +64,7 @@ m2d = ansys.aedt.core.Maxwell2d(
 param_sweep = m2d.parametrics.add(
     variable="bridge",
     start_point="0.5mm",
-    end_point="1mm",
-    step="0.5mm",
-    variation_type="LinearStep",
+    variation_type="SingleValue",
 )
 param_sweep.add_variation(
     sweep_variable="din",
@@ -78,11 +76,9 @@ param_sweep.add_variation(
 )
 param_sweep.add_variation(
     sweep_variable="phase_advance",
-    start_point=0,
-    end_point=45,
-    step=45,
+    start_point=45,
     units="deg",
-    variation_type="LinearStep",
+    variation_type="SingleValue",
 )
 param_sweep.add_variation(
     sweep_variable="Ipeak", start_point=200, units="A", variation_type="SingleValue"
@@ -99,7 +95,7 @@ param_sweep.analyze(cores=NUM_CORES)
 report_torque = m2d.post.create_report(
     expressions="Moving1.Torque",
     domain="Sweep",
-    variations={"bridge": "All", "din": "All", "Ipeak": "All"},
+    variations={"bridge": "All", "din": "All", "Ipeak": "All", "phase_advance": "All"},
     primary_sweep_variable="Time",
     plot_type="Rectangular Plot",
     plot_name="TorqueAllVariations",
@@ -108,7 +104,7 @@ report_torque = m2d.post.create_report(
 report_solid_loss = m2d.post.create_report(
     expressions="SolidLoss",
     domain="Sweep",
-    variations={"bridge": "All", "din": "All", "Ipeak": "All"},
+    variations={"bridge": "All", "din": "All", "Ipeak": "All", "phase_advance": "All"},
     primary_sweep_variable="Time",
     plot_type="Rectangular Plot",
     plot_name="SolidLossAllVariations",
@@ -117,7 +113,7 @@ report_solid_loss = m2d.post.create_report(
 report_core_loss = m2d.post.create_report(
     expressions="CoreLoss",
     domain="Sweep",
-    variations={"bridge": "All", "din": "All", "Ipeak": "All"},
+    variations={"bridge": "All", "din": "All", "Ipeak": "All", "phase_advance": "All"},
     primary_sweep_variable="Time",
     plot_type="Rectangular Plot",
     plot_name="CoreLossAllVariations",
@@ -129,7 +125,7 @@ torque_data = m2d.post.get_solution_data(
     expressions=["Moving1.Torque"],
     setup_sweep_name=m2d.nominal_sweep,
     domain="Sweep",
-    variations={"bridge": "All", "din": "All", "Ipeak": "All"},
+    variations={"bridge": "All", "din": "All", "Ipeak": "All", "phase_advance": "All"},
     primary_sweep_variable="Time",
     report_category="Standard",
 )
@@ -138,7 +134,7 @@ solid_loss_data = m2d.post.get_solution_data(
     expressions=["CoreLoss"],
     setup_sweep_name=m2d.nominal_sweep,
     domain="Sweep",
-    variations={"bridge": "All", "din": "All", "Ipeak": "All"},
+    variations={"bridge": "All", "din": "All", "Ipeak": "All", "phase_advance": "All"},
     primary_sweep_variable="Time",
     report_category="Standard",
 )
@@ -147,7 +143,7 @@ core_loss_data = m2d.post.get_solution_data(
     expressions=["SolidLoss"],
     setup_sweep_name=m2d.nominal_sweep,
     domain="Sweep",
-    variations={"bridge": "All", "din": "All", "Ipeak": "All"},
+    variations={"bridge": "All", "din": "All", "Ipeak": "All", "phase_advance": "All"},
     primary_sweep_variable="Time",
     report_category="Standard",
 )

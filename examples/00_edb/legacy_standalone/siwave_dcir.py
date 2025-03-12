@@ -28,8 +28,8 @@ aedt_file = targetfile[:-4] + "aedt"
 if os.path.exists(aedt_file):
     os.remove(aedt_file)
 
-# Select EDB version (change it manually if needed, e.g. "2024.2")
-edb_version = "2024.2"
+# Select EDB version (change it manually if needed, e.g. "2025.1")
+edb_version = "2025.1"
 print(f"EDB version: {edb_version}")
 
 edb = pyedb.Edb(edbpath=targetfile, edbversion=edb_version)
@@ -195,7 +195,7 @@ edb.close_edb()
 # using the SIwave user interface. This command works on Window OS only.
 
 # +
-# siwave = pyedb.Siwave("2024.2")
+# siwave = pyedb.Siwave("2025.1")
 # siwave.open_project(siwave_file)
 # report_file = os.path.join(temp_folder,'Ansys.htm')
 

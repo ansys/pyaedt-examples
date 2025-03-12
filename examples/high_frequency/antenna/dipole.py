@@ -75,7 +75,7 @@ freq_step = "0.5GHz"
 # The component is inserted using the method
 # ``hfss.modeler.insert_3d_component()``.
 #
-#   - The first argument passed to ``insert_3d_component()`` 
+#   - The first argument passed to ``insert_3d_component()``
 #     is the full path and name of the
 #       ``*.a3dcomp`` file.
 #   - The second argument is a ``dict`` whose keys are the names of the parameters
@@ -84,13 +84,13 @@ freq_step = "0.5GHz"
 #     parameter ``dipole_length`` and leave other parameters unchanged.
 
 component_fn = hfss.components3d[component_name]          # Full file name.
-comp_params = hfss.get_components3d_vars(component_name)  # Retrieve dipole parameters.
+comp_params = hfss.get_component_variables(component_name)  # Retrieve dipole parameters.
 comp_params["dipole_length"] = "l_dipole"                 # Update the dipole length.
 hfss.modeler.insert_3d_component(component_fn, geometry_parameters=comp_params)
 
 # ### Create the 3D domain region
 #
-# An open region object places a an airbox around the dipole antenna 
+# An open region object places a an airbox around the dipole antenna
 # and assigns a radiation boundary to the outer surfaces of the region.
 
 hfss.create_open_region(frequency=center_freq)
@@ -109,10 +109,10 @@ hfss.create_open_region(frequency=center_freq)
 # > **Note:** The parameter names used here are passed directly to the native AEDT API and therfore
 # > do not adhere to [PEP-8](https://peps.python.org/pep-0008/).
 #
-# Both a discrete frequency sweep and an interpolating sweep are added to the solution setup. 
-# The discrete sweep provides access to field solution data for post-processing. 
+# Both a discrete frequency sweep and an interpolating sweep are added to the solution setup.
+# The discrete sweep provides access to field solution data for post-processing.
 # The interpolating sweep builds the
-# rational polynomial fit for the network (scattering) parameters over the 
+# rational polynomial fit for the network (scattering) parameters over the
 # frequency interval defined by ``RangeStart`` and
 # ``RangeEnd``.  The solutions from the discrete sweep are used as the starting
 # solutions for the interpolating sweep.
@@ -174,9 +174,9 @@ elevation_ffd_plot.children["Legend"].properties["Show Solution Name"] = False
 
 # ### Create a far-field report
 #
-# The ``hfss.post.reports_by_category`` helps simplify the syntax required to access 
+# The ``hfss.post.reports_by_category`` helps simplify the syntax required to access
 # post-processing capabilities. In this case, results are shown for the current
-# variation. The concept of 
+# variation. The concept of
 # "variations" is essential for managing parametric solutions
 # in HFSS.
 #
@@ -196,7 +196,7 @@ report_3d.create(name="Realized Gain (dB)")
 
 # ### Retrieve solution data for external post-processing
 #
-# An instance of the ``SolutionData`` class can be created from the report by calling the ``get_solution_data()`` 
+# An instance of the ``SolutionData`` class can be created from the report by calling the ``get_solution_data()``
 # method. This class makes data accessible for further post-processing using
 # [Matplotlib](https://matplotlib.org/) and is used, for example, to create plots that can be viewed
 # directly in the browser or embedded in PDF reports as shown below.
