@@ -263,8 +263,7 @@ def convert_examples_into_notebooks(app):
         "interference_type.py",
         "interference.py",
         "hfss_emit.py",
-        "component_conversion.py",
-        "touchstone_file.py"
+        "component_conversion.py"
     )
 
     # NOTE: Only convert the examples if the workflow isn't tagged as coupling HTML and PDF build.
