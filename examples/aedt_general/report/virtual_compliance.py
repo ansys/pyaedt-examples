@@ -18,7 +18,7 @@ from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
 
 # ## Define constants
 
-AEDT_VERSION = "2024.2"
+AEDT_VERSION = "2025.1"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
@@ -57,14 +57,14 @@ h3d.setups[0].sweeps[0].props["EnforceCausality"] = True
 h3d.setups[0].sweeps[0].update()
 h3d.analyze(cores=NUM_CORES)
 h3d = ansys.aedt.core.Hfss3dLayout()
-touchstone_path = h3d.export_touchstone()
+touchstone_path = h3d.export_touchstone()  # Returns false.
 
 # ## Create LNA project
 #
 # Use the LNA (linear network analysis) setup to retrieve Touchstone files
 # and generate frequency domain reports.
 
-circuit = ansys.aedt.core.Circuit(project=h3d.project_name, design="Touchstone")
+circuit = ansys.aedt.core.Circuit(project=h3d.project_name, design="Touchstone", new_desktop=False)
 status, diff_pairs, comm_pairs = circuit.create_lna_schematic_from_snp(
     input_file=touchstone_path,
     start_frequency=0,
