@@ -32,6 +32,8 @@ os.environ["PYAEDT_DOC_GENERATION"] = "1"
 LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml"]
 
 logger = logging.getLogger(__name__)
+# NOTE: Uncomment to allow debug level logs
+# logger.setLevel(logging.LEVEL_NAMES["DEBUG"])
 path = Path(__file__).parent.parent.parent / "examples"
 EXAMPLES_DIRECTORY = path.resolve()
 REPOSITORY_NAME = "pyaedt-examples"
@@ -116,7 +118,7 @@ def copy_examples_structure(app: Sphinx, config: Config):
     logger.info(f"Copy performed.")
 
 
-def copy_script_examples(app: Sphinx, config: Config):
+def copy_script_examples(app: Sphinx, exception: None | Exception):
     """Copy root directory examples script into Sphinx application out directory.
     
     This is required to allow users to download python scripts in the admonition.
@@ -125,8 +127,8 @@ def copy_script_examples(app: Sphinx, config: Config):
     ----------
     app : sphinx.application.Sphinx
         Sphinx instance containing all the configuration for the documentation build.
-    config : sphinx.config.Config
-        Configuration file abstraction.
+    exception : None or Exception
+        Exception raised during the build process.
     """
     destination_dir = Path(app.outdir, "examples").resolve()
     logger.info(f"Copying script examples into out directory {destination_dir}.")
@@ -134,7 +136,13 @@ def copy_script_examples(app: Sphinx, config: Config):
     EXAMPLES = EXAMPLES_DIRECTORY.glob("**/*.py")
     for example in EXAMPLES:
         example_path = str(example).split("examples" + os.sep)[-1]
-        shutil.copyfile(example, str(destination_dir / example_path))
+        out_example_path = destination_dir / example_path
+        logger.debug(f"Example {example} is being copied into {out_example_path}.")
+
+        if not out_example_path.parent.exists():
+            out_example_path.parent.mkdir(parents=True)
+
+        shutil.copyfile(example, out_example_path)
 
     logger.info(f"Copy performed.")
 
@@ -284,6 +292,7 @@ def convert_examples_into_notebooks(app):
                 ],
                 capture_output=True,
             )
+            logger.debug(f"Converted {example} to {DESTINATION_DIR / notebook_path}")
 
             if output.returncode != 0:
                 logger.error(f"Error converting {example} to script")
