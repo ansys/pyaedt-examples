@@ -143,7 +143,6 @@ setup.analyze()
 #
 # <img src="_static/dipole_return_loss.png" width="800">
 
-#spar_plot = hfss.post.create_report_from_configuration(input_file=spar_template,solution_name=interp_sweep.name)
 spar_plot = hfss.create_scattering(plot="Return Loss", sweep=interp_sweep.name)
 
 # ### Visualize far-field data
@@ -154,9 +153,9 @@ spar_plot = hfss.create_scattering(plot="Return Loss", sweep=interp_sweep.name)
 # <img src="_static/ff_report_ui_1.png" width="800">
 # <img src="_static/ff_report_ui_2.png" width="800">
 #
-# > **Note:** These images are from the 24R2 release
+# > **Note:** These images are from the 25R1 release
 
-variations = hfss.available_variations.nominal_w_values_dict
+variations = hfss.available_variations.nominal_values
 variations["Freq"] = [center_freq]
 variations["Theta"] = ["All"]
 variations["Phi"] = ["All"]
@@ -180,7 +179,9 @@ elevation_ffd_plot.children["Legend"].properties["Show Solution Name"] = False
 # "variations" is essential for managing parametric solutions
 # in HFSS.
 #
-# The argument ``sphere_name`` specifies the far-field sphere used to generate the plot. In this case, the far-field sphere "3D" was automatically created when HFSS was launched by instantiating the ``Hfss`` class.
+# The argument ``sphere_name`` specifies the far-field sphere used to generate the plot.
+# In this case, the far-field sphere "3D" was automatically created when HFSS was launched by
+# instantiating the ``Hfss`` class.
 #
 # <img src="_static/sphere_3d.png" width="550">
 
