@@ -1,0 +1,309 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "cb38124e",
+   "metadata": {},
+   "source": [
+    "# Control program enablement"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "761fa046",
+   "metadata": {},
+   "source": [
+    "This example shows how to use PyAEDT to enable a control program in a Maxwell 2D project.\n",
+    "It shows how to create the geometry, load material properties from an Excel file, and\n",
+    "set up the mesh settings. Moreover, it focuses on postprocessing operations, in particular how to\n",
+    "plot field line traces, which are relevant for an electrostatic analysis.\n",
+    "\n",
+    "Keywords: **Maxwell 2D**, **control program**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "18fc7dfe",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5b0e416c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import tempfile\n",
+    "import time"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5c8401f5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from ansys.aedt.core import Maxwell2d, downloads"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6a590d5c",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "08c5d9ca",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.1\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "681a6fad",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "bc114206",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1db43899",
+   "metadata": {},
+   "source": [
+    "## Download project file\n",
+    "\n",
+    "Download the files required to run this example to the temporary working folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c6a5232d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "aedt_file = downloads.download_file(\n",
+    "    source=\"maxwell_ctrl_prg\",\n",
+    "    name=\"ControlProgramDemo.aedt\",\n",
+    "    destination=temp_folder.name,\n",
+    ")\n",
+    "ctrl_prg_file = downloads.download_file(\n",
+    "    source=\"maxwell_ctrl_prg\", name=\"timestep_only.py\", destination=temp_folder.name\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "80c563ce",
+   "metadata": {},
+   "source": [
+    "## Launch Maxwell 2D\n",
+    "\n",
+    "Create an instance of the ``Maxwell2d`` class named ``m2d``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "29cd20b9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d = Maxwell2d(\n",
+    "    project=aedt_file,\n",
+    "    version=AEDT_VERSION,\n",
+    "    new_desktop=True,\n",
+    "    non_graphical=NG_MODE,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b9b71098",
+   "metadata": {},
+   "source": [
+    "## Set active design"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "23c5df19",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.set_active_design(\"1 time step control\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7d94ea4d",
+   "metadata": {},
+   "source": [
+    "## Get setup\n",
+    "\n",
+    "Get the simulation setup for this design so that the control program can be enabled."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6dedbe3b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup = m2d.setups[0]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b7d5f38e",
+   "metadata": {},
+   "source": [
+    "## Enable control program\n",
+    "\n",
+    "Enable the control program by giving the path to the file."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b0bd1e0a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup.enable_control_program(control_program_path=ctrl_prg_file)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8980b1a0",
+   "metadata": {},
+   "source": [
+    "## Analyze setup\n",
+    "\n",
+    "Run the analysis."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fdd8f8a0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.save_project()\n",
+    "m2d.analyze(setup=setup.name, cores=NUM_CORES, use_auto_settings=False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4d1b2833",
+   "metadata": {},
+   "source": [
+    "## Plot results\n",
+    "\n",
+    "Display the simulation results."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "baf2ac44",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "sols = m2d.post.get_solution_data(\n",
+    "    expressions=\"FluxLinkage(Winding1)\",\n",
+    "    variations={\"Time\": [\"All\"]},\n",
+    "    primary_sweep_variable=\"Time\",\n",
+    "    domain=\"Sweep\"\n",
+    ")\n",
+    "sols.plot()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4090f7cf",
+   "metadata": {},
+   "source": [
+    "## Release AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "33d68ce0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.save_project()\n",
+    "m2d.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "820212d1",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ed7f7344",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

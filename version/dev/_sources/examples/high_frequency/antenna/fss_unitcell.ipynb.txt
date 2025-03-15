@@ -1,0 +1,414 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "ab1bbbb6",
+   "metadata": {},
+   "source": [
+    "# FSS unit cell simulation\n",
+    "\n",
+    "This example shows how to use PyAEDT to model and simulate a unit cell\n",
+    "for a frequency-selective surface in HFSS.\n",
+    "\n",
+    "Keywords: **HFSS**, **FSS**, **Floquet**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e8e30ae5",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "91806d2e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "72811006",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import ansys.aedt.core"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f8bcd312",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ef6f4be0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.1\"\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "173fdb22",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b06c3775",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1c610f7b",
+   "metadata": {},
+   "source": [
+    "## Launch AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c5746cf1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_name = os.path.join(temp_folder.name, \"FSS.aedt\")\n",
+    "d = ansys.aedt.core.launch_desktop(\n",
+    "    AEDT_VERSION,\n",
+    "    non_graphical=NG_MODE,\n",
+    "    new_desktop=True,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b08bd293",
+   "metadata": {},
+   "source": [
+    "## Launch HFSS\n",
+    "\n",
+    "Create an HFSS design."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "df641cc1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss = ansys.aedt.core.Hfss(\n",
+    "    version=AEDT_VERSION, project=project_name, solution_type=\"Modal\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "bdf1d1bb",
+   "metadata": {},
+   "source": [
+    "## Define variable\n",
+    "\n",
+    "Define a variable for the 3D component."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "dc9a6e04",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss[\"patch_dim\"] = \"10mm\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7b7ed54d",
+   "metadata": {},
+   "source": [
+    "## Set up model\n",
+    "\n",
+    "Download the 3D component from the example data and insert the 3D component."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9616a8cf",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "unitcell_3d_component_path = ansys.aedt.core.downloads.download_FSS_3dcomponent(\n",
+    "    destination=temp_folder.name\n",
+    ")\n",
+    "unitcell_path = os.path.join(unitcell_3d_component_path, \"FSS_unitcell_23R2.a3dcomp\")\n",
+    "comp = hfss.modeler.insert_3d_component(unitcell_path)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "69e78576",
+   "metadata": {},
+   "source": [
+    "Assign the parameter to the 3D component."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "34a96631",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "component_name = hfss.modeler.user_defined_component_names\n",
+    "comp.parameters[\"a\"] = \"patch_dim\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9514f7a3",
+   "metadata": {},
+   "source": [
+    "Create an open region along +Z direction for unit cell analysis."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "32374e3f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "bounding_dimensions = hfss.modeler.get_bounding_dimension()\n",
+    "\n",
+    "periodicity_x = bounding_dimensions[0]\n",
+    "periodicity_y = bounding_dimensions[1]\n",
+    "\n",
+    "region = hfss.modeler.create_air_region(\n",
+    "    z_pos=10 * bounding_dimensions[2],\n",
+    "    is_percentage=False,\n",
+    ")\n",
+    "\n",
+    "[x_min, y_min, z_min, x_max, y_max, z_max] = region.bounding_box"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e150be39",
+   "metadata": {},
+   "source": [
+    "Assign the lattice pair boundary condition."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f8ef91fd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss.auto_assign_lattice_pairs(assignment=region.name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9f3fc4dc",
+   "metadata": {},
+   "source": [
+    "Define the Floquet port."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "479c4246",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "id_z_pos = region.top_face_z\n",
+    "hfss.create_floquet_port(\n",
+    "    assignment=id_z_pos,\n",
+    "    lattice_origin=[0, 0, z_max],\n",
+    "    lattice_a_end=[0, y_max, z_max],\n",
+    "    lattice_b_end=[x_max, 0, z_max],\n",
+    "    name=\"port_z_max\",\n",
+    "    deembed_distance=10 * bounding_dimensions[2],\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "409ee374",
+   "metadata": {},
+   "source": [
+    "Create a solution setup, including the frequency sweep."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4d99d422",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup = hfss.create_setup(\"MySetup\")\n",
+    "setup.props[\"Frequency\"] = \"10GHz\"\n",
+    "setup.props[\"MaximumPasses\"] = 10\n",
+    "hfss.create_linear_count_sweep(\n",
+    "    setup=setup.name,\n",
+    "    units=\"GHz\",\n",
+    "    start_frequency=6,\n",
+    "    stop_frequency=15,\n",
+    "    num_of_freq_points=51,\n",
+    "    name=\"sweep1\",\n",
+    "    sweep_type=\"Interpolating\",\n",
+    "    interpolation_tol=6,\n",
+    "    save_fields=False,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "77682413",
+   "metadata": {},
+   "source": [
+    "## Postprocess\n",
+    "\n",
+    "Create S-parameter reports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "10ad8a08",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "all_quantities = hfss.post.available_report_quantities()\n",
+    "str_mag = []\n",
+    "str_ang = []\n",
+    "\n",
+    "variation = {\"Freq\": [\"All\"]}\n",
+    "\n",
+    "for i in all_quantities:\n",
+    "    str_mag.append(\"mag(\" + i + \")\")\n",
+    "    str_ang.append(\"ang_deg(\" + i + \")\")\n",
+    "\n",
+    "hfss.post.create_report(\n",
+    "    expressions=str_mag,\n",
+    "    variations=variation,\n",
+    "    plot_name=\"magnitude_plot\",\n",
+    ")\n",
+    "hfss.post.create_report(\n",
+    "    expressions=str_ang,\n",
+    "    variations=variation,\n",
+    "    plot_name=\"phase_plot\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "70f199e1",
+   "metadata": {},
+   "source": [
+    "## Save and run simulation\n",
+    "\n",
+    "Save and run the simulation. Uncomment the following line to run the analysis."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "14e9ccf7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# hfss.analyze()\n",
+    "hfss.save_project()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "717e587a",
+   "metadata": {},
+   "source": [
+    "## Release AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f27615aa",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d9f0b302",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell removes\n",
+    "all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c16858a2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

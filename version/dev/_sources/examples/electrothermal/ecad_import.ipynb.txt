@@ -1,0 +1,317 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "2dc5bc2d",
+   "metadata": {},
+   "source": [
+    "# Import of a PCB and its components via IDF and EDB"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "36471b82",
+   "metadata": {},
+   "source": [
+    "This example shows how to import a PCB and its components using IDF files (LDB and BDF).\n",
+    "You can also use a combination of EMN and EMP files in a similar way.\n",
+    "\n",
+    "Keywords: **Icepak**, **PCB**, **IDF**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c66af9a2",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "170fc9b4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a0fe6240",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import ansys.aedt.core\n",
+    "from ansys.aedt.core import Hfss3dLayout, Icepak"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4b9b9b66",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0f7bf922",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.1\"\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "57e298f2",
+   "metadata": {},
+   "source": [
+    "## Open project\n",
+    "\n",
+    "Open an empty project in non-graphical mode, using a temporary folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "66f1470e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")\n",
+    "\n",
+    "ipk = Icepak(\n",
+    "    project=os.path.join(temp_folder.name, \"Icepak_ECAD_Import.aedt\"),\n",
+    "    version=AEDT_VERSION,\n",
+    "    new_desktop=True,\n",
+    "    non_graphical=NG_MODE,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b4489bb5",
+   "metadata": {},
+   "source": [
+    "## Import the IDF files\n",
+    "\n",
+    "Import the BDF and LDF files. Sample files are shown here.\n",
+    "\n",
+    "<img src=\"_static\\bdf.png\" width=\"400\">\n",
+    "\n",
+    "<img src=\"_static\\ldf.png\" width=\"400\">\n",
+    "\n",
+    "You can import the IDF files with several filtering options, including caps, resistors,\n",
+    "inductors, power, specific power, and size.\n",
+    "There are also options for PCB creation, including number of layers, copper percentages, and layer sizes.\n",
+    "\n",
+    "This example uses the default values for the PCB.\n",
+    "The imported PCB (from the IDF files) are deleted later and replaced by a PCB that has the trace\n",
+    "information (from ECAD) for higher accuracy."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5bf2efaa",
+   "metadata": {},
+   "source": [
+    "Download ECAD and IDF files."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9428919d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def_path = ansys.aedt.core.downloads.download_file(\n",
+    "    source=\"icepak/Icepak_ECAD_Import/A1_uprev.aedb\",\n",
+    "    name=\"edb.def\",\n",
+    "    destination=temp_folder.name,\n",
+    ")\n",
+    "board_path = ansys.aedt.core.downloads.download_file(\n",
+    "    source=\"icepak/Icepak_ECAD_Import/\", name=\"A1.bdf\", destination=temp_folder.name\n",
+    ")\n",
+    "library_path = ansys.aedt.core.downloads.download_file(\n",
+    "    source=\"icepak/Icepak_ECAD_Import/\", name=\"A1.ldf\", destination=temp_folder.name\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fb1751fd",
+   "metadata": {},
+   "source": [
+    "Import IDF file."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4f7384ae",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.import_idf(board_path=board_path)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8b38765a",
+   "metadata": {},
+   "source": [
+    "Save the project"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8c12f76d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.save_project()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "629a9ffb",
+   "metadata": {},
+   "source": [
+    "## Import ECAD\n",
+    "Add an HFSS 3D Layout design with the layout information of the PCB."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3edb24ae",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss3d_lo = Hfss3dLayout(project=def_path, version=AEDT_VERSION)\n",
+    "hfss3d_lo.save_project()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8fdeec16",
+   "metadata": {},
+   "source": [
+    "Create a PCB component in Icepak linked to the HFSS 3D Layout project. The polygon ``\"poly_0\"``\n",
+    "is used as the outline of the PCB, and a dissipation of ``\"1W\"`` is applied to the PCB."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "17da144f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_file = hfss3d_lo.project_file\n",
+    "design_name = hfss3d_lo.design_name"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c5958396",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.create_pcb_from_3dlayout(\n",
+    "    component_name=\"PCB_pyAEDT\",\n",
+    "    project_name=project_file,\n",
+    "    design_name=design_name,\n",
+    "    extent_type=\"Polygon\",\n",
+    "    outline_polygon=\"poly_0\",\n",
+    "    power_in=1,\n",
+    "    close_linked_project_after_import=False,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8d07e001",
+   "metadata": {},
+   "source": [
+    "Delete the simplified PCB object coming from the IDF import."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c97b01cd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.modeler.delete_objects_containing(\"IDF_BoardOutline\", False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "48d99468",
+   "metadata": {},
+   "source": [
+    "## Release AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f6c6084e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.save_project()\n",
+    "ipk.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "174aba82",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "97e59771",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

@@ -1,0 +1,381 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "22df47e2",
+   "metadata": {},
+   "source": [
+    "# Transient winding analysis\n",
+    "\n",
+    "This example shows how to use PyAEDT to create a project in Maxwell 2D\n",
+    "and run a transient simulation. It runs only on Windows using CPython.\n",
+    "\n",
+    "The following libraries are required for the advanced postprocessing features\n",
+    "used in this example:\n",
+    "\n",
+    "- [Matplotlib](https://pypi.org/project/matplotlib/)\n",
+    "- [Numpy](https://pypi.org/project/numpy/)\n",
+    "- [PyVista](https://pypi.org/project/pyvista/)\n",
+    "\n",
+    "Install these libraries with this command:\n",
+    "\n",
+    "```console\n",
+    "  pip install numpy pyvista matplotlib\n",
+    "```\n",
+    "\n",
+    "Keywords: **Maxwell 2D**, **transient**, **winding**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "37234b6b",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "53716d8f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d7ae2a34",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import ansys.aedt.core"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "401bcc9f",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fcddbcaf",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.1\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "94af0495",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "61f98e29",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8df8aec3",
+   "metadata": {},
+   "source": [
+    "## Insert Maxwell 2D design"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fcaf05ce",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_name = os.path.join(temp_folder.name, \"Transient.aedt\")\n",
+    "m2d = ansys.aedt.core.Maxwell2d(\n",
+    "    solution_type=\"TransientXY\",\n",
+    "    version=AEDT_VERSION,\n",
+    "    non_graphical=NG_MODE,\n",
+    "    new_desktop=True,\n",
+    "    project=project_name,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1f733433",
+   "metadata": {},
+   "source": [
+    "## Create rectangle and duplicate it"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8d27dc9c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "rect1 = m2d.modeler.create_rectangle(\n",
+    "    origin=[0, 0, 0], sizes=[10, 20], name=\"winding\", material=\"copper\"\n",
+    ")\n",
+    "duplicate = rect1.duplicate_along_line(vector=[14, 0, 0])\n",
+    "rect2 = m2d.modeler[duplicate[0]]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0fd7326b",
+   "metadata": {},
+   "source": [
+    "## Create air region\n",
+    "\n",
+    "Create an air region."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fa658e10",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "region = m2d.modeler.create_region([100, 100, 100, 100])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "43ba72d3",
+   "metadata": {},
+   "source": [
+    "## Assign windings and balloon\n",
+    "\n",
+    "Assigns windings to the sheets and a balloon to the air region."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e4bcfd6a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.assign_winding(\n",
+    "    assignment=[rect1.name, rect2.name], current=\"1*sin(2*pi*50*Time)\", name=\"PHA\"\n",
+    ")\n",
+    "m2d.assign_balloon(assignment=region.edges)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "dc64b04c",
+   "metadata": {},
+   "source": [
+    "## Create transient setup"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "585646b6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup = m2d.create_setup()\n",
+    "setup.props[\"StopTime\"] = \"0.02s\"\n",
+    "setup.props[\"TimeStep\"] = \"0.0002s\"\n",
+    "setup.props[\"SaveFieldsType\"] = \"Every N Steps\"\n",
+    "setup.props[\"N Steps\"] = \"1\"\n",
+    "setup.props[\"Steps From\"] = \"0s\"\n",
+    "setup.props[\"Steps To\"] = \"0.002s\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f3623e27",
+   "metadata": {},
+   "source": [
+    "## Create rectangular plot"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d183193c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.post.create_report(\n",
+    "    expressions=\"InputCurrent(PHA)\",\n",
+    "    domain=\"Sweep\",\n",
+    "    primary_sweep_variable=\"Time\",\n",
+    "    plot_name=\"Winding Plot 1\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1248f1d1",
+   "metadata": {},
+   "source": [
+    "## Solve model"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1414b958",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.analyze(cores=NUM_CORES, use_auto_settings=False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7ed2d173",
+   "metadata": {},
+   "source": [
+    "## Create output and plot using PyVista"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2434e3be",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cutlist = [\"Global:XY\"]\n",
+    "face_lists = rect1.faces\n",
+    "face_lists += rect2.faces\n",
+    "timesteps = [str(i * 2e-4) + \"s\" for i in range(11)]\n",
+    "id_list = [f.id for f in face_lists]\n",
+    "\n",
+    "gif = m2d.post.plot_animated_field(\n",
+    "    quantity=\"Mag_B\",\n",
+    "    assignment=id_list,\n",
+    "    plot_type=\"Surface\",\n",
+    "    intrinsics={\"Time\": \"0s\"},\n",
+    "    variation_variable=\"Time\",\n",
+    "    variations=timesteps,\n",
+    "    show=False,\n",
+    "    export_gif=False,\n",
+    ")\n",
+    "gif.isometric_view = False\n",
+    "gif.camera_position = [15, 15, 80]\n",
+    "gif.focal_point = [15, 15, 0]\n",
+    "gif.roll_angle = 0\n",
+    "gif.elevation_angle = 0\n",
+    "gif.azimuth_angle = 0\n",
+    "\n",
+    "# Set off_screen to False to visualize the animation.\n",
+    "# gif.off_screen = False\n",
+    "gif.animate()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "efb7520a",
+   "metadata": {},
+   "source": [
+    "## Generate plot outside of AEDT\n",
+    "\n",
+    "Generate the same plot outside AEDT."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b1b69dfc",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "solutions = m2d.post.get_solution_data(\n",
+    "    expressions=\"InputCurrent(PHA)\", primary_sweep_variable=\"Time\", domain=\"Sweep\"\n",
+    ")\n",
+    "solutions.plot()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5508503a",
+   "metadata": {},
+   "source": [
+    "## Release AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8b5df2e6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.save_project()\n",
+    "m2d.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ad82129f",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6bb9eb82",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
