@@ -20,7 +20,7 @@ ipython==8.26.0
 jupyterlab==4.2.5
 nbsphinx==0.9.5
 numpydoc==1.7.0
-pypandoc==1.13.0
+pypandoc==1.15
 recommonmark
 Sphinx==8.0.2
 sphinx-autobuild==2024.4.16
