@@ -1,0 +1,215 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "430a92ca",
+   "metadata": {},
+   "source": [
+    "# EDB: geometry creation"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1cf17672",
+   "metadata": {},
+   "source": [
+    "This example shows how you can use EDB to create a layout.\n",
+    "## Final expected project\n",
+    "\n",
+    "<img src=\"_static/diff_via.png\" width=\"500\">\n",
+    "\n",
+    "## Import EDB layout object\n",
+    "Import the EDB layout object and initialize it on version 2023 R2."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "57b0b2ea",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "\n",
+    "import pyedb\n",
+    "\n",
+    "temp_dir = tempfile.TemporaryDirectory(suffix=\".ansys\")\n",
+    "aedb_path = os.path.join(temp_dir.name, \"create_via.aedb\")\n",
+    "print(f\"AEDB file path: {aedb_path}\")\n",
+    "\n",
+    "# Select EDB version (change it manually if needed, e.g. \"2025.1\")\n",
+    "edb_version = \"2025.1\"\n",
+    "print(f\"EDB version: {edb_version}\")\n",
+    "\n",
+    "edb = pyedb.Edb(edbpath=aedb_path, edbversion=edb_version)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b42c4f24",
+   "metadata": {},
+   "source": [
+    "## Add stackup layers\n",
+    "Add stackup layers.\n",
+    "A stackup can be created layer by layer or imported from a CSV file or XML file."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c442c922",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.stackup.add_layer(\"GND\")\n",
+    "edb.stackup.add_layer(\"Diel\", \"GND\", layer_type=\"dielectric\", thickness=\"0.1mm\", material=\"FR4_epoxy\")\n",
+    "edb.stackup.add_layer(\"TOP\", \"Diel\", thickness=\"0.05mm\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "069cf883",
+   "metadata": {},
+   "source": [
+    "## Create signal net and ground planes\n",
+    "Create a signal net and ground planes."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fac54b56",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "points = [[0.0, 0], [100e-3, 0.0]]\n",
+    "edb.modeler.create_trace(points, \"TOP\", width=1e-3)\n",
+    "points = [[0.0, 1e-3], [0.0, 10e-3], [100e-3, 10e-3], [100e-3, 1e-3], [0.0, 1e-3]]\n",
+    "edb.modeler.create_polygon(points, \"TOP\")\n",
+    "points = [[0.0, -1e-3], [0.0, -10e-3], [100e-3, -10e-3], [100e-3, -1e-3], [0.0, -1e-3]]\n",
+    "edb.modeler.create_polygon(points, \"TOP\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e5a5ab39",
+   "metadata": {},
+   "source": [
+    "## Create vias with parametric positions\n",
+    "Create vias with parametric positions."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e589ef7c",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "edb.padstacks.create(\"MyVia\")\n",
+    "edb.padstacks.place([5e-3, 5e-3], \"MyVia\")\n",
+    "edb.padstacks.place([15e-3, 5e-3], \"MyVia\")\n",
+    "edb.padstacks.place([35e-3, 5e-3], \"MyVia\")\n",
+    "edb.padstacks.place([45e-3, 5e-3], \"MyVia\")\n",
+    "edb.padstacks.place([5e-3, -5e-3], \"MyVia\")\n",
+    "edb.padstacks.place([15e-3, -5e-3], \"MyVia\")\n",
+    "edb.padstacks.place([35e-3, -5e-3], \"MyVia\")\n",
+    "edb.padstacks.place([45e-3, -5e-3], \"MyVia\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2688e6ca",
+   "metadata": {},
+   "source": [
+    "## Generate geometry plot"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "92178daa",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.nets.plot(None, color_by_net=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b8e43e61",
+   "metadata": {},
+   "source": [
+    "## Generate stackup plot"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "bd2ddb18",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.stackup.plot(plot_definitions=\"MyVia\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c658b12e",
+   "metadata": {},
+   "source": [
+    "## Save and close EDB\n",
+    "Save and close EDB."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5d39c1b7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "if edb:\n",
+    "    edb.save_edb()\n",
+    "    edb.close_edb()\n",
+    "print(\"EDB saved correctly to {}. You can import in AEDT.\".format(aedb_path))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "518cf8fd",
+   "metadata": {},
+   "source": [
+    "### Clean up temporary directory\n",
+    "\n",
+    "The following command removes the project and the temporary directory.\n",
+    "If you'd like to save this project, save it to a folder of your choice\n",
+    "prior to running the following cell."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "059f3cd3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_dir.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
