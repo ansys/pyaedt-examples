@@ -18,7 +18,7 @@ scikit-rf==1.6.2
 ansys-sphinx-theme==1.0.5
 ipython==8.26.0
 jupyterlab==4.2.5
-nbsphinx==0.9.5
+nbsphinx==0.9.7
 numpydoc==1.7.0
 pypandoc==1.13.0
 recommonmark
