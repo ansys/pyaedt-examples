@@ -1,0 +1,285 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "e30a4c21",
+   "metadata": {},
+   "source": [
+    "# EDB: Edit Control File and import gds\n",
+    "\n",
+    "This example demonstrates how to import a gds layout for subsequent\n",
+    "simulation with HFSS."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0547d94a",
+   "metadata": {},
+   "source": [
+    "Perform imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "58ddc46b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import shutil\n",
+    "import tempfile\n",
+    "\n",
+    "import pyedb\n",
+    "from pyedb.dotnet.database.edb_data.control_file import ControlFile\n",
+    "from pyedb.misc.downloads import download_file\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "bb970a01",
+   "metadata": {},
+   "source": [
+    "## Fetch Example Data\n",
+    "\n",
+    "Download the EDB folder and copy it to a temporary folder.\n",
+    "The following files are used in this example:\n",
+    "\n",
+    "- _sky130_fictious_dtc_exmple_contol_no_map.xml_\n",
+    "  defines physical information such\n",
+    "  as material properties, stackup layers, and boundary conditions.\n",
+    "- _dummy_layermap.map_\n",
+    "  maps properties to stackup layers."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3a2f6bfc",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_dir = tempfile.TemporaryDirectory(suffix=\".ansys\")\n",
+    "control_fn = \"sky130_fictitious_dtc_example_control_no_map.xml\"\n",
+    "gds_fn = \"sky130_fictitious_dtc_example.gds\"\n",
+    "layer_map = \"dummy_layermap.map\"\n",
+    "\n",
+    "local_path = download_file(\"gds\", destination=temp_dir.name)\n",
+    "c_file_in = os.path.join(local_path, control_fn)\n",
+    "c_map = os.path.join(local_path, layer_map)\n",
+    "gds_in = os.path.join(local_path, gds_fn)\n",
+    "gds_out = os.path.join(temp_dir.name, \"gds_out.gds\")\n",
+    "shutil.copy2(gds_in, gds_out)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7b8d92b4",
+   "metadata": {},
+   "source": [
+    "## Control file\n",
+    "\n",
+    "A Control file is an xml file which purpose if to provide additional information during\n",
+    "import phase. It can include, materials, stackup, setup, boundaries and settings.\n",
+    "In this example we will import an existing xml, integrate it with a layer mapping file of gds\n",
+    "and then adding setup and boundaries."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9cecc1d9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "c = ControlFile(c_file_in, layer_map=c_map)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9f3f1b57",
+   "metadata": {},
+   "source": [
+    "## Set up simulation\n",
+    "\n",
+    "This code sets up a simulation with HFSS and adds a frequency sweep."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1ea03ba3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup = c.setups.add_setup(\"Setup1\", \"1GHz\", 0.02, 10)\n",
+    "setup.add_sweep(\"Sweep1\", \"0.01GHz\", \"5GHz\", \"0.1GHz\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "346f111e",
+   "metadata": {},
+   "source": [
+    "## Provide additional stackup settings\n",
+    "\n",
+    "After import, you can change the stackup settings and add or remove layers or materials."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b5c06193",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "c.stackup.units = \"um\"\n",
+    "c.stackup.dielectrics_base_elevation = -100\n",
+    "c.stackup.metal_layer_snapping_tolerance = \"10nm\"\n",
+    "for via in c.stackup.vias:\n",
+    "    via.create_via_group = True\n",
+    "    via.snap_via_group = True"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9279c1e3",
+   "metadata": {},
+   "source": [
+    "## Define boundary settings\n",
+    "\n",
+    "Boundaries can include ports, components and boundary extent."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1ff5211f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "c.boundaries.units = \"um\"\n",
+    "c.boundaries.add_port(\"P1\", x1=223.7, y1=222.6, layer1=\"Metal6\", x2=223.7, y2=100, layer2=\"Metal6\")\n",
+    "c.boundaries.add_extent()\n",
+    "comp = c.components.add_component(\"B1\", \"BGA\", \"IC\", \"Flip chip\", \"Cylinder\")\n",
+    "comp.solder_diameter = \"65um\"\n",
+    "comp.add_pin(\"1\", \"81.28\", \"84.6\", \"met2\")\n",
+    "comp.add_pin(\"2\", \"211.28\", \"84.6\", \"met2\")\n",
+    "comp.add_pin(\"3\", \"211.28\", \"214.6\", \"met2\")\n",
+    "comp.add_pin(\"4\", \"81.28\", \"214.6\", \"met2\")\n",
+    "c.import_options.import_dummy_nets = True"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b639e31a",
+   "metadata": {},
+   "source": [
+    "## Write XML file\n",
+    "\n",
+    "After all settings are ready, you can write an XML file."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "dd5c0eed",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "c.write_xml(os.path.join(temp_dir.name, \"output.xml\"))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "42b4d939",
+   "metadata": {},
+   "source": [
+    "## Open EDB\n",
+    "\n",
+    "Import the gds and open the edb."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d641a768",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Select EDB version (change it manually if needed, e.g. \"2025.1\")\n",
+    "edb_version = \"2025.1\"\n",
+    "print(f\"EDB version: {edb_version}\")\n",
+    "\n",
+    "edb = pyedb.Edb(gds_out, edbversion=edb_version, technology_file=os.path.join(temp_dir.name, \"output.xml\"))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "66187b1f",
+   "metadata": {},
+   "source": [
+    "## Plot stackup\n",
+    "\n",
+    "Plot the stackup."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "caf95288",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.stackup.plot(first_layer=\"met1\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "65ed8abb",
+   "metadata": {},
+   "source": [
+    "## Close EDB\n",
+    "\n",
+    "Close the project."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "011a5d29",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.close_edb()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6ef5a504",
+   "metadata": {},
+   "source": [
+    "Clean up the temporary folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f8cf108e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_dir.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

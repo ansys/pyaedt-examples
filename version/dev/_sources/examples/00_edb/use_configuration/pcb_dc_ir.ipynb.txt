@@ -1,0 +1,812 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "16235b5e",
+   "metadata": {},
+   "source": [
+    "# Set up EDB for PCB DC IR Analysis\n",
+    "This example shows how to set up the electronics database (EDB) for DC IR analysis from a single\n",
+    "configuration file."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "99dec100",
+   "metadata": {},
+   "source": [
+    "## Import the required packages"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ab93362f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import json\n",
+    "import os\n",
+    "import tempfile\n",
+    "\n",
+    "from ansys.aedt.core import Hfss3dLayout, Icepak\n",
+    "from ansys.aedt.core.downloads import download_file\n",
+    "\n",
+    "from pyedb import Edb\n",
+    "\n",
+    "AEDT_VERSION = \"2025.1\"\n",
+    "NG_MODE = False\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fe584cae",
+   "metadata": {},
+   "source": [
+    "Download the example PCB data."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "61f5f34f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")\n",
+    "file_edb = download_file(source=\"edb/ANSYS-HSD_V1.aedb\", destination=temp_folder.name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "820fc5f5",
+   "metadata": {},
+   "source": [
+    "## Load example layout"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "04ed6b52",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp = Edb(file_edb, edbversion=AEDT_VERSION)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1a534d45",
+   "metadata": {},
+   "source": [
+    "## Create an empty dictionary to host all configurations"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "251ee27a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg = dict()\n",
+    "cfg[\"sources\"] = []"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b45a5562",
+   "metadata": {},
+   "source": [
+    "## Update stackup"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8f34362e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg[\"stackup\"] = {\n",
+    "    \"layers\": [\n",
+    "        {\"name\": \"Top\", \"type\": \"signal\", \"material\": \"copper\", \"fill_material\": \"FR4_epoxy\", \"thickness\": \"0.035mm\"},\n",
+    "        {\"name\": \"DE1\", \"type\": \"dielectric\", \"material\": \"FR4_epoxy\", \"fill_material\": \"\", \"thickness\": \"0.1mm\"},\n",
+    "        {\n",
+    "            \"name\": \"Inner1\",\n",
+    "            \"type\": \"signal\",\n",
+    "            \"material\": \"copper\",\n",
+    "            \"fill_material\": \"FR4_epoxy\",\n",
+    "            \"thickness\": \"0.017mm\",\n",
+    "        },\n",
+    "        {\"name\": \"DE2\", \"type\": \"dielectric\", \"material\": \"FR4_epoxy\", \"fill_material\": \"\", \"thickness\": \"0.088mm\"},\n",
+    "        {\n",
+    "            \"name\": \"Inner2\",\n",
+    "            \"type\": \"signal\",\n",
+    "            \"material\": \"copper\",\n",
+    "            \"fill_material\": \"FR4_epoxy\",\n",
+    "            \"thickness\": \"0.017mm\",\n",
+    "        },\n",
+    "        {\"name\": \"DE3\", \"type\": \"dielectric\", \"material\": \"FR4_epoxy\", \"fill_material\": \"\", \"thickness\": \"0.1mm\"},\n",
+    "        {\n",
+    "            \"name\": \"Inner3\",\n",
+    "            \"type\": \"signal\",\n",
+    "            \"material\": \"copper\",\n",
+    "            \"fill_material\": \"FR4_epoxy\",\n",
+    "            \"thickness\": \"0.017mm\",\n",
+    "        },\n",
+    "        {\n",
+    "            \"name\": \"FR4_epoxy-1mm\",\n",
+    "            \"type\": \"dielectric\",\n",
+    "            \"material\": \"FR4_epoxy\",\n",
+    "            \"fill_material\": \"\",\n",
+    "            \"thickness\": \"1mm\",\n",
+    "        },\n",
+    "        {\n",
+    "            \"name\": \"Inner4\",\n",
+    "            \"type\": \"signal\",\n",
+    "            \"material\": \"copper\",\n",
+    "            \"fill_material\": \"FR4_epoxy\",\n",
+    "            \"thickness\": \"0.017mm\",\n",
+    "        },\n",
+    "        {\"name\": \"DE5\", \"type\": \"dielectric\", \"material\": \"FR4_epoxy\", \"fill_material\": \"\", \"thickness\": \"0.1mm\"},\n",
+    "        {\n",
+    "            \"name\": \"Inner5\",\n",
+    "            \"type\": \"signal\",\n",
+    "            \"material\": \"copper\",\n",
+    "            \"fill_material\": \"FR4_epoxy\",\n",
+    "            \"thickness\": \"0.017mm\",\n",
+    "        },\n",
+    "        {\"name\": \"DE6\", \"type\": \"dielectric\", \"material\": \"FR4_epoxy\", \"fill_material\": \"\", \"thickness\": \"0.088mm\"},\n",
+    "        {\n",
+    "            \"name\": \"Inner6\",\n",
+    "            \"type\": \"signal\",\n",
+    "            \"material\": \"copper\",\n",
+    "            \"fill_material\": \"FR4_epoxy\",\n",
+    "            \"thickness\": \"0.017mm\",\n",
+    "        },\n",
+    "        {\"name\": \"DE7\", \"type\": \"dielectric\", \"material\": \"FR4_epoxy\", \"fill_material\": \"\", \"thickness\": \"0.1mm\"},\n",
+    "        {\n",
+    "            \"name\": \"Bottom\",\n",
+    "            \"type\": \"signal\",\n",
+    "            \"material\": \"copper\",\n",
+    "            \"fill_material\": \"FR4_epoxy\",\n",
+    "            \"thickness\": \"0.035mm\",\n",
+    "        },\n",
+    "    ]\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "43b4d9b8",
+   "metadata": {},
+   "source": [
+    "## Define voltage source"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "78a47fca",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg[\"sources\"].append(\n",
+    "    {\n",
+    "        \"name\": \"vrm\",\n",
+    "        \"reference_designator\": \"U2\",\n",
+    "        \"type\": \"voltage\",\n",
+    "        \"magnitude\": 1,\n",
+    "        \"positive_terminal\": {\"net\": \"1V0\"},\n",
+    "        \"negative_terminal\": {\"net\": \"GND\"},\n",
+    "    }\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9a6e84b9",
+   "metadata": {},
+   "source": [
+    "## Define current source"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "97c364e6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg[\"sources\"].append(\n",
+    "    {\n",
+    "        \"name\": \"U1_1V0\",\n",
+    "        \"reference_designator\": \"U1\",\n",
+    "        \"type\": \"current\",\n",
+    "        \"magnitude\": 10,\n",
+    "        \"positive_terminal\": {\"net\": \"1V0\"},\n",
+    "        \"negative_terminal\": {\"net\": \"GND\"},\n",
+    "    }\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "522ab033",
+   "metadata": {},
+   "source": [
+    "## Define SIwave DC IR analysis setup"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1d4c65db",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg[\"setups\"] = [\n",
+    "    {\n",
+    "        \"name\": \"siwave_1\",\n",
+    "        \"type\": \"siwave_dc\",\n",
+    "        \"dc_slider_position\": 1,\n",
+    "        \"dc_ir_settings\": {\"export_dc_thermal_data\": True},\n",
+    "    }\n",
+    "]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6fe39e37",
+   "metadata": {},
+   "source": [
+    "## Define Cutout"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e95ede4c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg[\"operations\"] = {\n",
+    "    \"cutout\": {\"signal_list\": [\"1V0\"], \"reference_list\": [\"GND\"], \"extent_type\": \"ConvexHull\", \"expansion_size\": \"20mm\"}\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e6c75ee6",
+   "metadata": {},
+   "source": [
+    "## Define package for thermal analysis (optional)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5425e8d9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg[\"package_definitions\"] = [\n",
+    "    {\n",
+    "        \"name\": \"package_1\",\n",
+    "        \"component_definition\": \"ALTR-FBGA1517-Ansys\",\n",
+    "        \"maximum_power\": 0.5,\n",
+    "        \"therm_cond\": 2,\n",
+    "        \"theta_jb\": 3,\n",
+    "        \"theta_jc\": 4,\n",
+    "        \"height\": \"1mm\",\n",
+    "        \"apply_to_all\": False,\n",
+    "        \"components\": [\"U1\"],\n",
+    "    },\n",
+    "]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0e70af07",
+   "metadata": {},
+   "source": [
+    "## Write configuration into a JSON file"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "901db8a2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "file_json = os.path.join(temp_folder.name, \"edb_configuration.json\")\n",
+    "with open(file_json, \"w\") as f:\n",
+    "    json.dump(cfg, f, indent=4, ensure_ascii=False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b84940d4",
+   "metadata": {},
+   "source": [
+    "## Import configuration into example layout"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3e7962bd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.configuration.load(config_file=file_json)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a218d116",
+   "metadata": {},
+   "source": [
+    "Apply configuration to EDB."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "deb0de28",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.configuration.run()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a9f94e42",
+   "metadata": {},
+   "source": [
+    "Save and close EDB."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fcb5cbf6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.save()\n",
+    "edbapp.close()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "70add74c",
+   "metadata": {},
+   "source": [
+    "The configured EDB file is saved in a temp folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2e8262f5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print(temp_folder.name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1be4ec43",
+   "metadata": {},
+   "source": [
+    "## Load edb into HFSS 3D Layout."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "30d87480",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d = Hfss3dLayout(edbapp.edbpath, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0a81e25d",
+   "metadata": {},
+   "source": [
+    "## Prepare for electro-thermal analysis in Icepak (Optional)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0ab84684",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d.modeler.set_temperature_dependence(include_temperature_dependence=True, enable_feedback=True, ambient_temp=22)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "161c5dfb",
+   "metadata": {},
+   "source": [
+    "## Analyze"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c7d22a56",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d.analyze()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6cee4094",
+   "metadata": {},
+   "source": [
+    "## Plot DC voltage"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6afb3fdd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "voltage = h3d.post.create_fieldplot_layers_nets(\n",
+    "    layers_nets=[\n",
+    "        [\"Inner2\", \"1V0\"],\n",
+    "    ],\n",
+    "    quantity=\"Voltage\",\n",
+    "    setup=\"siwave_1\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f253e37b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "file_path_image = os.path.join(temp_folder.name, \"voltage.jpg\")\n",
+    "voltage.export_image(\n",
+    "    full_path=file_path_image,\n",
+    "    width=640,\n",
+    "    height=480,\n",
+    "    orientation=\"isometric\",\n",
+    "    display_wireframe=True,\n",
+    "    selections=None,\n",
+    "    show_region=True,\n",
+    "    show_axis=True,\n",
+    "    show_grid=True,\n",
+    "    show_ruler=True,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4ee368cc",
+   "metadata": {},
+   "source": [
+    "## Plot power density"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "90c1ede2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "power_density = h3d.post.create_fieldplot_layers_nets(\n",
+    "    layers_nets=[\n",
+    "        [\"Inner2\", \"no-net\"],\n",
+    "    ],\n",
+    "    quantity=\"Power Density\",\n",
+    "    setup=\"siwave_1\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "246eff3c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "file_path_image = os.path.join(temp_folder.name, \"power_density.jpg\")\n",
+    "power_density.export_image(\n",
+    "    full_path=file_path_image,\n",
+    "    width=640,\n",
+    "    height=480,\n",
+    "    orientation=\"isometric\",\n",
+    "    display_wireframe=True,\n",
+    "    selections=None,\n",
+    "    show_region=True,\n",
+    "    show_axis=True,\n",
+    "    show_grid=True,\n",
+    "    show_ruler=True,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "73fbd376",
+   "metadata": {},
+   "source": [
+    "## Save HFSS 3D Layout project"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "30964bec",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d.save_project()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "80788c6c",
+   "metadata": {},
+   "source": [
+    "## Create an Icepak design"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5d5f24b9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk = Icepak(version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "60ba6cbe",
+   "metadata": {},
+   "source": [
+    "## Create PCB"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a04e4429",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pcb = ipk.create_ipk_3dcomponent_pcb(\n",
+    "    compName=\"PCB_pyAEDT\",\n",
+    "    setupLinkInfo=[h3d.project_file, h3d.design_name, \"siwave_1\", True, True],\n",
+    "    solutionFreq=None,\n",
+    "    resolution=0,\n",
+    "    extent_type=\"Bounding Box\",\n",
+    "    powerin=\"0\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a3b2ac2d",
+   "metadata": {},
+   "source": [
+    "## Include pckage definition from Edb"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2f73775a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pcb.included_parts = \"Device\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "55f613cd",
+   "metadata": {},
+   "source": [
+    "## Adjust air region"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "dfe119df",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "region = ipk.modeler[\"Region\"]\n",
+    "faces = [f.id for f in region.faces]\n",
+    "ipk.assign_pressure_free_opening(assignment=faces, boundary_name=\"Outlet\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "487fe9ee",
+   "metadata": {},
+   "source": [
+    "## Setup mesh"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5cd899b7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "glob_msh = ipk.mesh.global_mesh_region\n",
+    "glob_msh.global_region.positive_z_padding_type = \"Absolute Offset\"\n",
+    "glob_msh.global_region.positive_z_padding = \"50 mm\"\n",
+    "glob_msh.global_region.negative_z_padding_type = \"Absolute Offset\"\n",
+    "glob_msh.global_region.negative_z_padding = \"80 mm\""
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6a5f33e7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "glob_msh = ipk.mesh.global_mesh_region\n",
+    "glob_msh.manual_settings = True\n",
+    "glob_msh.settings[\"EnableMLM\"] = True\n",
+    "glob_msh.settings[\"EnforeMLMType\"] = \"2D\"\n",
+    "glob_msh.settings[\"2DMLMType\"] = \"Auto\"\n",
+    "glob_msh.settings[\"MaxElementSizeY\"] = \"2mm\"\n",
+    "glob_msh.settings[\"MaxElementSizeX\"] = \"2mm\"\n",
+    "glob_msh.settings[\"MaxElementSizeZ\"] = \"3mm\"\n",
+    "glob_msh.settings[\"MaxLevels\"] = \"2\""
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e9d618cf",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "glob_msh.update()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ae1ae4ce",
+   "metadata": {},
+   "source": [
+    "## Place monitor"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "31090196",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cpu = ipk.modeler[\"PCB_pyAEDT_U1_device\"]\n",
+    "m1 = ipk.monitor.assign_face_monitor(\n",
+    "    face_id=cpu.top_face_z.id,\n",
+    "    monitor_quantity=\"Temperature\",\n",
+    "    monitor_name=\"TemperatureMonitor1\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8876864f",
+   "metadata": {},
+   "source": [
+    "## Create Icepak setup"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6865ae3e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup1 = ipk.create_setup(MaxIterations=10)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5a9bc5ae",
+   "metadata": {},
+   "source": [
+    "Add 2-way coupling to the setup"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "cce4ceed",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.assign_2way_coupling(number_of_iterations=1)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2d1ca59c",
+   "metadata": {},
+   "source": [
+    "## Save"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0aa07cb1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.save_project()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ac95ade2",
+   "metadata": {},
+   "source": [
+    "## Shut Down Electronics Desktop"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5e4f35e9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.release_desktop()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c56874ea",
+   "metadata": {},
+   "source": [
+    "All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notebook you\n",
+    "can retrieve those project files."
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

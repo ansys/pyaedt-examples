@@ -1,0 +1,515 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "9e142c1e",
+   "metadata": {},
+   "source": [
+    "# Setup from Sherlock inputs"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4de5b4f7",
+   "metadata": {},
+   "source": [
+    "This example shows how to create an Icepak project from Sherlock\n",
+    "files (STEP and CSV) and an AEDB board.\n",
+    "\n",
+    "Keywords: **Icepak**, **Sherlock**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8760aea0",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "60248f42",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4b7a008e",
+   "metadata": {},
+   "source": [
+    "Define constants"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ae9beb1e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.1\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "55b26a87",
+   "metadata": {},
+   "source": [
+    "## Set paths and define input files and variables\n",
+    "\n",
+    "Set paths."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "55e492dc",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")\n",
+    "input_dir = ansys.aedt.core.downloads.download_sherlock(destination=temp_folder.name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "78cf46ed",
+   "metadata": {},
+   "source": [
+    "Define input files."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1fe6413f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "material_name = \"MaterialExport.csv\"\n",
+    "component_properties = \"TutorialBoardPartsList.csv\"\n",
+    "component_step = \"TutorialBoard.stp\"\n",
+    "aedt_odb_project = \"SherlockTutorial.aedt\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e88507dd",
+   "metadata": {},
+   "source": [
+    "Define variables that are needed later."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "938ed8ff",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "aedt_odb_design_name = \"PCB\"\n",
+    "outline_polygon_name = \"poly_14188\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "41882591",
+   "metadata": {},
+   "source": [
+    "Define input files with paths."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6ccf3dcb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "material_list = os.path.join(input_dir, material_name)\n",
+    "component_list = os.path.join(input_dir, component_properties)\n",
+    "validation = os.path.join(temp_folder.name, \"validation.log\")\n",
+    "file_path = os.path.join(input_dir, component_step)\n",
+    "project_name = os.path.join(temp_folder.name, component_step[:-3] + \"aedt\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b62ab629",
+   "metadata": {},
+   "source": [
+    "## Create Icepak model"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7f3da785",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk = ansys.aedt.core.Icepak(\n",
+    "    project=project_name, version=AEDT_VERSION, non_graphical=NG_MODE\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ea08fecc",
+   "metadata": {},
+   "source": [
+    "Disable autosave to speed up the import."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7f643884",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.autosave_disable()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3841ed82",
+   "metadata": {},
+   "source": [
+    "Import a PCB from an AEDB file."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c53d32f5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "odb_path = os.path.join(input_dir, aedt_odb_project)\n",
+    "ipk.create_pcb_from_3dlayout(\n",
+    "    component_name=\"Board\", project_name=odb_path, design_name=aedt_odb_design_name\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "67329e98",
+   "metadata": {},
+   "source": [
+    "Create an offset coordinate system to match ODB++ with the Sherlock STEP file.\n",
+    "The thickness is computed from the ``\"Board\"`` component. (``\"Board1\"`` is the\n",
+    "instance name of the ``\"Board\"`` native component and is used to offset the coordinate system.)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a75f34a4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "bb = ipk.modeler.user_defined_components[\"Board1\"].bounding_box\n",
+    "stackup_thickness = bb[-1] - bb[2]\n",
+    "ipk.modeler.create_coordinate_system(\n",
+    "    origin=[0, 0, stackup_thickness / 2], mode=\"view\", view=\"XY\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e72b7d98",
+   "metadata": {},
+   "source": [
+    "Import the board components from an MCAD file and remove the PCB object as it is already\n",
+    "imported with the ECAD."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d7870f1d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.modeler.import_3d_cad(file_path, refresh_all_ids=False)\n",
+    "ipk.modeler.delete_objects_containing(\"pcb\", False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b2fdc8b3",
+   "metadata": {},
+   "source": [
+    "Modify the air region. Padding values are passed in this order: [+X, -X, +Y, -Y, +Z, -Z]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a9dcc058",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.mesh.global_mesh_region.global_region.padding_values = [20, 20, 20, 20, 300, 300]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "dff1d285",
+   "metadata": {},
+   "source": [
+    "## Assign materials and power dissipation conditions from Sherlock\n",
+    "\n",
+    "Use the Sherlock file to assign materials."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "58eee730",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.assignmaterial_from_sherlock_files(\n",
+    "    component_file=component_list, material_file=material_list\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0a005209",
+   "metadata": {},
+   "source": [
+    "Delete objects with no material assignments."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c8059570",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "no_material_objs = ipk.modeler.get_objects_by_material(material=\"\")\n",
+    "ipk.modeler.delete(assignment=no_material_objs)\n",
+    "ipk.save_project()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "616ceaf2",
+   "metadata": {},
+   "source": [
+    "Assign power blocks from the Sherlock file."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "77aff545",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "total_power = ipk.assign_block_from_sherlock_file(csv_name=component_list)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e01636a2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# ## Assign openings\n",
+    "#\n",
+    "# Assign opening boundary condition to all the faces of the region.\n",
+    "ipk.assign_openings(ipk.modeler.get_object_faces(\"Region\"))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "56a569f3",
+   "metadata": {},
+   "source": [
+    "## Create simulation setup\n",
+    "### Set global mesh settings"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8c22c66c",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "ipk.globalMeshSettings(\n",
+    "    3,\n",
+    "    gap_min_elements=\"1\",\n",
+    "    noOgrids=True,\n",
+    "    MLM_en=True,\n",
+    "    MLM_Type=\"2D\",\n",
+    "    edge_min_elements=\"2\",\n",
+    "    object=\"Region\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0e8a0bb6",
+   "metadata": {},
+   "source": [
+    "### Add postprocessing object\n",
+    "Create the point monitor."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7d1313c8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "point1 = ipk.monitor.assign_point_monitor(\n",
+    "    point_position=ipk.modeler[\"COMP_U10\"].top_face_z.center, monitor_name=\"Point1\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a045fb68",
+   "metadata": {},
+   "source": [
+    "Create a line for reporting after the simulation."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "af735def",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "line = ipk.modeler.create_polyline(\n",
+    "    points=[\n",
+    "        ipk.modeler[\"COMP_U10\"].top_face_z.vertices[0].position,\n",
+    "        ipk.modeler[\"COMP_U10\"].top_face_z.vertices[2].position,\n",
+    "    ],\n",
+    "    non_model=True,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "828026f5",
+   "metadata": {},
+   "source": [
+    "### Solve\n",
+    "To solve quickly, the maximum iterations are set to 20. For better accuracy, you\n",
+    "can increase the maximum to at least 100."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ab053a46",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup1 = ipk.create_setup()\n",
+    "setup1.props[\"Solution Initialization - Y Velocity\"] = \"1m_per_sec\"\n",
+    "setup1.props[\"Radiation Model\"] = \"Discrete Ordinates Model\"\n",
+    "setup1.props[\"Include Gravity\"] = True\n",
+    "setup1.props[\"Secondary Gradient\"] = True\n",
+    "setup1.props[\"Convergence Criteria - Max Iterations\"] = 100"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1532c7a6",
+   "metadata": {},
+   "source": [
+    "Check for intersections using validation and fix them by\n",
+    "assigning priorities."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6e134563",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.assign_priority_on_intersections()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a8905e32",
+   "metadata": {},
+   "source": [
+    "## Release AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "268250ee",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.save_project()\n",
+    "ipk.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e022f50f",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fb02e0a9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
