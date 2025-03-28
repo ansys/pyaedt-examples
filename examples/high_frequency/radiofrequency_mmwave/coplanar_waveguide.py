@@ -3,38 +3,43 @@
 # This example shows how to use PyAEDT to create a CPWG (coplanar waveguide with ground) design
 # in 2D Extractor and run a simulation.
 #
-# Keywords: **Q2D**, **CPWG**.
+# Keywords: **Q2D**, **CPWG**, **Coplanar Waveguide**.
 
-# ## Perform imports and define constants
+# ## Prerequisites
 #
-# Perform required imports.
+# ### Perform imports
 
+# +
 import os
 import tempfile
 import time
 
 import ansys.aedt.core
+# -
 
-# Define constants.
+# ### Define constants
+# Constants help ensure consistency and avoid repetition throughout the example.
 
 AEDT_VERSION = "2025.1"
 NUM_CORES = 4
 NG_MODE = False  # Run the example without opening the UI.
 
 
-# ## Create temporary directory
+# ### Create temporary directory
 #
-# Create a temporary directory where downloaded data or
-# dumped data can be stored.
-# If you'd like to retrieve the project data for subsequent use,
-# the temporary folder name is given by ``temp_folder.name``.
+# Create a temporary working directory.
+# The name of the working folder is stored in ``temp_folder.name``.
+#
+# > **Note:** The final cell in the notebook cleans up the temporary folder. If you want to
+# > retrieve the AEDT project and data, do so before executing the final cell in the notebook.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ## Launch AEDT and 2D Extractor
+# ### Launch AEDT
 #
-# Launch AEDT 2025.1 in graphical mode and launch 2D Extractor. This example
-# uses SI units.
+# Launch an instance of the Ansys Electronics Desktop (AEDT) in graphical mode. 
+# The ``Q2d`` class inserts a 2-D Extractor design in AEDT. 
+# This example uses SI units.
 
 q2d = ansys.aedt.core.Q2d(
     version=AEDT_VERSION,
@@ -44,44 +49,60 @@ q2d = ansys.aedt.core.Q2d(
     design="coplanar_waveguide",
 )
 
-# ## Create model
+# ## Model Preparation
 #
-# Define variables.
+# ## Define parameters
+#
+# Define independent parameters and create expressions that will
+# be used to create the
+# coplanar waveguide cross-section.
+#
+# The dict ``cpw_params`` contains the independent parameters.
 
 # +
-e_factor = "e_factor"
-sig_bot_w = "sig_bot_w"
-co_gnd_w = "gnd_w"
-clearance = "clearance"
-cond_h = "cond_h"
-d_h = "d_h"
-sm_h = "sm_h"
-
-for var_name, var_value in {
-    "sig_bot_w": "150um",
-    "e_factor": "2",
-    "gnd_w": "500um",
+cpw_params = {
+    "sig_bot_w": "150um",   # Signal conductor width - bottom.
+    "e_factor": "2",        # Etch factor for trapezoidal cross-section.
+    "gnd_w": "500um",       # Width of the ground conductor.
     "clearance": "150um",
-    "cond_h": "50um",
+    "cond_h": "50um",       # Conductor height
     "d_h": "150um",
-    "sm_h": "20um",
-}.items():
-    q2d[var_name] = var_value
-
-delta_w_half = "({0}/{1})".format(cond_h, e_factor)
-sig_top_w = "({1}-{0}*2)".format(delta_w_half, sig_bot_w)
-co_gnd_top_w = "({1}-{0}*2)".format(delta_w_half, co_gnd_w)
-model_w = "{}*2+{}*2+{}".format(co_gnd_w, clearance, sig_bot_w)
+    "sm_h": "20um",         # Solder mask height
+    }
 # -
 
-# Create primitives and define the layer heights.
+# ### Create expressions
+#
+# Expressions can be defined
+# as strings that are used to
+# create the geometric cross-section of the
+# coplanar waveguide.
 
+# +
+delta_w_half = "cond_h/e_factor"
+sig_top_w = f"(sig_bot_w - 2 * {delta_w_half})"
+co_gnd_top_w = "(co_gnd_w - 2 * {delta_w_half})"
+model_w = "co_gnd_w*2+ clearance*2+ sig_bot_w"
+# -
+
+# The following expressions define layer thicknesses parameterization.
+
+# +
 layer_1_lh = 0
-layer_1_uh = cond_h
-layer_2_lh = layer_1_uh + "+" + d_h
-layer_2_uh = layer_2_lh + "+" + cond_h
+layer_1_uh = "cond_h"
+layer_2_lh = layer_1_uh + "+ + d_h"
+layer_2_uh = layer_2_lh + "+ cond_h"
+# -
 
-# Create a signal conductor.
+# Assign parameters in AEDT.
+
+# +
+for name, value in cpw_params.items():
+    q2d[name] = value
+# -
+
+# Create the signal conductor by drawing two lines and connecting them to 
+# create a 2D sheet.
 
 base_line_obj = q2d.modeler.create_polyline(
     points=[[0, layer_2_lh, 0], [sig_bot_w, layer_2_lh, 0]], name="signal"
@@ -92,7 +113,7 @@ top_line_obj = q2d.modeler.create_polyline(
 q2d.modeler.move(assignment=[top_line_obj], vector=[delta_w_half, 0, 0])
 q2d.modeler.connect([base_line_obj, top_line_obj])
 q2d.modeler.move(
-    assignment=[base_line_obj], vector=["{}+{}".format(co_gnd_w, clearance), 0, 0]
+    assignment=[base_line_obj], vector=[f"{co_gnd_w}+{clearance}", 0, 0]
 )
 
 # Create a coplanar ground.
@@ -117,7 +138,7 @@ q2d.modeler.move(assignment=[top_line_obj], vector=[delta_w_half, 0, 0])
 q2d.modeler.connect([base_line_obj, top_line_obj])
 q2d.modeler.move(
     assignment=[base_line_obj],
-    vector=["{}+{}*2+{}".format(co_gnd_w, clearance, sig_bot_w), 0, 0],
+    vector=[f"{co_gnd_w}+{clearance}*2+{sig_bot_w}", 0, 0],
 )
 # -
 
@@ -140,9 +161,9 @@ q2d.modeler.create_rectangle(
 
 # +
 sm_obj_list = []
-ids = [1, 2, 3]
-if AEDT_VERSION >= "2023.1":
-    ids = [0, 1, 2]
+ids = [0, 1, 2]
+if AEDT_VERSION < "2023.1":  # Support old versions of AEDT.
+    ids = [1, 2, 0]
 
 for obj_name in ["signal", "co_gnd_left", "co_gnd_right"]:
     obj = q2d.modeler.get_object_from_name(obj_name)
