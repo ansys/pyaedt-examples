@@ -70,7 +70,7 @@ jobs:
           .venv\Scripts\Activate.ps1
           . .\doc\make.bat html --color -T -W
           if ($LASTEXITCODE -ne 0) {
-            Write-Error "HTML build failed, see the logs and look for:""
+            Write-Error "HTML build failed, see the logs and look for:"
             Write-Error "- an exception being raised in a Juptyer notebook;"
             Write-Error "- the latest line of the form reading sources... [ XX%] examples/..."
             exit 1
