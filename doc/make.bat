@@ -73,7 +73,8 @@ goto end
 echo "Building HTML pages"
 REM %SPHINXBUILD% -M linkcheck %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %LINKCHECKOPTS% %O%
 %SPHINXBUILD% -M html %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
-echo "HTML build finished."
+exit /b %ERRORLEVEL%
+
 goto end
 
 :pdf

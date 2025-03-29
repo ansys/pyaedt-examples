@@ -130,6 +130,11 @@ def copy_script_examples(app: Sphinx, exception: None | Exception):
     exception : None or Exception
         Exception raised during the build process.
     """
+    if exception is not None:
+        logger.info("An exception occurred during the build process, skipping the copy of script examples.")
+        logger.info(f"Exception: {exception}")
+        return
+
     destination_dir = Path(app.outdir, "examples").resolve()
     logger.info(f"Copying script examples into out directory {destination_dir}.")
 
