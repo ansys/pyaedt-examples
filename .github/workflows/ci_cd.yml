@@ -69,6 +69,7 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           . .\doc\make.bat html --color
+          if ($LASTEXITCODE -ne 0) { exit 1 }
 
       # NOTE: Ugly HTML checking but redirecting errors with our docs either leads
       # to errors in powershell or workflows getting stuck in Github CICD.
