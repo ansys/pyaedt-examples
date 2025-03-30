@@ -70,9 +70,10 @@ jobs:
           .venv\Scripts\Activate.ps1
           . .\doc\make.bat html --color -T -W
           if ($LASTEXITCODE -ne 0) {
-            Write-Error "HTML build failed, see the logs and look for:"
-            Write-Error "- an exception being raised in a Juptyer notebook;"
-            Write-Error "- the latest line of the form reading sources... [ XX%] examples/..."
+            Write-Output "HTML build failed, see the logs and look for:"
+            Write-Output "- an exception being raised in a Juptyer notebook;"
+            Write-Output "- the latest line of the form reading sources... [ XX%] examples/..."
+            echo "::error::HTML build failed, check for exceptions in Jupyter notebooks or incomplete source reads."
             exit 1
           } else {
             Write-Output "HTML build successful"
