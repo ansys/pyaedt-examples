@@ -165,7 +165,7 @@ sm_obj_list = []
 ids = [0, 1, 2]
 
 if AEDT_VERSION < "2023.1":  # Support old versions of AEDT.
-    ids = [1, 2, 0]
+    ids = [1, 2, 3]
 
 for obj_name in ["signal", "co_gnd_left", "co_gnd_right"]:
     obj = q2d.modeler.get_object_from_name(obj_name)
