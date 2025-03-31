@@ -188,7 +188,7 @@ sm_obj_list.append(new_obj)
 new_obj2 = q2d.modeler.create_rectangle(
     origin=["gnd_w", layer_2_lh, 0], sizes=["clearance", "sm_h"]
 )
-q2d.modeler.move(assignment=[new_obj2], vector=["sig_bot_w + clearance", 0, 0])
+q2d.modeler.move(assignment=[new_obj2], vector=["sig_bot_w+clearance", 0, 0])
 sm_obj_list.append(new_obj2)
 
 sm_obj = sm_obj_list[0]
