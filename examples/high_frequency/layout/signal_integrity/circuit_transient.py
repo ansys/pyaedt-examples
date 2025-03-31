@@ -53,7 +53,7 @@ circuit = ansys.aedt.core.Circuit(
 ibis = circuit.get_ibis_model_from_file(
     os.path.join(circuit.desktop_install_dir, "buflib", "IBIS", "u26a_800.ibs")
 )
-ibs = ibis.buffers["DQ_u26a_800"].insert(0, 0)
+ibs = ibis.buffers["DQ_FULL_800"].insert(0, 0)
 
 # ## Place ideal transmission line
 #
