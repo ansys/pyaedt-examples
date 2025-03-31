@@ -68,17 +68,15 @@ jobs:
           SPHINXBUILD_HTML_AND_PDF_WORKFLOW: "1"
         run: |
           .venv\Scripts\Activate.ps1
-          . .\doc\make.bat html --color
-
-      # NOTE: Ugly HTML checking but redirecting errors with our docs either leads
-      # to errors in powershell or workflows getting stuck in Github CICD.
-      - name: Check HTML doc creation
-        run : |
-          if (Test-Path "doc\_build\html\index.html" ) {
-            Write-Output "File index.html found, HTML build successful."
+          . .\doc\make.bat html --color -T -W
+          if ($LASTEXITCODE -ne 0) {
+            Write-Output "HTML build failed, see the logs and look for:"
+            Write-Output "- an exception being raised in a Juptyer notebook;"
+            Write-Output "- the latest line of the form reading sources... [ XX%] examples/..."
+            echo "::error::HTML build failed, check for exceptions in Jupyter notebooks or incomplete source reads."
+            exit 1
           } else {
-            Write-Error "Sphinx build failed, check if there is no cell execution error."
-            exit 1            
+            Write-Output "HTML build successful"
           }
 
       - name: Upload HTML documentation artifact
