@@ -6,7 +6,9 @@ from importlib import import_module
 import os
 from pathlib import Path
 from pprint import pformat
+import re
 import shutil
+import traceback
 from typing import Any
 from sphinx.application import Sphinx
 from sphinx.config import Config
@@ -130,6 +132,20 @@ def copy_script_examples(app: Sphinx, exception: None | Exception):
     exception : None or Exception
         Exception raised during the build process.
     """
+    def extract_example_name(exception: Exception) -> str | None:
+        """Extract the example file name from an exception if any."""
+        exception_message = "".join(traceback.format_exception(exception))
+        match = re.search(r"(examples[\\\/].*?\.ipynb):", exception_message)
+        if match:
+            return match.group(1).replace("\\", "/")
+
+    if exception is not None:
+        logger.warning("An error occurred during the build process, skipping the copy of script examples.")
+        example_name = extract_example_name(exception)
+        if example_name is not None:
+            logger.warning(f"Error occurred in example {example_name}.")
+        return
+
     destination_dir = Path(app.outdir, "examples").resolve()
     logger.info(f"Copying script examples into out directory {destination_dir}.")
 
