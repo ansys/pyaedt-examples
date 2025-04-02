@@ -30,6 +30,6 @@ sphinx-gallery==0.19.0
 sphinx-notfound-page==1.0.0
 sphinx_design==0.6.1
 sphinxcontrib-websupport==1.2.7
-jupytext==1.16.4
+jupytext==1.16.7
 nbconvert==7.16.4
 
