@@ -15,7 +15,7 @@ plotly==6.0.1
 scikit-rf==1.6.2
 
 # Documentation dependencies
-ansys-sphinx-theme==1.0.5
+ansys-sphinx-theme==1.0.11
 ipython==8.26.0
 jupyterlab==4.2.5
 nbsphinx==0.9.7
