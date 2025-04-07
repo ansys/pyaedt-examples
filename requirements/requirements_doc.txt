@@ -6,7 +6,7 @@ imageio==2.37.0
 matplotlib==3.10.1
 numpy==2.2.3
 openpyxl==3.1.5
-osmnx==2.0.1
+osmnx==2.0.2
 pandas==2.2.3
 pyvista==0.44.2
 fast-simplification==0.1.9
@@ -15,9 +15,9 @@ plotly==6.0.1
 scikit-rf==1.6.2
 
 # Documentation dependencies
-ansys-sphinx-theme==1.0.5
+ansys-sphinx-theme==1.0.11
 ipython==8.26.0
-jupyterlab==4.2.5
+jupyterlab==4.3.6
 nbsphinx==0.9.7
 numpydoc==1.7.0
 pypandoc==1.13.0
