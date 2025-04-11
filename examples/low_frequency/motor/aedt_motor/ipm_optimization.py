@@ -8,35 +8,39 @@
 #
 # Keywords: **Maxwell 2D**, **transient**, **motor**, **optimization**.
 
-# ## Perform imports and define constants
+# ## Prerequisites
 #
-# Perform required imports.
+# ### Perform imports
 
+# +
 import csv
 import os
 import tempfile
 import time
 
 import ansys.aedt.core
+# -
 
-# Define constants.
+# ### Define constants
+# Constants help ensure consistency and avoid repetition throughout the example.
 
 AEDT_VERSION = "2025.1"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
-# ## Create temporary directory and download files
+# ### Create temporary directory
 #
-# Create a temporary directory where downloaded data or
-# dumped data can be stored.
-# If you'd like to retrieve the project data for subsequent use,
-# the temporary folder name is given by ``temp_folder.name``.
+# Create a temporary working directory.
+# The name of the working folder is stored in ``temp_folder.name``.
+#
+# > **Note:** The final cell in the notebook cleans up the temporary folder. If you want to
+# > retrieve the AEDT project and data, do so before executing the final cell in the notebook.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ## Download AEDT file example
+# ### Retrieve the Maxwell project file
 #
-# Set the local temporary folder to export the AEDT file to.
+# This examples starts 
 
 aedt_file = ansys.aedt.core.downloads.download_file(
     source="maxwell_motor_optimization",
