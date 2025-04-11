@@ -76,7 +76,8 @@ component_path = Path(download_file("fss_3d_component", destination=str(temp_pat
 # 2. Get the file name of the 3D component.
 #    > **Note:** It should be the only file in the ``component_path`` folder.
 
-unit_cell_path = component_path.glob("*.a3dcomp")[0]
+unit_cell_paths = [f for f in component_path.glob("*.a3dcomp")]
+unit_cell_path = unit_cell_paths[0]
 
 # 3. Insert the component in HFSS
 
@@ -87,10 +88,10 @@ comp = hfss.modeler.insert_3d_component(str(unit_cell_path))
 
 component_names = hfss.modeler.user_defined_component_names
 
-# You can also get the name of each component from the
+# You can also get the name of each component using the
 # ``name`` property.
 #
-# Check that they are the same.
+# Check that only one 3D component has been placed in the HFSS design.
 
 # +
 same = comp.name == component_names[0]
@@ -121,11 +122,9 @@ comp.parameters["a"] = "patch_dim"
 
 # ### Extend the solution domain
 #
-# Extend the solution domain in the $+z$ direction avoid evanescent
-# fields from interacting with the Floquet port. 
-#
-# Placing the Floquet port too close to the 3D structure can result
-# in evanescent fields on the Floquet port surface which would
+# Extend the solution domain in the $+z$ direction. If the
+# Floquet port is placed too close to the 3D structure, evanescent 
+# fields on the Floquet port surface can
 # lead to erroneous results.
 #
 # The unit cell model is extended away from the 
@@ -138,7 +137,7 @@ comp.parameters["a"] = "patch_dim"
 # +
 period_x, period_y, z_dim = hfss.modeler.get_bounding_dimension()
 
-z_extent = 3 * period_x   
+z_extent = 2 * (period_x + period_y)
 region = hfss.modeler.create_air_region(
     z_pos=z_extent,
     is_percentage=False,
@@ -161,14 +160,13 @@ print(msg)
 
 # The Floquet port is asigned to the top surface of the solution domain
 # where the plane
-# wave is incident on the FSS. The periodicity of the FSS is defined
-# via the arguments
+# wave is incident on the FSS. The following arguments
+# define the periodicity of the FSS.
 # - ``lattice_origin``
 # - ``lattice_a_end``
 # - ``lattice_b_end``
 #
-# The phase reference is set to the surface of the FSS
-# with deembedding.
+# The phase reference is deembedded to the surface of the FSS.
 
 floquet_boundary = hfss.create_floquet_port(
                                assignment=region.top_face_z,
@@ -182,9 +180,9 @@ floquet_boundary = hfss.create_floquet_port(
 # ### Define solution setup
 #
 # The solution setup specifies details used to run
-# the finite element analysis in HFSS. In thise example adaptive mesh
-# refinement runs at 10 GHz while all other settings are set to
-# default values. 
+# the analysis in HFSS. In this example adaptive mesh
+# refinement runs at 10 GHz while default values are
+# used for all other settings. 
 #
 # The frequency sweep is used to specify the range over which scattering
 # parameters will be calculated.
@@ -197,7 +195,7 @@ hfss.create_linear_count_sweep(
     units="GHz",
     start_frequency=6,
     stop_frequency=15,
-    num_of_freq_points=51,
+    num_of_freq_points=401,
     name="sweep1",
     sweep_type="Interpolating",
     interpolation_tol=6,
@@ -213,39 +211,38 @@ hfss.analyze()
 
 # ## Postprocess
 #
-# Create S-parameter reports.
+# The syntax used to plot network parameters (S-, Y-, Z-) can be complicated. The
+# method ``get_traces_for_plot()`` is helpful to retrieve the names of valid
+# traces to use for ploting.
+#
+# We'll plot imaginary impedance,  $ \Im (Z_{i,j}) $ 
+# where $ i $, and $ j $ indices correspond to the two
+# linear polarization states.
 
-# +
-all_quantities = hfss.post.available_report_quantities()
-str_mag = []
-str_ang = []
+plot_data = hfss.get_traces_for_plot(category="im(Z")
+msg = "The imaginary wave impedance can be displayed using "
+msg += "the traces\n"
+msg += "".join(["--> " + name + "\n" for name in plot_data])
+print(msg)
 
-variation = {"Freq": ["All"]}
+# The Floquet port was automatically named "port_z_max".
+# Due to symmetry, only the first two parameters are unique.
+#
+# ### Generate a report in HFSS
 
-for i in all_quantities:
-    str_mag.append("mag(" + i + ")")
-    str_ang.append("ang_deg(" + i + ")")
+report = hfss.post.create_report(plot_data[0:2])
 
-mag_plot = hfss.post.create_report(
-                    expressions=str_mag,
-                    variations=variation,
-                    plot_name="magnitude_plot",
-                    )
-phase_plot = hfss.post.create_report(
-                    expressions=str_ang,
-                    variations=variation,
-                    plot_name="phase_plot",
-                    )
-# -
+# ### Retrieve data for postprocessing in Matplotlib
+#
+# The method ``get_solution_data()`` retrieves data from the report in HFSS 
+# and makes it available for postprocessing with Matplotlib. 
 
-plot_data = hfss.get_traces_for_plot(category="phase(Z(")
-report = hfss.post.create_report(plot_data)
 solution = report.get_solution_data()
 plt = solution.plot(solution.expressions)
 
-# ## Release AEDT
+# The 
 
-help(hfss.post.create_report)
+# ## Release AEDT
 
 hfss.release_desktop()
 # Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
