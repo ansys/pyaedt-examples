@@ -30,7 +30,7 @@ jobs:
     name: Documentation style
     runs-on: ubuntu-latest
     steps:
-      - uses: ansys/actions/doc-style@v8
+      - uses: ansys/actions/doc-style@v9
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -109,7 +109,7 @@ jobs:
     needs: [doc-build]
     steps:
       - name: Deploy the documentation
-        uses: ansys/actions/doc-deploy-dev@v8
+        uses: ansys/actions/doc-deploy-dev@v9
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
