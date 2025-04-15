@@ -1,6 +1,9 @@
 Use configuration
 ~~~~~~~~~~~~~~~~~
 
+Workflow
+--------
+
 The following examples illustrate the use of configuration files in PyEDB.
 PyAEDT offers a GUI which utilizes config file. Please refer to `Configure Layout extension`_ for details.
 
@@ -31,7 +34,7 @@ PyAEDT offers a GUI which utilizes config file. Please refer to `Configure Layou
          :height: 200px
          :align: center
 
-   .. grid-item-card:: PCB Power Integrity DCIR analysys
+   .. grid-item-card:: PCB Power Integrity DCIR analysis
       :padding: 2 2 2 2
       :link: pcb_dc_ir
       :link-type: doc
@@ -42,7 +45,7 @@ PyAEDT offers a GUI which utilizes config file. Please refer to `Configure Layou
          :height: 200px
          :align: center
 
-   .. grid-item-card:: Package Power Integrity DCIR analysys
+   .. grid-item-card:: Package Power Integrity DCIR analysis
       :padding: 2 2 2 2
       :link: dcir
       :link-type: doc
@@ -77,84 +80,6 @@ PyAEDT offers a GUI which utilizes config file. Please refer to `Configure Layou
 
       Create automatically parametrized design.
 
-   .. grid-item-card:: Stackup management
-      :padding: 2 2 2 2
-      :link: import_stackup
-      :link-type: doc
-
-      .. image:: _static/configurator.png
-         :alt: Configurator
-         :width: 250px
-         :height: 200px
-         :align: center
-
-   .. grid-item-card:: Material management
-      :padding: 2 2 2 2
-      :link: import_material
-      :link-type: doc
-
-      .. image:: _static/configurator.png
-         :alt: Configurator
-         :width: 250px
-         :height: 200px
-         :align: center
-
-   .. grid-item-card:: Ports setup
-      :padding: 2 2 2 2
-      :link: import_ports
-      :link-type: doc
-
-      .. image:: _static/configurator.png
-         :alt: Configurator
-         :width: 250px
-         :height: 200px
-         :align: center
-
-   .. grid-item-card:: Simulation setup management
-      :padding: 2 2 2 2
-      :link: import_setup_ac
-      :link-type: doc
-
-      .. image:: _static/configurator.png
-         :alt: Configurator
-         :width: 250px
-         :height: 200px
-         :align: center
-
-
-   .. grid-item-card:: Padstack Definition management
-      :padding: 2 2 2 2
-      :link: import_padstack_definitions
-      :link-type: doc
-
-      .. image:: _static/configurator.png
-         :alt: Configurator
-         :width: 250px
-         :height: 200px
-         :align: center
-
-   .. grid-item-card:: Components management
-      :padding: 2 2 2 2
-      :link: import_components
-      :link-type: doc
-
-      .. image:: _static/configurator.png
-         :alt: Configurator
-         :width: 250px
-         :height: 200px
-         :align: center
-
-   .. grid-item-card:: Sources management
-      :padding: 2 2 2 2
-      :link: import_sources
-      :link-type: doc
-
-      .. image:: _static/configurator.png
-         :alt: Configurator
-         :width: 250px
-         :height: 200px
-         :align: center
-
 .. toctree::
    :hidden:
 
@@ -162,6 +87,30 @@ PyAEDT offers a GUI which utilizes config file. Please refer to `Configure Layou
    serdes
    pcb_dc_ir
    dcir
+   post_layout_parametrize
+   modeler_simple_transmission_line
+
+
+Guideline
+---------
+
+:doc:`Stackup management <import_stackup>`
+
+:doc:`Material management <import_material>`
+
+:doc:`Ports setup <import_ports>`
+
+:doc:`Simulation setup management <import_setup_ac>`
+
+:doc:`Padstack Definition management <import_padstack_definitions>`
+
+:doc:`Components management <import_components>`
+
+:doc:`Sources management <import_sources>`
+
+.. toctree::
+   :hidden:
+
    import_stackup
    import_material
    import_ports
@@ -169,6 +118,3 @@ PyAEDT offers a GUI which utilizes config file. Please refer to `Configure Layou
    import_padstack_definitions
    import_components
    import_sources
-   post_layout_parametrize
-   modeler_simple_transmission_line
-
