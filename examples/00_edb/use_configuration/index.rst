@@ -90,30 +90,31 @@ PyAEDT offers a GUI which utilizes config file. Please refer to `Configure Layou
    post_layout_parametrize
    modeler_simple_transmission_line
 
+
 Guideline
 ---------
 
-`Stackup management`_
+:doc:`Stackup management <import_stackup>`
 
-`Material management`_
+:doc:`Material management <import_material>`
 
-`Ports setup`_
+:doc:`Ports setup <import_ports>`
 
-`Simulation setup management`_
+:doc:`Simulation setup management <import_setup_ac>`
 
-`Padstack Definition management`_
+:doc:`Padstack Definition management <import_padstack_definitions>`
 
-`Components management`_
+:doc:`Components management <import_components>`
 
-`Sources management`_
+:doc:`Sources management <import_sources>`
 
-.. _Stackup management : import_stackup
-.. _Material management : import_material
-.. _Ports setup : import_ports
-.. _Simulation setup management : import_setup_ac
-.. _Padstack Definition management : import_padstack_definitions
-.. _Components management : import_components
-.. _Sources management : import_sources
+.. toctree::
+   :hidden:
 
-
-
+   import_stackup
+   import_material
+   import_ports
+   import_setup_ac
+   import_padstack_definitions
+   import_components
+   import_sources
