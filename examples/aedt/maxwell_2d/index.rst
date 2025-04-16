@@ -112,19 +112,6 @@ These examples use PyAEDT to show Maxwell 2D capabilities.
 
       This example uses PyAEDT to set up a Lorentz actuator and solve it using the Maxwell 2D transient solver.
 
-   .. grid-item-card:: 2D Axi-symmetric Actuator
-      :padding: 2 2 2 2
-      :link: ../../low_frequency/magnetic/2d-axi_magnetostatic_actuator
-      :link-type: doc
-
-      .. image:: ../../low_frequency/magnetic/_static/2d-axi_magnetostatic_actuator.png
-         :alt: Maxwell general
-         :width: 250px
-         :height: 200px
-         :align: center
-
-      This example showcases how to leverage the magnetostatic solver to calculate the force on an actuator's anchor.
-
    .. grid-item-card:: PM synchronous motor transient analysis
       :padding: 2 2 2 2
       :link: ../../low_frequency/motor/aedt_motor/pm_synchronous
