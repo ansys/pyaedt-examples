@@ -162,6 +162,7 @@ These examples use PyAEDT to show Maxwell 2D capabilities.
       ../../low_frequency/magnetic/magneto_motive_line
       ../../low_frequency/magnetic/transient_winding
       ../../low_frequency/magnetic/lorentz_actuator
+      ../../low_frequency/magnetic/2d-axi_magnetostatic_actuator
       ../../low_frequency/motor/aedt_motor/pm_synchronous
       ../../low_frequency/motor/aedt_motor/rmxpert
       ../../low_frequency/motor/aedt_motor/transformer_inductance
