@@ -80,30 +80,30 @@ points_housing = [
 # ### Declare and initialize design parameters
 
 m2d.modeler.model_units = "mm"  # Global units used in geometry creation
-m2d[r"Amp_1"] = "1000A"  # Net current applied to coil
-m2d[r"move"] = "0mm"  # Displacement applied to anchor
+m2d["Amp_1"] = "1000A"  # Net current applied to coil
+m2d["move"] = "0mm"  # Displacement applied to anchor
 
 # ### Create 2D model
 # Build coil, anchor and housing geometries
 
 coil_m = m2d.modeler.create_rectangle(
-    origin=[r"3mm", r"0mm", r"7mm"], sizes=[-14, 6], name=r"Coil", material=r"Copper"
+    origin=["3mm", "0mm", "7mm"], sizes=[-14, 6], name="Coil", material="Copper"
 )
 anchor_m = m2d.modeler.create_rectangle(
-    origin=[r"0mm", r"0mm", r"13mm - move"],
+    origin=["0mm", "0mm", "13mm - move"],
     sizes=[-8, 2],
-    name=r"Anchor",
-    material=r"steel_1008",
+    name="Anchor",
+    material="steel_1008",
 )
 housing_m = m2d.modeler.create_polyline(
-    points_housing, close_surface=True, name=r"Housing", material=r"steel_1008"
+    points_housing, close_surface=True, name="Housing", material="steel_1008"
 )
 m2d.modeler.cover_lines(housing_m)
 
 # Create surrounding vacuum domain
 
 region_m = m2d.modeler.create_region(pad_percent=100)
-region_m.material_name = r"vacuum"
+region_m.material_name = "vacuum"
 
 # Fit all geometrical entities into the modeler's window
 
@@ -115,13 +115,13 @@ m2d.modeler.fit_all()
 # that the field only has a tangential component at the edge of the
 # surrounding domain/region
 
-m2d.assign_vector_potential(assignment=region_m.edges, boundary=r"VectorPotential1")
+m2d.assign_vector_potential(assignment=region_m.edges, boundary="VectorPotential1")
 
 # ### Assign Excitation
 #
 # Create a current driven coil by applying a current excitation in the coil domain
 
-m2d.assign_current(assignment=coil_m.name, amplitude=r"Amp_1", name="Current1")
+m2d.assign_current(assignment=coil_m.name, amplitude="Amp_1", name="Current1")
 
 # ### Enable force calculation on the anchor
 
@@ -132,22 +132,22 @@ m2d.assign_force(
 
 # ### Define solution setup
 
-setup = m2d.create_setup(r"MySetup")
+setup = m2d.create_setup("MySetup")
 print(setup.props)
-setup.props[r"MaximumPasses"] = 15
-setup.props[r"PercentRefinement"] = 30
-setup.props[r"PercentError"] = 0.1
-setup.props[r"MinimumPasses"] = 2
-setup.props[r"RelativeResidual"] = 1e-6
+setup.props["MaximumPasses"] = 15
+setup.props["PercentRefinement"] = 30
+setup.props["PercentError"] = 0.1
+setup.props["MinimumPasses"] = 2
+setup.props["RelativeResidual"] = 1e-6
 
 # ### Create variable/parameter sweeps
 #
 # Enable sweeps over coil net current and anchor displacement
 
 value_sweep = m2d.parametrics.add(
-    r"Amp_1", 500, 2000, 500, name="ParametricSetup1", variation_type="LinearStep"
+    "Amp_1", 500, 2000, 500, name="ParametricSetup1", variation_type="LinearStep"
 )
-value_sweep.add_variation(r"move", 0, 4, 1, variation_type="LinearStep")
+value_sweep.add_variation("move", 0, 4, 1, variation_type="LinearStep")
 #
 
 # ### Run analysis
@@ -159,11 +159,11 @@ value_sweep.analyze(cores=NUM_CORES)
 # Create a Force vs. move (displacement) Report/Plot for every current value
 
 m2d.post.create_report(
-    expressions=[r"Force.Force_z"],
-    variations={r"Amp_1": r"All", r"move": r"All"},
-    plot_name=r"Force Plot 1",
-    primary_sweep_variable=r"move",
-    plot_type=r"Rectangular Plot",
+    expressions=["Force.Force_z"],
+    variations={"Amp_1": "All", "move": "All"},
+    plot_name="Force Plot 1",
+    primary_sweep_variable="move",
+    plot_type="Rectangular Plot",
 )
 
 
