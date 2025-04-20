@@ -79,7 +79,7 @@ component_path = Path(download_file("fss_3d_component", destination=str(temp_pat
 unit_cell_paths = [f for f in component_path.glob("*.a3dcomp")]
 unit_cell_path = unit_cell_paths[0]
 
-# 3. Insert the dipole as a 3D component into
+# 3. Insert the dipole as a 3D component into the HFSS model.
 # the HFSS model.
 
 comp = hfss.modeler.insert_3d_component(str(unit_cell_path))
