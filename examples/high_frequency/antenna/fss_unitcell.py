@@ -38,7 +38,6 @@ temp_path = Path(temp_folder.name)
 #
 # The Ansys Electronics Desktop (AEDT) will be launched
 # and an HFSS design will be inserted into the project.
-# design will be inserted into the project.
 
 project_name = temp_path / "FSS.aedt"
 hfss = ansys.aedt.core.Hfss(
