@@ -58,6 +58,11 @@ hfss = Hfss(version=AEDT_VERSION,
 #
 # The dipole length can be modified by changing the
 # parameter ``l_dipole`` to tune the resonance frequency.
+#
+# The dipole will nominally be resonant at the half-wavelength frequency:
+# $$
+# l = \lambda / 2 = \frac{c_0}{2f}
+# $$
 
 hfss["l_dipole"] = "10.2cm"
 component_name = "Dipole_Antenna_DM"
