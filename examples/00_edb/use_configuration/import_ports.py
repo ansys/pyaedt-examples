@@ -47,7 +47,7 @@ cfg = dict()
 #
 # - **name**. Name of the port.
 # - **Reference_designator**. Reference designator of the component.
-# - **type**. Type of the port. Supported types are 'circuit', 'coax'
+# - **type**. Type of the port. Supported types are 'circuit', 'coax', 'wave_port', 'gap'
 # - **positive_terminal**. Positive terminal of the port. Supported types are 'net', 'pin', 'pin_group', 'coordinates'
 # - **negative_terminal**. Negative terminal of the port. Supported types are 'net', 'pin', 'pin_group', 'coordinates',
 # 'nearest_pin'
@@ -133,10 +133,45 @@ ports_distributed = {
     "negative_terminal": {"net": "GND"},
 }
 
+# ## Add wave ports
+
+# Keywords
+# - **primitive_name**. Name of the primitive to assign the port.
+# - **point_on_edge**. XY coordinates to locate the edge.
+# - **horizontal_extent_factor**.
+# - **vertical_extent_factor**.
+# - **pec_launch_width**.
+
+port_7 = {
+    "name": "port_7",
+    "type": "wave_port",
+    "primitive_name": "J5-13",
+    "point_on_edge": ["112.4mm", "10.8mm"],
+    "horizontal_extent_factor": 6,
+    "vertical_extent_factor": 4,
+    "pec_launch_width": "0.2mm",
+}
+
+# ## Add gap ports
+
+# Keywords
+# - **primitive_name**. Name of the primitive to assign the port.
+# - **point_on_edge**. XY coordinates to locate the edge.
+# - **horizontal_extent_factor**.
+# - **vertical_extent_factor**.
+# - **pec_launch_width**.
+
+port_9 = {
+    "name": "port_9",
+    "type": "gap",
+    "primitive_name": "J5-18",
+    "point_on_edge": ["112.4mm", "6.78mm"],
+}
+
 # ## Add setups in configuration
 
 cfg["pin_groups"] = pin_groups
-cfg["ports"] = [port_1, port_2, port_3, port_4, port_5, port_6, ports_distributed]
+cfg["ports"] = [port_1, port_2, port_3, port_4, port_5, port_6, ports_distributed, port_7]
 
 # ## Write configuration into as json file
 
