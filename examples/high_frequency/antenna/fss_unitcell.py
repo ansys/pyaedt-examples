@@ -34,11 +34,10 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 temp_path = Path(temp_folder.name)
 
-# ## Launch Electronics Desktop (AEDT)
-
 # ### Launch HFSS
 #
-# Create an HFSS design.
+# The Ansys Electronics Desktop (AEDT) will be launched
+# and an HFSS design will be inserted into the project.
 
 project_name = temp_path / "FSS.aedt"
 hfss = ansys.aedt.core.Hfss(
@@ -79,7 +78,8 @@ component_path = Path(download_file("fss_3d_component", destination=str(temp_pat
 unit_cell_paths = [f for f in component_path.glob("*.a3dcomp")]
 unit_cell_path = unit_cell_paths[0]
 
-# 3. Insert the component in HFSS
+# 3. Insert the dipole as a 3D component into the HFSS model.
+# the HFSS model.
 
 comp = hfss.modeler.insert_3d_component(str(unit_cell_path))
 

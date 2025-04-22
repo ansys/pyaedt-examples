@@ -58,6 +58,11 @@ hfss = Hfss(version=AEDT_VERSION,
 #
 # The dipole length can be modified by changing the
 # parameter ``l_dipole`` to tune the resonance frequency.
+#
+# The dipole will nominally be resonant at the half-wavelength frequency:
+# $$
+# l = \lambda / 2 = \frac{c_0}{2f}
+# $$
 
 hfss["l_dipole"] = "10.2cm"
 component_name = "Dipole_Antenna_DM"
@@ -139,7 +144,7 @@ setup.analyze()
 # ### Postprocess
 #
 # Plot the return loss in Ansys Electronics Desktop (AEDT). A plot similar to the one shown here will be
-# generated in .
+# generated in the HFSS design.
 #
 # <img src="_static/dipole_return_loss.png" width="800">
 
@@ -147,13 +152,14 @@ spar_plot = hfss.create_scattering(plot="Return Loss", sweep=interp_sweep.name)
 
 # ### Visualize far-field data
 #
-# Parameters passed to ``hfss.post.create_report()`` specify the details of the report that will be created in AEDT.
+# Parameters passed to ``hfss.post.create_report()`` specify which quantities will be
+# displayed in the HFSS design.
 # Below you can see how parameters map from Python to the reporter in the AEDT user interface.
 #
 # <img src="_static/ff_report_ui_1.png" width="800">
 # <img src="_static/ff_report_ui_2.png" width="800">
 #
-# > **Note:** These images are from the 25R1 release
+# > **Note:** These images were created using the 25R1 release.
 
 variations = hfss.available_variations.nominal_values
 variations["Freq"] = [center_freq]
@@ -195,12 +201,11 @@ report_3d.report_type = "3D Polar Plot"
 report_3d.create(name="Realized Gain (dB)")
 # -
 
-# ### Retrieve solution data for external post-processing
+# ### Retrieve solution data for post-processing in Python
 #
-# An instance of the ``SolutionData`` class can be created from the report by calling the ``get_solution_data()``
-# method. This class makes data accessible for further post-processing using
-# [Matplotlib](https://matplotlib.org/) and is used, for example, to create plots that can be viewed
-# directly in the browser or embedded in PDF reports as shown below.
+# An instance of the ``SolutionData`` class can be created from the report by calling ``get_solution_data()``. 
+# This class provides access to data for further post-processing using
+# [Matplotlib](https://matplotlib.org/).
 
 report_3d_data = report_3d.get_solution_data()
 new_plot = report_3d_data.plot_3d()
