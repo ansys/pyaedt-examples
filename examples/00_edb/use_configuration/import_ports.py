@@ -161,8 +161,8 @@ port_7 = {
 # - **vertical_extent_factor**.
 # - **pec_launch_width**.
 
-port_9 = {
-    "name": "port_9",
+port_8 = {
+    "name": "port_8",
     "type": "gap",
     "primitive_name": "J5-18",
     "point_on_edge": ["112.4mm", "6.78mm"],
@@ -171,7 +171,7 @@ port_9 = {
 # ## Add setups in configuration
 
 cfg["pin_groups"] = pin_groups
-cfg["ports"] = [port_1, port_2, port_3, port_4, port_5, port_6, ports_distributed, port_7]
+cfg["ports"] = [port_1, port_2, port_3, port_4, port_5, port_6, ports_distributed, port_7, port_8]
 
 # ## Write configuration into as json file
 
