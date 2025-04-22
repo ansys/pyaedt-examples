@@ -94,8 +94,7 @@ for cell in array_definition["cells"]:
 
 # Each unit cell is defined by a 3D Component. The 3D component may be added
 # to the HFSS design using the method
-# [``Hfss.modeler.insert_3d_component()``]
-# (https://aedt.docs.pyansys.com/version/stable/API/_autosummary/ansys.aedt.core.modeler.modeler_3d.Modeler3D.insert_3d_component.html)
+# [Hfss.modeler.insert_3d_component()](https://aedt.docs.pyansys.com/version/stable/API/_autosummary/ansys.aedt.core.modeler.modeler_3d.Modeler3D.insert_3d_component.html)
 # or it can be added as a key to the ``array_definition`` as shown below.
 
 array_definition["Circ_Patch_5GHz1"] = os.path.join(path_to_3dcomp, "Circ_Patch_5GHz.a3dcomp")
