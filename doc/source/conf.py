@@ -291,8 +291,10 @@ def convert_examples_into_notebooks(app):
     )
 
     unchanged_raw = os.environ.get('ON_CI_UNCHANGED_EXAMPLES', '')
+    logger.info(f"Check value of unchanged_raw: {unchanged_raw}.")
     if unchanged_raw:
         UNCHANGED_EXAMPLES = unchanged_raw.strip().splitlines()
+        logger.info(f"Check value of UNCHANGED_EXAMPLES: {UNCHANGED_EXAMPLES}.")
     EXAMPLES_TO_NOT_EXECUTE = list(set(STATIC_EXAMPLES_TO_NOT_EXECUTE) | set(UNCHANGED_EXAMPLES))
 
     # NOTE: Only convert the examples if the workflow isn't tagged as coupling HTML and PDF build.
