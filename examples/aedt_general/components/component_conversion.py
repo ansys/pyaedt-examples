@@ -59,7 +59,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 a3dcomp = download_file(
     source="component_3d",
     name="SMA_Edge_Connector_23r2_encrypted_password_ansys.a3dcomp",
-    destination=temp_folder.name,
+    local_path=temp_folder.name,
 )
 
 # Name of the converted 3D component:

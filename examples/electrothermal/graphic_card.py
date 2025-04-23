@@ -37,7 +37,7 @@ NG_MODE = False  # Do not show the graphical user interface.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 project_temp_name = download_icepak(
-    destination=temp_folder.name
+    local_path=temp_folder.name
 )
 
 # ## Open project

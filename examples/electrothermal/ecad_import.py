@@ -58,13 +58,13 @@ ipk = Icepak(
 def_path = download_file(
     source="icepak/Icepak_ECAD_Import/A1_uprev.aedb",
     name="edb.def",
-    destination=temp_folder.name,
+    local_path=temp_folder.name,
 )
 board_path = download_file(
-    source="icepak/Icepak_ECAD_Import/", name="A1.bdf", destination=temp_folder.name
+    source="icepak/Icepak_ECAD_Import/", name="A1.bdf", local_path=temp_folder.name
 )
 library_path = download_file(
-    source="icepak/Icepak_ECAD_Import/", name="A1.ldf", destination=temp_folder.name
+    source="icepak/Icepak_ECAD_Import/", name="A1.ldf", local_path=temp_folder.name
 )
 
 # Import IDF file.

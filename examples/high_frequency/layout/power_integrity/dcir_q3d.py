@@ -38,15 +38,15 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # Download needed project file and set up temporary project directory.
 
 aedb_project = download_file(
-    "edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name
+    "edb/ANSYS-HSD_V1.aedb", local_path=temp_folder.name
 )
 coil = download_file(
     source="inductance_3d_component",
     name="air_coil.a3dcomp",
-    destination=temp_folder.name,
+    local_path=temp_folder.name,
 )
 res = download_file(
-    source="resistors", name="Res_0402.a3dcomp", destination=temp_folder.name
+    source="resistors", name="Res_0402.a3dcomp", local_path=temp_folder.name
 )
 project_name = "HSD"
 output_edb = os.path.join(temp_folder.name, project_name + ".aedb")

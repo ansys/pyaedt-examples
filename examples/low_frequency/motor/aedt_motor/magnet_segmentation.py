@@ -38,7 +38,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 aedt_file = download_file(
     source="object_segmentation",
     name="Motor3D_obj_segments.aedt",
-    destination=temp_folder.name,
+    local_path=temp_folder.name,
 )
 
 # ## Launch Maxwell 3D

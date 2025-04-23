@@ -46,7 +46,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # Download the 3D component that will be used to define
 # the unit cell in the antenna array.
 
-path_to_3dcomp = download_3dcomponent(destination=temp_folder.name)
+path_to_3dcomp = download_3dcomponent(local_path=temp_folder.name)
 
 # ### Launch HFSS
 #

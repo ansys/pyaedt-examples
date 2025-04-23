@@ -38,7 +38,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # ## Download example data
 
 download_folder = download_file(
-    source="pcie_compliance", destination=temp_folder.name
+    source="pcie_compliance", local_path=temp_folder.name
 )
 project_folder = os.path.join(download_folder, "project")
 project_path = os.path.join(project_folder, "PCIE_GEN5_only_layout.aedtz")

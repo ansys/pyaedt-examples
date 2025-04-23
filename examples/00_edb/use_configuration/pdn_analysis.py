@@ -24,8 +24,8 @@ NG_MODE = False
 # Download the example PCB data.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
-download_file(source="touchstone", name="GRM32_DC0V_25degC_series.s2p", destination=temp_folder.name)
-file_edb = download_file(source="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name)
+download_file(source="touchstone", name="GRM32_DC0V_25degC_series.s2p", local_path=temp_folder.name)
+file_edb = download_file(source="edb/ANSYS-HSD_V1.aedb", local_path=temp_folder.name)
 
 # ## Load example layout
 

@@ -32,7 +32,7 @@ if not NG_MODE:
 # Download example board.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
-aedb = download_file(source="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name)
+aedb = download_file(source="edb/ANSYS-HSD_V1.aedb", local_path=temp_folder.name)
 
 
 # ## Launch HFSS 3D Layout

@@ -50,7 +50,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # Files are placed in the destination folder.
 
 project_path = download_file(
-    "ami", name="ami_usb.aedtz", destination=temp_folder.name
+    "ami", name="ami_usb.aedtz", local_path=temp_folder.name
 )
 
 

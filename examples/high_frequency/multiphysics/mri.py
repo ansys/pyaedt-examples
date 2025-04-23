@@ -55,7 +55,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # Separate objects are used to selectively assign mesh operations.
 # Material properties defined in  this project already contain electrical and thermal properties.
 
-project_path = downloads.download_file(source="mri", destination=temp_folder.name)
+project_path = downloads.download_file(source="mri", local_path=temp_folder.name)
 project_name = os.path.join(project_path, "background_SAR.aedt")
 hfss = Hfss(
     project=project_name,

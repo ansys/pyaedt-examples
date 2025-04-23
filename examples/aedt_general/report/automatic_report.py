@@ -52,7 +52,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # +
 project_path = download_file(
-    source="custom_reports/", destination=temp_folder.name
+    source="custom_reports/", local_path=temp_folder.name
 )
 
 circuit = ansys.aedt.core.Circuit(

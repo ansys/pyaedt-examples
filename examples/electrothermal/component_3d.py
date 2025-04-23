@@ -30,7 +30,7 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 package_temp_name, qfp_temp_name = download_icepak_3d_component(
-    destination=temp_folder.name
+    local_path=temp_folder.name
 )
 
 # ## Create heatsink

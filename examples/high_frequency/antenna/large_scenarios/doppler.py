@@ -37,7 +37,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # Download the 3D component that is needed to run the example.
 
 library_path = download_multiparts(
-    destination=temp_folder.name
+    local_path=temp_folder.name
 )
 
 # ## Launch HFSS and open project

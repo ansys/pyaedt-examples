@@ -27,7 +27,7 @@ AEDT_VERSION = "2025.1"
 # Download the example PCB data.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys").name
-file_edb = download_file(source="edb/ANSYS-HSD_V1.aedb", destination=temp_folder)
+file_edb = download_file(source="edb/ANSYS-HSD_V1.aedb", local_path=temp_folder)
 
 # ## Load example layout.
 

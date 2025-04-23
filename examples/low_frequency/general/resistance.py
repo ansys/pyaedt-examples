@@ -63,7 +63,7 @@ m2d = ansys.aedt.core.Maxwell2d(
 # m2d.import_dxf(dxf_path, dxf_layers, scale=1E-05)
 
 parasolid_path = download_file(
-    source="x_t", name="Ansys_logo_2D.x_t", destination=temp_folder.name
+    source="x_t", name="Ansys_logo_2D.x_t", local_path=temp_folder.name
 )
 m2d.modeler.import_3d_cad(parasolid_path)
 # -

@@ -29,7 +29,7 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 # Set paths.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
-input_dir = download_sherlock(destination=temp_folder.name)
+input_dir = download_sherlock(local_path=temp_folder.name)
 
 # Define input files.
 

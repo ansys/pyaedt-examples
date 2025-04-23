@@ -37,7 +37,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Download project
 
-project_file = download_sbr_time(destination=temp_folder.name)
+project_file = download_sbr_time(local_path=temp_folder.name)
 
 # ## Launch HFSS and analyze
 

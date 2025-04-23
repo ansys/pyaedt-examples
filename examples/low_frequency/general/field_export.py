@@ -41,7 +41,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 project_path = download_file(
     source="maxwell_transient_fields",
     name="M3D_Transient_StrandedWindings.aedt",
-    destination=temp_folder.name,
+    local_path=temp_folder.name,
 )
 
 # ## Initialize and launch Maxwell 3D

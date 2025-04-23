@@ -44,10 +44,10 @@ working_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 
 parasolid_path = download_file(
-    source="oven", name="gingerbread.x_t", destination=working_dir.name
+    source="oven", name="gingerbread.x_t", local_path=working_dir.name
 )
 oven_path = download_file(
-    source="oven", name="microwave_oven.aedt", destination=working_dir.name
+    source="oven", name="microwave_oven.aedt", local_path=working_dir.name
 )
 
 # ### Launch HFSS

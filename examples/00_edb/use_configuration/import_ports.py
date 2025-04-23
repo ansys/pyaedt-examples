@@ -33,7 +33,7 @@ NG_MODE = False
 # Download the example PCB data.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
-file_edb = download_file(source="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name)
+file_edb = download_file(source="edb/ANSYS-HSD_V1.aedb", local_path=temp_folder.name)
 
 # ## Load example layout
 

@@ -39,9 +39,9 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 # Download example board.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
-aedb = download_file(source="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name)
+aedb = download_file(source="edb/ANSYS-HSD_V1.aedb", local_path=temp_folder.name)
 _ = download_file(
-    source="spice", name="ferrite_bead_BLM15BX750SZ1.mod", destination=temp_folder.name
+    source="spice", name="ferrite_bead_BLM15BX750SZ1.mod", local_path=temp_folder.name
 )
 
 # ## Create configuration file

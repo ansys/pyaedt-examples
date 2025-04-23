@@ -44,7 +44,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 aedt_file = download_file(
     source="maxwell_motor_optimization",
     name="IPM_optimization.aedt",
-    destination=temp_folder.name,
+    local_path=temp_folder.name,
 )
 
 # ## Launch Maxwell 2D

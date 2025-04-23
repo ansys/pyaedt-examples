@@ -54,7 +54,7 @@ source_props_conf_file = "SROM_props.conf"
 _ = downloads.download_twin_builder_data(
     file_name=source_snapshot_data_zipfilename,
     force_download=True,
-    destination=temp_folder.name,
+    local_path=temp_folder.name,
 )
 
 _ = downloads.download_twin_builder_data(source_build_conf_file, True, temp_folder.name)

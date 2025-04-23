@@ -41,7 +41,7 @@ if AEDT_VERSION <= "2023.1":
 # Download project
 
 project_name = download_file(
-    "emit", "interference.aedtz", destination=temp_folder.name
+    "emit", "interference.aedtz", local_path=temp_folder.name
 )
 
 # ## Launch EMIT and open project

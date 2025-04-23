@@ -41,7 +41,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # +
 project_dir = os.path.join(temp_folder.name, "edb")
 aedb_project = download_file(
-    source="edb/ANSYS-HSD_V1.aedb", destination=project_dir
+    source="edb/ANSYS-HSD_V1.aedb", local_path=project_dir
 )
 
 project_name = os.path.join(temp_folder.name, "HSD")

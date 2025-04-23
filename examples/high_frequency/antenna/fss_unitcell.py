@@ -70,7 +70,7 @@ hfss["patch_dim"] = "10mm"
 
 # 1. Download the component.
 
-component_path = Path(download_file("fss_3d_component", destination=str(temp_path)))
+component_path = Path(download_file("fss_3d_component", local_path=str(temp_path)))
 
 # 2. Get the file name of the 3D component.
 #    > **Note:** It should be the only file in the ``component_path`` folder.

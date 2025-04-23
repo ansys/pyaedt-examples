@@ -148,7 +148,7 @@ for k, v in oper_params.items():
 # Materials are stored in text files.
 
 filename_lam, filename_PM = download_leaf(
-    destination=temp_folder.name
+    local_path=temp_folder.name
 )
 
 # ## Create first material

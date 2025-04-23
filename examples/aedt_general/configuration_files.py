@@ -55,7 +55,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # Download the Icepack project.
 
 project_full_name = download_icepak(
-    destination=temp_folder.name
+    local_path=temp_folder.name
 )
 
 # ## Open project

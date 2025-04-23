@@ -41,10 +41,10 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 aedt_file = download_file(
     source="maxwell_ctrl_prg",
     name="ControlProgramDemo.aedt",
-    destination=temp_folder.name,
+    local_path=temp_folder.name,
 )
 ctrl_prg_file = download_file(
-    source="maxwell_ctrl_prg", name="timestep_only.py", destination=temp_folder.name
+    source="maxwell_ctrl_prg", name="timestep_only.py", local_path=temp_folder.name
 )
 
 # ## Launch Maxwell 2D

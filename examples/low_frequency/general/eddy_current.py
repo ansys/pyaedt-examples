@@ -39,7 +39,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 project_path = download_file(
     source="maxwell_ec_reduced_matrix",
     name="m2d_eddy_current.aedt",
-    destination=temp_folder.name,
+    local_path=temp_folder.name,
 )
 
 # ## Launch AEDT and Maxwell 2D

@@ -35,7 +35,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Download project
 
-project_full_name = download_sbr(destination=temp_folder.name)
+project_full_name = download_sbr(local_path=temp_folder.name)
 
 # ## Define designs
 #

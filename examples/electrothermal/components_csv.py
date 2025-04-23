@@ -56,7 +56,7 @@ board = ipk.modeler.create_box(
 # Components are represented as simple cubes with dimensions and properties specified in a CSV file.
 
 filename = download_file(
-    "icepak", "blocks-list.csv", destination=temp_folder.name
+    "icepak", "blocks-list.csv", local_path=temp_folder.name
 )
 
 # The CSV file lists block properties:
