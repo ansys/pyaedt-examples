@@ -26,13 +26,13 @@ concurrency:
 
 jobs:
   
-  # doc-style:
-  #   name: Documentation style
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: ansys/actions/doc-style@v9
-  #       with:
-  #         token: ${{ secrets.GITHUB_TOKEN }}
+  doc-style:
+    name: Documentation style
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ansys/actions/doc-style@v9
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
 # =================================================================================================
 # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
@@ -45,8 +45,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Get new/modified examples files
-        id: changed
         shell: powershell
         run: |
           $changed = git diff --name-only origin/main...HEAD -- examples/
@@ -66,63 +66,59 @@ jobs:
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
-      - name: Test
+      - name: Create virtual environment
+        run: |
+          python -m venv .venv
+          .venv\Scripts\Activate.ps1
+          python -m pip install pip -U
+          python -m pip install wheel setuptools -U
+          python -c "import sys; print(sys.executable)"
+
+      - name: Install project and documentation dependencies
+        run: |
+          .venv\Scripts\Activate.ps1
+          pip install --no-cache-dir -r requirements/requirements_doc.txt
+
+      # Use environment variable speed up build for PDF pages
+      - name: Create HTML documentation
         env:
+          SPHINXBUILD_HTML_AND_PDF_WORKFLOW: "1"
           ON_CI_UNCHANGED_EXAMPLES: ${{ env.ON_CI_UNCHANGED_EXAMPLES }}
         run: |
-          python -c "import os; unchanged_raw = os.environ.get('ON_CI_UNCHANGED_EXAMPLES', ''); files = unchanged_raw.strip().splitlines(); print(files)"
-      # - name: Create virtual environment
-      #   run: |
-      #     python -m venv .venv
-      #     .venv\Scripts\Activate.ps1
-      #     python -m pip install pip -U
-      #     python -m pip install wheel setuptools -U
-      #     python -c "import sys; print(sys.executable)"
+          .venv\Scripts\Activate.ps1
+          . .\doc\make.bat html --color -T -W
+          if ($LASTEXITCODE -ne 0) {
+            Write-Output "HTML build failed, see the logs and look for:"
+            Write-Output "- an exception being raised in a Juptyer notebook;"
+            Write-Output "- the latest line of the form reading sources... [ XX%] examples/..."
+            echo "::error::HTML build failed, check for exceptions in Jupyter notebooks or incomplete source reads."
+            exit 1
+          } else {
+            Write-Output "HTML build successful"
+          }
 
-      # - name: Install project and documentation dependencies
-      #   run: |
-      #     .venv\Scripts\Activate.ps1
-      #     pip install --no-cache-dir -r requirements/requirements_doc.txt
+      - name: Upload HTML documentation artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation-html
+          path: doc/_build/html
+          retention-days: 7
 
-      # # Use environment variable speed up build for PDF pages
-      # - name: Create HTML documentation
-      #   env:
-      #     SPHINXBUILD_HTML_AND_PDF_WORKFLOW: "1"
-      #   run: |
-      #     .venv\Scripts\Activate.ps1
-      #     . .\doc\make.bat html --color -T -W
-      #     if ($LASTEXITCODE -ne 0) {
-      #       Write-Output "HTML build failed, see the logs and look for:"
-      #       Write-Output "- an exception being raised in a Juptyer notebook;"
-      #       Write-Output "- the latest line of the form reading sources... [ XX%] examples/..."
-      #       echo "::error::HTML build failed, check for exceptions in Jupyter notebooks or incomplete source reads."
-      #       exit 1
-      #     } else {
-      #       Write-Output "HTML build successful"
-      #     }
+      # Use environment variable to remove the doctree after the build of PDF pages
+      # Keeping doctree could cause an issue, see https://github.com/ansys/pyaedt/pull/3844/files
+      - name: Create PDF documentation
+        env:
+          SPHINXBUILD_HTML_AND_PDF_WORKFLOW: "1"
+        run: |
+          .venv\Scripts\Activate.ps1
+          . .\doc\make.bat pdf
 
-      # - name: Upload HTML documentation artifact
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: documentation-html
-      #     path: doc/_build/html
-      #     retention-days: 7
-
-      # # Use environment variable to remove the doctree after the build of PDF pages
-      # # Keeping doctree could cause an issue, see https://github.com/ansys/pyaedt/pull/3844/files
-      # - name: Create PDF documentation
-      #   env:
-      #     SPHINXBUILD_HTML_AND_PDF_WORKFLOW: "1"
-      #   run: |
-      #     .venv\Scripts\Activate.ps1
-      #     . .\doc\make.bat pdf
-
-      # - name: Upload PDF documentation artifact
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: documentation-pdf
-      #     path: doc/_build/latex
-      #     retention-days: 7
+      - name: Upload PDF documentation artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation-pdf
+          path: doc/_build/latex
+          retention-days: 7
 
   deploy-doc:
     name: Upload documentation

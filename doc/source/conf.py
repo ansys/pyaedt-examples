@@ -277,7 +277,7 @@ def convert_examples_into_notebooks(app):
 
     DESTINATION_DIR = Path(app.srcdir, "examples").resolve()
     EXAMPLES = EXAMPLES_DIRECTORY.glob("**/*.py")
-    EXAMPLES_TO_NOT_EXECUTE = (
+    STATIC_EXAMPLES_TO_NOT_EXECUTE = (
         "template.py",
         "gui_manipulation.py",
         "electrothermal.py",
@@ -289,6 +289,11 @@ def convert_examples_into_notebooks(app):
         "hfss_emit.py",
         "component_conversion.py"
     )
+
+    unchanged_raw = os.environ.get('ON_CI_UNCHANGED_EXAMPLES', '')
+    if unchanged_raw:
+        UNCHANGED_EXAMPLES = unchanged_raw.strip().splitlines()
+    EXAMPLES_TO_NOT_EXECUTE = list(set(STATIC_EXAMPLES_TO_NOT_EXECUTE) | set(UNCHANGED_EXAMPLES))
 
     # NOTE: Only convert the examples if the workflow isn't tagged as coupling HTML and PDF build.
     if not bool(int(os.getenv("SPHINXBUILD_HTML_AND_PDF_WORKFLOW", "0"))) or app.builder.name == "html":
