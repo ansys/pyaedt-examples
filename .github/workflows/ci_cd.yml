@@ -55,9 +55,11 @@ jobs:
           Write-Output "New/Modified files:"
           $changed | ForEach-Object { Write-Output "- $_" }
 
-          # Format with line breaker
-          $changed = $changed -join "`n"
-          "ON_CI_UNCHANGED_EXAMPLES=$changed" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          # Format with exporting multiple lines to environment variable
+          $eof = "EOF" + [System.Guid]::NewGuid().ToString("N")
+          Add-Content -Path $env:GITHUB_ENV -Value "ON_CI_UNCHANGED_EXAMPLES<<$eof"
+          Add-Content -Path $env:GITHUB_ENV -Value ($changed -join "`n")
+          Add-Content -Path $env:GITHUB_ENV -Value $eof
 
       - name: Set up Python ${{ env.MAIN_PYTHON_VERSION }}
         uses: actions/setup-python@v4
@@ -65,6 +67,8 @@ jobs:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
       - name: Test
+        env:
+          ON_CI_UNCHANGED_EXAMPLES: ${{ env.ON_CI_UNCHANGED_EXAMPLES }}
         run: |
           python -m pip install pip -U
           python -c "unchanged_raw = os.environ.get('ON_CI_UNCHANGED_EXAMPLES', ''); files = unchanged_raw.strip().splitlines(); print(files)"
