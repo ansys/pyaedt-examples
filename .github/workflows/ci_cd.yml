@@ -46,7 +46,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get new/modified examples files
+      - name: Get new/modified examples files (only for PRs)
+        if: github.ref_name != 'main'
         shell: powershell
         run: |
           $changed = git diff --name-only origin/main...HEAD -- examples/
@@ -55,11 +56,8 @@ jobs:
           Write-Output "New/Modified files:"
           $changed | ForEach-Object { Write-Output "- $_" }
 
-          # Format with exporting multiple lines to environment variable
-          $eof = "EOF" + [System.Guid]::NewGuid().ToString("N")
-          Add-Content -Path $env:GITHUB_ENV -Value "ON_CI_UNCHANGED_EXAMPLES<<$eof"
-          Add-Content -Path $env:GITHUB_ENV -Value ($changed -join "`n")
-          Add-Content -Path $env:GITHUB_ENV -Value $eof
+          $changed_formatted = $changed -join ","
+          Add-Content -Path $env:GITHUB_ENV -Value "ON_CI_UNCHANGED_EXAMPLES=$changed_formatted"
 
       - name: Set up Python ${{ env.MAIN_PYTHON_VERSION }}
         uses: actions/setup-python@v4
