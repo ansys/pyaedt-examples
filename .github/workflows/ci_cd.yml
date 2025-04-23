@@ -46,7 +46,7 @@ jobs:
 
       - name: Get new/modified examples files
         id: changed
-        shell: pwsh
+        shell: powershell
         run: |
           $changed = git diff --name-only origin/main...HEAD -- examples/
           $changed = $changed | ForEach-Object { $_.Replace('\', '/') }
