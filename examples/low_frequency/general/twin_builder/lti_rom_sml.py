@@ -9,6 +9,7 @@
 #
 # Perform required imports.
 
+# +
 import datetime
 import os
 import subprocess
@@ -16,8 +17,10 @@ import tempfile
 import time
 
 import matplotlib.pyplot as plt
-from ansys.aedt.core import TwinBuilder, downloads
+from ansys.aedt.core import TwinBuilder
+from ansys.aedt.core.examples import downloads
 from ansys.aedt.core.application.variables import CSVDataset
+# -
 
 # Define constants
 

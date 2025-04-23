@@ -5,7 +5,9 @@
 # - Create a config file with component RLC and solder ball information
 # - Apply the config file to the example board
 
-# ## Import the required packages
+# ## Perform imports and define constants
+#
+# Perform required imports.
 
 # +
 import json
@@ -13,14 +15,14 @@ from pathlib import Path
 import tempfile
 
 from IPython.display import display
-from ansys.aedt.core.downloads import download_file
+from ansys.aedt.core.examples.downloads import download_file
 import pandas as pd
-
 from pyedb import Edb
+# -
+
+# Define constants.
 
 AEDT_VERSION = "2025.1"
-
-# -
 
 # Download the example PCB data.
 

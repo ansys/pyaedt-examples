@@ -1,6 +1,8 @@
 # # DCIR Setup Leveraging EDB Configuration Format
 
-# ## Import the required packages
+# ## Perform imports and define constants
+#
+# Perform required imports.
 
 # +
 import json
@@ -8,13 +10,15 @@ import os
 import tempfile
 
 from ansys.aedt.core import Hfss3dLayout
-from ansys.aedt.core.downloads import download_file
-
+from ansys.aedt.core.examples.downloads import download_file
 from pyedb import Edb
+# -
+
+# Define constants.
 
 AEDT_VERSION = "2025.1"
 NG_MODE = False
-# -
+
 
 # Download the example BGA Package design.
 

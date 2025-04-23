@@ -17,9 +17,9 @@ import tempfile
 import time
 
 import ansys.aedt.core
+from ansys.aedt.core.examples.downloads import download_file
 import numpy as np
 from matplotlib import pyplot as plt
-
 # -
 
 # Define constants.
@@ -49,7 +49,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 #
 # Files are placed in the destination folder.
 
-project_path = ansys.aedt.core.downloads.download_file(
+project_path = download_file(
     "ami", name="ami_usb.aedtz", destination=temp_folder.name
 )
 

@@ -20,7 +20,7 @@ import time
 from ansys.aedt.core import Hfss
 from ansys.aedt.core.visualization.advanced.farfield_visualization import \
     FfdSolutionData
-from ansys.aedt.core.downloads import download_3dcomponent
+from ansys.aedt.core.examples.downloads import download_3dcomponent
 from ansys.aedt.core.generic import file_utils
 # -
 

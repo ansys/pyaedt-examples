@@ -9,12 +9,14 @@
 #
 # Perform required imports.
 
+# +
 import ansys.aedt.core
-import matplotlib.pyplot as plt
 from ansys.aedt.core.filtersolutions_core.attributes import (
     FilterClass, FilterImplementation, FilterType)
 from ansys.aedt.core.filtersolutions_core.ideal_response import \
     FrequencyResponseColumn
+import matplotlib.pyplot as plt
+# -
 
 # Define constants.
 

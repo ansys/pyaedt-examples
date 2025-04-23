@@ -9,12 +9,14 @@
 #
 # Perform required imports.
 
+# +
 import os
 import tempfile
 import time
 
 import ansys.aedt.core
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
+# -
 
 # Define constants.
 

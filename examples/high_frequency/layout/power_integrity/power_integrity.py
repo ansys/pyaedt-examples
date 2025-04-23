@@ -20,13 +20,15 @@
 # ## Perform imports and define constants
 # Import the required packages
 
+# +
 import json
 import os
 import tempfile
 import time
 
 import ansys.aedt.core
-from ansys.aedt.core.downloads import download_file
+from ansys.aedt.core.examples.downloads import download_file
+# -
 
 # Define constants.
 
@@ -46,7 +48,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # Download the example PCB data.
 
 aedb = download_file(source="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name)
-download_file(
+_ = download_file(
     source="touchstone",
     name="GRM32_DC0V_25degC_series.s2p",
     destination=temp_folder.name,

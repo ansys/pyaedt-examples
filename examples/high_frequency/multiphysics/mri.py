@@ -26,8 +26,8 @@ import os.path
 import tempfile
 import time
 
-from ansys.aedt.core import Hfss, Icepak, Mechanical, downloads
-
+from ansys.aedt.core import Hfss, Icepak, Mechanical
+from ansys.aedt.core.examples import downloads
 # -
 
 # Define constants.

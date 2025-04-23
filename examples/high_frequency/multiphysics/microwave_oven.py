@@ -11,14 +11,18 @@
 #
 # ### Perform imports
 
+# +
 import ansys.aedt.core
 import os
 import time
 import tempfile
+
 import pyvista
 import numpy as np
 from ansys.aedt.core import generate_unique_name
+from ansys.aedt.core.examples.downloads import download_file
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
+# -
 
 # ### Define constants.
 #
@@ -39,10 +43,10 @@ working_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 # Download and open the project. Save it to the temporary working folder.
 
 
-parasolid_path = ansys.aedt.core.downloads.download_file(
+parasolid_path = download_file(
     source="oven", name="gingerbread.x_t", destination=working_dir.name
 )
-oven_path = ansys.aedt.core.downloads.download_file(
+oven_path = download_file(
     source="oven", name="microwave_oven.aedt", destination=working_dir.name
 )
 

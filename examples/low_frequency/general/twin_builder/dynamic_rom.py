@@ -12,13 +12,16 @@
 #
 # Perform required imports.
 
+# +
 import os
 import shutil
 import tempfile
 import time
 
 import ansys.aedt.core
+from ansys.aedt.core.examples import downloads
 import matplotlib.pyplot as plt
+# -
 
 # Define constants.
 
@@ -44,12 +47,12 @@ source_build_conf_file = "dynarom_build.conf"
 
 # Download data from the ``example_data`` repository.
 
-_ = ansys.aedt.core.downloads.download_twin_builder_data(
+_ = downloads.download_twin_builder_data(
     file_name=source_snapshot_data_zipfilename,
     force_download=True,
     destination=temp_folder.name,
 )
-source_data_folder = ansys.aedt.core.downloads.download_twin_builder_data(
+source_data_folder = downloads.download_twin_builder_data(
     source_build_conf_file, True, temp_folder.name
 )
 

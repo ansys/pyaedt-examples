@@ -9,12 +9,15 @@
 # ## Perform imports and define constants
 # Import the required packages.
 
+# +
 import os.path
 import tempfile
 import time
 
 import ansys.aedt.core
+from ansys.aedt.core.examples.downloads import download_file
 from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
+# -
 
 # ## Define constants
 
@@ -34,7 +37,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Download example data
 
-download_folder = ansys.aedt.core.downloads.download_file(
+download_folder = download_file(
     source="pcie_compliance", destination=temp_folder.name
 )
 project_folder = os.path.join(download_folder, "project")

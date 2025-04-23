@@ -9,10 +9,13 @@
 #
 # Perform required imports.
 
+# +
 import tempfile
 import time
 
 import ansys.aedt.core
+from ansys.aedt.core.examples.downloads import download_file
+# -
 
 # Define constants.
 
@@ -33,7 +36,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 #
 # Set the local temporary folder to export the AEDT file to.
 
-project_path = ansys.aedt.core.downloads.download_file(
+project_path = download_file(
     source="maxwell_ec_reduced_matrix",
     name="m2d_eddy_current.aedt",
     destination=temp_folder.name,

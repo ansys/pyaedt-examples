@@ -9,12 +9,15 @@
 #
 # Perform required imports.
 
+# +
 import tempfile
 import time
 
-from ansys.aedt.core import Maxwell3d, downloads
+from ansys.aedt.core import Maxwell3d
+from ansys.aedt.core.examples import downloads
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import read_csv_pandas
+# -
 
 # Define constants.
 

@@ -8,13 +8,14 @@
 # ## Perform imports and define constants
 #
 # Perform required imports.
-
+# +
 import os
 import tempfile
 import time
 
-import ansys.aedt.core
+from ansys.aedt.core.examples.downloads import download_file
 from ansys.aedt.core import Hfss3dLayout, Icepak
+# -
 
 # Define constants.
 
@@ -54,15 +55,15 @@ ipk = Icepak(
 
 # Download ECAD and IDF files.
 
-def_path = ansys.aedt.core.downloads.download_file(
+def_path = download_file(
     source="icepak/Icepak_ECAD_Import/A1_uprev.aedb",
     name="edb.def",
     destination=temp_folder.name,
 )
-board_path = ansys.aedt.core.downloads.download_file(
+board_path = download_file(
     source="icepak/Icepak_ECAD_Import/", name="A1.bdf", destination=temp_folder.name
 )
-library_path = ansys.aedt.core.downloads.download_file(
+library_path = download_file(
     source="icepak/Icepak_ECAD_Import/", name="A1.ldf", destination=temp_folder.name
 )
 

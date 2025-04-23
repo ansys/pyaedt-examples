@@ -17,6 +17,7 @@ import tempfile
 import time
 
 import ansys.aedt.core
+from ansys.aedt.core.examples.downloads import download_file
 from IPython.display import Image
 # -
 
@@ -50,7 +51,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # to the extracted project is accessible from the ``cir.project_file`` property.
 
 # +
-project_path = ansys.aedt.core.downloads.download_file(
+project_path = download_file(
     source="custom_reports/", destination=temp_folder.name
 )
 

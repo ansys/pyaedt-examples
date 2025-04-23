@@ -2,23 +2,24 @@
 # This example shows how to set up the electronics database (EDB) for power integrity analysis from a single
 # configuration file.
 
-# ## Import the required packages
-
-import json
+# ## Perform imports and define constants
+#
+# Perform required imports.
 
 # +
+import json
 import os
 import tempfile
 
 from ansys.aedt.core import Hfss3dLayout
-from ansys.aedt.core.downloads import download_file
-
+from ansys.aedt.core.examples.downloads import download_file
 from pyedb import Edb
+# -
+
+# Define constants.
 
 AEDT_VERSION = "2025.1"
 NG_MODE = False
-
-# -
 
 # Download the example PCB data.
 

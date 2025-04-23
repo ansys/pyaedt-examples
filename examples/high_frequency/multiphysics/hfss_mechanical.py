@@ -14,7 +14,7 @@ import tempfile
 import time
 
 import ansys.aedt.core
-
+from ansys.aedt.core.examples.downloads import download_via_wizard
 # -
 
 # Define constants.
@@ -36,7 +36,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 #
 # Download and open the project. Save it to the temporary folder.
 
-project_name = ansys.aedt.core.downloads.download_via_wizard(
+project_name = download_via_wizard(
     destination=temp_folder.name
 )
 

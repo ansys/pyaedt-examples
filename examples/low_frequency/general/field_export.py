@@ -11,10 +11,13 @@
 #
 # Perform required imports.
 
+# +
 import tempfile
 import time
 
 import ansys.aedt.core
+from ansys.aedt.core.examples.downloads import download_file
+# -
 
 # Define constants.
 
@@ -35,7 +38,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 #
 # The files required to run this example are downloaded into the temporary working folder.
 
-project_path = ansys.aedt.core.downloads.download_file(
+project_path = download_file(
     source="maxwell_transient_fields",
     name="M3D_Transient_StrandedWindings.aedt",
     destination=temp_folder.name,

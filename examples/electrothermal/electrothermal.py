@@ -18,14 +18,16 @@
 #
 # Perform required imports.
 
+# +
 import json
 import os
 import sys
 import tempfile
 import time
 
-from ansys.aedt.core.downloads import download_file
+from ansys.aedt.core.examples.downloads import download_file
 from pyedb import Edb, Siwave
+# -
 
 # Define constants.
 

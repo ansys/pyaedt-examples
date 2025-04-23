@@ -9,12 +9,15 @@
 #
 # Perform required imports.
 
+# +
 import os
 import tempfile
 import time
 
 import ansys.aedt.core
+from ansys.aedt.core.examples.downloads import download_file
 import pyedb
+# -
 
 # Define constants.
 
@@ -37,7 +40,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # +
 project_dir = os.path.join(temp_folder.name, "edb")
-aedb_project = ansys.aedt.core.downloads.download_file(
+aedb_project = download_file(
     source="edb/ANSYS-HSD_V1.aedb", destination=project_dir
 )
 

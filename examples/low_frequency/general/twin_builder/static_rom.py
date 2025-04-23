@@ -11,12 +11,15 @@
 #
 # Perform required imports.
 
+# +
 import os
 import shutil
 import tempfile
 import time
 
-from ansys.aedt.core import TwinBuilder, downloads
+from ansys.aedt.core import TwinBuilder
+from ansys.aedt.core.examples import downloads
+# -
 
 # Define constants.
 

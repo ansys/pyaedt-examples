@@ -15,7 +15,7 @@ import tempfile
 import time
 from pathlib import Path
 import ansys.aedt.core
-from ansys.aedt.core.downloads import download_file
+from ansys.aedt.core.examples.downloads import download_file
 
 # ### Define constants
 # Constants help ensure consistency and avoid repetition throughout the example.

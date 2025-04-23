@@ -9,14 +9,12 @@
 # Perform required imports.
 
 # +
-
 import sys
 import tempfile
 import time
 
 from ansys.aedt.core import Hfss3dLayout
-from ansys.aedt.core.downloads import download_file
-
+from ansys.aedt.core.examples.downloads import download_file
 # -
 
 # Define constants.

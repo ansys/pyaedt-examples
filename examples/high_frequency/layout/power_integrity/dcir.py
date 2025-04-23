@@ -27,7 +27,7 @@ import tempfile
 import time
 
 import ansys.aedt.core
-from ansys.aedt.core.downloads import download_file
+from ansys.aedt.core.examples.downloads import download_file
 from pyedb import Edb
 
 # Define constants.
@@ -40,7 +40,7 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 aedb = download_file(source="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name)
-download_file(
+_ = download_file(
     source="spice", name="ferrite_bead_BLM15BX750SZ1.mod", destination=temp_folder.name
 )
 
