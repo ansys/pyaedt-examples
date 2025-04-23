@@ -70,8 +70,7 @@ jobs:
         env:
           ON_CI_UNCHANGED_EXAMPLES: ${{ env.ON_CI_UNCHANGED_EXAMPLES }}
         run: |
-          python -m pip install pip -U
-          python -c "unchanged_raw = os.environ.get('ON_CI_UNCHANGED_EXAMPLES', ''); files = unchanged_raw.strip().splitlines(); print(files)"
+          python -c "import os; unchanged_raw = os.environ.get('ON_CI_UNCHANGED_EXAMPLES', ''); files = unchanged_raw.strip().splitlines(); print(files)"
       # - name: Create virtual environment
       #   run: |
       #     python -m venv .venv
