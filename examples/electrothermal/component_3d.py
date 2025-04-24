@@ -13,8 +13,6 @@ import os
 import tempfile
 import time
 
-# test
-
 from ansys.aedt.core import Icepak, downloads
 
 # Define constants.
