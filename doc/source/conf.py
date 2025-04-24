@@ -275,8 +275,10 @@ def convert_examples_into_notebooks(app):
     import subprocess
     import nbformat
 
+    logger.info("Converting examples into notebooks and disabling execution if needed...")
+
     DESTINATION_DIR = Path(app.srcdir, "examples").resolve()
-    EXAMPLES = EXAMPLES_DIRECTORY.glob("**/*.py")
+    EXAMPLES = list(EXAMPLES_DIRECTORY.glob("**/*.py"))
     STATIC_EXAMPLES_TO_NOT_EXECUTE = (
         "template.py",
         "gui_manipulation.py",
@@ -325,7 +327,7 @@ def convert_examples_into_notebooks(app):
             # Disable execution if required
             basename = os.path.basename(example)
             if basename in EXAMPLES_TO_NOT_EXECUTE:
-                logger.warning(f"Disable execution of example {basename}.")
+                logger.warning(f"Disable execution of example {basename}")
                 with open(str(DESTINATION_DIR / notebook_path), "r") as f:
                     nb = nbformat.read(f, as_version=nbformat.NO_CONVERT)
                 if "nbsphinx" not in nb.metadata:
