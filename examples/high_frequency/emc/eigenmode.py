@@ -37,7 +37,7 @@ import tempfile
 import time
 
 import ansys.aedt.core
-from ansys.aedt.core.downloads import download_file
+from ansys.aedt.core.examples.downloads import download_file
 # -
 
 # Define constants.

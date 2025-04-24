@@ -15,7 +15,7 @@ import tempfile
 import time
 
 import ansys.aedt.core
-from ansys.aedt.core.downloads import download_file
+from ansys.aedt.core.examples.downloads import download_file
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 # -
 
@@ -58,7 +58,7 @@ m2d = ansys.aedt.core.Maxwell2d(
 # Importing DXF files only works in graphical mode.
 
 # +
-# dxf_path = ansys.aedt.core.downloads.download_file("dxf", "Ansys_logo_2D.dxf")
+# dxf_path = ansys.aedt.core.examples.downloads.download_file("dxf", "Ansys_logo_2D.dxf")
 # dxf_layers = m2d.get_dxf_layers(dxf_path)
 # m2d.import_dxf(dxf_path, dxf_layers, scale=1E-05)
 

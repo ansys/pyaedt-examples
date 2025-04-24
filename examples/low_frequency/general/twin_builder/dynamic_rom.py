@@ -61,7 +61,7 @@ source_data_folder = downloads.download_twin_builder_data(
 data_folder = os.path.join(source_data_folder, "Ex03")
 
 # Unzip training data and config file
-ansys.aedt.core.downloads.unzip(
+ansys.aedt.core.examples.downloads.unzip(
     os.path.join(source_data_folder, source_snapshot_data_zipfilename), data_folder
 )
 shutil.copyfile(

@@ -17,7 +17,6 @@ import time
 import ansys.aedt.core
 import numpy as np
 from matplotlib import pyplot as plt
-
 # -
 
 # Define constants.
