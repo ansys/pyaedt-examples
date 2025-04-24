@@ -292,6 +292,7 @@ def convert_examples_into_notebooks(app):
         "component_conversion.py"
     )
 
+    unchanged_examples = []
     changed_raw = os.environ.get('ON_CI_CHANGED_EXAMPLES', '')
     if changed_raw:
         changed_examples = [f.strip() for f in changed_raw.split(",")]
