@@ -57,7 +57,7 @@ jobs:
           $changed | ForEach-Object { Write-Output "- $_" }
 
           $changed_formatted = $changed -join ","
-          Add-Content -Path $env:GITHUB_ENV -Value "ON_CI_UNCHANGED_EXAMPLES=$changed_formatted"
+          Add-Content -Path $env:GITHUB_ENV -Value "ON_CI_CHANGED_EXAMPLES=$changed_formatted"
 
       - name: Set up Python ${{ env.MAIN_PYTHON_VERSION }}
         uses: actions/setup-python@v4
@@ -81,7 +81,7 @@ jobs:
       - name: Create HTML documentation
         env:
           SPHINXBUILD_HTML_AND_PDF_WORKFLOW: "1"
-          ON_CI_UNCHANGED_EXAMPLES: ${{ env.ON_CI_UNCHANGED_EXAMPLES }}
+          ON_CI_CHANGED_EXAMPLES: ${{ env.ON_CI_CHANGED_EXAMPLES }}
         run: |
           .venv\Scripts\Activate.ps1
           . .\doc\make.bat html --color -T -W
@@ -107,7 +107,7 @@ jobs:
       - name: Create PDF documentation
         env:
           SPHINXBUILD_HTML_AND_PDF_WORKFLOW: "1"
-          ON_CI_UNCHANGED_EXAMPLES: ${{ env.ON_CI_UNCHANGED_EXAMPLES }}
+          ON_CI_CHANGED_EXAMPLES: ${{ env.ON_CI_CHANGED_EXAMPLES }}
         run: |
           .venv\Scripts\Activate.ps1
           . .\doc\make.bat pdf

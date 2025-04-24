@@ -290,10 +290,13 @@ def convert_examples_into_notebooks(app):
         "component_conversion.py"
     )
 
-    unchanged_raw = os.environ.get('ON_CI_UNCHANGED_EXAMPLES', '')
-    if unchanged_raw:
-        UNCHANGED_EXAMPLES = [f.strip() for f in unchanged_raw.split(",")]
-    EXAMPLES_TO_NOT_EXECUTE = list(set(STATIC_EXAMPLES_TO_NOT_EXECUTE) | set(UNCHANGED_EXAMPLES))
+    changed_raw = os.environ.get('ON_CI_CHANGED_EXAMPLES', '')
+    if changed_raw:
+        changed_examples = [f.strip() for f in changed_raw.split(",")]
+        # Do not limit to modification and extend to new examples
+        unchanged_examples = [p for p in EXAMPLES if p not in changed_examples]
+
+    EXAMPLES_TO_NOT_EXECUTE = list(set(STATIC_EXAMPLES_TO_NOT_EXECUTE) | set(unchanged_examples))
 
     # NOTE: Only convert the examples if the workflow isn't tagged as coupling HTML and PDF build.
     if not bool(int(os.getenv("SPHINXBUILD_HTML_AND_PDF_WORKFLOW", "0"))) or app.builder.name == "html":
