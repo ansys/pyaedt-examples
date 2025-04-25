@@ -47,22 +47,22 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 thru = download_file(
     directory="com_analysis",
     filename="SerDes_Demo_02_Thru.s4p",
-    local_path=temp_folder.name,
+    destination=temp_folder.name,
 )
 fext_2_9 = download_file(
     directory="com_analysis",
     filename="FCI_CC_Long_Link_Pair_2_to_Pair_9_FEXT.s4p",
-    local_path=temp_folder.name,
+    destination=temp_folder.name,
 )
 fext_5_9 = download_file(
     directory="com_analysis",
     filename="FCI_CC_Long_Link_Pair_5_to_Pair_9_FEXT.s4p",
-    local_path=temp_folder.name,
+    destination=temp_folder.name,
 )
 next_11_9 = download_file(
     directory="com_analysis",
     filename="FCI_CC_Long_Link_Pair_11_to_Pair_9_NEXT.s4p",
-    local_path=temp_folder.name,
+    destination=temp_folder.name,
 )
 # -
 

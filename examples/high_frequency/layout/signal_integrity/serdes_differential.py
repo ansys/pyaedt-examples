@@ -21,7 +21,7 @@ from pyedb.misc.downloads import download_file
 # Download the AEDB file and copy it to a temporary folder.
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-target_aedb = download_file("edb/ANSYS-HSD_V1.aedb", local_path=temp_dir.name)
+target_aedb = download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
 print("Project folder is", target_aedb)
 
 # ## Launch EDB
