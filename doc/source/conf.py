@@ -288,6 +288,8 @@ def convert_examples_into_notebooks(app):
         "interference.py",
         "hfss_emit.py",
         "component_conversion.py"
+        # FIXME: Temporary skipped due to PyEDB v0.43.0, see https://github.com/ansys/pyedb/issues/1162
+        "dcir_hfss.py",
     )
 
     # NOTE: Only convert the examples if the workflow isn't tagged as coupling HTML and PDF build.
