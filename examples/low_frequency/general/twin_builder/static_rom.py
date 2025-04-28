@@ -51,30 +51,31 @@ source_props_conf_file = "SROM_props.conf"
 # extracts them in a local folder named ``"Ex04"``.
 
 # +
-_ = downloads.download_twin_builder_data(
+downloads.download_twin_builder_data(
     file_name=source_snapshot_data_zipfilename,
     force_download=True,
     local_path=temp_folder.name,
 )
 
-_ = downloads.download_twin_builder_data(source_build_conf_file, True, temp_folder.name)
-source_data_folder = downloads.download_twin_builder_data(
+downloads.download_twin_builder_data(source_build_conf_file, True, temp_folder.name)
+downloads.download_twin_builder_data(
     source_props_conf_file, True, temp_folder.name
 )
 
 # Target folder to extract project files.
-data_folder = os.path.join(source_data_folder, "Ex04")
+twin_builder_data_folder = os.path.join(temp_folder.name, "twin_builder")
+data_folder = os.path.join(twin_builder_data_folder, "Ex04")
 
 # Unzip training data and config file
 downloads.unzip(
-    os.path.join(source_data_folder, source_snapshot_data_zipfilename), data_folder
+    os.path.join(twin_builder_data_folder, source_snapshot_data_zipfilename), data_folder
 )
 shutil.copyfile(
-    os.path.join(source_data_folder, source_build_conf_file),
+    os.path.join(twin_builder_data_folder, source_build_conf_file),
     os.path.join(data_folder, source_build_conf_file),
 )
 shutil.copyfile(
-    os.path.join(source_data_folder, source_props_conf_file),
+    os.path.join(twin_builder_data_folder, source_props_conf_file),
     os.path.join(data_folder, source_props_conf_file),
 )
 # -
@@ -208,7 +209,7 @@ tb.set_hmax("1s")
 # All methods provide for saving the project before closing.
 
 # Clean up the downloaded data.
-shutil.rmtree(source_data_folder)
+shutil.rmtree(twin_builder_data_folder)
 
 # Restore earlier desktop configuration and schematic environment.
 tb._odesktop.SetDesktopConfiguration(current_desktop_config)
