@@ -299,7 +299,7 @@ def convert_examples_into_notebooks(app):
     if changed_raw:
         changed_examples = [f.strip() for f in changed_raw.split(",")]
         # Do not limit to modification and extend to new examples
-        unchanged_examples = [p for p in EXAMPLES if p not in changed_examples]
+        unchanged_examples = [p.name for p in EXAMPLES if p not in changed_examples]
 
     EXAMPLES_TO_NOT_EXECUTE = list(set(STATIC_EXAMPLES_TO_NOT_EXECUTE) | set(unchanged_examples))
 
