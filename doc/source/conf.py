@@ -338,6 +338,8 @@ def convert_examples_into_notebooks(app):
                 nb.metadata["nbsphinx"]["execute"] = "never"
                 with open(str(DESTINATION_DIR / notebook_path), "w", encoding="utf-8") as f:
                     nbformat.write(nb, f)
+            else:
+                logger.warning(f"Keep execution of example {basename}")
 
         if count == 0:
             logger.warning("No python examples found to convert to scripts")
