@@ -20,7 +20,7 @@ import time
 from ansys.aedt.core import Hfss
 from ansys.aedt.core.visualization.advanced.farfield_visualization import \
     FfdSolutionData
-from ansys.aedt.core.downloads import download_3dcomponent
+from ansys.aedt.core.examples.downloads import download_3dcomponent
 from ansys.aedt.core.generic import file_utils
 # -
 
@@ -46,7 +46,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # Download the 3D component that will be used to define
 # the unit cell in the antenna array.
 
-path_to_3dcomp = download_3dcomponent(destination=temp_folder.name)
+path_to_3dcomp = download_3dcomponent(local_path=temp_folder.name)
 
 # ### Launch HFSS
 #

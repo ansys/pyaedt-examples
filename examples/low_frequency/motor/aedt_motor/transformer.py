@@ -9,12 +9,15 @@
 #
 # Perform required imports.
 
+# +
 import tempfile
 import time
 
-from ansys.aedt.core import Maxwell3d, downloads
+from ansys.aedt.core import Maxwell3d
+from ansys.aedt.core.examples import downloads
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import read_csv_pandas
+# -
 
 # Define constants.
 
@@ -38,25 +41,25 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 aedt_file = downloads.download_file(
     source="core_loss_transformer",
     name="Ex2-PlanarTransformer_2023R2.aedtz",
-    destination=temp_folder.name,
+    local_path=temp_folder.name,
 )
 freq_curve_csv_25kHz = downloads.download_file(
-    source="core_loss_transformer", name="mf3_25kHz.csv", destination=temp_folder.name
+    source="core_loss_transformer", name="mf3_25kHz.csv", local_path=temp_folder.name
 )
 freq_curve_csv_100kHz = downloads.download_file(
-    source="core_loss_transformer", name="mf3_100kHz.csv", destination=temp_folder.name
+    source="core_loss_transformer", name="mf3_100kHz.csv", local_path=temp_folder.name
 )
 freq_curve_csv_200kHz = downloads.download_file(
-    source="core_loss_transformer", name="mf3_200kHz.csv", destination=temp_folder.name
+    source="core_loss_transformer", name="mf3_200kHz.csv", local_path=temp_folder.name
 )
 freq_curve_csv_400kHz = downloads.download_file(
-    source="core_loss_transformer", name="mf3_400kHz.csv", destination=temp_folder.name
+    source="core_loss_transformer", name="mf3_400kHz.csv", local_path=temp_folder.name
 )
 freq_curve_csv_700kHz = downloads.download_file(
-    source="core_loss_transformer", name="mf3_700kHz.csv", destination=temp_folder.name
+    source="core_loss_transformer", name="mf3_700kHz.csv", local_path=temp_folder.name
 )
 freq_curve_csv_1MHz = downloads.download_file(
-    source="core_loss_transformer", name="mf3_1MHz.csv", destination=temp_folder.name
+    source="core_loss_transformer", name="mf3_1MHz.csv", local_path=temp_folder.name
 )
 
 data = read_csv_pandas(input_file=freq_curve_csv_25kHz)

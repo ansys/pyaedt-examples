@@ -9,11 +9,14 @@
 #
 # Perform required imports.
 
+# +
 import os
 import tempfile
 import time
 
 import ansys.aedt.core
+from ansys.aedt.core.examples.downloads import download_multiparts
+# -
 
 # Define constants.
 
@@ -33,8 +36,8 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # ## Download 3D component
 # Download the 3D component that is needed to run the example.
 
-library_path = ansys.aedt.core.downloads.download_multiparts(
-    destination=temp_folder.name
+library_path = download_multiparts(
+    local_path=temp_folder.name
 )
 
 # ## Launch HFSS and open project

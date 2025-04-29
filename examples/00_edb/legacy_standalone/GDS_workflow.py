@@ -13,7 +13,6 @@ import tempfile
 import pyedb
 from pyedb.dotnet.database.edb_data.control_file import ControlFile
 from pyedb.misc.downloads import download_file
-
 # -
 
 # ## Fetch Example Data

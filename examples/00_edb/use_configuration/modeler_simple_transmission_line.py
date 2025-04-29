@@ -1,6 +1,8 @@
 # # Create a simple transmission line
 
-# ## Import the required packages
+# ## Perform imports and define constants
+#
+# Perform required imports.
 
 # +
 import json
@@ -8,19 +10,17 @@ import os
 import tempfile
 
 from ansys.aedt.core import Hfss3dLayout
-
 from pyedb import Edb
-
 # -
 
-# +
+# Define constants.
+
 AEDT_VERSION = "2024.2"
 NG_MODE = False
-temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
-# -
 
 # ## Create an empty design
 
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 edb_path = os.path.join(temp_folder.name, "simple_transmission_line.aedb")
 edbapp = Edb(edb_path, edbversion=AEDT_VERSION)
 

@@ -9,10 +9,13 @@
 #
 # Perform required imports.
 
+# +
 import tempfile
 import time
 
 import ansys.aedt.core
+from ansys.aedt.core.examples.downloads import download_file
+# -
 
 # Define constants.
 
@@ -32,10 +35,10 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 #
 # Set the local temporary folder to export the AEDT file to.
 
-aedt_file = ansys.aedt.core.downloads.download_file(
+aedt_file = download_file(
     source="object_segmentation",
     name="Motor3D_obj_segments.aedt",
-    destination=temp_folder.name,
+    local_path=temp_folder.name,
 )
 
 # ## Launch Maxwell 3D

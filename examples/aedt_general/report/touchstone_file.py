@@ -13,13 +13,15 @@
 #
 # ### Perform imports
 
-from ansys.aedt.core import downloads
+# +
+from ansys.aedt.core.examples.downloads import download_touchstone
 from ansys.aedt.core.visualization.advanced.touchstone_parser import \
     read_touchstone
+# -
 
 # ### Download example data
 
-example_path = downloads.download_touchstone()
+example_path = download_touchstone()
 
 # ## Read the Touchstone file
 

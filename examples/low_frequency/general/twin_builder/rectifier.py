@@ -11,12 +11,14 @@
 #
 # Perform required imports.
 
+# +
 import os
 import tempfile
 import time
 
 import ansys.aedt.core
 import matplotlib.pyplot as plt
+# -
 
 # Define constants.
 

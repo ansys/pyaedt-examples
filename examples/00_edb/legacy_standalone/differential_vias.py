@@ -4,16 +4,20 @@
 # ## Final expected project
 #
 # <img src="_static/diff_via.png" width="500">
+
+
+# ## Perform imports and define constants
 #
-# ## Import EDB layout object
-# Import the EDB layout object and initialize it on version 2023 R2.
+# Perform required imports.
 
 # +
 import os
 import tempfile
 
 import pyedb
+# -
 
+# +
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 aedb_path = os.path.join(temp_dir.name, "create_via.aedb")
 print(f"AEDB file path: {aedb_path}")

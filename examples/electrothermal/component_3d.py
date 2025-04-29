@@ -13,7 +13,8 @@ import os
 import tempfile
 import time
 
-from ansys.aedt.core import Icepak, downloads
+from ansys.aedt.core import Icepak
+from ansys.aedt.core.examples.downloads import download_icepak_3d_component
 
 # Define constants.
 
@@ -28,8 +29,8 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 # the temporary folder name is given by ``temp_folder.name``.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
-package_temp_name, qfp_temp_name = downloads.download_icepak_3d_component(
-    destination=temp_folder.name
+package_temp_name, qfp_temp_name = download_icepak_3d_component(
+    local_path=temp_folder.name
 )
 
 # ## Create heatsink

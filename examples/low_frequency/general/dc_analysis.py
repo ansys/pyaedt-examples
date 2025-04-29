@@ -9,11 +9,13 @@
 #
 # Perform required imports.
 
+# +
 import os
 import tempfile
 import time
 
 from ansys.aedt.core import Maxwell3d
+# -
 
 # Define constants.
 

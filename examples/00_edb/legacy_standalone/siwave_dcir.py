@@ -2,7 +2,10 @@
 #
 # This example demonstrates the use of EDB to interact with a PCB
 # layout and run DC-IR analysis in SIwave.
-# Perform required imports
+
+# ## Perform imports
+#
+# Perform required imports.
 
 # +
 import os
@@ -11,7 +14,9 @@ import time
 
 import pyedb
 from pyedb.misc.downloads import download_file
+# -
 
+# +
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 targetfile = download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
 

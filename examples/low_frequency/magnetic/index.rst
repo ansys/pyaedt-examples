@@ -59,6 +59,20 @@ These examples use PyAEDT to show some magnetics applications.
 
       This example uses PyAEDT to set up a Lorentz actuator and solve it using the Maxwell 2D transient solver.
 
+
+   .. grid-item-card:: 2D Axi-symmetric Actuator
+      :padding: 2 2 2 2
+      :link: 2d-axi_magnetostatic_actuator
+      :link-type: doc
+
+      .. image:: _static/2d-axi_magnetostatic_actuator.png
+         :alt: Maxwell general
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      This example demonstrates how to leverage axi-symmetry and the magnetostatic solver in actuator analysis.
+
    .. toctree::
       :hidden:
 
@@ -66,3 +80,4 @@ These examples use PyAEDT to show some magnetics applications.
       choke
       magneto_motive_line
       lorentz_actuator
+      2d-axi_magnetostatic_actuator

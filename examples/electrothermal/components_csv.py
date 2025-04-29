@@ -15,13 +15,13 @@ import time
 from pathlib import Path
 
 import ansys.aedt.core
+from ansys.aedt.core.examples.downloads import download_file
 import matplotlib as mpl
 import numpy as np
 import pyvista as pv
 from IPython.display import Image
 from matplotlib import cm
 from matplotlib import pyplot as plt
-
 # -
 
 # Define constants.
@@ -55,8 +55,8 @@ board = ipk.modeler.create_box(
 #
 # Components are represented as simple cubes with dimensions and properties specified in a CSV file.
 
-filename = ansys.aedt.core.downloads.download_file(
-    "icepak", "blocks-list.csv", destination=temp_folder.name
+filename = download_file(
+    "icepak", "blocks-list.csv", local_path=temp_folder.name
 )
 
 # The CSV file lists block properties:

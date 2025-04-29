@@ -9,6 +9,7 @@
 #
 # Perform required imports.
 
+# +
 import datetime
 import os
 import subprocess
@@ -16,8 +17,10 @@ import tempfile
 import time
 
 import matplotlib.pyplot as plt
-from ansys.aedt.core import TwinBuilder, downloads
+from ansys.aedt.core import TwinBuilder
+from ansys.aedt.core.examples import downloads
 from ansys.aedt.core.application.variables import CSVDataset
+# -
 
 # Define constants
 
@@ -37,11 +40,11 @@ input_dir = downloads.download_twin_builder_data(
 
 # Download data from example_data repository
 
-data_folder = os.path.join(input_dir, "LTI_training")
+twin_builder_data_folder = os.path.join(temp_folder.name, "twin_builder")
+data_folder = os.path.join(twin_builder_data_folder, "LTI_training")
 
 # Unzip training data and parse ports names
-
-downloads.unzip(os.path.join(input_dir, training_data_folder), data_folder)
+downloads.unzip(os.path.join(input_dir), data_folder)
 ports_names_file = "Input_PortNames.txt"
 
 

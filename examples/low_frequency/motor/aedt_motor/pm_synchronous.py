@@ -9,6 +9,7 @@
 #
 # Perform required imports.
 
+# +
 import csv
 import os
 import tempfile
@@ -16,6 +17,8 @@ import time
 from operator import attrgetter
 
 import ansys.aedt.core
+from ansys.aedt.core.examples.downloads import download_leaf
+# -
 
 # Define constants.
 
@@ -144,8 +147,8 @@ for k, v in oper_params.items():
 # Define the path for non-linear material properties.
 # Materials are stored in text files.
 
-filename_lam, filename_PM = ansys.aedt.core.downloads.download_leaf(
-    destination=temp_folder.name
+filename_lam, filename_PM = download_leaf(
+    local_path=temp_folder.name
 )
 
 # ## Create first material

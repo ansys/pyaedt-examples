@@ -15,7 +15,7 @@ import time
 
 import ansys.aedt.core
 from ansys.aedt.core import Circuit, Edb
-
+from ansys.aedt.core.examples.downloads import download_file
 # -
 
 # Define constants.
@@ -33,8 +33,8 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Download EDB folder
 
-edb_file = ansys.aedt.core.downloads.download_file(
-    source="edb/siwave_multi_zones.aedb", destination=temp_folder.name
+edb_file = download_file(
+    source="edb/siwave_multi_zones.aedb", local_path=temp_folder.name
 )
 work_folder = os.path.join(temp_folder.name, "work")
 aedt_file = os.path.splitext(edb_file)[0] + ".aedt"

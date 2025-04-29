@@ -34,7 +34,7 @@ import tempfile
 import time
 
 from ansys.aedt.core import Hfss3dLayout
-from ansys.aedt.core.downloads import download_file
+from ansys.aedt.core.examples.downloads import download_file
 from pyedb import Edb
 
 # -
@@ -57,7 +57,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 sma_rf_connector = download_file(
     source="component_3d",
     name="SMA_RF_SURFACE_MOUNT.a3dcomp",
-    destination=temp_folder.name,
+    local_path=temp_folder.name,
 )
 
 

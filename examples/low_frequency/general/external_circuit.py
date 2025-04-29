@@ -6,11 +6,13 @@
 
 # ## Perform imports and define constants
 
+# +
 import os
 import tempfile
 import time
 
 import ansys.aedt.core
+# -
 
 # Define constants.
 

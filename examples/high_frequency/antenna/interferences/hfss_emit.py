@@ -15,6 +15,7 @@
 #
 # Perform required imports.
 
+# +
 import os
 import shutil
 import tempfile
@@ -22,6 +23,7 @@ import time
 
 import ansys.aedt.core
 from ansys.aedt.core.emit_core.emit_constants import ResultType, TxRxMode
+# -
 
 # Define constants.
 

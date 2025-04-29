@@ -9,14 +9,17 @@
 # <img src="_static\parameterized_design.png" width="600">
 #
 
-# ## Import dependencies.
+# ## Perform imports
+#
+# Perform required imports.
 
+# +
 import tempfile
 
 import ansys.aedt.core
-
 import pyedb
 from pyedb.misc.downloads import download_file
+# -
 
 # ## Create an instance of a pyedb.Edb object.
 
