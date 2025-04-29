@@ -17,9 +17,13 @@
 #
 # Perform required imports.
 
+# +
 import tempfile
 import time
+
 import ansys.aedt.core
+from ansys.aedt.core.examples.downloads import download_file
+# -
 
 # Define constants.
 
@@ -40,10 +44,10 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 #
 # Download the files required to run this example to the temporary working folder.
 
-project_path = ansys.aedt.core.downloads.download_file(
+project_path = download_file(
     source="maxwell_magnetic_force",
     name="Maxwell_Magnetic_Force.aedt",
-    destination=temp_folder.name,
+    local_path=temp_folder.name,
 )
 
 # ## Initialize and launch Maxwell 2D

@@ -7,11 +7,13 @@
 # ## Import packages and define constants
 # Import the required packages.
 
+# +
 import os
 import tempfile
 import time
 
 import ansys.aedt.core
+# -
 
 # Define constants
 

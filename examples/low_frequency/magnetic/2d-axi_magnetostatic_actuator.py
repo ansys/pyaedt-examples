@@ -17,7 +17,6 @@ import tempfile
 import time
 
 import ansys.aedt.core  # Interface to Ansys Electronics Desktop
-
 # -
 
 # ### Define constants

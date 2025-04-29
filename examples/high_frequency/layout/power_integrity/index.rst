@@ -48,10 +48,10 @@ These examples use PyAEDT to show power integrity examples.
 
    .. grid-item-card:: SIwave DC IR analysis (HFSS 3D Layout)
       :padding: 2 2 2 2
-      :link: dcir
+      :link: dcir_hfss
       :link-type: doc
 
-      .. image:: _static/dcir.png
+      .. image:: _static/dcir_hfss.png
          :alt: DCIR
          :width: 250px
          :height: 200px

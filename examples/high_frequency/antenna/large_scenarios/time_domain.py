@@ -9,11 +9,14 @@
 #
 # Perform required imports.
 
+# +
 import os
 import tempfile
 import time
 
-from ansys.aedt.core import Hfss, downloads
+from ansys.aedt.core import Hfss
+from ansys.aedt.core.examples.downloads import download_sbr_time
+# -
 
 # Define constants.
 
@@ -34,7 +37,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Download project
 
-project_file = downloads.download_sbr_time(destination=temp_folder.name)
+project_file = download_sbr_time(local_path=temp_folder.name)
 
 # ## Launch HFSS and analyze
 

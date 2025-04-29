@@ -1,28 +1,29 @@
 # # Set up EDB for Serdes channel S-parameter extraction
 
-# ## Import the required packages
-
-import json
+# ## Perform imports and define constants
+#
+# Perform required imports.
 
 # +
+import json
 import os
 import tempfile
 
 from ansys.aedt.core import Hfss3dLayout
-from ansys.aedt.core.downloads import download_file
-
+from ansys.aedt.core.examples.downloads import download_file
 from pyedb import Edb
+# -
+
+# Define constants.
 
 AEDT_VERSION = "2025.1"
 NG_MODE = False
 
-# -
-
 # Download the example PCB data.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
-file_edb = download_file(source="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name)
-download_file(source="touchstone", name="GRM32_DC0V_25degC_series.s2p", destination=os.path.split(file_edb)[0])
+file_edb = download_file(source="edb/ANSYS-HSD_V1.aedb", local_path=temp_folder.name)
+download_file(source="touchstone", name="GRM32_DC0V_25degC_series.s2p", local_path=os.path.split(file_edb)[0])
 
 # ## Load example layout
 

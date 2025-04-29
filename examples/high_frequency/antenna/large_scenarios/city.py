@@ -9,10 +9,13 @@
 #
 # ### Perform imports
 
+# +
 import os
 import tempfile
 import time
+
 import ansys.aedt.core
+# -
 
 # ### Define constants
 # Constants help ensure consistency and avoid repetition throughout the example.

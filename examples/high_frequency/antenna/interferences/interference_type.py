@@ -12,15 +12,18 @@
 #
 # Perform required imports.
 
+# +
 import os
 import sys
 
 import ansys.aedt.core
 import openpyxl
 from ansys.aedt.core import get_pyaedt_app
+from ansys.aedt.core.examples.downloads import download_file
 from ansys.aedt.core.emit_core.emit_constants import InterfererType
 from openpyxl.styles import PatternFill
 from PySide6 import QtCore, QtGui, QtUiTools, QtWidgets
+# -
 
 # Define constants.
 
@@ -49,7 +52,7 @@ api = EmitApiPython.EmitApi()
 #
 # Define the UI extension file.
 
-ui_file = ansys.aedt.core.downloads.download_file("emit", "interference_gui.ui")
+ui_file = download_file("emit", "interference_gui.ui")
 Ui_MainWindow, _ = QtUiTools.loadUiType(ui_file)
 
 # Customize the GUI.
