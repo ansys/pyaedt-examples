@@ -297,9 +297,9 @@ def convert_examples_into_notebooks(app):
     unchanged_examples = []
     changed_raw = os.environ.get('ON_CI_CHANGED_EXAMPLES', '')
     if changed_raw:
-        changed_examples = [f.strip() for f in changed_raw.split(",")]
+        changed_examples = [Path(f.strip()).name for f in changed_raw.split(",")]
         # Do not limit to modification and extend to new examples
-        unchanged_examples = [p.name for p in EXAMPLES if p not in changed_examples]
+        unchanged_examples = [p.name for p in EXAMPLES if p.name not in changed_examples]
 
     EXAMPLES_TO_NOT_EXECUTE = list(set(STATIC_EXAMPLES_TO_NOT_EXECUTE) | set(unchanged_examples))
 
@@ -339,7 +339,7 @@ def convert_examples_into_notebooks(app):
                 with open(str(DESTINATION_DIR / notebook_path), "w", encoding="utf-8") as f:
                     nbformat.write(nb, f)
             else:
-                logger.warning(f"Keep execution of example {basename}")
+                logger.debug(f"Keeping execution of example {basename}")
 
         if count == 0:
             logger.warning("No python examples found to convert to scripts")
