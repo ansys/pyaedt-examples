@@ -240,8 +240,6 @@ report = hfss.post.create_report(plot_data[0:2])
 solution = report.get_solution_data()
 plt = solution.plot(solution.expressions)
 
-# The 
-
 # ## Release AEDT
 
 hfss.release_desktop()

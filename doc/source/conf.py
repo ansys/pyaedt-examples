@@ -275,9 +275,11 @@ def convert_examples_into_notebooks(app):
     import subprocess
     import nbformat
 
+    logger.info("Converting examples into notebooks and disabling execution if needed...")
+
     DESTINATION_DIR = Path(app.srcdir, "examples").resolve()
-    EXAMPLES = EXAMPLES_DIRECTORY.glob("**/*.py")
-    EXAMPLES_TO_NOT_EXECUTE = (
+    EXAMPLES = list(EXAMPLES_DIRECTORY.glob("**/*.py"))
+    STATIC_EXAMPLES_TO_NOT_EXECUTE = (
         "template.py",
         "gui_manipulation.py",
         "electrothermal.py",
@@ -291,6 +293,15 @@ def convert_examples_into_notebooks(app):
         # FIXME: Temporary skipped due to PyEDB v0.43.0, see https://github.com/ansys/pyedb/issues/1162
         "dcir_hfss.py",
     )
+
+    unchanged_examples = []
+    changed_raw = os.environ.get('ON_CI_CHANGED_EXAMPLES', '')
+    if changed_raw:
+        changed_examples = [Path(f.strip()).name for f in changed_raw.split(",")]
+        # Do not limit to modification and extend to new examples
+        unchanged_examples = [p.name for p in EXAMPLES if p.name not in changed_examples]
+
+    EXAMPLES_TO_NOT_EXECUTE = list(set(STATIC_EXAMPLES_TO_NOT_EXECUTE) | set(unchanged_examples))
 
     # NOTE: Only convert the examples if the workflow isn't tagged as coupling HTML and PDF build.
     if not bool(int(os.getenv("SPHINXBUILD_HTML_AND_PDF_WORKFLOW", "0"))) or app.builder.name == "html":
@@ -319,7 +330,7 @@ def convert_examples_into_notebooks(app):
             # Disable execution if required
             basename = os.path.basename(example)
             if basename in EXAMPLES_TO_NOT_EXECUTE:
-                logger.warning(f"Disable execution of example {basename}.")
+                logger.warning(f"Disable execution of example {basename}")
                 with open(str(DESTINATION_DIR / notebook_path), "r") as f:
                     nb = nbformat.read(f, as_version=nbformat.NO_CONVERT)
                 if "nbsphinx" not in nb.metadata:
@@ -327,6 +338,8 @@ def convert_examples_into_notebooks(app):
                 nb.metadata["nbsphinx"]["execute"] = "never"
                 with open(str(DESTINATION_DIR / notebook_path), "w", encoding="utf-8") as f:
                     nbformat.write(nb, f)
+            else:
+                logger.debug(f"Keeping execution of example {basename}")
 
         if count == 0:
             logger.warning("No python examples found to convert to scripts")
