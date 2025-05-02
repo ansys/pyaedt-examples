@@ -10,11 +10,13 @@
 
 # ## Perform imports and define constants
 
+# +
 import os
 import tempfile
 import time
 
 from ansys.aedt.core import Maxwell2d
+# -
 
 # Define constants,
 

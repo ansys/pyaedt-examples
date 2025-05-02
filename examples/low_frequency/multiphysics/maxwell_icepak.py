@@ -12,11 +12,14 @@
 #
 # ### Perform imports
 
+# +
 import os
 import tempfile
 import time
+
 import ansys.aedt.core  # Interface to Ansys Electronics Desktop
 from ansys.aedt.core.generic.constants import AXIS
+# -
 
 # ### Define constants
 #

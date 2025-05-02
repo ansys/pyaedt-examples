@@ -20,7 +20,6 @@ import time
 
 from ansys.aedt.core import Hfss3dLayout
 from pyedb import Edb
-
 # -
 
 # ## Define constants

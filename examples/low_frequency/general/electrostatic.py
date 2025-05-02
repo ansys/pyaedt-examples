@@ -11,11 +11,14 @@
 #
 # Perform required imports.
 
+# +
 import os
 import tempfile
 import time
 
 import ansys.aedt.core
+from ansys.aedt.core.examples.downloads import download_file
+# -
 
 # Define constants.
 
@@ -36,8 +39,8 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 #
 # Set the local temporary folder to export the Excel (XLSX) file to.
 
-file_name_xlsx = ansys.aedt.core.downloads.download_file(
-    source="field_line_traces", name="my_copper.xlsx", destination=temp_folder.name
+file_name_xlsx = download_file(
+    source="field_line_traces", name="my_copper.xlsx", local_path=temp_folder.name
 )
 
 # ## Initialize dictionaries

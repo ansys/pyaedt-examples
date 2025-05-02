@@ -26,7 +26,7 @@ import tempfile
 import time
 
 from ansys.aedt.core import Desktop, Hfss, settings
-from ansys.aedt.core.downloads import download_file
+from ansys.aedt.core.examples.downloads import download_file
 # -
 
 # ### Define constants
@@ -59,7 +59,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 a3dcomp = download_file(
     source="component_3d",
     name="SMA_Edge_Connector_23r2_encrypted_password_ansys.a3dcomp",
-    destination=temp_folder.name,
+    local_path=temp_folder.name,
 )
 
 # Name of the converted 3D component:

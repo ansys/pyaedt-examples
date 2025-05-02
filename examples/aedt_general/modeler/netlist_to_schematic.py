@@ -17,7 +17,7 @@ import tempfile
 import time
 
 import ansys.aedt.core
-
+from ansys.aedt.core.examples.downloads import download_netlist
 # -
 
 # ## Define constants.
@@ -39,7 +39,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # Launch AEDT with Circuit. The `ansys.aedt.core.Desktop` class initializes AEDT
 # and starts it on the specified version in the specified graphical mode.
 
-netlist = ansys.aedt.core.downloads.download_netlist(destination=temp_folder.name)
+netlist = download_netlist(local_path=temp_folder.name)
 circuit = ansys.aedt.core.Circuit(
     project=os.path.join(temp_folder.name, "NetlistExample"),
     version=AEDT_VERSION,

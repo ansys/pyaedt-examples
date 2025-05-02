@@ -5,17 +5,14 @@
 
 # ## Perform required imports
 #
-# Perform required imports, which includes importing the ``Hfss3dlayout`` object
-# and initializing it on version 2023 R2.
+# Perform required imports.
 
 # +
 import os
 import tempfile
 
 import ansys.aedt.core
-
 import pyedb
-
 # -
 
 # ## Set non-graphical mode
@@ -26,7 +23,6 @@ non_graphical = False
 #
 # Data classes are useful to do calculations and store variables.
 # There are three data classes: ``Patch``, ``Line``, and ``Array``.
-
 
 # +
 class Patch:

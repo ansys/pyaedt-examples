@@ -12,11 +12,10 @@
 import sys
 import tempfile
 
-import ansys.aedt.core
+from ansys.aedt.core.examples.downloads import download_file
 import plotly.graph_objects as go
 from ansys.aedt.core import Emit
 from ansys.aedt.core.emit_core.emit_constants import InterfererType
-
 # -
 
 # Define constants.
@@ -41,8 +40,8 @@ if AEDT_VERSION <= "2023.1":
 
 # Download project
 
-project_name = ansys.aedt.core.downloads.download_file(
-    "emit", "interference.aedtz", destination=temp_folder.name
+project_name = download_file(
+    "emit", "interference.aedtz", local_path=temp_folder.name
 )
 
 # ## Launch EMIT and open project

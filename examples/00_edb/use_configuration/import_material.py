@@ -1,7 +1,9 @@
 # # Import Materials
 # This example shows how to import materials.
 
-# ### Import the required packages
+# ## Perform imports and define constants
+#
+# Perform required imports.
 
 # +
 import json
@@ -9,20 +11,20 @@ from pathlib import Path
 import tempfile
 
 from IPython.display import display
-from ansys.aedt.core.downloads import download_file
+from ansys.aedt.core.examples.downloads import download_file
 import pandas as pd
-
 from pyedb import Edb
+# -
+
+# Define constants.
 
 AEDT_VERSION = "2025.1"
 NG_MODE = False
 
-# -
-
 # Download the example PCB data.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
-file_edb = download_file(source="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name)
+file_edb = download_file(source="edb/ANSYS-HSD_V1.aedb", local_path=temp_folder.name)
 
 # ## Load example layout.
 

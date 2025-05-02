@@ -15,7 +15,7 @@ import tempfile
 import time
 from pathlib import Path
 import ansys.aedt.core
-from ansys.aedt.core.downloads import download_file
+from ansys.aedt.core.examples.downloads import download_file
 
 # ### Define constants
 # Constants help ensure consistency and avoid repetition throughout the example.
@@ -70,7 +70,7 @@ hfss["patch_dim"] = "10mm"
 
 # 1. Download the component.
 
-component_path = Path(download_file("fss_3d_component", destination=str(temp_path)))
+component_path = Path(download_file("fss_3d_component", local_path=str(temp_path)))
 
 # 2. Get the file name of the 3D component.
 #    > **Note:** It should be the only file in the ``component_path`` folder.

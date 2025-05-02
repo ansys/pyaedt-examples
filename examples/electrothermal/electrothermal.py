@@ -18,14 +18,16 @@
 #
 # Perform required imports.
 
+# +
 import json
 import os
 import sys
 import tempfile
 import time
 
-from ansys.aedt.core.downloads import download_file
+from ansys.aedt.core.examples.downloads import download_file
 from pyedb import Edb, Siwave
+# -
 
 # Define constants.
 
@@ -50,7 +52,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # Download the example PCB data.
 
-aedb = download_file(source="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name)
+aedb = download_file(source="edb/ANSYS-HSD_V1.aedb", local_path=temp_folder.name)
 
 # ## Create configuration file
 #
