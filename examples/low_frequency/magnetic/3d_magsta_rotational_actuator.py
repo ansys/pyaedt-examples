@@ -145,7 +145,7 @@ m3d.modeler.rotate(assignment=[inner_arm], axis="RelativeCS1" , angle="angle")
 coil1 = m3d.modeler.create_rectangle(orientation=ansys.aedt.core.constants.AXIS.X,origin=[0,0,15.5],sizes=[17,24], name="coil1", material="copper")
 coil1.color="(249 186 70)"
 path_rectangle = m3d.modeler.create_rectangle(orientation=ansys.aedt.core.constants.AXIS.Y,origin=[-17,0,-15.5],sizes=[31,34], name="path")
-m3d.modeler.uncover_faces(path_rectangle) # TODO: Implement function in pyaedt
+m3d.modeler.uncover_face(path_rectangle.faces[0]) # TODO: Implement function in pyaedt
 m3d.modeler.sweep_along_path(assignment=coil1, sweep_object=path_rectangle)
 round = m3d.modeler.create_cylinder(orientation=ansys.aedt.core.constants.AXIS.Y ,origin=[0,0,0],radius=46.238512086788,height=17,num_sides=0, name="Round")
 m3d.modeler.intersect(assignment=[coil1, round])
@@ -209,9 +209,7 @@ parametric_sweep.analyze(cores=NUM_CORES)
 
 m3d.post.create_report(
     expressions=["Matrix1.L(Current_1, Current_1)",
-                 "Matrix1.L(Current_1, Current_2)",
-                 "Matrix1.L(Current_2, Current_1)",
-                 "Matrix1.L(Current_2, Current_2)"],
+                 "Matrix1.L(Current_1, Current_2)"],
     variations={"angle": "All"},
     plot_name="XY Plot 1",
     primary_sweep_variable="angle",
