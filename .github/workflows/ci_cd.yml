@@ -43,6 +43,21 @@ jobs:
     runs-on: [self-hosted, Windows, pyaedt-examples]
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get new/modified examples files (only for PRs)
+        if: github.ref_name != 'main'
+        shell: powershell
+        run: |
+          $changed = git diff --name-only origin/main...HEAD -- examples/
+          $changed = $changed | ForEach-Object { $_.Replace('\', '/') }
+
+          Write-Output "New/Modified files:"
+          $changed | ForEach-Object { Write-Output "- $_" }
+
+          $changed_formatted = $changed -join ","
+          Add-Content -Path $env:GITHUB_ENV -Value "ON_CI_CHANGED_EXAMPLES=$changed_formatted"
 
       - name: Set up Python ${{ env.MAIN_PYTHON_VERSION }}
         uses: actions/setup-python@v4
@@ -66,6 +81,7 @@ jobs:
       - name: Create HTML documentation
         env:
           SPHINXBUILD_HTML_AND_PDF_WORKFLOW: "1"
+          ON_CI_CHANGED_EXAMPLES: ${{ env.ON_CI_CHANGED_EXAMPLES }}
         run: |
           .venv\Scripts\Activate.ps1
           . .\doc\make.bat html --color -T -W
@@ -91,6 +107,7 @@ jobs:
       - name: Create PDF documentation
         env:
           SPHINXBUILD_HTML_AND_PDF_WORKFLOW: "1"
+          ON_CI_CHANGED_EXAMPLES: ${{ env.ON_CI_CHANGED_EXAMPLES }}
         run: |
           .venv\Scripts\Activate.ps1
           . .\doc\make.bat pdf
