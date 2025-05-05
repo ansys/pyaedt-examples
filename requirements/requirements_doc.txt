@@ -10,7 +10,7 @@ osmnx==2.0.2
 pandas==2.2.3
 pyvista==0.44.2
 fast-simplification==0.1.9
-joblib==1.4.2
+joblib==1.5.0
 plotly==6.0.1
 scikit-rf==1.6.2
 
