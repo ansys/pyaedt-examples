@@ -1,14 +1,14 @@
-# # 3D Rotational Actuator (Magnetostatic)
+# # 3D Rotational Actuator
 #
-# (do not specify the solver type in the title, i.e.: Maxwell2D, Maxwell3D etc)
+# In this example the rotational position of the actuator is defined and controled by a global parameter named ``angle``.
+# By leveraging the magnetostatics formulation we can sweep through the rotational motion 
+# and calculate the change in coil inductance, and field in a non-linear core.
 #
-# Most examples can be described as a series of steps that comprise a workflow.
-# 1. Import packages and instantiate the application.
-# 2. Do something useful and interesting like creating the model, assing materials and boundary conditions, etc.
-# 3. Run one or more analyses.
-# 4. View the results.
+# The model also shows how to set up a custom non-linear material using BH curve data.
 #
-# Keywords: **Template**, **Jupyter**
+# Keywords: **Maxwell3D**, **3D** **magnetostatic**, **rotational motion**, **parametric sweep**, **inductance**
+# **installation example**
+#
 
 # ## Prerequisites
 #
@@ -38,10 +38,7 @@ import ansys.aedt.core  # Interface to Ansys Electronics Desktop
 #             ]
 #         ])
 
-
-
 # ### Define constants
-# Constants help ensure consistency and avoid repetition throughout the example.
 
 AEDT_VERSION = "2025.1"
 NUM_CORES = 4
@@ -75,22 +72,30 @@ m3d = ansys.aedt.core.Maxwell3d(
 # ## Model Preparation
 #
 # ### Declare and initialize design parameters
+# The ``angle`` parameter will be used to sweep through the actuators rotational motion
 
 m3d["angle"] = "29deg"
 
 # ### Create 3D model
 #
 # #### Set model units
+#
 
 m3d.modeler.model_units = "mm"
 
-# #### Create custom material
+# #### Create non-linear magnetic material with single valued BH curve
+#
+# Read the BH curve data and store it as a list
+
 bh_curve = []
 with open("bh_file.tab") as f:
     reader = csv.reader(f, delimiter="\t")
     next(reader)
     for row in reader:
         bh_curve.append([float(row[0]), float(row[1])])
+        
+
+# Create custom material and add it to the AEDT library using the ``add_material`` method
 
 arm_steel = m3d.materials.add_material(name="arm_steel")
 arm_steel.conductivity = 2000000
@@ -136,6 +141,7 @@ m3d.modeler.rotate(assignment=[inner_arm], axis="RelativeCS1" , angle="angle")
 
 
 # #### Create coils
+
 coil1 = m3d.modeler.create_rectangle(orientation=ansys.aedt.core.constants.AXIS.X,origin=[0,0,15.5],sizes=[17,24], name="coil1", material="copper")
 coil1.color="(249 186 70)"
 path_rectangle = m3d.modeler.create_rectangle(orientation=ansys.aedt.core.constants.AXIS.Y,origin=[-17,0,-15.5],sizes=[31,34], name="path")
@@ -163,11 +169,12 @@ m3d.modeler.delete(assignment=coil1.name + "_1_Section1")
 m3d.modeler.fit_all()
 
 # ### Assign boundary conditions
-#
+
 m3d.assign_current(assignment=coil_terminal1, amplitude=675.5, solid=False, name="Current_1")
 m3d.assign_current(assignment=coil_terminal2, amplitude=675.5, solid=False, name="Current_2")
+
 # ### Define solution setup
-#
+
 m3d.assign_matrix(assignment=["Current_1", "Current_2"],matrix_name="Matrix1")
 m3d.assign_torque(assignment=inner_arm.name, is_virtual=True, coordinate_system="Global", axis="Z", torque_name="Virtual_Torque")
 
@@ -188,7 +195,17 @@ parametric_sweep.add_calculation(calculation="Matrix1.L(Current_2, Current_1)")
 parametric_sweep.add_calculation(calculation="Matrix1.L(Current_2, Current_2)")
 parametric_sweep.props["ProdOptiSetupDataV2"]["SaveFields"] = True
 
+#
+# ### Run analysis
+#
 
+parametric_sweep.analyze(cores=NUM_CORES)
+
+# m3d.analyze_setup("Setup1")
+
+# ## Postprocess
+#
+# ### Create a Rectangular plot of Coil Inductance vs. Rotational Angle
 
 m3d.post.create_report(
     expressions=["Matrix1.L(Current_1, Current_1)",
@@ -200,21 +217,9 @@ m3d.post.create_report(
     primary_sweep_variable="angle",
     plot_type="Rectangular Plot",
 )
-#
-# ### Run analysis
-#
-parametric_sweep.analyze(cores=NUM_CORES)
 
-# m3d.analyze_setup("Setup1")
+# ### Create field plots on the surface of the actuator's arms
 
-# ## Postprocess
-#
-# After generating results demonstrate how to visualize and evaluate results
-# in this section.
-# Level 3 headers can be used to identify various post-processing
-# steps.
-#
-# ### Evaluate loss
 m3d.post.create_fieldplot_surface(
     assignment=[inner_arm, outer_arm], quantity="Mag_B", plot_name="Mag_B1", field_type="Fields")
 
