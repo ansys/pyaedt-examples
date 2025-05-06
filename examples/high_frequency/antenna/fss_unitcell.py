@@ -96,9 +96,7 @@ component_names = hfss.modeler.user_defined_component_names
 # +
 same = comp.name == component_names[0]
 if same and len(component_names) == 1:
-    msg = f"The single 3D component in this HFSS design is named '{comp.name}',\n"
-    msg += "...proceed to the next step."
-    
+    msg = f"The single 3D component in this HFSS design is named '{comp.name}'."
 else:
     msg ="Something went wrong!"
 print(msg)
