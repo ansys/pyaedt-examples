@@ -112,6 +112,19 @@ These examples use PyAEDT to show Maxwell 3D capabilities.
 
       This example uses PyAEDT to set up the TEAM 3 bath plate problem and solve it using the Maxwell 3D eddy current solver.
 
+   .. grid-item-card:: 3D Rotational Actuator
+      :padding: 2 2 2 2
+      :link: ../../low_frequency/magnetic/3d_magsta_rotational_actuator
+      :link-type: doc
+
+      .. image:: ../../low_frequency/magnetic/3d_magsta_rotational_actuator.png
+         :alt: Maxwell general
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      This example demonstrates the use of the magnetostatic solver to model a rotational actuator.
+      Furthermore, it shows how the inductance matrix can be retrieved and the field solution plotted.
 
    .. toctree::
       :hidden:
@@ -124,3 +137,5 @@ These examples use PyAEDT to show Maxwell 3D capabilities.
       ../../low_frequency/multiphysics/maxwell_icepak
       ../../low_frequency/team_problem/asymmetric_conductor
       ../../low_frequency/team_problem/bath_plate
+      ../../low_frequency/magnetic/3d_magsta_rotational_actuator
+

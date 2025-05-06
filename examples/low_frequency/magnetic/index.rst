@@ -73,6 +73,20 @@ These examples use PyAEDT to show some magnetics applications.
 
       This example demonstrates how to leverage axi-symmetry and the magnetostatic solver in actuator analysis.
 
+   .. grid-item-card:: 3D Rotational Actuator
+      :padding: 2 2 2 2
+      :link: ../../low_frequency/magnetic/3d_magsta_rotational_actuator
+      :link-type: doc
+
+      .. image:: ../../low_frequency/magnetic/3d_magsta_rotational_actuator.png
+         :alt: Maxwell general
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      This example demonstrates the use of the magnetostatic solver to model a rotational actuator.
+      Furthermore, it shows how the inductance matrix can be retrieved and the field solution plotted.
+
    .. toctree::
       :hidden:
 
@@ -81,3 +95,4 @@ These examples use PyAEDT to show some magnetics applications.
       magneto_motive_line
       lorentz_actuator
       2d-axi_magnetostatic_actuator
+      3d_magsta_rotational_actuator
