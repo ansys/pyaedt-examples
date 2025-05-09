@@ -157,7 +157,6 @@ cutout = {
         },
     "reference_list": ["GND"],
     "extent_type": "ConvexHull"
-
 }
 operations = {"cutout": cutout}
 cfg = {"operations": operations}
