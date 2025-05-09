@@ -156,7 +156,7 @@ cutout = {
             "capacitor_above": 1
         },
     "reference_list": ["GND"],
-    "extent_type": "ConvexHull",
+    "extent_type": "ConvexHull"
 
 }
 operations = {"cutout": cutout}
