@@ -1,23 +1,20 @@
-# # EDB: Edit Control File and import gds
+# # EDB: Importing other types of files
 #
-# This example demonstrates how to import a gds layout for subsequent
-# simulation with HFSS.
+# This example demonstrates how to import different types of files and translate their information to an EDB file.
 
 # Perform imports.
 
 # +
 import os
-import shutil
 import tempfile
-
-import pyedb
-from pyedb.dotnet.database.edb_data.control_file import ControlFile
+from pyedb.dotnet.edb import Edb
 from pyedb.misc.downloads import download_file
+from ansys.aedt.core.hfss3dlayout import  Hfss3dLayout
 # -
 
-# ## Fetch Example Data
+# ## Case 1: Import a .gds file.
 #
-# Download the EDB folder and copy it to a temporary folder.
+# Download the test case folder and copy it to a temporary folder.
 # The following files are used in this example:
 #
 # - _sky130_fictious_dtc_exmple_contol_no_map.xml_
@@ -33,84 +30,74 @@ gds_fn = "sky130_fictitious_dtc_example.gds"
 layer_map = "dummy_layermap.map"
 
 local_path = download_file("gds", destination=temp_dir.name)
-c_file_in = os.path.join(local_path, control_fn)
-c_map = os.path.join(local_path, layer_map)
+my_control_file = os.path.join(local_path, control_fn)
+my_map_file = os.path.join(local_path, layer_map)
 gds_in = os.path.join(local_path, gds_fn)
-gds_out = os.path.join(temp_dir.name, "gds_out.gds")
-shutil.copy2(gds_in, gds_out)
 # -
-
-# ## Control file
-#
-# A Control file is an xml file which purpose if to provide additional information during
-# import phase. It can include, materials, stackup, setup, boundaries and settings.
-# In this example we will import an existing xml, integrate it with a layer mapping file of gds
-# and then adding setup and boundaries.
-
-c = ControlFile(c_file_in, layer_map=c_map)
-
-# ## Set up simulation
-#
-# This code sets up a simulation with HFSS and adds a frequency sweep.
-
-setup = c.setups.add_setup("Setup1", "1GHz", 0.02, 10)
-setup.add_sweep("Sweep1", "0.01GHz", "5GHz", "0.1GHz")
-
-# ## Provide additional stackup settings
-#
-# After import, you can change the stackup settings and add or remove layers or materials.
-
-c.stackup.units = "um"
-c.stackup.dielectrics_base_elevation = -100
-c.stackup.metal_layer_snapping_tolerance = "10nm"
-for via in c.stackup.vias:
-    via.create_via_group = True
-    via.snap_via_group = True
-
-# ## Define boundary settings
-#
-# Boundaries can include ports, components and boundary extent.
-
-c.boundaries.units = "um"
-c.boundaries.add_port("P1", x1=223.7, y1=222.6, layer1="Metal6", x2=223.7, y2=100, layer2="Metal6")
-c.boundaries.add_extent()
-comp = c.components.add_component("B1", "BGA", "IC", "Flip chip", "Cylinder")
-comp.solder_diameter = "65um"
-comp.add_pin("1", "81.28", "84.6", "met2")
-comp.add_pin("2", "211.28", "84.6", "met2")
-comp.add_pin("3", "211.28", "214.6", "met2")
-comp.add_pin("4", "81.28", "214.6", "met2")
-c.import_options.import_dummy_nets = True
-
-# ## Write XML file
-#
-# After all settings are ready, you can write an XML file.
-
-c.write_xml(os.path.join(temp_dir.name, "output.xml"))
 
 # ## Open EDB
 #
-# Import the gds and open the edb.
+# Import the gds and open the edb. Each gds is followed either by a control file (*.xml) or a technology file (*.ircx, *.vlc.tech, or *.itf).
+# Then a map file (*.map) is also regularly used to map the stackup layers, and finally in some cases a layer filter (*.xml) is deployed, when
+# only a part of the stackup is needed.
 
 # +
 # Select EDB version (change it manually if needed, e.g. "2025.1")
-edb_version = "2025.1"
-print(f"EDB version: {edb_version}")
+version = "2025.1"
+print(f"EDB version: {version}")
 
-edb = pyedb.Edb(gds_out, edbversion=edb_version, technology_file=os.path.join(temp_dir.name, "output.xml"))
-# -
+edb = Edb(gds_in, edbversion=version, control_file=my_control_file,map_file = my_map_file)
 
-# ## Plot stackup
-#
-# Plot the stackup.
-
-edb.stackup.plot(first_layer="met1")
-
-# ## Close EDB
+# ## Save and Close EDB
 #
 # Close the project.
 
+edb1_path = os.path.join(temp_dir.name, "gds_design.aedb")
+
+edb.save_as(edb1_path)
+
 edb.close_edb()
+
+# ## Close EDB
+
+# ## Case 2: Import a .brd file (or any other compatible format: *.dxf, *.zip, *.sml (IPC2581), *.mcm, *.sip and *.tgz).
+# Download the test case folder and copy it to the temporary folder.
+# The following files are used in this example:
+# - Galileo.brd
+#   board file that contains all the information of the design that is translated in EDB.
+
+local_path = download_file("brd", destination=temp_dir.name)
+brd_file = "Galileo.brd"
+my_brd_file = os.path.join(local_path, brd_file)
+
+
+# ## Open EDB
+#
+# Directly import the .brd file as an Edb object (the same version as before is used).
+
+edb = Edb(edbpath=my_brd_file, edbversion=version)
+
+# ## Save and Close EDB
+#
+# Close the project.
+
+edb2_path = os.path.join(temp_dir.name, "brd_design.aedb")
+
+edb.save_as(edb2_path)
+
+edb.close_edb()
+
+# ## Open both EDB files with HFSS 3D Layout, and observe the designs.
+
+h3d_gds = Hfss3dLayout(project=edb1_path,version=version,new_desktop=True)
+
+h3d_brd = Hfss3dLayout(project=edb2_path,version=version,new_desktop=True)
+
+# ## Successfully close the HFSS 3D Layout designs and release the dekstop.
+
+h3d_gds.release_desktop()
+
+h3d_brd.release_desktop()
 
 # Clean up the temporary folder.
 
