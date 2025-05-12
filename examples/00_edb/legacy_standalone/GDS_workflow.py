@@ -25,11 +25,11 @@ from ansys.aedt.core.hfss3dlayout import  Hfss3dLayout
 
 # +
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-control_fn = "sky130_fictitious_dtc_example_control_no_map.xml"
-gds_fn = "sky130_fictitious_dtc_example.gds"
-layer_map = "dummy_layermap.map"
+control_fn = "XML_Automation.xml"
+gds_fn = "Model.gds"
+layer_map = "Model.map"
 
-local_path = download_file("gds", destination=temp_dir.name)
+local_path = download_file("gds_file", destination=temp_dir.name)
 my_control_file = os.path.join(local_path, control_fn)
 my_map_file = os.path.join(local_path, layer_map)
 gds_in = os.path.join(local_path, gds_fn)
@@ -67,7 +67,7 @@ edb.close_edb()
 #   board file that contains all the information of the design that is translated in EDB.
 
 local_path = download_file("brd", destination=temp_dir.name)
-brd_file = "Galileo.brd"
+brd_file = "BeagleBone Black_PCB_RevC_No Logo_210401.brd"
 my_brd_file = os.path.join(local_path, brd_file)
 
 
@@ -75,7 +75,7 @@ my_brd_file = os.path.join(local_path, brd_file)
 #
 # Directly import the .brd file as an Edb object (the same version as before is used).
 
-edb = Edb(edbpath=my_brd_file, edbversion=version)
+edb = Edb(my_brd_file, edbversion=version)
 
 # ## Save and Close EDB
 #
