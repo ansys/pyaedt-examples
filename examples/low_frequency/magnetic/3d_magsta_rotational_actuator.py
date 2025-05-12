@@ -23,21 +23,6 @@ import csv
 import ansys.aedt.core  # Interface to Ansys Electronics Desktop
 # -
 
-# def uncover_faces(object):
-#     m3d.oeditor.UncoverFaces(
-#         [
-#             "NAME:Selections",
-#             "Selections:="	, object.name,
-#             "NewPartsModelFlag:="	, "Model"
-#         ],
-#         [
-#             "NAME:Parameters",
-#             [
-#                 "NAME:UncoverFacesParameters",
-#                 "FacesToUncover:="	, [int(str(object.faces[0]))]
-#             ]
-#         ])
-
 # ### Define constants
 
 AEDT_VERSION = "2025.1"
@@ -85,15 +70,28 @@ m3d.modeler.model_units = "mm"
 
 # #### Create non-linear magnetic material with single valued BH curve
 #
-# Read the BH curve data and store it as a list
+# Create list with  BH curve data
 
-bh_curve = []
-with open("bh_file.tab") as f:
-    reader = csv.reader(f, delimiter="\t")
-    next(reader)
-    for row in reader:
-        bh_curve.append([float(row[0]), float(row[1])])
-        
+bh_curve = [[0.0, 0.0],
+            [4000.0, 1.413],
+            [8010.0, 1.594],
+            [16010.0, 1.751],
+            [24020.0, 1.839],
+            [32030.0, 1.896],
+            [40030.0, 1.936],
+            [48040.0, 1.967],
+            [64050.0, 2.008],
+            [80070.0, 2.042],
+            [96080.0, 2.073],
+            [112100.0, 2.101],
+            [128110.0, 2.127],
+            [144120.0, 2.151],
+            [176150.0, 2.197],
+            [208180.0, 2.24],
+            [272230.0, 2.325],
+            [304260.0, 2.37],
+            [336290.0, 2.42],
+            [396000.0, 2.5]]
 
 # Create custom material and add it to the AEDT library using the ``add_material`` method
 
@@ -130,7 +128,6 @@ m3d.modeler.intersect(assignment=[inner_arm, finalpole2])
 
 inner_arm.color="(192 192 192)"
 
-
 # #### Create a local/relative coordinate system
 
 m3d.modeler.create_coordinate_system(origin=[0 ,0 ,12.7],reference_cs="Global",name="RelativeCS1",mode="axis",x_pointing=[1 ,0 ,0],y_pointing=[0 ,1 ,0])
@@ -139,13 +136,12 @@ m3d.modeler.create_coordinate_system(origin=[0 ,0 ,12.7],reference_cs="Global",n
 
 m3d.modeler.rotate(assignment=[inner_arm], axis="RelativeCS1" , angle="angle")
 
-
 # #### Create coils
 
 coil1 = m3d.modeler.create_rectangle(orientation=ansys.aedt.core.constants.AXIS.X,origin=[0,0,15.5],sizes=[17,24], name="coil1", material="copper")
 coil1.color="(249 186 70)"
 path_rectangle = m3d.modeler.create_rectangle(orientation=ansys.aedt.core.constants.AXIS.Y,origin=[-17,0,-15.5],sizes=[31,34], name="path")
-m3d.modeler.uncover_face(path_rectangle.faces[0]) # TODO: Implement function in pyaedt
+m3d.modeler.uncover_faces([path_rectangle.faces[0]])
 m3d.modeler.sweep_along_path(assignment=coil1, sweep_object=path_rectangle)
 round = m3d.modeler.create_cylinder(orientation=ansys.aedt.core.constants.AXIS.Y ,origin=[0,0,0],radius=46.238512086788,height=17,num_sides=0, name="Round")
 m3d.modeler.intersect(assignment=[coil1, round])
@@ -155,10 +151,12 @@ m3d.modeler.section(assignment=coil1,plane='XY')
 m3d.modeler.section(assignment=coil1.name + "_1",plane='XY')
 
 # #### Create air region
+
 bgnd = m3d.modeler.create_box(origin=[-250 ,-250 ,-250],sizes=[500,500,500], name="bgnd")
 bgnd.transparency = 1
 
 # #### Create Coil Terminals by Separating Sheet bodies
+
 coil_terminal1 = coil1.name + "_1_Section1_Separate1"
 coil_terminal2 = coil1.name + "_Section1"
 m3d.modeler.separate_bodies(assignment=coil_terminal2)
@@ -211,7 +209,7 @@ m3d.post.create_report(
     expressions=["Matrix1.L(Current_1, Current_1)",
                  "Matrix1.L(Current_1, Current_2)"],
     variations={"angle": "All"},
-    plot_name="XY Plot 1",
+    plot_name="Coil Inductance vs. Angle",
     primary_sweep_variable="angle",
     plot_type="Rectangular Plot",
 )
@@ -223,8 +221,6 @@ m3d.post.create_fieldplot_surface(
 
 m3d.post.create_fieldplot_surface(
     assignment=[inner_arm, outer_arm], quantity="B_Vector", plot_name="B_Vector1", field_type="Fields")#
-# ### Visualize fields
-# > PyAEDT provides access to field solution data via the
 
 
 # ## Finish
@@ -232,7 +228,7 @@ m3d.post.create_fieldplot_surface(
 # ### Save the project
 
 m3d.save_project()
-m3d.release_desktop(False, False)
+m3d.release_desktop(close_projects=False, close_desktop=False)
 # Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
