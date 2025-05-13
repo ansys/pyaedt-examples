@@ -48,6 +48,12 @@ print(f"EDB version: {version}")
 
 edb = Edb(gds_in, edbversion=version, control_file=my_control_file,map_file = my_map_file)
 
+# ## Assert some of EDB design characteristics.
+
+# Plot stackup
+
+edb.stackup.plot()
+
 # ## Save and Close EDB
 #
 # Close the project.
@@ -58,46 +64,13 @@ edb.save_as(edb1_path)
 
 edb.close_edb()
 
-# ## Close EDB
-
-# ## Case 2: Import a .brd file (or any other compatible format: *.dxf, *.zip, *.sml (IPC2581), *.mcm, *.sip and *.tgz).
-# Download the test case folder and copy it to the temporary folder.
-# The following files are used in this example:
-# - Galileo.brd
-#   board file that contains all the information of the design that is translated in EDB.
-
-local_path = download_file("brd", destination=temp_dir.name)
-brd_file = "BeagleBone Black_PCB_RevC_No Logo_210401.brd"
-my_brd_file = os.path.join(local_path, brd_file)
-
-
-# ## Open EDB
-#
-# Directly import the .brd file as an Edb object (the same version as before is used).
-
-edb = Edb(my_brd_file, edbversion=version)
-
-# ## Save and Close EDB
-#
-# Close the project.
-
-edb2_path = os.path.join(temp_dir.name, "brd_design.aedb")
-
-edb.save_as(edb2_path)
-
-edb.close_edb()
-
-# ## Open both EDB files with HFSS 3D Layout, and observe the designs.
+# ## Open both EDB files with HFSS 3D Layout, and observe the design / confirm the aformentioned data.
 
 h3d_gds = Hfss3dLayout(project=edb1_path,version=version,new_desktop=True)
 
-h3d_brd = Hfss3dLayout(project=edb2_path,version=version,new_desktop=True)
-
-# ## Successfully close the HFSS 3D Layout designs and release the dekstop.
+# ## Successfully close the HFSS 3D Layout design and release the dekstop.
 
 h3d_gds.release_desktop()
-
-h3d_brd.release_desktop()
 
 # Clean up the temporary folder.
 
