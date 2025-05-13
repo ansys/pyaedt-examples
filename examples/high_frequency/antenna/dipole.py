@@ -213,8 +213,8 @@ new_plot = report_3d_data.plot_3d()
 # ### View cross-polarization
 #
 # The dipole is linearly polarized as can be seen from the comparison of $\theta$-polarized
-# and $\phi$-polarized "realized gain" at $\theta=90\degree$. The following code creates the gain plots
-# in AEDT.
+# and $\phi$-polarized "realized gain" at $\theta=90^\circ$ degrees.
+# The following code creates the gain plots in AEDT.
 
 # +
 xpol_expressions = ["db(RealizedGainTheta)", "db(RealizedGainPhi)"]
