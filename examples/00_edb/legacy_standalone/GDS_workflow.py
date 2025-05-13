@@ -1,6 +1,6 @@
-# # EDB: Importing other types of files
+# # EDB: Importing GDS file
 #
-# This example demonstrates how to import different types of files and translate their information to an EDB file.
+# This example demonstrates how to import GDS files and translate their information to an EDB file.
 
 # Perform imports.
 
@@ -17,10 +17,10 @@ from ansys.aedt.core.hfss3dlayout import  Hfss3dLayout
 # Download the test case folder and copy it to a temporary folder.
 # The following files are used in this example:
 #
-# - _sky130_fictious_dtc_exmple_contol_no_map.xml_
+# - XML_Automation.xml
 #   defines physical information such
 #   as material properties, stackup layers, and boundary conditions.
-# - _dummy_layermap.map_
+# - Model.map
 #   maps properties to stackup layers.
 
 # +
@@ -50,7 +50,7 @@ edb = Edb(gds_in, edbversion=version, control_file=my_control_file,map_file = my
 
 # ## Assert some of EDB design characteristics.
 
-# Plot stackup
+# i.e. Plot stackup
 
 edb.stackup.plot()
 
@@ -64,7 +64,7 @@ edb.save_as(edb1_path)
 
 edb.close_edb()
 
-# ## Open both EDB files with HFSS 3D Layout, and observe the design / confirm the aformentioned data.
+# ## Open both EDB files with HFSS 3D Layout, and observe the design / confirm the robustness from GDS to EDB.
 
 h3d_gds = Hfss3dLayout(project=edb1_path,version=version,new_desktop=True)
 
