@@ -6,7 +6,7 @@
 #
 # The model also shows how to set up a custom non-linear material using BH curve data.
 #
-# Keywords: **Maxwell3D**, **3D** **magnetostatic**, **rotational motion**, **parametric sweep**, **inductance**
+# Keywords: **Maxwell3D**, **3D**, **magnetostatic**, **rotational motion**, **parametric sweep**, **inductance**,
 # **installation example**
 #
 
