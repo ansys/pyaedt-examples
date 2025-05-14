@@ -78,7 +78,7 @@ These examples use PyAEDT to show some magnetics applications.
       :link: 3d_magsta_rotational_actuator
       :link-type: doc
 
-      .. image:: ../../low_frequency/magnetic/3d_magsta_rotational_actuator.png
+      .. image:: _static/3d_magsta_rotational_actuator.png
          :alt: Maxwell general
          :width: 250px
          :height: 200px
