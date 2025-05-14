@@ -75,7 +75,7 @@ These examples use PyAEDT to show some magnetics applications.
 
    .. grid-item-card:: 3D Rotational Actuator
       :padding: 2 2 2 2
-      :link: ../../low_frequency/magnetic/3d_magsta_rotational_actuator
+      :link: 3d_magsta_rotational_actuator
       :link-type: doc
 
       .. image:: ../../low_frequency/magnetic/3d_magsta_rotational_actuator.png
