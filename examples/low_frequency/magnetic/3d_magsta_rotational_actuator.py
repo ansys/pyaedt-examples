@@ -190,7 +190,6 @@ parametric_sweep.add_calculation(calculation="Matrix1.L(Current_2, Current_1)")
 parametric_sweep.add_calculation(calculation="Matrix1.L(Current_2, Current_2)")
 parametric_sweep.props["ProdOptiSetupDataV2"]["SaveFields"] = True
 
-#
 # ### Run analysis
 #
 
