@@ -117,15 +117,12 @@ outer_arm.color="(192 192 192)"
 inner_arm = m3d.modeler.create_cylinder(orientation=ansys.aedt.core.constants.AXIS.Z ,origin=[0,0,0],radius=38.1,height=25.4,num_sides=0, name="Inner_arm", material=arm_steel.name)
 shaft = m3d.modeler.create_cylinder(orientation=ansys.aedt.core.constants.AXIS.Z ,origin=[0,0,0],radius=25.4,height=25.4,num_sides=0, name="shaft")
 m3d.modeler.subtract([inner_arm],[shaft], keep_originals=False)
-
 box_2 = m3d.modeler.create_box(origin=[-12.7 ,0 ,0],sizes=[25.4,-20,25.4], name="Box2")
 m3d.modeler.move(box_2,vector=[0,-35,0])
 m3d.modeler.duplicate_and_mirror(assignment=box_2,origin=[0,0,0],vector=[0,1,0])
 m3d.modeler.unite([inner_arm, box_2.name, box_2.name+"_1"])
-
 finalpole2 = m3d.modeler.create_cylinder(orientation=ansys.aedt.core.constants.AXIS.Z ,origin=[0,0,0],radius=51.05,height=25.4,num_sides=0, name="finalpole2")
 m3d.modeler.intersect(assignment=[inner_arm, finalpole2])
-
 inner_arm.color="(192 192 192)"
 
 # #### Create a local/relative coordinate system
@@ -199,8 +196,6 @@ parametric_sweep.props["ProdOptiSetupDataV2"]["SaveFields"] = True
 
 parametric_sweep.analyze(cores=NUM_CORES)
 
-# m3d.analyze_setup("Setup1")
-
 # ## Postprocess
 #
 # ### Create a Rectangular plot of Coil Inductance vs. Rotational Angle
@@ -228,7 +223,7 @@ m3d.post.create_fieldplot_surface(
 # ### Save the project
 
 m3d.save_project()
-m3d.release_desktop(close_projects=False, close_desktop=False)
+m3d.release_desktop()
 # Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
