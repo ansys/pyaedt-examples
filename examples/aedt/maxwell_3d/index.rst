@@ -117,7 +117,7 @@ These examples use PyAEDT to show Maxwell 3D capabilities.
       :link: ../../low_frequency/magnetic/3d_magsta_rotational_actuator
       :link-type: doc
 
-      .. image:: ../../low_frequency/magnetic/3d_magsta_rotational_actuator.png
+      .. image:: ../../low_frequency/magnetic/static/3d_magsta_rotational_actuator.png
          :alt: Maxwell general
          :width: 250px
          :height: 200px
