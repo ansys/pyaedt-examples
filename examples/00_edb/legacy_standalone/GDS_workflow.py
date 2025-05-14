@@ -25,11 +25,11 @@ from ansys.aedt.core.hfss3dlayout import  Hfss3dLayout
 
 # +
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-control_fn = "XML_Automation.xml"
+control_fn = "Model.xml"
 gds_fn = "Model.gds"
 layer_map = "Model.map"
 
-local_path = download_file("gds_file", destination=temp_dir.name)
+local_path = download_file("gds", destination=temp_dir.name)
 my_control_file = os.path.join(local_path, control_fn)
 my_map_file = os.path.join(local_path, layer_map)
 gds_in = os.path.join(local_path, gds_fn)
