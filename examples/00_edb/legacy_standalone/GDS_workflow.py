@@ -46,7 +46,7 @@ gds_in = os.path.join(local_path, gds_fn)
 version = "2025.1"
 print(f"EDB version: {version}")
 
-edb = Edb(gds_in, edbversion=version, control_file=my_control_file,map_file = my_map_file)
+edb = Edb(gds_in, edbversion=version, control_file=my_control_file, map_file=my_map_file)
 
 # ## Assert some of EDB design characteristics.
 
