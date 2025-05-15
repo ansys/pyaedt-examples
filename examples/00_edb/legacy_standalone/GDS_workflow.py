@@ -67,7 +67,7 @@ edb.close_edb()
 
 # ## Open both EDB files with HFSS 3D Layout, and observe the design / confirm the robustness from GDS to EDB.
 
-h3d_gds = Hfss3dLayout(project=edb1_path,version=version,new_desktop=True)
+h3d_gds = Hfss3dLayout(project=edb1_path, version=version, new_desktop=True)
 
 # ## Close the HFSS 3D Layout design and release the dekstop.
 
