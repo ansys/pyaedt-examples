@@ -61,6 +61,8 @@ edb1_path = os.path.join(temp_dir.name, "gds_design.aedb")
 
 edb.save_as(edb1_path)
 
+# Close the project.
+
 edb.close_edb()
 
 # ## Open both EDB files with HFSS 3D Layout, and observe the design / confirm the robustness from GDS to EDB.
