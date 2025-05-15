@@ -69,7 +69,7 @@ edb.close_edb()
 
 h3d_gds = Hfss3dLayout(project=edb1_path,version=version,new_desktop=True)
 
-# ## Successfully close the HFSS 3D Layout design and release the dekstop.
+# ## Close the HFSS 3D Layout design and release the dekstop.
 
 h3d_gds.release_desktop()
 
