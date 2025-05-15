@@ -12,7 +12,7 @@ from pyedb.misc.downloads import download_file
 from ansys.aedt.core.hfss3dlayout import  Hfss3dLayout
 # -
 
-# ## Case 1: Import a .gds file.
+# ## Case 1: Import a GDS file.
 #
 # Download the test case folder and copy it to a temporary folder.
 # The following files are used in this example:
