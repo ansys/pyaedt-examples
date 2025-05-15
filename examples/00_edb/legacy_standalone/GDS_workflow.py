@@ -37,8 +37,8 @@ gds_in = os.path.join(local_path, gds_fn)
 
 # ## Open EDB
 #
-# Import the gds and open the edb. Each gds is followed either by a control file (*.xml) or a technology file (*.ircx, *.vlc.tech, or *.itf).
-# Then a map file (*.map) is also regularly used to map the stackup layers, and finally in some cases a layer filter (*.xml) is deployed, when
+# Import the gds and open the edb. Each gds is followed either by a control file (XML) or a technology file (IRCX, VLC.TECH, or ITF).
+# Then a MAP file is also regularly used to map the stackup layers, and finally in some cases a layer filter (XML) is deployed, when
 # only a part of the stackup is needed.
 
 # +
