@@ -50,7 +50,6 @@ edb = Edb(gds_in, edbversion=version, control_file=my_control_file, map_file=my_
 
 # ## Plot stackup
 
-# i.e. Plot stackup
 
 edb.stackup.plot()
 
