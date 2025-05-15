@@ -55,7 +55,7 @@ edb.stackup.plot()
 
 # ## Save and Close EDB
 #
-# Close the project.
+# Save the project.
 
 edb1_path = os.path.join(temp_dir.name, "gds_design.aedb")
 
