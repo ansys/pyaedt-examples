@@ -48,7 +48,7 @@ print(f"EDB version: {version}")
 
 edb = Edb(gds_in, edbversion=version, control_file=my_control_file, map_file=my_map_file)
 
-# ## Assert some of EDB design characteristics.
+# ## Plot stackup
 
 # i.e. Plot stackup
 
