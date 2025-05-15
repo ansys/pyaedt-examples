@@ -53,7 +53,7 @@ edb = Edb(gds_in, edbversion=version, control_file=my_control_file, map_file=my_
 
 edb.stackup.plot()
 
-# ## Save and Close EDB
+# ## Save and close EDB
 #
 # Save the project.
 
