@@ -10,6 +10,7 @@
 * [Alberto Di Maria](https://github.com/Alberto-DM)
 * [DaveTwyman](https://github.com/DaveTwyman)
 * [Devin](https://github.com/Devin-Crawford)
+* [gkorompi](https://github.com/gkorompi)
 * [gmalinve](https://github.com/gmalinve)
 * [Hui Zhou](https://github.com/hui-zhou-a)
 * [Irene Woyna](https://github.com/IreneWoyna)
