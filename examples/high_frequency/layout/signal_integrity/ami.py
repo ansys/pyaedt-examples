@@ -260,11 +260,11 @@ tstart_ns = scale_time * tstart
 
 for time_value in original_data_sweep:
     if tstart_ns <= time_value:
-        start_index_original_data = original_data_sweep.index(time_value)
+        start_index_original_data = original_data_sweep.index(time_value.value)
         break
 for time_value in original_data_sweep[start_index_original_data:]:
     if time_value >= tstop_ns:
-        stop_index_original_data = original_data_sweep.index(time_value)
+        stop_index_original_data = original_data_sweep.index(time_value.value)
         break
 cont = 0
 for frame in sample_waveform:
