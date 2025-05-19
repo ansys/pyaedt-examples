@@ -211,11 +211,13 @@ plt.show()
 
 plot_name = "V(b_input_43.int_ami_rx.eye_probe.out)"
 circuit.solution_type = "NexximTransient"
+context = {"time_stop": "100ns", "time_start": "0ps"}
 original_data = circuit.post.get_solution_data(
     expressions=plot_name,
     setup_sweep_name="NexximTransient",
     domain="Time",
     variations=circuit.available_variations.nominal,
+    context=context
 )
 
 # ## Extract sample waveform
