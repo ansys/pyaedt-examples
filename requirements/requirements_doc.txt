@@ -1,5 +1,5 @@
 # PyAEDT dependency
-https://github.com/ansys/pyaedt/archive/refs/heads/main.zip
+pyaedt[graphics] @ git+https://github.com/ansys/pyaedt@main
 
 # Examples dependencies
 imageio==2.37.0
