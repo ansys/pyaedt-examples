@@ -1,0 +1,135 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "2befa8fb",
+   "metadata": {},
+   "source": [
+    "# EDB: Importing GDS file\n",
+    "\n",
+    "This example demonstrates how to import GDS files and translate their information to an EDB file."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f59a4668",
+   "metadata": {},
+   "source": [
+    "Perform imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "336469c0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "from pyedb.dotnet.edb import Edb\n",
+    "from pyedb.misc.downloads import download_file\n",
+    "from ansys.aedt.core.hfss3dlayout import  Hfss3dLayout"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2d99f072",
+   "metadata": {},
+   "source": [
+    "## Case 1: Import a GDS file.\n",
+    "\n",
+    "Download the test case folder and copy it to a temporary folder.\n",
+    "The following files are used in this example:\n",
+    "\n",
+    "- XML_Automation.xml\n",
+    "  defines physical information such\n",
+    "  as material properties, stackup layers, and boundary conditions.\n",
+    "- Model.map\n",
+    "  maps properties to stackup layers."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "770a4503",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_dir = tempfile.TemporaryDirectory(suffix=\".ansys\")\n",
+    "control_fn = \"Model.xml\"\n",
+    "gds_fn = \"Model.gds\"\n",
+    "layer_map = \"Model.map\"\n",
+    "\n",
+    "local_path = download_file(\"gds\", destination=temp_dir.name)\n",
+    "my_control_file = os.path.join(local_path, control_fn)\n",
+    "my_map_file = os.path.join(local_path, layer_map)\n",
+    "gds_in = os.path.join(local_path, gds_fn)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3845546a",
+   "metadata": {},
+   "source": [
+    "## Open EDB\n",
+    "\n",
+    "Import the gds and open the edb. Each gds is followed either by a control file (XML) or a technology file (IRCX, VLC.TECH, or ITF).\n",
+    "Then a MAP file is also regularly used to map the stackup layers, and finally in some cases a layer filter (XML) is deployed, when\n",
+    "only a part of the stackup is needed."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b24ef756",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Select EDB version (change it manually if needed, e.g. \"2025.1\")\n",
+    "version = \"2025.1\"\n",
+    "print(f\"EDB version: {version}\")\n",
+    "\n",
+    "edb = Edb(gds_in, edbversion=version, control_file=my_control_file, map_file=my_map_file)\n",
+    "\n",
+    "# ## Plot stackup\n",
+    "\n",
+    "\n",
+    "edb.stackup.plot()\n",
+    "\n",
+    "# ## Save and close EDB\n",
+    "#\n",
+    "# Save the project.\n",
+    "\n",
+    "edb1_path = os.path.join(temp_dir.name, \"gds_design.aedb\")\n",
+    "\n",
+    "edb.save_as(edb1_path)\n",
+    "\n",
+    "# Close the project.\n",
+    "\n",
+    "edb.close_edb()\n",
+    "\n",
+    "# ## Open both EDB files with HFSS 3D Layout, and observe the design / confirm the robustness from GDS to EDB.\n",
+    "\n",
+    "h3d_gds = Hfss3dLayout(project=edb1_path, version=version, new_desktop=True)\n",
+    "\n",
+    "# ## Close the HFSS 3D Layout design and release the dekstop.\n",
+    "\n",
+    "h3d_gds.release_desktop()\n",
+    "\n",
+    "# Clean up the temporary folder.\n",
+    "\n",
+    "temp_dir.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
