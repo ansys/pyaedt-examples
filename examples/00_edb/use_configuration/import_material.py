@@ -14,66 +14,76 @@ from IPython.display import display
 from ansys.aedt.core.examples.downloads import download_file
 import pandas as pd
 from pyedb import Edb
+
 # -
 
-# Define constants.
+# Define constants
 
 AEDT_VERSION = "2025.1"
-NG_MODE = False
 
-# Download the example PCB data.
+# ## Preparation
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
-file_edb = download_file(source="edb/ANSYS-HSD_V1.aedb", local_path=temp_folder.name)
-
-# ## Load example layout.
-
+file_edb = Path(temp_folder.name) / "test.aedb"
 edbapp = Edb(file_edb, edbversion=AEDT_VERSION)
 
-# ## Review materials from layout
+# ## Create configure file
 
-# Get materials from layout in a dictionary. Materials are exported together with stadckup.
+# ## Add distributed ports
 
-data_cfg = edbapp.configuration.get_data_from_db(stackup=True)
+# Keywords
+#
+# - **name**. Name of the material.
+# - **permittivity**.
+# - **conductivity**.
+# - **dielectric_loss_tangent**.
+# - **magnetic_loss_tangent**.
+# - **mass_density**.
+# - **permeability**.
+# - **poisson_ratio**.
+# - **specific_heat**.
+# - **thermal_conductivity**.
+# - **thermal_modifier**.
+#   - **property_name**.
+#   - **basic_quadratic_c1**. The C1 value in the quadratic model.
+#   - **basic_quadratic_c2**. The C2 value in the quadratic model.
+#   - **basic_quadratic_temperature_reference**. The TempRef value in the quadratic model.
+#   - **advanced_quadratic_lower_limit**. The lower temperature limit where the quadratic model is valid.
+#   - **advanced_quadratic_upper_limit**. The upper temperature limit where the quadratic model is valid.
+#   - **advanced_quadratic_auto_calculate**. The flag indicating whether or not the LowerConstantThermalModifierVal and UpperConstantThermalModifierVal values should be auto calculated.
+#   - **advanced_quadratic_lower_constant**. The constant thermal modifier value for temperatures lower than LowerConstantThermalModifierVal
+#   - **advanced_quadratic_upper_constant**. The constant thermal modifier value for temperatures greater than UpperConstantThermalModifierVal.
 
+# +
+materials = [
+    {
+        "name": "copper",
+        "conductivity": 570000000,
+        "thermal_modifier": [
+            {
+                "property_name": "conductivity",
+                "basic_quadratic_c1": 0,
+                "basic_quadratic_c2": 0,
+                "basic_quadratic_temperature_reference": 22,
+                "advanced_quadratic_lower_limit": -273.15,
+                "advanced_quadratic_upper_limit": 1000,
+                "advanced_quadratic_auto_calculate": True,
+                "advanced_quadratic_lower_constant": 1,
+                "advanced_quadratic_upper_constant": 1,
+            },
+        ],
+    },
+]
+config = {"stackup": {"materials": materials}}
+file_json = Path(temp_folder.name) / "edb_configuration.json"
+with open(file_json, "w") as f:
+    json.dump(config, f, indent=4, ensure_ascii=False)
+# -
 
-df = pd.DataFrame(data=data_cfg["stackup"]["materials"])
-display(df)
+# ## Import configuration into example layout
 
-# ## Add a new material
-
-data_cfg["stackup"]["materials"].append(
-    {"name": "soldermask", "permittivity": 3.3, "dielectric_loss_tangent": 0.02},
-)
-
-# ## Edit existing material properties
-
-data_cfg["stackup"]["materials"][1]["name"] = "fr4_epoxy"
-data_cfg["stackup"]["materials"][1]["dielectric_loss_tangent"] = 0.015
-
-# ## Review modified materials
-
-df = pd.DataFrame(data=data_cfg["stackup"]["materials"])
-display(df)
-
-# ## Write material definition into a json file
-
-file_cfg = Path(temp_folder.name) / "edb_configuration.json"
-with open(file_cfg, "w") as f:
-    json.dump(data_cfg, f, indent=4, ensure_ascii=False)
-
-
-# ## Load materials from json configuration file
-
-edbapp.configuration.load(str(file_cfg), apply_file=True)
-
-# ## Review materials from layout
-
-edbapp.materials.materials
-
-# ## Check modified material properties
-
-edbapp.materials["fr4_epoxy"].loss_tangent
+edbapp.configuration.load(config_file=file_json)
+edbapp.configuration.run()
 
 # ## Save and close Edb
 # The temporary folder will be deleted once the execution of this script is finished. Replace **edbapp.save()** with
