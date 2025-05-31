@@ -1,0 +1,401 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "1b9c07a6",
+   "metadata": {},
+   "source": [
+    "# Multi-zone simulation with SIwave\n",
+    "\n",
+    "This example shows how to simulate multiple zones with SIwave.\n",
+    "\n",
+    "Keywords: **Circuit**, **multi-zone**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "af4deae8",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports, which includes importing a section."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c43b7f21",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os.path\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core\n",
+    "from ansys.aedt.core import Circuit, Edb\n",
+    "from ansys.aedt.core.examples.downloads import download_file"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5033c27c",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e4ae5534",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "EDB_VERSION = \"2025.1\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3e21e16c",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "280e5d5d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fc77ee7b",
+   "metadata": {},
+   "source": [
+    "## Download EDB folder"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d930248e",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "edb_file = download_file(\n",
+    "    source=\"edb/siwave_multi_zones.aedb\", local_path=temp_folder.name\n",
+    ")\n",
+    "work_folder = os.path.join(temp_folder.name, \"work\")\n",
+    "aedt_file = os.path.splitext(edb_file)[0] + \".aedt\"\n",
+    "circuit_project_file = os.path.join(temp_folder.name, \"multizone_clipped_circuit.aedt\")\n",
+    "print(edb_file)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5f586e18",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "source": [
+    "## Set AEDT version"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f90d6ee4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb_version = EDB_VERSION"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b590dac0",
+   "metadata": {},
+   "source": [
+    "## Define ground net\n",
+    "\n",
+    "Define the common reference net used across all subdesigns, which is mandatory for this workflow."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "75f1a087",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "common_reference_net = \"GND\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6b62533e",
+   "metadata": {},
+   "source": [
+    "## Load project\n",
+    "\n",
+    "Check if the AEDT file exists and remove it to allow EDB loading. Then, load the initial EDB file."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "28729fed",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "if os.path.isfile(aedt_file):\n",
+    "    os.remove(aedt_file)\n",
+    "edb = Edb(edbversion=edb_version, edbpath=edb_file)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e05ee29c",
+   "metadata": {},
+   "source": [
+    "## Copy project zones\n",
+    "\n",
+    "Copy project zone into the subproject."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2c81b3f8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb_zones = edb.copy_zones(working_directory=work_folder)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "feffdd14",
+   "metadata": {},
+   "source": [
+    "## Split zones\n",
+    "\n",
+    "Clip subdesigns along with corresponding zone definitions\n",
+    "and create a port of clipped signal traces."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b0e22d44",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "defined_ports, project_connexions = edb.cutout_multizone_layout(\n",
+    "    edb_zones, common_reference_net\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9402598b",
+   "metadata": {},
+   "source": [
+    "## Create circuit\n",
+    "\n",
+    "Create circuit design, import all subprojects as EM models, and connect\n",
+    "all corresponding pins in the circuit."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a703b8bb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "circuit = Circuit(version=edb_version, project=circuit_project_file)\n",
+    "circuit.connect_circuit_models_from_multi_zone_cutout(\n",
+    "    project_connections=project_connexions,\n",
+    "    edb_zones_dict=edb_zones,\n",
+    "    ports=defined_ports,\n",
+    "    model_inc=70,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "346467ac",
+   "metadata": {},
+   "source": [
+    "## Set up simulation\n",
+    "\n",
+    "Add Nexxim LNA simulation setup."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "86394fd0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "circuit_setup = circuit.create_setup(\"Pyedt_LNA\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4d7466f0",
+   "metadata": {},
+   "source": [
+    "## Add frequency sweep\n",
+    "\n",
+    "Add a frequency sweep from 0 GHt to 20 GHz with a 10 NHz frequency step."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2b7f5371",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "circuit_setup.props[\"SweepDefinition\"][\"Data\"] = \"LIN {} {} {}\".format(\n",
+    "    \"0GHz\", \"20GHz\", \"10MHz\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "020cc98c",
+   "metadata": {},
+   "source": [
+    "## Start simulation\n",
+    "\n",
+    "Analyze all SIwave projects and solve the circuit. Uncomment the following line to run the analysis."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "220c8240",
+   "metadata": {},
+   "source": [
+    "circuit.analyze()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ae653f8e",
+   "metadata": {},
+   "source": [
+    "Define differential pairs"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a30c47f3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "circuit.set_differential_pair(\n",
+    "    differential_mode=\"U0\",\n",
+    "    assignment=\"U0.via_38.B2B_SIGP\",\n",
+    "    reference=\"U0.via_39.B2B_SIGN\",\n",
+    ")\n",
+    "circuit.set_differential_pair(\n",
+    "    differential_mode=\"U1\",\n",
+    "    assignment=\"U1.via_32.B2B_SIGP\",\n",
+    "    reference=\"U1.via_33.B2B_SIGN\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b52ff9d4",
+   "metadata": {},
+   "source": [
+    "Plot results."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4ee7909d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "circuit.post.create_report(\n",
+    "    expressions=[\"dB(S(U0,U0))\", \"dB(S(U1,U0))\"], context=\"Differential Pairs\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6a519abb",
+   "metadata": {},
+   "source": [
+    "## Release AEDT\n",
+    "\n",
+    "Release AEDT and close the example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "10250f59",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "circuit.save_project()\n",
+    "circuit.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "980d77b3",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "39c4dce0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
