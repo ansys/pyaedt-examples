@@ -1,0 +1,742 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "d100a9b1",
+   "metadata": {},
+   "source": [
+    "# Graphic card thermal analysis"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d733896e",
+   "metadata": {},
+   "source": [
+    "This example shows how to use pyAEDT to create a graphic card setup in\n",
+    "Icepak and postprocess the results.\n",
+    "The example file is an Icepak project with a model that is already created and\n",
+    "has materials assigned.\n",
+    "\n",
+    "Keywords: **Icepak**, **boundary conditions**, **postprocessing**, **monitors**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "64e821ff",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e148f9c0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core\n",
+    "from ansys.aedt.core.examples.downloads import download_icepak\n",
+    "import pandas as pd\n",
+    "from IPython.display import Image"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "63ffc2af",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "da1f7384",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.1\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Do not show the graphical user interface."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "78240871",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory and download project\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e870259e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")\n",
+    "project_temp_name = download_icepak(\n",
+    "    local_path=temp_folder.name\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3c27fc22",
+   "metadata": {},
+   "source": [
+    "## Open project\n",
+    "\n",
+    "Open the project without the GUI."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "80620524",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk = ansys.aedt.core.Icepak(\n",
+    "    project=project_temp_name,\n",
+    "    version=AEDT_VERSION,\n",
+    "    new_desktop=True,\n",
+    "    non_graphical=NG_MODE,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ce1aab17",
+   "metadata": {},
+   "source": [
+    "## Plot model and rotate\n",
+    "\n",
+    "Plot the model using the pyAEDT-PyVista integration and save the result to a file.\n",
+    "Rotate the model and plot the rotated model again."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "28061e70",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plot1 = ipk.plot(\n",
+    "    show=False,\n",
+    "    output_file=os.path.join(temp_folder.name, \"Graphics_card_1.jpg\"),\n",
+    "    plot_air_objects=False,\n",
+    ")\n",
+    "\n",
+    "ipk.modeler.rotate(ipk.modeler.object_names, \"X\")\n",
+    "\n",
+    "plot2 = ipk.plot(\n",
+    "    show=False,\n",
+    "    output_file=os.path.join(temp_folder.name, \"Graphics_card_2.jpg\"),\n",
+    "    plot_air_objects=False,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1ec03889",
+   "metadata": {},
+   "source": [
+    "## Define boundary conditions\n",
+    "\n",
+    "Create source blocks on the CPU and memories."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "867d332a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.create_source_block(object_name=\"CPU\", input_power=\"25W\")\n",
+    "ipk.create_source_block(object_name=[\"MEMORY1\", \"MEMORY1_1\"], input_power=\"5W\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "23bc36ae",
+   "metadata": {},
+   "source": [
+    "The air region object handler is used to specify the inlet (fixed velocity condition) and outlet\n",
+    "(fixed pressure condition) at x_max and x_min."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fe745940",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "region = ipk.modeler[\"Region\"]\n",
+    "ipk.assign_pressure_free_opening(\n",
+    "    assignment=region.top_face_x.id, boundary_name=\"Outlet\"\n",
+    ")\n",
+    "ipk.assign_velocity_free_opening(\n",
+    "    assignment=region.bottom_face_x.id,\n",
+    "    boundary_name=\"Inlet\",\n",
+    "    velocity=[\"1m_per_sec\", \"0m_per_sec\", \"0m_per_sec\"],\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "655cb767",
+   "metadata": {},
+   "source": [
+    "## Assign mesh settings\n",
+    "\n",
+    "### Assign mesh region\n",
+    "Assign a mesh region around the heat sink and CPU."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "079dbc94",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mesh_region = ipk.mesh.assign_mesh_region(assignment=[\"HEAT_SINK\", \"CPU\"])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "771777b9",
+   "metadata": {},
+   "source": [
+    "Print the available settings for the mesh region"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "66e44551",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mesh_region.settings"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "33886450",
+   "metadata": {},
+   "source": [
+    "Set the mesh region settings to manual and see newly available settings."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9ba745dc",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mesh_region.manual_settings = True\n",
+    "mesh_region.settings"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "52237fd9",
+   "metadata": {},
+   "source": [
+    "Modify settings and update."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f5c01097",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mesh_region.settings[\"MaxElementSizeX\"] = \"2mm\"\n",
+    "mesh_region.settings[\"MaxElementSizeY\"] = \"2mm\"\n",
+    "mesh_region.settings[\"MaxElementSizeZ\"] = \"2mm\"\n",
+    "mesh_region.settings[\"EnableMLM\"] = True\n",
+    "mesh_region.settings[\"MaxLevels\"] = \"2\"\n",
+    "mesh_region.settings[\"MinElementsInGap\"] = 4\n",
+    "mesh_region.update()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d057463f",
+   "metadata": {},
+   "source": [
+    "Modify the slack of the subregion around the objects."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4ba864bd",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "subregion = mesh_region.assignment\n",
+    "subregion.positive_x_padding = \"20mm\"\n",
+    "subregion.positive_y_padding = \"5mm\"\n",
+    "subregion.positive_z_padding = \"5mm\"\n",
+    "subregion.negative_x_padding = \"5mm\"\n",
+    "subregion.negative_y_padding = \"5mm\"\n",
+    "subregion.negative_z_padding = \"10mm\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "272d1906",
+   "metadata": {},
+   "source": [
+    "## Assign monitors\n",
+    "\n",
+    "Assign a temperature face monitor to the CPU face in contact with the heatsink."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1cea3bf0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cpu = ipk.modeler[\"CPU\"]\n",
+    "m1 = ipk.monitor.assign_face_monitor(\n",
+    "    face_id=cpu.top_face_z.id,\n",
+    "    monitor_quantity=\"Temperature\",\n",
+    "    monitor_name=\"TemperatureMonitor1\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "89067d4e",
+   "metadata": {},
+   "source": [
+    "Assign multiple speed point monitors downstream of the assembly."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d72ee3b2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "speed_monitors = []\n",
+    "for x_pos in range(0, 10, 2):\n",
+    "    m = ipk.monitor.assign_point_monitor(\n",
+    "        point_position=[f\"{x_pos}mm\", \"40mm\", \"15mm\"], monitor_quantity=\"Speed\"\n",
+    "    )\n",
+    "    speed_monitors.append(m)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "32d96f97",
+   "metadata": {},
+   "source": [
+    "## Solve project\n",
+    "\n",
+    "Create a setup, modify solver settings, and run the simulation."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7b2a3c1e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup1 = ipk.create_setup()\n",
+    "setup1.props[\"Flow Regime\"] = \"Turbulent\"\n",
+    "setup1.props[\"Convergence Criteria - Max Iterations\"] = 5\n",
+    "setup1.props[\"Linear Solver Type - Pressure\"] = \"flex\"\n",
+    "setup1.props[\"Linear Solver Type - Temperature\"] = \"flex\"\n",
+    "ipk.save_project()\n",
+    "ipk.analyze(setup=setup1.name, cores=NUM_CORES, tasks=NUM_CORES)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7e614d9d",
+   "metadata": {},
+   "source": [
+    "## Postprocess\n",
+    "\n",
+    "### Perform quantitative postprocessing"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3d3cfaa5",
+   "metadata": {},
+   "source": [
+    "Get the point monitor data. A dictionary is returned with ``'Min'``, ``'Max'``, and ``'Mean'`` keys."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4745adbc",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temperature_data = ipk.post.evaluate_monitor_quantity(\n",
+    "    monitor=m1, quantity=\"Temperature\"\n",
+    ")\n",
+    "temperature_data"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9c2450f6",
+   "metadata": {},
+   "source": [
+    "It is also possible to get the data as a Pandas dataframe for advanced postprocessing."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "cc4dc209",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "speed_fs = ipk.post.create_field_summary()\n",
+    "for m_name in speed_monitors:\n",
+    "    speed_fs.add_calculation(\n",
+    "        entity=\"Monitor\", geometry=\"Volume\", geometry_name=m_name, quantity=\"Speed\"\n",
+    "    )\n",
+    "speed_data = speed_fs.get_field_summary_data(pandas_output=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e8b263fc",
+   "metadata": {},
+   "source": [
+    "All the data is now in a dataframe, making it easy to visualize and manipulate."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a45df942",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "speed_data.head()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "94ccd8a3",
+   "metadata": {},
+   "source": [
+    "The ``speed_data`` dataframe contains data from monitors, so it can be expanded with information\n",
+    "of their position."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9d6d8d70",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "for i in range(3):\n",
+    "    direction = [\"X\", \"Y\", \"Z\"][i]\n",
+    "    speed_data[\"Position\" + direction] = [\n",
+    "        ipk.monitor.all_monitors[entity].location[i] for entity in speed_data[\"Entity\"]\n",
+    "    ]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5bfd4477",
+   "metadata": {},
+   "source": [
+    "Plot the velocity profile at different X positions"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "de64f689",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "speed_data.plot(\n",
+    "    x=\"PositionX\",\n",
+    "    y=\"Mean\",\n",
+    "    kind=\"line\",\n",
+    "    marker=\"o\",\n",
+    "    ylabel=speed_data.at[0, \"Quantity\"],\n",
+    "    xlabel=f\"x [{ipk.modeler.model_units}]\",\n",
+    "    grid=True,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "52298555",
+   "metadata": {},
+   "source": [
+    "Extract temperature data at those same locations (so the ``speed_monitors`` list is used)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "42b56199",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temperature_fs = ipk.post.create_field_summary()\n",
+    "for m_name in speed_monitors:\n",
+    "    temperature_fs.add_calculation(\n",
+    "        entity=\"Monitor\",\n",
+    "        geometry=\"Volume\",\n",
+    "        geometry_name=m_name,\n",
+    "        quantity=\"Temperature\",\n",
+    "    )\n",
+    "temperature_fs = temperature_fs.get_field_summary_data(pandas_output=True)\n",
+    "temperature_fs.head()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "237671c1",
+   "metadata": {},
+   "source": [
+    "The two dataframes can be merged using the `pd.merge()` function. With the merge, suffixes are\n",
+    "added to the column names to differentiate between the columns from each original dataframe."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "24f80a35",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "merged_df = pd.merge(\n",
+    "    temperature_fs, speed_data, on=\"Entity\", suffixes=(\"_temperature\", \"_speed\")\n",
+    ")\n",
+    "merged_df.head()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "daf3fb18",
+   "metadata": {},
+   "source": [
+    "The column names are renamed based on the ``Quantity`` column of the original dataframes.\n",
+    "Finally, only the ``'Entity'``, ``'Mean_temperature'``, and ``'Mean_speed'`` columns are selected and\n",
+    "assigned to the merged dataframe."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e1895f46",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temperature_quantity = temperature_fs[\"Quantity\"].iloc[0]\n",
+    "velocity_quantity = speed_data[\"Quantity\"].iloc[0]\n",
+    "merged_df.rename(\n",
+    "    columns={\"Mean_temperature\": temperature_quantity, \"Mean_speed\": velocity_quantity},\n",
+    "    inplace=True,\n",
+    ")\n",
+    "merged_df = merged_df[\n",
+    "    [\n",
+    "        \"Entity\",\n",
+    "        temperature_quantity,\n",
+    "        velocity_quantity,\n",
+    "        \"PositionX\",\n",
+    "        \"PositionY\",\n",
+    "        \"PositionZ\",\n",
+    "    ]\n",
+    "]\n",
+    "merged_df.head()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6bdfce51",
+   "metadata": {},
+   "source": [
+    "Compute the correlation coefficient between velocity and temperature from the merged dataframe\n",
+    "and plot a scatter plot to visualize their relationship."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a9ce5d4a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "correlation = merged_df[velocity_quantity].corr(merged_df[temperature_quantity])\n",
+    "ax = merged_df.plot.scatter(x=velocity_quantity, y=temperature_quantity)\n",
+    "ax.set_xlabel(velocity_quantity)\n",
+    "ax.set_ylabel(temperature_quantity)\n",
+    "ax.set_title(f\"Correlation between Temperature and Velocity: {correlation:.2f}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "328f0d3c",
+   "metadata": {},
+   "source": [
+    "The further away from the assembly, the faster and colder the air due to mixing.\n",
+    "Despite being extremely simple, this example demonstrates the potential of importing field\n",
+    "summary data into Pandas."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b3180807",
+   "metadata": {},
+   "source": [
+    "### Perform qualitative Postprocessing\n",
+    "Create a temperature plot on main components and export it to a PNG file."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7a3b9bd3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "surflist = [i.id for i in ipk.modeler[\"CPU\"].faces]\n",
+    "surflist += [i.id for i in ipk.modeler[\"MEMORY1\"].faces]\n",
+    "surflist += [i.id for i in ipk.modeler[\"MEMORY1_1\"].faces]\n",
+    "plot3 = ipk.post.create_fieldplot_surface(\n",
+    "    assignment=surflist, quantity=\"SurfTemperature\"\n",
+    ")\n",
+    "path = plot3.export_image(\n",
+    "    full_path=os.path.join(temp_folder.name, \"temperature.png\"),\n",
+    "    orientation=\"top\",\n",
+    "    show_region=False,\n",
+    ")\n",
+    "Image(filename=path)  # Display the image"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c64e81fd",
+   "metadata": {},
+   "source": [
+    "Use PyVista to display the temperature map."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "de05b2eb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plot4 = ipk.post.plot_field(\n",
+    "    quantity=\"Temperature\",\n",
+    "    assignment=[\n",
+    "        \"SERIAL_PORT\",\n",
+    "        \"MEMORY1\",\n",
+    "        \"MEMORY1_1\",\n",
+    "        \"CAPACITOR\",\n",
+    "        \"CAPACITOR_1\",\n",
+    "        \"KB\",\n",
+    "        \"HEAT_SINK\",\n",
+    "        \"CPU\",\n",
+    "        \"ALPHA_MAIN_PCB\",\n",
+    "    ],\n",
+    "    plot_cad_objs=False,\n",
+    "    show=False,\n",
+    "    export_path=temp_folder.name,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "56ad57e8",
+   "metadata": {},
+   "source": [
+    "## Release AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "61638b09",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.save_project()\n",
+    "ipk.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "67937f15",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "40b700eb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
