@@ -108,6 +108,8 @@ Guideline
 
 :doc:`Sources management <import_sources>`
 
+:doc:`Operations management <import_operations>`
+
 .. toctree::
    :hidden:
 
@@ -118,3 +120,4 @@ Guideline
    import_padstack_definitions
    import_components
    import_sources
+   import_operations
