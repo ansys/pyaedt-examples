@@ -1,4 +1,4 @@
-# # EDB: SIwave DC-IR Analysis
+# # SIwave DC-IR Analysis
 #
 # This example demonstrates the use of EDB to interact with a PCB
 # layout and run DC-IR analysis in SIwave.
