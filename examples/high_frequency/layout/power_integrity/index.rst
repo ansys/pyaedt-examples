@@ -34,7 +34,7 @@ These examples use PyAEDT to show power integrity examples.
 
    .. grid-item-card::  SIwave DC-IR Analysis
       :padding: 2 2 2 2
-      :link: ../../../00_edb/legacy_standalone/01_edb_example
+      :link: ../../../00_edb/legacy_standalone/siwave_dcir
       :link-type: doc
 
       .. image:: ../../../00_edb/legacy_standalone/_static/siwave_dcir.png
@@ -139,4 +139,4 @@ These examples use PyAEDT to show power integrity examples.
       ../../../aedt_general/modeler/netlist_to_schematic
       ../../../aedt_general/report/touchstone_file
       ../../../00_edb/legacy_standalone/differential_vias
-      ../../../00_edb/legacy_standalone/01_edb_example
+      ../../../00_edb/legacy_standalone/siwave_dcir
