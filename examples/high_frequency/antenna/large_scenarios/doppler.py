@@ -16,6 +16,8 @@ import time
 
 import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_multiparts
+from ansys.aedt.core.examples.downloads import _download_file
+from ansys.aedt.core.examples.downloads import unzip
 # -
 
 # Define constants.
@@ -39,6 +41,14 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 library_path = download_multiparts(
     local_path=temp_folder.name
 )
+
+zip_file = _download_file("pyaedt/frtm/doppler_sbr.results.zip",
+                          local_path=temp_folder.name,
+                          strip_prefix="pyaedt")
+
+results = os.path.join(temp_folder.name, "doppler_sbr.results")
+
+unzip(zip_file, results)
 
 # ## Launch HFSS and open project
 #
@@ -172,8 +182,6 @@ app.validate_simple()
 # called FRTM.
 # PyAEDT offers sophisticated tools for FRTM post-processing
 # [FRTM](https://aedt.docs.pyansys.com/version/stable/API/visualization/advanced.html#frtm-processing/)
-
-results = os.path.join(library_path, "frtm_results")
 
 from ansys.aedt.core.visualization.advanced.frtm_visualization import get_results_files
 from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMPlotter
