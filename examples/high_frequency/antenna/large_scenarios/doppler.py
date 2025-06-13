@@ -54,7 +54,7 @@ unzip(zip_file, results)
 #
 # Launch HFSS and open the project.
 
-project_name = os.path.join(temp_folder.name, "doppler.results")
+project_name = os.path.join(temp_folder.name, "doppler.aedt")
 app = ansys.aedt.core.Hfss(
     version=AEDT_VERSION,
     solution_type="SBR+",
