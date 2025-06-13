@@ -54,7 +54,7 @@ unzip(zip_file, results)
 #
 # Launch HFSS and open the project.
 
-project_name = os.path.join(temp_folder.name, "doppler.aedt")
+project_name = os.path.join(temp_folder.name, "doppler.results")
 app = ansys.aedt.core.Hfss(
     version=AEDT_VERSION,
     solution_type="SBR+",
@@ -205,7 +205,7 @@ for frame, data_frame in frames_dict.items():
 frtm_plotter = FRTMPlotter(doppler_data_frames)
 frame_number = frtm_plotter.frames[0]
 frtm_plotter.plot_range_doppler(frame=frame_number)
-frtm_plotter.plot_range_angle_map(frame=frame_number)
+frtm_plotter.plot_range_angle_map(frame=frame_number, polar=True)
 
 # ## Release AEDT
 #
