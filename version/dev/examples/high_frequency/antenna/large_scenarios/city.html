@@ -1,0 +1,974 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Environment import from open street map &#8212; PyAEDT Examples</title>
+
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=fd3f3429" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css\ansys_sphinx_theme.css?v=d2ac875c" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css?v=9233c59b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/highlight.css?v=500661c4" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+ 
+<link href="../../../../_static/css/breadcrumbs.css" rel="stylesheet" />
+
+    <script src="../../../../_static/documentation_options.js?v=e7fb764e"></script>
+    <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=49e1bf35"></script>
+    <script src="../../../../_static/js\table.js?v=b64f5182"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/high_frequency/antenna/large_scenarios/city';</script>
+    <link rel="icon" href="../../../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="Doppler setup" href="doppler.html" />
+    <link rel="prev" title="Large scenarios" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <link rel="canonical" href="https://examples.aedt.docs.pyansys.com/version/stable/examples/high_frequency/antenna/large_scenarios/city.html" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container"><!-- Debugging: html_theme_options =  -->
+
+  <!-- If there is no MeiliSearch enabled, use the PyData search -->
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+   
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="https://www.ansys.com/">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../_static/ansys_logo_transparent_black.png" class="logo__image only-light" alt="PyAEDT Examples - Home"/>
+    <script>document.write(`<img src="../../../../_static/ansys_logo_transparent_white.png" class="logo__image only-dark" alt="PyAEDT Examples - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Examples
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+    
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Examples
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../aedt/index.html">Examples by AEDT application</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../index.html">High frequency</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../index.html">Antenna</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../dipole.html">Dipole antenna</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../array.html">Component antenna array</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../patch.html">Probe-fed patch antenna</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../fss_unitcell.html">Frequency Selective Surface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../aedt_general/modeler/circuit_schematic.html">Circuit schematic creation and analysis</a></li>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="index.html">Large scenarios</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4 current active"><a class="current reference internal" href="#">Environment import from open street map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="doppler.html">Doppler setup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="reflector.html">Reflector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="time_domain.html">HFSS to SBR+ time animation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../interferences/index.html">RF interference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../5G_antenna_parametrics.html">EDB: Layout Components</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../radiofrequency_mmwave/index.html">Radio frequency and millimeter wave</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../layout/index.html">IC-Package-PCB</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../emc/index.html">EMC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../multiphysics/index.html">Multiphysics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../aedt_general/report/index.html">Report</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../low_frequency/index.html">Low frequency</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../electrothermal/index.html">Electrothermal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../aedt_general/index.html">Pre-processing and post-processing</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+       
+    <li class="breadcrumb-item">
+      <a href="https://aedt.docs.pyansys.com/" class="nav-link">PyAEDT</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="../../../../index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../../../index.html" class="nav-link">Examples</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../../index.html" class="nav-link">High frequency</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../index.html" class="nav-link">Antenna</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="index.html" class="nav-link">Large scenarios</a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page">Environment import from open street map</li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="admonition-download-this-example admonition">
+<p class="admonition-title">Download this example</p>
+<p>Download this example as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/antenna/large_scenarios/city.ipynb">Jupyter Notebook</a>
+or as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/antenna/large_scenarios/city.py">Python script</a>.</p>
+</div>
+<hr class="docutils" />
+<section id="Environment-import-from-open-street-map">
+<h1>Environment import from <a class="reference external" href="https://www.openstreetmap.org/">open street map</a><a class="headerlink" href="#Environment-import-from-open-street-map" title="Link to this heading">#</a></h1>
+<p>This example shows how to use PyAEDT to create an HFSS SBR+ project from OpenStreetMap.</p>
+<p>Keywords: <strong>HFSS</strong>, <strong>SBR+</strong>, <strong>city</strong>, <strong>OpenStreetMap</strong></p>
+<section id="Prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#Prerequisites" title="Link to this heading">#</a></h2>
+<section id="Perform-imports">
+<h3>Perform imports<a class="headerlink" href="#Perform-imports" title="Link to this heading">#</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">ansys.aedt.core</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Define-constants">
+<h3>Define constants<a class="headerlink" href="#Define-constants" title="Link to this heading">#</a></h3>
+<p>Constants help ensure consistency and avoid repetition throughout the example.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">AEDT_VERSION</span> <span class="o">=</span> <span class="s2">&quot;2025.1&quot;</span>
+<span class="n">NG_MODE</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Open AEDT UI when it is launched.</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Create-temporary-directory">
+<h3>Create temporary directory<a class="headerlink" href="#Create-temporary-directory" title="Link to this heading">#</a></h3>
+<p>Create a temporary working directory. The name of the working folder is stored in <code class="docutils literal notranslate"><span class="pre">temp_folder.name</span></code>.</p>
+<blockquote>
+<div><p><strong>Note:</strong> The final cell in the notebook cleans up the temporary folder. If you want to retrieve the AEDT project and data, do so before executing the final cell in the notebook.</p>
+</div></blockquote>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">temp_folder</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.ansys&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Launch-HFSS-and-open-project">
+<h3>Launch HFSS and open project<a class="headerlink" href="#Launch-HFSS-and-open-project" title="Link to this heading">#</a></h3>
+<p>Launch HFSS and open the project. The solution type <a class="reference external" href="https://www.ansys.com/blog/new-hfss-sbr-technology-in-ansys-2021-r2">SBR+</a> instantiates a design type that supports the SBR+ solver.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">project_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;city.aedt&quot;</span><span class="p">)</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">ansys</span><span class="o">.</span><span class="n">aedt</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Hfss</span><span class="p">(</span>
+    <span class="n">project</span><span class="o">=</span><span class="n">project_name</span><span class="p">,</span>
+    <span class="n">design</span><span class="o">=</span><span class="s2">&quot;Ansys&quot;</span><span class="p">,</span>
+    <span class="n">solution_type</span><span class="o">=</span><span class="s2">&quot;SBR+&quot;</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="n">AEDT_VERSION</span><span class="p">,</span>
+    <span class="n">new_desktop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">non_graphical</span><span class="o">=</span><span class="n">NG_MODE</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Python version 3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)].
+PyAEDT INFO: PyAEDT version 0.18.dev0.
+PyAEDT INFO: Initializing new Desktop session.
+PyAEDT INFO: Log on console is enabled.
+PyAEDT INFO: Log on file C:\Users\ansys\AppData\Local\Temp\pyaedt_ansys_b480436a-0d51-4489-a381-a9974beed780.log is enabled.
+PyAEDT INFO: Log on AEDT is disabled.
+PyAEDT INFO: Debug logger is disabled. PyAEDT methods will not be logged.
+PyAEDT INFO: Launching PyAEDT with gRPC plugin.
+PyAEDT INFO: New AEDT session is starting on gRPC port 54508.
+PyAEDT INFO: Electronics Desktop started on gRPC port: 54508 after 6.643548011779785 seconds.
+PyAEDT INFO: AEDT installation Path C:\Program Files\ANSYS Inc\v251\AnsysEM
+PyAEDT INFO: Ansoft.ElectronicsDesktop.2025.1 version started with process ID 8920.
+PyAEDT INFO: Project city has been created.
+PyAEDT INFO: Added design &#39;Ansys&#39; of type HFSS.
+PyAEDT INFO: Aedt Objects correctly read
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="Model-Preparation">
+<h2>Model Preparation<a class="headerlink" href="#Model-Preparation" title="Link to this heading">#</a></h2>
+<section id="Define-the-global-location">
+<h3>Define the global location<a class="headerlink" href="#Define-the-global-location" title="Link to this heading">#</a></h3>
+<p>Define the latitude and longitude of the <a class="reference external" href="https://www.openstreetmap.org/#map=12/40.2740/-80.1680">location</a> to import from OpenStreetMap.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ansys_home</span> <span class="o">=</span> <span class="p">[</span><span class="mf">40.273726</span><span class="p">,</span> <span class="o">-</span><span class="mf">80.168269</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Generate-map-and-import">
+<h3>Generate map and import<a class="headerlink" href="#Generate-map-and-import" title="Link to this heading">#</a></h3>
+<p>Import the model and define the domain size. The radius that defines the domain is specified in meters.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">app</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">import_from_openstreet_map</span><span class="p">(</span>
+    <span class="n">ansys_home</span><span class="p">,</span>
+    <span class="n">terrain_radius</span><span class="o">=</span><span class="mi">250</span><span class="p">,</span>
+    <span class="n">road_step</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">plot_before_importing</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">import_in_aedt</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Modeler class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Generating Terrain
+PyAEDT INFO: Terrain Points...
+Percent Complete:........................................ 0%
+Percent Complete:####.................................... 10%
+Percent Complete:########................................ 20%
+Percent Complete:############............................ 30%
+Percent Complete:################........................ 40%
+Percent Complete:####################.................... 50%
+Percent Complete:########################................ 60%
+Percent Complete:############################............ 70%
+Percent Complete:################################........ 80%
+Percent Complete:####################################.... 90%
+PyAEDT INFO: 100% - Done
+PyAEDT INFO: Processing Geometry
+PyAEDT INFO: saving STL as C:\Users\ansys\AppData\Local\Temp\tmp9uaqlg8u.ansys\city.pyaedt\Ansys/terrain.stl
+PyAEDT INFO: Generating Building Geometry
+PyAEDT INFO:
+Generating Buildings
+Percent Complete:######################################## 100.0%
+PyAEDT INFO: Generating Road Geometry
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+C:\actions-runner\_work\pyaedt-examples\pyaedt-examples\.venv\lib\site-packages\pyvista\core\filters\poly_data.py:2997: PyVistaFutureWarning: The default value of the ``capping`` keyword argument will change in a future version to ``True`` to match the behavior of VTK. We recommend passing the keyword explicitly to prevent future surprises.
+  warnings.warn(
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Percent Complete:####.................................... 10.0%
+Percent Complete:################........................ 40.0%
+Percent Complete:####################.................... 50.0%
+Percent Complete:########################................ 60.0%
+Percent Complete:####################################.... 90.0%
+Percent Complete:######################################## 100.0%
+PyAEDT INFO: Done...
+PyAEDT INFO: Viewing Geometry...
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+C:\actions-runner\_work\pyaedt-examples\pyaedt-examples\.venv\lib\site-packages\pyvista\jupyter\notebook.py:37: UserWarning: Failed to use notebook backend:
+
+Please install `ipywidgets`.
+
+Falling back to a static output.
+  warnings.warn(
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../../_images/examples_high_frequency_antenna_large_scenarios_city_12_4.png" src="../../../../_images/examples_high_frequency_antenna_large_scenarios_city_12_4.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Step file C:\Users\ansys\AppData\Local\Temp\tmp9uaqlg8u.ansys\city.pyaedt\Ansys/terrain.stl imported
+PyAEDT INFO: Step file C:\Users\ansys\AppData\Local\Temp\tmp9uaqlg8u.ansys\city.pyaedt\Ansys\buildings.stl imported
+PyAEDT ERROR: **************************************************************
+PyAEDT ERROR:   File &#34;C:\Users\ansys\AppData\Local\Programs\Python\Python310\Lib\runpy.py&#34;, line 196, in _run_module_as_main
+PyAEDT ERROR:     return _run_code(code, main_globals, None,
+PyAEDT ERROR:   File &#34;C:\Users\ansys\AppData\Local\Programs\Python\Python310\Lib\runpy.py&#34;, line 86, in _run_code
+PyAEDT ERROR:     exec(code, run_globals)
+PyAEDT ERROR:   File &#34;C:\actions-runner\_work\pyaedt-examples\pyaedt-examples\.venv\lib\site-packages\ipykernel_launcher.py&#34;, line 18, in &lt;module&gt;
+PyAEDT ERROR:     app.launch_new_instance()
+PyAEDT ERROR:   File &#34;C:\actions-runner\_work\pyaedt-examples\pyaedt-examples\.venv\lib\site-packages\traitlets\config\application.py&#34;, line 1075, in launch_instance
+PyAEDT ERROR:     app.start()
+PyAEDT ERROR:   File &#34;C:\actions-runner\_work\pyaedt-examples\pyaedt-examples\.venv\lib\site-packages\ipykernel\kernelapp.py&#34;, line 739, in start
+PyAEDT ERROR:     self.io_loop.start()
+PyAEDT ERROR:   File &#34;C:\actions-runner\_work\pyaedt-examples\pyaedt-examples\.venv\lib\site-packages\tornado\platform\asyncio.py&#34;, line 211, in start
+PyAEDT ERROR:     self.asyncio_loop.run_forever()
+PyAEDT ERROR:   File &#34;C:\Users\ansys\AppData\Local\Programs\Python\Python310\Lib\asyncio\base_events.py&#34;, line 603, in run_forever
+PyAEDT ERROR:     self._run_once()
+PyAEDT ERROR:   File &#34;C:\Users\ansys\AppData\Local\Programs\Python\Python310\Lib\asyncio\base_events.py&#34;, line 1909, in _run_once
+PyAEDT ERROR:     handle._run()
+PyAEDT ERROR:   File &#34;C:\Users\ansys\AppData\Local\Programs\Python\Python310\Lib\asyncio\events.py&#34;, line 80, in _run
+PyAEDT ERROR:     self._context.run(self._callback, *self._args)
+PyAEDT ERROR:   File &#34;C:\actions-runner\_work\pyaedt-examples\pyaedt-examples\.venv\lib\site-packages\ipykernel\kernelbase.py&#34;, line 545, in dispatch_queue
+PyAEDT ERROR:     await self.process_one()
+PyAEDT ERROR:   File &#34;C:\actions-runner\_work\pyaedt-examples\pyaedt-examples\.venv\lib\site-packages\ipykernel\kernelbase.py&#34;, line 534, in process_one
+PyAEDT ERROR:     await dispatch(*args)
+PyAEDT ERROR:   File &#34;C:\actions-runner\_work\pyaedt-examples\pyaedt-examples\.venv\lib\site-packages\ipykernel\kernelbase.py&#34;, line 437, in dispatch_shell
+PyAEDT ERROR:     await result
+PyAEDT ERROR:   File &#34;C:\actions-runner\_work\pyaedt-examples\pyaedt-examples\.venv\lib\site-packages\ipykernel\ipkernel.py&#34;, line 362, in execute_request
+PyAEDT ERROR:     await super().execute_request(stream, ident, parent)
+PyAEDT ERROR:   File &#34;C:\actions-runner\_work\pyaedt-examples\pyaedt-examples\.venv\lib\site-packages\ipykernel\kernelbase.py&#34;, line 778, in execute_request
+PyAEDT ERROR:     reply_content = await reply_content
+PyAEDT ERROR:   File &#34;C:\actions-runner\_work\pyaedt-examples\pyaedt-examples\.venv\lib\site-packages\ipykernel\ipkernel.py&#34;, line 449, in do_execute
+PyAEDT ERROR:     res = shell.run_cell(
+PyAEDT ERROR:   File &#34;C:\actions-runner\_work\pyaedt-examples\pyaedt-examples\.venv\lib\site-packages\ipykernel\zmqshell.py&#34;, line 549, in run_cell
+PyAEDT ERROR:     return super().run_cell(*args, **kwargs)
+PyAEDT ERROR:   File &#34;C:\Users\ansys\AppData\Local\Temp\ipykernel_5848\2461479977.py&#34;, line 1, in &lt;module&gt;
+PyAEDT ERROR:     app.modeler.import_from_openstreet_map(
+PyAEDT ERROR:   File &#34;C:\actions-runner\_work\pyaedt-examples\pyaedt-examples\.venv\lib\site-packages\ansys\aedt\core\modeler\modeler_3d.py&#34;, line 1340, in import_from_openstreet_map
+PyAEDT ERROR:     self.import_3d_cad(parts_dict[part][&#34;file_name&#34;], create_lightweigth_part=create_lightweigth_part)
+PyAEDT ERROR:   File &#34;C:\actions-runner\_work\pyaedt-examples\pyaedt-examples\.venv\lib\site-packages\ansys\aedt\core\modeler\cad\primitives.py&#34;, line 4996, in import_3d_cad
+PyAEDT ERROR:     self.oeditor.Import(vArg1)
+PyAEDT ERROR: AEDT API Error on import_3d_cad
+PyAEDT ERROR: Last Electronics Desktop Message - [error]  import native bodies: translation of c:/users/ansys/appdata/local/temp/tmp9uaqlg8u.ansys/city.pyaedt/ansys/roads.stl failed. (04:56:00 am  jun 14, 2025)
+PyAEDT ERROR: Method arguments:
+PyAEDT ERROR:     input_file = C:\Users\ansys\AppData\Local\Temp\tmp9uaqlg8u.ansys\city.pyaedt\Ansys\roads.stl
+PyAEDT ERROR:     create_lightweigth_part = True
+PyAEDT ERROR: **************************************************************
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;name&#39;: &#39;default&#39;,
+ &#39;version&#39;: 1,
+ &#39;type&#39;: &#39;environment&#39;,
+ &#39;center_lat_lon&#39;: [40.273726, -80.168269],
+ &#39;radius&#39;: 250,
+ &#39;include_buildings&#39;: True,
+ &#39;include_roads&#39;: True,
+ &#39;parts&#39;: {&#39;terrain&#39;: {&#39;file_name&#39;: &#39;C:\\Users\\ansys\\AppData\\Local\\Temp\\tmp9uaqlg8u.ansys\\city.pyaedt\\Ansys/terrain.stl&#39;,
+   &#39;color&#39;: &#39;brown&#39;,
+   &#39;material&#39;: &#39;earth&#39;},
+  &#39;buildings&#39;: {&#39;file_name&#39;: &#39;C:\\Users\\ansys\\AppData\\Local\\Temp\\tmp9uaqlg8u.ansys\\city.pyaedt\\Ansys\\buildings.stl&#39;,
+   &#39;color&#39;: &#39;grey&#39;,
+   &#39;material&#39;: &#39;concrete&#39;},
+  &#39;roads&#39;: {&#39;file_name&#39;: &#39;C:\\Users\\ansys\\AppData\\Local\\Temp\\tmp9uaqlg8u.ansys\\city.pyaedt\\Ansys\\roads.stl&#39;,
+   &#39;color&#39;: &#39;black&#39;,
+   &#39;material&#39;: &#39;asphalt&#39;}}}
+</pre></div></div>
+</div>
+</section>
+<section id="Visualize-the-model">
+<h3>Visualize the model<a class="headerlink" href="#Visualize-the-model" title="Link to this heading">#</a></h3>
+<p>Plot the model.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_obj</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">plot_air_objects</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">plot_obj</span><span class="o">.</span><span class="n">background_color</span> <span class="o">=</span> <span class="p">[</span><span class="mi">153</span><span class="p">,</span> <span class="mi">203</span><span class="p">,</span> <span class="mi">255</span><span class="p">]</span>
+<span class="n">plot_obj</span><span class="o">.</span><span class="n">zoom</span> <span class="o">=</span> <span class="mf">1.5</span>
+<span class="n">plot_obj</span><span class="o">.</span><span class="n">show_grid</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">plot_obj</span><span class="o">.</span><span class="n">show_axes</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">plot_obj</span><span class="o">.</span><span class="n">bounding_box</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">plot_obj</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;Source.jpg&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Parsing C:/Users/ansys/AppData/Local/Temp/tmp9uaqlg8u.ansys/city.aedt.
+PyAEDT INFO: File C:/Users/ansys/AppData/Local/Temp/tmp9uaqlg8u.ansys/city.aedt correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: aedt file load time 0.015622854232788086
+PyAEDT INFO: PostProcessor class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: PostProcessor class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Post class has been initialized! Elapsed time: 0m 0sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+C:\actions-runner\_work\pyaedt-examples\pyaedt-examples\.venv\lib\site-packages\pyvista\jupyter\notebook.py:37: UserWarning: Failed to use notebook backend:
+
+Please install `ipywidgets`.
+
+Falling back to a static output.
+  warnings.warn(
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../../_images/examples_high_frequency_antenna_large_scenarios_city_14_2.png" src="../../../../_images/examples_high_frequency_antenna_large_scenarios_city_14_2.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="Finish">
+<h2>Finish<a class="headerlink" href="#Finish" title="Link to this heading">#</a></h2>
+<section id="Save-the-project">
+<h3>Save the project<a class="headerlink" href="#Save-the-project" title="Link to this heading">#</a></h3>
+<p>Release AEDT and close the example.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">app</span><span class="o">.</span><span class="n">save_project</span><span class="p">()</span>
+<span class="n">app</span><span class="o">.</span><span class="n">release_desktop</span><span class="p">()</span>
+<span class="c1"># Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.</span>
+<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Project city Saved correctly
+PyAEDT INFO: Desktop has been released and closed.
+</pre></div></div>
+</div>
+</section>
+<section id="Clean-up">
+<h3>Clean up<a class="headerlink" href="#Clean-up" title="Link to this heading">#</a></h3>
+<p>All project files are saved in the folder <code class="docutils literal notranslate"><span class="pre">temp_folder.name</span></code>. If you’ve run this example as a Jupyter notebook, you can retrieve those project files. The following cell removes all temporary files, including the project folder.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">temp_folder</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+</section>
+<hr class="docutils" />
+<div class="admonition-download-this-example admonition">
+<p class="admonition-title">Download this example</p>
+<p>Download this example as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/antenna/large_scenarios/city.ipynb">Jupyter Notebook</a>
+or as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/antenna/large_scenarios/city.py">Python script</a>.</p>
+</div>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Prerequisites">Prerequisites</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Perform-imports">Perform imports</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Define-constants">Define constants</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-temporary-directory">Create temporary directory</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Launch-HFSS-and-open-project">Launch HFSS and open project</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Model-Preparation">Model Preparation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Define-the-global-location">Define the global location</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Generate-map-and-import">Generate map and import</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Visualize-the-model">Visualize the model</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Finish">Finish</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Save-the-project">Save the project</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Clean-up">Clean up</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item"> 
+<div class="tocsection editthispage">
+  <a href="https://github.com/ansys/pyaedt-examples/edit/main/doc/source/examples/high_frequency/antenna/large_scenarios/city.ipynb">
+    <i class="fa-solid fa-pencil"></i>
+       Edit
+    on GitHub  
+  </a>
+</div>
+
+</div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../../../../_sources/examples/high_frequency/antenna/large_scenarios/city.ipynb.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright (c) 2021 - 2025 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the
+  <a href="https://sphinxdocs.ansys.com/version/stable/index.html"
+    >Ansys Sphinx Theme</a
+  >
+  1.0.11. <br />Last updated on
+  <span id="date"></span>
+</p>
+<script>
+  var options = { day: "numeric", month: "long", year: "numeric" };
+  var lastModifiedDate = new Date(document.lastModified);
+  var date = lastModifiedDate.toLocaleDateString("en-US", options);
+  document.getElementById("date").innerHTML = date;
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,208 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "80422830",
+   "metadata": {},
+   "source": [
+    "# Circuit Netlist to Schematic\n",
+    "\n",
+    "This example shows how to create components\n",
+    "in the circuit schematic editor from a netlist file.\n",
+    "\n",
+    "Note that HSPICE files are fully supported and that broad coverage is provided for many other formats.\n",
+    "\n",
+    "Keywords: **Circuit**, **netlist**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ee46a057",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Import the required packages."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "cddc1e24",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core\n",
+    "from ansys.aedt.core.examples.downloads import download_netlist"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a23c7068",
+   "metadata": {},
+   "source": [
+    "## Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "66d7e391",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.1\"\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "271a1089",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "dafcd88d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "346ad9a4",
+   "metadata": {},
+   "source": [
+    "## Launch AEDT with Circuit\n",
+    "\n",
+    "Launch AEDT with Circuit. The `ansys.aedt.core.Desktop` class initializes AEDT\n",
+    "and starts it on the specified version in the specified graphical mode."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "26b7c6d4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "netlist = download_netlist(local_path=temp_folder.name)\n",
+    "circuit = ansys.aedt.core.Circuit(\n",
+    "    project=os.path.join(temp_folder.name, \"NetlistExample\"),\n",
+    "    version=AEDT_VERSION,\n",
+    "    non_graphical=NG_MODE,\n",
+    "    new_desktop=True,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f5d2b5eb",
+   "metadata": {},
+   "source": [
+    "## Define a parameter\n",
+    "\n",
+    "Specify the voltage as a parameter."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "cd9791c1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "circuit[\"Voltage\"] = \"5\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9c21114d",
+   "metadata": {},
+   "source": [
+    "## Create schematic from netlist file\n",
+    "\n",
+    "Create a schematic from a netlist file. The ``create_schematic_from_netlist()``\n",
+    "method reads the netlist file and parses it. All components are parsed,\n",
+    "but only these categories are mapped: R, L, C, Q, U, J, V, and I."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1b0e93a6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "circuit.create_schematic_from_netlist(netlist)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3e41f0ab",
+   "metadata": {},
+   "source": [
+    "## Release AEDT\n",
+    "\n",
+    "Release AEDT and close the example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1eb1e795",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "circuit.save_project()\n",
+    "circuit.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3de43d13",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b80a4607",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
