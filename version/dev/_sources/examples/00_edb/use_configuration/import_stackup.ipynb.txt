@@ -1,0 +1,307 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "368b64ee",
+   "metadata": {},
+   "source": [
+    "# Import Stackup\n",
+    "This example shows how to import stackup file."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a42e488a",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "33fd38df",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import json\n",
+    "from pathlib import Path\n",
+    "import tempfile\n",
+    "\n",
+    "from IPython.display import display\n",
+    "from ansys.aedt.core.examples.downloads import download_file\n",
+    "import pandas as pd\n",
+    "from pyedb import Edb"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "017f1073",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4f14f11a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.1\"\n",
+    "NG_MODE = False"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "971ed9bd",
+   "metadata": {},
+   "source": [
+    "Download the example PCB data."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "21cd9cd7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")\n",
+    "file_edb = download_file(source=\"edb/ANSYS-HSD_V1.aedb\", local_path=temp_folder.name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8865ab2f",
+   "metadata": {},
+   "source": [
+    "## Load example layout."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8da5e824",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp = Edb(file_edb, edbversion=AEDT_VERSION)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8b4aa859",
+   "metadata": {},
+   "source": [
+    "## Review original stackup definition"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4e69a25f",
+   "metadata": {},
+   "source": [
+    "Get original stackup definition in a dictionary. Alternatively, stackup definition can be exported in a json file by\n",
+    "edbapp.configuration.export()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7db878a0",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "data_cfg = edbapp.configuration.get_data_from_db(stackup=True)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4a414311",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df = pd.DataFrame(data=data_cfg[\"stackup\"][\"layers\"])\n",
+    "display(df)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9323d507",
+   "metadata": {},
+   "source": [
+    "## Modify stackup"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "84e212ea",
+   "metadata": {},
+   "source": [
+    "Modify top layer thickness"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "36e490b2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "data_cfg[\"stackup\"][\"layers\"][0][\"thickness\"] = 0.00005"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "99c960cf",
+   "metadata": {},
+   "source": [
+    "Add a solder mask layer"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "11ac4d8a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "data_cfg[\"stackup\"][\"layers\"].insert(\n",
+    "    0, {\"name\": \"soler_mask\", \"type\": \"dielectric\", \"material\": \"Megtron4\", \"fill_material\": \"\", \"thickness\": 0.00002}\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4e8a15cb",
+   "metadata": {},
+   "source": [
+    "Review modified stackup"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ca7a4c53",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df = pd.DataFrame(data=data_cfg[\"stackup\"][\"layers\"])\n",
+    "display(df.head(3))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "83e56c48",
+   "metadata": {},
+   "source": [
+    "Write stackup definition into a json file"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "556630e1",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "file_cfg = Path(temp_folder.name) / \"edb_configuration.json\"\n",
+    "with open(file_cfg, \"w\") as f:\n",
+    "    json.dump(data_cfg, f, indent=4, ensure_ascii=False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1ef079c6",
+   "metadata": {},
+   "source": [
+    "## Load stackup from json configuration file"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0b37dd55",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.configuration.load(file_cfg, apply_file=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "bebce68e",
+   "metadata": {},
+   "source": [
+    "Plot stackup"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "920505c5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.stackup.plot()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c5190c35",
+   "metadata": {},
+   "source": [
+    "Check top layer thickness"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "72e07daa",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.stackup[\"1_Top\"].thickness"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "963ce535",
+   "metadata": {},
+   "source": [
+    "## Save and close Edb\n",
+    "The temporary folder will be deleted once the execution of this script is finished. Replace **edbapp.save()** with\n",
+    "**edbapp.save_as(\"C:/example.aedb\")** to keep the example project."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e116464f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.save()\n",
+    "edbapp.close()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
