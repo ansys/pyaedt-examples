@@ -42,9 +42,11 @@ library_path = download_multiparts(
     local_path=temp_folder.name
 )
 
-zip_file = _download_file("pyaedt/frtm/doppler_sbr.results.zip",
-                          local_path=temp_folder.name,
-                          strip_prefix="pyaedt")
+zip_file = download_file(
+    "frtm",
+    name="doppler_sbr.results.zip",
+    local_path=temp_folder.name
+)
 
 results = os.path.join(temp_folder.name, "doppler_sbr.results")
 
