@@ -16,7 +16,7 @@ import time
 
 import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_multiparts
-from ansys.aedt.core.examples.downloads import _download_file
+from ansys.aedt.core.examples.downloads import download_file
 from ansys.aedt.core.examples.downloads import unzip
 # -
 
