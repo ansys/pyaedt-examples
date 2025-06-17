@@ -84,7 +84,7 @@ edb.stackup.plot()
 
 edb_path = os.path.join(temp_folder.name, "gds_design.aedb")
 edb.save_as(edb_path)
-edb.close_edb()
+edb.close()
 
 # ## View the layout
 # ### Open the EDB in Electronics Desktop
