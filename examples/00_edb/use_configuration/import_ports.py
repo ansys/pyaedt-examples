@@ -18,6 +18,7 @@
 
 # +
 import json
+import toml
 from pathlib import Path
 import tempfile
 
@@ -145,6 +146,13 @@ cfg["ports"] = [port_1, port_2, port_3, port_4, port_5, port_6, ports_distribute
 file_json = Path(temp_folder.name) / "edb_configuration.json"
 with open(file_json, "w") as f:
     json.dump(cfg, f, indent=4, ensure_ascii=False)
+
+
+# Equivalent toml file looks like below 
+
+toml_string = toml.dumps(cfg)
+print(toml_string)
+
 
 # ## Import configuration into example layout
 

@@ -11,6 +11,7 @@
 
 # +
 import json
+import toml
 from pathlib import Path
 import tempfile
 
@@ -101,21 +102,21 @@ cfg["components"] = [
     },
 ]
 
-display(pd.DataFrame(data=[cfg["components"][0]["solder_ball_properties"]]))
-
-display(pd.DataFrame(data=[cfg["components"][0]["port_properties"]]))
-
-display(pd.DataFrame(data=cfg["components"][1]["pin_pair_model"]))
-
 cfg_file_path = Path(temp_folder) / "cfg.json"
 with open(cfg_file_path, "w") as f:
     json.dump(cfg, f, indent=4, ensure_ascii=False)
 
-# Load config file
+# Equivalent toml file looks like below 
+
+toml_string = toml.dumps(cfg)
+print(toml_string)
+
+# ## Apply config file
 
 edbapp.configuration.load(cfg_file_path, apply_file=True)
 
-# ## Save and close Edb
+# Save and close Edb
+#
 # The temporary folder will be deleted once the execution of this script is finished. Replace **edbapp.save()** with
 # **edbapp.save_as("C:/example.aedb")** to keep the example project.
 
