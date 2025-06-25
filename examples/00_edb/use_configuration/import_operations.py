@@ -10,6 +10,7 @@
 
 # +
 import json
+import toml
 from pathlib import Path
 import tempfile
 
@@ -109,8 +110,6 @@ edbapp.close()
 # - **keep_lines_as_path**. Keeps lines as `Path` instead of converting to `PolygonData`. Only works in Electronics Desktop (3D Layout). May cause issues in SiWave. Defaults to `False`.
 # - **include_voids_in_extents**. Includes voids in the computed extent (for Conforming only). May affect performance. Defaults to `False`.
 
-
-
 cutout = {
     "reference_list": ["GND"],
     "extent_type": "ConvexHull",
@@ -129,6 +128,11 @@ cfg = {"operations": operations}
 file_json = Path(temp_folder.name) / "cutout_1.json"
 with open(file_json, "w") as f:
     json.dump(cfg, f, indent=4, ensure_ascii=False)
+
+# Equivalent toml file looks like below
+
+toml_string = toml.dumps(cfg)
+print(toml_string)
 
 # Apply cutout
 
@@ -166,6 +170,13 @@ cfg = {"operations": operations}
 file_json = Path(temp_folder.name) / "cutout_2.json"
 with open(file_json, "w") as f:
     json.dump(cfg, f, indent=4, ensure_ascii=False)
+
+
+# Equivalent toml file looks like below 
+
+toml_string = toml.dumps(cfg)
+print(toml_string)
+
 
 # Apply cutout
 
