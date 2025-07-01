@@ -87,7 +87,7 @@ jobs:
           path: "external/pyaedt"
           ref: "main"
 
-      - name: Install PyAEDT main branch version with its test dependencies
+      - name: Install PyAEDT main branch version with its grapfics dependencies
         run: |
           . .venv\Scripts\Activate.ps1
           pip install --no-cache-dir external/pyaedt[graphics]
