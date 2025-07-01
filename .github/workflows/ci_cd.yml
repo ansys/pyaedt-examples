@@ -72,10 +72,25 @@ jobs:
           python -m pip install wheel setuptools -U
           python -c "import sys; print(sys.executable)"
 
-      - name: Install project and documentation dependencies
+      - name: Install project and documentation dependencies without PyAEDT
         run: |
           .venv\Scripts\Activate.ps1
-          pip install --no-cache-dir -r requirements/requirements_doc.txt
+          # Exclude pyaedt from the dependencies to avoid downloading the whole repository history
+          # Related to https://github.com/pypa/pip/issues/2432
+          grep -v '^pyaedt\[graphics\] @ git+' requirements/requirements_doc.txt > requirements/filterd_requirements_doc.txt
+          pip install --no-cache-dir -r requirements/filterd_requirements_doc.txt
+
+      - name: Clone PyAEDT on main branch
+        uses: actions/checkout@v4
+        with:
+          repository: ansys/pyaedt
+          path: "external/pyaedt"
+          ref: "main"
+
+      - name: Install PyAEDT main branch version with its test dependencies
+        run: |
+          . .venv\Scripts\Activate.ps1
+          pip install --no-cache-dir external/pyaedt[graphics]
 
       # Use environment variable speed up build for PDF pages
       - name: Create HTML documentation
