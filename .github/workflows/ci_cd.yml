@@ -89,7 +89,9 @@ jobs:
           .venv\Scripts\Activate.ps1
           # Exclude pyaedt from the dependencies to avoid downloading the whole repository history
           # Related to https://github.com/pypa/pip/issues/2432
-          grep -v '^pyaedt\[graphics\] @ git+' requirements/requirements_doc.txt > requirements/filterd_requirements_doc.txt
+          Get-Content requirements/requirements_doc.txt |
+            Where-Object { $_ -notmatch '^pyaedt\[graphics\] @ git\+' } |
+            Set-Content requirements/filterd_requirements_doc.txt
           pip install --no-cache-dir -r requirements/filterd_requirements_doc.txt
 
       # Use environment variable speed up build for PDF pages
