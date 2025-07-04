@@ -142,20 +142,16 @@ time_steps = data.intrinsics["Time"]
 # Fields data is exported to the temporary folder as an AEDTPLT file.
 
 for time_step in time_steps:
-    t = ansys.aedt.core.generic.constants.unit_converter(
-        time_step,
-        unit_system="Time",
-        input_units=data.units_sweeps["Time"],
-        output_units="ms",
-    )
+    time_step = time_step.to("ms")
+
     m3d.post.create_fieldplot_surface(
         assignment=m3d.modeler.objects_by_name["Coil_A2"],
         quantity=quantity[0],
-        plot_name="J_{}_ms".format(t),
-        intrinsics={"Time": "{}ms".format(t)},
+        plot_name="J_{}_ms".format(time_step.value),
+        intrinsics={"Time": time_step.expression},
     )
     mean_j_field_export = m3d.post.export_field_plot(
-        plot_name="J_{}_ms".format(t),
+        plot_name="J_{}_ms".format(time_step.value),
         output_dir=temp_folder.name,
         file_format="aedtplt",
     )
@@ -164,11 +160,11 @@ for time_step in time_steps:
             o for o in m3d.modeler.solid_objects if o.material_name == "copper"
         ],
         quantity="Mag_J",
-        plot_name="Mag_J_Coils_{}_ms".format(t),
-        intrinsics={"Time": "{}ms".format(t)},
+        plot_name="Mag_J_Coils_{}_ms".format(time_step.value),
+        intrinsics={"Time": time_step.expression},
     )
     mag_j_field_export = m3d.post.export_field_plot(
-        plot_name="Mag_J_Coils_{}_ms".format(t),
+        plot_name="Mag_J_Coils_{}_ms".format(time_step.value),
         output_dir=temp_folder.name,
         file_format="aedtplt",
     )
