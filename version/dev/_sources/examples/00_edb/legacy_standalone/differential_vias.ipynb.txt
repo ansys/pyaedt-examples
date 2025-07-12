@@ -1,0 +1,267 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "049f85b3",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "source": [
+    "# Parametric differential vias\n",
+    "\n",
+    "This example demonstrates how a differential via pair can be created using the EDB Python\n",
+    "interface.\n",
+    "\n",
+    "The final differential via pair is shown below.\n",
+    "\n",
+    "<img src=\"_static/diff_via.png\" width=\"500\">\n",
+    "\n",
+    "Keywords: **Differential Via**"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2d3fd5cb",
+   "metadata": {},
+   "source": [
+    "## Prerequisites\n",
+    "\n",
+    "### Perform imports"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6890a692",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import pyedb"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "102838df",
+   "metadata": {},
+   "source": [
+    "### Define constants\n",
+    "Constants help ensure consistency and avoid repetition throughout the example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "016ac0c1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.1\"\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "31c23f61",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4e668735",
+   "metadata": {},
+   "source": [
+    "### Start the EDB"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "64d28eab",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "aedb_path = os.path.join(temp_folder.name, \"diff_via.aedb\")\n",
+    "print(f\"AEDB file path: {aedb_path}\")\n",
+    "\n",
+    "edb = pyedb.Edb(edbpath=aedb_path, edbversion=AEDT_VERSION)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "577eca7c",
+   "metadata": {},
+   "source": [
+    "## Model Creation\n",
+    "\n",
+    "### Add stackup layers\n",
+    "\n",
+    "A stackup can be created layer by layer or imported from a \n",
+    "[configuration file](https://examples.aedt.docs.pyansys.com/version/dev/examples/00_edb/use_configuration/import_stackup.html)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9d329f8e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.stackup.add_layer(\"GND\")\n",
+    "edb.stackup.add_layer(\"Diel\", \"GND\", layer_type=\"dielectric\", thickness=\"0.1mm\", material=\"FR4_epoxy\")\n",
+    "edb.stackup.add_layer(\"TOP\", \"Diel\", thickness=\"0.05mm\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "152ea432",
+   "metadata": {},
+   "source": [
+    "### Create signal nets and ground planes\n",
+    "Create a signal net and ground planes."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c2d34a19",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "points = [[0.0, 0], [100e-3, 0.0]]\n",
+    "edb.modeler.create_trace(points, \"TOP\", width=1e-3)\n",
+    "points = [[0.0, 1e-3], [0.0, 10e-3], [100e-3, 10e-3], [100e-3, 1e-3], [0.0, 1e-3]]\n",
+    "edb.modeler.create_polygon(points, \"TOP\")\n",
+    "points = [[0.0, -1e-3], [0.0, -10e-3], [100e-3, -10e-3], [100e-3, -1e-3], [0.0, -1e-3]]\n",
+    "edb.modeler.create_polygon(points, \"TOP\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c13a0ce2",
+   "metadata": {},
+   "source": [
+    "## Place vias"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2ad307ee",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "edb.padstacks.create(\"MyVia\")\n",
+    "edb.padstacks.place([5e-3, 5e-3], \"MyVia\")\n",
+    "edb.padstacks.place([15e-3, 5e-3], \"MyVia\")\n",
+    "edb.padstacks.place([35e-3, 5e-3], \"MyVia\")\n",
+    "edb.padstacks.place([45e-3, 5e-3], \"MyVia\")\n",
+    "edb.padstacks.place([5e-3, -5e-3], \"MyVia\")\n",
+    "edb.padstacks.place([15e-3, -5e-3], \"MyVia\")\n",
+    "edb.padstacks.place([35e-3, -5e-3], \"MyVia\")\n",
+    "edb.padstacks.place([45e-3, -5e-3], \"MyVia\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9515de6c",
+   "metadata": {},
+   "source": [
+    "### View the nets"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9c88f461",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.nets.plot(None, color_by_net=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4ca2d1d5",
+   "metadata": {},
+   "source": [
+    "### View the stackup"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "329022e7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.stackup.plot(plot_definitions=\"MyVia\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d44816a2",
+   "metadata": {},
+   "source": [
+    "## Finish\n",
+    "\n",
+    "### Save the project\n",
+    "Save and close EDB."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "abe55934",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "if edb:\n",
+    "    edb.save_edb()\n",
+    "    edb.close_edb()\n",
+    "print(\"EDB saved correctly to {}. You can import in AEDT.\".format(aedb_path))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d50fe8b9",
+   "metadata": {},
+   "source": [
+    "### Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b3c2e151",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
