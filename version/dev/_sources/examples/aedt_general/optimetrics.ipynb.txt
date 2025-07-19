@@ -1,0 +1,402 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "e6b09536",
+   "metadata": {},
+   "source": [
+    "# Optimetrics setup\n",
+    "\n",
+    "This example shows how to use PyAEDT to create a project in HFSS and create all optimetrics\n",
+    "setups.\n",
+    "\n",
+    "Keywords: **AEDT**, **General**, **optimetrics**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2bccc2fb",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "Import the required packages."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "35a63238",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8a84f91e",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "aae27bef",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.1\"\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "01113390",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7cd18c6c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "00d6e758",
+   "metadata": {},
+   "source": [
+    "## Initialize HFSS and create variables\n",
+    "\n",
+    "Initialize the ``Hfss`` object and create two needed design variables,\n",
+    "``w1`` and ``w2``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2dd03033",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_name = os.path.join(temp_folder.name, \"optimetrics.aedt\")\n",
+    "\n",
+    "hfss = ansys.aedt.core.Hfss(\n",
+    "    project=project_name,\n",
+    "    version=AEDT_VERSION,\n",
+    "    new_desktop=True,\n",
+    "    non_graphical=NG_MODE,\n",
+    "    solution_type=\"Modal\",\n",
+    ")\n",
+    "\n",
+    "hfss[\"w1\"] = \"1mm\"\n",
+    "hfss[\"w2\"] = \"100mm\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "25117bd8",
+   "metadata": {},
+   "source": [
+    "## Create waveguide with sheets on it\n",
+    "\n",
+    "Create one of the standard waveguide structures and parametrize it.\n",
+    "You can also create rectangles of waveguide openings and assign ports later."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4654a75f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "wg1, p1, p2 = hfss.modeler.create_waveguide(\n",
+    "    [0, 0, 0],\n",
+    "    hfss.AXIS.Y,\n",
+    "    \"WG17\",\n",
+    "    wg_thickness=\"w1\",\n",
+    "    wg_length=\"w2\",\n",
+    "    create_sheets_on_openings=True,\n",
+    ")\n",
+    "\n",
+    "model = hfss.plot(show=False)\n",
+    "\n",
+    "model.show_grid = False\n",
+    "model.plot(os.path.join(hfss.working_directory, \"Image.jpg\"))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f05c0dc1",
+   "metadata": {},
+   "source": [
+    "## Create wave ports on sheets\n",
+    "\n",
+    "Create two wave ports on the sheets."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "72714117",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss.wave_port(p1, integration_line=hfss.AxisDir.ZPos, name=\"1\")\n",
+    "hfss.wave_port(p2, integration_line=hfss.AxisDir.ZPos, name=\"2\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "73804caa",
+   "metadata": {},
+   "source": [
+    "## Create setup and frequency sweep\n",
+    "\n",
+    "Create a setup and a frequency sweep to use as the base for optimetrics\n",
+    "setups."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8cfdb92a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup = hfss.create_setup()\n",
+    "hfss.create_linear_step_sweep(\n",
+    "    setup=setup.name,\n",
+    "    unit=\"GHz\",\n",
+    "    start_frequency=1,\n",
+    "    stop_frequency=5,\n",
+    "    step_size=0.1,\n",
+    "    name=\"Sweep1\",\n",
+    "    save_fields=True,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f924f2ad",
+   "metadata": {},
+   "source": [
+    "## Create optimetrics analyses\n",
+    "\n",
+    "### Create parametric analysis\n",
+    "\n",
+    "Create a simple optimetrics parametrics analysis with output calculations."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2a96908d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "sweep = hfss.parametrics.add(\"w2\", 90, 200, 5)\n",
+    "sweep.add_variation(\"w1\", 0.1, 2, 10)\n",
+    "sweep.add_calculation(calculation=\"dB(S(1,1))\", ranges={\"Freq\": \"2.5GHz\"})\n",
+    "sweep.add_calculation(calculation=\"dB(S(1,1))\", ranges={\"Freq\": \"2.6GHz\"})"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "71d51933",
+   "metadata": {},
+   "source": [
+    "### Create sensitivity analysis\n",
+    "\n",
+    "Create an optimetrics sensitivity analysis with output calculations."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c9f24561",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "sweep2 = hfss.optimizations.add(\n",
+    "    calculation=\"dB(S(1,1))\", ranges={\"Freq\": \"2.5GHz\"}, optimization_type=\"Sensitivity\"\n",
+    ")\n",
+    "sweep2.add_variation(\"w1\", 0.1, 3, 0.5)\n",
+    "sweep2.add_calculation(calculation=\"dB(S(1,1))\", ranges={\"Freq\": \"2.6GHz\"})"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "036fcab7",
+   "metadata": {},
+   "source": [
+    "### Create an optimization analysis\n",
+    "\n",
+    "Create an optimization analysis based on goals and calculations."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ddbcfb43",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "sweep3 = hfss.optimizations.add(calculation=\"dB(S(1,1))\", ranges={\"Freq\": \"2.5GHz\"})\n",
+    "sweep3.add_variation(\"w1\", 0.1, 3, 0.5)\n",
+    "sweep3.add_goal(calculation=\"dB(S(1,1))\", ranges={\"Freq\": \"2.6GHz\"})\n",
+    "sweep3.add_goal(calculation=\"dB(S(1,1))\", ranges={\"Freq\": (\"2.6GHz\", \"5GHz\")})\n",
+    "sweep3.add_goal(\n",
+    "    calculation=\"dB(S(1,1))\",\n",
+    "    ranges={\"Freq\": (\"2.6GHz\", \"5GHz\")},\n",
+    "    condition=\"Maximize\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a0c2c464",
+   "metadata": {},
+   "source": [
+    "### Create a DesignXplorer optimization\n",
+    "\n",
+    "Create a DesignXplorer optimization based on a goal and a calculation."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5005ff5b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "sweep4 = hfss.optimizations.add(\n",
+    "    calculation=\"dB(S(1,1))\",\n",
+    "    ranges={\"Freq\": \"2.5GHz\"},\n",
+    "    optimization_type=\"DesignExplorer\",\n",
+    ")\n",
+    "sweep4.add_goal(calculation=\"dB(S(1,1))\", ranges={\"Freq\": \"2.6GHz\"})"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "317acbcc",
+   "metadata": {},
+   "source": [
+    "### Create a Design of Experiments (DOE)\n",
+    "\n",
+    "Create a DOE based on a goal and a calculation."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d6217378",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "sweep5 = hfss.optimizations.add(\n",
+    "    calculation=\"dB(S(1,1))\", ranges={\"Freq\": \"2.5GHz\"}, optimization_type=\"DXDOE\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3b1b32e6",
+   "metadata": {},
+   "source": [
+    "### Create another DOE\n",
+    "\n",
+    "Create another DOE based on a goal and a calculation."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d5082be3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "region = hfss.modeler.create_region()\n",
+    "hfss.assign_radiation_boundary_to_objects(region)\n",
+    "hfss.insert_infinite_sphere(name=\"Infinite_1\")\n",
+    "sweep6 = hfss.optimizations.add(\n",
+    "    calculation=\"RealizedGainTotal\",\n",
+    "    solution=hfss.nominal_adaptive,\n",
+    "    ranges={\"Freq\": \"5GHz\", \"Theta\": [\"0deg\", \"10deg\", \"20deg\"], \"Phi\": \"0deg\"},\n",
+    "    context=\"Infinite_1\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a6fac9ef",
+   "metadata": {},
+   "source": [
+    "## Release AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ee1dbde1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss.save_project()\n",
+    "hfss.release_desktop()\n",
+    "time.sleep(3)  # Allow AEDT to shut down before cleaning the temporary project folder."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f3b408b0",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell removes\n",
+    "all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "028750bc",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

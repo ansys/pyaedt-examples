@@ -1,0 +1,341 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "694734e7",
+   "metadata": {},
+   "source": [
+    "# Eddy current analysis and reduced matrix"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "091fac7f",
+   "metadata": {},
+   "source": [
+    "This example shows how to leverage PyAEDT to assign a matrix\n",
+    "and perform series or parallel connections in a Maxwell 2D design.\n",
+    "\n",
+    "Keywords: **Maxwell 2D**, **eddy current**, *matrix**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fd12e9e5",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2e5c1867",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core\n",
+    "from ansys.aedt.core.examples.downloads import download_file"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fb1c70ba",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ea8e2ae8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.1\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3996f943",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "672027f2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6740027d",
+   "metadata": {},
+   "source": [
+    "## Download AEDT file\n",
+    "\n",
+    "Set the local temporary folder to export the AEDT file to."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "47654c8f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_path = download_file(\n",
+    "    source=\"maxwell_ec_reduced_matrix\",\n",
+    "    name=\"m2d_eddy_current.aedt\",\n",
+    "    local_path=temp_folder.name,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "dd6e09a5",
+   "metadata": {},
+   "source": [
+    "## Launch AEDT and Maxwell 2D\n",
+    "\n",
+    "Launch AEDT and Maxwell 2D, providing the version, path to the project, and the graphical mode."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9ba1d005",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d = ansys.aedt.core.Maxwell2d(\n",
+    "    project=project_path,\n",
+    "    version=AEDT_VERSION,\n",
+    "    design=\"EC_Planar\",\n",
+    "    non_graphical=NG_MODE,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fdaf78a1",
+   "metadata": {},
+   "source": [
+    "## Assign a matrix\n",
+    "\n",
+    "Assign a matrix given the list of sources to assign the matrix to and the return path."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ca03a450",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "matrix = m2d.assign_matrix(\n",
+    "    assignment=[\"pri\", \"sec\", \"terz\"], matrix_name=\"Matrix1\", return_path=\"infinite\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8ad54218",
+   "metadata": {},
+   "source": [
+    "## Assign reduced matrices\n",
+    "\n",
+    "Assign reduced matrices to the parent matrix previously created.\n",
+    "For 2D/3D Eddy current solvers, two or more excitations can be joined\n",
+    "either in series or parallel connection. The result is known as a reduced matrix."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "056a88e5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "series = matrix.join_series(sources=[\"pri\", \"sec\"], matrix_name=\"ReducedMatrix1\")\n",
+    "parallel = matrix.join_parallel(sources=[\"sec\", \"terz\"], matrix_name=\"ReducedMatrix2\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9e2d7b31",
+   "metadata": {},
+   "source": [
+    "## Analyze setup\n",
+    "\n",
+    "Run the analysis."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d40127ea",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.save_project()\n",
+    "m2d.analyze(setup=m2d.setup_names[0], cores=NUM_CORES, use_auto_settings=False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1077fb81",
+   "metadata": {},
+   "source": [
+    "## Get expressions\n",
+    "\n",
+    "Get the available report quantities given the context\n",
+    "and the quantities category ``L``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "11dc9d3b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "expressions = m2d.post.available_report_quantities(\n",
+    "    report_category=\"EddyCurrent\",\n",
+    "    display_type=\"Data Table\",\n",
+    "    context={\"Matrix1\": \"ReducedMatrix1\"},\n",
+    "    quantities_category=\"L\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8a99241a",
+   "metadata": {},
+   "source": [
+    "## Create report and get solution data\n",
+    "\n",
+    "Create a data table report and get report data given the matrix context."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8f5eb48d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "report = m2d.post.create_report(\n",
+    "    expressions=expressions,\n",
+    "    context={\"Matrix1\": \"ReducedMatrix1\"},\n",
+    "    plot_type=\"Data Table\",\n",
+    "    setup_sweep_name=\"Setup1 : LastAdaptive\",\n",
+    "    plot_name=\"reduced_matrix\",\n",
+    ")\n",
+    "data = m2d.post.get_solution_data(\n",
+    "    expressions=expressions,\n",
+    "    context={\"Matrix1\": \"ReducedMatrix1\"},\n",
+    "    report_category=\"EddyCurrent\",\n",
+    "    setup_sweep_name=\"Setup1 : LastAdaptive\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c7f46809",
+   "metadata": {},
+   "source": [
+    "## Get matrix data\n",
+    "\n",
+    "Get inductance results for the join connections in ``nH``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "360603b8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ind = ansys.aedt.core.generic.constants.unit_converter(\n",
+    "    data.data_magnitude()[0],\n",
+    "    unit_system=\"Inductance\",\n",
+    "    input_units=data.units_data[expressions[0]],\n",
+    "    output_units=\"uH\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "06389467",
+   "metadata": {},
+   "source": [
+    "## Release AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1baf825c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.save_project()\n",
+    "m2d.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0c4bf25d",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "cc269243",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
