@@ -365,6 +365,7 @@ new_report = circuit.post.create_report(
     ],
     domain="Time",
     plot_name="Plot V,I",
+    context={"time_stop": "15us"}
 )
 
 # ## Release AEDT
@@ -382,3 +383,5 @@ time.sleep(3)
 # removes all temporary files, including the project folder.
 
 temp_folder.cleanup()
+
+
