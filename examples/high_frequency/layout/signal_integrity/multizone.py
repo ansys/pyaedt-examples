@@ -20,7 +20,7 @@ from ansys.aedt.core.examples.downloads import download_file
 
 # Define constants.
 
-EDB_VERSION = "2025.1"
+EDB_VERSION = "2025.2"
 
 # ## Create temporary directory
 #

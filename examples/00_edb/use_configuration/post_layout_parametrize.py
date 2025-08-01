@@ -29,7 +29,7 @@ target_aedb = download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
 print("Project is located in ", target_aedb)
 
 # Select EDB version (change it manually if needed, e.g. "2025.1")
-edb_version = "2025.1"
+edb_version = "2025.2"
 print(f"EDB version: {edb_version}")
 
 edb = pyedb.Edb(edbpath=target_aedb, edbversion=edb_version)

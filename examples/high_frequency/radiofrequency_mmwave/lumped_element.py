@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 
 # Define constants.
 
-AEDT_VERSION = "2025.1"
+AEDT_VERSION = "2025.2"
 
 # ## Define function used for plotting
 #

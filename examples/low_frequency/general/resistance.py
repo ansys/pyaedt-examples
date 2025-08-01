@@ -21,7 +21,7 @@ from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 
 # Define constants.
 
-AEDT_VERSION = "2025.1"
+AEDT_VERSION = "2025.2"
 NG_MODE = False
 NUM_CORES = 4
 
