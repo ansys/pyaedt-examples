@@ -23,7 +23,7 @@ help:
 		@echo "Removing vtk to avoid conflicts with vtk-osmesa needed for CI/CD"; \
 		pip uninstall --yes vtk; \
 		@echo "Installing vtk-osmesa"; \
-		pip install --extra-index-url https://wheels.vtk.org vtk-osmesa; \
+		pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.3.1; \
 	fi
 	@if [ "${ON_CI}" = "True" ] && [ "$$is_pypandoc_binary_installed" != "yes" ]; then \
 		@echo "Removing pypandoc to avoid conflicts with pypandoc-binary needed for CI/CD"; \
