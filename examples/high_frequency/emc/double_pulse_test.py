@@ -46,7 +46,7 @@ circuit = ansys.aedt.core.Circuit(
     non_graphical=NG_MODE,
     new_desktop=True,
 )
-circuit.modeler.schematic.schematic_units = "mil"
+circuit.modeler.schematic_units = "mil"
 
 # ## Variable initialization to create a parametric design
 #
@@ -383,5 +383,3 @@ time.sleep(3)
 # removes all temporary files, including the project folder.
 
 temp_folder.cleanup()
-
-
