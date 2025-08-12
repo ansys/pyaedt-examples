@@ -110,7 +110,7 @@ m2d.mesh.assign_length_mesh(
 )
 
 # ## Create simulation setup and enable expression cache
-#+
+#
 # Create the simulation setup with a minimum of four adaptive passes to ensure convergence.
 # Enable the expression cache to observe the convergence.
 
