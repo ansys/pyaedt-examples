@@ -25,7 +25,7 @@ from ansys.aedt.core import Emit
 
 # Define constants.
 
-AEDT_VERSION = "2025.1"
+AEDT_VERSION = "2025.2"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
@@ -103,12 +103,12 @@ for band in bands:
     if "HR-DSSS" in band.node_name:
         if "Ch 1-13" in band.node_name:
             band.enabled = True
-            band.set_band_power_level(-20)
+            band.set_band_power_level(-20, 'dBm')
 
 # Reduce the bluetooth transmit power
 bands = bluetooth.bands()
 for band in bands:
-    band.set_band_power_level(-20)
+    band.set_band_power_level(-20, 'dBm')
 
 
 def get_radio_node(radio_name):
