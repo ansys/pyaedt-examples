@@ -50,9 +50,10 @@ cfg = dict()
 # - **name**. Name of the voltage source.
 # - **Reference_designator**. Reference designator of the component.
 # - **type**. Type of the source. Supported types are 'voltage', 'current'
+# - **impedance**. Impedance of the port. Default is 5e7 Ohm for current sources, 1e-6 Ohm for voltage sources.
 # - **positive_terminal**. Supported types are 'net', 'pin', 'pin_group', 'coordinates'
 #   - **contact_radius**. Optional. Set circular equipotential region.
-#   - **inline**. Optional. When True, contact points are place in a row.
+#   - **inline**. Optional. When True, contact points are placed in a row.
 #   - **num_of_contact**. Optional. Number of contact points. Default is 1. Applicable only when inline is True.
 # - **negative_terminal**. Supported types are 'net', 'pin', 'pin_group', 'coordinates'
 # - **equipotential**. Set equipotential region on pins when True.
@@ -150,7 +151,7 @@ cfg["sources"] = [
     sources_distributed,
 ]
 
-# ## Write configuration into as json file
+# ## Write configuration into as JSON file
 
 file_json = Path(temp_folder.name) / "edb_configuration.json"
 with open(file_json, "w") as f:
@@ -169,7 +170,7 @@ edbapp.configuration.run()
 
 # ## Review
 
-edbapp.siwave.sources
+print(edbapp.siwave.sources)
 
 # ## Save and close Edb
 # The temporary folder will be deleted once the execution of this script is finished. Replace **edbapp.save()** with
