@@ -18,7 +18,7 @@ from ansys.aedt.core.examples.downloads import download_file
 
 from pyedb import Edb
 
-AEDT_VERSION = "2025.1"
+AEDT_VERSION = "2025.2"
 NG_MODE = False
 
 # -
