@@ -31,7 +31,7 @@ from pyedb import Edb, Siwave
 
 # Define constants.
 
-AEDT_VERSION = "2025.1"
+AEDT_VERSION = "2025.2"
 NUM_CORES = 4
 NG_MODE = True  # Open AEDT UI when it is launched.
 
