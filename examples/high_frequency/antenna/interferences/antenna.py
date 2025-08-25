@@ -16,6 +16,7 @@ import tempfile
 import time
 
 import ansys.aedt.core
+from ansys.aedt.core.emit_core.emit_constants import ResultType, TxRxMode
 # -
 
 # Define constants.
@@ -80,18 +81,18 @@ rad3, ant3 = aedtapp.modeler.components.create_radio_antenna(
 
 # > **Note:** You can uncomment the following code.
 #
-# if AEDT_VERSION > "2023.1":
-#     rev = aedtapp.results.analyze()
-#     rx_bands = rev.get_band_names(rad2.name, TxRxMode.RX)
-#     tx_bands = rev.get_band_names(rad3.name, TxRxMode.TX)
-#     domain = aedtapp.results.interaction_domain()
-#     domain.set_receiver(rad2.name, rx_bands[0], -1)
-#     domain.set_interferer(rad3.name, tx_bands[0])
-#     interaction = rev.run(domain)
-#     worst = interaction.get_worst_instance(ResultType.EMI)
-#     if worst.has_valid_values():
-#         emi = worst.get_value(ResultType.EMI)
-#         print("Worst case interference is: {} dB".format(emi))
+if AEDT_VERSION > "2023.1":
+    rev = aedtapp.results.analyze()
+    rx_bands = rev.get_band_names(rad2.name, TxRxMode.RX)
+    tx_bands = rev.get_band_names(rad3.name, TxRxMode.TX)
+    domain = aedtapp.results.interaction_domain()
+    domain.set_receiver(rad2.name, rx_bands[0], -1)
+    domain.set_interferer(rad3.name, tx_bands[0])
+    interaction = rev.run(domain)
+    worst = interaction.get_worst_instance(ResultType.EMI)
+    if worst.has_valid_values():
+        emi = worst.get_value(ResultType.EMI)
+        print("Worst case interference is: {} dB".format(emi))
 
 # ## Release AEDT
 #
