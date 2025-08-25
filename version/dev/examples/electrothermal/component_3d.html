@@ -1,0 +1,1338 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Thermal analysis with 3D components &#8212; PyAEDT Examples</title>
+
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css\ansys_sphinx_theme.css?v=d2ac875c" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=9233c59b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/highlight.css?v=500661c4" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+ 
+<link href="../../_static/css/breadcrumbs.css" rel="stylesheet" />
+
+    <script src="../../_static/documentation_options.js?v=e7fb764e"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=49e1bf35"></script>
+    <script src="../../_static/js\table.js?v=b64f5182"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/electrothermal/component_3d';</script>
+    <link rel="icon" href="../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <link rel="canonical" href="https://examples.aedt.docs.pyansys.com/version/stable/examples/electrothermal/component_3d.html" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container"><!-- Debugging: html_theme_options =  -->
+
+  <!-- If there is no MeiliSearch enabled, use the PyData search -->
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+   
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="https://www.ansys.com/">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/ansys_logo_transparent_black.png" class="logo__image only-light" alt="PyAEDT Examples - Home"/>
+    <script>document.write(`<img src="../../_static/ansys_logo_transparent_white.png" class="logo__image only-dark" alt="PyAEDT Examples - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    Examples
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+    
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    Examples
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+       
+    <li class="breadcrumb-item">
+      <a href="https://aedt.docs.pyansys.com/" class="nav-link">PyAEDT</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="../../index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page">Thermal analysis with 3D components</li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="admonition-download-this-example admonition">
+<p class="admonition-title">Download this example</p>
+<p>Download this example as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/electrothermal/component_3d.ipynb">Jupyter Notebook</a>
+or as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/electrothermal/component_3d.py">Python script</a>.</p>
+</div>
+<hr class="docutils" />
+<section id="Thermal-analysis-with-3D-components">
+<h1>Thermal analysis with 3D components<a class="headerlink" href="#Thermal-analysis-with-3D-components" title="Link to this heading">#</a></h1>
+<p>This example shows how to create a thermal analysis of an electronic package by taking advantage of 3D components with advanced features added by PyAEDT.</p>
+<p>Keywords: <strong>Icepak</strong>, <strong>3D components</strong>, <strong>mesh regions</strong>, <strong>monitor objects</strong>.</p>
+<section id="Perform-imports-and-define-constants">
+<h2>Perform imports and define constants<a class="headerlink" href="#Perform-imports-and-define-constants" title="Link to this heading">#</a></h2>
+<p>Perform required imports.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">ansys.aedt.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">Icepak</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ansys.aedt.core.examples.downloads</span><span class="w"> </span><span class="kn">import</span> <span class="n">download_icepak_3d_component</span>
+</pre></div>
+</div>
+</div>
+<p>Define constants.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">AEDT_VERSION</span> <span class="o">=</span> <span class="s2">&quot;2025.2&quot;</span>
+<span class="n">NG_MODE</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Open AEDT UI when it is launched.</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Create-temporary-directory-and-download-files">
+<h2>Create temporary directory and download files<a class="headerlink" href="#Create-temporary-directory-and-download-files" title="Link to this heading">#</a></h2>
+<p>Create a temporary directory where downloaded data or dumped data can be stored. If you’d like to retrieve the project data for subsequent use, the temporary folder name is given by <code class="docutils literal notranslate"><span class="pre">temp_folder.name</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">temp_folder</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.ansys&quot;</span><span class="p">)</span>
+<span class="n">package_temp_name</span><span class="p">,</span> <span class="n">qfp_temp_name</span> <span class="o">=</span> <span class="n">download_icepak_3d_component</span><span class="p">(</span>
+    <span class="n">local_path</span><span class="o">=</span><span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Create-heatsink">
+<h2>Create heatsink<a class="headerlink" href="#Create-heatsink" title="Link to this heading">#</a></h2>
+<p>Create an empty project in non-graphical mode.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ipk</span> <span class="o">=</span> <span class="n">Icepak</span><span class="p">(</span>
+    <span class="n">project</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;Heatsink.aedt&quot;</span><span class="p">),</span>
+    <span class="n">version</span><span class="o">=</span><span class="n">AEDT_VERSION</span><span class="p">,</span>
+    <span class="n">non_graphical</span><span class="o">=</span><span class="n">NG_MODE</span><span class="p">,</span>
+    <span class="n">close_on_exit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">new_desktop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Python version 3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)].
+PyAEDT INFO: PyAEDT version 0.19.dev0.
+PyAEDT INFO: Initializing new Desktop session.
+PyAEDT INFO: Log on console is enabled.
+PyAEDT INFO: Log on file C:\Users\ansys\AppData\Local\Temp\pyaedt_ansys_6930e4bf-83a7-45af-ae32-741d645655b1.log is enabled.
+PyAEDT INFO: Log on AEDT is disabled.
+PyAEDT INFO: Debug logger is disabled. PyAEDT methods will not be logged.
+PyAEDT INFO: Launching PyAEDT with gRPC plugin.
+PyAEDT INFO: New AEDT session is starting on gRPC port 61584.
+PyAEDT INFO: Electronics Desktop started on gRPC port: 61584 after 10.421631336212158 seconds.
+PyAEDT INFO: AEDT installation Path C:\Program Files\ANSYS Inc\v252\AnsysEM
+PyAEDT INFO: Ansoft.ElectronicsDesktop.2025.2 version started with process ID 12552.
+PyAEDT INFO: Project Heatsink has been created.
+PyAEDT INFO: No design is present. Inserting a new design.
+PyAEDT INFO: Added design &#39;Icepak_CII&#39; of type Icepak.
+PyAEDT INFO: Aedt Objects correctly read
+</pre></div></div>
+</div>
+<p>Remove the air region, which is present by default. An air region is not needed as the heatsink is to be exported as a 3D component.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ipk</span><span class="o">.</span><span class="n">modeler</span><span class="p">[</span><span class="s2">&quot;Region&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Modeler class has been initialized! Elapsed time: 0m 0sec
+</pre></div></div>
+</div>
+<p>Define the heatsink using multiple boxes.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">hs_base</span> <span class="o">=</span> <span class="n">ipk</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_box</span><span class="p">(</span>
+    <span class="n">origin</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">sizes</span><span class="o">=</span><span class="p">[</span><span class="mf">37.5</span><span class="p">,</span> <span class="mf">37.5</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;HS_Base&quot;</span>
+<span class="p">)</span>
+<span class="n">hs_base</span><span class="o">.</span><span class="n">material_name</span> <span class="o">=</span> <span class="s2">&quot;Al-Extruded&quot;</span>
+<span class="n">hs_fin</span> <span class="o">=</span> <span class="n">ipk</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_box</span><span class="p">(</span><span class="n">origin</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">sizes</span><span class="o">=</span><span class="p">[</span><span class="mf">37.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">18</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;HS_Fin1&quot;</span><span class="p">)</span>
+<span class="n">hs_fin</span><span class="o">.</span><span class="n">material_name</span> <span class="o">=</span> <span class="s2">&quot;Al-Extruded&quot;</span>
+<span class="n">n_fins</span> <span class="o">=</span> <span class="mi">11</span>
+<span class="n">hs_fins</span> <span class="o">=</span> <span class="n">hs_fin</span><span class="o">.</span><span class="n">duplicate_along_line</span><span class="p">(</span><span class="n">vector</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">3.65</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">clones</span><span class="o">=</span><span class="n">n_fins</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Materials class has been initialized! Elapsed time: 0m 0sec
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ipk</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">output_file</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;Heatsink.jpg&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Parsing C:\Users\ansys\AppData\Local\Temp\tmppz2qrz3k.ansys\Heatsink.aedt.
+PyAEDT INFO: File C:\Users\ansys\AppData\Local\Temp\tmppz2qrz3k.ansys\Heatsink.aedt correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: aedt file load time 0.0
+PyAEDT INFO: PostProcessor class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Post class has been initialized! Elapsed time: 0m 0sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "d83442b9a99844acaaf1d8ca49b764e7"}</script></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;ansys.aedt.core.visualization.plot.pyvista.ModelPlotter at 0x2d36fc77d90&gt;
+</pre></div></div>
+</div>
+<p>Define a mesh region around the heatsink.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mesh_region</span> <span class="o">=</span> <span class="n">ipk</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">assign_mesh_region</span><span class="p">(</span>
+    <span class="n">assignment</span><span class="o">=</span><span class="p">[</span><span class="n">hs_base</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">hs_fin</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">+</span> <span class="n">hs_fins</span>
+<span class="p">)</span>
+<span class="n">mesh_region</span><span class="o">.</span><span class="n">manual_settings</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">mesh_region</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;MaxElementSizeX&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;5mm&quot;</span>
+<span class="n">mesh_region</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;MaxElementSizeY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;5mm&quot;</span>
+<span class="n">mesh_region</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;MaxElementSizeZ&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1mm&quot;</span>
+<span class="n">mesh_region</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;MinElementsInGap&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">mesh_region</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;MaxLevels&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">mesh_region</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;BufferLayers&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">mesh_region</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;EnableMLM&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">mesh_region</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;UniformMeshParametersType&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Average&quot;</span>
+<span class="n">mesh_region</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT WARNING: No mesh operation found.
+PyAEDT WARNING: No mesh region found.
+PyAEDT INFO: Mesh class has been initialized! Elapsed time: 0m 0sec
+PyAEDT WARNING: Property Command is read-only.
+PyAEDT WARNING: Property Command is read-only.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+<p>Assign monitor objects.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">hs_middle_fin</span> <span class="o">=</span> <span class="n">ipk</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">get_object_from_name</span><span class="p">(</span><span class="n">assignment</span><span class="o">=</span><span class="n">hs_fins</span><span class="p">[</span><span class="n">n_fins</span> <span class="o">//</span> <span class="mi">2</span><span class="p">])</span>
+<span class="n">point_monitor_position</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">hs_base</span><span class="o">.</span><span class="n">bounding_box</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">hs_base</span><span class="o">.</span><span class="n">bounding_box</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">3</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="p">]</span> <span class="o">+</span> <span class="p">[</span>
+    <span class="n">hs_middle_fin</span><span class="o">.</span><span class="n">bounding_box</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="p">]</span>  <span class="c1"># average x,y, top z</span>
+<span class="n">ipk</span><span class="o">.</span><span class="n">monitor</span><span class="o">.</span><span class="n">assign_point_monitor</span><span class="p">(</span>
+    <span class="n">point_position</span><span class="o">=</span><span class="n">point_monitor_position</span><span class="p">,</span>
+    <span class="n">monitor_quantity</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Temperature&quot;</span><span class="p">,</span> <span class="s2">&quot;HeatFlux&quot;</span><span class="p">],</span>
+    <span class="n">monitor_name</span><span class="o">=</span><span class="s2">&quot;TopPoint&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ipk</span><span class="o">.</span><span class="n">monitor</span><span class="o">.</span><span class="n">assign_face_monitor</span><span class="p">(</span>
+    <span class="n">face_id</span><span class="o">=</span><span class="n">hs_base</span><span class="o">.</span><span class="n">bottom_face_z</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+    <span class="n">monitor_quantity</span><span class="o">=</span><span class="s2">&quot;Temperature&quot;</span><span class="p">,</span>
+    <span class="n">monitor_name</span><span class="o">=</span><span class="s2">&quot;Bottom&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ipk</span><span class="o">.</span><span class="n">monitor</span><span class="o">.</span><span class="n">assign_point_monitor_in_object</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="n">hs_middle_fin</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+    <span class="n">monitor_quantity</span><span class="o">=</span><span class="s2">&quot;Temperature&quot;</span><span class="p">,</span>
+    <span class="n">monitor_name</span><span class="o">=</span><span class="s2">&quot;MiddleFinCenter&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&#39;MiddleFinCenter&#39;
+</pre></div></div>
+</div>
+<p>Export the heatsink 3D component to a <code class="docutils literal notranslate"><span class="pre">&quot;componentLibrary&quot;</span></code> folder. The <code class="docutils literal notranslate"><span class="pre">auxiliary_dict</span></code> parameter is set to <code class="docutils literal notranslate"><span class="pre">True</span></code> to export the monitor objects along with the A3DCOMP file.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;componentLibrary&quot;</span><span class="p">))</span>
+<span class="n">ipk</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_3dcomponent</span><span class="p">(</span>
+    <span class="n">input_file</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;componentLibrary&quot;</span><span class="p">,</span> <span class="s2">&quot;Heatsink.a3dcomp&quot;</span><span class="p">),</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Heatsink&quot;</span><span class="p">,</span>
+    <span class="n">export_auxiliary</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ipk</span><span class="o">.</span><span class="n">close_project</span><span class="p">(</span><span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Python version 3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)].
+PyAEDT INFO: PyAEDT version 0.19.dev0.
+PyAEDT INFO: Returning found Desktop session with PID 12552!
+PyAEDT INFO: Project temp_proj has been created.
+PyAEDT INFO: No design is present. Inserting a new design.
+PyAEDT INFO: Added design &#39;Icepak_PE7&#39; of type Icepak.
+PyAEDT INFO: Aedt Objects correctly read
+PyAEDT INFO: Parsing design objects. This operation can take time
+PyAEDT INFO: Refreshing bodies from Object Info
+PyAEDT INFO: Bodies Info Refreshed Elapsed time: 0m 0sec
+PyAEDT INFO: 3D Modeler objects parsed. Elapsed time: 0m 0sec
+PyAEDT INFO: Deleted 12 Objects: HS_Base,HS_Fin1_7,HS_Fin1_6,HS_Fin1_5,HS_Fin1_4,HS_Fin1_9,HS_Fin1_3,HS_Fin1_10,HS_Fin1_2,HS_Fin1_1,HS_Fin1,HS_Fin1_8.
+PyAEDT INFO: Modeler class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Closing the AEDT Project temp_proj
+PyAEDT INFO: Project temp_proj closed correctly
+PyAEDT INFO: C:\Users\ansys\AppData\Local\Temp\tmppz2qrz3k.ansys\Heatsink.pyaedt\Icepak_CII\Icepak_CII_79AJ37.json correctly created.
+PyAEDT INFO: Json file C:\Users\ansys\AppData\Local\Temp\tmppz2qrz3k.ansys\Heatsink.pyaedt\Icepak_CII\Icepak_CII_79AJ37.json created correctly.
+PyAEDT INFO: Closing the AEDT Project Heatsink
+PyAEDT INFO: Project Heatsink closed correctly
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+</section>
+<section id="Create-QFP">
+<h2>Create QFP<a class="headerlink" href="#Create-QFP" title="Link to this heading">#</a></h2>
+<p>Open the previously downloaded project containing a QPF.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ipk</span> <span class="o">=</span> <span class="n">Icepak</span><span class="p">(</span><span class="n">project</span><span class="o">=</span><span class="n">qfp_temp_name</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">AEDT_VERSION</span><span class="p">)</span>
+<span class="n">ipk</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">output_file</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;QFP2.jpg&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Parsing C:\Users\ansys\AppData\Local\Temp\tmppz2qrz3k.ansys\QFP2.aedt.
+PyAEDT INFO: Python version 3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)].
+PyAEDT INFO: PyAEDT version 0.19.dev0.
+PyAEDT INFO: Returning found Desktop session with PID 12552!
+PyAEDT INFO: File C:\Users\ansys\AppData\Local\Temp\tmppz2qrz3k.ansys\QFP2.aedt correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: Project QFP2 has been opened.
+PyAEDT INFO: Active Design set to QFP2_Model
+PyAEDT INFO: Active Design set to QFP2_Model
+PyAEDT INFO: Aedt Objects correctly read
+PyAEDT INFO: PostProcessor class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Post class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Modeler class has been initialized! Elapsed time: 0m 0sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "b4d07eb8396b453eb779c3492e5ba61e"}</script></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;ansys.aedt.core.visualization.plot.pyvista.ModelPlotter at 0x2d36b547730&gt;
+</pre></div></div>
+</div>
+<p>Create a dataset for power dissipation.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">x_datalist</span> <span class="o">=</span> <span class="p">[</span><span class="mi">45</span><span class="p">,</span> <span class="mi">53</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">70</span><span class="p">]</span>
+<span class="n">y_datalist</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">9</span><span class="p">]</span>
+<span class="n">ipk</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;PowerDissipationDataset&quot;</span><span class="p">,</span>
+    <span class="n">x</span><span class="o">=</span><span class="n">x_datalist</span><span class="p">,</span>
+    <span class="n">y</span><span class="o">=</span><span class="n">y_datalist</span><span class="p">,</span>
+    <span class="n">is_project_dataset</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">x_unit</span><span class="o">=</span><span class="s2">&quot;cel&quot;</span><span class="p">,</span>
+    <span class="n">y_unit</span><span class="o">=</span><span class="s2">&quot;W&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Dataset PowerDissipationDataset doesn&#39;t exist.
+PyAEDT INFO: Dataset PowerDissipationDataset created successfully.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;ansys.aedt.core.application.variables.DataSet at 0x2d36fc77eb0&gt;
+</pre></div></div>
+</div>
+<p>Assign a source power condition to the die.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ipk</span><span class="o">.</span><span class="n">create_source_power</span><span class="p">(</span>
+    <span class="n">face_id</span><span class="o">=</span><span class="s2">&quot;DieSource&quot;</span><span class="p">,</span>
+    <span class="n">thermal_dependent_dataset</span><span class="o">=</span><span class="s2">&quot;PowerDissipationDataset&quot;</span><span class="p">,</span>
+    <span class="n">source_name</span><span class="o">=</span><span class="s2">&quot;DieSource&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Boundary SourceIcepak DieSource has been created.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;ansys.aedt.core.modules.boundary.common.BoundaryObject at 0x2d304203730&gt;
+</pre></div></div>
+</div>
+<p>Assign thickness to the die attach surface.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ipk</span><span class="o">.</span><span class="n">assign_conducting_plate_with_thickness</span><span class="p">(</span>
+    <span class="n">obj_plate</span><span class="o">=</span><span class="s2">&quot;Die_Attach&quot;</span><span class="p">,</span>
+    <span class="n">shell_conduction</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">thickness</span><span class="o">=</span><span class="s2">&quot;0.05mm&quot;</span><span class="p">,</span>
+    <span class="n">solid_material</span><span class="o">=</span><span class="s2">&quot;Epoxy Resin-Typical&quot;</span><span class="p">,</span>
+    <span class="n">boundary_name</span><span class="o">=</span><span class="s2">&quot;Die_Attach&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Boundary Conducting Plate Die_Attach has been created.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;ansys.aedt.core.modules.boundary.common.BoundaryObject at 0x2d304202da0&gt;
+</pre></div></div>
+</div>
+<p>Assign monitor objects.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ipk</span><span class="o">.</span><span class="n">monitor</span><span class="o">.</span><span class="n">assign_point_monitor_in_object</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;QFP2_die&quot;</span><span class="p">,</span> <span class="n">monitor_quantity</span><span class="o">=</span><span class="s2">&quot;Temperature&quot;</span><span class="p">,</span> <span class="n">monitor_name</span><span class="o">=</span><span class="s2">&quot;DieCenter&quot;</span>
+<span class="p">)</span>
+<span class="n">ipk</span><span class="o">.</span><span class="n">monitor</span><span class="o">.</span><span class="n">assign_surface_monitor</span><span class="p">(</span>
+    <span class="n">surface_name</span><span class="o">=</span><span class="s2">&quot;Die_Attach&quot;</span><span class="p">,</span> <span class="n">monitor_quantity</span><span class="o">=</span><span class="s2">&quot;Temperature&quot;</span><span class="p">,</span> <span class="n">monitor_name</span><span class="o">=</span><span class="s2">&quot;DieAttach&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&#39;DieAttach&#39;
+</pre></div></div>
+</div>
+<p>Export the QFP 3D component in the <code class="docutils literal notranslate"><span class="pre">&quot;componentLibrary&quot;</span></code> folder and close the project. Here the auxiliary dictionary allows exporting not only the monitor objects but also the dataset used for the power source assignment.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ipk</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_3dcomponent</span><span class="p">(</span>
+    <span class="n">input_file</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;componentLibrary&quot;</span><span class="p">,</span> <span class="s2">&quot;QFP.a3dcomp&quot;</span><span class="p">),</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;QFP&quot;</span><span class="p">,</span>
+    <span class="n">export_auxiliary</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">datasets</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;PowerDissipationDataset&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="n">ipk</span><span class="o">.</span><span class="n">release_desktop</span><span class="p">(</span><span class="n">close_projects</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">close_desktop</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Mesh class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Python version 3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)].
+PyAEDT INFO: PyAEDT version 0.19.dev0.
+PyAEDT INFO: Returning found Desktop session with PID 12552!
+PyAEDT INFO: Project temp_proj has been created.
+PyAEDT INFO: No design is present. Inserting a new design.
+PyAEDT INFO: Added design &#39;Icepak_2UL&#39; of type Icepak.
+PyAEDT INFO: Aedt Objects correctly read
+PyAEDT INFO: Parsing design objects. This operation can take time
+PyAEDT INFO: Refreshing bodies from Object Info
+PyAEDT INFO: Bodies Info Refreshed Elapsed time: 0m 0sec
+PyAEDT INFO: 3D Modeler objects parsed. Elapsed time: 0m 0sec
+PyAEDT INFO: Deleted 5 Objects: Die_Attach,QFP2_die,QFP2_diePad,QFP2_Mold,DieSource.
+PyAEDT INFO: Modeler class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Closing the AEDT Project temp_proj
+PyAEDT INFO: Project temp_proj closed correctly
+PyAEDT INFO: C:\Users\ansys\AppData\Local\Temp\tmppz2qrz3k.ansys\QFP2.pyaedt\QFP2_Model\QFP2_Model_NJYHKO.json correctly created.
+PyAEDT INFO: Json file C:\Users\ansys\AppData\Local\Temp\tmppz2qrz3k.ansys\QFP2.pyaedt\QFP2_Model\QFP2_Model_NJYHKO.json created correctly.
+PyAEDT INFO: Desktop has been released and closed.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+</section>
+<section id="Create-complete-electronic-package">
+<h2>Create complete electronic package<a class="headerlink" href="#Create-complete-electronic-package" title="Link to this heading">#</a></h2>
+<p>Download and open a project containing the electronic package.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ipk</span> <span class="o">=</span> <span class="n">Icepak</span><span class="p">(</span>
+    <span class="n">project</span><span class="o">=</span><span class="n">package_temp_name</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="n">AEDT_VERSION</span><span class="p">,</span>
+    <span class="n">non_graphical</span><span class="o">=</span><span class="n">NG_MODE</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ipk</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">assignment</span><span class="o">=</span><span class="p">[</span><span class="n">o</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">ipk</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">object_names</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">o</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;DomainBox&quot;</span><span class="p">)],</span>
+    <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">output_file</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;electronic_package_missing_obj.jpg&quot;</span><span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Parsing C:\Users\ansys\AppData\Local\Temp\tmppz2qrz3k.ansys\PCBAssembly.aedt.
+PyAEDT INFO: Python version 3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)].
+PyAEDT INFO: PyAEDT version 0.19.dev0.
+PyAEDT INFO: Initializing new Desktop session.
+PyAEDT INFO: Log on console is enabled.
+PyAEDT INFO: Log on file C:\Users\ansys\AppData\Local\Temp\pyaedt_ansys_6930e4bf-83a7-45af-ae32-741d645655b1.log is enabled.
+PyAEDT INFO: Log on AEDT is disabled.
+PyAEDT INFO: Debug logger is disabled. PyAEDT methods will not be logged.
+PyAEDT INFO: Launching PyAEDT with gRPC plugin.
+PyAEDT INFO: New AEDT session is starting on gRPC port 61687.
+PyAEDT INFO: File C:\Users\ansys\AppData\Local\Temp\tmppz2qrz3k.ansys\PCBAssembly.aedt correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: Electronics Desktop started on gRPC port: 61687 after 10.603613138198853 seconds.
+PyAEDT INFO: AEDT installation Path C:\Program Files\ANSYS Inc\v252\AnsysEM
+PyAEDT INFO: Ansoft.ElectronicsDesktop.2025.2 version started with process ID 13460.
+PyAEDT INFO: Project PCBAssembly has been opened.
+PyAEDT INFO: Active Design set to Model
+PyAEDT INFO: Active Design set to Model
+PyAEDT INFO: Aedt Objects correctly read
+PyAEDT INFO: Modeler class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: PostProcessor class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Post class has been initialized! Elapsed time: 0m 0sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "26ae554cd1e84c7db96adbc8a921aae1"}</script></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;ansys.aedt.core.visualization.plot.pyvista.ModelPlotter at 0x2d36b545d50&gt;
+</pre></div></div>
+</div>
+<p>The heatsink and the QFP are missing. They can be inserted as 3D components. The auxiliary files are needed because the goal is to also import monitor objects and datasets.</p>
+<p>Create a coordinate system for the heatsink so that it is placed on top of the AGP.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">agp</span> <span class="o">=</span> <span class="n">ipk</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">get_object_from_name</span><span class="p">(</span><span class="n">assignment</span><span class="o">=</span><span class="s2">&quot;AGP_IDF&quot;</span><span class="p">)</span>
+<span class="n">cs</span> <span class="o">=</span> <span class="n">ipk</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_coordinate_system</span><span class="p">(</span>
+    <span class="n">origin</span><span class="o">=</span><span class="p">[</span><span class="n">agp</span><span class="o">.</span><span class="n">bounding_box</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">agp</span><span class="o">.</span><span class="n">bounding_box</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">agp</span><span class="o">.</span><span class="n">bounding_box</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]],</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;HeatsinkCS&quot;</span><span class="p">,</span>
+    <span class="n">reference_cs</span><span class="o">=</span><span class="s2">&quot;Global&quot;</span><span class="p">,</span>
+    <span class="n">x_pointing</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+    <span class="n">y_pointing</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="n">heatsink_obj</span> <span class="o">=</span> <span class="n">ipk</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">insert_3d_component</span><span class="p">(</span>
+    <span class="n">input_file</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;componentLibrary&quot;</span><span class="p">,</span> <span class="s2">&quot;Heatsink.a3dcomp&quot;</span><span class="p">),</span>
+    <span class="n">coordinate_system</span><span class="o">=</span><span class="s2">&quot;HeatsinkCS&quot;</span><span class="p">,</span>
+    <span class="n">auxiliary_parameters</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">QFP2_obj</span> <span class="o">=</span> <span class="n">ipk</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">insert_3d_component</span><span class="p">(</span>
+    <span class="n">input_file</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;componentLibrary&quot;</span><span class="p">,</span> <span class="s2">&quot;QFP.a3dcomp&quot;</span><span class="p">),</span>
+    <span class="n">coordinate_system</span><span class="o">=</span><span class="s2">&quot;Global&quot;</span><span class="p">,</span>
+    <span class="n">auxiliary_parameters</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">ipk</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">assignment</span><span class="o">=</span><span class="p">[</span><span class="n">o</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">ipk</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">object_names</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">o</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;DomainBox&quot;</span><span class="p">)],</span>
+    <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">plot_air_objects</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">output_file</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;electronic_package.jpg&quot;</span><span class="p">),</span>
+    <span class="n">force_opacity_value</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Python version 3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)].
+PyAEDT INFO: PyAEDT version 0.19.dev0.
+PyAEDT INFO: Returning found Desktop session with PID 13460!
+PyAEDT INFO: Project Project_R65 has been created.
+PyAEDT INFO: No design is present. Inserting a new design.
+PyAEDT INFO: Added design &#39;Icepak_VT8&#39; of type Icepak.
+PyAEDT INFO: Aedt Objects correctly read
+PyAEDT INFO: Closing the AEDT Project Project_R65
+PyAEDT INFO: Project Project_R65 closed correctly
+PyAEDT INFO: Dataset PowerDissipationDataset exists.
+PyAEDT WARNING: Dataset PowerDissipationDataset already exists
+PyAEDT INFO: Python version 3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)].
+PyAEDT INFO: PyAEDT version 0.19.dev0.
+PyAEDT INFO: Returning found Desktop session with PID 13460!
+PyAEDT INFO: Project Project_J5I has been created.
+PyAEDT INFO: No design is present. Inserting a new design.
+PyAEDT INFO: Added design &#39;Icepak_DSX&#39; of type Icepak.
+PyAEDT INFO: Aedt Objects correctly read
+PyAEDT INFO: Closing the AEDT Project Project_J5I
+PyAEDT INFO: Project Project_J5I closed correctly
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "2002b7418fe3418184851aaeaaad5cf0"}</script></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;ansys.aedt.core.visualization.plot.pyvista.ModelPlotter at 0x2d36e5f65f0&gt;
+</pre></div></div>
+</div>
+<p>Create a coordinate system at the xmin, ymin, and zmin of the model.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bounding_box</span> <span class="o">=</span> <span class="n">ipk</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">get_model_bounding_box</span><span class="p">()</span>
+<span class="n">cs_pcb_assembly</span> <span class="o">=</span> <span class="n">ipk</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_coordinate_system</span><span class="p">(</span>
+    <span class="n">origin</span><span class="o">=</span><span class="p">[</span><span class="n">bounding_box</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bounding_box</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">bounding_box</span><span class="p">[</span><span class="mi">2</span><span class="p">]],</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;PCB_Assembly&quot;</span><span class="p">,</span>
+    <span class="n">reference_cs</span><span class="o">=</span><span class="s2">&quot;Global&quot;</span><span class="p">,</span>
+    <span class="n">x_pointing</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+    <span class="n">y_pointing</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Export the entire assembly as a 3D component and close the project. First, the nested hierarchy must be flattened because nested 3D components are currently not supported. Subsequently, the whole package can be exported as a 3D component. The auxiliary dictionary is needed to export monitor objects, datasets, and native components.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ipk</span><span class="o">.</span><span class="n">flatten_3d_components</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Python version 3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)].
+PyAEDT INFO: PyAEDT version 0.19.dev0.
+PyAEDT INFO: Returning found Desktop session with PID 13460!
+PyAEDT INFO: Project Heatsink set to active.
+PyAEDT INFO: Active Design set to Heatsink
+PyAEDT INFO: Aedt Objects correctly read
+PyAEDT INFO: Modeler class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Closing the AEDT Project Heatsink
+PyAEDT INFO: Project Heatsink closed correctly
+PyAEDT INFO: Python version 3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)].
+PyAEDT INFO: PyAEDT version 0.19.dev0.
+PyAEDT INFO: Returning found Desktop session with PID 13460!
+PyAEDT INFO: Project Heatsink set to active.
+PyAEDT INFO: Active Design set to Heatsink
+PyAEDT INFO: Aedt Objects correctly read
+PyAEDT INFO: Modeler class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Parsing design objects. This operation can take time
+PyAEDT INFO: Refreshing bodies from Object Info
+PyAEDT INFO: Bodies Info Refreshed Elapsed time: 0m 0sec
+PyAEDT INFO: 3D Modeler objects parsed. Elapsed time: 0m 0sec
+PyAEDT INFO: Parsing design objects. This operation can take time
+PyAEDT INFO: Refreshing bodies from Object Info
+PyAEDT INFO: Bodies Info Refreshed Elapsed time: 0m 0sec
+PyAEDT INFO: 3D Modeler objects parsed. Elapsed time: 0m 0sec
+PyAEDT INFO: Heatsink1_Bottom monitor object lost its assignment due to geometry modifications and has been deleted.
+PyAEDT INFO: Heatsink1_MiddleFinCenter monitor object lost its assignment due to geometry modifications and has been deleted.
+PyAEDT INFO: Heatsink1_Bottom monitor object restored
+PyAEDT INFO: Heatsink1_MiddleFinCenter monitor object restored
+PyAEDT INFO: Closing the AEDT Project Heatsink
+PyAEDT INFO: Project Heatsink closed correctly
+PyAEDT INFO: Python version 3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)].
+PyAEDT INFO: PyAEDT version 0.19.dev0.
+PyAEDT INFO: Returning found Desktop session with PID 13460!
+PyAEDT INFO: Project QFP set to active.
+PyAEDT INFO: Active Design set to QFP
+PyAEDT INFO: Aedt Objects correctly read
+PyAEDT INFO: Modeler class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Closing the AEDT Project QFP
+PyAEDT INFO: Project QFP closed correctly
+PyAEDT INFO: Python version 3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)].
+PyAEDT INFO: PyAEDT version 0.19.dev0.
+PyAEDT INFO: Returning found Desktop session with PID 13460!
+PyAEDT INFO: Project QFP set to active.
+PyAEDT INFO: Active Design set to QFP
+PyAEDT INFO: Aedt Objects correctly read
+PyAEDT INFO: Modeler class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Parsing design objects. This operation can take time
+PyAEDT INFO: Refreshing bodies from Object Info
+PyAEDT INFO: Bodies Info Refreshed Elapsed time: 0m 0sec
+PyAEDT INFO: 3D Modeler objects parsed. Elapsed time: 0m 0sec
+PyAEDT INFO: Parsing design objects. This operation can take time
+PyAEDT INFO: Refreshing bodies from Object Info
+PyAEDT INFO: Bodies Info Refreshed Elapsed time: 0m 0sec
+PyAEDT INFO: 3D Modeler objects parsed. Elapsed time: 0m 0sec
+PyAEDT INFO: QFP1_DieAttach monitor object lost its assignment due to geometry modifications and has been deleted.
+PyAEDT INFO: QFP1_DieCenter monitor object lost its assignment due to geometry modifications and has been deleted.
+PyAEDT INFO: QFP1_DieAttach monitor object restored
+PyAEDT INFO: QFP1_DieCenter monitor object restored
+PyAEDT INFO: Closing the AEDT Project QFP
+PyAEDT INFO: Project QFP closed correctly
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+</section>
+<section id="Release-AEDT">
+<h2>Release AEDT<a class="headerlink" href="#Release-AEDT" title="Link to this heading">#</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ipk</span><span class="o">.</span><span class="n">save_project</span><span class="p">()</span>
+<span class="n">ipk</span><span class="o">.</span><span class="n">release_desktop</span><span class="p">()</span>
+<span class="c1"># Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.</span>
+<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Project PCBAssembly Saved correctly
+PyAEDT INFO: Desktop has been released and closed.
+</pre></div></div>
+</div>
+</section>
+<section id="Clean-up">
+<h2>Clean up<a class="headerlink" href="#Clean-up" title="Link to this heading">#</a></h2>
+<p>All project files are saved in the folder <code class="docutils literal notranslate"><span class="pre">temp_folder.name</span></code>. If you’ve run this example as a Jupyter notebook, you can retrieve those project files. The following cell removes all temporary files, including the project folder.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">temp_folder</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<script type="application/vnd.jupyter.widget-state+json">
+{"state": {"01d625d0176a40e4822dbe4f903a367f": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "a1a1fdc4fcd747d88acf5e5071b9f247": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "d83442b9a99844acaaf1d8ca49b764e7": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_01d625d0176a40e4822dbe4f903a367f", "placeholder": "\u200b", "style": "IPY_MODEL_a1a1fdc4fcd747d88acf5e5071b9f247", "tabbable": null, "tooltip": null, "value": "<iframe src=\"http://localhost:61639/index.html?ui=P_0x2d303926ad0_0&reconnect=auto\" class=\"pyvista\" style=\"width: 600px; height: 600px; border: 1px solid rgb(221,221,221);\"></iframe>"}}, "559f74358f7a4b75aa2e6516619cff13": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "d34bb183fa4b4bc48a74bd695b044381": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "b4d07eb8396b453eb779c3492e5ba61e": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_559f74358f7a4b75aa2e6516619cff13", "placeholder": "\u200b", "style": "IPY_MODEL_d34bb183fa4b4bc48a74bd695b044381", "tabbable": null, "tooltip": null, "value": "<iframe src=\"http://localhost:61639/index.html?ui=P_0x2d304203460_1&reconnect=auto\" class=\"pyvista\" style=\"width: 600px; height: 600px; border: 1px solid rgb(221,221,221);\"></iframe>"}}, "670c7ccf88904c6aad3189f4e5174328": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "ad17646761d4450395d4acf6d12cf4ef": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "26ae554cd1e84c7db96adbc8a921aae1": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_670c7ccf88904c6aad3189f4e5174328", "placeholder": "\u200b", "style": "IPY_MODEL_ad17646761d4450395d4acf6d12cf4ef", "tabbable": null, "tooltip": null, "value": "<iframe src=\"http://localhost:61639/index.html?ui=P_0x2d36e5b1840_2&reconnect=auto\" class=\"pyvista\" style=\"width: 600px; height: 600px; border: 1px solid rgb(221,221,221);\"></iframe>"}}, "b8b5b262b0234f8fb235018fe559eceb": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "c672cdb398414cf6a1a59ea0c7f4c6a4": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "2002b7418fe3418184851aaeaaad5cf0": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_b8b5b262b0234f8fb235018fe559eceb", "placeholder": "\u200b", "style": "IPY_MODEL_c672cdb398414cf6a1a59ea0c7f4c6a4", "tabbable": null, "tooltip": null, "value": "<iframe src=\"http://localhost:61639/index.html?ui=P_0x2d36f2ade70_3&reconnect=auto\" class=\"pyvista\" style=\"width: 600px; height: 600px; border: 1px solid rgb(221,221,221);\"></iframe>"}}}, "version_major": 2, "version_minor": 0}
+</script></section>
+</section>
+<hr class="docutils" />
+<div class="admonition-download-this-example admonition">
+<p class="admonition-title">Download this example</p>
+<p>Download this example as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/electrothermal/component_3d.ipynb">Jupyter Notebook</a>
+or as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/electrothermal/component_3d.py">Python script</a>.</p>
+</div>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Perform-imports-and-define-constants">Perform imports and define constants</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-temporary-directory-and-download-files">Create temporary directory and download files</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-heatsink">Create heatsink</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-QFP">Create QFP</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-complete-electronic-package">Create complete electronic package</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Release-AEDT">Release AEDT</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Clean-up">Clean up</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item"> 
+<div class="tocsection editthispage">
+  <a href="https://github.com/ansys/pyaedt-examples/edit/main/doc/source/examples/electrothermal/component_3d.ipynb">
+    <i class="fa-solid fa-pencil"></i>
+       Edit
+    on GitHub  
+  </a>
+</div>
+
+</div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../../_sources/examples/electrothermal/component_3d.ipynb.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright (c) 2021 - 2025 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the
+  <a href="https://sphinxdocs.ansys.com/version/stable/index.html"
+    >Ansys Sphinx Theme</a
+  >
+  1.0.11. <br />Last updated on
+  <span id="date"></span>
+</p>
+<script>
+  var options = { day: "numeric", month: "long", year: "numeric" };
+  var lastModifiedDate = new Date(document.lastModified);
+  var date = lastModifiedDate.toLocaleDateString("en-US", options);
+  document.getElementById("date").innerHTML = date;
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
