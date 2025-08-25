@@ -40,7 +40,7 @@ edb = pyedb.Edb(edbpath=aedb_path, edbversion=AEDT_VERSION)
 # ### Add stackup layers
 #
 # A stackup can be created layer by layer or imported from a 
-# [configuration file](https://examples.aedt.docs.pyansys.com/version/dev/examples/00_edb/use_configuration/import_stackup.html).
+# [configuration file](https://examples.aedt.docs.pyansys.com/version/dev/examples/edb/use_configuration/import_stackup.html).
 
 edb.stackup.add_layer("GND")
 edb.stackup.add_layer("Diel", "GND", layer_type="dielectric", thickness="0.1mm", material="FR4_epoxy")
