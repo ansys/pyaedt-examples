@@ -17,9 +17,9 @@ scikit-rf==1.6.2
 # Documentation dependencies
 ansys-sphinx-theme==1.0.11
 ipython==8.26.0
-jupyterlab==4.4.3
+jupyterlab==4.4.6
 nbsphinx==0.9.7
-numpydoc==1.8.0
+numpydoc==1.9.0
 pypandoc==1.15
 recommonmark
 Sphinx==8.0.2
