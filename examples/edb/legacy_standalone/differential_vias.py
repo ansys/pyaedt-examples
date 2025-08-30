@@ -52,9 +52,9 @@ edb.stackup.add_layer("TOP", "Diel", thickness="0.05mm")
 points = [[0.0, 0], [100e-3, 0.0]]
 edb.modeler.create_trace(points, "TOP", width=1e-3)
 points = [[0.0, 1e-3], [0.0, 10e-3], [100e-3, 10e-3], [100e-3, 1e-3], [0.0, 1e-3]]
-edb.modeler.create_polygon(points, "TOP")
+edb.modeler.create_polygon(points, "GND")
 points = [[0.0, -1e-3], [0.0, -10e-3], [100e-3, -10e-3], [100e-3, -1e-3], [0.0, -1e-3]]
-edb.modeler.create_polygon(points, "TOP")
+edb.modeler.create_polygon(points, "GND")
 
 
 # ## Place vias
