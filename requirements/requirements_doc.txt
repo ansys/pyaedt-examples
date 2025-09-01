@@ -6,13 +6,13 @@ imageio==2.37.0
 matplotlib==3.10.1
 numpy==2.2.3
 openpyxl==3.1.5
-osmnx==2.0.2
-pandas==2.2.3
-pyvista==0.44.2
-fast-simplification==0.1.10
-joblib==1.5.0
-plotly==6.0.1
-scikit-rf==1.6.2
+osmnx==2.0.6
+pandas==2.3.2
+pyvista==0.46.3
+fast-simplification==0.1.12
+joblib==1.5.2
+plotly==6.3.0
+scikit-rf==1.8.0
 
 # Documentation dependencies
 ansys-sphinx-theme==1.0.11
