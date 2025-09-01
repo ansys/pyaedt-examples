@@ -84,7 +84,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 aedb_path = os.path.join(temp_dir.name, "linear_array.aedb")
 
 # Select EDB version (change it manually if needed, e.g. "2025.1")
-edb_version = "2025.1"
+edb_version = "2025.2"
 print(f"EDB version: {edb_version}")
 
 # Create an instance of the Edb class.
@@ -242,7 +242,7 @@ print("EDB saved correctly to {}. You can import in AEDT.".format(aedb_path))
 h3d = ansys.aedt.core.Hfss(
     projectname="Demo_3DComp",
     designname="Linear_Array",
-    specified_version="2025.1",
+    specified_version="2025.2",
     new_desktop_session=True,
     non_graphical=non_graphical,
     close_on_exit=True,
