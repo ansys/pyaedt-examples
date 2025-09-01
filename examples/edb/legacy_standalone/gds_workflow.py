@@ -16,7 +16,7 @@
 
 import os
 import tempfile
-from pyedb.dotnet.edb import Edb
+from pyedb import Edb
 from pyedb.misc.downloads import download_file
 from ansys.aedt.core.hfss3dlayout import  Hfss3dLayout
 
