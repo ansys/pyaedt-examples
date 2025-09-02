@@ -145,7 +145,7 @@ cfg["setups"] = [
 # ## Define Cutout
 
 cfg["operations"] = {
-    "cutout": {"signal_list": ["1V0"], "reference_list": ["GND"], "extent_type": "ConvexHull", "expansion_size": "20mm"}
+    "cutout": {"signal_list": ["1V0"], "reference_list": ["GND"], "extent_type": "ConvexHull", "expansion_size": 0.02}
 }
 
 # ## Define package for thermal analysis (optional)
