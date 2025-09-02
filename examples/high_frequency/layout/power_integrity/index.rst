@@ -21,10 +21,10 @@ These examples use PyAEDT to show power integrity examples.
 
    .. grid-item-card:: Via Array
       :padding: 2 2 2 2
-      :link: ../../../00_edb/legacy_standalone/differential_vias
+      :link: ../../../edb/legacy_standalone/differential_vias
       :link-type: doc
 
-      .. image:: ../../../00_edb/legacy_standalone/_static/diff_via.png
+      .. image:: ../../../edb/legacy_standalone/_static/diff_via.png
          :alt: Differential Vias
          :width: 250px
          :height: 200px
@@ -34,10 +34,10 @@ These examples use PyAEDT to show power integrity examples.
 
    .. grid-item-card::  SIwave DC-IR Analysis
       :padding: 2 2 2 2
-      :link: ../../../00_edb/legacy_standalone/siwave_dcir
+      :link: ../../../edb/legacy_standalone/siwave_dcir
       :link-type: doc
 
-      .. image:: ../../../00_edb/legacy_standalone/_static/siwave_dcir.png
+      .. image:: ../../../edb/legacy_standalone/_static/siwave_dcir.png
          :alt: SIwave DCIR
          :width: 250px
          :height: 200px
@@ -138,5 +138,5 @@ These examples use PyAEDT to show power integrity examples.
       ../../../aedt_general/modeler/circuit_schematic
       ../../../aedt_general/modeler/netlist_to_schematic
       ../../../aedt_general/report/touchstone_file
-      ../../../00_edb/legacy_standalone/differential_vias
-      ../../../00_edb/legacy_standalone/siwave_dcir
+      ../../../edb/legacy_standalone/differential_vias
+      ../../../edb/legacy_standalone/siwave_dcir

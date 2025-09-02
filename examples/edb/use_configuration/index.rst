@@ -17,7 +17,7 @@ PyAEDT offers a GUI which utilizes config file. Please refer to `Configure Layou
       :link: pdn_analysis
       :link-type: doc
 
-      .. image:: _static/configurator_2.png
+      .. image:: _static/pi.png
          :alt: Configurator
          :width: 250px
          :height: 200px
@@ -28,7 +28,7 @@ PyAEDT offers a GUI which utilizes config file. Please refer to `Configure Layou
       :link: serdes
       :link-type: doc
 
-      .. image:: _static/configurator_2.png
+      .. image:: _static/serdes.png
          :alt: Configurator
          :width: 250px
          :height: 200px
@@ -39,7 +39,7 @@ PyAEDT offers a GUI which utilizes config file. Please refer to `Configure Layou
       :link: pcb_dc_ir
       :link-type: doc
 
-      .. image:: _static/configurator_2.png
+      .. image:: _static/dcir_pcb.png
          :alt: Configurator
          :width: 250px
          :height: 200px
@@ -50,7 +50,7 @@ PyAEDT offers a GUI which utilizes config file. Please refer to `Configure Layou
       :link: dcir
       :link-type: doc
 
-      .. image:: _static/configurator_2.png
+      .. image:: _static/dcir.png
          :alt: Configurator
          :width: 250px
          :height: 200px
@@ -61,7 +61,7 @@ PyAEDT offers a GUI which utilizes config file. Please refer to `Configure Layou
       :link: modeler_simple_transmission_line
       :link-type: doc
 
-      .. image:: _static/configurator_2.png
+      .. image:: _static/tline.png
          :alt: Configurator
          :width: 250px
          :height: 200px

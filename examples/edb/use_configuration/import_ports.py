@@ -18,6 +18,7 @@
 
 # +
 import json
+import toml
 from pathlib import Path
 import tempfile
 
@@ -27,7 +28,7 @@ from pyedb import Edb
 
 # Define constants.
 
-AEDT_VERSION = "2025.1"
+AEDT_VERSION = "2025.2"
 NG_MODE = False
 
 # Download the example PCB data.
@@ -49,10 +50,11 @@ cfg = dict()
 #
 # - **name**. Name of the port.
 # - **Reference_designator**. Reference designator of the component.
-# - **type**. Type of the port. Supported types are 'circuit', 'coax'
-# - **positive_terminal**. Positive terminal of the port. Supported types are 'net', 'pin', 'pin_group', 'coordinates'
+# - **type**. Type of the port. Supported types are 'circuit', 'coax', 'gap_port', 'wave_port', 'diff_wave_port'.
+# - **impedance**. Impedance of the port. Default is 50 Ohm.
+# - **positive_terminal**. Positive terminal of the port. Supported types are 'net', 'pin', 'pin_group', 'coordinates'.
 # - **negative_terminal**. Negative terminal of the port. Supported types are 'net', 'pin', 'pin_group', 'coordinates',
-# 'nearest_pin'
+# 'nearest_pin'.
 
 port_1 = {
     "name": "port_1",
@@ -145,6 +147,13 @@ cfg["ports"] = [port_1, port_2, port_3, port_4, port_5, port_6, ports_distribute
 file_json = Path(temp_folder.name) / "edb_configuration.json"
 with open(file_json, "w") as f:
     json.dump(cfg, f, indent=4, ensure_ascii=False)
+
+
+# Equivalent toml file looks like below 
+
+toml_string = toml.dumps(cfg)
+print(toml_string)
+
 
 # ## Import configuration into example layout
 

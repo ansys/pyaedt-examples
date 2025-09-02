@@ -7,6 +7,7 @@
 
 # +
 import json
+import toml
 from pathlib import Path
 import tempfile
 
@@ -18,7 +19,7 @@ from pyedb import Edb
 
 # Define constants.
 
-AEDT_VERSION = "2025.1"
+AEDT_VERSION = "2025.2"
 NG_MODE = False
 
 # Download the example PCB data.
@@ -64,6 +65,10 @@ file_cfg = Path(temp_folder.name) / "edb_configuration.json"
 with open(file_cfg, "w") as f:
     json.dump(data_cfg, f, indent=4, ensure_ascii=False)
 
+# Equivalent toml file looks like below 
+
+toml_string = toml.dumps(data_cfg)
+print(toml_string)
 
 # ## Load stackup from json configuration file
 
