@@ -19,7 +19,7 @@ from ansys.aedt.core import Hfss3dLayout, Icepak
 
 # Define constants.
 
-AEDT_VERSION = "2025.1"
+AEDT_VERSION = "2025.2"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Open project

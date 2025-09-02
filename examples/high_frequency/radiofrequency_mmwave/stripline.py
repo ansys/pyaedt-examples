@@ -19,7 +19,7 @@ import ansys.aedt.core
 
 # Define constants.
 
-AEDT_VERSION = "2025.1"
+AEDT_VERSION = "2025.2"
 NUM_CORES = 4
 
 
@@ -34,7 +34,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch AEDT and 2D Extractor
 #
-# Launch AEDT 2025.1 in graphical mode and launch 2D Extractor. This example
+# Launch AEDT 2025.2 in graphical mode and launch 2D Extractor. This example
 # uses SI units.
 
 q2d = ansys.aedt.core.Q2d(
