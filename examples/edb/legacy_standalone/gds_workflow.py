@@ -20,10 +20,10 @@ from pyedb import Edb
 from pyedb.misc.downloads import download_file
 from ansys.aedt.core.hfss3dlayout import  Hfss3dLayout
 
-# ### Define constants
+# ### Define constant
 # Constants help ensure consistency and avoid repetition throughout the example.
 
-VERSION= "2025.2"
+AEDT_VERSION= "2025.2"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ### Create temporary directory
@@ -69,7 +69,7 @@ gds_in = os.path.join(local_path, gds_fn)
 #
 # Open the EDB by creating an instance of the ``Edb`` class.
 
-edb = Edb(gds_in, control_file=control_file, map_file=map_file, version=VERSION)
+edb = Edb(gds_in, control_file=control_file, map_file=map_file, version=AEDT_VERSION)
 
 # ### View the layer stackup
 
@@ -93,7 +93,7 @@ edb.close()
 #
 # <img src="_static/layout.png" width="800">
 
-h3d = Hfss3dLayout(project=edb_path, version=VERSION, new_desktop=NG_MODE)
+h3d = Hfss3dLayout(project=edb_path, version=AEDT_VERSION, new_desktop=NG_MODE)
 
 # ### Close the HFSS 3D Layout 
 # The following command releases Ansys Electronics Desktop and closes the project.
