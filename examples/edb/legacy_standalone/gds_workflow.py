@@ -16,17 +16,14 @@
 
 import os
 import tempfile
-
-from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
-from pyedb.dotnet.edb import Edb
-from pyedb.generic.settings import settings
+from pyedb import Edb
 from pyedb.misc.downloads import download_file
+from ansys.aedt.core.hfss3dlayout import  Hfss3dLayout
 
-# ### Define constants
+# ### Define constant
 # Constants help ensure consistency and avoid repetition throughout the example.
 
-AEDT_VERSION = "2025.2"
-settings.specified_version = AEDT_VERSION
+AEDT_VERSION= "2025.2"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ### Create temporary directory
@@ -41,8 +38,8 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ### Import a GDS file.
 #
-# Download the test case folder and copy it to the working directory. The
-# method ``download_file()`` retrieves example data from the
+# Download the test case folder and copy it to the working directory. The 
+# method ``download_file()`` retrieves example data from the 
 # [Ansys GitHub "example_data" repository](https://github.com/ansys/example-data/tree/main/pyaedt).
 #
 # The following files are used in this example:
@@ -72,7 +69,7 @@ gds_in = os.path.join(local_path, gds_fn)
 #
 # Open the EDB by creating an instance of the ``Edb`` class.
 
-edb = Edb(gds_in, control_file=control_file, map_file=map_file)
+edb = Edb(gds_in, control_file=control_file, map_file=map_file, version=AEDT_VERSION)
 
 # ### View the layer stackup
 
@@ -81,9 +78,9 @@ edb.stackup.plot()
 # ### Save and close the EDB
 #
 # The GDS file has been converted to an EDB and is ready for subsequent processing either in the
-# 3D Layout UI of Electronics Desktop or using
-# PyEDB.
-# The following commands save and close the EDB.
+# 3D Layout UI of Electronics Desktop or using 
+# PyEDB. 
+# The following commands save and close the EDB. 
 
 edb_path = os.path.join(temp_folder.name, "gds_design.aedb")
 edb.save_as(edb_path)
@@ -96,20 +93,9 @@ edb.close()
 #
 # <img src="_static/layout.png" width="800">
 
-h3d = Hfss3dLayout(
-    project=edb_path, version=settings.specified_version, new_desktop=NG_MODE
-)
+h3d = Hfss3dLayout(project=edb_path, version=AEDT_VERSION, new_desktop=NG_MODE)
 
-# ### Close the HFSS 3D Layout
+# ### Close the HFSS 3D Layout 
 # The following command releases Ansys Electronics Desktop and closes the project.
 
 h3d.release_desktop()
-
-# ### Clean up
-#
-# All project files are saved in the folder ``temp_folder.name``.
-# If you've run this example as a Jupyter notebook, you
-# can retrieve those project files. The following cell
-# removes all temporary files, including the project folder.
-
-temp_folder.cleanup()
