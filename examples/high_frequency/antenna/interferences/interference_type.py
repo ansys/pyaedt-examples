@@ -15,6 +15,7 @@
 # +
 import os
 import sys
+import tempfile
 
 import ansys.aedt.core
 import openpyxl
@@ -622,8 +623,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.previous_project = self.file_path_box.text()
                 self.emitapp.set_active_design(self.design_name_dropdown.currentText())
 
-                # Check if file is read-only
-                if self.emitapp.save_project() == False:
+                # Check if directory is read-only
+                try:
+                    testfile = tempfile.TemporaryFile(dir=self.emitapp.odesign.GetManagedFilesPath())
+                    testfile.close()
+                except (OSError, PermissionError):
                     msg = QtWidgets.QMessageBox()
                     msg.setWindowTitle("Writing Error")
                     msg.setText(
@@ -633,8 +637,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     return
 
                 # Get results and design radios
-                self.tx_interferer = InterfererType().TRANSMITTERS
                 self.rev = self.emitapp.results.analyze()
+                self.tx_interferer = InterfererType().TRANSMITTERS
                 self.rx_radios = self.rev.get_receiver_names()
                 self.tx_radios = self.rev.get_interferer_names(self.tx_interferer)
 
