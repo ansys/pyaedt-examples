@@ -10,14 +10,17 @@
 # Perform required imports.
 
 # +
-import csv
 import os
 import tempfile
 import time
 from operator import attrgetter
 
 import ansys.aedt.core
+import matplotlib.pyplot as plt
 from ansys.aedt.core.examples.downloads import download_leaf
+from ansys.aedt.core.generic.constants import unit_converter
+from ansys.aedt.core.generic.numbers import Quantity
+
 # -
 
 # Define constants.
@@ -147,9 +150,7 @@ for k, v in oper_params.items():
 # Define the path for non-linear material properties.
 # Materials are stored in text files.
 
-filename_lam, filename_PM = download_leaf(
-    local_path=temp_folder.name
-)
+filename_lam, filename_PM = download_leaf(local_path=temp_folder.name)
 
 # ## Create first material
 #
@@ -172,12 +173,7 @@ mat_PM.update()
 mat_PM.conductivity = "555555.5556"
 mat_PM.set_magnetic_coercivity(value=-800146.66287534, x=1, y=0, z=0)
 mat_PM.mass_density = "7500"
-BH_List_PM = []
-with open(filename_PM) as f:
-    reader = csv.reader(f, delimiter="\t")
-    next(reader)
-    for row in reader:
-        BH_List_PM.append([float(row[0]), float(row[1])])
+BH_List_PM = m2d.import_dataset1d(filename_PM)
 mat_PM.permeability.value = BH_List_PM
 
 # ## Create third material
@@ -196,12 +192,7 @@ kdc = 0.001
 eq_depth = 0.001
 mat_lam.set_electrical_steel_coreloss(kh, kc, ke, kdc, eq_depth)
 mat_lam.mass_density = "7650"
-BH_List_lam = []
-with open(filename_lam) as f:
-    reader = csv.reader(f, delimiter="\t")
-    next(reader)
-    for row in reader:
-        BH_List_lam.append([float(row[0]), float(row[1])])
+BH_List_lam = m2d.import_dataset1d(filename_lam)
 mat_lam.permeability.value = BH_List_lam
 
 # ## Create geometry for stator
@@ -889,7 +880,10 @@ m2d.post.plot_field_from_fieldplot(plot1.name, show=False)
 # Plot the desired expression by using the Matplotlib ``plot()`` function.
 
 solutions = m2d.post.get_solution_data(
-    expressions="Moving1.Torque", primary_sweep_variable="Time", domain="Sweep"
+    expressions="Moving1.Torque",
+    setup_sweep_name=m2d.nominal_sweep,
+    primary_sweep_variable="Time",
+    domain="Sweep",
 )
 # solutions.plot()
 
@@ -907,6 +901,59 @@ avg = sum(mag) / len(mag)
 m2d.post.export_report_to_file(
     output_dir=temp_folder.name, plot_name="TorquePlots", extension=".csv"
 )
+
+# ## Retrieve the data values of Torque within a time range
+#
+# Retrieve the data values of Torque within a specific time range of the electric period.
+# Since the example analyzes only one period, the time range is from ``ElectricPeriod/4`` to ``ElectricPeriod/2``.
+
+time_interval = solutions.intrinsics["Time"]
+
+# Convert the start and stop time of the electric period range to nanoseconds
+
+start_time_ns = (
+    unit_converter(
+        values=m2d.variable_manager.design_variables["ElectricPeriod"].numeric_value
+        / 4,
+        unit_system="Time",
+        input_units="s",
+        output_units="ns",
+    ),
+    "ns",
+)
+
+start_time = Quantity(start_time_ns)
+stop_time = Quantity(2 * start_time.value, "ns")
+
+# Find the indices corresponding to the start and stop times
+
+index_start_time = time_interval.index(start_time)
+index_stop_time = time_interval.index(stop_time)
+
+# ## Extract the torque values within the specified time range
+
+torque_values = solutions.data_real()
+time_electric_period = time_interval[index_start_time:index_stop_time]
+torque_electric_period = torque_values[index_start_time:index_stop_time]
+
+# Plot the torque values within the specified time range with matplotlib
+#
+# Plot the graph
+
+plt.plot(time_electric_period, torque_electric_period, marker="o")
+
+# Labels
+
+plt.xlabel("Time (ns)")
+plt.ylabel("Torque (Nm)")
+
+# Title
+
+plt.title("Torque vs Time for Half Electric Period")
+
+# Uncomment the following line to display the matplotlib plot
+
+# plt.show()
 
 # ## Release AEDT
 
