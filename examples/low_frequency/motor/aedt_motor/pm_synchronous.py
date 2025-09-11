@@ -162,9 +162,13 @@ mat_coils.update()
 mat_coils.conductivity = "49288048.9198"
 mat_coils.permeability = "1"
 
-# ## Create second material
+# ## Create materials with a non-linear permeability
 #
-# Create the material ``"Arnold_Magnetics_N30UH_80C"``.
+# Below there are two examples of how to create materials with a non-linear permeability.
+# The first example imports the BH curve as a 1d dataset in the project.
+# The second example reads the BH curve from a tabbed CSV file.
+
+# Create second material ``"Arnold_Magnetics_N30UH_80C"``.
 # The BH curve is imported as a 1d dataset in the project.
 # It means that the BH curve is available in ``Project > Datasets`` in AEDT.
 # Once the dataset is imported, it can be assigned to the permeability value.
@@ -174,12 +178,10 @@ mat_PM.update()
 mat_PM.conductivity = "555555.5556"
 mat_PM.set_magnetic_coercivity(value=-800146.66287534, x=1, y=0, z=0)
 mat_PM.mass_density = "7500"
-BH_List_PM = m2d.import_dataset1d(filename_PM)
+BH_List_PM = m2d.import_dataset1d(filename_PM, name="Arnold_Magnetics_N30UH_80C")
 mat_PM.permeability.value = [[a, b] for a, b in zip(BH_List_PM.x, BH_List_PM.y)]
 
-# ## Create third material
-#
-# Create the laminated material ``30DH_20C_smooth``.
+# Create the third material laminated ``30DH_20C_smooth``.
 # The BH curve is read from a tabbed CSV file. A list named ``BH_List_lam``
 # is created. This list is passed to the ``mat_lam.permeability.value`` variable.
 
@@ -297,7 +299,7 @@ OPM1_id.color = (0, 128, 64)
 # In Maxwell 2D, you assign magnetization via the coordinate system.
 # The inputs are the object name, coordinate system name, and inner or outer magnetization.
 
-# +
+
 def create_cs_magnets(pm_id, cs_name, point_direction):
     edges = sorted(pm_id.edges, key=attrgetter("length"), reverse=True)
 
@@ -316,8 +318,6 @@ def create_cs_magnets(pm_id, cs_name, point_direction):
     pm_id.part_coordinate_system = cs_name
     m2d.modeler.set_working_coordinate_system("Global")
 
-
-# -
 
 # ## Create coordinate system for PMs in face center
 #
@@ -891,7 +891,6 @@ solutions = m2d.post.get_solution_data(
     primary_sweep_variable="Time",
     domain="Sweep",
 )
-# solutions.plot()
 
 # ## Retrieve the data magnitude of an expression
 #
@@ -957,7 +956,9 @@ plt.title("Torque vs Time for Half Electric Period")
 
 # Uncomment the following line to display the matplotlib plot
 
+# +
 # plt.show()
+# -
 
 # ## Release AEDT
 
