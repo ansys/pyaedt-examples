@@ -7,7 +7,7 @@ import tempfile
 import time
 
 import ansys.aedt.core  # Interface to Ansys Electronics Desktop
-from ansys.aedt.core.examples.downloads import download_file
+from ansys.aedt.core.generic.constants import Axis, Plane
 
 # -
 
@@ -49,8 +49,7 @@ m3d = ansys.aedt.core.Maxwell3d(
 # Later on we want to see how the magnetic flux density changes with the position of the collector.
 
 m3d["magnet_radius"] = "2mm"
-m3d["magnet_height"] = "18mm"
-m3d["relative_cs_origin_z"] = "0mm"
+m3d["magnet_height"] = "15mm"
 m3d["magnet_z_pos"] = "0mm"
 
 # ## Add materials
@@ -59,20 +58,40 @@ m3d["magnet_z_pos"] = "0mm"
 
 mat = m3d.materials.add_material("Aimant")
 mat.permeability = "1.1"
-mat.set_magnetic_coercivity(value=-2005600, x=-1, y=0, z=0)
+mat.set_magnetic_coercivity(value=2005600, x=1, y=0, z=0)
 mat.update()
 
-# Create custom material ``"Iron"``.
+# ## Create non-linear magnetic material with single valued BH curve
 #
-# This material uses a BH curve to define its nonlinear magnetic properties.
-# The BH curve is firstly downloaded and then imported as a dataset into material properties.
+# Create list with  BH curve data
 
-iron_bh_curve_path = download_file(
-    source="bh_curve", name="iron_bh_curve.tab", local_path=temp_folder.name
-)
-mat = m3d.materials.add_material("Iron")
-iron_bh_curve = m3d.import_dataset1d(iron_bh_curve_path)
-mat.permeability.value = [[a, b] for a, b in zip(iron_bh_curve.x, iron_bh_curve.y)]
+bh_curve = [
+    [0.0, 0.0],
+    [0.032, 0.5],
+    [0.049, 0.8],
+    [0.065, 1],
+    [0.081, 1.13],
+    [0.17, 1.52],
+    [0.32, 1.59],
+    [0.65, 1.62],
+    [0.81, 1.65],
+    [1.61, 1.7],
+    [3.19, 1.75],
+    [4.78, 1.79],
+    [6.34, 1.83],
+    [7.96, 1.86],
+    [15.89, 1.99],
+    [31.77, 2.1],
+    [63.53, 2.2],
+    [158.77, 2.41],
+    [317.48, 2.65],
+    [635, 3.1],
+]
+
+# Create custom material and add it to the AEDT library using the ``add_material`` method
+
+mat = m3d.materials.add_material("Fer")
+mat.permeability.value = bh_curve
 mat.set_magnetic_coercivity(value=0, x=1, y=0, z=0)
 mat.update()
 
@@ -80,18 +99,58 @@ mat.update()
 #
 # Create a simple geometry to model the collector and assign a material to it.
 
+collector = m3d.modeler.create_cylinder(
+    orientation=ansys.aedt.core.constants.AXIS.Z,
+    origin=[12, 13, 25],
+    height="3mm",
+    radius="9.5mm",
+    axisdir="Z",
+    name="collector",
+)
+cylinder2 = m3d.modeler.create_cylinder(
+    orientation=ansys.aedt.core.constants.AXIS.Z,
+    origin=[12, 13, 25],
+    height="3mm",
+    radius="8mm",
+    axisdir="Z",
+    name="cyl2",
+)
 
-# collector.material_name = "Iron"
-# collector.part_coordinate_system = relative_cs.name
-# m3d.modeler.set_working_coordinate_system("Global")
+m3d.modeler.subtract(
+    blank_list=[collector], tool_list=[cylinder2], keep_originals=False
+)
+
+cylinder3 = m3d.modeler.create_cylinder(
+    orientation=ansys.aedt.core.constants.AXIS.Z,
+    origin=[12, 13, 28],
+    height="3mm",
+    radius="8.7mm",
+    axisdir="Z",
+    name="cyl3",
+)
+cylinder4 = m3d.modeler.create_cylinder(
+    orientation=ansys.aedt.core.constants.AXIS.Z,
+    origin=[12, 13, 28],
+    height="3mm",
+    radius="2mm",
+    axisdir="Z",
+    name="cyl4",
+)
+
+m3d.modeler.subtract(
+    blank_list=[cylinder3], tool_list=[cylinder4], keep_originals=False
+)
+m3d.modeler.unite(assignment=[collector, cylinder3], keep_originals=False)
+
+collector.material_name = "Fer"
 
 # ## Create magnet
 #
 # Create a cylinder and assign a material to it.
 
 magnet = m3d.modeler.create_cylinder(
-    orientation=ansys.aedt.core.constants.AXIS.Z,
-    origin=[0, 0, 0],
+    orientation=Axis.Z,
+    origin=[0, 0, "magnet_z_pos"],
     radius="magnet_radius",
     height="magnet_height",
     num_sides=0,
@@ -104,17 +163,17 @@ magnet = m3d.modeler.create_cylinder(
 # Create a polyline to plot the field onto.
 # The polyline is placed in the center of the collector so to capture the magnetic flux density.
 
-# x_1_center = collector.bottom_face_z.center[0]
-# y_1_center = collector.bottom_face_z.center[1]
-# line = m3d.modeler.create_polyline(
-#     points=[[x_1_center, y_1_center, 0], [x_1_center, y_1_center, "100mm"]], name="line"
-# )
+line = m3d.modeler.create_polyline(points=[[12, 13, 0], [12, 13, "32mm"]], name="line")
 
 # ## Create a vacuum region to enclose all objects
 
 region = m3d.modeler.create_region(
-    pad_value=50, pad_type="Percentage Offset", name="Region"
+    pad_value=20, pad_type="Percentage Offset", name="Region"
 )
+
+# ## Create the collector cross-section on the XZ plane
+
+section = collector.section("XZ")
 
 # ## Create simulation setup
 
@@ -132,9 +191,9 @@ setup.props["NonlinearResidual"] = 1e-3
 # Enable the saving fields option.
 
 param_sweep = m3d.parametrics.add(
-    variable="relative_cs_origin_z",
-    start_point=m3d["relative_cs_origin_z"],
-    end_point="-50mm",
+    variable="magnet_z_pos",
+    start_point=m3d["magnet_z_pos"],
+    end_point="25mm",
     step=5,
     variation_type="LinearCount",
 )
@@ -155,7 +214,7 @@ data_table = m3d.post.create_report(
     report_category="Fields",
     plot_type="Data Table",
     plot_name="Mag_B",
-    variations={"relative_cs_origin_z": "All"},
+    variations={"magnet_z_pos": "All"},
     context=line.name,
     polyline_points=101,
 )
@@ -165,9 +224,15 @@ rectangular_plot = m3d.post.create_report(
     report_category="Fields",
     plot_type="Rectangular Plot",
     plot_name="Mag_B",
-    variations={"relative_cs_origin_z": "All"},
+    variations={"magnet_z_pos": "All"},
     context=line.name,
     polyline_points=101,
+)
+
+# ## Create field plots on the surface of the actuator's arms
+
+m3d.post.create_fieldplot_surface(
+    assignment=[Plane.ZX], quantity="Mag_B", plot_name="Mag_B1", field_type="Fields"
 )
 
 # ## Release AEDT
