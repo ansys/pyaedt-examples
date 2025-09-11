@@ -10,6 +10,7 @@
 # Perform required imports.
 
 # +
+import csv
 import os
 import tempfile
 import time
@@ -164,9 +165,9 @@ mat_coils.permeability = "1"
 # ## Create second material
 #
 # Create the material ``"Arnold_Magnetics_N30UH_80C"``.
-# The BH curve is read from a tabbed CSV file. A list named ``BH_List_PM``
-# is created. This list is passed to the ``mat_PM.permeability.value``
-# variable.
+# The BH curve is imported as a 1d dataset in the project.
+# It means that the BH curve is available in ``Project > Datasets`` in AEDT.
+# Once the dataset is imported, it can be assigned to the permeability value.
 
 mat_PM = m2d.materials.add_material(name="Arnold_Magnetics_N30UH_80C_new")
 mat_PM.update()
@@ -179,8 +180,8 @@ mat_PM.permeability.value = [[a, b] for a, b in zip(BH_List_PM.x, BH_List_PM.y)]
 # ## Create third material
 #
 # Create the laminated material ``30DH_20C_smooth``.
-# This material has a BH curve and a core loss model,
-# which is set to electrical steel.
+# The BH curve is read from a tabbed CSV file. A list named ``BH_List_lam``
+# is created. This list is passed to the ``mat_lam.permeability.value`` variable.
 
 mat_lam = m2d.materials.add_material("30DH_20C_smooth")
 mat_lam.update()
@@ -192,8 +193,13 @@ kdc = 0.001
 eq_depth = 0.001
 mat_lam.set_electrical_steel_coreloss(kh, kc, ke, kdc, eq_depth)
 mat_lam.mass_density = "7650"
-BH_List_lam = m2d.import_dataset1d(filename_lam)
-mat_lam.permeability.value = [[a, b] for a, b in zip(BH_List_lam.x, BH_List_lam.y)]
+BH_List_lam = []
+with open(filename_lam) as f:
+    reader = csv.reader(f, delimiter="\t")
+    next(reader)
+    for row in reader:
+        BH_List_lam.append([float(row[0]), float(row[1])])
+mat_lam.permeability.value = BH_List_lam
 
 # ## Create geometry for stator
 #
