@@ -51,6 +51,7 @@ m3d = ansys.aedt.core.Maxwell3d(
 m3d["magnet_radius"] = "2mm"
 m3d["magnet_height"] = "18mm"
 m3d["relative_cs_origin_z"] = "0mm"
+m3d["magnet_z_pos"] = "0mm"
 
 # ## Add materials
 #
@@ -75,26 +76,14 @@ mat.permeability.value = [[a, b] for a, b in zip(iron_bh_curve.x, iron_bh_curve.
 mat.set_magnetic_coercivity(value=0, x=1, y=0, z=0)
 mat.update()
 
-# ## Import geometry as a STEP file
+# ## Create a simple geometry to model the collector
 #
-# You can test importing a STEP or a Parasolid file by changing the source argument
-# in the ``download_file`` method.
-# Both file formats are available to download.
-# A relative coordinate system is created to facilitate moving the collector along the Z direction.
-# The material "Iron" is assigned to the collector and its coordinate system is set to the relative coordinate system
-# previously created.
+# Create a simple geometry to model the collector and assign a material to it.
 
-collector_path = download_file(
-    source="step", name="[].step", local_path=temp_folder.name
-)
-relative_cs = m3d.modeler.create_coordinate_system(
-    origin=[0, 0, "relative_cs_origin_z"], name="collector_cs"
-)
-m3d.modeler.import_3d_cad(collector_path)
-collector = m3d.modeler.object_list[0]
-collector.material_name = "Iron"
-collector.part_coordinate_system = relative_cs.name
-m3d.modeler.set_working_coordinate_system("Global")
+
+# collector.material_name = "Iron"
+# collector.part_coordinate_system = relative_cs.name
+# m3d.modeler.set_working_coordinate_system("Global")
 
 # ## Create magnet
 #
@@ -115,11 +104,11 @@ magnet = m3d.modeler.create_cylinder(
 # Create a polyline to plot the field onto.
 # The polyline is placed in the center of the collector so to capture the magnetic flux density.
 
-x_1_center = collector.bottom_face_z.center[0]
-y_1_center = collector.bottom_face_z.center[1]
-line = m3d.modeler.create_polyline(
-    points=[[x_1_center, y_1_center, 0], [x_1_center, y_1_center, "100mm"]], name="line"
-)
+# x_1_center = collector.bottom_face_z.center[0]
+# y_1_center = collector.bottom_face_z.center[1]
+# line = m3d.modeler.create_polyline(
+#     points=[[x_1_center, y_1_center, 0], [x_1_center, y_1_center, "100mm"]], name="line"
+# )
 
 # ## Create a vacuum region to enclose all objects
 
