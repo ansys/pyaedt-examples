@@ -174,7 +174,7 @@ mat_PM.conductivity = "555555.5556"
 mat_PM.set_magnetic_coercivity(value=-800146.66287534, x=1, y=0, z=0)
 mat_PM.mass_density = "7500"
 BH_List_PM = m2d.import_dataset1d(filename_PM)
-mat_PM.permeability.value = BH_List_PM
+mat_PM.permeability.value = [[a, b] for a, b in zip(BH_List_PM.x, BH_List_PM.y)]
 
 # ## Create third material
 #
@@ -193,7 +193,7 @@ eq_depth = 0.001
 mat_lam.set_electrical_steel_coreloss(kh, kc, ke, kdc, eq_depth)
 mat_lam.mass_density = "7650"
 BH_List_lam = m2d.import_dataset1d(filename_lam)
-mat_lam.permeability.value = BH_List_lam
+mat_lam.permeability.value = [[a, b] for a, b in zip(BH_List_lam.x, BH_List_lam.y)]
 
 # ## Create geometry for stator
 #
@@ -911,7 +911,7 @@ time_interval = solutions.intrinsics["Time"]
 
 # Convert the start and stop time of the electric period range to nanoseconds
 
-start_time_ns = (
+start_time = Quantity(
     unit_converter(
         values=m2d.variable_manager.design_variables["ElectricPeriod"].numeric_value
         / 4,
@@ -921,8 +921,6 @@ start_time_ns = (
     ),
     "ns",
 )
-
-start_time = Quantity(start_time_ns)
 stop_time = Quantity(2 * start_time.value, "ns")
 
 # Find the indices corresponding to the start and stop times
