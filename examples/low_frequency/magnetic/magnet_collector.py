@@ -7,7 +7,7 @@ import tempfile
 import time
 
 import ansys.aedt.core  # Interface to Ansys Electronics Desktop
-from ansys.aedt.core.generic.constants import Axis, Plane
+from ansys.aedt.core.generic.constants import Axis
 
 # -
 
@@ -44,7 +44,7 @@ m3d = ansys.aedt.core.Maxwell3d(
     new_desktop=True,
 )
 
-# ## Define variables
+# ### Define variables
 #
 # Later on we want to see how the magnetic flux density changes with the position of the collector.
 
@@ -52,16 +52,16 @@ m3d["magnet_radius"] = "2mm"
 m3d["magnet_height"] = "15mm"
 m3d["magnet_z_pos"] = "0mm"
 
-# ## Add materials
+# ### Add materials
 #
 # Create custom material ``"Aimant"``.
 
 mat = m3d.materials.add_material("Aimant")
 mat.permeability = "1.1"
-mat.set_magnetic_coercivity(value=2005600, x=1, y=0, z=0)
+mat.set_magnetic_coercivity(value=2005600, x=1, y=1, z=0)
 mat.update()
 
-# ## Create non-linear magnetic material with single valued BH curve
+# ### Create non-linear magnetic material with single valued BH curve
 #
 # Create list with  BH curve data
 
@@ -95,7 +95,7 @@ mat.permeability.value = bh_curve
 mat.set_magnetic_coercivity(value=0, x=1, y=0, z=0)
 mat.update()
 
-# ## Create a simple geometry to model the collector
+# ### Create a simple geometry to model the collector
 #
 # Create a simple geometry to model the collector and assign a material to it.
 
@@ -144,7 +144,7 @@ m3d.modeler.unite(assignment=[collector, cylinder3], keep_originals=False)
 
 collector.material_name = "Fer"
 
-# ## Create magnet
+# ### Create magnet
 #
 # Create a cylinder and assign a material to it.
 
@@ -158,24 +158,84 @@ magnet = m3d.modeler.create_cylinder(
     material="Aimant",
 )
 
-# ## Create a polyline
+# ### Create a polyline
 #
 # Create a polyline to plot the field onto.
 # The polyline is placed in the center of the collector so to capture the magnetic flux density.
 
 line = m3d.modeler.create_polyline(points=[[12, 13, 0], [12, 13, "32mm"]], name="line")
 
-# ## Create a vacuum region to enclose all objects
+# ### Create a vacuum region to enclose all objects
 
 region = m3d.modeler.create_region(
-    pad_value=20, pad_type="Percentage Offset", name="Region"
+    pad_value=50, pad_type="Percentage Offset", name="Region"
 )
 
-# ## Create the collector cross-section on the XZ plane
+# ### Create the collector cross-section on the XZ plane
 
-section = collector.section("XZ")
+collector_relative_cs = m3d.modeler.create_coordinate_system(
+    origin=[12, 13, 28], name="collector_cs"
+)
+section = m3d.modeler.create_rectangle(
+    orientation="XZ",
+    position=[-25, 0, -35],
+    dimension_list=["50mm", "50mm"],
+    name="section",
+)
+m3d.modeler.set_working_coordinate_system("Global")
 
-# ## Create simulation setup
+# ### Create a dummy geometry for mesh operations
+#
+# Create a cylinder that encloses the polyline to force the mesh to be finer on the polyline.
+
+dummy_cylinder = m3d.modeler.create_cylinder(
+    orientation=Axis.Z,
+    origin=[12, 13, 0],
+    radius="1mm",
+    height="32mm",
+    num_sides=6,
+    name="dummy_cylinder",
+)
+
+# ### Create a custom named expression
+#
+# Create a custom named expression to calculate relative permeability of the ferromagnetic material.
+# This expression is used to see how the relative permeability of the collector changes with magnet position.
+
+mu_r = {
+    "name": "mu_r",
+    "description": "Relative permeability of the ferromagnetic material",
+    "design_type": ["Maxwell 3D"],
+    "fields_type": ["Fields"],
+    "primary_sweep": "Time",
+    "assignment": "",
+    "assignment_type": [""],
+    "operations": [
+        "NameOfExpression('Mag_B')",
+        "NameOfExpression('Mag_H')",
+        "Scalar_Constant(1.25664e-06)",
+        "Operation('*')",
+        "Operation('/')",
+    ],
+    "report": ["Field_3D"],
+}
+m3d.post.fields_calculator.add_expression(mu_r, None)
+
+# ### Set mesh operations
+#
+# Assign mesh operations to the dummy cylinder and the collector.
+
+m3d.mesh.assign_length_mesh(
+    assignment=[dummy_cylinder], maximum_length="1mm", name="polyline"
+)
+m3d.mesh.assign_length_mesh(
+    assignment=[collector],
+    inside_selection=False,
+    maximum_length="3.8mm",
+    name="collector",
+)
+
+# ### Create simulation setup
 
 setup = m3d.create_setup()
 setup.props["MaximumPasses"] = 10
@@ -184,7 +244,7 @@ setup.props["PercentError"] = 2
 setup.props["MinimumPasses"] = 2
 setup.props["NonlinearResidual"] = 1e-3
 
-# ## Add parametric sweep
+# ### Add parametric sweep
 #
 # Create a linear count sweep where the parameter to sweep is ``"relative_cs_origin_z"``.
 # The collector positions is changed at each step to see how the magnetic flux density on the polyline changes.
@@ -200,11 +260,11 @@ param_sweep = m3d.parametrics.add(
 
 param_sweep.props["ProdOptiSetupDataV2"]["SaveFields"] = True
 
-# ## Analyze parametric sweep
+# ### Analyze parametric sweep
 
 param_sweep.analyze(cores=NUM_CORES)
 
-# ## Create reports
+# ### Create reports
 #
 # Create a rectangular and data plots of the magnetic flux density on the polyline
 # for the different collector positions.
@@ -229,20 +289,28 @@ rectangular_plot = m3d.post.create_report(
     polyline_points=101,
 )
 
-# ## Create field plots on the surface of the actuator's arms
+# ### Create field plots
+#
+# Create field plots over the collector cross-section and on the collector surface
 
 m3d.post.create_fieldplot_surface(
-    assignment=[Plane.ZX], quantity="Mag_B", plot_name="Mag_B1", field_type="Fields"
+    assignment=[section.name], quantity="Mag_B", plot_name="Mag_B", field_type="Fields"
+)
+m3d.post.create_fieldplot_surface(
+    assignment=[section.name], quantity="Mag_H", plot_name="Mag_H", field_type="Fields"
+)
+m3d.post.create_fieldplot_surface(
+    assignment=[collector.name], quantity="mu_r", plot_name="mu_r", field_type="Fields"
 )
 
-# ## Release AEDT
+# ### Release AEDT
 
 m3d.save_project()
 m3d.release_desktop()
 # Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-# ## Clean up
+# ### Clean up
 #
 # All project files are saved in the folder ``temp_folder.name``.
 # If you've run this example as a Jupyter notebook, you
