@@ -185,6 +185,7 @@ These examples use PyAEDT to show Maxwell 2D capabilities.
       ../../low_frequency/general/eddy_current
       ../../low_frequency/general/electrostatic
       ../../low_frequency/general/external_circuit
+      ../../low_frequency/general/maxwell_3_phase_cable
       ../../low_frequency/magnetic/magneto_motive_line
       ../../low_frequency/magnetic/transient_winding
       ../../low_frequency/magnetic/lorentz_actuator
@@ -192,4 +193,3 @@ These examples use PyAEDT to show Maxwell 2D capabilities.
       ../../low_frequency/motor/aedt_motor/pm_synchronous
       ../../low_frequency/motor/aedt_motor/rmxpert
       ../../low_frequency/motor/aedt_motor/transformer_inductance
-      ../../low_frequency/general/maxwell_3_phase_cable
