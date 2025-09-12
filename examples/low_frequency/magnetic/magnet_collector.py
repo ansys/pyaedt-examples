@@ -19,7 +19,7 @@ AEDT_VERSION = "2025.2"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
-# ### Create temporary directory
+# ## Create temporary directory
 #
 # Create a temporary working directory.
 # The name of the working folder is stored in ``temp_folder.name``.
@@ -29,7 +29,7 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ### Launch Maxwell 3d
+# ## Launch Maxwell 3d
 #
 # Create an instance of
 # the ``Maxwell3d`` class. The Ansys Electronics Desktop will be launched
@@ -44,17 +44,17 @@ m3d = ansys.aedt.core.Maxwell3d(
     new_desktop=True,
 )
 
-# ### Define variables
+# ## Define variables
 #
-# Later on we want to see how the magnetic flux density changes with the position of the collector.
+# Later on we want to see how the magnetic flux density changes with the position of the magnet.
 
 m3d["magnet_radius"] = "2mm"
 m3d["magnet_height"] = "15mm"
 m3d["magnet_z_pos"] = "0mm"
 
-# ### Add materials
+# ## Add materials
 #
-# Create custom material ``"Aimant"``.
+# ### Create custom material ``"Aimant"``.
 
 mat = m3d.materials.add_material("Aimant")
 mat.permeability = "1.1"
@@ -88,17 +88,18 @@ bh_curve = [
     [635, 3.1],
 ]
 
-# Create custom material and add it to the AEDT library using the ``add_material`` method
+# ### Create custom material "Fer" and assign the BH curve to the permeability value
 
 mat = m3d.materials.add_material("Fer")
 mat.permeability.value = bh_curve
 mat.set_magnetic_coercivity(value=0, x=1, y=0, z=0)
 mat.update()
 
-# ### Create a simple geometry to model the collector
+# ## Create the collector
 #
 # Create a simple geometry to model the collector and assign a material to it.
 
+# +
 collector = m3d.modeler.create_cylinder(
     orientation=ansys.aedt.core.constants.AXIS.Z,
     origin=[12, 13, 25],
@@ -143,8 +144,9 @@ m3d.modeler.subtract(
 m3d.modeler.unite(assignment=[collector, cylinder3], keep_originals=False)
 
 collector.material_name = "Fer"
+# -
 
-# ### Create magnet
+# ## Create magnet
 #
 # Create a cylinder and assign a material to it.
 
@@ -158,20 +160,20 @@ magnet = m3d.modeler.create_cylinder(
     material="Aimant",
 )
 
-# ### Create a polyline
+# ## Create a polyline
 #
 # Create a polyline to plot the field onto.
 # The polyline is placed in the center of the collector so to capture the magnetic flux density.
 
 line = m3d.modeler.create_polyline(points=[[12, 13, 0], [12, 13, "32mm"]], name="line")
 
-# ### Create a vacuum region to enclose all objects
+# ## Create a vacuum region to enclose all objects
 
 region = m3d.modeler.create_region(
     pad_value=50, pad_type="Percentage Offset", name="Region"
 )
 
-# ### Create the collector cross-section on the XZ plane
+# ## Create the collector cross-section on the XZ plane
 
 collector_relative_cs = m3d.modeler.create_coordinate_system(
     origin=[12, 13, 28], name="collector_cs"
@@ -184,7 +186,7 @@ section = m3d.modeler.create_rectangle(
 )
 m3d.modeler.set_working_coordinate_system("Global")
 
-# ### Create a dummy geometry for mesh operations
+# ## Create a dummy geometry for mesh operations
 #
 # Create a cylinder that encloses the polyline to force the mesh to be finer on the polyline.
 
@@ -197,7 +199,7 @@ dummy_cylinder = m3d.modeler.create_cylinder(
     name="dummy_cylinder",
 )
 
-# ### Create a custom named expression
+# ## Create a custom named expression
 #
 # Create a custom named expression to calculate relative permeability of the ferromagnetic material.
 # This expression is used to see how the relative permeability of the collector changes with magnet position.
@@ -221,21 +223,21 @@ mu_r = {
 }
 m3d.post.fields_calculator.add_expression(mu_r, None)
 
-# ### Set mesh operations
+# ## Set mesh operations
 #
 # Assign mesh operations to the dummy cylinder and the collector.
 
-m3d.mesh.assign_length_mesh(
+poly_mesh = m3d.mesh.assign_length_mesh(
     assignment=[dummy_cylinder], maximum_length="1mm", name="polyline"
 )
-m3d.mesh.assign_length_mesh(
+collector_mesh = m3d.mesh.assign_length_mesh(
     assignment=[collector],
     inside_selection=False,
     maximum_length="3.8mm",
     name="collector",
 )
 
-# ### Create simulation setup
+# ## Create simulation setup
 
 setup = m3d.create_setup()
 setup.props["MaximumPasses"] = 10
@@ -244,12 +246,13 @@ setup.props["PercentError"] = 2
 setup.props["MinimumPasses"] = 2
 setup.props["NonlinearResidual"] = 1e-3
 
-# ### Add parametric sweep
+# ## Add parametric sweep
 #
-# Create a linear count sweep where the parameter to sweep is ``"relative_cs_origin_z"``.
-# The collector positions is changed at each step to see how the magnetic flux density on the polyline changes.
+# Create a linear count sweep where the parameter to sweep is ``"magnet_z_pos"``.
+# The magnet position is changed at each step to see how the magnetic behavior of the system changes.
 # Enable the saving fields option.
 
+# +
 param_sweep = m3d.parametrics.add(
     variable="magnet_z_pos",
     start_point=m3d["magnet_z_pos"],
@@ -259,16 +262,18 @@ param_sweep = m3d.parametrics.add(
 )
 
 param_sweep.props["ProdOptiSetupDataV2"]["SaveFields"] = True
+# -
 
 # ### Analyze parametric sweep
 
 param_sweep.analyze(cores=NUM_CORES)
 
-# ### Create reports
+# ## Create reports
 #
 # Create a rectangular and data plots of the magnetic flux density on the polyline
-# for the different collector positions.
+# for the different magnet positions.
 
+# +
 data_table = m3d.post.create_report(
     expressions="Mag_B",
     report_category="Fields",
@@ -288,29 +293,33 @@ rectangular_plot = m3d.post.create_report(
     context=line.name,
     polyline_points=101,
 )
+# -
 
-# ### Create field plots
+# ## Create field plots
 #
-# Create field plots over the collector cross-section and on the collector surface
+# Create field plots over the collector cross-section and on
+# the collector surface to see how the magnetic flux density (B),
+# the magnetic field strength (H) and the permeability
+# of the ferromagnetic material (μ) change.
 
-m3d.post.create_fieldplot_surface(
+mag_b = m3d.post.create_fieldplot_surface(
     assignment=[section.name], quantity="Mag_B", plot_name="Mag_B", field_type="Fields"
 )
-m3d.post.create_fieldplot_surface(
+mag_h = m3d.post.create_fieldplot_surface(
     assignment=[section.name], quantity="Mag_H", plot_name="Mag_H", field_type="Fields"
 )
-m3d.post.create_fieldplot_surface(
+mu_r = m3d.post.create_fieldplot_surface(
     assignment=[collector.name], quantity="mu_r", plot_name="mu_r", field_type="Fields"
 )
 
-# ### Release AEDT
+# ## Release AEDT
 
 m3d.save_project()
 m3d.release_desktop()
 # Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-# ### Clean up
+# ## Clean up
 #
 # All project files are saved in the folder ``temp_folder.name``.
 # If you've run this example as a Jupyter notebook, you
