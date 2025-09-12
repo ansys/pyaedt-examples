@@ -65,7 +65,7 @@ xlpe.permittivity = "2.3"
 #
 # Create geometry of the 3-phase cable with neutral and assign materials.
 
-# ### Create the cable shield.
+# ### Create the cable shield
 
 shield = m2d.modeler.create_circle(origin=[0, 0, 0], radius=8, name="Shield")
 filler = m2d.modeler.create_circle(origin=[0, 0, 0], radius=7.5, name="Filler")
@@ -75,10 +75,12 @@ filler.material_name = "polyethylene"
 filler.color = [143, 175, 143]
 filler.transparency = 0
 
-# ### Create the cable inner conductors.
+# ### Create the cable inner conductors
 
 phase_a = m2d.modeler.create_circle(origin=[5, 0, 0], radius=2.0575, material="copper")
-cond = m2d.modeler.duplicate_around_axis(assignment=phase_a.name, axis="Z", angle=120, clones=3)
+cond = m2d.modeler.duplicate_around_axis(
+    assignment=phase_a.name, axis="Z", angle=120, clones=3
+)
 phase_b = m2d.modeler[cond[1][0]]
 phase_c = m2d.modeler[cond[1][1]]
 phase_a.name = "PhaseA"
@@ -91,22 +93,25 @@ phase_c.name = "PhaseC"
 phase_c.color = [0, 255, 0]
 phase_c.transparency = 0
 
-# ### Create the cable inner conductor insulation.
+# ### Create the cable inner conductor insulation
 
 insul_a = m2d.modeler.create_circle(origin=[5, 0, 0], radius=2.25, material="XLPE")
 insul_a.transparency = 0
-insul = m2d.modeler.duplicate_around_axis(assignment=insul_a.name, axis="Z", angle=120, clones=3)
+insul = m2d.modeler.duplicate_around_axis(
+    assignment=insul_a.name, axis="Z", angle=120, clones=3
+)
 insul_b = m2d.modeler[insul[1][0]]
 insul_c = m2d.modeler[insul[1][1]]
 insul_a.name = "InsulA"
 insul_b.name = "InsulB"
 insul_c.name = "InsulC"
 
-# ### Create the cable neutral wire and its insulation.
+# ### Create the cable neutral wire and its insulation
 
-neu_ins = m2d.modeler.duplicate_along_line(assignment=[phase_a.name, insul_a.name],
-                                           vector=[-5, 0, 0],
-                                           clones=2)
+# +
+neu_ins = m2d.modeler.duplicate_along_line(
+    assignment=[phase_a.name, insul_a.name], vector=[-5, 0, 0], clones=2
+)
 phase_n = m2d.modeler[neu_ins[1][0]]
 phase_n.name = "PhaseN"
 phase_n.color = [128, 64, 64]
@@ -118,23 +123,30 @@ m2d.modeler.subtract(blank_list=insul_a, tool_list=phase_a.name)
 m2d.modeler.subtract(blank_list=insul_b, tool_list=phase_b.name)
 m2d.modeler.subtract(blank_list=insul_c, tool_list=phase_c.name)
 m2d.modeler.subtract(blank_list=insul_n, tool_list=phase_n.name)
+# -
 
 # ## Create region
 #
 # Create the air region and assign boundary condition to it.
 
+# +
 region = m2d.modeler.create_region(pad_value=200)
 m2d.assign_balloon(assignment=region.edges)
 
 m2d.modeler.fit_all()
+# -
 
 # ## Assign excitations
 #
 # Set electrical excitations for the conductive objects.
 
 winding_a = m2d.assign_winding(assignment=phase_a.name, current=200, name="PhaseA")
-winding_b = m2d.assign_winding(assignment=phase_b.name, current=200, phase=-120, name="PhaseB")
-winding_c = m2d.assign_winding(assignment=phase_c.name, current=200, phase=-240, name="PhaseC")
+winding_b = m2d.assign_winding(
+    assignment=phase_b.name, current=200, phase=-120, name="PhaseB"
+)
+winding_c = m2d.assign_winding(
+    assignment=phase_c.name, current=200, phase=-240, name="PhaseC"
+)
 winding_n = m2d.assign_winding(assignment=phase_n.name, current=0, name="PhaseN")
 winding_s = m2d.assign_winding(assignment=shield.name, current=0, name="Shield")
 
@@ -142,13 +154,17 @@ winding_s = m2d.assign_winding(assignment=shield.name, current=0, name="Shield")
 #
 # Set matrix for RL parameters calculation.
 
-m2d.assign_matrix(assignment=["PhaseA", "PhaseB", "PhaseC", "PhaseN", "Shield"], matrix_name="Matrix1")
+m2d.assign_matrix(
+    assignment=["PhaseA", "PhaseB", "PhaseC", "PhaseN", "Shield"], matrix_name="Matrix1"
+)
 
 # ## Assign mesh operation
 #
 # Assign surface approximation mesh to all objects.
 
-m2d.mesh.assign_surface_mesh_manual(assignment=m2d.modeler.object_list, normal_dev="10deg")
+m2d.mesh.assign_surface_mesh_manual(
+    assignment=m2d.modeler.object_list, normal_dev="10deg"
+)
 
 # ## Analysis setup
 #
@@ -167,13 +183,13 @@ m2d.analyze_setup(name=setup.name)
 
 # ## Field plots
 #
-# ### Plot the magnitude of magnetic flux density.
+# ### Plot the magnitude of magnetic flux density
 
-plot1 = m2d.post.create_fieldplot_surface(assignment=m2d.modeler.object_list,
-                                          quantity="Mag_B",
-                                          plot_name="B")
+plot1 = m2d.post.create_fieldplot_surface(
+    assignment=m2d.modeler.object_list, quantity="Mag_B", plot_name="B"
+)
 
-# ### Add the expression for the current density absolute value using the advanced field calculator.
+# ### Add the expression for the current density absolute value using the advanced field calculator
 
 j_abs = {
     "name": "Jabs",
@@ -195,14 +211,16 @@ j_abs = {
 }
 m2d.post.fields_calculator.add_expression(j_abs, None)
 
-# ### Plot the absolute value of the current density in the conductive objects.
+# ### Plot the absolute value of the current density in the conductive objects
 
-plot2 = m2d.post.create_fieldplot_surface(assignment=[phase_a, phase_b, phase_c],
-                                          quantity="Jabs",
-                                          plot_name="Jabs_cond_3Phase")
-plot3 = m2d.post.create_fieldplot_surface(assignment=[shield, phase_n],
-                                          quantity="Jabs",
-                                          plot_name="Jabs_shield_neutral")
+plot2 = m2d.post.create_fieldplot_surface(
+    assignment=[phase_a, phase_b, phase_c],
+    quantity="Jabs",
+    plot_name="Jabs_cond_3Phase",
+)
+plot3 = m2d.post.create_fieldplot_surface(
+    assignment=[shield, phase_n], quantity="Jabs", plot_name="Jabs_shield_neutral"
+)
 
 # ## Release AEDT
 
@@ -212,7 +230,7 @@ m2d.release_desktop()
 time.sleep(3)
 
 # ### Clean up
-#
+
 # All project files are saved in the folder ``temp_folder.name``.
 # If you've run this example as a Jupyter notebook, you
 # can retrieve those project files. The following cell
