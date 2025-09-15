@@ -331,7 +331,7 @@ py_vista_plot.elevation_angle = 0
 py_vista_plot.azimuth_angle = 0
 py_vista_plot.plot(os.path.join(temp_folder.name, "mu_r.jpg"))
 
-# BH curve of the ferromagnetic material
+# ## BH curve of the ferromagnetic material
 #
 # From the plot exported in the previous section, we can see the trend of the relative permeability
 # when the magnet gets close to the collector.
