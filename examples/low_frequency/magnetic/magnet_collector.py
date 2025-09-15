@@ -3,6 +3,7 @@
 # ### Perform imports
 
 # +
+import os
 import tempfile
 import time
 
@@ -311,6 +312,32 @@ mag_h = m3d.post.create_fieldplot_surface(
 mu_r = m3d.post.create_fieldplot_surface(
     assignment=[collector.name], quantity="mu_r", plot_name="mu_r", field_type="Fields"
 )
+
+# ## Overlay fields using PyVista
+#
+# Plot electric field using PyVista and save to an image file.
+# Plot the relative permeability on the collector surface at a given magnet position.
+
+m3d["magnet_z_pos"] = "18.75mm"
+
+py_vista_plot = m3d.post.plot_field(
+    quantity="mu_r", assignment=collector.name, plot_cad_objs=True, show=False
+)
+py_vista_plot.isometric_view = False
+py_vista_plot.camera_position = [0, 0, 7]
+py_vista_plot.focal_point = [0, 0, 0]
+py_vista_plot.roll_angle = 0
+py_vista_plot.elevation_angle = 0
+py_vista_plot.azimuth_angle = 0
+py_vista_plot.plot(os.path.join(temp_folder.name, "mu_r.jpg"))
+
+# BH curve of the ferromagnetic material
+#
+# From the plot exported in the previous section, we can see the trend of the relative permeability
+# when the magnet gets close to the collector.
+# Looking at the scale of the relative permeability, we can see that the collector is far from saturation.
+# With a peak value around [...]3.1, the collector is still in the linear region of the BH curve.
+# ADD IMAGE HERE
 
 # ## Release AEDT
 
