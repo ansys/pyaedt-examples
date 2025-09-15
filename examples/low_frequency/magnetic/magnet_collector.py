@@ -336,9 +336,9 @@ py_vista_plot.plot(os.path.join(temp_folder.name, "mu_r.jpg"))
 # From the plot exported in the previous section, we can see the trend of the relative permeability
 # when the magnet gets close to the collector.
 # Looking at the scale of the relative permeability, we can see that the collector is far from saturation.
-# With a peak value around [...]3.1, the collector is still in the linear region of the BH curve.
-# ![BH curve and relative permeability of the ferromagnetic material](../_static/BH.png)
-# ![Zoom in on the relative permeability of the ferromagnetic material](../_static/BH_zoom_in.png)
+# With a permeability peak value around 1.3E+7, the collector is still in the linear region of the BH curve.
+# ![BH curve and relative permeability of the ferromagnetic material](_static/BH.png)
+# ![Zoom in on the relative permeability of the ferromagnetic material](_static/BH_zoom_in.png)
 
 # ## Release AEDT
 
