@@ -3,7 +3,7 @@
 # This example shows how to use PyAEDT to find the best machine 2D geometry
 # to achieve high torque and low losses.
 # The example shows how to setup an optimetrics analysis to sweep geometries
-# for a single value of stator current angle.
+# for a single value of stator current angle and a varying material for the magnets.
 # The torque and losses results are then exported in a .csv file.
 #
 # Keywords: **Maxwell 2D**, **transient**, **motor**, **optimization**.
