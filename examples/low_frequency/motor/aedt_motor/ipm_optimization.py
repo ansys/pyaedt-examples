@@ -129,13 +129,40 @@ param_sweep.add_variation(
 
 # ## Analyze parametric sweep
 
+# To speed up the analysis, the time step is increased in the transient setup.
+# This can be done by modifying the ``TimeStep`` property of the transient setup.
+# Note: In a real case scenario, the time step should be: ``1/freq_e/360``.
+# To simulate a real case scenario, please comment out the following line.
+
+m2d.setups[0].props["TimeStep"] = "1/freq_e/45"
 param_sweep.analyze(cores=NUM_CORES)
 
 # ## Post-processing
 #
 # Create reports to get torque and loss results for all variations.
+# Create reports with all variations and with one variable at a time held constant.
+# This helps to visualize the influence of each variable on the torque and losses.
+# For the first torque report the ``din`` variable is held constant at 78mm.
 
-report_torque = m2d.post.create_report(
+report_torque_din_costant = m2d.post.create_report(
+    expressions="Moving1.Torque",
+    domain="Sweep",
+    variations={
+        "bridge": "All",
+        "din": "78mm",
+        "Ipeak": "All",
+        "phase_advance": "All",
+        "mat_index": "All",
+    },
+    primary_sweep_variable="Time",
+    plot_type="Rectangular Plot",
+    plot_name="torque_din_costant",
+)
+
+# The second torque report has the ``mat_index`` variable held constant at 0.
+# In this case the material used for the magnets is ``"XG196/96_2DSF1.000_X"``.
+
+report_torque_mat_costant = m2d.post.create_report(
     expressions="Moving1.Torque",
     domain="Sweep",
     variations={
@@ -143,14 +170,31 @@ report_torque = m2d.post.create_report(
         "din": "All",
         "Ipeak": "All",
         "phase_advance": "All",
+        "mat_index": "0",
+    },
+    primary_sweep_variable="Time",
+    plot_type="Rectangular Plot",
+    plot_name="torque_mat_costant",
+)
+
+# The same approach is used to create reports for solid and core losses.
+
+report_solid_loss_din_costant = m2d.post.create_report(
+    expressions="SolidLoss",
+    domain="Sweep",
+    variations={
+        "bridge": "All",
+        "din": "78mm",
+        "Ipeak": "All",
+        "phase_advance": "All",
         "mat_index": "All",
     },
     primary_sweep_variable="Time",
     plot_type="Rectangular Plot",
-    plot_name="TorqueAllVariations",
+    plot_name="solid_loss_din_costant",
 )
 
-report_solid_loss = m2d.post.create_report(
+report_solid_loss_mat_costant = m2d.post.create_report(
     expressions="SolidLoss",
     domain="Sweep",
     variations={
@@ -158,14 +202,29 @@ report_solid_loss = m2d.post.create_report(
         "din": "All",
         "Ipeak": "All",
         "phase_advance": "All",
+        "mat_index": "0",
+    },
+    primary_sweep_variable="Time",
+    plot_type="Rectangular Plot",
+    plot_name="solid_loss_mat_costant",
+)
+
+report_core_loss_din_costant = m2d.post.create_report(
+    expressions="CoreLoss",
+    domain="Sweep",
+    variations={
+        "bridge": "All",
+        "din": "78mm",
+        "Ipeak": "All",
+        "phase_advance": "All",
         "mat_index": "All",
     },
     primary_sweep_variable="Time",
     plot_type="Rectangular Plot",
-    plot_name="SolidLossAllVariations",
+    plot_name="core_loss_din_costant",
 )
 
-report_core_loss = m2d.post.create_report(
+report_core_loss_mat_costant = m2d.post.create_report(
     expressions="CoreLoss",
     domain="Sweep",
     variations={
@@ -173,14 +232,14 @@ report_core_loss = m2d.post.create_report(
         "din": "All",
         "Ipeak": "All",
         "phase_advance": "All",
-        "mat_index": "All",
+        "mat_index": "0",
     },
     primary_sweep_variable="Time",
     plot_type="Rectangular Plot",
-    plot_name="CoreLossAllVariations",
+    plot_name="core_loss_mat_costant",
 )
 
-# Get torque and loss solution data for all available variations.
+# Get torque and loss solution data for all variations.
 
 torque_data = m2d.post.get_solution_data(
     expressions=["Moving1.Torque"],
@@ -198,7 +257,7 @@ torque_data = m2d.post.get_solution_data(
 )
 
 solid_loss_data = m2d.post.get_solution_data(
-    expressions=["CoreLoss"],
+    expressions=["SolidLoss"],
     setup_sweep_name=m2d.nominal_sweep,
     domain="Sweep",
     variations={
@@ -213,7 +272,7 @@ solid_loss_data = m2d.post.get_solution_data(
 )
 
 core_loss_data = m2d.post.get_solution_data(
-    expressions=["SolidLoss"],
+    expressions=["CoreLoss"],
     setup_sweep_name=m2d.nominal_sweep,
     domain="Sweep",
     variations={
