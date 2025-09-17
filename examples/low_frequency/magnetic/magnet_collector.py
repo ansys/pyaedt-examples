@@ -313,6 +313,18 @@ mu_r = m3d.post.create_fieldplot_surface(
     assignment=[collector.name], quantity="mu_r", plot_name="mu_r", field_type="Fields"
 )
 
+# ## Export field
+#
+# Export magnetic flux density B on the collector cross-section in a .fld file.
+
+fld_filename = os.path.join(temp_folder.name, "Mag_B.fld")
+m3d.post.export_field_file(
+    quantity="Mag_B",
+    output_file=fld_filename,
+    assignment=section.name,
+    objects_type="Surf",
+)
+
 # ## Overlay fields using PyVista
 #
 # Plot electric field using PyVista and save to an image file.
