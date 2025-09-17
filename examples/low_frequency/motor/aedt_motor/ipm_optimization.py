@@ -112,7 +112,7 @@ param_sweep.add_variation(
     start_point=0,
     end_point=2,
     step=1,
-    variation_type="LinearCount",
+    variation_type="LinearStep",
 )
 
 # ## Alternative way to add a parametric setup from file
