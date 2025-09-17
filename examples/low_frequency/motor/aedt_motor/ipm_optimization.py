@@ -76,10 +76,6 @@ magnets = m2d.modeler.get_objects_by_material("XG196/96_2DSF1.000_X")
 for mag in magnets:
     mag.material_name = "mat_sweep[mat_index]"
 
-# Add parametric from file
-file_path = r"C:\Test\Volvo_Wenliang\2nd issue\ipm_optimazation.csv"
-param_sweep_from_file = m2d.parametrics.add_from_file(file_path)
-
 # ## Add parametric setup
 #
 # Add a parametric setup made up of geometry variable sweep definitions and single value for the stator current angle.
