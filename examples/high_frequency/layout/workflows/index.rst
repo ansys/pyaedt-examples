@@ -33,7 +33,7 @@ These examples create end-to-end workflows with PyAEDT and PyEDB.
 
    .. grid-item-card:: Plot Layout
       :padding: 2 2 2 2
-      :link: ../../../edb/legacy_standalone/Plot_nets
+      :link: ../../../edb/legacy_standalone/plot_nets
       :link-type: doc
 
       .. image:: ../../../edb/legacy_standalone/_static/plot_nets.png
@@ -46,7 +46,7 @@ These examples create end-to-end workflows with PyAEDT and PyEDB.
 
    .. grid-item-card:: IC Workflow using GDS
       :padding: 2 2 2 2
-      :link: ../../../edb/legacy_standalone/GDS_workflow
+      :link: ../../../edb/legacy_standalone/gds_workflow
       :link-type: doc
 
       .. image:: ../../../edb/legacy_standalone/_static/gds.png
@@ -75,6 +75,6 @@ These examples create end-to-end workflows with PyAEDT and PyEDB.
 
       ../../../edb/use_configuration/index
       ../../../edb/legacy_standalone/edb_to_ipc2581
-      ../../../edb/legacy_standalone/Plot_nets
-      ../../../edb/legacy_standalone/GDS_workflow
+      ../../../edb/legacy_standalone/plot_nets
+      ../../../edb/legacy_standalone/gds_workflow
       ../gui_manipulation
