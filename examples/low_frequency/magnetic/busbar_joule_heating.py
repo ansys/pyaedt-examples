@@ -1,256 +1,343 @@
-# %%
-# Copyright (C) 2025 ANSYS, Inc. and/or its affiliates.
+# %% [markdown]
+# # Busbar Joule Heating Analysis with Maxwell 3D
+#
+# Copyright (C) 2023 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
+# ## Overview
 #
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
+# This example demonstrates how to set up and solve a busbar Joule heating analysis using Maxwell 3D and PyAEDT. We will learn the complete workflow including:
+#
+# - Geometry creation and material assignment
+# - Current excitation setup following Kirchhoff's laws
+# - Mesh configuration for AC analysis
+# - Eddy current analysis execution
+# - Post-processing for field visualization
+# - Engineering metrics extraction
+#
+# ## Core Concepts and Principles
+#
+# **Busbar Joule heating analysis** is critical in power electronics and electrical distribution systems.
+# At AC frequencies, the **skin effect** causes non-uniform current distribution, which increases
+# resistance and power losses.
+#
+# Maxwell 3D's eddy current solver captures these frequency-dependent phenomena, enabling accurate prediction of:
+# - Power losses and current density distributions
+# - Thermal loads for thermal management
+# - AC resistance vs DC resistance
+# - Skin depth effects on current distribution
+#
+# This example demonstrates the complete electromagnetic analysis workflow for conductor systems.
 
 # %% [markdown]
-# # Maxwell 3D: Multi-Terminal Busbar Joule Heating Analysis
-#
-# This comprehensive example demonstrates electromagnetic analysis of a multi-terminal copper busbar 
-# system using ANSYS Maxwell 3D and PyAEDT. The analysis covers current distribution, electromagnetic 
-# fields, and Joule heating in AC power distribution systems.
-#
-# ## Problem Overview
-#
-# We analyze a copper busbar system with the following configuration:
-# - **Main Busbar**: 100mm × 10mm × 5mm rectangular conductor
-# - **Input Terminals**: Two parallel 2mm × 5mm × 5mm copper tabs
-# - **Output Terminal**: Single 2mm × 5mm × 5mm copper tab
-# - **Current Configuration**: 100A + 100A input, 200A output
-# - **Frequency**: 50Hz AC industrial power frequency
-#
-# ## Engineering Applications
-# - **Power Distribution**: Electrical panel and switchgear design
-# - **Thermal Management**: Heat dissipation and cooling system design
-# - **Current Rating**: Safe operating current determination
-# - **EMI/EMC Analysis**: Electromagnetic interference assessment
-# - **Material Optimization**: Conductor sizing and configuration
-
-# %% [markdown]
-# ## Theoretical Background
-#
-# ### Maxwell's Equations for Eddy Current Analysis
-#
-# The analysis is based on Maxwell's equations in the frequency domain for conducting materials:
-#
-# - **Faraday's Law**: ∇ × **E** = -jω**B**
-# - **Ampère's Law**: ∇ × **H** = **J** + jω**D**
-# - **Current Density**: **J** = σ**E** (Ohm's Law)
-# - **Constitutive Relations**: **B** = μ**H**, **D** = ε**E**
-#
-# ### Joule Heating Physics
-#
-# **Power Dissipation**: P = ∫ **J**·**E** dV = ∫ σ|**E**|² dV
-#
-# Where:
-# - **J** = Current density vector (A/m²)
-# - **E** = Electric field vector (V/m)
-# - σ = Electrical conductivity (S/m)
-# - ω = Angular frequency = 2πf
-#
-# ### Skin Effect
-#
-# At AC frequencies, current concentrates near conductor surfaces with skin depth:
-#
-# **δ = √(2/(ωμσ))**
-#
-# For copper at 50Hz: δ ≈ 9.3mm, indicating significant skin effect in our geometry.
-
-# %% [markdown]
-# ### 1. Import Required Libraries and Initialize Maxwell 3D
-#
-# Import PyAEDT and initialize Maxwell 3D with eddy current solver for AC electromagnetic analysis.
+# ## 1. Perform Required Imports
+# Import all necessary modules for the Maxwell 3D busbar analysis.
 
 # %%
+import math
+import os
+import tempfile
+import time
+
 from ansys.aedt.core import Maxwell3d
 
-# Initialize Maxwell 3D with eddy current solution type
-m3d = Maxwell3d(
-    version="2025.1",
-    design="Busbar_JouleHeating",
-    solution_type="EddyCurrent"
-)
-
 # %% [markdown]
-# ### 2. Geometry Creation and Material Assignment
-#
-# Create the 3D busbar geometry with multiple terminals representing a realistic power distribution scenario.
-#
-# #### Geometry Specifications:
-# - **Main Busbar**: Central current-carrying conductor
-# - **Input Tabs**: Two parallel connection points for incoming current
-# - **Output Tab**: Single connection point for outgoing current
-# - **Material**: High-conductivity copper (σ ≈ 5.8 × 10⁷ S/m)
+# ## 2. Set Analysis Parameters
+# Define geometric dimensions and electrical parameters for the busbar system.
 
 # %%
-# Create main busbar conductor
-busbar = m3d.modeler.create_box([0, 0, 0], [100, 10, 5], "Busbar")
+AEDT_VERSION = "2025.2"
+NG_MODE = False
+PROJECT_NAME = "Busbar_JouleHeating_Simple.aedt"
+
+# Geometry parameters (mm)
+BUSBAR_L = 100.0
+BUSBAR_W = 10.0
+BUSBAR_H = 5.0
+TAB_L = 5.0
+TAB_W = 3.0
+TAB_H = 3.0
+
+# Electrical parameters
+I1 = 100.0  # Input current 1 (A)
+I2 = 100.0  # Input current 2 (A)
+FREQ = 50  # Frequency (Hz)
+
+print("Maxwell 3D Busbar Joule Heating Analysis")
+print(f"Busbar dimensions: {BUSBAR_L} x {BUSBAR_W} x {BUSBAR_H} mm")
+print(f"Input currents: {I1}A + {I2}A = {I1+I2}A total")
+print(f"Frequency: {FREQ} Hz")
+
+# %% [markdown]
+# ## 3. Initialize Maxwell 3D
+# Start Maxwell 3D with eddy current solution type and set model units.
+
+# %%
+tmpdir = tempfile.TemporaryDirectory(suffix=".ansys")
+project_path = os.path.join(tmpdir.name, PROJECT_NAME)
+
+m3d = Maxwell3d(
+    project=project_path,
+    version=AEDT_VERSION,
+    design="Busbar_JouleHeating",
+    solution_type="Eddy Current",
+    new_desktop=True,
+    non_graphical=NG_MODE,
+)
+m3d.modeler.model_units = "mm"
+print("Maxwell 3D initialized")
+
+# %% [markdown]
+# ## 4. Create Busbar Geometry
+# Create the main busbar conductor and terminal tabs, then unite them into a single object.
+
+# %%
+print("\nCreating Geometry")
+
+# Main busbar
+busbar = m3d.modeler.create_box(
+    origin=[0, 0, 0], sizes=[BUSBAR_L, BUSBAR_W, BUSBAR_H], name="MainBusbar"
+)
 m3d.assign_material(busbar, "copper")
 
-# Create input terminals (parallel configuration)
-tab1 = m3d.modeler.create_box([-2, 0, 0], [2, 5, 5], "InputTab1")
-tab2 = m3d.modeler.create_box([-2, 5, 0], [2, 5, 5], "InputTab2")
-m3d.assign_material(tab1, "copper")
-m3d.assign_material(tab2, "copper")
-
-# Create output terminal
-tab_out = m3d.modeler.create_box([100, 2.5, 0], [2, 5, 5], "OutputTab")
-m3d.assign_material(tab_out, "copper")
-
-# %% [markdown]
-# ### 3. Current Excitation and Boundary Conditions
-#
-# Apply AC current excitations to simulate realistic power distribution scenarios.
-#
-# #### Current Configuration:
-# - **Input Currents**: 100A @ 0° phase (each input tab)
-# - **Output Current**: 200A @ 180° phase (current conservation)
-# - **Frequency**: 50Hz industrial power frequency
-#
-# This configuration represents a parallel input, single output power distribution system.
-
-# %%
-# Apply current excitation to input terminals
-m3d.assign_current(tab1.faces[0].id, amplitude=100, phase=0)
-m3d.assign_current(tab2.faces[0].id, amplitude=100, phase=0)
-
-# Apply return current to output terminal
-m3d.assign_current(tab_out.faces[0].id, amplitude=-200, phase=0)
-
-# %% [markdown]
-# ### 4. Analysis Setup and Solver Configuration
-#
-# Configure the eddy current solver for accurate electromagnetic field calculation at power frequency.
-#
-# #### Solver Parameters:
-# - **Solution Type**: Eddy Current (frequency domain)
-# - **Frequency**: 50Hz (where skin effect becomes significant)
-# - **Solver**: Iterative matrix solver optimized for electromagnetic problems
-
-# %%
-# Create analysis setup
-setup = m3d.create_setup("Setup1")
-setup.props["Frequency"] = "50Hz"
-
-# %% [markdown]
-# ### 5. Electromagnetic Field Solution
-#
-# Execute the finite element analysis to solve Maxwell's equations throughout the conductor domain.
-#
-# #### Computational Process:
-# 1. **Mesh Generation**: Automatic adaptive mesh refinement
-# 2. **Matrix Assembly**: Finite element system matrix construction
-# 3. **Iterative Solution**: Conjugate gradient solver for large sparse systems
-# 4. **Field Calculation**: Electric and magnetic field computation
-# 5. **Convergence Check**: Solution accuracy verification
-
-# %%
-# Solve the electromagnetic problem
-m3d.analyze()
-
-# %% [markdown]
-# ### 6. Field Visualization and Post-Processing
-#
-# Generate field plots to visualize electromagnetic phenomena and current distribution patterns.
-#
-# #### Visualization Results:
-# - **Electric Field Magnitude**: Shows regions of high electric stress and potential gradients
-# - **Current Density**: Reveals current flow patterns and skin effect distribution
-#
-# These visualizations are critical for:
-# - Understanding current crowding effects
-# - Identifying hot spots for thermal management
-# - Optimizing conductor geometry
-
-# %%
-# Create electric field magnitude plot
-m3d.post.create_fieldplot_surface(busbar, "Mag_E")
-
-# Create current density plot
-m3d.post.create_fieldplot_surface(busbar, "J")
-
-# %% [markdown]
-# ### 7. Joule Heating Loss Calculation
-#
-# Calculate and quantify the resistive power losses (Joule heating) in the conductor system.
-#
-# #### Power Loss Physics:
-# - **Ohmic Loss**: P = ∫ σ|E|² dV over conductor volume
-# - **Units**: Power dissipated in watts (W)
-# - **Engineering Significance**: Critical for thermal design and cooling requirements
-#
-# The calculated losses provide essential data for:
-# - Temperature rise prediction
-# - Cooling system sizing
-# - Current derating calculations
-
-# %%
-# Create ohmic loss report
-report_name = "OhmicLossReport"
-m3d.post.create_report(
-    expressions="Ohmic_Loss",
-    report_category="EddyCurrent",
-    plotname=report_name
+# Input tabs
+input_tab1 = m3d.modeler.create_box(
+    origin=[-TAB_L, 1.0, 0.0], sizes=[TAB_L, TAB_W, BUSBAR_H], name="InputTab1"
 )
-data = m3d.post.get_report_data(report_name)
+m3d.assign_material(input_tab1, "copper")
 
-# Extract and display results with engineering context
-if data and data.data_magnitude():
-    total_loss = data.data_magnitude()[0]
-    loss_per_amp_squared = total_loss / (200**2)  # Loss per A²
-    loss_density = total_loss / (100 * 10 * 5)  # Loss per unit volume (W/mm³)
-    
-    print(f"=== JOULE HEATING ANALYSIS RESULTS ===")
-    print(f"Total Joule Heating Loss: {total_loss:.3f} W")
-    print(f"Loss per unit current²: {loss_per_amp_squared*1e6:.3f} μW/A²")
-    print(f"Loss density: {loss_density:.6f} W/mm³")
-    print(f"Equivalent resistance: {total_loss/(200**2):.6f} Ω")
-else:
-    print("Warning: No Ohmic Loss data found in simulation results.")
+input_tab2 = m3d.modeler.create_box(
+    origin=[-TAB_L, 6.0, 0.0], sizes=[TAB_L, TAB_W, BUSBAR_H], name="InputTab2"
+)
+m3d.assign_material(input_tab2, "copper")
+
+# Output tab
+output_tab = m3d.modeler.create_box(
+    origin=[BUSBAR_L, 3.0, 0.0], sizes=[TAB_L, 4.0, BUSBAR_H], name="OutputTab"
+)
+m3d.assign_material(output_tab, "copper")
+
+# Unite all parts
+united = m3d.modeler.unite([busbar, input_tab1, input_tab2, output_tab])
+conductor = m3d.modeler[united] if isinstance(united, str) else united
+conductor.name = "CompleteBusbar"
+print(f"Created united conductor with {len(conductor.faces)} faces")
 
 # %% [markdown]
-# ### 8. Project Save and Resource Management
-#
-# Save the complete analysis for future reference and properly release computational resources.
+# ## 5. Define Current Excitations
+# Select terminal faces and assign current excitations following Kirchhoff's current law.
 
 # %%
-# Save project with all results
-m3d.save_project("Busbar_JouleHeating.aedt")
+print("\nSelecting Terminal Faces")
 
-# Release computational resources
-m3d.release_desktop(True, True)
+# Sort faces by x-coordinate to identify input and output terminals
+faces_sorted = sorted(conductor.faces, key=lambda f: f.center[0])
+left_x = faces_sorted[0].center[0]
+right_x = faces_sorted[-1].center[0]
+
+# Get faces at left and right ends
+left_faces = [f for f in faces_sorted if abs(f.center[0] - left_x) < 1e-3]
+right_faces = [f for f in faces_sorted if abs(f.center[0] - right_x) < 1e-3]
+
+# Select terminal faces
+input_face1 = left_faces[0].id
+input_face2 = left_faces[1].id if len(left_faces) > 1 else left_faces[0].id
+output_face = right_faces[0].id
+
+print(f"Selected input faces: {input_face1}, {input_face2}")
+print(f"Selected output face: {output_face}")
+
+print("\nAssigning Current Excitations")
+
+# Assign current excitations (following Kirchhoff's current law)
+current1 = m3d.assign_current(
+    assignment=input_face1, amplitude=I1, phase=0, name="InputCurrent1"
+)
+
+current2 = m3d.assign_current(
+    assignment=input_face2, amplitude=I2, phase=0, name="InputCurrent2"
+)
+
+current3 = m3d.assign_current(
+    assignment=output_face, amplitude=-(I1 + I2), phase=0, name="OutputCurrent"
+)
+
+print(f"Input Current 1: {I1}A")
+print(f"Input Current 2: {I2}A")
+print(f"Output Current: {-(I1 + I2)}A")
+print(f"Current balance: {I1 + I2 + (-(I1 + I2))} = 0A")
 
 # %% [markdown]
-# ## Results Analysis 
-#
-# ### Key Findings
-#
-# 1. **Current Distribution**: The dual-input configuration creates non-uniform current density
-# 2. **Skin Effect**: At 50Hz, current concentration near surfaces increases resistance
-# 3. **Joule Heating**: Power losses are concentrated at connection points and current transitions
-# 4. **Field Concentration**: Electric field peaks occur at geometric discontinuities
-#
-# ## Conclusion
-#
-# This Maxwell 3D analysis successfully demonstrates:
-#
-# 1. **Comprehensive Modeling**: Multi-terminal busbar with realistic geometry and excitation
-# 2. **Physics-Based Results**: Accurate electromagnetic field and loss calculations
-# 3. **Engineering Applications**: Practical design insights for power systems
-# 4. **Professional Workflow**: Industry-standard simulation methodology
-#
-# The calculated Joule heating provides essential data for thermal design, current rating, 
-# and safety assessment of electrical power distribution systems. This workflow can be 
-# extended for parametric studies, optimization, and coupled thermal analysis.
-#
-# This analysis demonstrates the power of PyAEDT for electromagnetic engineering and
-# provides a solid foundation for advanced busbar design applications.
+# ## 6. Create Air Region
+# Define the air region that provides boundary conditions for the electromagnetic field solution.
+
+# %%
+print("\nCreating Air Region")
+
+air = m3d.modeler.create_air_region(
+    x_pos=0, y_pos=50, z_pos=100, x_neg=0, y_neg=50, z_neg=100
+)
+print("Air region created with 50% padding")
+
+# %% [markdown]
+# ## 7. Configure Analysis Setup
+# Set up the eddy current analysis with frequency, convergence criteria, and mesh settings.
+
+# %%
+print("\n Setting Up Analysis ")
+
+setup = m3d.create_setup("EddyCurrentSetup")
+setup.props["Frequency"] = f"{FREQ}Hz"
+setup.props["PercentError"] = 2
+setup.props["MaximumPasses"] = 8
+setup.props["MinimumPasses"] = 2
+setup.props["PercentRefinement"] = 30
+
+print(f"Analysis setup created for {FREQ} Hz")
+
+mesh = m3d.mesh.assign_length_mesh(
+    assignment=conductor.name,
+    maximum_length=3.0,  # 3mm elements for skin effect resolution
+    name="ConductorMesh",
+)
+print("Mesh operation assigned")
+
+# %% [markdown]
+# ## 8. Run Analysis
+# Execute the finite element solver with automatic adaptive mesh refinement.
+
+# %%
+print("\n Running Analysis ")
+print("Starting solver... (this may take a few minutes)")
+
+validation = m3d.validate_simple()
+print(f"Design validation: {'PASSED' if validation else 'WARNING'}")
+
+# Solve
+m3d.analyze_setup(setup.name)
+print("Analysis completed")
+
+# %% [markdown]
+# ## 9. Extract Solution Data
+# Get Ohmic loss (Joule heating) results from the electromagnetic field solution.
+
+# %%
+print("\n--- Extracting Results ---")
+
+setup_sweep = f"{setup.name} : LastAdaptive"
+
+quantities_ec = m3d.post.available_report_quantities(report_category="EddyCurrent")
+print(f"Available quantities: {quantities_ec}")
+
+solution_data = m3d.post.get_solution_data(
+    expressions=["SolidLoss"],
+    report_category="EddyCurrent",
+    setup_sweep_name=setup_sweep,
+)
+
+total_loss = solution_data.data_magnitude()[0]
+print(f"\nOhmic Loss (Joule heating): {total_loss:.6f} W")
+
+# %% [markdown]
+# ## 10. Create Field Visualizations
+# Generate 3D field plots showing current density, electric field, and power loss distributions.
+
+# %%
+print("\n Creating Field Plots ")
+
+j_plot = m3d.post.create_fieldplot_surface(
+    assignment=conductor.name, quantity="Mag_J", plot_name="Current_Density_Magnitude"
+)
+print("Current density magnitude plot created")
+
+e_plot = m3d.post.create_fieldplot_surface(
+    assignment=conductor.name, quantity="Mag_E", plot_name="Electric_Field_Magnitude"
+)
+print("Electric field magnitude plot created")
+
+joule_plot = m3d.post.create_fieldplot_volume(
+    assignment=conductor.name,
+    quantity="Ohmic_Loss",
+    plot_name="Joule_Heating_Distribution",
+)
+print("Joule heating distribution plot created")
+
+# %% [markdown]
+# ## 11. Calculate Engineering Metrics
+# Compute key parameters including resistance, loss density, skin depth, and current density.
+
+# %%
+print("\nANALYSIS RESULTS")
+
+# Basic electrical parameters
+total_current = I1 + I2
+busbar_volume = BUSBAR_L * BUSBAR_W * BUSBAR_H
+
+# Ohmic Loss
+print(f"Ohmic Loss (Joule heating): {total_loss:.6f} W")
+
+# Loss density
+loss_density = total_loss / busbar_volume
+print(f"Loss density: {loss_density:.8f} W/mm³")
+
+# Equivalent DC resistance
+resistance = total_loss / (total_current**2)
+resistance_micro = resistance * 1e6
+print(f"Equivalent DC resistance: {resistance_micro:.2f} µΩ")
+
+# Skin depth calculation
+mu0 = 4 * math.pi * 1e-7
+sigma_cu = 5.8e7
+omega = 2 * math.pi * FREQ
+skin_depth_m = math.sqrt(2 / (omega * mu0 * sigma_cu))
+skin_depth_mm = skin_depth_m * 1000
+print(f"Skin depth at {FREQ} Hz: {skin_depth_mm:.3f} mm")
+
+current_density = total_current / (BUSBAR_W * BUSBAR_H)
+print(f"Average current density: {current_density:.2f} A/mm²")
+
+power_per_amp_squared = total_loss / (total_current**2)
+print(f"Power per A²: {power_per_amp_squared*1e6:.2f} µW/A²")
+
+# Comparison with conductor thickness
+if BUSBAR_H < 2 * skin_depth_mm:
+    print(
+        f"Note: Busbar thickness ({BUSBAR_H}mm) < 2×skin depth ({2*skin_depth_mm:.1f}mm)"
+    )
+    print(f"      Skin effect is significant - current distribution is non-uniform")
+else:
+    print(
+        f"Note: Busbar thickness ({BUSBAR_H}mm) > 2×skin depth ({2*skin_depth_mm:.1f}mm)"
+    )
+    print(f"      Current flows mainly near surfaces due to skin effect")
+
+print("\n--- Field Plot Information ---")
+print("Current density magnitude (|J|): Shows current distribution")
+print("Electric field magnitude (|E|): Shows electric field intensity")
+print("Joule heating distribution: Shows power loss density")
+
+# %% [markdown]
+# ## 12. Save Project and Release Resources
+# Save the analysis project and clean up AEDT resources.
+
+# %%
+print(f"\n--- Saving Project ---")
+m3d.save_project(project_path)
+print(f"Project saved to: {project_path}")
+
+m3d.release_desktop(close_projects=True, close_desktop=True)
+time.sleep(2)
+
+# %% [markdown]
+# ## 13. Conclusion
+# This example demonstrated the complete workflow for busbar Joule heating analysis using Maxwell 3D
+# and PyAEDT. The analysis captured frequency-dependent phenomena including skin effect, current
+# redistribution, and AC losses. Key outputs included power loss calculations, field visualizations,
+# and technical metrics essential for thermal management and design optimization.
+# The example demonstrates:
+# Eddy current distribution in a busbar at AC frequency
+# Joule heating due to AC resistance and skin effect
+# Non-uniform current density due to skin effect
+# Relationship between frequency, skin depth, and power loss
+
+# %%
