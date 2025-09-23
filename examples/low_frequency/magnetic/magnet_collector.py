@@ -1,6 +1,15 @@
-# ## Prerequisites
+# # Magnetic behavior of a magnet-collector system
 #
-# ### Perform imports
+# This example shows how to use PyAEDT to understand the magnetic behavior of a simplified
+# magnet-collector system when the magnet position changes.
+# The example shows how to setup the model, an optimetrics analysis to sweep the magnet position
+# and the post-processing of the results, from report creation to field plotting using PyVista.
+#
+# Keywords: **Maxwell 3D**, **Magnetostatic**, **Magnetic**, **Optimetrics**.
+
+# ## Perform imports and define constants
+#
+# Perform required imports.
 
 # +
 import os
@@ -12,7 +21,7 @@ from ansys.aedt.core.generic.constants import Axis
 
 # -
 
-# ### Define constants
+# ## Define constants
 #
 # Constants help ensure consistency and avoid repetition throughout the example.
 
@@ -55,14 +64,14 @@ m3d["magnet_z_pos"] = "0mm"
 
 # ## Add materials
 #
-# ### Create custom material ``"Aimant"``.
+# Create custom material ``"Aimant"``.
 
 mat = m3d.materials.add_material("Aimant")
 mat.permeability = "1.1"
 mat.set_magnetic_coercivity(value=2005600, x=1, y=1, z=0)
 mat.update()
 
-# ### Create non-linear magnetic material with single valued BH curve
+# ## Create non-linear magnetic material with single valued BH curve
 #
 # Create list with  BH curve data
 
@@ -89,7 +98,7 @@ bh_curve = [
     [635, 3.1],
 ]
 
-# ### Create custom material "Fer" and assign the BH curve to the permeability value
+# ## Create custom material "Fer" and assign the BH curve to the permeability value
 
 mat = m3d.materials.add_material("Fer")
 mat.permeability.value = bh_curve
@@ -265,7 +274,7 @@ param_sweep = m3d.parametrics.add(
 param_sweep.props["ProdOptiSetupDataV2"]["SaveFields"] = True
 # -
 
-# ### Analyze parametric sweep
+# ## Analyze parametric sweep
 
 param_sweep.analyze(cores=NUM_CORES)
 
@@ -329,19 +338,17 @@ m3d.post.export_field_file(
 #
 # Plot electric field using PyVista and save to an image file.
 # Plot the relative permeability on the collector surface at a given magnet position.
+# Change argument ``"show"`` to ``True`` see the permeability plot.
 
 m3d["magnet_z_pos"] = "18.75mm"
 
 py_vista_plot = m3d.post.plot_field(
     quantity="mu_r", assignment=collector.name, plot_cad_objs=True, show=False
 )
-py_vista_plot.isometric_view = False
-py_vista_plot.camera_position = [0, 0, 7]
-py_vista_plot.focal_point = [0, 0, 0]
-py_vista_plot.roll_angle = 0
-py_vista_plot.elevation_angle = 0
-py_vista_plot.azimuth_angle = 0
-py_vista_plot.plot(os.path.join(temp_folder.name, "mu_r.jpg"))
+py_vista_plot.isometric_view = True
+py_vista_plot.plot(
+    export_image_path=os.path.join(temp_folder.name, "mu_r.jpg"), show=True
+)
 
 # ## BH curve of the ferromagnetic material
 #
