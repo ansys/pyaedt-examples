@@ -56,7 +56,7 @@ m3d = ansys.aedt.core.Maxwell3d(
 
 # ## Define variables
 #
-# Later on we want to see how the magnetic flux density changes with the position of the magnet.
+# Later on we want to see how the magnetic behavior of the system changes with the position of the magnet.
 
 m3d["magnet_radius"] = "2mm"
 m3d["magnet_height"] = "15mm"
@@ -280,8 +280,7 @@ param_sweep.analyze(cores=NUM_CORES)
 
 # ## Create reports
 #
-# Create a rectangular and data plots of the magnetic flux density on the polyline
-# for the different magnet positions.
+# Create rectangular and data plots on the polyline for different magnet positions.
 
 # +
 data_table = m3d.post.create_report(
