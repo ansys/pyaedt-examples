@@ -308,11 +308,17 @@ rectangular_plot = m3d.post.create_report(
 #
 # Create field plots over the collector cross-section and on
 # the collector surface to see how the magnetic flux density (B),
-# the magnetic field strength (H) and the permeability
+# the vector B field, the magnetic field strength (H) and the permeability
 # of the ferromagnetic material (μ) change.
 
 mag_b = m3d.post.create_fieldplot_surface(
     assignment=[section.name], quantity="Mag_B", plot_name="Mag_B", field_type="Fields"
+)
+vector_b = m3d.post.create_fieldplot_volume(
+    assignment=[collector.name],
+    quantity="B_Vector",
+    plot_name="B_Vector",
+    field_type="Fields",
 )
 mag_h = m3d.post.create_fieldplot_surface(
     assignment=[section.name], quantity="Mag_H", plot_name="Mag_H", field_type="Fields"
