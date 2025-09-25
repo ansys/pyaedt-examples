@@ -117,6 +117,20 @@ These examples use PyAEDT to show some general applications.
 
       Twin builder examples.
 
+   .. grid-item-card:: 3-Phase Cable with Neutral
+      :padding: 2 2 2 2
+      :link: maxwell_3_phase_cable
+      :link-type: doc
+
+      .. image:: _static/three_phase_cable.png
+         :alt: Maxwell cable
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      This example uses PyAEDT to create a 3-phase cable with neutral
+      and solve it using Maxwell 2D AC Magnetic (Eddy Current) solver.
+
    .. toctree::
       :hidden:
 
@@ -128,3 +142,4 @@ These examples use PyAEDT to show some general applications.
       dc_analysis
       field_export
       twin_builder/index
+      maxwell_3_phase_cable

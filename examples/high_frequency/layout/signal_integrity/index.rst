@@ -72,19 +72,6 @@ These examples use PyAEDT to show signal integrity examples.
 
       This example demonstrates advanced postprocessing of AMI simulations.
 
-   .. grid-item-card:: Multi-zone simulation with SIwave
-      :padding: 2 2 2 2
-      :link: multizone
-      :link-type: doc
-
-      .. image:: _static/multizone.png
-         :alt: Multizone
-         :width: 250px
-         :height: 200px
-         :align: center
-
-      This example shows how to simulate multiple zones with SIwave.
-
    .. grid-item-card:: Circuit transient analysis and eye diagram
       :padding: 2 2 2 2
       :link: circuit_transient
@@ -171,7 +158,6 @@ These examples use PyAEDT to show signal integrity examples.
       pre_layout
       pre_layout_parametrized
       ami
-      multizone
       serdes_differential
       circuit_transient
 

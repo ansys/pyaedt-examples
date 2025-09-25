@@ -24,7 +24,7 @@ import ansys.aedt.core
 
 # Define constants.
 
-AEDT_VERSION = "2025.1"
+AEDT_VERSION = "2025.2"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
@@ -46,7 +46,7 @@ circuit = ansys.aedt.core.Circuit(
     non_graphical=NG_MODE,
     new_desktop=True,
 )
-circuit.modeler.schematic.schematic_units = "mil"
+circuit.modeler.schematic_units = "mil"
 
 # ## Variable initialization to create a parametric design
 #
@@ -365,6 +365,7 @@ new_report = circuit.post.create_report(
     ],
     domain="Time",
     plot_name="Plot V,I",
+    context={"time_stop": "15us"}
 )
 
 # ## Release AEDT

@@ -24,7 +24,7 @@ from ansys.aedt.core.generic.file_utils import write_csv
 # ### Define constants
 # Constants help ensure consistency and avoid repetition throughout the example.
 
-AEDT_VERSION = "2025.1"
+AEDT_VERSION = "2025.2"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 

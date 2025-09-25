@@ -27,7 +27,7 @@ from ansys.aedt.core.emit_core.emit_constants import ResultType, TxRxMode
 
 # Define constants.
 
-AEDT_VERSION = "2025.1"
+AEDT_VERSION = "2025.2"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory

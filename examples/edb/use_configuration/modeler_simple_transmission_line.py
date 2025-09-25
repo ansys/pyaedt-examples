@@ -15,7 +15,7 @@ from pyedb import Edb
 
 # Define constants.
 
-AEDT_VERSION = "2024.2"
+AEDT_VERSION = "2025.2"
 NG_MODE = False
 
 # ## Create an empty design

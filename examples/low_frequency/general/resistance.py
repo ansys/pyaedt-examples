@@ -21,7 +21,7 @@ from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 
 # Define constants.
 
-AEDT_VERSION = "2025.1"
+AEDT_VERSION = "2025.2"
 NG_MODE = False
 NUM_CORES = 4
 
@@ -244,7 +244,7 @@ animated_plot.focal_point = [0, 0, 0]
 animated_plot.roll_angle = 0
 animated_plot.elevation_angle = 0
 animated_plot.azimuth_angle = 0
-animated_plot.animate()
+animated_plot.animate(show=False)
 
 # ## Export model picture
 
