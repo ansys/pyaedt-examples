@@ -48,7 +48,7 @@ edb.stackup.add_layer("TOP", "Diel", thickness="0.05mm")
 # Create a signal net and ground planes.
 
 points = [[0.0, 0], [100e-3, 0.0]]
-trace = edb.modeler.create_trace(points, "TOP", width=1e-3,end_cap_style="Flat",start_cap_style="Flat")
+trace = edb.modeler.create_trace(points, "TOP", width=1e-3, end_cap_style="Flat", start_cap_style="Flat")
 points = [[0.0, 1e-3], [0.0, 10e-3], [100e-3, 10e-3], [100e-3, 1e-3], [0.0, 1e-3]]
 edb.modeler.create_polygon(points, "TOP")
 points = [[0.0, -1e-3], [0.0, -10e-3], [100e-3, -10e-3], [100e-3, -1e-3], [0.0, -1e-3]]
@@ -58,9 +58,9 @@ edb.modeler.create_polygon(points, "GND")
 
 # ## Create wave ports on the main trace's ends.
 
-edb.hfss.create_wave_port(prim_id = trace.id,point_on_edge = ["-10mm","10mm"],port_name="wport1")
+edb.hfss.create_wave_port(prim_id = trace.id, point_on_edge = ["-10mm","10mm"], port_name="wport1")
 
-edb.hfss.create_wave_port(prim_id = trace.id,point_on_edge = ["100mm","0mm"],port_name="wport2")
+edb.hfss.create_wave_port(prim_id = trace.id, point_on_edge = ["100mm","0mm"], port_name="wport2")
 
 # ## Place vias
 
