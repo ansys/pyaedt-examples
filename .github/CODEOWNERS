@@ -4,4 +4,6 @@
 # These owners will be the default owners for everything in
 # the repo. Unless a later match takes precedence,
 # Owners will be requested for review when someone opens a PR.
-* @SMoraisAnsys @maxcapodi78 @Samuelopez-ansys @gmalinve @dcrawforAtAnsys
+* @SMoraisAnsys @maxcapodi78 @Samuelopez-ansys @gmalinve @Devin-Crawford
+
+/examples/low_frequency/ @jvela018 @nunesanderson
