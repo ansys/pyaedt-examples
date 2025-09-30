@@ -82,19 +82,6 @@ These examples use PyAEDT to show Circuit capabilities.
 
       This example demonstrates advanced postprocessing of AMI simulations.
 
-   .. grid-item-card:: Multi-zone simulation with SIwave
-      :padding: 2 2 2 2
-      :link: ../../high_frequency/layout/signal_integrity/multizone
-      :link-type: doc
-
-      .. image:: ../../high_frequency/layout/signal_integrity/_static/multizone.png
-         :alt: Multizone
-         :width: 250px
-         :height: 200px
-         :align: center
-
-      This example shows how to simulate multiple zones with SIwave.
-
    .. grid-item-card:: Circuit transient analysis and eye diagram
       :padding: 2 2 2 2
       :link: ../../high_frequency/layout/signal_integrity/circuit_transient
@@ -118,5 +105,4 @@ These examples use PyAEDT to show Circuit capabilities.
       ../../aedt_general/report/virtual_compliance
       ../../high_frequency/emc/subcircuit.py
       ../../high_frequency/layout/signal_integrity/ami
-      ../../high_frequency/layout/signal_integrity/multizone
       ../../high_frequency/layout/signal_integrity/circuit_transient

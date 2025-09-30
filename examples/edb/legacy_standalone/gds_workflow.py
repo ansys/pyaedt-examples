@@ -16,14 +16,14 @@
 
 import os
 import tempfile
-from pyedb.dotnet.edb import Edb
+from pyedb import Edb
 from pyedb.misc.downloads import download_file
 from ansys.aedt.core.hfss3dlayout import  Hfss3dLayout
 
-# ### Define constants
+# ### Define constant
 # Constants help ensure consistency and avoid repetition throughout the example.
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION= "2025.2"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ### Create temporary directory
@@ -69,7 +69,7 @@ gds_in = os.path.join(local_path, gds_fn)
 #
 # Open the EDB by creating an instance of the ``Edb`` class.
 
-edb = Edb(gds_in, edbversion=AEDT_VERSION, control_file=control_file, map_file=map_file)
+edb = Edb(gds_in, control_file=control_file, map_file=map_file, version=AEDT_VERSION)
 
 # ### View the layer stackup
 
@@ -99,12 +99,3 @@ h3d = Hfss3dLayout(project=edb_path, version=AEDT_VERSION, new_desktop=NG_MODE)
 # The following command releases Ansys Electronics Desktop and closes the project.
 
 h3d.release_desktop()
-
-# ### Clean up
-#
-# All project files are saved in the folder ``temp_folder.name``.
-# If you've run this example as a Jupyter notebook, you
-# can retrieve those project files. The following cell
-# removes all temporary files, including the project folder.
-
-temp_folder.cleanup()

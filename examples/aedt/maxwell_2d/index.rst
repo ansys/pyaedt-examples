@@ -164,6 +164,19 @@ These examples use PyAEDT to show Maxwell 2D capabilities.
 
       This example shows how to use PyAEDT to create a Maxwell 2D magnetostatic analysis to calculate transformer leakage inductance and reactance.
 
+   .. grid-item-card:: 3-Phase Cable with Neutral
+      :padding: 2 2 2 2
+      :link: ../../low_frequency/general/maxwell_3_phase_cable
+      :link-type: doc
+
+      .. image:: ../../low_frequency/general/_static/three_phase_cable.png
+         :alt: Maxwell cable
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      This example uses PyAEDT to create a 3-phase cable with neutral and solve it using Maxwell 2D AC Magnetic (Eddy Current) solver.
+
    .. toctree::
       :hidden:
 
@@ -172,6 +185,7 @@ These examples use PyAEDT to show Maxwell 2D capabilities.
       ../../low_frequency/general/eddy_current
       ../../low_frequency/general/electrostatic
       ../../low_frequency/general/external_circuit
+      ../../low_frequency/general/maxwell_3_phase_cable
       ../../low_frequency/magnetic/magneto_motive_line
       ../../low_frequency/magnetic/transient_winding
       ../../low_frequency/magnetic/lorentz_actuator
