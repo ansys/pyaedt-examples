@@ -6,4 +6,4 @@
 # Owners will be requested for review when someone opens a PR.
 * @SMoraisAnsys @maxcapodi78 @Samuelopez-ansys @gmalinve @dcrawforAtAnsys
 
-examples/low_frequency/* @jvela018 @nunesanderson
+/examples/low_frequency/ @jvela018 @nunesanderson
