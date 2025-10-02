@@ -11,20 +11,24 @@
 #
 # ### Perform imports
 
+# +
 import ansys.aedt.core
 import os
 import time
 import tempfile
+
 import pyvista
 import numpy as np
 from ansys.aedt.core import generate_unique_name
+from ansys.aedt.core.examples.downloads import download_file
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
+# -
 
 # ### Define constants.
 #
 # Constants help ensure consistency and avoid repetition throughout the example.
 
-AEDT_VERSION = "2025.1"
+AEDT_VERSION = "2025.2"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
@@ -39,11 +43,11 @@ working_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 # Download and open the project. Save it to the temporary working folder.
 
 
-parasolid_path = ansys.aedt.core.downloads.download_file(
-    source="oven", name="gingerbread.x_t", destination=working_dir.name
+parasolid_path = download_file(
+    source="oven", name="gingerbread.x_t", local_path=working_dir.name
 )
-oven_path = ansys.aedt.core.downloads.download_file(
-    source="oven", name="microwave_oven.aedt", destination=working_dir.name
+oven_path = download_file(
+    source="oven", name="microwave_oven.aedt", local_path=working_dir.name
 )
 
 # ### Launch HFSS

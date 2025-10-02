@@ -9,16 +9,19 @@
 # ## Perform imports and define constants
 # Import the required packages.
 
+# +
 import os.path
 import tempfile
 import time
 
 import ansys.aedt.core
+from ansys.aedt.core.examples.downloads import download_file
 from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
+# -
 
 # ## Define constants
 
-AEDT_VERSION = "2025.1"
+AEDT_VERSION = "2025.2"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
@@ -34,8 +37,8 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Download example data
 
-download_folder = ansys.aedt.core.downloads.download_file(
-    source="pcie_compliance", destination=temp_folder.name
+download_folder = download_file(
+    source="pcie_compliance", local_path=temp_folder.name
 )
 project_folder = os.path.join(download_folder, "project")
 project_path = os.path.join(project_folder, "PCIE_GEN5_only_layout.aedtz")

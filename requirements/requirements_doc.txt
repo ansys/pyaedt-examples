@@ -1,35 +1,35 @@
 # PyAEDT dependency
-git+https://github.com/ansys/pyaedt@main
+pyaedt[graphics] @ git+https://github.com/ansys/pyaedt@main
 
 # Examples dependencies
 imageio==2.37.0
 matplotlib==3.10.1
 numpy==2.2.3
 openpyxl==3.1.5
-osmnx==2.0.1
+osmnx==2.0.2
 pandas==2.2.3
 pyvista==0.44.2
-fast-simplification==0.1.9
-joblib==1.4.2
-plotly==5.24.0
+fast-simplification==0.1.10
+joblib==1.5.0
+plotly==6.0.1
 scikit-rf==1.6.2
 
 # Documentation dependencies
-ansys-sphinx-theme==1.0.5
+ansys-sphinx-theme==1.0.11
 ipython==8.26.0
-jupyterlab==4.2.5
+jupyterlab==4.4.3
 nbsphinx==0.9.7
-numpydoc==1.7.0
-pypandoc==1.13.0
+numpydoc==1.8.0
+pypandoc==1.15
 recommonmark
 Sphinx==8.0.2
-sphinx-autobuild==2024.4.16
-sphinx-autodoc-typehints==2.0.0
+sphinx-autobuild==2024.10.3
+sphinx-autodoc-typehints==2.3.0
 sphinx-copybutton==0.5.2
-sphinx-gallery==0.16.0
-sphinx-notfound-page==1.0.0
+sphinx-gallery==0.19.0
+sphinx-notfound-page==1.1.0
 sphinx_design==0.6.1
-sphinxcontrib-websupport==1.2.7
-jupytext==1.16.4
-nbconvert==7.16.4
-
+sphinxcontrib-websupport==2.0.0
+jupytext==1.17.2
+nbconvert==7.16.6
+ipywidgets==8.1.7

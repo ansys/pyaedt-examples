@@ -17,14 +17,14 @@ import tempfile
 import time
 
 import ansys.aedt.core
+from ansys.aedt.core.examples.downloads import download_file
 import numpy as np
 from matplotlib import pyplot as plt
-
 # -
 
 # Define constants.
 
-AEDT_VERSION = "2025.1"
+AEDT_VERSION = "2025.2"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory and download example files
@@ -49,8 +49,8 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 #
 # Files are placed in the destination folder.
 
-project_path = ansys.aedt.core.downloads.download_file(
-    "ami", name="ami_usb.aedtz", destination=temp_folder.name
+project_path = download_file(
+    "ami", name="ami_usb.aedtz", local_path=temp_folder.name
 )
 
 
@@ -211,11 +211,13 @@ plt.show()
 
 plot_name = "V(b_input_43.int_ami_rx.eye_probe.out)"
 circuit.solution_type = "NexximTransient"
+context = {"time_start": "0ps","time_stop": "100ns"}
 original_data = circuit.post.get_solution_data(
     expressions=plot_name,
     setup_sweep_name="NexximTransient",
     domain="Time",
     variations=circuit.available_variations.nominal,
+    context=context
 )
 
 # ## Extract sample waveform
@@ -260,11 +262,11 @@ tstart_ns = scale_time * tstart
 
 for time_value in original_data_sweep:
     if tstart_ns <= time_value:
-        start_index_original_data = original_data_sweep.index(time_value)
+        start_index_original_data = original_data_sweep.index(time_value.value)
         break
 for time_value in original_data_sweep[start_index_original_data:]:
     if time_value >= tstop_ns:
-        stop_index_original_data = original_data_sweep.index(time_value)
+        stop_index_original_data = original_data_sweep.index(time_value.value)
         break
 cont = 0
 for frame in sample_waveform:

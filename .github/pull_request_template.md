@@ -1,7 +1,8 @@
-# Pull Request Template
-
 ## Description
-Please provide a brief description of the changes in this pull request.
+<!-- Please provide a brief description of the changes in this pull request -->
+
+## Issue linked
+<!-- Provide issue link(s) or state that no issue is linked -->
 
 ## Checklist
 Please complete the following checklist before submitting your pull request:

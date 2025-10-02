@@ -8,6 +8,35 @@ updates:
     labels:
       - "maintenance"
       - "dependencies"
+    groups:
+      # Actions related to this repo's CI/CD
+      documentation:
+        patterns:
+          - "actions/*"
+          - "ansys-sphinx-theme"
+          - "ipython"
+          - "jupyterlab"
+          - "nbsphinx"
+          - "numpydoc"
+          - "pypandoc"
+          - "recommonmark"
+          - "Sphinx"
+          - "sphinx*"
+          - "jupytext"
+          - "nbconvert"
+      examples:
+        patterns:
+          - "imageio"
+          - "matplotlib"
+          - "numpy"
+          - "openpyxl"
+          - "osmnx"
+          - "pandas"
+          - "pyvista"
+          - "fast-simplification"
+          - "joblib"
+          - "plotly"
+          - "scikit-rf"
 
   - package-ecosystem: "github-actions"
     directory: "/"

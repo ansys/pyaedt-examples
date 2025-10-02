@@ -20,17 +20,19 @@
 # ## Perform imports and define constants
 # Import the required packages
 
+# +
 import json
 import os
 import tempfile
 import time
 
 import ansys.aedt.core
-from ansys.aedt.core.downloads import download_file
+from ansys.aedt.core.examples.downloads import download_file
+# -
 
 # Define constants.
 
-AEDT_VERSION = "2025.1"
+AEDT_VERSION = "2025.2"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
@@ -45,11 +47,11 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # Download the example PCB data.
 
-aedb = download_file(source="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name)
-download_file(
+aedb = download_file(source="edb/ANSYS-HSD_V1.aedb", local_path=temp_folder.name)
+_ = download_file(
     source="touchstone",
     name="GRM32_DC0V_25degC_series.s2p",
-    destination=temp_folder.name,
+    local_path=temp_folder.name,
 )
 
 # ## Create configuration file

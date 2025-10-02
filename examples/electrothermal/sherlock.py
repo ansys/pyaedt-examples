@@ -15,12 +15,12 @@ import tempfile
 import time
 
 import ansys.aedt.core
-
+from ansys.aedt.core.examples.downloads import download_sherlock
 # -
 
 # Define constants
 
-AEDT_VERSION = "2025.1"
+AEDT_VERSION = "2025.2"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
@@ -29,7 +29,7 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 # Set paths.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
-input_dir = ansys.aedt.core.downloads.download_sherlock(destination=temp_folder.name)
+input_dir = download_sherlock(local_path=temp_folder.name)
 
 # Define input files.
 

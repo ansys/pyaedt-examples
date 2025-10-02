@@ -20,7 +20,7 @@ from ansys.aedt.core.filtersolutions_core.export_to_aedt import ExportFormat
 
 # Define constants.
 
-AEDT_VERSION = "2025.1"
+AEDT_VERSION = "2025.2"
 
 # ## Define function used for plotting
 #

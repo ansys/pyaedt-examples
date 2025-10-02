@@ -14,12 +14,12 @@ import tempfile
 import time
 
 import ansys.aedt.core
-
+from ansys.aedt.core.examples.downloads import download_via_wizard
 # -
 
 # Define constants.
 
-AEDT_VERSION = "2025.1"
+AEDT_VERSION = "2025.2"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
@@ -36,8 +36,8 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 #
 # Download and open the project. Save it to the temporary folder.
 
-project_name = ansys.aedt.core.downloads.download_via_wizard(
-    destination=temp_folder.name
+project_name = download_via_wizard(
+    local_path=temp_folder.name
 )
 
 # ## Start HFSS

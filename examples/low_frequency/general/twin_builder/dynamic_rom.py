@@ -12,17 +12,20 @@
 #
 # Perform required imports.
 
+# +
 import os
 import shutil
 import tempfile
 import time
 
 import ansys.aedt.core
+from ansys.aedt.core.examples import downloads
 import matplotlib.pyplot as plt
+# -
 
 # Define constants.
 
-AEDT_VERSION = "2025.1"
+AEDT_VERSION = "2025.2"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
@@ -41,28 +44,29 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 source_snapshot_data_zipfilename = "Ex1_Mechanical_DynamicRom.zip"
 source_build_conf_file = "dynarom_build.conf"
+twin_builder_data_folder = os.path.join(temp_folder.name, "twin_builder")
 
 # Download data from the ``example_data`` repository.
 
-_ = ansys.aedt.core.downloads.download_twin_builder_data(
+downloads.download_twin_builder_data(
     file_name=source_snapshot_data_zipfilename,
     force_download=True,
-    destination=temp_folder.name,
+    local_path=temp_folder.name,
 )
-source_data_folder = ansys.aedt.core.downloads.download_twin_builder_data(
+downloads.download_twin_builder_data(
     source_build_conf_file, True, temp_folder.name
 )
 
 # Toggle these for local testing.
 
-data_folder = os.path.join(source_data_folder, "Ex03")
+data_folder = os.path.join(twin_builder_data_folder, "Ex03")
 
 # Unzip training data and config file
-ansys.aedt.core.downloads.unzip(
-    os.path.join(source_data_folder, source_snapshot_data_zipfilename), data_folder
+ansys.aedt.core.examples.downloads.unzip(
+    os.path.join(twin_builder_data_folder, source_snapshot_data_zipfilename), data_folder
 )
 shutil.copyfile(
-    os.path.join(source_data_folder, source_build_conf_file),
+    os.path.join(twin_builder_data_folder, source_build_conf_file),
     os.path.join(data_folder, source_build_conf_file),
 )
 
@@ -189,7 +193,7 @@ plt.show()
 # All methods provide for saving the project before closing.
 
 # Clean up the downloaded data.
-shutil.rmtree(source_data_folder)
+shutil.rmtree(twin_builder_data_folder)
 
 # Restore the earlier AEDT configuration and schematic environment.
 tb._odesktop.SetDesktopConfiguration(current_desktop_config)

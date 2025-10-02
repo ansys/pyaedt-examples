@@ -20,14 +20,14 @@ import time
 from ansys.aedt.core import Hfss
 from ansys.aedt.core.visualization.advanced.farfield_visualization import \
     FfdSolutionData
-from ansys.aedt.core.downloads import download_3dcomponent
+from ansys.aedt.core.examples.downloads import download_3dcomponent
 from ansys.aedt.core.generic import file_utils
 # -
 
 # ### Define constants
 # Constants help ensure consistency and avoid repetition throughout the example.
 
-AEDT_VERSION = "2025.1"
+AEDT_VERSION = "2025.2"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
@@ -46,7 +46,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # Download the 3D component that will be used to define
 # the unit cell in the antenna array.
 
-path_to_3dcomp = download_3dcomponent(destination=temp_folder.name)
+path_to_3dcomp = download_3dcomponent(local_path=temp_folder.name)
 
 # ### Launch HFSS
 #
@@ -94,8 +94,7 @@ for cell in array_definition["cells"]:
 
 # Each unit cell is defined by a 3D Component. The 3D component may be added
 # to the HFSS design using the method
-# [``Hfss.modeler.insert_3d_component()``]
-# (https://aedt.docs.pyansys.com/version/stable/API/_autosummary/ansys.aedt.core.modeler.modeler_3d.Modeler3D.insert_3d_component.html)
+# [Hfss.modeler.insert_3d_component()](https://aedt.docs.pyansys.com/version/stable/API/_autosummary/ansys.aedt.core.modeler.modeler_3d.Modeler3D.insert_3d_component.html)
 # or it can be added as a key to the ``array_definition`` as shown below.
 
 array_definition["Circ_Patch_5GHz1"] = os.path.join(path_to_3dcomp, "Circ_Patch_5GHz.a3dcomp")
