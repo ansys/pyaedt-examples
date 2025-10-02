@@ -231,7 +231,7 @@ py_vista_plot.plot(os.path.join(temp_folder.name, "mag_E.jpg"))
 animated_plot = m2d.post.plot_animated_field(
     quantity="Mag_J",
     assignment=conductor_surface,
-    export_path=temp_folder.name,
+    output_file=temp_folder.name,
     variation_variable="MaterialIndex",
     variations=[0, 1, 2, 3],
     show=False,
