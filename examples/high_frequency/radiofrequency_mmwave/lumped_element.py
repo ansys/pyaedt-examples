@@ -13,10 +13,11 @@
 import ansys.aedt.core
 import ansys.aedt.core.filtersolutions
 import matplotlib.pyplot as plt
-from ansys.aedt.core.filtersolutions_core.attributes import FilterType, FilterClass
-from ansys.aedt.core.filtersolutions_core.ideal_response import SParametersResponseColumn
+from ansys.aedt.core.filtersolutions_core.attributes import FilterClass, FilterType
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import ExportFormat
-
+from ansys.aedt.core.filtersolutions_core.ideal_response import (
+    SParametersResponseColumn,
+)
 
 # Define constants.
 
@@ -51,9 +52,7 @@ lumped_design.attributes.filter_order = 5
 #
 # Plot the frequency response of the filter without any transmission zeros.
 
-freq, s21_db = lumped_design.ideal_response.s_parameters(
-    SParametersResponseColumn.S21_DB
-)
+freq, s21_db = lumped_design.ideal_response.s_parameters(SParametersResponseColumn.S21_DB)
 plt.plot(freq, s21_db, linewidth=2.0, label="Without Tx Zero")
 format_plot()
 plt.show()
@@ -67,9 +66,7 @@ plt.show()
 # Plot the frequency response of the filter with the transmission zero.
 
 lumped_design.transmission_zeros_ratio.append_row("2.0")
-freq_with_zero, s21_db_with_zero = lumped_design.ideal_response.s_parameters(
-    SParametersResponseColumn.S21_DB
-)
+freq_with_zero, s21_db_with_zero = lumped_design.ideal_response.s_parameters(SParametersResponseColumn.S21_DB)
 plt.plot(freq, s21_db, linewidth=2.0, label="Without Tx Zero")
 plt.plot(freq_with_zero, s21_db_with_zero, linewidth=2.0, label="With Tx Zero")
 format_plot()
@@ -86,7 +83,7 @@ netlist = lumped_design.topology.netlist()
 print("Netlist: \n", netlist)
 
 #  ## Printed output:
-# Netlist: 
+# Netlist:
 #  *
 # V1 1 0 AC 1 PULSE 0 1 0 1.592E-13 0
 # R0 1 2 50
@@ -130,7 +127,7 @@ circuit = lumped_design.export_to_aedt.export_design(export_format=ExportFormat.
 
 # <img src="_static/exported_filter_to_desktop.png" width="400">
 
-# ## Plot the simulated circuit 
+# ## Plot the simulated circuit
 #
 # Get the scattering parameter data from the AEDT Circuit simulation and create a plot.
 solutions = circuit.post.get_solution_data(
