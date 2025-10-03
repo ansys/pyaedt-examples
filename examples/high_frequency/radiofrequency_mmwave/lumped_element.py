@@ -14,7 +14,7 @@ import ansys.aedt.core
 import ansys.aedt.core.filtersolutions
 import matplotlib.pyplot as plt
 from ansys.aedt.core.filtersolutions_core.attributes import FilterType, FilterClass
-from ansys.aedt.core.filtersolutions_core.ideal_response import FrequencyResponseColumn
+from ansys.aedt.core.filtersolutions_core.ideal_response import SParametersResponseColumn
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import ExportFormat
 
 
@@ -51,10 +51,10 @@ lumped_design.attributes.filter_order = 5
 #
 # Plot the frequency response of the filter without any transmission zeros.
 
-freq, mag_db = lumped_design.ideal_response.frequency_response(
-    FrequencyResponseColumn.MAGNITUDE_DB
+freq, s21_db = lumped_design.ideal_response.s_parameters(
+    SParametersResponseColumn.S21_DB
 )
-plt.plot(freq, mag_db, linewidth=2.0, label="Without Tx Zero")
+plt.plot(freq, s21_db, linewidth=2.0, label="Without Tx Zero")
 format_plot()
 plt.show()
 
@@ -67,11 +67,11 @@ plt.show()
 # Plot the frequency response of the filter with the transmission zero.
 
 lumped_design.transmission_zeros_ratio.append_row("2.0")
-freq_with_zero, mag_db_with_zero = lumped_design.ideal_response.frequency_response(
-    FrequencyResponseColumn.MAGNITUDE_DB
+freq_with_zero, s21_db_with_zero = lumped_design.ideal_response.s_parameters(
+    SParametersResponseColumn.S21_DB
 )
-plt.plot(freq, mag_db, linewidth=2.0, label="Without Tx Zero")
-plt.plot(freq_with_zero, mag_db_with_zero, linewidth=2.0, label="With Tx Zero")
+plt.plot(freq, s21_db, linewidth=2.0, label="Without Tx Zero")
+plt.plot(freq_with_zero, s21_db_with_zero, linewidth=2.0, label="With Tx Zero")
 format_plot()
 plt.show()
 
@@ -126,15 +126,23 @@ lumped_design.export_to_aedt.schematic_name = "LumpedElementFilter"
 lumped_design.export_to_aedt.simulate_after_export_enabled = True
 lumped_design.export_to_aedt.smith_plot_enabled = True
 lumped_design.export_to_aedt.table_data_enabled = True
-lumped_design.export_to_aedt.export_design(export_format=ExportFormat.DIRECT_TO_AEDT)
+circuit = lumped_design.export_to_aedt.export_design(export_format=ExportFormat.DIRECT_TO_AEDT)
 
 # <img src="_static/exported_filter_to_desktop.png" width="400">
 
+# ## Plot the simulated circuit 
+#
+# Get the scattering parameter data from the AEDT Circuit simulation and create a plot.
+solutions = circuit.post.get_solution_data(
+    expressions=circuit.get_traces_for_plot(category="S"),
+)
+sim_freq = solutions.primary_sweep_values
+sim_freq_ghz = [i * 1e9 for i in sim_freq]
+sim_s21_db = solutions.data_db20(expression="S(Port2,Port1)")
+plt.plot(freq, s21_db, linewidth=2.0, label="Without Tx Zero")
+plt.plot(freq_with_zero, s21_db_with_zero, linewidth=2.0, label="With Tx Zero")
+plt.plot(sim_freq_ghz, sim_s21_db, linewidth=2.0, label="Simulated")
+format_plot()
+plt.show()
 
-
-
-
-
-
-
-
+# <img src="_static/simulated_filter_response.png" width="400">
