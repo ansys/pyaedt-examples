@@ -82,7 +82,8 @@ plt.show()
 netlist = lumped_design.topology.netlist()
 print("Netlist: \n", netlist)
 
-#  ## Printed output:
+#  ### Printed output:
+# ```
 # Netlist:
 #  *
 # V1 1 0 AC 1 PULSE 0 1 0 1.592E-13 0
@@ -113,6 +114,7 @@ print("Netlist: \n", netlist)
 # .TRAN  5E-11 1E-08 0
 # .PLOT TRAN V(8) -0.09 0.1
 # .END
+# ```
 
 # ## Export lumped element model of the filter to HFSS
 #
@@ -130,6 +132,7 @@ circuit = lumped_design.export_to_aedt.export_design(export_format=ExportFormat.
 # ## Plot the simulated circuit
 #
 # Get the scattering parameter data from the AEDT Circuit simulation and create a plot.
+
 solutions = circuit.post.get_solution_data(
     expressions=circuit.get_traces_for_plot(category="S"),
 )
@@ -138,7 +141,7 @@ sim_freq_ghz = [i * 1e9 for i in sim_freq]
 sim_s21_db = solutions.data_db20(expression="S(Port2,Port1)")
 plt.plot(freq, s21_db, linewidth=2.0, label="Without Tx Zero")
 plt.plot(freq_with_zero, s21_db_with_zero, linewidth=2.0, label="With Tx Zero")
-plt.plot(sim_freq_ghz, sim_s21_db, linewidth=2.0, label="Simulated")
+plt.plot(sim_freq_ghz, sim_s21_db, linewidth=2.0, linestyle='--', label="Simulated")
 format_plot()
 plt.show()
 
