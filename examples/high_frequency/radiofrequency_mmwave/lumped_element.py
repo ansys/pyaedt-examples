@@ -116,10 +116,10 @@ print("Netlist: \n", netlist)
 # .END
 # ```
 
-# ## Export lumped element model of the filter to HFSS
+# ## Export lumped element model of the filter to AEDT Circuit
 #
 # Export the designed filter with the added transmission zero to
-# HFSS with the defined export parameters.
+# AEDT Circuit with the defined export parameters.
 
 lumped_design.export_to_aedt.schematic_name = "LumpedElementFilter"
 lumped_design.export_to_aedt.simulate_after_export_enabled = True
