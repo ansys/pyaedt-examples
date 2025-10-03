@@ -30,7 +30,7 @@ AEDT_VERSION = "2025.2"
 def format_plot():
     plt.xlabel("Frequency (Hz)")
     plt.ylabel("Magnitude S21 (dB)")
-    plt.title("Ideal Frequency Response")
+    plt.title("Frequency Response")
     plt.xscale("log")
     plt.legend()
     plt.grid()
