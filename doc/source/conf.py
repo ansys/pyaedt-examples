@@ -284,6 +284,7 @@ def convert_examples_into_notebooks(app):
         "template.py",
         "gui_manipulation.py",
         "electrothermal.py",
+        # GitHub CI/CD Pipeline fails to run lumped_element.py but it runs locally.
         "lumped_element.py",
         # TODO: Remove once EMIT examples are moved into extensions.
         "interference_type.py",
