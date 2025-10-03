@@ -1,7 +1,7 @@
 # # Lumped element filter design
 #
 # This example shows how to use PyAEDT to use the ``FilterSolutions`` module to design and
-# visualize the frequency response of a band-pass Butterworth filter and export the lumped element model to HFSS.
+# visualize the frequency response of a band-pass Butterworth filter and export the lumped element model to AEDT Circuit.
 #
 # Keywords: **filter solutions**
 
@@ -141,7 +141,7 @@ sim_freq_ghz = [i * 1e9 for i in sim_freq]
 sim_s21_db = solutions.data_db20(expression="S(Port2,Port1)")
 plt.plot(freq, s21_db, linewidth=2.0, label="Without Tx Zero")
 plt.plot(freq_with_zero, s21_db_with_zero, linewidth=2.0, label="With Tx Zero")
-plt.plot(sim_freq_ghz, sim_s21_db, linewidth=2.0, linestyle='--', label="Simulated")
+plt.plot(sim_freq_ghz, sim_s21_db, linewidth=2.0, linestyle="--", label="Simulated")
 format_plot()
 plt.show()
 
