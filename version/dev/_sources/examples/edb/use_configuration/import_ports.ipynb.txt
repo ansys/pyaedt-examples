@@ -1,0 +1,476 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "2733c9d9",
+   "metadata": {},
+   "source": [
+    "# Import Ports\n",
+    "This example shows how to import ports. In this example, we are going to\n",
+    "\n",
+    "- Download an example board\n",
+    "- Create a configuration file\n",
+    "  - Add a circuit port between two nets\n",
+    "  - Add a circuit port between two pins\n",
+    "  - Add a circuit port between two pin groups\n",
+    "  - Add a circuit port between two coordinates\n",
+    "  - Add a coax port\n",
+    "  - Add a port reference to the nearest pin\n",
+    "  - Add distributed ports\n",
+    "- Import the configuration file"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f567c7eb",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "937b4d14",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import json\n",
+    "import toml\n",
+    "from pathlib import Path\n",
+    "import tempfile\n",
+    "\n",
+    "from ansys.aedt.core.examples.downloads import download_file\n",
+    "from pyedb import Edb"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1a3fd35c",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e3e48ef4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NG_MODE = False"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6267bb25",
+   "metadata": {},
+   "source": [
+    "Download the example PCB data."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5fb9002d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")\n",
+    "file_edb = download_file(source=\"edb/ANSYS-HSD_V1.aedb\", local_path=temp_folder.name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ea681d22",
+   "metadata": {},
+   "source": [
+    "## Load example layout"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b9d104f8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp = Edb(file_edb, edbversion=AEDT_VERSION)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5141bd39",
+   "metadata": {},
+   "source": [
+    "## Create an empty dictionary to host all configurations"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c574a04a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg = dict()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ba97efdf",
+   "metadata": {},
+   "source": [
+    "## Add a circuit port between two nets"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "695997a5",
+   "metadata": {},
+   "source": [
+    "Keywords\n",
+    "\n",
+    "- **name**. Name of the port.\n",
+    "- **Reference_designator**. Reference designator of the component.\n",
+    "- **type**. Type of the port. Supported types are 'circuit', 'coax', 'gap_port', 'wave_port', 'diff_wave_port'.\n",
+    "- **impedance**. Impedance of the port. Default is 50 Ohm.\n",
+    "- **positive_terminal**. Positive terminal of the port. Supported types are 'net', 'pin', 'pin_group', 'coordinates'.\n",
+    "- **negative_terminal**. Negative terminal of the port. Supported types are 'net', 'pin', 'pin_group', 'coordinates',\n",
+    "'nearest_pin'."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "cd435620",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "port_1 = {\n",
+    "    \"name\": \"port_1\",\n",
+    "    \"reference_designator\": \"X1\",\n",
+    "    \"type\": \"circuit\",\n",
+    "    \"positive_terminal\": {\"net\": \"PCIe_Gen4_TX2_N\"},\n",
+    "    \"negative_terminal\": {\"net\": \"GND\"},\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "88dd424b",
+   "metadata": {},
+   "source": [
+    "## Add a circuit port between two pins"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "37dc7bca",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "port_2 = {\n",
+    "    \"name\": \"port_2\",\n",
+    "    \"reference_designator\": \"C375\",\n",
+    "    \"type\": \"circuit\",\n",
+    "    \"positive_terminal\": {\"pin\": \"1\"},\n",
+    "    \"negative_terminal\": {\"pin\": \"2\"},\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8ac3c960",
+   "metadata": {},
+   "source": [
+    "## Add a circuit port between two pin groups"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "66cd4c96",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pin_groups = [\n",
+    "    {\"name\": \"U9_5V_1\", \"reference_designator\": \"U9\", \"pins\": [\"32\", \"33\"]},\n",
+    "    {\"name\": \"U9_GND\", \"reference_designator\": \"U9\", \"net\": \"GND\"},\n",
+    "]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b9fb898a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "port_3 = {\n",
+    "    \"name\": \"port_3\",\n",
+    "    \"type\": \"circuit\",\n",
+    "    \"positive_terminal\": {\"pin_group\": \"U9_5V_1\"},\n",
+    "    \"negative_terminal\": {\"pin_group\": \"U9_GND\"},\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7e105276",
+   "metadata": {},
+   "source": [
+    "## Add a circuit port between two coordinates"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "abbc6be6",
+   "metadata": {},
+   "source": [
+    "Keywords\n",
+    "\n",
+    "- **layer**. Layer on which the terminal is placed\n",
+    "- **point**. XY coordinate the terminal is placed\n",
+    "- **net**. Name of the net the terminal is placed on"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "90cf1b49",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "port_4 = {\n",
+    "    \"name\": \"port_4\",\n",
+    "    \"type\": \"circuit\",\n",
+    "    \"positive_terminal\": {\"coordinates\": {\"layer\": \"1_Top\", \"point\": [\"104mm\", \"37mm\"], \"net\": \"AVCC_1V3\"}},\n",
+    "    \"negative_terminal\": {\"coordinates\": {\"layer\": \"Inner6(GND2)\", \"point\": [\"104mm\", \"37mm\"], \"net\": \"GND\"}},\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "116a7049",
+   "metadata": {},
+   "source": [
+    "## Add a coax port"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c28a4d8a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "port_5 = {\"name\": \"port_5\", \"reference_designator\": \"U1\", \"type\": \"coax\", \"positive_terminal\": {\"pin\": \"AM17\"}}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f54b96ea",
+   "metadata": {},
+   "source": [
+    "## Add a port reference to the nearest pin"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "64a68b55",
+   "metadata": {},
+   "source": [
+    "Keywords\n",
+    "\n",
+    "- **reference_net**. Name of the reference net\n",
+    "- **search_radius**. Reference pin search radius in meter"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "85e4b96c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "port_6 = {\n",
+    "    \"name\": \"port_6\",\n",
+    "    \"reference_designator\": \"U15\",\n",
+    "    \"type\": \"circuit\",\n",
+    "    \"positive_terminal\": {\"pin\": \"D7\"},\n",
+    "    \"negative_terminal\": {\"nearest_pin\": {\"reference_net\": \"GND\", \"search_radius\": 5e-3}},\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e5e7bcd0",
+   "metadata": {},
+   "source": [
+    "## Add distributed ports"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f318cb15",
+   "metadata": {},
+   "source": [
+    "Keywords\n",
+    "\n",
+    "- **distributed**. Whether to create distributed ports. When set to True, ports are created per pin"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9f978635",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ports_distributed = {\n",
+    "    \"name\": \"ports_d\",\n",
+    "    \"reference_designator\": \"U7\",\n",
+    "    \"type\": \"circuit\",\n",
+    "    \"distributed\": True,\n",
+    "    \"positive_terminal\": {\"net\": \"VDD_DDR\"},\n",
+    "    \"negative_terminal\": {\"net\": \"GND\"},\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "536a6d4d",
+   "metadata": {},
+   "source": [
+    "## Add setups in configuration"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d02814d5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg[\"pin_groups\"] = pin_groups\n",
+    "cfg[\"ports\"] = [port_1, port_2, port_3, port_4, port_5, port_6, ports_distributed]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ee45d0d7",
+   "metadata": {},
+   "source": [
+    "## Write configuration into as json file"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ff8ef6ae",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "file_json = Path(temp_folder.name) / \"edb_configuration.json\"\n",
+    "with open(file_json, \"w\") as f:\n",
+    "    json.dump(cfg, f, indent=4, ensure_ascii=False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9a51b0b4",
+   "metadata": {},
+   "source": [
+    "Equivalent toml file looks like below "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "979aaa3d",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "toml_string = toml.dumps(cfg)\n",
+    "print(toml_string)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c3163124",
+   "metadata": {},
+   "source": [
+    "## Import configuration into example layout"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c8cf89a0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.configuration.load(config_file=file_json)\n",
+    "edbapp.configuration.run()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ba8b7558",
+   "metadata": {},
+   "source": [
+    "## Review"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1c47ab72",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.ports"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c422fc78",
+   "metadata": {},
+   "source": [
+    "## Save and close Edb\n",
+    "The temporary folder will be deleted once the execution of this script is finished. Replace **edbapp.save()** with\n",
+    "**edbapp.save_as(\"C:/example.aedb\")** to keep the example project."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9093b33b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.save()\n",
+    "edbapp.close()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
