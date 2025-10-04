@@ -20,7 +20,7 @@ import ansys.aedt.core
 import matplotlib.pyplot as plt
 from ansys.aedt.core.examples.downloads import download_leaf
 from ansys.aedt.core.generic.constants import unit_converter
-from ansys.aedt.core.generic.numbers import Quantity
+from ansys.aedt.core.generic.numbers_utils import Quantity
 
 # -
 
