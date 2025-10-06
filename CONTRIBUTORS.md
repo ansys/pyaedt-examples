@@ -22,6 +22,7 @@
 * [Matthew Young](https://github.com/myoung301)
 * [Maxime Rey](https://github.com/MaxJPRey)
 * [mocchialone](https://github.com/marcoglasses)
+* [Ramin Aghajafari](https://github.com/ramin4667)
 * [Simon Vandenbrouck](https://github.com/svandenb-dev)
 * [Sébastien Morais](https://github.com/SMoraisAnsys)
 * [Tiziana Bertoncelli](https://github.com/tizianrot)
