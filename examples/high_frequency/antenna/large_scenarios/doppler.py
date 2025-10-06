@@ -16,11 +16,13 @@ import time
 
 import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_multiparts
+from ansys.aedt.core.examples.downloads import download_file
+from ansys.aedt.core.examples.downloads import unzip
 # -
 
 # Define constants.
 
-AEDT_VERSION = "2025.1"
+AEDT_VERSION = "2025.2"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
@@ -39,6 +41,16 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 library_path = download_multiparts(
     local_path=temp_folder.name
 )
+
+zip_file = download_file(
+    "frtm",
+    name="doppler_sbr.results.zip",
+    local_path=temp_folder.name
+)
+
+results = os.path.join(temp_folder.name, "doppler_sbr.results")
+
+unzip(zip_file, results)
 
 # ## Launch HFSS and open project
 #
@@ -153,7 +165,7 @@ radar1 = app.create_sbr_radar_from_json(
 # creates a setup and a parametric sweep on the time variable with a
 # duration of two seconds. The step is computed automatically from CPI.
 
-setup, sweep = app.create_sbr_pulse_doppler_setup(sweep_time_duration=2)
+setup, sweep = app.create_sbr_pulse_doppler_setup(sweep_time_duration=2, velocity_resolution=0.05)
 app.set_sbr_current_sources_options()
 app.validate_simple()
 
@@ -165,6 +177,37 @@ app.validate_simple()
 # +
 # app.analyze_setup(sweep.name)
 # -
+
+# ## Doppler post-processing
+#
+# Once the design is solved, you can get the raw data inside the .aedtresults directory. The format of this data is
+# called FRTM.
+# PyAEDT offers sophisticated tools for FRTM post-processing
+# [FRTM](https://aedt.docs.pyansys.com/version/stable/API/visualization/advanced.html#frtm-processing/)
+
+from ansys.aedt.core.visualization.advanced.frtm_visualization import get_results_files
+from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMPlotter
+from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+
+# ## Load FRTM files
+#
+# You can load all the FRTM files inside a directory or you could load one single file.
+
+doppler_data_frames = {}
+frames_dict = get_results_files(results)
+
+for frame, data_frame in frames_dict.items():
+    doppler_data = FRTMData(data_frame)
+    doppler_data_frames[frame] = doppler_data
+
+# ## FRTM plotter
+#
+# You can perform multiple post-processing operations like range-doppler or direction of arrival.
+
+frtm_plotter = FRTMPlotter(doppler_data_frames)
+frame_number = frtm_plotter.frames[0]
+frtm_plotter.plot_range_doppler(frame=frame_number)
+frtm_plotter.plot_range_angle_map(frame=frame_number, polar=True)
 
 # ## Release AEDT
 #

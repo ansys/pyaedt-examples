@@ -30,6 +30,7 @@ from sphinx.util import logging
 
 os.environ["PYAEDT_NON_GRAPHICAL"] = "1"
 os.environ["PYAEDT_DOC_GENERATION"] = "1"
+os.environ["PYANSYS_VISUALIZER_HTML_BACKEND"] = "true"
 
 LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml"]
 
@@ -283,7 +284,7 @@ def convert_examples_into_notebooks(app):
         "template.py",
         "gui_manipulation.py",
         "electrothermal.py",
-        # TODO: Remove the following example when 2025.1 is released, currently the latest version is 24.1.
+        # GitHub CI/CD Pipeline fails to run lumped_element.py but it runs locally.
         "lumped_element.py",
         # TODO: Remove once EMIT examples are moved into extensions.
         "interference_type.py",
