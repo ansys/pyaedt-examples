@@ -87,6 +87,19 @@ These examples use PyAEDT to show some magnetics applications.
       This example demonstrates the use of the magnetostatic solver to model a rotational actuator.
       Furthermore, it shows how the inductance matrix can be retrieved and the field solution plotted.
 
+   .. grid-item-card:: Magnetic behavior of a magnet-collector system
+      :padding: 2 2 2 2
+      :link: magnet_collector
+      :link-type: doc
+
+      .. image:: _static/magnet_collector.png
+         :alt: Maxwell general
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      Different configurations of a magnet-collector system to study the magnetic behavior of the system.
+
    .. toctree::
       :hidden:
 
@@ -96,3 +109,4 @@ These examples use PyAEDT to show some magnetics applications.
       lorentz_actuator
       2d-axi_magnetostatic_actuator
       3d_magsta_rotational_actuator
+      magnet_collector

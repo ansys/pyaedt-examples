@@ -4,9 +4,9 @@
 #
 # Keywords: **Maxwell 3D**, **choke**.
 
-# ## Perform imports and define constants
+# ## Prerequisites
 #
-# Perform required imports.
+# ### Perform imports
 
 # +
 import json
@@ -14,27 +14,29 @@ import os
 import tempfile
 import time
 
-import ansys.aedt.core
+import ansys.aedt.core  # Interface to Ansys Electronics Desktop
 # -
 
-# Define constants.
+# ### Define constants.
+# Constants help ensure consistency and avoid repetition throughout the example.
 
 AEDT_VERSION = "2025.2"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 
-# ## Create temporary directory
+# ### Create temporary directory
 #
-# Create a temporary directory where downloaded data or
-# dumped data can be stored.
-# If you'd like to retrieve the project data for subsequent use,
-# the temporary folder name is given by ``temp_folder.name``
+# Create a temporary working directory.
+# The name of the working folder is stored in ``temp_folder.name``.
+#
+# > **Note:** The final cell in the notebook cleans up the temporary folder. If you want to
+# > retrieve the AEDT project and data, do so before executing the final cell in the notebook.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ## Launch Maxwell3D
+# ### Launch Maxwell3D
 #
-# Launch Maxwell 3D 2024 R2 in graphical mode.
+# Launch Maxwell by creating an instance of ``Maxwell3d``.
 
 project_name = os.path.join(temp_folder.name, "choke.aedt")
 m3d = ansys.aedt.core.Maxwell3d(
@@ -45,7 +47,12 @@ m3d = ansys.aedt.core.Maxwell3d(
     new_desktop=True,
 )
 
-# ## Define parameters
+# ## Model Preparation
+#
+# This example uses a custom ``create_choke()`` method
+# to create a common-mode choke in Maxwell 3D. The geometric parameters are passed to the method as a ``dict`` instance.
+#
+# ### Choke Geometric Parameters
 #
 # The dictionary values contain the different parameter values of the core and
 # the windings that compose the choke. You must not change the main structure of
@@ -83,7 +90,7 @@ m3d = ansys.aedt.core.Maxwell3d(
 #
 # The following parameter values work. You can modify them if you want.
 
-values = {
+choke_descriptor = {
     "Number of Windings": {"1": False, "2": False, "3": True, "4": False},
     "Layer": {"Simple": False, "Double": False, "Triple": True},
     "Layer Type": {"Separate": False, "Linked": True},
@@ -119,10 +126,10 @@ values = {
 # JSON file as an argument. You can convert a dictionary to a JSON file.
 
 # +
-json_path = os.path.join(temp_folder.name, "choke_example.json")
+choke_fn = os.path.join(temp_folder.name, "choke_example.json")
 
-with open(json_path, "w") as outfile:
-    json.dump(values, outfile)
+with open(choke_fn, "w") as outfile:
+    json.dump(choke_descriptor, outfile)
 # -
 
 # ## Verify parameters of JSON file
@@ -133,24 +140,24 @@ with open(json_path, "w") as outfile:
 # - Checks if the JSON file is correctly written (as explained earlier)
 # - Checks equations on windings parameters to avoid having unintended intersections
 
-dictionary_values = m3d.modeler.check_choke_values(
-    input_dir=json_path, create_another_file=False
+choke_descriptor_2 = m3d.modeler.check_choke_values(
+    input_dir=choke_fn, create_another_file=False
 )
-print(dictionary_values)
+print(choke_descriptor_2)
 
 # ## Create choke
 #
 # Create the choke. The ``create_choke()`` method takes the JSON file path as an
 # argument.
 
-list_object = m3d.modeler.create_choke(input_file=json_path)
-print(list_object)
+list_object = m3d.modeler.create_choke(input_file=choke_fn)
+# print(list_object)
 core = list_object[1]
 first_winding_list = list_object[2]
 second_winding_list = list_object[3]
 third_winding_list = list_object[4]
 
-# ## Assign excitations
+# ### Assign excitations
 
 first_winding_faces = m3d.modeler.get_object_faces(
     assignment=first_winding_list[0].name
@@ -204,13 +211,13 @@ m3d.assign_current(
     name="phase_3_out",
 )
 
-# ## Assign matrix
+# ### Assign matrix
 
 m3d.assign_matrix(
     assignment=["phase_1_in", "phase_2_in", "phase_3_in"], matrix_name="current_matrix"
 )
 
-# ## Create mesh operation
+# ### Create mesh operation
 
 mesh = m3d.mesh
 mesh.assign_skin_depth(
@@ -226,7 +233,7 @@ mesh.assign_surface_mesh_manual(
     name="surface_approx",
 )
 
-# ## Create boundaries
+# ### Create boundary conditions
 #
 # Create the boundaries. A region with openings is needed to run the analysis.
 
@@ -234,18 +241,20 @@ region = m3d.modeler.create_air_region(
     x_pos=100, y_pos=100, z_pos=100, x_neg=100, y_neg=100, z_neg=0
 )
 
-# ## Create setup
+# ### Create setup
 #
 # Create a setup with a sweep to run the simulation. Depending on your machine's
 # computing power, the simulation can take some time to run.
 
+# +
 setup = m3d.create_setup("MySetup")
 print(setup.props)
 setup.props["Frequency"] = "100kHz"
 setup.props["PercentRefinement"] = 15
 setup.props["MaximumPasses"] = 10
 setup.props["HasSweepSetup"] = True
-setup.add_eddy_current_sweep(
+
+sweep = setup.add_eddy_current_sweep(
     sweep_type="LinearCount",
     start_frequency=100,
     stop_frequency=1000,
@@ -253,8 +262,9 @@ setup.add_eddy_current_sweep(
     units="kHz",
     clear=True
 )
+# -
 
-# ## Save project
+# ### Save project
 
 m3d.save_project()
 m3d.modeler.fit_all()
@@ -264,14 +274,15 @@ m3d.plot(
     plot_air_objects=True,
 )
 
-# ## Release AEDT
+# ## Finish
+# ### Save the project
 
 m3d.save_project()
 m3d.release_desktop()
 # Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-# ## Clean up
+# ### Clean up
 #
 # All project files are saved in the folder ``temp_folder.name``.
 # If you've run this example as a Jupyter notebook, you
