@@ -897,7 +897,7 @@ solutions = m2d.post.get_solution_data(
 #
 # List of shaft torque points and compute average.
 
-mag = solutions.data_magnitude()
+mag = solutions.get_expression_data(formula="magnitude")[1]
 avg = sum(mag) / len(mag)
 
 # ## Export a report to a file
@@ -946,7 +946,7 @@ index_stop_time = max(0, min(index_stop_time, len(time_interval)))
 # ## Extract the torque values within the specified time range
 
 # Ensure torque values are a numpy array for slicing
-torque_values = solutions.get_expression_data(formula="Real")
+torque_values = solutions.get_expression_data(formula="Real")[1]
 time_electric_period = time_interval[index_start_time:index_stop_time]
 torque_electric_period = torque_values[index_start_time:index_stop_time]
 
