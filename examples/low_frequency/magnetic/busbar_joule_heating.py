@@ -1,4 +1,3 @@
-# %% [markdown]
 # # Busbar Joule Heating Analysis with Maxwell 3D
 #
 # Copyright (C) 2023 - 2025 ANSYS, Inc. and/or its affiliates.
@@ -28,24 +27,25 @@
 # - Skin depth effects on current distribution
 #
 # This example demonstrates the complete electromagnetic analysis workflow for conductor systems.
+#
+# Keywords: **Maxwell 3D**, **Eddy Current**, **Joule Heating**, **Skin Effect**
 
-# %% [markdown]
-# ## 1. Perform Required Imports
-# Import all necessary modules for the Maxwell 3D busbar analysis.
+# ## Prerequisites
+#
+# ### Perform imports
 
-# %%
+# +
 import math
 import os
 import tempfile
 import time
 
 from ansys.aedt.core import Maxwell3d
+# -
 
-# %% [markdown]
-# ## 2. Set Analysis Parameters
+# ### Define constants
 # Define geometric dimensions and electrical parameters for the busbar system.
 
-# %%
 AEDT_VERSION = "2025.2"
 NG_MODE = False
 PROJECT_NAME = "Busbar_JouleHeating_Simple.aedt"
@@ -68,13 +68,20 @@ print(f"Busbar dimensions: {BUSBAR_L} x {BUSBAR_W} x {BUSBAR_H} mm")
 print(f"Input currents: {I1}A + {I2}A = {I1+I2}A total")
 print(f"Frequency: {FREQ} Hz")
 
-# %% [markdown]
-# ## 3. Initialize Maxwell 3D
-# Start Maxwell 3D with eddy current solution type and set model units.
+# ### Create temporary directory
+#
+# Create a temporary working directory.
+# The name of the working folder is stored in ``temp_folder.name``.
+#
+# > **Note:** The final cell in the notebook cleans up the temporary folder. If you want to
+# > retrieve the AEDT project and data, do so before executing the final cell in the notebook.
 
-# %%
-tmpdir = tempfile.TemporaryDirectory(suffix=".ansys")
-project_path = os.path.join(tmpdir.name, PROJECT_NAME)
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
+project_path = os.path.join(temp_folder.name, PROJECT_NAME)
+
+# ### Launch application
+#
+# Start Maxwell 3D with eddy current solution type and set model units.
 
 m3d = Maxwell3d(
     project=project_path,
@@ -87,11 +94,12 @@ m3d = Maxwell3d(
 m3d.modeler.model_units = "mm"
 print("Maxwell 3D initialized")
 
-# %% [markdown]
-# ## 4. Create Busbar Geometry
+# ## Model Preparation
+#
 # Create the main busbar conductor and terminal tabs, then unite them into a single object.
 
-# %%
+# ### Create 3D model
+#
 print("\nCreating Geometry")
 
 # Main busbar
@@ -123,11 +131,11 @@ conductor = m3d.modeler[united] if isinstance(united, str) else united
 conductor.name = "CompleteBusbar"
 print(f"Created united conductor with {len(conductor.faces)} faces")
 
-# %% [markdown]
-# ## 5. Define Current Excitations
+# ### Assign boundary conditions
+#
 # Select terminal faces and assign current excitations following Kirchhoff's current law.
 
-# %%
+# +
 print("\nSelecting Terminal Faces")
 
 # Sort faces by x-coordinate to identify input and output terminals
@@ -167,23 +175,19 @@ print(f"Input Current 2: {I2}A")
 print(f"Output Current: {-(I1 + I2)}A")
 print(f"Current balance: {I1 + I2 + (-(I1 + I2))} = 0A")
 
-# %% [markdown]
-# ## 6. Create Air Region
-# Define the air region that provides boundary conditions for the electromagnetic field solution.
-
-# %%
 print("\nCreating Air Region")
 
 air = m3d.modeler.create_air_region(
     x_pos=0, y_pos=50, z_pos=100, x_neg=0, y_neg=50, z_neg=100
 )
 print("Air region created with 50% padding")
+# -
 
-# %% [markdown]
-# ## 7. Configure Analysis Setup
+# ### Define solution setup
+#
 # Set up the eddy current analysis with frequency, convergence criteria, and mesh settings.
 
-# %%
+# +
 print("\n Setting Up Analysis ")
 
 setup = m3d.create_setup("EddyCurrentSetup")
@@ -201,12 +205,12 @@ mesh = m3d.mesh.assign_length_mesh(
     name="ConductorMesh",
 )
 print("Mesh operation assigned")
+# -
 
-# %% [markdown]
-# ## 8. Run Analysis
+# ### Run analysis
+#
 # Execute the finite element solver with automatic adaptive mesh refinement.
 
-# %%
 print("\n Running Analysis ")
 print("Starting solver... (this may take a few minutes)")
 
@@ -217,11 +221,13 @@ print(f"Design validation: {'PASSED' if validation else 'WARNING'}")
 m3d.analyze_setup(setup.name)
 print("Analysis completed")
 
-# %% [markdown]
-# ## 9. Extract Solution Data
+# ## Postprocess
+#
 # Get Ohmic loss (Joule heating) results from the electromagnetic field solution.
 
-# %%
+# ### Evaluate loss
+#
+# +
 print("\n--- Extracting Results ---")
 
 setup_sweep = f"{setup.name} : LastAdaptive"
@@ -237,12 +243,13 @@ solution_data = m3d.post.get_solution_data(
 
 total_loss = solution_data.data_magnitude()[0]
 print(f"\nOhmic Loss (Joule heating): {total_loss:.6f} W")
+# -
 
-# %% [markdown]
-# ## 10. Create Field Visualizations
+# ### Visualize fields
+#
 # Generate 3D field plots showing current density, electric field, and power loss distributions.
 
-# %%
+# +
 print("\n Creating Field Plots ")
 
 j_plot = m3d.post.create_fieldplot_surface(
@@ -262,11 +269,9 @@ joule_plot = m3d.post.create_fieldplot_volume(
 )
 print("Joule heating distribution plot created")
 
-# %% [markdown]
-# ## 11. Calculate Engineering Metrics
+# Calculate engineering metrics
 # Compute key parameters including resistance, loss density, skin depth, and current density.
 
-# %%
 print("\nANALYSIS RESULTS")
 
 # Basic electrical parameters
@@ -315,21 +320,30 @@ print("\n--- Field Plot Information ---")
 print("Current density magnitude (|J|): Shows current distribution")
 print("Electric field magnitude (|E|): Shows electric field intensity")
 print("Joule heating distribution: Shows power loss density")
+# -
 
-# %% [markdown]
-# ## 12. Save Project and Release Resources
-# Save the analysis project and clean up AEDT resources.
+# ## Finish
+#
+# ### Save the project
 
-# %%
 print(f"\n--- Saving Project ---")
 m3d.save_project(project_path)
 print(f"Project saved to: {project_path}")
 
 m3d.release_desktop(close_projects=True, close_desktop=True)
-time.sleep(2)
+# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
+time.sleep(3)
 
-# %% [markdown]
-# ## 13. Conclusion
+# ### Clean up
+#
+# All project files are saved in the folder ``temp_folder.name``.
+# If you've run this example as a Jupyter notebook, you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
+
+temp_folder.cleanup()
+
+# ## Conclusion
 # This example demonstrated the complete workflow for busbar Joule heating analysis using Maxwell 3D
 # and PyAEDT. The analysis captured frequency-dependent phenomena including skin effect, current
 # redistribution, and AC losses. Key outputs included power loss calculations, field visualizations,
@@ -339,5 +353,3 @@ time.sleep(2)
 # Joule heating due to AC resistance and skin effect
 # Non-uniform current density due to skin effect
 # Relationship between frequency, skin depth, and power loss
-
-# %%
