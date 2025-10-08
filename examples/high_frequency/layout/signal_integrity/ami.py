@@ -319,16 +319,13 @@ plt.show()
 #
 # Create the plot from a start time to stop time in seconds.
 
-if len(sample_waveform):
-    sample_waveform_array = np.array(
+sample_waveform_array = np.array(
         [
             [float(frame[0]), float(np.asarray(frame[1]).ravel()[0])]
             for frame in sample_waveform
         ],
         dtype=float,
-    )
-else:
-    sample_waveform_array = np.empty((0, 2))
+)
 
 fig, ax2 = plt.subplots()
 ax2.plot(sample_waveform_array[:, 0], sample_waveform_array[:, 1], "r*")
