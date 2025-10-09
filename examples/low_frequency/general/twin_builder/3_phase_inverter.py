@@ -1,7 +1,6 @@
-# # Integration of 3-Phase Inverter DC Link into TwinBuilder Schematic
+# # Title
 #
-# The positive DC link of a 3-phase inverter is integrated into the TwinBuilder schematic.
-# Frequency-dependent RLC matrix data is extracted from Q3D and used to accurately model parasitic.
+# Description
 #
 # Keywords: **DCLink**, **Twinbuilder**, **Q3D**.
 
