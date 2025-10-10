@@ -9,16 +9,19 @@
 #
 # Perform required imports.
 
+# +
 import os.path
 import tempfile
 import time
 
 import ansys.aedt.core
+from ansys.aedt.core.examples.downloads import download_file
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
+# -
 
 # Define constants.
 
-AEDT_VERSION = "2025.1"
+AEDT_VERSION = "2025.2"
 NG_MODE = False
 NUM_CORES = 4
 
@@ -55,12 +58,12 @@ m2d = ansys.aedt.core.Maxwell2d(
 # Importing DXF files only works in graphical mode.
 
 # +
-# DXFPath = ansys.aedt.core.downloads.download_file("dxf", "Ansys_logo_2D.dxf")
-# dxf_layers = m2d.get_dxf_layers(DXFPath)
-# m2d.import_dxf(DXFPath, dxf_layers, scale=1E-05)
+# dxf_path = ansys.aedt.core.examples.downloads.download_file("dxf", "Ansys_logo_2D.dxf")
+# dxf_layers = m2d.get_dxf_layers(dxf_path)
+# m2d.import_dxf(dxf_path, dxf_layers, scale=1E-05)
 
-parasolid_path = ansys.aedt.core.downloads.download_file(
-    source="x_t", name="Ansys_logo_2D.x_t", destination=temp_folder.name
+parasolid_path = download_file(
+    source="x_t", name="Ansys_logo_2D.x_t", local_path=temp_folder.name
 )
 m2d.modeler.import_3d_cad(parasolid_path)
 # -
@@ -175,7 +178,7 @@ report = m2d.post.create_report(
 # and plot data outside AEDT.
 
 data = report.get_solution_data()
-resistance = data.data_magnitude()
+resistance = data.get_expression_data(formula="magnitude")[1]
 material_index = data.primary_sweep_values
 data.primary_sweep = "MaterialIndex"
 data.plot(snapshot_path=os.path.join(temp_folder.name, "M2D_DCConduction.jpg"))
@@ -241,7 +244,7 @@ animated_plot.focal_point = [0, 0, 0]
 animated_plot.roll_angle = 0
 animated_plot.elevation_angle = 0
 animated_plot.azimuth_angle = 0
-animated_plot.animate()
+animated_plot.animate(show=False)
 
 # ## Export model picture
 

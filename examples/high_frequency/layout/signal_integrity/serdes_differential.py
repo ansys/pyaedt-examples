@@ -4,11 +4,9 @@
 # Database (EDB) interface to create a layout using the BOM and
 # a configuration file.
 
-# ## Perform required imports
+# ## Perform imports and define constants
 #
-# The ``Hfss3dlayout`` class provides an interface to
-# the 3D Layout editor in AEDT.
-# on version 2023 R2.
+# Perform required imports.
 
 # +
 import os
@@ -18,7 +16,6 @@ import ansys.aedt.core
 
 import pyedb
 from pyedb.misc.downloads import download_file
-
 # -
 
 # Download the AEDB file and copy it to a temporary folder.
@@ -33,7 +30,7 @@ print("Project folder is", target_aedb)
 
 # +
 # Select EDB version (change it manually if needed, e.g. "2025.1")
-edb_version = "2025.1"
+edb_version = "2025.2"
 print(f"EDB version: {edb_version}")
 
 edbapp = pyedb.Edb(target_aedb, edbversion=edb_version)

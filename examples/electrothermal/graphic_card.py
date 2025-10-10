@@ -11,17 +11,20 @@
 #
 # Perform required imports.
 
+# +
 import os
 import tempfile
 import time
 
 import ansys.aedt.core
+from ansys.aedt.core.examples.downloads import download_icepak
 import pandas as pd
 from IPython.display import Image
+# -
 
 # Define constants.
 
-AEDT_VERSION = "2025.1"
+AEDT_VERSION = "2025.2"
 NUM_CORES = 4
 NG_MODE = False  # Do not show the graphical user interface.
 
@@ -33,9 +36,10 @@ NG_MODE = False  # Do not show the graphical user interface.
 # the temporary folder name is given by ``temp_folder.name``.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
-project_temp_name = ansys.aedt.core.downloads.download_icepak(
-    destination=temp_folder.name
+project_temp_name = download_icepak(
+    local_path=temp_folder.name
 )
+
 # ## Open project
 #
 # Open the project without the GUI.

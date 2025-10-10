@@ -42,7 +42,7 @@ The following guidelines help ensure that the examples are consistent, easy to r
   be rendered and run in [Jupyter Lab](https://docs.jupyter.org/en/latest/) as Notebook files. Jupyter can be used to ensure correct
   rendering of markdown, images, and equations.
   ```
-     pip install .[doc]
+     pip install -r requirements/requirements_doc.txt
      jupyter lab
   ```
 - You can use this [template](./examples/template.py) to help you start creating a new example 

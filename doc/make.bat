@@ -25,7 +25,7 @@ if NOT "%is_vtk_osmesa_installed%" == "vtk-osmesa" if "%ON_CI%" == "true" (
 	@ECHO ON
 	echo "Installing vtk-osmesa"
 	@ECHO OFF
-	pip install --extra-index-url https://wheels.vtk.org vtk-osmesa)
+	pip install --index-url https://wheels.vtk.org vtk-osmesa==9.3.1)
 for /f %%i in ('pip freeze ^| findstr /c:"pypandoc_binary"') do set is_pypandoc_binary_installed=%%i
 if NOT "%is_pypandoc_binary_installed%" == "pypandoc_binary" if "%ON_CI%" == "true" (
 	@ECHO ON
@@ -73,7 +73,8 @@ goto end
 echo "Building HTML pages"
 REM %SPHINXBUILD% -M linkcheck %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %LINKCHECKOPTS% %O%
 %SPHINXBUILD% -M html %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
-echo "HTML build finished."
+exit /b %ERRORLEVEL%
+
 goto end
 
 :pdf

@@ -10,14 +10,17 @@
 # Perform required imports and set up the local path to the path for the PyAEDT
 # directory.
 
+# +
 import tempfile
 import time
 
 import ansys.aedt.core
+from ansys.aedt.core.examples.downloads import download_sbr
+# -
 
 # Define constants.
 
-AEDT_VERSION = "2025.1"
+AEDT_VERSION = "2025.2"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
@@ -32,7 +35,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Download project
 
-project_full_name = ansys.aedt.core.downloads.download_sbr(destination=temp_folder.name)
+project_full_name = download_sbr(local_path=temp_folder.name)
 
 # ## Define designs
 #

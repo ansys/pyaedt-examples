@@ -9,14 +9,17 @@
 #
 # Perform required imports.
 
+# +
 import tempfile
 import time
 
 import ansys.aedt.core
+from ansys.aedt.core.examples.downloads import download_file
+# -
 
 # Define constants.
 
-AEDT_VERSION = "2025.1"
+AEDT_VERSION = "2025.2"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
@@ -33,10 +36,10 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 #
 # Set the local temporary folder to export the AEDT file to.
 
-project_path = ansys.aedt.core.downloads.download_file(
+project_path = download_file(
     source="maxwell_ec_reduced_matrix",
     name="m2d_eddy_current.aedt",
-    destination=temp_folder.name,
+    local_path=temp_folder.name,
 )
 
 # ## Launch AEDT and Maxwell 2D

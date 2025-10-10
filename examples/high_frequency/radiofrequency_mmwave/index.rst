@@ -71,8 +71,7 @@ These examples use PyAEDT to show some radio frequency and millimeter wave appli
          :align: center
 
       This example shows how to use PyAEDT to use the FilterSolutions module to design and visualize the frequency
-      response of a band-pass Butterworth filter.
-
+      response of a band-pass Butterworth filter and export the lumped element model to AEDT Circuit.
 
    .. grid-item-card:: Distributed filter design
       :padding: 2 2 2 2

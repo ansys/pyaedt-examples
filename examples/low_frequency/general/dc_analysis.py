@@ -9,15 +9,19 @@
 #
 # Perform required imports.
 
+# +
 import os
 import tempfile
 import time
 
 from ansys.aedt.core import Maxwell3d
+from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
+
+# -
 
 # Define constants.
 
-AEDT_VERSION = "2025.1"
+AEDT_VERSION = "2025.2"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
@@ -47,7 +51,8 @@ m3d = Maxwell3d(
 #
 # Set up the Maxwell solution to DC.
 
-m3d.solution_type = m3d.SOLUTIONS.Maxwell3d.ElectroDCConduction
+solutions = SolutionsMaxwell3D.versioned(AEDT_VERSION)
+m3d.solution_type = solutions.ElectroDCConduction
 
 # ## Create conductor
 #
@@ -72,7 +77,7 @@ m3d.analyze(cores=NUM_CORES)
 
 scalar_function = ""
 mass_center = {
-    "name": "",
+    "name": "CM_X",
     "description": "Mass center computation",
     "design_type": ["Maxwell 3D"],
     "fields_type": ["Fields"],
@@ -87,7 +92,6 @@ mass_center = {
     ],
     "report": ["Data Table"],
 }
-mass_center["name"] = "CM_X"
 scalar_function = "Scalar_Function(FuncValue='X')"
 mass_center["operations"][0] = scalar_function
 m3d.post.fields_calculator.add_expression(mass_center, conductor.name)

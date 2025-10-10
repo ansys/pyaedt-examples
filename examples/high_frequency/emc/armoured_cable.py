@@ -15,16 +15,18 @@
 #
 # Perform required imports.
 
+# +
 import math
 import os
 import tempfile
 import time
 
 import ansys.aedt.core
+# -
 
 # Define constants.
 
-AEDT_VERSION = "2025.1"
+AEDT_VERSION = "2025.2"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory

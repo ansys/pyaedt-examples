@@ -20,10 +20,10 @@ These examples use PyAEDT to show HFSS 3D Layout capabilities.
 
    .. grid-item-card:: DC IR analysis
       :padding: 2 2 2 2
-      :link: ../../high_frequency/layout/power_integrity/dcir
+      :link: ../../high_frequency/layout/power_integrity/dcir_hfss
       :link-type: doc
 
-      .. image:: ../../high_frequency/layout/power_integrity/_static/dcir.png
+      .. image:: ../../high_frequency/layout/power_integrity/_static/dcir_hfss.png
          :alt: DCIR
          :width: 250px
          :height: 200px
@@ -76,7 +76,7 @@ These examples use PyAEDT to show HFSS 3D Layout capabilities.
       :hidden:
 
       ../../high_frequency/layout/power_integrity/power_integrity
-      ../../high_frequency/layout/power_integrity/dcir
+      ../../high_frequency/layout/power_integrity/dcir_hfss
       ../../high_frequency/layout/signal_integrity/pre_layout
       ../../high_frequency/layout/signal_integrity/pre_layout_parametrized
       ../../high_frequency/layout/gui_manipulation

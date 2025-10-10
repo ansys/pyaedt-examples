@@ -9,22 +9,27 @@
 #
 # Keywords: **Touchstone**, **report**.
 
-# ## Perform imports
-# Import the required packages.
+# ## Prerequisites
+#
+# ### Perform imports
 
-from ansys.aedt.core import downloads
+# +
+from ansys.aedt.core.examples.downloads import download_touchstone
 from ansys.aedt.core.visualization.advanced.touchstone_parser import \
     read_touchstone
+# -
 
-# ## Download example data
+# ### Download example data
 
-example_path = downloads.download_touchstone()
+example_path = download_touchstone()
 
 # ## Read the Touchstone file
 
 data = read_touchstone(example_path)
 
-# ## Plot data
+# ## Demonstrate post-processing
+#
+# ### Plot serial channel metrics
 #
 # Get the curve plot by category. The following code shows how to plot lists of the return losses,
 # insertion losses, next, and fext based on a few inputs and port names.
@@ -34,7 +39,7 @@ data.plot_insertion_losses()
 data.plot_next_xtalk_losses("U1")
 data.plot_fext_xtalk_losses(tx_prefix="U1", rx_prefix="U7")
 
-# ## Identify cross-talk
+# ### Visualize cross-talk
 #
 # Identify the worst case cross-talk.
 

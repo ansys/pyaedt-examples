@@ -9,19 +9,17 @@
 # Perform required imports.
 
 # +
-
 import sys
 import tempfile
 import time
 
 from ansys.aedt.core import Hfss3dLayout
-from ansys.aedt.core.downloads import download_file
-
+from ansys.aedt.core.examples.downloads import download_file
 # -
 
 # Define constants.
 
-AEDT_VERSION = "2025.1"
+AEDT_VERSION = "2025.2"
 NUM_CORES = 4
 NG_MODE = True  # Open AEDT UI when it is launched.
 
@@ -34,7 +32,7 @@ if not NG_MODE:
 # Download example board.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
-aedb = download_file(source="edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name)
+aedb = download_file(source="edb/ANSYS-HSD_V1.aedb", local_path=temp_folder.name)
 
 
 # ## Launch HFSS 3D Layout

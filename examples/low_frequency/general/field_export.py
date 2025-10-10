@@ -11,14 +11,18 @@
 #
 # Perform required imports.
 
+# +
 import tempfile
 import time
 
 import ansys.aedt.core
+from ansys.aedt.core.examples.downloads import download_file
+from ansys.aedt.core.generic.constants import unit_converter
+# -
 
 # Define constants.
 
-AEDT_VERSION = "2025.1"
+AEDT_VERSION = "2025.2"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
@@ -35,10 +39,10 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 #
 # The files required to run this example are downloaded into the temporary working folder.
 
-project_path = ansys.aedt.core.downloads.download_file(
+project_path = download_file(
     source="maxwell_transient_fields",
     name="M3D_Transient_StrandedWindings.aedt",
-    destination=temp_folder.name,
+    local_path=temp_folder.name,
 )
 
 # ## Initialize and launch Maxwell 3D
@@ -138,21 +142,17 @@ time_steps = data.intrinsics["Time"]
 # The J field is plotted on the surface of each coil for every time-step.
 # Fields data is exported to the temporary folder as an AEDTPLT file.
 
-for time_step in time_steps:
-    t = ansys.aedt.core.generic.constants.unit_converter(
-        time_step,
-        unit_system="Time",
-        input_units=data.units_sweeps["Time"],
-        output_units="ms",
-    )
+unit = data.units_sweeps["Time"]
+converted = unit_converter(time_steps, "Time", unit, "ms")
+for time_step in converted:
     m3d.post.create_fieldplot_surface(
         assignment=m3d.modeler.objects_by_name["Coil_A2"],
         quantity=quantity[0],
-        plot_name="J_{}_ms".format(t),
-        intrinsics={"Time": "{}ms".format(t)},
+        plot_name="J_{}_ms".format(time_step),
+        intrinsics={"Time": "ms"},
     )
     mean_j_field_export = m3d.post.export_field_plot(
-        plot_name="J_{}_ms".format(t),
+        plot_name="J_{}_ms".format(time_step),
         output_dir=temp_folder.name,
         file_format="aedtplt",
     )
@@ -161,11 +161,11 @@ for time_step in time_steps:
             o for o in m3d.modeler.solid_objects if o.material_name == "copper"
         ],
         quantity="Mag_J",
-        plot_name="Mag_J_Coils_{}_ms".format(t),
-        intrinsics={"Time": "{}ms".format(t)},
+        plot_name="Mag_J_Coils_{}_ms".format(time_step),
+        intrinsics={"Time": "ms"},
     )
     mag_j_field_export = m3d.post.export_field_plot(
-        plot_name="Mag_J_Coils_{}_ms".format(t),
+        plot_name="Mag_J_Coils_{}_ms".format(time_step),
         output_dir=temp_folder.name,
         file_format="aedtplt",
     )

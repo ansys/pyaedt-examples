@@ -30,7 +30,7 @@ jobs:
     name: Documentation style
     runs-on: ubuntu-latest
     steps:
-      - uses: ansys/actions/doc-style@v8
+      - uses: ansys/actions/doc-style@v10
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -43,9 +43,24 @@ jobs:
     runs-on: [self-hosted, Windows, pyaedt-examples]
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get new/modified examples files (only for PRs)
+        if: github.ref_name != 'main'
+        shell: powershell
+        run: |
+          $changed = git diff --name-only origin/main...HEAD -- examples/
+          $changed = $changed | ForEach-Object { $_.Replace('\', '/') }
+
+          Write-Output "New/Modified files:"
+          $changed | ForEach-Object { Write-Output "- $_" }
+
+          $changed_formatted = $changed -join ","
+          Add-Content -Path $env:GITHUB_ENV -Value "ON_CI_CHANGED_EXAMPLES=$changed_formatted"
 
       - name: Set up Python ${{ env.MAIN_PYTHON_VERSION }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
@@ -66,19 +81,18 @@ jobs:
       - name: Create HTML documentation
         env:
           SPHINXBUILD_HTML_AND_PDF_WORKFLOW: "1"
+          ON_CI_CHANGED_EXAMPLES: ${{ env.ON_CI_CHANGED_EXAMPLES }}
         run: |
           .venv\Scripts\Activate.ps1
-          . .\doc\make.bat html --color
-
-      # NOTE: Ugly HTML checking but redirecting errors with our docs either leads
-      # to errors in powershell or workflows getting stuck in Github CICD.
-      - name: Check HTML doc creation
-        run : |
-          if (Test-Path "doc\_build\html\index.html" ) {
-            Write-Output "File index.html found, HTML build successful."
+          . .\doc\make.bat html --color -T -W
+          if ($LASTEXITCODE -ne 0) {
+            Write-Output "HTML build failed, see the logs and look for:"
+            Write-Output "- an exception being raised in a Juptyer notebook;"
+            Write-Output "- the latest line of the form reading sources... [ XX%] examples/..."
+            echo "::error::HTML build failed, check for exceptions in Jupyter notebooks or incomplete source reads."
+            exit 1
           } else {
-            Write-Error "Sphinx build failed, check if there is no cell execution error."
-            exit 1            
+            Write-Output "HTML build successful"
           }
 
       - name: Upload HTML documentation artifact
@@ -93,6 +107,7 @@ jobs:
       - name: Create PDF documentation
         env:
           SPHINXBUILD_HTML_AND_PDF_WORKFLOW: "1"
+          ON_CI_CHANGED_EXAMPLES: ${{ env.ON_CI_CHANGED_EXAMPLES }}
         run: |
           .venv\Scripts\Activate.ps1
           . .\doc\make.bat pdf
@@ -111,7 +126,7 @@ jobs:
     needs: [doc-build]
     steps:
       - name: Deploy the documentation
-        uses: ansys/actions/doc-deploy-dev@v8
+        uses: ansys/actions/doc-deploy-dev@v10
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}

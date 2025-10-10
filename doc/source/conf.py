@@ -6,7 +6,9 @@ from importlib import import_module
 import os
 from pathlib import Path
 from pprint import pformat
+import re
 import shutil
+import traceback
 from typing import Any
 from sphinx.application import Sphinx
 from sphinx.config import Config
@@ -28,10 +30,13 @@ from sphinx.util import logging
 
 os.environ["PYAEDT_NON_GRAPHICAL"] = "1"
 os.environ["PYAEDT_DOC_GENERATION"] = "1"
+os.environ["PYANSYS_VISUALIZER_HTML_BACKEND"] = "true"
 
 LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml"]
 
 logger = logging.getLogger(__name__)
+# NOTE: Uncomment to allow debug level logs
+# logger.setLevel(logging.LEVEL_NAMES["DEBUG"])
 path = Path(__file__).parent.parent.parent / "examples"
 EXAMPLES_DIRECTORY = path.resolve()
 REPOSITORY_NAME = "pyaedt-examples"
@@ -116,7 +121,7 @@ def copy_examples_structure(app: Sphinx, config: Config):
     logger.info(f"Copy performed.")
 
 
-def copy_script_examples(app: Sphinx, config: Config):
+def copy_script_examples(app: Sphinx, exception: None | Exception):
     """Copy root directory examples script into Sphinx application out directory.
     
     This is required to allow users to download python scripts in the admonition.
@@ -125,16 +130,36 @@ def copy_script_examples(app: Sphinx, config: Config):
     ----------
     app : sphinx.application.Sphinx
         Sphinx instance containing all the configuration for the documentation build.
-    config : sphinx.config.Config
-        Configuration file abstraction.
+    exception : None or Exception
+        Exception raised during the build process.
     """
+    def extract_example_name(exception: Exception) -> str | None:
+        """Extract the example file name from an exception if any."""
+        exception_message = "".join(traceback.format_exception(exception))
+        match = re.search(r"(examples[\\\/].*?\.ipynb):", exception_message)
+        if match:
+            return match.group(1).replace("\\", "/")
+
+    if exception is not None:
+        logger.warning("An error occurred during the build process, skipping the copy of script examples.")
+        example_name = extract_example_name(exception)
+        if example_name is not None:
+            logger.warning(f"Error occurred in example {example_name}.")
+        return
+
     destination_dir = Path(app.outdir, "examples").resolve()
     logger.info(f"Copying script examples into out directory {destination_dir}.")
 
     EXAMPLES = EXAMPLES_DIRECTORY.glob("**/*.py")
     for example in EXAMPLES:
         example_path = str(example).split("examples" + os.sep)[-1]
-        shutil.copyfile(example, str(destination_dir / example_path))
+        out_example_path = destination_dir / example_path
+        logger.debug(f"Example {example} is being copied into {out_example_path}.")
+
+        if not out_example_path.parent.exists():
+            out_example_path.parent.mkdir(parents=True)
+
+        shutil.copyfile(example, out_example_path)
 
     logger.info(f"Copy performed.")
 
@@ -251,13 +276,15 @@ def convert_examples_into_notebooks(app):
     import subprocess
     import nbformat
 
+    logger.info("Converting examples into notebooks and disabling execution if needed...")
+
     DESTINATION_DIR = Path(app.srcdir, "examples").resolve()
-    EXAMPLES = EXAMPLES_DIRECTORY.glob("**/*.py")
-    EXAMPLES_TO_NOT_EXECUTE = (
+    EXAMPLES = list(EXAMPLES_DIRECTORY.glob("**/*.py"))
+    STATIC_EXAMPLES_TO_NOT_EXECUTE = (
         "template.py",
         "gui_manipulation.py",
         "electrothermal.py",
-        # TODO: Remove the following example when 2025.1 is released, currently the latest version is 24.1.
+        # GitHub CI/CD Pipeline fails to run lumped_element.py but it runs locally.
         "lumped_element.py",
         "distributed_filter.py",
         # TODO: Remove once EMIT examples are moved into extensions.
@@ -266,6 +293,15 @@ def convert_examples_into_notebooks(app):
         "hfss_emit.py",
         "component_conversion.py",
     )
+
+    unchanged_examples = []
+    changed_raw = os.environ.get('ON_CI_CHANGED_EXAMPLES', '')
+    if changed_raw:
+        changed_examples = [Path(f.strip()).name for f in changed_raw.split(",")]
+        # Do not limit to modification and extend to new examples
+        unchanged_examples = [p.name for p in EXAMPLES if p.name not in changed_examples]
+
+    EXAMPLES_TO_NOT_EXECUTE = list(set(STATIC_EXAMPLES_TO_NOT_EXECUTE) | set(unchanged_examples))
 
     # NOTE: Only convert the examples if the workflow isn't tagged as coupling HTML and PDF build.
     if not bool(int(os.getenv("SPHINXBUILD_HTML_AND_PDF_WORKFLOW", "0"))) or app.builder.name == "html":
@@ -285,6 +321,7 @@ def convert_examples_into_notebooks(app):
                 ],
                 capture_output=True,
             )
+            logger.debug(f"Converted {example} to {DESTINATION_DIR / notebook_path}")
 
             if output.returncode != 0:
                 logger.error(f"Error converting {example} to script")
@@ -293,7 +330,7 @@ def convert_examples_into_notebooks(app):
             # Disable execution if required
             basename = os.path.basename(example)
             if basename in EXAMPLES_TO_NOT_EXECUTE:
-                logger.warning(f"Disable execution of example {basename}.")
+                logger.warning(f"Disable execution of example {basename}")
                 with open(str(DESTINATION_DIR / notebook_path), "r") as f:
                     nb = nbformat.read(f, as_version=nbformat.NO_CONVERT)
                 if "nbsphinx" not in nb.metadata:
@@ -301,6 +338,8 @@ def convert_examples_into_notebooks(app):
                 nb.metadata["nbsphinx"]["execute"] = "never"
                 with open(str(DESTINATION_DIR / notebook_path), "w", encoding="utf-8") as f:
                     nbformat.write(nb, f)
+            else:
+                logger.debug(f"Keeping execution of example {basename}")
 
         if count == 0:
             logger.warning("No python examples found to convert to scripts")

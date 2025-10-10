@@ -9,16 +9,19 @@
 #
 # Perform required imports.
 
+# +
 import os
 import tempfile
 import time
 
 import ansys.aedt.core
+from ansys.aedt.core.examples.downloads import download_file
 import pyedb
+# -
 
 # Define constants.
 
-AEDT_VERSION = "2025.1"
+AEDT_VERSION = "2025.2"
 NUM_CORES = 4
 NG_MODE = False
 
@@ -34,16 +37,16 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 #
 # Download needed project file and set up temporary project directory.
 
-aedb_project = ansys.aedt.core.downloads.download_file(
-    "edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name
+aedb_project = download_file(
+    "edb/ANSYS-HSD_V1.aedb", local_path=temp_folder.name
 )
-coil = ansys.aedt.core.downloads.download_file(
+coil = download_file(
     source="inductance_3d_component",
     name="air_coil.a3dcomp",
-    destination=temp_folder.name,
+    local_path=temp_folder.name,
 )
-res = ansys.aedt.core.downloads.download_file(
-    source="resistors", name="Res_0402.a3dcomp", destination=temp_folder.name
+res = download_file(
+    source="resistors", name="Res_0402.a3dcomp", local_path=temp_folder.name
 )
 project_name = "HSD"
 output_edb = os.path.join(temp_folder.name, project_name + ".aedb")

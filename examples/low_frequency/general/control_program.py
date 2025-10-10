@@ -11,14 +11,17 @@
 #
 # Perform required imports.
 
+# +
 import tempfile
 import time
 
-from ansys.aedt.core import Maxwell2d, downloads
+from ansys.aedt.core import Maxwell2d
+from ansys.aedt.core.examples.downloads import download_file
+# -
 
 # Define constants.
 
-AEDT_VERSION = "2025.1"
+AEDT_VERSION = "2025.2"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
@@ -35,13 +38,13 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 #
 # Download the files required to run this example to the temporary working folder.
 
-aedt_file = downloads.download_file(
+aedt_file = download_file(
     source="maxwell_ctrl_prg",
     name="ControlProgramDemo.aedt",
-    destination=temp_folder.name,
+    local_path=temp_folder.name,
 )
-ctrl_prg_file = downloads.download_file(
-    source="maxwell_ctrl_prg", name="timestep_only.py", destination=temp_folder.name
+ctrl_prg_file = download_file(
+    source="maxwell_ctrl_prg", name="timestep_only.py", local_path=temp_folder.name
 )
 
 # ## Launch Maxwell 2D
