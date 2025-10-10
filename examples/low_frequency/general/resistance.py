@@ -153,9 +153,7 @@ sweep.analyze(cores=NUM_CORES)
 # Define output variable.
 
 expression = "1/Matrix1.G(1V,1V)/MaterialThickness"
-m2d.ooutput_variable.CreateOutputVariable(
-    "out1", expression, m2d.nominal_sweep, "DCConduction", []
-)
+m2d.create_output_variable(variable="out1", expression=expression,solution=m2d.nominal_sweep)
 
 # ## Create report
 #
