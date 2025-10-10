@@ -111,7 +111,7 @@ mat.update()
 
 # +
 collector = m3d.modeler.create_cylinder(
-    orientation=ansys.aedt.core.constants.AXIS.Z,
+    orientation=ansys.aedt.core.constants.Axis.Z,
     origin=[12, 13, 25],
     height="3mm",
     radius="9.5mm",
@@ -119,7 +119,7 @@ collector = m3d.modeler.create_cylinder(
     name="collector",
 )
 cylinder2 = m3d.modeler.create_cylinder(
-    orientation=ansys.aedt.core.constants.AXIS.Z,
+    orientation=ansys.aedt.core.constants.Axis.Z,
     origin=[12, 13, 25],
     height="3mm",
     radius="8mm",
@@ -132,7 +132,7 @@ m3d.modeler.subtract(
 )
 
 cylinder3 = m3d.modeler.create_cylinder(
-    orientation=ansys.aedt.core.constants.AXIS.Z,
+    orientation=ansys.aedt.core.constants.Axis.Z,
     origin=[12, 13, 28],
     height="3mm",
     radius="8.7mm",
@@ -140,7 +140,7 @@ cylinder3 = m3d.modeler.create_cylinder(
     name="cyl3",
 )
 cylinder4 = m3d.modeler.create_cylinder(
-    orientation=ansys.aedt.core.constants.AXIS.Z,
+    orientation=ansys.aedt.core.constants.Axis.Z,
     origin=[12, 13, 28],
     height="3mm",
     radius="2mm",
@@ -190,8 +190,8 @@ collector_relative_cs = m3d.modeler.create_coordinate_system(
 )
 section = m3d.modeler.create_rectangle(
     orientation="XZ",
-    position=[-25, 0, -35],
-    dimension_list=["50mm", "50mm"],
+    origin=[-25, 0, -35],
+    sizes=["50mm", "50mm"],
     name="section",
 )
 m3d.modeler.set_working_coordinate_system("Global")
