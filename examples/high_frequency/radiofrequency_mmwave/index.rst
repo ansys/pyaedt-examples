@@ -88,6 +88,22 @@ These examples use PyAEDT to show some radio frequency and millimeter wave appli
       This example shows how to use PyAEDT to use the FilterSolutions module to design a 
       band-pass Elliptic filter and export the distributed model to HFSS.
 
+
+   .. grid-item-card:: Distributed filter design
+      :padding: 2 2 2 2
+      :link: distributed_filter
+      :link-type: doc
+
+      .. image:: _static/distributed_filter.png
+         :alt: Distributed filter
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      This example demonstrates using PyAEDT and the FilterSolutions module to design a band-pass Chebyshev-I filter, 
+      visualize its frequency response, and export the distributed model to HFSS.
+
+
    .. grid-item-card:: Flex cable CPWG
       :padding: 2 2 2 2
       :link: ../emc/flex_cable
