@@ -59,7 +59,7 @@ m3d = ansys.aedt.core.Maxwell3d(
 # ### Declare and initialize design parameters
 # The ``angle`` parameter will be used to sweep through the actuators rotational motion
 
-m3d["angle"] = "29deg"
+m3d["angle"] = "0deg"
 
 # ### Create 3D model
 #
@@ -101,14 +101,14 @@ arm_steel.permeability.value = bh_curve
 
 # #### Create outer arm
 
-outer_arm = m3d.modeler.create_cylinder(orientation=ansys.aedt.core.constants.AXIS.Z ,origin=[0,0,0],radius=104.5,height=25.4,num_sides=0, name="Outer_arm", material=arm_steel.name)
-cylinder_tool = m3d.modeler.create_cylinder(orientation=ansys.aedt.core.constants.AXIS.Z ,origin=[0,0,0],radius=83.1,height=25.4,num_sides=0, name="Cylinder_tool")
+outer_arm = m3d.modeler.create_cylinder(orientation=ansys.aedt.core.constants.Axis.Z ,origin=[0,0,0],radius=104.5,height=25.4,num_sides=0, name="Outer_arm", material=arm_steel.name)
+cylinder_tool = m3d.modeler.create_cylinder(orientation=ansys.aedt.core.constants.Axis.Z ,origin=[0,0,0],radius=83.1,height=25.4,num_sides=0, name="Cylinder_tool")
 m3d.modeler.subtract([outer_arm],[cylinder_tool], keep_originals=False)
 box_1 = m3d.modeler.create_box(origin=[-13.9 ,0 ,0],sizes=[27.8,-40,25.4], name="Box1")
 m3d.modeler.move(box_1,vector=[0,-45,0])
 m3d.modeler.duplicate_and_mirror(assignment=box_1,origin=[0,0,0],vector=[0,1,0])
 m3d.modeler.unite([outer_arm, box_1.name, box_1.name+"_1"])
-cylinder_1 = m3d.modeler.create_cylinder(orientation=ansys.aedt.core.constants.AXIS.Z ,origin=[0,0,0],radius=53.75,height=25.4,num_sides=0, name="Cylinder1")
+cylinder_1 = m3d.modeler.create_cylinder(orientation=ansys.aedt.core.constants.Axis.Z ,origin=[0,0,0],radius=53.75,height=25.4,num_sides=0, name="Cylinder1")
 m3d.modeler.subtract([outer_arm],[cylinder_1], keep_originals=False)
 outer_arm.color="(192 192 192)"
 
