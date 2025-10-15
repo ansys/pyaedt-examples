@@ -1,6 +1,6 @@
 # # Distributed filter design
 #
-# This example demonstrates using PyAEDT and the ``FilterSolutions`` module to design a band-pass Chebyshev-I filter, 
+# This example demonstrates using PyAEDT and the ``FilterSolutions`` module to design a low-pass Chebyshev-I filter, 
 # visualize its frequency response, and export the distributed model to HFSS.
 #
 # Keywords: **filter solutions**
@@ -44,36 +44,37 @@ def format_plot():
 # Create a distributed filter design and assign the class, type, frequency, and order.
 
 distributed_design = ansys.aedt.core.filtersolutions.DistributedDesign(version=AEDT_VERSION,)
-distributed_design.attributes.filter_class = FilterClass.BAND_PASS
+distributed_design.attributes.filter_class = FilterClass.LOW_PASS
 distributed_design.attributes.filter_type = FilterType.CHEBYSHEV_I
-distributed_design.attributes.pass_band_center_frequency = "3 GHz"
-distributed_design.attributes.pass_band_width_frequency = "300 MHz"
+distributed_design.attributes.pass_band_center_frequency = "2 GHz"
 distributed_design.attributes.filter_order = 7
 
 # ## Define minimum and maximum analysis frequencies
 #
-# Specify the frequency range for the analysis, from 2 GHz to 4 GHz.
+# Specify the frequency range for the analysis, from 200 MHz to 4 GHz.
 # This range sets the bandwidth over which the filter response will be evaluated.
 
 
-distributed_design.graph_setup.minimum_frequency = "2G"
-distributed_design.graph_setup.maximum_frequency = "4G"
+distributed_design.graph_setup.minimum_frequency = "200 MHz"
+distributed_design.graph_setup.maximum_frequency = "4 GHz"
 
 # ## Define topology and substrate parameters
 #
 # Specify the filter topology, substrate type, dielectric constant, and substrate resistivity.
-# In this example, the topology is set to "hairpin," the substrate type to "microstrip,"
-# the conductor material to "silver," and the substrate material to "RT_DUROID_5880."
+# In this example, the topology is set to stepped impedance, the substrate type to microstrip,
+# the conductor material to silver, and the substrate material to alumina.
 
-distributed_design.topology.topology_type = TopologyType.HAIRPIN
+distributed_design.topology.topology_type = TopologyType.STEPPED_IMPEDANCE
 distributed_design.substrate.substrate_type = SubstrateType.MICROSTRIP
-distributed_design.substrate.substrate_er = SubstrateEr.RT_DUROID_5880
+distributed_design.substrate.substrate_er = SubstrateEr.ALUMINA
 distributed_design.substrate.substrate_resistivity = SubstrateResistivity.SILVER
+distributed_design.substrate.substrate_conductor_thickness = "2um"
+distributed_design.substrate.substrate_dielectric_height = "200 um"
 
 # ## Plot frequency response of the filter
 #
-# Plot the synthesized frequency response to visualize the filter’s transmission and reflection
-# characteristics over the defined frequency range.
+# Plot the synthesized frequency response to visualize the transmission and reflection
+# characteristics of filter over the defined frequency range.
 
 freq, s11_db = distributed_design.ideal_response.s_parameters(SParametersResponseColumn.S11_DB)
 freq, s21_db = distributed_design.ideal_response.s_parameters(SParametersResponseColumn.S21_DB)
