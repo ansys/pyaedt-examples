@@ -85,7 +85,7 @@ These examples use PyAEDT to show some radio frequency and millimeter wave appli
          :height: 200px
          :align: center
 
-      This example demonstrates using PyAEDT and the FilterSolutions module to design a band-pass Chebyshev-I filter, 
+      This example demonstrates using PyAEDT and the FilterSolutions module to design a low-pass Chebyshev-I filter, 
       visualize its frequency response, and export the distributed model to HFSS.
 
 
