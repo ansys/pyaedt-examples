@@ -294,9 +294,9 @@ for var in core_loss_data.variations:
     core_loss_data.active_variation = var
     solid_loss_data.active_variation = var
 
-    torque_values = torque_data.data_magnitude()
-    core_loss_values = core_loss_data.data_magnitude()
-    solid_loss_values = solid_loss_data.data_magnitude()
+    torque_values = torque_data.get_expression_data(formula="magnitude")[1]
+    core_loss_values = core_loss_data.get_expression_data(formula="magnitude")[1]
+    solid_loss_values = solid_loss_data.get_expression_data(formula="magnitude")[1]
 
     torque_data_average = sum(torque_values) / len(torque_values)
     core_loss_average = sum(core_loss_values) / len(core_loss_values)
