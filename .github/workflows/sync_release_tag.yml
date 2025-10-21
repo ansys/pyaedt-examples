@@ -1,0 +1,26 @@
+name: Sync Release Tag From PyAEDT
+
+on:
+  repository_dispatch:
+    types: [release_tag]
+
+jobs:
+  CreateTag:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+  
+      - name: Create and push tag
+        run: |
+          TAG_NAME="${{ github.event.client_payload.tag }}"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
+            echo "Tag $TAG_NAME already exists"
+          else
+            git tag "$TAG_NAME"
+            git push origin "$TAG_NAME"
+          fi
