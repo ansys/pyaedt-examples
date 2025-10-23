@@ -45,7 +45,7 @@ m2d = ansys.aedt.core.Maxwell2d(
     version=AEDT_VERSION,
     new_desktop=True,
     close_on_exit=True,
-    solution_type="DCConduction",
+    solution_type="DC Conduction",
     project=project_name,
     design="Ansys_resistor",
     non_graphical=NG_MODE,
@@ -116,8 +116,8 @@ m2d.mesh.assign_length_mesh(
 
 setup = m2d.create_setup(name="Setup1", MinimumPasses=4)
 setup.enable_expression_cache(
-    report_type="DCConduction",
-    expressions="1/Matrix1.G(1V,1V)/MaterialThickness",
+    report_type="DC Conduction",
+    expressions=["1/Matrix1.G(1V,1V)/MaterialThickness"],
     isconvergence=True,
     conv_criteria=1,
     use_cache_for_freq=False,
@@ -153,9 +153,7 @@ sweep.analyze(cores=NUM_CORES)
 # Define output variable.
 
 expression = "1/Matrix1.G(1V,1V)/MaterialThickness"
-m2d.ooutput_variable.CreateOutputVariable(
-    "out1", expression, m2d.nominal_sweep, "DCConduction", []
-)
+m2d.create_output_variable(variable="out1", expression=expression,solution=m2d.nominal_sweep)
 
 # ## Create report
 #
@@ -231,7 +229,7 @@ py_vista_plot.plot(os.path.join(temp_folder.name, "mag_E.jpg"))
 animated_plot = m2d.post.plot_animated_field(
     quantity="Mag_J",
     assignment=conductor_surface,
-    export_path=temp_folder.name,
+    output_file=temp_folder.name,
     variation_variable="MaterialIndex",
     variations=[0, 1, 2, 3],
     show=False,
@@ -315,7 +313,7 @@ pdf_report.save_pdf(temp_folder.name, "AEDT_Results.pdf")
 # ## Release AEDT
 
 m2d.save_project()
-m2d.release_desktop()
+m2d.release_desktop(False, False)
 # Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
