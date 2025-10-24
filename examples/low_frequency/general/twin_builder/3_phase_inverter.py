@@ -1,6 +1,8 @@
-# # Title
+# # Q3D Dynamic link to Twin Builder for the DC-Link bus bars of a drive inverter
 #
-# Description
+# This example demonstrates how to link an existing Q3D Extractor Design of the inverter DC-Link bus bars
+# with a frequency sweep to a Twin Builder design using Q3D Dynamic Component - State Space link.
+# This will integrate the broadband parasitic model of the bus bars into the Twin Builder schematic.
 #
 # Keywords: **DCLink**, **Twinbuilder**, **Q3D**.
 
@@ -22,6 +24,8 @@ from ansys.aedt.core.examples.downloads import download_file
 AEDT_VERSION = "2025.2"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
+TB_DESIGN_NAME = "3ph_circuit"
+Q3D_DESIGN_NAME = "q3d_3ph"
 
 # ## Create temporary directory
 #
@@ -51,7 +55,7 @@ project_path = download_file(
 
 tb = ansys.aedt.core.TwinBuilder(
     project=project_path,
-    design="3ph_circuit",
+    design=TB_DESIGN_NAME,
     version=AEDT_VERSION,
     non_graphical=NG_MODE,
     new_desktop=True,
@@ -62,10 +66,10 @@ tb = ansys.aedt.core.TwinBuilder(
 # Add a Q3D dynamic link to the Twinbuilder schematic.
 
 comp = tb.add_q3d_dynamic_component(
-    source_project=tb.project_name, source_design_name="q3d_3ph", setup="Setup1", sweep_name="Sweep1", coupling_matrix_name="Original", state_space_dynamic_link_type="RLGC"
+    source_project=tb.project_name, source_design_name=Q3D_DESIGN_NAME, setup="Setup1", sweep_name="Sweep1", coupling_matrix_name="Original", state_space_dynamic_link_type="RLGC"
 )
 
-tb = get_pyaedt_app(tb.project_name, "3ph_circuit")
+tb.set_active_design(TB_DESIGN_NAME)
 
 # ## Place component on schematic
 #
@@ -119,7 +123,7 @@ tb.analyze_setup("TR")
 
 # Post-processing
 #
-# Create reports for the results of interest.
+# Create reports for the results of interest in the time domain.
 
 cap_currents = tb.post.create_report(
     expressions=["Ca.I", "Cb.I", "Cc.I"],
@@ -153,6 +157,40 @@ v_dc = tb.post.create_report(
     primary_sweep_variable="Time",
     plot_name="Vdc",
 )
+
+# Create reports for the results of interest in the frequency domain.
+
+# Get Q3D app and get all sources
+
+q3d = get_pyaedt_app(tb.project_name, Q3D_DESIGN_NAME)
+sources = [source.name for source in q3d.boundaries_by_type["Source"]]
+tb = get_pyaedt_app(tb.project_name, TB_DESIGN_NAME)
+
+# In order to speed up the process of creating multiple plots, the following section is commented out.
+# Uncomment it to create plots for all sources.
+
+# expressions = []
+# for source in sources:
+#     expressions.append(f"re({source}.I)")
+#     expressions.append(f"im({source}.I)")
+
+# For demonstration purposes, we will just plot the imag. and real parts of the first source.
+# If you have uncommented the previous section, comment the following line.
+
+expressions = [f"re({sources[0]}.I)", f"im({sources[0]}.I)"]
+
+# Create the spectral report
+
+new_report = tb.post.reports_by_category.spectral(expressions, "TR")
+new_report.window = "Rectangular"
+new_report.max_frequency = "100kHz"
+new_report.time_start = "0ns"
+new_report.time_stop = "30ms"
+new_report.create("Q3D_sources")
+
+# Export report in a CSV file
+
+report_path = tb.post.export_report_to_csv(temp_folder.name, "Q3D_sources")
 
 # ## Release AEDT
 
