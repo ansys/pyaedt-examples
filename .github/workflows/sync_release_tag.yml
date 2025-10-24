@@ -1,8 +1,11 @@
 name: Sync release tag from PyAEDT
 
 on:
-  repository_dispatch:
-    types: [release_tag]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag from PyAEDT to sync"
+        required: true
 
 jobs:
   create-tag:
@@ -15,38 +18,23 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Validate tag input
-        run: |
-          TAG_NAME="${{ github.event.client_payload.tag }}"
-          if [[ -z "$TAG_NAME" ]]; then
-            echo "Error: No tag provided in the payload"
-            exit 1
-          fi
-          echo "Tag to create: $TAG_NAME"
-
       - name: Create and push tag
         run: |
           # Configure git username & email
           git config --global user.name "${{ secrets.PYANSYS_CI_BOT_USERNAME }}"
           git config --global user.email "${{ secrets.PYANSYS_CI_BOT_EMAIL }}"
 
-          TAG_NAME="${{ github.event.client_payload.tag }}"
+          TAG_NAME="${{ github.event.inputs.tag }}"
 
-          if [[ -z "$TAG_NAME" ]]; then
-            echo "Error: No tag provided in the payload"
-            exit 1
-          fi
-          echo "Tag to create: $TAG_NAME"
-          
           if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
             echo "Tag $TAG_NAME already exists, skipping creation"
             exit 0
           fi
-          
+
           echo "Creating tag: $TAG_NAME"
           git tag "$TAG_NAME"
-          
+
           echo "Pushing tag to origin"
           git push origin "$TAG_NAME"
-          
+
           echo "Successfully created and pushed tag: $TAG_NAME"
