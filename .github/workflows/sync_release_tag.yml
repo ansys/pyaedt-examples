@@ -11,12 +11,12 @@ on:
         description: "Token with permissions to create tags."
         required: true
         type: string
-      bot-user:
-        description: "Bot user for git tag and push."
+      user:
+        description: "User value for git configuration."
         required: true
         type: string
       bot-email:
-        description: "Bot email for git tag and push."
+        description: "Email value for git configuration."
         required: true
         type: string
 jobs:
