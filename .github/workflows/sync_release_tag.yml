@@ -4,25 +4,43 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Release tag from PyAEDT to sync"
+        description: "Release tag from PyAEDT to sync."
         required: true
-
+        type: string
+      token:
+        description: "Token with permissions to create tags."
+        required: true
+        type: string
+      bot-user:
+        description: "Bot user for git tag and push."
+        required: true
+        type: string
+      bot-email:
+        description: "Bot email for git tag and push."
+        required: true
+        type: string
 jobs:
   create-tag:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      metadata: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
+<<<<<<< Updated upstream
           persist-credentials: false
+=======
+          fetch-tags: true
+          token: ${{ inputs.token }} # zizmor: ignore[artipacked] , credentials should be persisted
+>>>>>>> Stashed changes
 
       - name: Create and push tag
         run: |
-          # Configure git username & email
-          git config --global user.name "${{ secrets.PYANSYS_CI_BOT_USERNAME }}"
-          git config --global user.email "${{ secrets.PYANSYS_CI_BOT_EMAIL }}"
+          # Configure git username & email from inputs
+          git config --global user.name "${{ github.event.inputs.bot-user }}"
+          git config --global user.email "${{ github.event.inputs.bot-email }}"
 
           TAG_NAME="${{ github.event.inputs.tag }}"
 
