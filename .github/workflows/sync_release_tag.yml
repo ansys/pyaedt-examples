@@ -15,7 +15,7 @@ on:
         description: "User value for git configuration."
         required: true
         type: string
-      bot-email:
+      email:
         description: "Email value for git configuration."
         required: true
         type: string
@@ -29,18 +29,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
-<<<<<<< Updated upstream
-          persist-credentials: false
-=======
           fetch-tags: true
           token: ${{ inputs.token }} # zizmor: ignore[artipacked] , credentials should be persisted
->>>>>>> Stashed changes
 
       - name: Create and push tag
         run: |
           # Configure git username & email from inputs
-          git config --global user.name "${{ github.event.inputs.bot-user }}"
-          git config --global user.email "${{ github.event.inputs.bot-email }}"
+          git config --global user.name "${{ github.event.inputs.user }}"
+          git config --global user.email "${{ github.event.inputs.email }}"
 
           TAG_NAME="${{ github.event.inputs.tag }}"
 
