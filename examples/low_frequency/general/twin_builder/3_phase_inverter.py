@@ -12,8 +12,10 @@
 
 import tempfile
 import time
+from pathlib import Path
 
 import ansys.aedt.core
+import pandas as pd
 from ansys.aedt.core import get_pyaedt_app
 from ansys.aedt.core.examples.downloads import download_file
 
@@ -186,11 +188,50 @@ new_report.window = "Rectangular"
 new_report.max_frequency = "100kHz"
 new_report.time_start = "0ns"
 new_report.time_stop = "30ms"
+new_report.variations = {"Spectrum": "All"}
 new_report.create("Q3D_sources")
 
 # Export report in a CSV file
 
 report_path = tb.post.export_report_to_csv(temp_folder.name, "Q3D_sources")
+
+q3d_sources_unfiltered = pd.read_csv(report_path, sep=",")
+
+# Set thresholds
+threshold = 0.01
+
+# Identify rows below threshold (to delete)
+# if at least one of re and im are below threshold, mark for deletion the entire row
+mask = (q3d_sources_unfiltered[f"re({sources[0]}.I) [A]"].abs() < threshold) | (q3d_sources_unfiltered[f"im({sources[0]}.I) [A]"].abs() < threshold)
+
+# Drop those rows
+q3d_sources_filtered = q3d_sources_unfiltered[~mask]  # ~ inverts the mask
+
+# Save back to CSV (create new)
+q3d_sources_filtered_path = Path(tb.working_directory) / "Q3D_sources_filtered.csv"
+q3d_sources_filtered.to_csv(q3d_sources_filtered_path, sep=",", index=False)
+
+# Save real and imaginary part in separate tab-separated files
+# Each .tab file will contain two columns: frequency and the corresponding part (real or imaginary)
+# After exporting, import each .tab file as a dataset 1D in Q3D
+
+freq_column = q3d_sources_filtered.columns[0]
+
+for col in q3d_sources_filtered.columns[1:]:
+    # Create a new DataFrame with first and current column
+    new_df = q3d_sources_filtered[[freq_column, col]]
+
+    # Create a new file name based on the column names
+    new_file_name = Path(tb.working_directory) / f"{col}.tab"
+
+    # Save the DataFrame as a tab-separated file
+    new_df.to_csv(new_file_name, sep="\t", index=False)
+    if col.startswith("re"):
+        dataset_name = f"re_{sources[0]}"
+    elif col.startswith("im"):
+        dataset_name = f"im_{sources[0]}"
+    q3d.import_dataset1d(str(new_file_name), name=dataset_name, is_project_dataset=False)
+
 
 # ## Release AEDT
 
