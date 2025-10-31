@@ -93,6 +93,7 @@ plt.show()
 
 distributed_design.export_to_aedt.schematic_name = "DistributedFilter"
 distributed_design.export_to_aedt.simulate_after_export_enabled = True
+distributed_design.export_to_aedt.optimitrics_enabled = False
 distributed_design.export_to_aedt.include_forward_transfer_s21_enabled  = True
 distributed_design.export_to_aedt.include_return_loss_s11_enabled = True
 distributed_design.export_to_aedt.insert_hfss_3dl_design = True
@@ -104,13 +105,15 @@ hfss3dl = distributed_design.export_to_aedt.export_design(export_format=ExportFo
 #
 # Get the scattering parameter data from the AEDT HFSS 3D Layout simulation and create a plot.
 
+hfss3dl.analyze()
 solutions = hfss3dl.post.get_solution_data(
     expressions=hfss3dl.get_traces_for_plot(category="S"),
+    report_category="Standard",
 )
 sim_freq = solutions.primary_sweep_values
 sim_freq_ghz = [i * 1e9 for i in sim_freq]
-sim_s11_db = solutions.data_db20(expression="S(Port1,Port1)")
-sim_s21_db = solutions.data_db20(expression="S(Port2,Port1)")
+sim_s11_db = solutions.get_expression_data("S(Port1,Port1)", "dB20")[1]
+sim_s21_db = solutions.get_expression_data("S(Port2,Port1)", "dB20")[1]
 plt.plot(freq, s11_db, linewidth=2.0, label="Synthesized S11")
 plt.plot(freq, s21_db, linewidth=2.0, label="Synthesized S21")
 plt.plot(sim_freq_ghz, sim_s11_db, linewidth=2.0, label="Simulated S11")
