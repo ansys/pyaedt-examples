@@ -80,10 +80,10 @@ edb.close_edb()
 # Note that there may be some delay while AEDT is being launched.
 
 hfss = ansys.aedt.core.Hfss3dLayout(
-    projectname=target_aedb,
-    specified_version=edb_version,
+    project_name=target_aedb,
+    version=edb_version,
     non_graphical=False,
-    new_desktop_session=True,
+    new_desktop=True,
 )
 
 # The following cell can be used to ensure that the design is valid for simulation.
