@@ -80,7 +80,7 @@ edb.close_edb()
 # Note that there may be some delay while AEDT is being launched.
 
 hfss = ansys.aedt.core.Hfss3dLayout(
-    project_name=target_aedb,
+    project=target_aedb,
     version=edb_version,
     non_graphical=False,
     new_desktop=True,

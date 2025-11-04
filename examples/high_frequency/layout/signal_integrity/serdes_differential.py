@@ -190,7 +190,7 @@ aedt_version = edb_version
 
 h3d = ansys.aedt.core.Hfss3dLayout(
     version=aedt_version,
-    project_name=target_aedb,
+    project=target_aedb,
     non_graphical=False,
     new_desktop=False,
 )
