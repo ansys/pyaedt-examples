@@ -70,7 +70,7 @@ This repository contains end-to-end embedding examples that demonstrate how to u
       :link-type: doc
 
       .. image:: examples/electrothermal/_static/icepak_logo.png
-         :alt: Icepak
+         :alt: icepak
          :width: 250px
          :height: 200px
          :align: center
