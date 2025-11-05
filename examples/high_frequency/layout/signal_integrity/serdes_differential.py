@@ -189,10 +189,10 @@ edbapp.close_edb()
 aedt_version = edb_version
 
 h3d = ansys.aedt.core.Hfss3dLayout(
-    specified_version=aedt_version,
-    projectname=target_aedb,
+    version=aedt_version,
+    project=target_aedb,
     non_graphical=False,
-    new_desktop_session=False,
+    new_desktop=False,
 )
 
 # ## Analyze
