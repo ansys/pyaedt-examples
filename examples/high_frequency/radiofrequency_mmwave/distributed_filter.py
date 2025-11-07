@@ -99,13 +99,17 @@ distributed_design.export_to_aedt.include_return_loss_s11_enabled = True
 distributed_design.export_to_aedt.insert_hfss_3dl_design = True
 hfss3dl = distributed_design.export_to_aedt.export_design(export_format=ExportFormat.DIRECT_TO_AEDT)
 
-# <img src="_static/desktop_results_distributed.png" width="400">
+# <img src="_static/desktop_results_distributed_filter.png" width="400">
 
 # ## Plot the simulated design
 #
 # Get the scattering parameter data from the AEDT HFSS 3D Layout simulation and create a plot.
 
-hfss3dl.analyze()
+# The analyze step is commented out to avoid re-running the simulation in CI environments.
+# For local runs, uncomment the line below to perform the analysis.
+  
+# hfss3dl.analyze()
+
 solutions = hfss3dl.post.get_solution_data(
     expressions=hfss3dl.get_traces_for_plot(category="S"),
     report_category="Standard",
