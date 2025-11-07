@@ -123,20 +123,23 @@ for pin in comp.pins:
 
 tb.analyze_setup("TR")
 
-# Post-processing
+# ## Twinbuilder Post-processing : Time domain
 #
-# Create reports for the results of interest in the time domain.
+# Create reports for capacitor currents, load currents, DC current and voltage.
 
 cap_currents = tb.post.create_report(
     expressions=["Ca.I", "Cb.I", "Cc.I"],
     primary_sweep_variable="Time",
     plot_name="Capacitor Currents",
 )
+
 # add markers at 10ms and 20ms
+
 cap_currents.add_cartesian_x_marker("10ms")
 cap_currents.add_cartesian_x_marker("20ms")
 
 # Plot only between 10ms and 20ms
+
 cap_currents_range = tb.post.create_report(
     expressions=["Ca.I", "Cb.I", "Cc.I"],
     primary_sweep_variable="Time",
@@ -160,30 +163,23 @@ v_dc = tb.post.create_report(
     plot_name="Vdc",
 )
 
-# Create reports for the results of interest in the frequency domain.
-
-# Get Q3D app and get all sources
+# ## Twinbuilder Post-processing : Frequency domain
+#
+# Create spectral reports for all sources in the whole spectral domain.
 
 q3d = get_pyaedt_app(tb.project_name, Q3D_DESIGN_NAME)
 sources = [source.name for source in q3d.boundaries_by_type["Source"]]
 tb = get_pyaedt_app(tb.project_name, TB_DESIGN_NAME)
 
-# In order to speed up the process of creating multiple plots, the following section is commented out.
-# Uncomment it to create plots for all sources.
+expressions = []
+for source in sources:
+    expressions.append(f"re({source}.I)")
+    expressions.append(f"im({source}.I)")
 
-# expressions = []
-# for source in sources:
-#     expressions.append(f"re({source}.I)")
-#     expressions.append(f"im({source}.I)")
-
-# For demonstration purposes, we will just plot the imag. and real parts of the first source.
-# If you have uncommented the previous section, comment the following line.
-
-expressions = [f"re({sources[0]}.I)", f"im({sources[0]}.I)"]
-
-# Create the spectral report
+# Create the spectral report for real and imaginary parts of source currents
 
 new_report = tb.post.reports_by_category.spectral(expressions, "TR")
+new_report.algorithm = "FFT"
 new_report.window = "Rectangular"
 new_report.max_frequency = "100kHz"
 new_report.time_start = "0ns"
@@ -195,19 +191,25 @@ new_report.create("Q3D_sources")
 
 report_path = tb.post.export_report_to_csv(temp_folder.name, "Q3D_sources")
 
-q3d_sources_unfiltered = pd.read_csv(report_path, sep=",")
+# ## Filter data
+#
+#
 
-# Set thresholds
+q3d_sources_unfiltered = pd.read_csv(report_path, sep=",")
 threshold = 0.01
 
-# Identify rows below threshold (to delete)
-# if at least one of re and im are below threshold, mark for deletion the entire row
-mask = (q3d_sources_unfiltered[f"re({sources[0]}.I) [A]"].abs() < threshold) | (q3d_sources_unfiltered[f"im({sources[0]}.I) [A]"].abs() < threshold)
+# Identify rows below threshold
+# If at least one between real and imaginary are below threshold, mark for deletion the entire row
+
+for source in sources:
+    mask = (q3d_sources_unfiltered[f"re({source}.I) [A]"].abs() < threshold) | (q3d_sources_unfiltered[f"im({source}.I) [A]"].abs() < threshold)
 
 # Drop those rows
-q3d_sources_filtered = q3d_sources_unfiltered[~mask]  # ~ inverts the mask
 
-# Save back to CSV (create new)
+q3d_sources_filtered = q3d_sources_unfiltered[~mask]
+
+# Save filtered data back to a new CSV file
+
 q3d_sources_filtered_path = Path(tb.working_directory) / "Q3D_sources_filtered.csv"
 q3d_sources_filtered.to_csv(q3d_sources_filtered_path, sep=",", index=False)
 
@@ -232,6 +234,84 @@ for col in q3d_sources_filtered.columns[1:]:
         dataset_name = f"im_{sources[0]}"
     q3d.import_dataset1d(str(new_file_name), name=dataset_name, is_project_dataset=False)
 
+# ## Q3D: Harmonic loss setup
+#
+# Specify real and imaginary currents for each source to compute harmonic loss.
+
+harmonic_loss = {}
+for source in sources:
+    re_dataset_name = next(d for d in list(q3d.design_datasets.keys()) if source in d and "re" in d.lower())
+    im_dataset_name = next(d for d in list(q3d.design_datasets.keys()) if source in d and "im" in d.lower())
+    harmonic_loss[source] = (re_dataset_name, im_dataset_name)
+q3d.edit_sources(harmonic_loss=harmonic_loss)
+
+# ## Q3D Post-processing
+#
+# Plot the harmonic loss density on the surface of the objects
+
+plot = q3d.post.create_fieldplot_surface(["dc_terminal", "dc_terminal_1_2"], "Harmonic_Loss_Density", intrinsics={"Freq": "0.5GHz", "Phase": "0deg"})
+plot.change_plot_scale(minimum_value="0", maximum_value="1040000", is_log=True)
+
+# ## Create Icepak Target Design
+#
+# Create an EM Target Design to link the results to Icepak to run a thermal simulation
+
+q3d.create_em_target_design("Icepak")
+ipk = get_pyaedt_app(tb.project_name, "IcepakDesign1")
+
+# ## Icepak setup
+#
+# Set "TemperatureOnly" as problem type in the Icepak setup
+
+setup = ipk.setups[0]
+setup.properties["Problem Type"] = "TemperatureOnly"
+
+# ## Create a subregion
+#
+# Create subregion to enclose the objects imported from Q3D
+
+subregion = ipk.modeler.create_subregion(padding_values=[0, 0, 0, 0, 0, 0], padding_types="Percentage Offset", assignment=["dc_terminal", "dc_terminal_1_2"], name="Subregion1")
+
+# ## Icepak boundaries
+#
+# When creating an Icepak target design the setup problem type is set by default to both "Temperature" and "Flow".
+# When "Flow" is enabled by default, two "Opening" boundary conditions are set automatically at the extremities
+# of the region.
+# Since we change the problem type to "TemperatureOnly", we need to delete those boundary conditions.
+
+[bound.delete() for bound in ipk.boundaries_by_type["Opening"]]
+
+# Assign stationary wall boundary condition with temperature
+
+ipk.assign_stationary_wall_with_temperature(
+    ["module_a_minus", "module_a_plus", "module_b_minus", "module_b_plus", "module_c_minus", "module_c_plus"],
+    name="StationaryWall",
+    temperature=80,
+    thickness="10mm",
+    material="Al-Extruded",
+    radiate=False,
+    radiate_surf_mat="Steel-oxidised-surface",
+    shell_conduction=True,
+)
+
+# ## Mesh region
+#
+# Assign mesh region to the subregion
+
+mesh_subregion = ipk.mesh.assign_mesh_region(assignment="Subregion", level=5, name="MeshSubregion")
+
+# ## Analysis
+#
+# Analyze the Icepak design
+
+ipk.analyze_setup(ipk.setups[0].name)
+
+# ## Icepak Post-processing
+#
+# Post-processing: plot temperature distribution and volumetric heat loss on the surface of the objects
+
+temp = ipk.post.create_fieldplot_surface(assignment=["dc_terminal", "dc_terminal_1_2"], quantity="Temperature", plot_name="Temperature")
+vol_heat_loss = ipk.post.create_fieldplot_volume(assignment=["dc_terminal", "dc_terminal_1_2"], quantity="VolumeHeatLoss", plot_name="VolumeHeatLoss")
 
 # ## Release AEDT
 
