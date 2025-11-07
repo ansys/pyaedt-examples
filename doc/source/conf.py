@@ -284,10 +284,10 @@ def convert_examples_into_notebooks(app):
         "template.py",
         "gui_manipulation.py",
         "electrothermal.py",
-        # GitHub CI/CD Pipeline fails to run lumped_element.py but it runs locally. Will be included for 26R1 relase
-        "lumped_element.py",
-        # GitHub CI/CD Pipeline fails to run distributed_filter.py but it runs locally. Will be included for 26R1 relase 
-        "distributed_filter.py",
+        # GitHub CI/CD Pipeline fails to run lumped_element.py but it runs locally.
+        # "lumped_element.py",
+        # GitHub CI/CD Pipeline fails to run distributed_filter.py but it runs locally.
+        # "distributed_filter.py",
         # TODO: Remove once EMIT examples are moved into extensions.
         "interference_type.py",
         "interference.py",
