@@ -227,7 +227,7 @@ These examples use PyAEDT to show HFSS capabilities
 
       This example shows how to create a two-way coupling between HFSS and Icepak.
 
-    .. grid-item-card:: HFSS-Icepak microwave oven analysis
+   .. grid-item-card:: HFSS-Icepak microwave oven analysis
       :padding: 2 2 2 2
       :link: microwave_oven
       :link-type: doc

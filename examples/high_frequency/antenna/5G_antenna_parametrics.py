@@ -240,10 +240,10 @@ print("EDB saved correctly to {}. You can import in AEDT.".format(aedb_path))
 # All commands can be run without the UI by changing the value of ``non_graphical``.
 
 h3d = ansys.aedt.core.Hfss(
-    projectname="Demo_3DComp",
-    designname="Linear_Array",
-    specified_version="2025.2",
-    new_desktop_session=True,
+    project="Demo_3DComp",
+    design="Linear_Array",
+    version="2025.2",
+    new_desktop=True,
     non_graphical=non_graphical,
     close_on_exit=True,
     solution_type="Terminal",
