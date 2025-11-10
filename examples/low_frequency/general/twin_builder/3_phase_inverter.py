@@ -182,7 +182,7 @@ new_report = tb.post.reports_by_category.spectral(expressions, "TR")
 new_report.algorithm = "FFT"
 new_report.window = "Rectangular"
 new_report.max_frequency = "100kHz"
-new_report.time_start = "0ns"
+new_report.time_start = "20ms"
 new_report.time_stop = "30ms"
 new_report.variations = {"Spectrum": "All"}
 new_report.create("Q3D_sources")
@@ -220,18 +220,15 @@ q3d_sources_filtered.to_csv(q3d_sources_filtered_path, sep=",", index=False)
 freq_column = q3d_sources_filtered.columns[0]
 
 for col in q3d_sources_filtered.columns[1:]:
-    # Create a new DataFrame with first and current column
-    new_df = q3d_sources_filtered[[freq_column, col]]
-
-    # Create a new file name based on the column names
-    new_file_name = Path(tb.working_directory) / f"{col}.tab"
-
     # Save the DataFrame as a tab-separated file
-    new_df.to_csv(new_file_name, sep="\t", index=False)
-    if col.startswith("re"):
-        dataset_name = f"re_{sources[0]}"
-    elif col.startswith("im"):
-        dataset_name = f"im_{sources[0]}"
+    new_file_name = Path(tb.working_directory) / f"{col}.tab"
+    q3d_sources_filtered[[freq_column, col]].to_csv(new_file_name, sep="\t", index=False)
+
+    # Determine dataset name and import it
+    if col.split("(")[0] == "re":
+        dataset_name = f"re_{col.split('(')[1].split('.')[0]}"
+    elif col.split("(")[0] == "im":
+        dataset_name = f"im_{col.split('(')[1].split('.')[0]}"
     q3d.import_dataset1d(str(new_file_name), name=dataset_name, is_project_dataset=False)
 
 # ## Q3D: Harmonic loss setup
@@ -256,7 +253,7 @@ plot.change_plot_scale(minimum_value="0", maximum_value="1040000", is_log=True)
 #
 # Create an EM Target Design to link the results to Icepak to run a thermal simulation
 
-q3d.create_em_target_design("Icepak")
+q3d.create_em_target_design("Icepak", design_setup="Natural")
 ipk = get_pyaedt_app(tb.project_name, "IcepakDesign1")
 
 # ## Icepak setup
@@ -270,7 +267,7 @@ setup.properties["Problem Type"] = "TemperatureOnly"
 #
 # Create subregion to enclose the objects imported from Q3D
 
-subregion = ipk.modeler.create_subregion(padding_values=[0, 0, 0, 0, 0, 0], padding_types="Percentage Offset", assignment=["dc_terminal", "dc_terminal_1_2"], name="Subregion1")
+subregion = ipk.modeler.create_subregion(padding_values=[10, 10, 10, 10, 50, 50], padding_types="Percentage Offset", assignment=["dc_terminal", "dc_terminal_1_2"], name="Subregion")
 
 # ## Icepak boundaries
 #
@@ -298,7 +295,7 @@ ipk.assign_stationary_wall_with_temperature(
 #
 # Assign mesh region to the subregion
 
-mesh_subregion = ipk.mesh.assign_mesh_region(assignment="Subregion", level=5, name="MeshSubregion")
+mesh_subregion = ipk.mesh.assign_mesh_region(assignment=[subregion.name], level=5, name="MeshSubregion")
 
 # ## Analysis
 #
@@ -311,7 +308,7 @@ ipk.analyze_setup(ipk.setups[0].name)
 # Post-processing: plot temperature distribution and volumetric heat loss on the surface of the objects
 
 temp = ipk.post.create_fieldplot_surface(assignment=["dc_terminal", "dc_terminal_1_2"], quantity="Temperature", plot_name="Temperature")
-vol_heat_loss = ipk.post.create_fieldplot_volume(assignment=["dc_terminal", "dc_terminal_1_2"], quantity="VolumeHeatLoss", plot_name="VolumeHeatLoss")
+vol_heat_loss = ipk.post.create_fieldplot_surface(assignment=["dc_terminal", "dc_terminal_1_2"], quantity="VolumeHeatLoss", plot_name="VolumeHeatLoss")
 
 # ## Release AEDT
 
