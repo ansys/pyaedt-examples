@@ -308,7 +308,7 @@ ipk.analyze_setup(ipk.setups[0].name)
 # Post-processing: plot temperature distribution and volumetric heat loss on the surface of the objects
 
 temp = ipk.post.create_fieldplot_surface(assignment=["dc_terminal", "dc_terminal_1_2"], quantity="Temperature", plot_name="Temperature")
-vol_heat_loss = ipk.post.create_fieldplot_surface(assignment=["dc_terminal", "dc_terminal_1_2"], quantity="VolumeHeatLoss", plot_name="VolumeHeatLoss")
+vol_heat_loss = ipk.post.create_fieldplot_volume(assignment=["dc_terminal", "dc_terminal_1_2"], quantity="VolumeHeatLoss", plot_name="VolumeHeatLoss")
 
 # ## Release AEDT
 
