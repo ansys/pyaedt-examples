@@ -60,7 +60,7 @@ jobs:
           Add-Content -Path $env:GITHUB_ENV -Value "ON_CI_CHANGED_EXAMPLES=$changed_formatted"
 
       - name: Set up Python ${{ env.MAIN_PYTHON_VERSION }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
@@ -71,6 +71,11 @@ jobs:
           python -m pip install pip -U
           python -m pip install wheel setuptools -U
           python -c "import sys; print(sys.executable)"
+
+      - name: Enable long paths in Windows
+        shell: powershell
+        run: |
+          New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
 
       - name: Install project and documentation dependencies
         run: |

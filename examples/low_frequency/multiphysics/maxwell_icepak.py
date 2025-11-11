@@ -18,7 +18,7 @@ import tempfile
 import time
 
 import ansys.aedt.core  # Interface to Ansys Electronics Desktop
-from ansys.aedt.core.generic.constants import AXIS
+from ansys.aedt.core.generic.constants import Axis
 # -
 
 # ### Define constants
@@ -81,7 +81,7 @@ core_xsection = [7, 160]
 coil = m3d.modeler.create_rectangle(
     orientation="XZ", origin=coil_origin, sizes=coil_xsection, name="Coil"
 )
-coil.sweep_around_axis(axis=AXIS.Z)
+coil.sweep_around_axis(axis=Axis.Z)
 coil_terminal = m3d.modeler.create_rectangle(
     orientation="XZ", origin=coil_origin, sizes=coil_xsection, name="Coil_terminal"
 )
@@ -89,7 +89,7 @@ coil_terminal = m3d.modeler.create_rectangle(
 core = m3d.modeler.create_rectangle(
     orientation="XZ", origin=core_origin, sizes=core_xsection, name="Core"
 )
-core.sweep_around_axis(axis=AXIS.Z)
+core.sweep_around_axis(axis=Axis.Z)
 
 # The air region should be sufficiently large to avoid interaction with the
 # coil magnetic field.
@@ -216,11 +216,11 @@ m3d.analyze_setup("Setup1")
 # +
 report = m3d.post.create_report(expressions="Matrix1.R(Winding1,Winding1)")
 solution = report.get_solution_data()
-resistance = solution.data_magnitude()[0]  # Resistance is the first matrix element.
+resistance = solution.get_expression_data(formula="magnitude")[0][0]  # Resistance is the first matrix element.
 
 report_loss = m3d.post.create_report(expressions="StrandedLossAC")
 solution_loss = report_loss.get_solution_data()
-em_loss = solution_loss.data_magnitude()[0]
+em_loss = solution_loss.get_expression_data(formula="magnitude")[0][0]
 # -
 
 # ### Analyitic calculation of DC resistance
@@ -349,7 +349,7 @@ report_temp = ipk.post.create_report(
     expressions="PointMonitor1.Temperature", primary_sweep_variable="X"
 )
 solution_temp = report_temp.get_solution_data()
-temp = solution_temp.data_magnitude()[0]
+temp = solution_temp.get_expression_data(formula="magnitude")[1][0]
 m3d.logger.info("*******Coil temperature =  {:.2f}deg C".format(temp))
 # -
 
@@ -360,12 +360,12 @@ m3d.logger.info("*******Coil temperature =  {:.2f}deg C".format(temp))
 # +
 report_new = m3d.post.create_report(expressions="Matrix1.R(Winding1,Winding1)")
 solution_new = report_new.get_solution_data()
-resistance_new = solution_new.data_magnitude()[0]
+resistance_new = solution_new.get_expression_data(formula="magnitude")[1][0]
 resistance_increase = (resistance_new - resistance) / resistance * 100
 
 report_loss_new = m3d.post.create_report(expressions="StrandedLossAC")
 solution_loss_new = report_loss_new.get_solution_data()
-em_loss_new = solution_loss_new.data_magnitude()[0]
+em_loss_new = solution_loss_new.get_expression_data(formula="magnitude")[1][0]
 
 m3d.logger.info(
     "*******Coil resistance at 150kHz AFTER temperature feedback =  {:.2f}Ohm".format(

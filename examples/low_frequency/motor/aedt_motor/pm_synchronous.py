@@ -18,6 +18,7 @@ from operator import attrgetter
 
 import ansys.aedt.core
 import matplotlib.pyplot as plt
+import numpy as np
 from ansys.aedt.core.examples.downloads import download_leaf
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.numbers_utils import Quantity
@@ -896,7 +897,7 @@ solutions = m2d.post.get_solution_data(
 #
 # List of shaft torque points and compute average.
 
-mag = solutions.data_magnitude()
+mag = solutions.get_expression_data(formula="magnitude")[1]
 avg = sum(mag) / len(mag)
 
 # ## Export a report to a file
@@ -930,12 +931,22 @@ stop_time = Quantity(2 * start_time.value, "ns")
 
 # Find the indices corresponding to the start and stop times
 
-index_start_time = time_interval.index(start_time)
-index_stop_time = time_interval.index(stop_time)
+# Convert Quantity objects to numeric values (time_intrinsics are in ns)
+numeric_start = start_time.value
+numeric_stop = stop_time.value
+
+# Use numpy.searchsorted to find the indices in the numpy array
+index_start_time = int(np.searchsorted(time_interval, numeric_start, side="left"))
+index_stop_time = int(np.searchsorted(time_interval, numeric_stop, side="right"))
+
+# Clamp indices to valid range
+index_start_time = max(0, min(index_start_time, len(time_interval) - 1))
+index_stop_time = max(0, min(index_stop_time, len(time_interval)))
 
 # ## Extract the torque values within the specified time range
 
-torque_values = solutions.data_real()
+# Ensure torque values are a numpy array for slicing
+torque_values = solutions.get_expression_data(formula="Real")[1]
 time_electric_period = time_interval[index_start_time:index_stop_time]
 torque_electric_period = torque_values[index_start_time:index_stop_time]
 
