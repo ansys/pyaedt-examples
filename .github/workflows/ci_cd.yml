@@ -104,7 +104,7 @@ jobs:
           }
 
       - name: Upload HTML documentation artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: documentation-html
           path: doc/_build/html
@@ -121,7 +121,7 @@ jobs:
           . .\doc\make.bat pdf
 
       - name: Upload PDF documentation artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: documentation-pdf
           path: doc/_build/latex
