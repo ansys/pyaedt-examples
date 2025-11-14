@@ -46,6 +46,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+
       - name: Get new/modified examples files (only for PRs)
         if: github.ref_name != 'main'
         shell: powershell
@@ -71,6 +74,11 @@ jobs:
           python -m pip install pip -U
           python -m pip install wheel setuptools -U
           python -c "import sys; print(sys.executable)"
+
+      - name: Enable long paths in Windows
+        shell: powershell
+        run: |
+          New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
 
       - name: Install project and documentation dependencies
         run: |
