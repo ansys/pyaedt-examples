@@ -299,6 +299,9 @@ def convert_examples_into_notebooks(app):
         changed_examples = [Path(f.strip()).name for f in changed_raw.split(",")]
         # Do not limit to modification and extend to new examples
         unchanged_examples = [p.name for p in EXAMPLES if p.name not in changed_examples]
+    
+    # Temporary manual addition to ensure that the example is running correctly.
+    unchanged_examples.remove('lumped_element.py')
 
     EXAMPLES_TO_NOT_EXECUTE = list(set(STATIC_EXAMPLES_TO_NOT_EXECUTE) | set(unchanged_examples))
 
