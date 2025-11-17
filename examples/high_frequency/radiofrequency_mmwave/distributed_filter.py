@@ -1,4 +1,4 @@
-# # Distributed filter design
+# # Distributed filter
 #
 # This example demonstrates using PyAEDT and the ``FilterSolutions`` module to design a low-pass Chebyshev-I filter, 
 # visualize its frequency response, and export the distributed model to HFSS.
@@ -83,8 +83,6 @@ plt.plot(freq, s21_db, linewidth=2.0, label="Synthesized S21")
 format_plot()
 plt.show()
 
-# <img src="_static/distributed_filter_response.png" width="400">
-
 # ## Export distributed model of the filter to HFSS 3D Layout and simulate
 #
 # Export the designed filter as a distributed model to Ansys HFSS 3D Layout,
@@ -99,6 +97,7 @@ distributed_design.export_to_aedt.include_return_loss_s11_enabled = True
 distributed_design.export_to_aedt.insert_hfss_3dl_design = True
 hfss3dl = distributed_design.export_to_aedt.export_design(export_format=ExportFormat.DIRECT_TO_AEDT)
 
+#Results of the exported distributed filter in HFSS 3D Layout:
 # <img src="_static/desktop_results_distributed_filter.png" width="400">
 
 # ## Plot the simulated design
@@ -121,5 +120,3 @@ plt.plot(sim_freq_ghz, sim_s11_db, linewidth=2.0, label="Simulated S11")
 plt.plot(sim_freq_ghz, sim_s21_db, linewidth=2.0, label="Simulated S21")
 format_plot()
 plt.show()
-
-# <img src="_static/simulated_distributed_filter.png" width="400">
