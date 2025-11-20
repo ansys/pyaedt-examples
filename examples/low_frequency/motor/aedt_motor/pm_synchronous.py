@@ -22,7 +22,7 @@ from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.examples.downloads import download_leaf
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.numbers_utils import Quantity
-
+import pathlib
 # -
 
 # Define constants.
