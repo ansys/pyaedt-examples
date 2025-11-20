@@ -15,10 +15,10 @@ import os
 import tempfile
 import time
 from operator import attrgetter
-
 import ansys.aedt.core
 import matplotlib.pyplot as plt
 import numpy as np
+from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.examples.downloads import download_leaf
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.numbers_utils import Quantity
@@ -26,7 +26,7 @@ from ansys.aedt.core.generic.numbers_utils import Quantity
 # -
 
 # Define constants.
-
+settings.enable_error_handler=False
 AEDT_VERSION = "2025.2"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
@@ -893,13 +893,6 @@ solutions = m2d.post.get_solution_data(
     domain="Sweep",
 )
 
-# ## Retrieve the data magnitude of an expression
-#
-# List of shaft torque points and compute average.
-
-mag = solutions.get_expression_data(formula="magnitude")[1]
-avg = sum(mag) / len(mag)
-
 # ## Export a report to a file
 #
 # Export 2D plot data to a CSV file.
@@ -920,7 +913,7 @@ time_interval = solutions.intrinsics["Time"]
 start_time = Quantity(
     unit_converter(
         values=m2d.variable_manager.design_variables["ElectricPeriod"].numeric_value
-        / 4,
+               / 4,
         unit_system="Time",
         input_units="s",
         output_units="ns",
@@ -950,6 +943,11 @@ torque_values = solutions.get_expression_data(formula="Real")[1]
 time_electric_period = time_interval[index_start_time:index_stop_time]
 torque_electric_period = torque_values[index_start_time:index_stop_time]
 
+# List of shaft torque points and compute average.
+
+mag = solutions.get_expression_data(formula="magnitude")[1]
+avg = sum(mag) / len(mag)
+
 # Plot the torque values within the specified time range with matplotlib
 #
 # Plot the graph
@@ -964,6 +962,13 @@ plt.ylabel("Torque (Nm)")
 # Title
 
 plt.title("Torque vs Time for Half Electric Period")
+
+# Check whether the example has run to completion
+try:
+    if abs(avg - 1.3205381063549289) > 0.1:
+        raise Exception(f"Error example file: {pathlib.PurePath(__file__).name}")
+except:
+    raise Exception(f"Error example file: {pathlib.PurePath(__file__).name}")
 
 # Uncomment the following line to display the matplotlib plot
 
