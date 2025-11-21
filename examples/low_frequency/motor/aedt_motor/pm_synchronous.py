@@ -18,7 +18,6 @@ from operator import attrgetter
 import ansys.aedt.core
 import matplotlib.pyplot as plt
 import numpy as np
-from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.examples.downloads import download_leaf
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.numbers_utils import Quantity
@@ -26,7 +25,6 @@ import pathlib
 # -
 
 # Define constants.
-settings.enable_error_handler=False
 AEDT_VERSION = "2025.2"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
