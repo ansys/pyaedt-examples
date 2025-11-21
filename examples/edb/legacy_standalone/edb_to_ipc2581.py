@@ -59,7 +59,7 @@ edb.nets.plot(None, None, color_by_net=True)
 
 # ## Export the EDB to an IPC2581 file.
 
-edb.export_to_ipc2581(ipc2581_file_name, "inch")
+edb.export_to_ipc2581(ipc_path=ipc2581_file_name)
 print("IPC2581 File has been saved to {}".format(ipc2581_file_name))
 
 # ## Close EDB
