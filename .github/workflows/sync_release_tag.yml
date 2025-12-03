@@ -7,6 +7,8 @@ on:
         description: "Release tag from PyAEDT to sync"
         required: true
 
+permissions: {} # Disable default permissions at the workflow level
+
 jobs:
   create-tag:
     name: Sync release tags from PyAEDT
