@@ -1,4 +1,4 @@
-name: Sync release tag from PyAEDT
+name: Workflow to sync release tags from PyAEDT
 
 on:
   workflow_dispatch:
@@ -9,6 +9,7 @@ on:
 
 jobs:
   create-tag:
+    name: Sync release tags from PyAEDT
     runs-on: ubuntu-latest
     permissions:
       contents: write
