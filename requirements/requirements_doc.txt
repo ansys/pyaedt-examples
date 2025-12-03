@@ -32,4 +32,4 @@ sphinx_design==0.6.1
 sphinxcontrib-websupport==2.0.0
 jupytext==1.17.2
 nbconvert==7.16.6
-ipywidgets==8.1.7
+ipywidgets==8.1.8
