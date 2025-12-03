@@ -28,6 +28,18 @@ permissions: {} # Disable default permissions
 
 jobs:
   
+  actions-security:
+    name: "Check actions security"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: ansys/actions/check-actions-security@21c9de9bee9692173780696d4a39964f20b9cfa3 # v10.1.5
+        with:
+          generate-summary: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          auditing-level: 'high'
+          
   doc-style:
     name: Documentation style
     runs-on: ubuntu-latest
