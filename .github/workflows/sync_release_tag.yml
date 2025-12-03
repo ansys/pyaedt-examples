@@ -22,12 +22,16 @@ jobs:
           persist-credentials: false
 
       - name: Create and push tag
+        env:
+          INPUTS_TAG: ${{ github.event.inputs.tag }}
+          PYANSYS_CI_BOT_USERNAME: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
+          PYANSYS_CI_BOT_EMAIL: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
         run: |
           # Configure git username & email
-          git config --global user.name "${{ secrets.PYANSYS_CI_BOT_USERNAME }}"
-          git config --global user.email "${{ secrets.PYANSYS_CI_BOT_EMAIL }}"
+          git config --global user.name "${PYANSYS_CI_BOT_USERNAME}"
+          git config --global user.email "${PYANSYS_CI_BOT_EMAIL}"
 
-          TAG_NAME="${{ github.event.inputs.tag }}"
+          TAG_NAME="${INPUTS_TAG}"
 
           if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
             echo "Tag $TAG_NAME already exists, skipping creation"
