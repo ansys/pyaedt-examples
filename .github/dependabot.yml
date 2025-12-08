@@ -2,9 +2,16 @@ version: 2
 updates:
   - package-ecosystem: "pip" # See documentation for possible values
     directory: "/requirements" # Location of package manifests
-    insecure-external-code-execution: allow
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 7
+      include:
+        - "*"  # Include all dependencies in cooldown
+      exclude:
+        - "ansys-sphinx-theme"
+        - "ansys-tools-visualization-interface"
+        - "ansys-pythonnet"
     labels:
       - "maintenance"
       - "dependencies"
@@ -38,7 +45,7 @@ updates:
           - "plotly"
           - "scikit-rf"
 
-  - package-ecosystem: "github-actions"
+  - package-ecosystem: "github-actions" # zizmor: ignore[dependabot-cooldown] cooldown feature is not available for github actions yet.
     directory: "/"
     schedule:
       interval: "weekly"
