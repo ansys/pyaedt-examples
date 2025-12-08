@@ -7,6 +7,10 @@ on:
         description: "Release tag from PyAEDT to sync"
         required: true
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions: {} # Disable default permissions at the workflow level
 
 jobs:
