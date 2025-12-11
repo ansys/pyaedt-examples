@@ -42,16 +42,21 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ### Define function used for plotting
 #
-# Define formal plot function.
+# This function takes a list of datasets, where each dataset contains frequency values,
+# corresponding data values, and a label. It plots the frequency response for each dataset
+# on the same graph, using a logarithmic scale for the x-axis (frequency) and a linear scale
+# for the y-axis (magnitude in dB).
 
-def format_plot():
+def plot(data_list):
+    for freq, data, label in data_list:
+        plt.plot(freq, data, linewidth=2.0, label=label)
     plt.xlabel("Frequency (Hz)")
     plt.ylabel("Magnitude S21 (dB)")
     plt.title("Frequency Response")
     plt.xscale("log")
     plt.legend()
     plt.grid()
-
+    plt.show()
 
 # ### Create distributed filter design
 #
@@ -99,10 +104,11 @@ distributed_design.substrate.substrate_dielectric_height = "200 um"
 
 freq, s11_db = distributed_design.ideal_response.s_parameters(SParametersResponseColumn.S11_DB)
 freq, s21_db = distributed_design.ideal_response.s_parameters(SParametersResponseColumn.S21_DB)
-plt.plot(freq, s11_db, linewidth=2.0, label="Synthesized S11")
-plt.plot(freq, s21_db, linewidth=2.0, label="Synthesized S21")
-format_plot()
-plt.show()
+plot_data = [
+    (freq, s11_db, "Synthesized S11"),
+    (freq, s21_db, "Synthesized S21"),
+]
+plot(plot_data)
 
 # <img src="_static/distributed_filter_response.png" width="400">
 
@@ -144,12 +150,13 @@ sim_freq = solutions.primary_sweep_values
 sim_freq_ghz = [i * 1e9 for i in sim_freq]
 sim_s11_db = solutions.get_expression_data("S(Port1,Port1)", "dB20")[1]
 sim_s21_db = solutions.get_expression_data("S(Port2,Port1)", "dB20")[1]
-plt.plot(freq, s11_db, linewidth=2.0, label="Synthesized S11")
-plt.plot(freq, s21_db, linewidth=2.0, label="Synthesized S21")
-plt.plot(sim_freq_ghz, sim_s11_db, linewidth=2.0, label="Simulated S11")
-plt.plot(sim_freq_ghz, sim_s21_db, linewidth=2.0, label="Simulated S21")
-format_plot()
-plt.show()
+plot_data = [
+    (freq, s11_db, "Synthesized S11"),
+    (freq, s21_db, "Synthesized S21"),
+    (sim_freq_ghz, sim_s11_db, "Simulated S11"),
+    (sim_freq_ghz, sim_s21_db, "Simulated S21")
+]
+plot(plot_data)
 
 # <img src="_static/simulated_distributed_filter.png" width="400">
 
