@@ -30,7 +30,7 @@ jobs:
     name: Documentation style
     runs-on: ubuntu-latest
     steps:
-      - uses: ansys/actions/doc-style@v10
+      - uses: ansys/actions/doc-style@21c9de9bee9692173780696d4a39964f20b9cfa3 # v10.1.5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -42,7 +42,7 @@ jobs:
     name: Build documentation
     runs-on: [self-hosted, Windows, pyaedt-examples]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with:
           fetch-depth: 0
 
@@ -63,7 +63,7 @@ jobs:
           Add-Content -Path $env:GITHUB_ENV -Value "ON_CI_CHANGED_EXAMPLES=$changed_formatted"
 
       - name: Set up Python ${{ env.MAIN_PYTHON_VERSION }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
@@ -104,7 +104,7 @@ jobs:
           }
 
       - name: Upload HTML documentation artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: documentation-html
           path: doc/_build/html
@@ -121,7 +121,7 @@ jobs:
           . .\doc\make.bat pdf
 
       - name: Upload PDF documentation artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: documentation-pdf
           path: doc/_build/latex
@@ -134,7 +134,7 @@ jobs:
     needs: [doc-build]
     steps:
       - name: Deploy the documentation
-        uses: ansys/actions/doc-deploy-dev@v10
+        uses: ansys/actions/doc-deploy-dev@21c9de9bee9692173780696d4a39964f20b9cfa3 # v10.1.5
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
