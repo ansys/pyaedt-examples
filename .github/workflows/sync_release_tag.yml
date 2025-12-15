@@ -1,4 +1,4 @@
-name: Sync release tag from PyAEDT
+name: Workflow to sync release tags from PyAEDT
 
 on:
   workflow_dispatch:
@@ -7,22 +7,35 @@ on:
         description: "Release tag from PyAEDT to sync"
         required: true
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: {} # Disable default permissions at the workflow level
+
 jobs:
   create-tag:
+    name: Sync release tags from PyAEDT
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write # Needed to push tag on remote
     steps:
       - name: Checkout repository # zizmor: ignore[artipacked] , credentials must be persisted in this case
-        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
 
       - name: Create and push tag
+        env:
+          INPUTS_TAG: ${{ github.event.inputs.tag }}
+          PYANSYS_CI_BOT_USERNAME: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
+          PYANSYS_CI_BOT_EMAIL: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
         run: |
           # Configure git username & email
-          git config --global user.name "${{ secrets.PYANSYS_CI_BOT_USERNAME }}"
-          git config --global user.email "${{ secrets.PYANSYS_CI_BOT_EMAIL }}"
+          git config --global user.name "${PYANSYS_CI_BOT_USERNAME}"
+          git config --global user.email "${PYANSYS_CI_BOT_EMAIL}"
 
-          TAG_NAME="${{ github.event.inputs.tag }}"
+          TAG_NAME="${INPUTS_TAG}"
 
           if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
             echo "Tag $TAG_NAME already exists, skipping creation"

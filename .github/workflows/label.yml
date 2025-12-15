@@ -10,13 +10,17 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions: {} # Disable default permissions
+
 jobs:
 
   label-syncer:
     name: Syncer
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
       - uses: micnncim/action-label-syncer@3abd5ab72fda571e69fffd97bd4e0033dd5f495c # v1.3.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -26,7 +30,7 @@ jobs:
     needs: [label-syncer]
     permissions:
       contents: read
-      pull-requests: write
+      pull-requests: write # Needed to add existing labels to PRs
     runs-on: ubuntu-latest
     steps:
 
@@ -67,7 +71,11 @@ jobs:
         labels: bug
 
   commenter:
+    name: Suggest labels if none assigned
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write # Needed to create deployment comments on PRs
     steps:
     - name: Suggest to add labels
       uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5.0.0
