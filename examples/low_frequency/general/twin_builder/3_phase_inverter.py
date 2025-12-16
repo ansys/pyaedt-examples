@@ -28,6 +28,7 @@ NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 TB_DESIGN_NAME = "3ph_circuit"
 Q3D_DESIGN_NAME = "q3d_3ph"
+ICEPAK_DESIGN_NAME = "Icepak_1"
 
 # ## Create temporary directory
 #
@@ -66,6 +67,8 @@ tb = ansys.aedt.core.TwinBuilder(
 # ## Add Q3D component to Twinbuilder schematic
 #
 # Add a Q3D dynamic link to the Twinbuilder schematic.
+# The Q3D State Space component creates a state-space model that is valid over a range of frequencies.
+# The component uses RLGC model extracted from the Q3D design to create a frequency sweep.
 
 comp = tb.add_q3d_dynamic_component(
     source_project=tb.project_name, source_design_name=Q3D_DESIGN_NAME, setup="Setup1", sweep_name="Sweep1", coupling_matrix_name="Original", state_space_dynamic_link_type="RLGC"
@@ -249,53 +252,72 @@ q3d.edit_sources(harmonic_loss=harmonic_loss)
 plot = q3d.post.create_fieldplot_surface(["dc_terminal", "dc_terminal_1_2"], "Harmonic_Loss_Density", intrinsics={"Freq": "0.5GHz", "Phase": "0deg"})
 plot.change_plot_scale(minimum_value="0", maximum_value="1040000", is_log=True)
 
-# ## Create Icepak Target Design
+# ## Create Icepak Design
 #
-# Create an EM Target Design to link the results to Icepak to run a thermal simulation
+# Create an Icepak to run a thermal simulation
 
-q3d.create_em_target_design("Icepak", design_setup="Natural")
-ipk = get_pyaedt_app(tb.project_name, "IcepakDesign1")
+ipk = ansys.aedt.core.Icepak(version=AEDT_VERSION, design=ICEPAK_DESIGN_NAME)
+
+# ## Copy bodies from Q3D to Icepak
+#
+# Copy solid bodies from Q3D design to Icepak design
+
+copy_bodies_from_q3d = q3d.modeler.get_objects_by_material("copper") + q3d.modeler.sheet_objects
+ipk.copy_solid_bodies_from(q3d, assignment=copy_bodies_from_q3d, include_sheets=True)
+
+# ## Change region padding and create subregion
+#
+# Change region padding and create subregion to enclose the objects imported from Q3D
+
+ipk.modeler.change_region_padding(
+    padding_data=[100, 100, 50, 50, "200mm", "200mm"], padding_type=["Percentage Offset", "Percentage Offset", "Percentage Offset", "Percentage Offset", "Absolute Offset", "Absolute Offset"]
+)
+ipk.modeler.get_objects_by_material("air")[0].model = False
+subregion = ipk.modeler.create_subregion(padding_values=[10, 10, 10, 10, 50, 50], padding_types="Percentage Offset", assignment=["dc_terminal", "dc_terminal_1_2"], name="Subregion")
+
+# ## Assign EM losses
+#
+# Assign EM losses from Q3D to the objects imported in Icepak
+
+variables_mapping = {}
+for key, value in q3d.variable_manager.design_variables.items():
+    variables_mapping[key] = value.expression
+
+ipk.assign_em_losses(
+    design=Q3D_DESIGN_NAME,
+    setup="Setup1",
+    sweep="LastAdaptive",
+    parameters=variables_mapping,
+    assignment=["dc_terminal", "dc_terminal_1_2"],
+)
+
+EM_loss = ipk.boundaries_by_type["EMLoss"][0]
+EM_loss.props["ForceSourceToSolve"] = False
+EM_loss.props["PreservePartnerSoln"] = False
+
+# ## Assign stationary wall boundary condition
+#
+# Assign stationary wall boundary condition with temperature to the sources
+
+for source in ["module_a_minus", "module_a_plus", "module_b_minus", "module_b_plus", "module_c_minus", "module_c_plus"]:
+    ipk.assign_stationary_wall_with_temperature(
+        source,
+        name=f"{source}",
+        temperature=80,
+        thickness="10mm",
+        material="Al-Extruded",
+        radiate=False,
+        radiate_surf_mat="Steel-oxidised-surface",
+        shell_conduction=True,
+    )
 
 # ## Icepak setup
 #
-# Set "TemperatureOnly" as problem type in the Icepak setup
+# Set "Temperature" as the only problem type in the Icepak setup
 
-setup = ipk.setups[0]
-setup.properties["Problem Type"] = "TemperatureOnly"
-
-# ## Create a subregion
-#
-# Create subregion to enclose the objects imported from Q3D
-
-subregion = ipk.modeler.create_subregion(padding_values=[10, 10, 10, 10, 50, 50], padding_types="Percentage Offset", assignment=["dc_terminal", "dc_terminal_1_2"], name="Subregion")
-
-# ## Icepak boundaries
-#
-# When creating an Icepak target design the setup problem type is set by default to both "Temperature" and "Flow".
-# When "Flow" is enabled by default, two "Opening" boundary conditions are set automatically at the extremities
-# of the region.
-# Since we change the problem type to "TemperatureOnly", we need to delete those boundary conditions.
-
-[bound.delete() for bound in ipk.boundaries_by_type["Opening"]]
-
-# Assign stationary wall boundary condition with temperature
-
-ipk.assign_stationary_wall_with_temperature(
-    ["module_a_minus", "module_a_plus", "module_b_minus", "module_b_plus", "module_c_minus", "module_c_plus"],
-    name="StationaryWall",
-    temperature=80,
-    thickness="10mm",
-    material="Al-Extruded",
-    radiate=False,
-    radiate_surf_mat="Steel-oxidised-surface",
-    shell_conduction=True,
-)
-
-# ## Mesh region
-#
-# Assign mesh region to the subregion
-
-mesh_subregion = ipk.mesh.assign_mesh_region(assignment=[subregion.name], level=5, name="MeshSubregion")
+setup = ipk.create_setup()
+setup.props["Include Flow"] = False
+ipk.analyze_setup(ipk.setups[0].name)
 
 # ## Analysis
 #
