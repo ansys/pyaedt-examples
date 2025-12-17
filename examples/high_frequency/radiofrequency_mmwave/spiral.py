@@ -14,6 +14,7 @@ import tempfile
 import time
 
 import ansys.aedt.core
+from ansys.aedt.core.generic.constants import Plane, Axis
 # -
 
 # Define constants.
@@ -110,23 +111,23 @@ hfss.modeler.create_box(
 # Create port 1.
 
 hfss.modeler.create_rectangle(
-    orientation=ansys.aedt.core.constants.PLANE.YZ,
+    orientation=Plane.YZ,
     origin=[abs(x1) + 5, y0 - width / 2, -gap - thickness / 2],
     sizes=[width, "-Tsub+{}{}".format(gap, hfss.modeler.model_units)],
     name="port1",
 )
-hfss.lumped_port(assignment="port1", integration_line=ansys.aedt.core.constants.AXIS.Z)
+hfss.lumped_port(assignment="port1", integration_line=Axis.Z)
 
 # Create port 2.
 
 create_line([(x1 + width / 2, y1, 0), (x1 - 5, y1, 0)])
 hfss.modeler.create_rectangle(
-    ansys.aedt.core.constants.PLANE.YZ,
+    Plane.YZ,
     [x1 - 5, y1 - width / 2, -thickness / 2],
     [width, "-Tsub"],
     name="port2",
 )
-hfss.lumped_port(assignment="port2", integration_line=ansys.aedt.core.constants.AXIS.Z)
+hfss.lumped_port(assignment="port2", integration_line=Axis.Z)
 
 # Create the silicon substrate and the ground plane.
 

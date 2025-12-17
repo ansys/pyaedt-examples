@@ -173,7 +173,7 @@ with open(pi_json, "w") as f:
 #
 # Load the configuration from the JSON file.
 
-edbapp = Edb(aedb, edbversion=AEDT_VERSION)
+edbapp = Edb(aedb, version=AEDT_VERSION)
 edbapp.configuration.load(config_file=pi_json)
 edbapp.configuration.run()
 edbapp.save()
