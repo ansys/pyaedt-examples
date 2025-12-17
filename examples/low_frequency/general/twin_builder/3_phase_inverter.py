@@ -277,7 +277,8 @@ subregion = ipk.modeler.create_subregion(padding_values=[10, 10, 10, 10, 50, 50]
 
 # ## Assign EM losses
 #
-# Assign EM losses from Q3D to the objects imported in Icepak
+# Assign EM losses from Q3D to the objects imported in Icepak.
+# Set the harmonic loss values computed in Q3D as intrinsic values for the EM loss boundary condition.
 
 variables_mapping = {}
 for key, value in q3d.variable_manager.design_variables.items():
