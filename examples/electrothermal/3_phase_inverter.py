@@ -1,10 +1,9 @@
 # # Q3D Dynamic link to Twin Builder for the DC-Link bus bars of a drive inverter
 #
-# This example demonstrates how to link an existing Q3D Extractor Design of the inverter DC-Link bus bars
-# with a frequency sweep to a Twin Builder design using Q3D Dynamic Component - State Space link.
-# This will integrate the broadband parasitic model of the bus bars into the Twin Builder schematic.
+# The example based in the DC-Link bus bars of a three-phase inverter covers the electro-thermal workflow
+# with the Harmonic loss calculation in Q3D Extractor and temperature and flow calculation in Icepak.
 #
-# Keywords: **DCLink**, **Twinbuilder**, **Q3D**.
+# Keywords: **Twinbuilder**, **Q3D**, **Icepak**, **Electrothermal**.
 
 # ## Perform imports and define constants
 #
@@ -169,6 +168,8 @@ v_dc = tb.post.create_report(
 # ## Twinbuilder Post-processing : Frequency domain
 #
 # Create spectral reports for all sources in the whole spectral domain.
+# Get the list of sources from the Q3D design.
+# Then, create a spectral report in Twinbuilder for the real and imaginary parts of the source currents.
 
 q3d = get_pyaedt_app(tb.project_name, Q3D_DESIGN_NAME)
 sources = [source.name for source in q3d.boundaries_by_type["Source"]]
