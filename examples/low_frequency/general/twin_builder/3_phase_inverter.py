@@ -196,7 +196,7 @@ report_path = tb.post.export_report_to_csv(temp_folder.name, "Q3D_sources")
 
 # ## Filter data
 #
-#
+# Filter out rows where at least one between real and imaginary part of any source current is below a defined threshold.
 
 q3d_sources_unfiltered = pd.read_csv(report_path, sep=",")
 threshold = 0.01
@@ -291,25 +291,33 @@ ipk.assign_em_losses(
     assignment=["dc_terminal", "dc_terminal_1_2"],
 )
 
+k = list(q3d.design_datasets.keys())[0]
+result = [f"{v / 1000}{q3d.design_datasets[k].xunit}" for v in q3d.design_datasets[k].x]
+
 EM_loss = ipk.boundaries_by_type["EMLoss"][0]
+EM_loss.auto_update = False
 EM_loss.props["ForceSourceToSolve"] = False
 EM_loss.props["PreservePartnerSoln"] = False
+EM_loss.props["Intrinsics"] = ["500MHz"]
+EM_loss.props["Q3DEMLossType"] = "HarmonicLoss"
+EM_loss.props["IntrinsicsHarmonicLoss"] = result
+EM_loss.props["HarmonicLossSweepCoupling"] = False
+EM_loss.update()
 
 # ## Assign stationary wall boundary condition
 #
 # Assign stationary wall boundary condition with temperature to the sources
 
-for source in ["module_a_minus", "module_a_plus", "module_b_minus", "module_b_plus", "module_c_minus", "module_c_plus"]:
-    ipk.assign_stationary_wall_with_temperature(
-        source,
-        name=f"{source}",
-        temperature=80,
-        thickness="10mm",
-        material="Al-Extruded",
-        radiate=False,
-        radiate_surf_mat="Steel-oxidised-surface",
-        shell_conduction=True,
-    )
+ipk.assign_stationary_wall_with_temperature(
+    geometry=["module_a_minus", "module_a_plus", "module_b_minus", "module_b_plus", "module_c_minus", "module_c_plus"],
+    name="stationary_wall",
+    temperature=80,
+    thickness="10mm",
+    material="Al-Extruded",
+    radiate=False,
+    radiate_surf_mat="Steel-oxidised-surface",
+    shell_conduction=True,
+)
 
 # ## Icepak setup
 #
