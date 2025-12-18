@@ -188,10 +188,10 @@ print(temp_folder.name)
 #
 # Load EDB into SIwave.
 
-siwave = Siwave(version=AEDT_VERSION)
+siwave = Siwave(specified_version=AEDT_VERSION)
 time.sleep(10)
 siwave.open_project(proj_path=aedb)
-siwave.save_project(proj_path=temp_folder.name, projectName="ansys")
+siwave.save_project(projectpath=temp_folder.name, projectName="ansys")
 
 # ## Analyze
 
