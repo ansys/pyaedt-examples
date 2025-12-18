@@ -1,7 +1,7 @@
 # # Q3D Dynamic link to Twin Builder for the DC-Link bus bars of a drive inverter
 #
 # The example based in the DC-Link bus bars of a three-phase inverter covers the electro-thermal workflow
-# with the Harmonic loss calculation in Q3D Extractor and temperature and flow calculation in Icepak.
+# with the Harmonic loss calculation in Q3D Extractor and temperature and thermal anlaysis in Icepak.
 #
 # Keywords: **Twinbuilder**, **Q3D**, **Icepak**, **Electrothermal**.
 
