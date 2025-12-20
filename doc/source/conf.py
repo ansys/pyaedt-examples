@@ -303,7 +303,9 @@ def convert_examples_into_notebooks(app):
         unchanged_examples = [p.name for p in EXAMPLES if p.name not in changed_examples]
     
     # Temporary manual addition to ensure that the example is running correctly.
-    unchanged_examples.remove('lumped_element.py')
+    # NOTE: This should either be removed or the example should be removed from STATIC_EXAMPLES_TO_NOT_EXECUTE
+    if 'lumped_element.py' in unchanged_examples:
+        unchanged_examples.remove('lumped_element.py')
 
     EXAMPLES_TO_NOT_EXECUTE = list(set(STATIC_EXAMPLES_TO_NOT_EXECUTE) | set(unchanged_examples))
 
