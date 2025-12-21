@@ -26,5 +26,6 @@
 * [mocchialone](https://github.com/marcoglasses)
 * [Ramin Aghajafari](https://github.com/ramin4667)
 * [Simon Vandenbrouck](https://github.com/svandenb-dev)
+* [SMoraisDev](https://github.com/SMoraisDev)
 * [Sébastien Morais](https://github.com/SMoraisAnsys)
 * [Tiziana Bertoncelli](https://github.com/tizianrot)
