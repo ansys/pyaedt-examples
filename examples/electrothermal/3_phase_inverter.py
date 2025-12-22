@@ -70,7 +70,7 @@ tb = ansys.aedt.core.TwinBuilder(
 # The component uses RLGC model extracted from the Q3D design to create a frequency sweep.
 
 comp = tb.add_q3d_dynamic_component(
-    source_project=tb.project_name, source_design_name=Q3D_DESIGN_NAME, setup="Setup1", sweep_name="Sweep1", coupling_matrix_name="Original", state_space_dynamic_link_type="RLGC"
+    source_project=tb.project_name, source_design_name=Q3D_DESIGN_NAME, setup="Setup1", sweep="Sweep1", coupling_matrix_name="Original", state_space_dynamic_link_type="RLGC"
 )
 
 tb.set_active_design(TB_DESIGN_NAME)
