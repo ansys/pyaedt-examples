@@ -170,7 +170,7 @@ for cp_iter in range(1, max_iter + 1):
     # This information is required by the ``refresh_dynamic_link()`` and ``push_excitations()`` methods.
     hfss_component_name = ""
     hfss_instance_name = ""
-    for component in circuit.modeler.components.components.values():
+    for component in circuit.modeler.schematic.components.values():
         if (
             component.model_name is not None
             and hfss.design_name in component.model_name
@@ -197,7 +197,7 @@ for cp_iter in range(1, max_iter + 1):
     # Evaluate the power loss on the resistor.
     r_losses = circuit.post.get_solution_data(
         expressions="0.5*mag(I(I1)*V(V1))"
-    ).data_magnitude()[0]
+    ).get_expression_data()[1][0]
 
     # Save the losses in the stats.
     stats[cp_iter]["losses"] = r_losses
