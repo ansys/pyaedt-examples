@@ -251,7 +251,15 @@ q3d.edit_sources(harmonic_loss=harmonic_loss)
 # Plot the harmonic loss density on the surface of the objects
 
 plot = q3d.post.create_fieldplot_surface(["dc_terminal", "dc_terminal_1_2"], "Harmonic_Loss_Density", intrinsics={"Freq": "0.5GHz", "Phase": "0deg"})
-plot.change_plot_scale(minimum_value="0", maximum_value="1040000", is_log=True)
+q3d.save_project()
+
+fs = plot.folder_settings
+fs.scale_settings.scale_type = "MinMax"
+fs.update()
+fs.scale_settings.scale_settings.max_value = 1040000
+fs.scale_settings.scale_settings.min_value = 0.1
+fs.scale_settings.log = True
+fs.update()
 
 # ## Create Icepak Design
 #
