@@ -17,7 +17,12 @@ import time
 from operator import attrgetter
 
 import ansys.aedt.core
+import matplotlib.pyplot as plt
+import numpy as np
 from ansys.aedt.core.examples.downloads import download_leaf
+from ansys.aedt.core.generic.constants import unit_converter
+from ansys.aedt.core.generic.numbers_utils import Quantity
+
 # -
 
 # Define constants.
@@ -147,9 +152,7 @@ for k, v in oper_params.items():
 # Define the path for non-linear material properties.
 # Materials are stored in text files.
 
-filename_lam, filename_PM = download_leaf(
-    local_path=temp_folder.name
-)
+filename_lam, filename_PM = download_leaf(local_path=temp_folder.name)
 
 # ## Create first material
 #
@@ -160,31 +163,28 @@ mat_coils.update()
 mat_coils.conductivity = "49288048.9198"
 mat_coils.permeability = "1"
 
-# ## Create second material
+# ## Create materials with a non-linear permeability
 #
-# Create the material ``"Arnold_Magnetics_N30UH_80C"``.
-# The BH curve is read from a tabbed CSV file. A list named ``BH_List_PM``
-# is created. This list is passed to the ``mat_PM.permeability.value``
-# variable.
+# Below there are two examples of how to create materials with a non-linear permeability.
+# The first example imports the BH curve as a 1d dataset in the project.
+# The second example reads the BH curve from a tabbed CSV file.
+
+# Create second material ``"Arnold_Magnetics_N30UH_80C"``.
+# The BH curve is imported as a 1d dataset in the project.
+# It means that the BH curve is available in ``Project > Datasets`` in AEDT.
+# Once the dataset is imported, it can be assigned to the permeability value.
 
 mat_PM = m2d.materials.add_material(name="Arnold_Magnetics_N30UH_80C_new")
 mat_PM.update()
 mat_PM.conductivity = "555555.5556"
 mat_PM.set_magnetic_coercivity(value=-800146.66287534, x=1, y=0, z=0)
 mat_PM.mass_density = "7500"
-BH_List_PM = []
-with open(filename_PM) as f:
-    reader = csv.reader(f, delimiter="\t")
-    next(reader)
-    for row in reader:
-        BH_List_PM.append([float(row[0]), float(row[1])])
-mat_PM.permeability.value = BH_List_PM
+BH_List_PM = m2d.import_dataset1d(filename_PM, name="Arnold_Magnetics_N30UH_80C")
+mat_PM.permeability.value = [[a, b] for a, b in zip(BH_List_PM.x, BH_List_PM.y)]
 
-# ## Create third material
-#
-# Create the laminated material ``30DH_20C_smooth``.
-# This material has a BH curve and a core loss model,
-# which is set to electrical steel.
+# Create the third material laminated ``30DH_20C_smooth``.
+# The BH curve is read from a tabbed CSV file. A list named ``BH_List_lam``
+# is created. This list is passed to the ``mat_lam.permeability.value`` variable.
 
 mat_lam = m2d.materials.add_material("30DH_20C_smooth")
 mat_lam.update()
@@ -300,7 +300,7 @@ OPM1_id.color = (0, 128, 64)
 # In Maxwell 2D, you assign magnetization via the coordinate system.
 # The inputs are the object name, coordinate system name, and inner or outer magnetization.
 
-# +
+
 def create_cs_magnets(pm_id, cs_name, point_direction):
     edges = sorted(pm_id.edges, key=attrgetter("length"), reverse=True)
 
@@ -319,8 +319,6 @@ def create_cs_magnets(pm_id, cs_name, point_direction):
     pm_id.part_coordinate_system = cs_name
     m2d.modeler.set_working_coordinate_system("Global")
 
-
-# -
 
 # ## Create coordinate system for PMs in face center
 #
@@ -889,15 +887,17 @@ m2d.post.plot_field_from_fieldplot(plot1.name, show=False)
 # Plot the desired expression by using the Matplotlib ``plot()`` function.
 
 solutions = m2d.post.get_solution_data(
-    expressions="Moving1.Torque", primary_sweep_variable="Time", domain="Sweep"
+    expressions="Moving1.Torque",
+    setup_sweep_name=m2d.nominal_sweep,
+    primary_sweep_variable="Time",
+    domain="Sweep",
 )
-# solutions.plot()
 
 # ## Retrieve the data magnitude of an expression
 #
 # List of shaft torque points and compute average.
 
-mag = solutions.data_magnitude()
+mag = solutions.get_expression_data(formula="magnitude")[1]
 avg = sum(mag) / len(mag)
 
 # ## Export a report to a file
@@ -907,6 +907,69 @@ avg = sum(mag) / len(mag)
 m2d.post.export_report_to_file(
     output_dir=temp_folder.name, plot_name="TorquePlots", extension=".csv"
 )
+
+# ## Retrieve the data values of Torque within a time range
+#
+# Retrieve the data values of Torque within a specific time range of the electric period.
+# Since the example analyzes only one period, the time range is from ``ElectricPeriod/4`` to ``ElectricPeriod/2``.
+
+time_interval = solutions.intrinsics["Time"]
+
+# Convert the start and stop time of the electric period range to nanoseconds
+
+start_time = Quantity(
+    unit_converter(
+        values=m2d.variable_manager.design_variables["ElectricPeriod"].numeric_value
+        / 4,
+        unit_system="Time",
+        input_units="s",
+        output_units="ns",
+    ),
+    "ns",
+)
+stop_time = Quantity(2 * start_time.value, "ns")
+
+# Find the indices corresponding to the start and stop times
+
+# Convert Quantity objects to numeric values (time_intrinsics are in ns)
+numeric_start = start_time.value
+numeric_stop = stop_time.value
+
+# Use numpy.searchsorted to find the indices in the numpy array
+index_start_time = int(np.searchsorted(time_interval, numeric_start, side="left"))
+index_stop_time = int(np.searchsorted(time_interval, numeric_stop, side="right"))
+
+# Clamp indices to valid range
+index_start_time = max(0, min(index_start_time, len(time_interval) - 1))
+index_stop_time = max(0, min(index_stop_time, len(time_interval)))
+
+# ## Extract the torque values within the specified time range
+
+# Ensure torque values are a numpy array for slicing
+torque_values = solutions.get_expression_data(formula="Real")[1]
+time_electric_period = time_interval[index_start_time:index_stop_time]
+torque_electric_period = torque_values[index_start_time:index_stop_time]
+
+# Plot the torque values within the specified time range with matplotlib
+#
+# Plot the graph
+
+plt.plot(time_electric_period, torque_electric_period, marker="o")
+
+# Labels
+
+plt.xlabel("Time (ns)")
+plt.ylabel("Torque (Nm)")
+
+# Title
+
+plt.title("Torque vs Time for Half Electric Period")
+
+# Uncomment the following line to display the matplotlib plot
+
+# +
+# plt.show()
+# -
 
 # ## Release AEDT
 

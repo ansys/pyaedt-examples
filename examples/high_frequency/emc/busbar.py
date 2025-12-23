@@ -100,18 +100,18 @@ q3d.plot(
 # +
 q3d.auto_identify_nets()
 
-q3d.source(assignment="Bar1", direction=q3d.AxisDir.XPos, name="Source1")
-q3d.sink(assignment="Bar1", direction=q3d.AxisDir.XNeg, name="Sink1")
+q3d.source(assignment="Bar1", direction=q3d.axis_directions.XPos, name="Source1")
+q3d.sink(assignment="Bar1", direction=q3d.axis_directions.XNeg, name="Sink1")
 
-q3d.source(assignment="Bar2", direction=q3d.AxisDir.XPos, name="Source2")
-q3d.sink(assignment="Bar2", direction=q3d.AxisDir.XNeg, name="Sink2")
-q3d.source(assignment="Bar3", direction=q3d.AxisDir.XPos, name="Source3")
-bar3_sink = q3d.sink(assignment="Bar3", direction=q3d.AxisDir.YPos, name="Sink3")
+q3d.source(assignment="Bar2", direction=q3d.axis_directions.XPos, name="Source2")
+q3d.sink(assignment="Bar2", direction=q3d.axis_directions.XNeg, name="Sink2")
+q3d.source(assignment="Bar3", direction=q3d.axis_directions.XPos, name="Source3")
+bar3_sink = q3d.sink(assignment="Bar3", direction=q3d.axis_directions.YPos, name="Sink3")
 # -
 
 # Print information about nets and terminal assignments.
 
-print(q3d.nets)
+print(q3d.net_names)
 print(q3d.net_sinks("Bar1"))
 print(q3d.net_sinks("Bar2"))
 print(q3d.net_sinks("Bar3"))
@@ -162,10 +162,10 @@ mr_series2.add_operation(
 freq_sweep_name = "my_sweep"
 setup1 = q3d.create_setup(props={"AdaptiveFreq": "1000MHz"})
 sweep = setup1.create_linear_step_sweep(
-    freqstart=0,
-    freqstop=10,
+    start_frequency=0,
+    stop_frequency=10,
     step_size=0.05,
-    sweepname=freq_sweep_name,
+    name=freq_sweep_name,
     sweep_type="Interpolating",
 )
 

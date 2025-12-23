@@ -21,6 +21,7 @@ import time
 import csv
 
 import ansys.aedt.core  # Interface to Ansys Electronics Desktop
+from ansys.aedt.core.generic.constants import Axis
 # -
 
 # ### Define constants
@@ -59,7 +60,7 @@ m3d = ansys.aedt.core.Maxwell3d(
 # ### Declare and initialize design parameters
 # The ``angle`` parameter will be used to sweep through the actuators rotational motion
 
-m3d["angle"] = "29deg"
+m3d["angle"] = "0deg"
 
 # ### Create 3D model
 #
@@ -101,27 +102,27 @@ arm_steel.permeability.value = bh_curve
 
 # #### Create outer arm
 
-outer_arm = m3d.modeler.create_cylinder(orientation=ansys.aedt.core.constants.AXIS.Z ,origin=[0,0,0],radius=104.5,height=25.4,num_sides=0, name="Outer_arm", material=arm_steel.name)
-cylinder_tool = m3d.modeler.create_cylinder(orientation=ansys.aedt.core.constants.AXIS.Z ,origin=[0,0,0],radius=83.1,height=25.4,num_sides=0, name="Cylinder_tool")
+outer_arm = m3d.modeler.create_cylinder(orientation=Axis.Z ,origin=[0,0,0],radius=104.5,height=25.4,num_sides=0, name="Outer_arm", material=arm_steel.name)
+cylinder_tool = m3d.modeler.create_cylinder(orientation=Axis.Z ,origin=[0,0,0],radius=83.1,height=25.4,num_sides=0, name="Cylinder_tool")
 m3d.modeler.subtract([outer_arm],[cylinder_tool], keep_originals=False)
 box_1 = m3d.modeler.create_box(origin=[-13.9 ,0 ,0],sizes=[27.8,-40,25.4], name="Box1")
 m3d.modeler.move(box_1,vector=[0,-45,0])
 m3d.modeler.duplicate_and_mirror(assignment=box_1,origin=[0,0,0],vector=[0,1,0])
 m3d.modeler.unite([outer_arm, box_1.name, box_1.name+"_1"])
-cylinder_1 = m3d.modeler.create_cylinder(orientation=ansys.aedt.core.constants.AXIS.Z ,origin=[0,0,0],radius=53.75,height=25.4,num_sides=0, name="Cylinder1")
+cylinder_1 = m3d.modeler.create_cylinder(orientation=Axis.Z ,origin=[0,0,0],radius=53.75,height=25.4,num_sides=0, name="Cylinder1")
 m3d.modeler.subtract([outer_arm],[cylinder_1], keep_originals=False)
 outer_arm.color="(192 192 192)"
 
 # #### Create inner arm
 
-inner_arm = m3d.modeler.create_cylinder(orientation=ansys.aedt.core.constants.AXIS.Z ,origin=[0,0,0],radius=38.1,height=25.4,num_sides=0, name="Inner_arm", material=arm_steel.name)
-shaft = m3d.modeler.create_cylinder(orientation=ansys.aedt.core.constants.AXIS.Z ,origin=[0,0,0],radius=25.4,height=25.4,num_sides=0, name="shaft")
+inner_arm = m3d.modeler.create_cylinder(orientation=Axis.Z ,origin=[0,0,0],radius=38.1,height=25.4,num_sides=0, name="Inner_arm", material=arm_steel.name)
+shaft = m3d.modeler.create_cylinder(orientation=Axis.Z ,origin=[0,0,0],radius=25.4,height=25.4,num_sides=0, name="shaft")
 m3d.modeler.subtract([inner_arm],[shaft], keep_originals=False)
 box_2 = m3d.modeler.create_box(origin=[-12.7 ,0 ,0],sizes=[25.4,-20,25.4], name="Box2")
 m3d.modeler.move(box_2,vector=[0,-35,0])
 m3d.modeler.duplicate_and_mirror(assignment=box_2,origin=[0,0,0],vector=[0,1,0])
 m3d.modeler.unite([inner_arm, box_2.name, box_2.name+"_1"])
-finalpole2 = m3d.modeler.create_cylinder(orientation=ansys.aedt.core.constants.AXIS.Z ,origin=[0,0,0],radius=51.05,height=25.4,num_sides=0, name="finalpole2")
+finalpole2 = m3d.modeler.create_cylinder(orientation=Axis.Z ,origin=[0,0,0],radius=51.05,height=25.4,num_sides=0, name="finalpole2")
 m3d.modeler.intersect(assignment=[inner_arm, finalpole2])
 inner_arm.color="(192 192 192)"
 
@@ -135,12 +136,12 @@ m3d.modeler.rotate(assignment=[inner_arm], axis="RelativeCS1" , angle="angle")
 
 # #### Create coils
 
-coil1 = m3d.modeler.create_rectangle(orientation=ansys.aedt.core.constants.AXIS.X,origin=[0,0,15.5],sizes=[17,24], name="coil1", material="copper")
+coil1 = m3d.modeler.create_rectangle(orientation=Axis.X,origin=[0,0,15.5],sizes=[17,24], name="coil1", material="copper")
 coil1.color="(249 186 70)"
-path_rectangle = m3d.modeler.create_rectangle(orientation=ansys.aedt.core.constants.AXIS.Y,origin=[-17,0,-15.5],sizes=[31,34], name="path")
+path_rectangle = m3d.modeler.create_rectangle(orientation=Axis.Y,origin=[-17,0,-15.5],sizes=[31,34], name="path")
 m3d.modeler.uncover_faces([path_rectangle.faces[0]])
 m3d.modeler.sweep_along_path(assignment=coil1, sweep_object=path_rectangle)
-round = m3d.modeler.create_cylinder(orientation=ansys.aedt.core.constants.AXIS.Y ,origin=[0,0,0],radius=46.238512086788,height=17,num_sides=0, name="Round")
+round = m3d.modeler.create_cylinder(orientation=Axis.Y ,origin=[0,0,0],radius=46.238512086788,height=17,num_sides=0, name="Round")
 m3d.modeler.intersect(assignment=[coil1, round])
 m3d.modeler.move(assignment=coil1,vector=[0,54.5,0])
 m3d.modeler.duplicate_and_mirror(assignment=coil1,origin=[0,0,0],vector=[0,1,0])

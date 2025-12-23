@@ -17,6 +17,7 @@ import tempfile
 import time
 
 import ansys.aedt.core
+from ansys.aedt.core.generic.constants import Setups
 # -
 
 # Define constants.
@@ -87,10 +88,10 @@ capacitor = circuit.modeler.schematic.create_capacitor(
 #
 # Place a port and a ground in the schematic.
 
-port = circuit.modeler.components.create_interface_port(
+port = circuit.modeler.schematic.create_interface_port(
     name="myport", location=[-300, 50]
 )
-gnd = circuit.modeler.components.create_gnd(location=[1200, -100])
+gnd = circuit.modeler.schematic.create_gnd(location=[1200, -100])
 
 # ## Connect components
 #
@@ -107,10 +108,10 @@ capacitor.pins[1].connect_to_component(assignment=gnd.pins[0], use_wire=True)
 # Create a transient setup.
 
 setup2 = circuit.create_setup(
-    name="MyTransient", setup_type=circuit.SETUPS.NexximTransient
+    name="MyTransient", setup_type=Setups.NexximTransient
 )
 setup2.props["TransientData"] = ["0.01ns", "200ns"]
-setup3 = circuit.create_setup(name="MyDC", setup_type=circuit.SETUPS.NexximDC)
+setup3 = circuit.create_setup(name="MyDC", setup_type=Setups.NexximDC)
 
 # ## Solve transient setup
 #

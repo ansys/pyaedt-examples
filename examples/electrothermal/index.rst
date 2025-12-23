@@ -133,9 +133,9 @@ These examples use PyAEDT to show electrothermal capabilities of AEDT
 
       This example uses PyAEDT to set up a simple Maxwell design consisting of a coil and a ferrite core.
 
-    .. grid-item-card:: HFSS-Icepak microwave oven analysis
+   .. grid-item-card:: HFSS-Icepak microwave oven analysis
       :padding: 2 2 2 2
-      :link: microwave_oven
+      :link: ../hig_frequency/multiphysics/microwave_oven.py
       :link-type: doc
 
       .. image:: ../hig_frequency/multiphysics/_static/oven.png
@@ -145,7 +145,21 @@ These examples use PyAEDT to show electrothermal capabilities of AEDT
          :align: center
 
       This example shows how to couple together HFSS and Icepak to run multiphysics
-      analysis on a well know problem of microwave oven.
+      analysis on a well known problem of microwave oven.
+
+   .. grid-item-card:: Electrothermal analysis / Q3D-Twinbuilder-Icepak
+      :padding: 2 2 2 2
+      :link: 3_phase_inverter
+      :link-type: doc
+
+      .. image:: _static/3_phase_inverter.png
+         :alt: Electrothermal / Q3D-Twinbuilder-Icepak
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      The example based in the DC-Link bus bars of a three-phase inverter covers the electro-thermal workflow
+      with the Harmonic loss calculation in Q3D Extractor and temperature and thermal anlaysis in Icepak.
 
 
 
@@ -160,3 +174,5 @@ These examples use PyAEDT to show electrothermal capabilities of AEDT
    icepak_circuit_hfss_coupling
    electrothermal
    ../low_frequency/multiphysics/maxwell_icepak
+   ../hig_frequency/multiphysics/microwave_oven
+   3_phase_inverter

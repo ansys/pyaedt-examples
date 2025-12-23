@@ -88,7 +88,7 @@ edb_version = "2025.2"
 print(f"EDB version: {edb_version}")
 
 # Create an instance of the Edb class.
-edb = pyedb.Edb(edbpath=aedb_path, edbversion=edb_version)
+edb = pyedb.Edb(edbpath=aedb_path, version=edb_version)
 # -
 
 # Add stackup layers
@@ -240,10 +240,10 @@ print("EDB saved correctly to {}. You can import in AEDT.".format(aedb_path))
 # All commands can be run without the UI by changing the value of ``non_graphical``.
 
 h3d = ansys.aedt.core.Hfss(
-    projectname="Demo_3DComp",
-    designname="Linear_Array",
-    specified_version="2025.2",
-    new_desktop_session=True,
+    project="Demo_3DComp",
+    design="Linear_Array",
+    version="2025.2",
+    new_desktop=True,
     non_graphical=non_graphical,
     close_on_exit=True,
     solution_type="Terminal",
@@ -302,7 +302,7 @@ setup.props["MaximumPasses"] = 10
 
 # Specify properties of the frequency sweep:
 
-sweep1 = setup.add_sweep(sweepname="20GHz_to_50GHz")
+sweep1 = setup.add_sweep(name="20GHz_to_50GHz")
 sweep1.props["RangeStart"] = "20GHz"
 sweep1.props["RangeEnd"] = "50GHz"
 sweep1.update()
