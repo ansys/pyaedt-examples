@@ -135,7 +135,7 @@ These examples use PyAEDT to show electrothermal capabilities of AEDT
 
    .. grid-item-card:: HFSS-Icepak microwave oven analysis
       :padding: 2 2 2 2
-      :link: ../hig_frequency/multiphysics/microwave_oven.py
+      :link: ../hig_frequency/multiphysics/microwave_oven
       :link-type: doc
 
       .. image:: ../hig_frequency/multiphysics/_static/oven.png
