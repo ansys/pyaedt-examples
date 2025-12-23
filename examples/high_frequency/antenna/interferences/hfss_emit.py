@@ -23,7 +23,8 @@ import time
 
 import ansys.aedt.core
 
-# from ansys.aedt.core.emit_core.emit_constants import ResultType, TxRxMode
+from ansys.aedt.core.emit_core.emit_constants import ResultType, TxRxMode
+from ansys.aedt.core.emit_core.nodes.generated import AntennaNode, RadioNode
 # -
 
 # Define constants.
@@ -89,8 +90,10 @@ aedtapp = ansys.aedt.core.Emit(project_name, version=AEDT_VERSION)
 #
 # Create two radios with antennas connected to each one.
 
-rad1, ant1 = aedtapp.modeler.components.create_radio_antenna("Bluetooth Low Energy (LE)")
-rad2, ant2 = aedtapp.modeler.components.create_radio_antenna("Bluetooth Low Energy (LE)")
+rad1, ant1 = aedtapp.schematic.create_radio_antenna("Bluetooth Low Energy (LE)")
+rad2, ant2 = aedtapp.schematic.create_radio_antenna("Bluetooth Low Energy (LE)")
+#rad1, ant1 = aedtapp.modeler.components.create_radio_antenna("Bluetooth Low Energy (LE)")
+#rad2, ant2 = aedtapp.modeler.components.create_radio_antenna("Bluetooth Low Energy (LE)")
 
 # ## Define coupling among RF systems
 #
@@ -110,18 +113,18 @@ for link in aedtapp.couplings.coupling_names:
 #
 # This part of the example requires Ansys AEDT 2023 R2.
 
-# if AEDT_VERSION > "2023.1":
-#     rev = aedtapp.results.analyze()
-#     rx_bands = rev.get_band_names(rad1.name, TxRxMode.RX)
-#     tx_bands = rev.get_band_names(rad2.name, TxRxMode.TX)
-#     domain = aedtapp.results.interaction_domain()
-#     domain.set_receiver(rad1.name, rx_bands[0], -1)
-#     domain.set_interferer(rad2.name, tx_bands[0])
-#     interaction = rev.run(domain)
-#     worst = interaction.get_worst_instance(ResultType.EMI)
-#     if worst.has_valid_values():
-#         emi = worst.get_value(ResultType.EMI)
-#         print("Worst case interference is: {} dB".format(emi))
+if AEDT_VERSION > "2023.1":
+    rev = aedtapp.results.analyze()
+    rx_bands = rev.get_band_names(radio_name=rad1.name, tx_rx_mode=TxRxMode.RX)
+    tx_bands = rev.get_band_names(radio_name=rad2.name, tx_rx_mode=TxRxMode.TX)
+    domain = aedtapp.results.interaction_domain()
+    domain.set_receiver(rad1.name, rx_bands[0], -1)
+    domain.set_interferer(rad2.name, tx_bands[0])
+    interaction = rev.run(domain)
+    worst = interaction.get_worst_instance(ResultType.EMI)
+    if worst.has_valid_values():
+        emi = worst.get_value(ResultType.EMI)
+        print("Worst case interference is: {} dB".format(emi))
 
 # ## Release AEDT
 #
