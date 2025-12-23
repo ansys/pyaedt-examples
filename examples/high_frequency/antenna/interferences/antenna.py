@@ -16,7 +16,8 @@ import tempfile
 import time
 
 import ansys.aedt.core
-from ansys.aedt.core.emit_core.emit_constants import ResultType, TxRxMode
+
+# from ansys.aedt.core.emit_core.emit_constants import ResultType, TxRxMode
 # -
 
 # Define constants.
@@ -39,9 +40,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # using the specified version. The second argument can be set to ``True`` to
 # run AEDT in non-graphical mode.
 
-project_name = ansys.aedt.core.generate_unique_project_name(
-    root_name=temp_folder.name, project_name="antenna_cosite"
-)
+project_name = ansys.aedt.core.generate_unique_project_name(root_name=temp_folder.name, project_name="antenna_cosite")
 d = ansys.aedt.core.launch_desktop(AEDT_VERSION, NG_MODE, new_desktop=True)
 aedtapp = ansys.aedt.core.Emit(project_name, version=AEDT_VERSION)
 
@@ -61,9 +60,7 @@ if rad1 and ant1:
 # assign to the radio.
 
 rad2, ant2 = aedtapp.modeler.components.create_radio_antenna("GPS Receiver")
-rad3, ant3 = aedtapp.modeler.components.create_radio_antenna(
-    "Bluetooth Low Energy (LE)", "Bluetooth"
-)
+rad3, ant3 = aedtapp.modeler.components.create_radio_antenna("Bluetooth Low Energy (LE)", "Bluetooth")
 
 # ## Define the RF environment
 #
@@ -81,18 +78,18 @@ rad3, ant3 = aedtapp.modeler.components.create_radio_antenna(
 
 # > **Note:** You can uncomment the following code.
 #
-if AEDT_VERSION > "2023.1":
-    rev = aedtapp.results.analyze()
-    rx_bands = rev.get_band_names(rad2.name, TxRxMode.RX)
-    tx_bands = rev.get_band_names(rad3.name, TxRxMode.TX)
-    domain = aedtapp.results.interaction_domain()
-    domain.set_receiver(rad2.name, rx_bands[0], -1)
-    domain.set_interferer(rad3.name, tx_bands[0])
-    interaction = rev.run(domain)
-    worst = interaction.get_worst_instance(ResultType.EMI)
-    if worst.has_valid_values():
-        emi = worst.get_value(ResultType.EMI)
-        print("Worst case interference is: {} dB".format(emi))
+# if AEDT_VERSION > "2023.1":
+#     rev = aedtapp.results.analyze()
+#     rx_bands = rev.get_band_names(rad2.name, TxRxMode.RX)
+#     tx_bands = rev.get_band_names(rad3.name, TxRxMode.TX)
+#     domain = aedtapp.results.interaction_domain()
+#     domain.set_receiver(rad2.name, rx_bands[0], -1)
+#     domain.set_interferer(rad3.name, tx_bands[0])
+#     interaction = rev.run(domain)
+#     worst = interaction.get_worst_instance(ResultType.EMI)
+#     if worst.has_valid_values():
+#         emi = worst.get_value(ResultType.EMI)
+#         print("Worst case interference is: {} dB".format(emi))
 
 # ## Release AEDT
 #

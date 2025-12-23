@@ -22,7 +22,8 @@ import tempfile
 import time
 
 import ansys.aedt.core
-from ansys.aedt.core.emit_core.emit_constants import ResultType, TxRxMode
+
+# from ansys.aedt.core.emit_core.emit_constants import ResultType, TxRxMode
 # -
 
 # Define constants.
@@ -45,9 +46,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # on the specified version and in the specified graphical mode.
 # A temporary working directory is created using ``tempfile``.
 
-d = ansys.aedt.core.launch_desktop(
-    version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True
-)
+d = ansys.aedt.core.launch_desktop(version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True)
 
 # ## Copy example files
 #
@@ -78,15 +77,9 @@ example_pdf = os.path.join(example_dir, pdf_name(example))
 
 # Copy the files to the temporary working directory.
 
-project_name = shutil.copyfile(
-    example_project, os.path.join(temp_folder.name, file_name(example))
-)
-results_folder = shutil.copytree(
-    example_results_folder, os.path.join(temp_folder.name, results_name(example))
-)
-project_pdf = shutil.copyfile(
-    example_pdf, os.path.join(temp_folder.name, pdf_name(example))
-)
+project_name = shutil.copyfile(example_project, os.path.join(temp_folder.name, file_name(example)))
+results_folder = shutil.copytree(example_results_folder, os.path.join(temp_folder.name, results_name(example)))
+project_pdf = shutil.copyfile(example_pdf, os.path.join(temp_folder.name, pdf_name(example)))
 
 # Open the project in the working directory.
 
@@ -96,12 +89,8 @@ aedtapp = ansys.aedt.core.Emit(project_name, version=AEDT_VERSION)
 #
 # Create two radios with antennas connected to each one.
 
-rad1, ant1 = aedtapp.modeler.components.create_radio_antenna(
-    "Bluetooth Low Energy (LE)"
-)
-rad2, ant2 = aedtapp.modeler.components.create_radio_antenna(
-    "Bluetooth Low Energy (LE)"
-)
+rad1, ant1 = aedtapp.modeler.components.create_radio_antenna("Bluetooth Low Energy (LE)")
+rad2, ant2 = aedtapp.modeler.components.create_radio_antenna("Bluetooth Low Energy (LE)")
 
 # ## Define coupling among RF systems
 #
@@ -121,18 +110,18 @@ for link in aedtapp.couplings.coupling_names:
 #
 # This part of the example requires Ansys AEDT 2023 R2.
 
-if AEDT_VERSION > "2023.1":
-    rev = aedtapp.results.analyze()
-    rx_bands = rev.get_band_names(rad1.name, TxRxMode.RX)
-    tx_bands = rev.get_band_names(rad2.name, TxRxMode.TX)
-    domain = aedtapp.results.interaction_domain()
-    domain.set_receiver(rad1.name, rx_bands[0], -1)
-    domain.set_interferer(rad2.name, tx_bands[0])
-    interaction = rev.run(domain)
-    worst = interaction.get_worst_instance(ResultType.EMI)
-    if worst.has_valid_values():
-        emi = worst.get_value(ResultType.EMI)
-        print("Worst case interference is: {} dB".format(emi))
+# if AEDT_VERSION > "2023.1":
+#     rev = aedtapp.results.analyze()
+#     rx_bands = rev.get_band_names(rad1.name, TxRxMode.RX)
+#     tx_bands = rev.get_band_names(rad2.name, TxRxMode.TX)
+#     domain = aedtapp.results.interaction_domain()
+#     domain.set_receiver(rad1.name, rx_bands[0], -1)
+#     domain.set_interferer(rad2.name, tx_bands[0])
+#     interaction = rev.run(domain)
+#     worst = interaction.get_worst_instance(ResultType.EMI)
+#     if worst.has_valid_values():
+#         emi = worst.get_value(ResultType.EMI)
+#         print("Worst case interference is: {} dB".format(emi))
 
 # ## Release AEDT
 #
