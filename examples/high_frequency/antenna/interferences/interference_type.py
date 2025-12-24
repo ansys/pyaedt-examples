@@ -15,6 +15,7 @@
 # +
 import os
 import sys
+import tempfile
 
 import ansys.aedt.core
 import openpyxl
@@ -549,8 +550,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.previous_project = self.file_path_box.text()
                 self.emitapp.set_active_design(self.design_name_dropdown.currentText())
 
-                # Check if file is read-only
-                if self.emitapp.save_project() == False:
+                # Check if directory is read-only
+                try:
+                    testfile = tempfile.TemporaryFile(dir=self.emitapp.odesign.GetManagedFilesPath())
+                    testfile.close()
+                except (OSError, PermissionError):
                     msg = QtWidgets.QMessageBox()
                     msg.setWindowTitle("Writing Error")
                     msg.setText(
@@ -622,8 +626,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.previous_project = self.file_path_box.text()
                 self.emitapp.set_active_design(self.design_name_dropdown.currentText())
 
-                # Check if file is read-only
-                if self.emitapp.save_project() == False:
+                # Check if directory is read-only
+                try:
+                    testfile = tempfile.TemporaryFile(dir=self.emitapp.odesign.GetManagedFilesPath())
+                    testfile.close()
+                except (OSError, PermissionError):
                     msg = QtWidgets.QMessageBox()
                     msg.setWindowTitle("Writing Error")
                     msg.setText(
@@ -647,10 +654,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.all_colors,
                 self.power_matrix,
             ) = self.rev.protection_level_classification(
-                domain,
-                self.global_protection_level,
-                self.protection_levels["Global"],
-                self.protection_levels,
+                domain=domain,
+                interferer_type=self.tx_interferer,
+                global_protection_level=self.global_protection_level,
+                global_levels=self.protection_levels["Global"],
+                protection_levels=self.protection_levels,
                 use_filter=True,
                 filter_list=filter,
             )
