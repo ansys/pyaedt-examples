@@ -582,7 +582,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.all_colors,
                 self.power_matrix,
             ) = self.rev.interference_type_classification(
-                domain, use_filter=True, filter_list=filter
+                domain,
+                interferer_type=self.tx_interferer, 
+                use_filter=True, 
+                filter_list=filter
             )
 
             # Save project and plot results on table widget
