@@ -17,6 +17,7 @@ import tempfile
 import time
 
 import ansys.aedt.core  # Interface to Ansys Electronics Desktop
+
 # -
 
 # ### Define constants
@@ -85,18 +86,14 @@ m2d["move"] = "0mm"  # Displacement applied to anchor
 # ### Create 2D model
 # Build coil, anchor and housing geometries
 
-coil_m = m2d.modeler.create_rectangle(
-    origin=["3mm", "0mm", "7mm"], sizes=[-14, 6], name="Coil", material="Copper"
-)
+coil_m = m2d.modeler.create_rectangle(origin=["3mm", "0mm", "7mm"], sizes=[-14, 6], name="Coil", material="Copper")
 anchor_m = m2d.modeler.create_rectangle(
     origin=["0mm", "0mm", "13mm - move"],
     sizes=[-8, 2],
     name="Anchor",
     material="steel_1008",
 )
-housing_m = m2d.modeler.create_polyline(
-    points_housing, close_surface=True, name="Housing", material="steel_1008"
-)
+housing_m = m2d.modeler.create_polyline(points_housing, close_surface=True, name="Housing", material="steel_1008")
 m2d.modeler.cover_lines(housing_m)
 
 # Create surrounding vacuum domain
@@ -133,20 +130,18 @@ m2d.assign_force(
 
 setup = m2d.create_setup("MySetup")
 print(setup.props)
-setup.props["MaximumPasses"] = 15
+setup.props["MaximumPasses"] = 3
 setup.props["PercentRefinement"] = 30
 setup.props["PercentError"] = 0.1
-setup.props["MinimumPasses"] = 2
+setup.props["MinimumPasses"] = 1
 setup.props["RelativeResidual"] = 1e-6
 
 # ### Create variable/parameter sweeps
 #
 # Enable sweeps over coil net current and anchor displacement
 
-value_sweep = m2d.parametrics.add(
-    "Amp_1", 500, 2000, 500, name="ParametricSetup1", variation_type="LinearStep"
-)
-value_sweep.add_variation("move", 0, 4, 1, variation_type="LinearStep")
+value_sweep = m2d.parametrics.add("Amp_1", 500, 1000, 500, name="ParametricSetup1", variation_type="LinearStep")
+value_sweep.add_variation("move", 0, 2, 1, variation_type="LinearStep")
 #
 
 # ### Run analysis

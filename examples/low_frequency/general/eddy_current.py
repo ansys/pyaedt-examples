@@ -112,7 +112,7 @@ data = m2d.post.get_solution_data(
 # Get inductance results for the join connections in ``nH``.
 
 ind = ansys.aedt.core.generic.constants.unit_converter(
-    data.data_magnitude()[0],
+    data.get_expression_data(formula="magnitude")[1][0],
     unit_system="Inductance",
     input_units=data.units_data[expressions[0]],
     output_units="uH",

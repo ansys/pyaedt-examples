@@ -76,8 +76,8 @@ plot2 = ipk.plot(
 #
 # Create source blocks on the CPU and memories.
 
-ipk.create_source_block(object_name="CPU", input_power="25W")
-ipk.create_source_block(object_name=["MEMORY1", "MEMORY1_1"], input_power="5W")
+ipk.assign_solid_block(object_name="CPU", power_assignment="25W")
+ipk.assign_solid_block(object_name=["MEMORY1", "MEMORY1_1"], power_assignment="5W")
 
 # The air region object handler is used to specify the inlet (fixed velocity condition) and outlet
 # (fixed pressure condition) at x_max and x_min.

@@ -41,9 +41,7 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 aedb = download_file(source="edb/ANSYS-HSD_V1.aedb", local_path=temp_folder.name)
-_ = download_file(
-    source="spice", name="ferrite_bead_BLM15BX750SZ1.mod", local_path=temp_folder.name
-)
+_ = download_file(source="spice", name="ferrite_bead_BLM15BX750SZ1.mod", local_path=temp_folder.name)
 
 # ## Create configuration file
 # This example uses a configuration file to set up the layout for analysis.
@@ -56,14 +54,6 @@ cfg = dict()
 cfg["general"] = {
     "s_parameter_library": os.path.join(temp_folder.name, "touchstone"),
     "spice_model_library": os.path.join(temp_folder.name, "spice"),
-}
-
-# ### Change via hole size and plating thickness
-
-cfg["padstacks"] = {
-    "definitions": [
-        {"name": "v40h15-3", "hole_diameter": "0.2mm", "hole_plating_thickness": "25um"}
-    ],
 }
 
 # ### Assign SPICE models
@@ -106,9 +96,7 @@ cfg["sources"].append(
         "type": "current",
         "magnitude": 0.5,
         "positive_terminal": {"net": "SFPA_VCCR"},
-        "negative_terminal": {
-            "pin_group": "J5_GND"  # Defined in "pin_groups" section.
-        },
+        "negative_terminal": {"pin_group": "J5_GND"},  # Defined in "pin_groups" section.
     }
 )
 cfg["sources"].append(
@@ -118,9 +106,7 @@ cfg["sources"].append(
         "type": "current",
         "magnitude": 0.5,
         "positive_terminal": {"net": "SFPA_VCCT"},
-        "negative_terminal": {
-            "pin_group": "J5_GND"  # Defined in "pin_groups" section.
-        },
+        "negative_terminal": {"pin_group": "J5_GND"},  # Defined in "pin_groups" section.
     }
 )
 
@@ -168,7 +154,7 @@ with open(pi_json, "w") as f:
 
 # Load the configuration from the JSON file into EDB.
 
-edbapp = Edb(aedb, edbversion=AEDT_VERSION)
+edbapp = Edb(aedb, version=AEDT_VERSION)
 edbapp.configuration.load(config_file=pi_json)
 edbapp.configuration.run()
 
@@ -191,9 +177,7 @@ print(temp_folder.name)
 
 # ### Load EDB into HFSS 3D Layout.
 
-siw = ansys.aedt.core.Hfss3dLayout(
-    aedb, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True
-)
+siw = ansys.aedt.core.Hfss3dLayout(aedb, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True)
 
 # ### Analyze
 

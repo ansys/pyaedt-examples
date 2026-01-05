@@ -150,7 +150,7 @@ ground_position = [0, 0, first_winding_list[1][0][2] - 2]
 ground = hfss.modeler.create_circle(
     "XY", ground_position, ground_radius, name="GND", material="copper"
 )
-coat = hfss.assign_coating(ground, is_infinite_ground=True)
+coat = hfss.assign_finite_conductivity(ground, is_infinite_ground=True)
 ground.transparency = 0.9
 
 # ## Create lumped ports
