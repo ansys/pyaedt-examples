@@ -147,10 +147,8 @@ class Ui_MainWindow(object):
         prot_btns.pack(fill=tk.X, padx=6, pady=(0, 6))
         self.protection_results_btn = ttk.Button(prot_btns, text="Generate Results")
         self.protection_export_btn = ttk.Button(prot_btns, text="Export to Excel")
-        self.protection_save_img_btn = ttk.Button(prot_btns, text="Save Image")
         self.protection_results_btn.pack(side=tk.LEFT)
         self.protection_export_btn.pack(side=tk.LEFT, padx=6)
-        self.protection_save_img_btn.pack(side=tk.LEFT)
 
         # Interference Type tab
         self.interference_tab = ttk.Frame(self.tab_widget)
@@ -224,10 +222,8 @@ class Ui_MainWindow(object):
         int_btns.pack(fill=tk.X, padx=6, pady=(0, 6))
         self.interference_results_btn = ttk.Button(int_btns, text="Generate Results")
         self.interference_export_btn = ttk.Button(int_btns, text="Export to Excel")
-        self.interference_save_img_btn = ttk.Button(int_btns, text="Save Image")
         self.interference_results_btn.pack(side=tk.LEFT)
         self.interference_export_btn.pack(side=tk.LEFT, padx=6)
-        self.interference_save_img_btn.pack(side=tk.LEFT)
 
 
 class App:
@@ -280,11 +276,9 @@ class App:
 
         self.ui.protection_results_btn.configure(command=self.protection_results)
         self.ui.protection_export_btn.configure(command=self.save_results_excel)
-        self.ui.protection_save_img_btn.configure(command=self.save_image)
 
         self.ui.interference_results_btn.configure(command=self.interference_results)
         self.ui.interference_export_btn.configure(command=self.save_results_excel)
-        self.ui.interference_save_img_btn.configure(command=self.save_image)
 
         self.ui.radio_specific_levels.configure(command=self.radio_specific)
         self.ui.radio_dropdown.bind("<<ComboboxSelected>>", lambda e: self.radio_dropdown_changed())
@@ -311,10 +305,8 @@ class App:
         for b in (
             self.ui.protection_results_btn,
             self.ui.protection_export_btn,
-            self.ui.protection_save_img_btn,
             self.ui.interference_results_btn,
-            self.ui.interference_export_btn,
-            self.ui.interference_save_img_btn,
+            self.ui.interference_export_btn,=
         ):
             try:
                 b.configure(state=state)
@@ -445,9 +437,7 @@ class App:
         self.ui.interference_results_btn.configure(state="normal")
         # Disable exports until we have data
         self.ui.protection_export_btn.configure(state="disabled")
-        self.ui.protection_save_img_btn.configure(state="disabled")
         self.ui.interference_export_btn.configure(state="disabled")
-        self.ui.interference_save_img_btn.configure(state="disabled")
 
     def design_dropdown_changed(self):
         if self.populating_dropdown:
@@ -494,51 +484,7 @@ class App:
             self.ui.protection_legend_table.item(iid, values=tuple(row_vals))
             i += 1
 
-    # ---------------------- Save image and Excel ----------------------
-    def save_image(self):
-        idx = self._current_tab_index()
-        fname = filedialog.asksaveasfilename(
-            title="Save Scenario Matrix",
-            defaultextension=".png",
-            initialfile="Scenario Matrix",
-            filetypes=[("png", "*.png")],
-        )
-        if not fname:
-            return
-
-        # Use the active Canvas if present; otherwise fall back to container
-        widget = self._canvas_widgets[idx]
-        if widget is None:
-            widget = self.ui.protection_matrix if idx == 0 else self.ui.interference_matrix
-
-        # Ensure geometry and drawing are up to date
-        self.root.update_idletasks()
-        widget.update_idletasks()
-
-        # Compute the bounding box of all drawn items in the Canvas to avoid
-        # padding/margins causing the capture to start above/left or truncate.
-        try:
-            bx0, by0, bx1, by1 = widget.bbox("all")
-            # Fallback if nothing is drawn yet
-            if bx0 is None:
-                raise ValueError("empty canvas")
-        except Exception:
-            bx0, by0, bx1, by1 = 0, 0, widget.winfo_width(), widget.winfo_height()
-
-        # Convert Canvas-relative bbox to absolute screen coordinates
-        # x_root = widget.winfo_rootx()
-        # y_root = widget.winfo_rooty()
-        # scale = self._get_dpi_scale(widget)
-        # x0 = int((x_root + bx0) * scale)
-        # y0 = int((y_root + by0) * scale)
-        # x1 = int((x_root + bx1) * scale)
-        # y1 = int((y_root + by1) * scale)
-
-        # # Grab and save the image
-        # img = ImageGrab.grab(bbox=(x0, y0, x1, y1))
-        # img.save(fname)
-        self.image_capture.save(fname)
-
+    # ---------------------- Save Excel export ----------------------
     def save_results_excel(self):
         default_name = "Protection Level Classification" if self._current_tab_index() == 0 else "Interference Type Classification"
         table = self.ui.protection_matrix if self._current_tab_index() == 0 else self.ui.interference_matrix
@@ -657,11 +603,9 @@ class App:
         if idx == 0:
             canvas = self.ui.protection_matrix
             export_btn = self.ui.protection_export_btn
-            img_btn = self.ui.protection_save_img_btn
         else:
             canvas = self.ui.interference_matrix
             export_btn = self.ui.interference_export_btn
-            img_btn = self.ui.interference_save_img_btn
 
         # Clear any previously rendered child widgets in the container
         for child in canvas.winfo_children():
@@ -675,7 +619,6 @@ class App:
         num_rows = len(self.rx_radios)
         if num_cols == 0 or num_rows == 0:
             export_btn.configure(state="disabled")
-            img_btn.configure(state="disabled")
             return
 
         # Draw a resizable grid on Canvas with per-cell backgrounds
@@ -743,17 +686,14 @@ class App:
         self.image_capture = ImageGrab.grab(bbox=(cnv.winfo_rootx(), cnv.winfo_rooty(), cnv.winfo_rootx() + cnv.winfo_width(), cnv.winfo_rooty() + cnv.winfo_height()))
 
         export_btn.configure(state="normal")
-        img_btn.configure(state="normal")
 
     def clear_table(self):
         if self._current_tab_index() == 0:
             canvas = self.ui.protection_matrix
             export_btn = self.ui.protection_export_btn
-            img_btn = self.ui.protection_save_img_btn
         else:
             canvas = self.ui.interference_matrix
             export_btn = self.ui.interference_export_btn
-            img_btn = self.ui.interference_save_img_btn
 
         # Clear any table widgets in the container for this tab
         for child in canvas.winfo_children():
@@ -764,7 +704,6 @@ class App:
         idx = self._current_tab_index()
         self._canvas_widgets[idx] = None
         export_btn.configure(state="disabled")
-        img_btn.configure(state="disabled")
 
     # ---------------------- Close ----------------------
     def on_close(self):

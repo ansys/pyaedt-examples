@@ -582,7 +582,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.all_colors,
                 self.power_matrix,
             ) = self.rev.interference_type_classification(
-                domain,
+                domain=domain,
                 interferer_type=self.tx_interferer, 
                 use_filter=True, 
                 filter_list=filter
