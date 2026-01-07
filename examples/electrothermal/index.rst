@@ -138,7 +138,7 @@ These examples use PyAEDT to show electrothermal capabilities of AEDT
       :link: ../hig_frequency/multiphysics/microwave_oven
       :link-type: doc
 
-      .. image:: ../hig_frequency/multiphysics/_static/oven.png
+      .. image:: ../high_frequency/multiphysics/_static/oven.png
          :alt: Microwave Oven
          :width: 250px
          :height: 200px
@@ -174,5 +174,5 @@ These examples use PyAEDT to show electrothermal capabilities of AEDT
    icepak_circuit_hfss_coupling
    electrothermal
    ../low_frequency/multiphysics/maxwell_icepak
-   ../hig_frequency/multiphysics/microwave_oven
+   ../high_frequency/multiphysics/microwave_oven
    3_phase_inverter
