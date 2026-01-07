@@ -149,7 +149,7 @@ These examples use PyAEDT to show electrothermal capabilities of AEDT
 
    .. grid-item-card:: Electrothermal analysis / Q3D-Twinbuilder-Icepak
       :padding: 2 2 2 2
-      :link: 3_phase_inverter
+      :link: three_phase_inverter
       :link-type: doc
 
       .. image:: _static/3_phase_inverter.png
@@ -175,4 +175,4 @@ These examples use PyAEDT to show electrothermal capabilities of AEDT
    electrothermal
    ../low_frequency/multiphysics/maxwell_icepak
    ../high_frequency/multiphysics/microwave_oven
-   3_phase_inverter
+   three_phase_inverter
