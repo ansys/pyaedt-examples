@@ -234,15 +234,6 @@ class App:
         # Launch AEDT desktop
         self.desktop = ansys.aedt.core.launch_desktop(self.AEDT_VERSION, self.NG_MODE, new_desktop=True)
 
-        # EmitApiPython path and import (kept for parity)
-        try:
-            emit_path = os.path.join(self.desktop.install_path, "Delcross")
-            if emit_path not in sys.path:
-                sys.path.insert(0, emit_path)
-            import EmitApiPython  # noqa: F401
-        except Exception:
-            pass
-
         # Tk window and UI
         self.root = tk.Tk()
         self.ui = Ui_MainWindow()
@@ -306,7 +297,7 @@ class App:
             self.ui.protection_results_btn,
             self.ui.protection_export_btn,
             self.ui.interference_results_btn,
-            self.ui.interference_export_btn,=
+            self.ui.interference_export_btn,
         ):
             try:
                 b.configure(state=state)
@@ -547,7 +538,7 @@ class App:
             self.rev = rev
 
         domain = self.emitapp.results.interaction_domain()
-        self.all_colors, self.power_matrix = self.rev.interference_type_classification(domain, tx_interferer=self.tx_interferer, use_filter=True, filter_list=flt)
+        self.all_colors, self.power_matrix = self.rev.interference_type_classification(domain, interferer_type=self.tx_interferer, use_filter=True, filter_list=flt)
         try:
             self.emitapp.save_project()
         except Exception:
