@@ -18,6 +18,8 @@ import tempfile
 import time
 
 import ansys.aedt.core
+from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
+
 # -
 
 # ### Define constants
@@ -45,7 +47,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 m3d = ansys.aedt.core.Maxwell3d(
     project=os.path.join(temp_folder.name, "COMPUMAG.aedt"),
     design="TEAM_3_Bath_Plate",
-    solution_type="EddyCurrent",
+    solution_type=SolutionsMaxwell3D.ACMagnetic,
     version=AEDT_VERSION,
     non_graphical=NG_MODE,
     new_desktop=True,
@@ -71,9 +73,7 @@ mat.conductivity = 32780000
 #
 # Draw a background region that uses the default properties for an air region.
 
-m3d.modeler.create_air_region(
-    x_pos=100, y_pos=100, z_pos=100, x_neg=100, y_neg=100, z_neg=100
-)
+m3d.modeler.create_air_region(x_pos=100, y_pos=100, z_pos=100, x_neg=100, y_neg=100, z_neg=100)
 
 # ### Draw ladder plate and assign material
 #
@@ -155,9 +155,7 @@ setup = m3d.create_setup(name="Setup1")
 setup.props["Frequency"] = "200Hz"
 setup.props["HasSweepSetup"] = True
 setup.props["MaximumPasses"] = 1
-setup.add_eddy_current_sweep(
-    sweep_type="LinearStep", start_frequency=50, stop_frequency=200, step_size=150, clear=True
-)
+setup.add_eddy_current_sweep(sweep_type="LinearStep", start_frequency=50, stop_frequency=200, step_size=150, clear=True)
 
 # ### Adjust eddy effects
 #
