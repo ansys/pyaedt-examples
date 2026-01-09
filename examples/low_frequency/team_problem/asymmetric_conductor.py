@@ -18,7 +18,9 @@ import time
 
 import numpy as np
 from ansys.aedt.core import Maxwell3d
+from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 from ansys.aedt.core.generic.file_utils import write_csv
+
 # -
 
 # ### Define constants
@@ -47,7 +49,7 @@ project_name = os.path.join(temp_folder.name, "COMPUMAG2.aedt")
 m3d = Maxwell3d(
     project=project_name,
     design="TEAM_7_Asymmetric_Conductor",
-    solution_type="EddyCurrent",
+    solution_type=SolutionsMaxwell3D.ACMagnetic,
     version=AEDT_VERSION,
     non_graphical=NG_MODE,
     new_desktop=True,
@@ -111,15 +113,11 @@ P4 = [dim2, dim1, 0]
 
 # Create a coordinate system to use as a reference for the coil.
 
-m3d.modeler.create_coordinate_system(
-    origin=coil_centre, mode="view", view="XY", name="Coil_CS"
-)
+m3d.modeler.create_coordinate_system(origin=coil_centre, mode="view", view="XY", name="Coil_CS")
 
 # Create a polyline. One quarter of the coil is modeled by sweeping a 2D sheet along a polyline.
 
-test = m3d.modeler.create_polyline(
-    points=[P1, P2, P3, P4], segment_type=["Line", "Arc"], name="Coil"
-)
+test = m3d.modeler.create_polyline(points=[P1, P2, P3, P4], segment_type=["Line", "Arc"], name="Coil")
 test.set_crosssection_properties(section="Rectangle", width=coil_thk, height=coil_height)
 
 # Duplicate and unite the polyline to create the full coil.
@@ -173,9 +171,7 @@ mat.conductivity = 3.526e7
 #
 # Draw the aluminium plate with a hole by subtracting two cuboids.
 
-plate = m3d.modeler.create_box(
-    origin=[0, 0, 0], sizes=[294, 294, 19], name="Plate", material="team7_aluminium"
-)
+plate = m3d.modeler.create_box(origin=[0, 0, 0], sizes=[294, 294, 19], name="Plate", material="team7_aluminium")
 m3d.modeler.fit_all()
 hole = m3d.modeler.create_box(origin=[18, 18, 0], sizes=[108, 108, 19], name="Hole")
 m3d.modeler.subtract(blank_list="Plate", tool_list=["Hole"], keep_originals=False)
@@ -184,9 +180,7 @@ m3d.modeler.subtract(blank_list="Plate", tool_list=["Hole"], keep_originals=Fals
 #
 # The background air region defines the full volumetric solution domain.
 
-m3d.modeler.create_air_region(
-    x_pos=100, y_pos=100, z_pos=100, x_neg=100, y_neg=100, z_neg=100
-)
+m3d.modeler.create_air_region(x_pos=100, y_pos=100, z_pos=100, x_neg=100, y_neg=100, z_neg=100)
 
 # ### Adjust eddy effects for plate and coil
 #
@@ -528,9 +522,7 @@ m3d.post.create_fieldplot_surface(
     intrinsics=intrinsic_dict,
     plot_name="Mag_B",
 )
-m3d.post.create_fieldplot_surface(
-    assignment=surf_list, quantity="Mesh", intrinsics=intrinsic_dict, plot_name="Mesh"
-)
+m3d.post.create_fieldplot_surface(assignment=surf_list, quantity="Mesh", intrinsics=intrinsic_dict, plot_name="Mesh")
 
 # ## Finish
 #
