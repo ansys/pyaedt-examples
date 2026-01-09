@@ -640,8 +640,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     return
 
                 # Get results and design radios
-                self.tx_interferer = InterfererType().TRANSMITTERS
                 self.rev = self.emitapp.results.analyze()
+                self.tx_interferer = InterfererType().TRANSMITTERS
                 self.rx_radios = self.rev.get_receiver_names()
                 self.tx_radios = self.rev.get_interferer_names(self.tx_interferer)
 
