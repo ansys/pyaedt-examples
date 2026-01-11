@@ -1,0 +1,1373 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Interference type classification using a GUI &#8212; PyAEDT Examples</title>
+
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=fd3f3429" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css\ansys_sphinx_theme.css?v=d2ac875c" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css?v=9233c59b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/highlight.css?v=500661c4" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+ 
+<link href="../../../../_static/css/breadcrumbs.css" rel="stylesheet" />
+
+    <script src="../../../../_static/documentation_options.js?v=e7fb764e"></script>
+    <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=49e1bf35"></script>
+    <script src="../../../../_static/js\table.js?v=b64f5182"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/high_frequency/antenna/interferences/interference_type';</script>
+    <link rel="icon" href="../../../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="EDB: Layout Components" href="../5G_antenna_parametrics.html" />
+    <link rel="prev" title="Compute receiver protection levels" href="protection.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <link rel="canonical" href="https://examples.aedt.docs.pyansys.com/version/stable/examples/high_frequency/antenna/interferences/interference_type.html" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container"><!-- Debugging: html_theme_options =  -->
+
+  <!-- If there is no MeiliSearch enabled, use the PyData search -->
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+   
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="https://www.ansys.com/">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../_static/ansys_logo_transparent_black.png" class="logo__image only-light" alt="PyAEDT Examples - Home"/>
+    <script>document.write(`<img src="../../../../_static/ansys_logo_transparent_white.png" class="logo__image only-dark" alt="PyAEDT Examples - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Examples
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+    
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Examples
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../aedt/index.html">Examples by AEDT application</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../index.html">High frequency</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../index.html">Antenna</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../../radiofrequency_mmwave/index.html">Radio frequency and millimeter wave</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../../radiofrequency_mmwave/iris_filter.html">Inductive iris waveguide filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../radiofrequency_mmwave/spiral.html">Spiral inductor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../radiofrequency_mmwave/coplanar_waveguide.html">Coplanar waveguide setup and analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../radiofrequency_mmwave/stripline.html">Stripline analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../radiofrequency_mmwave/lumped_element.html">Lumped element filter design</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../emc/flex_cable.html">Flex cable CPWG</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../emc/eigenmode.html">Eigenmode filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../fss_unitcell.html">Frequency Selective Surface</a></li>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="index.html">RF interference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="antenna.html">Antenna</a></li>
+<li class="toctree-l4"><a class="reference internal" href="hfss_emit.html">HFSS to EMIT coupling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="interference.html">Interference type classification</a></li>
+<li class="toctree-l4"><a class="reference internal" href="protection.html">Compute receiver protection levels</a></li>
+<li class="toctree-l4 current active"><a class="current reference internal" href="#">Interference type classification using a GUI</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../layout/index.html">IC-Package-PCB</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../emc/index.html">EMC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../multiphysics/index.html">Multiphysics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../aedt_general/report/index.html">Report</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../low_frequency/index.html">Low frequency</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../electrothermal/index.html">Electrothermal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../aedt_general/index.html">Pre-processing and post-processing</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+       
+    <li class="breadcrumb-item">
+      <a href="https://aedt.docs.pyansys.com/" class="nav-link">PyAEDT</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="../../../../index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../../../index.html" class="nav-link">Examples</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../../index.html" class="nav-link">High frequency</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../index.html" class="nav-link">Antenna</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="index.html" class="nav-link">RF interference</a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page">Interference type classification using a GUI</li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="admonition-download-this-example admonition">
+<p class="admonition-title">Download this example</p>
+<p>Download this example as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/antenna/interferences/interference_type.ipynb">Jupyter Notebook</a>
+or as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/antenna/interferences/interference_type.py">Python script</a>.</p>
+</div>
+<hr class="docutils" />
+<section id="Interference-type-classification-using-a-GUI">
+<h1>Interference type classification using a GUI<a class="headerlink" href="#Interference-type-classification-using-a-GUI" title="Link to this heading">#</a></h1>
+<p>This example uses a GUI to open an AEDT project with an EMIT design and analyze the results to classify the worst-case interference.</p>
+<blockquote>
+<div><p><strong>Note:</strong> This example requires PySide6.</p>
+</div></blockquote>
+<p>Keywords: <strong>EMIT</strong>, <strong>user interface</strong>.</p>
+<section id="Perform-imports-and-define-constants">
+<h2>Perform imports and define constants<a class="headerlink" href="#Perform-imports-and-define-constants" title="Link to this heading">#</a></h2>
+<p>Perform required imports.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>import os
+import sys
+import tempfile
+
+import ansys.aedt.core
+import openpyxl
+from ansys.aedt.core import get_pyaedt_app
+from ansys.aedt.core.examples.downloads import download_file
+from ansys.aedt.core.emit_core.emit_constants import InterfererType
+from openpyxl.styles import PatternFill
+from PySide6 import QtCore, QtGui, QtUiTools, QtWidgets
+</pre></div>
+</div>
+</div>
+<p>Define constants.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>AEDT_VERSION = &quot;2025.2&quot;
+NG_MODE = False  # Open AEDT UI when it is launched.
+</pre></div>
+</div>
+</div>
+<p>Uncomment the following code if there are Qt plugin errors import PySide6 dirname = os.path.dirname(PySide6.__file__) plugin_path = os.path.join(dirname, ‘plugins’, ‘platforms’) os.environ[‘QT_QPA_PLATFORM_PLUGIN_PATH’] = plugin_path</p>
+</section>
+<section id="Launch-EMIT">
+<h2>Launch EMIT<a class="headerlink" href="#Launch-EMIT" title="Link to this heading">#</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>desktop = ansys.aedt.core.launch_desktop(AEDT_VERSION, NG_MODE, new_desktop=True)
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Add-EmitApiPython-module-to-system-path-to-import-it">
+<h2>Add <code class="docutils literal notranslate"><span class="pre">EmitApiPython</span></code> module to system path to import it<a class="headerlink" href="#Add-EmitApiPython-module-to-system-path-to-import-it" title="Link to this heading">#</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>emit_path = os.path.join(desktop.install_path, &quot;Delcross&quot;)
+sys.path.insert(0, emit_path)
+import EmitApiPython
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>api = EmitApiPython.EmitApi()
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Define-GUI">
+<h2>Define GUI<a class="headerlink" href="#Define-GUI" title="Link to this heading">#</a></h2>
+<p>Define the UI extension file.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>ui_file = download_file(&quot;emit&quot;, &quot;interference_gui.ui&quot;)
+Ui_MainWindow, _ = QtUiTools.loadUiType(ui_file)
+</pre></div>
+</div>
+</div>
+<p>Customize the GUI.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>class DoubleDelegate(QtWidgets.QStyledItemDelegate):
+    def __init__(self, decimals, values, max_power, min_power):
+        super().__init__()
+        self.decimals = decimals
+        self.values = values
+        self.max_power = max_power
+        self.min_power = min_power
+
+    def createEditor(self, parent, option, index):
+        editor = super().createEditor(parent, option, index)
+        if isinstance(editor, QtWidgets.QLineEdit):
+            validator = QtGui.QDoubleValidator(parent)
+            num_rows = len(self.values)
+            cur_row = index.row()
+            if cur_row == 0:
+                min_val = self.values[1]
+                max_val = self.max_power
+            elif cur_row == num_rows - 1:
+                min_val = self.min_power
+                max_val = self.values[cur_row - 1]
+            else:
+                min_val = self.values[cur_row + 1]
+                max_val = self.values[cur_row - 1]
+            validator.setRange(min_val, max_val, self.decimals)
+            validator.setNotation(QtGui.QDoubleValidator.Notation.StandardNotation)
+            editor.setValidator(validator)
+        return editor
+
+    def update_values(self, values):
+        self.values = values
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
+    def __init__(self):
+        super(MainWindow, self).__init__()
+        self.emitapp = None
+        self.populating_dropdown = False
+        self.setupUi(self)
+        self.setup_widgets()
+
+    # ## Setup widgets
+    #
+    # Define all widgets from the UI file, connect the widgets to functions, define
+    # table colors, and format table settings.
+
+    def setup_widgets(self):
+        # Widget definitions for file selection/tab management
+        self.file_select_btn = self.findChild(QtWidgets.QToolButton, &quot;file_select_btn&quot;)
+        self.file_path_box = self.findChild(QtWidgets.QLineEdit, &quot;file_path_box&quot;)
+        self.design_name_dropdown = self.findChild(
+            QtWidgets.QComboBox, &quot;design_name_dropdown&quot;
+        )
+        self.design_name_dropdown.setEnabled(True)
+        self.tab_widget = self.findChild(QtWidgets.QTabWidget, &quot;tab_widget&quot;)
+
+        # Widget definitions for protection level classification
+        self.protection_results_btn = self.findChild(
+            QtWidgets.QPushButton, &quot;protection_results_btn&quot;
+        )
+        self.protection_matrix = self.findChild(
+            QtWidgets.QTableWidget, &quot;protection_matrix&quot;
+        )
+        self.protection_legend_table = self.findChild(
+            QtWidgets.QTableWidget, &quot;protection_legend_table&quot;
+        )
+
+        self.damage_check = self.findChild(QtWidgets.QCheckBox, &quot;damage_check&quot;)
+        self.overload_check = self.findChild(QtWidgets.QCheckBox, &quot;overload_check&quot;)
+        self.intermodulation_check = self.findChild(
+            QtWidgets.QCheckBox, &quot;intermodulation_check&quot;
+        )
+        self.desensitization_check = self.findChild(
+            QtWidgets.QCheckBox, &quot;desensitization_check&quot;
+        )
+        self.protection_export_btn = self.findChild(
+            QtWidgets.QPushButton, &quot;protection_export_btn&quot;
+        )
+        self.radio_specific_levels = self.findChild(
+            QtWidgets.QCheckBox, &quot;radio_specific_levels&quot;
+        )
+        self.radio_dropdown = self.findChild(QtWidgets.QComboBox, &quot;radio_dropdown&quot;)
+        self.protection_save_img_btn = self.findChild(
+            QtWidgets.QPushButton, &quot;protection_save_img_btn&quot;
+        )
+
+        # warning label
+        self.warning_label = self.findChild(QtWidgets.QLabel, &quot;warnings&quot;)
+        myFont = QtGui.QFont()
+        myFont.setBold(True)
+        self.warning_label.setFont(myFont)
+        self.warning_label.setHidden(True)
+        self.design_name_dropdown.currentIndexChanged.connect(
+            self.design_dropdown_changed
+        )
+
+        # Setup for protection level buttons and table
+        self.protection_results_btn.setEnabled(False)
+        self.protection_export_btn.setEnabled(False)
+        self.protection_save_img_btn.setEnabled(False)
+        self.file_select_btn.clicked.connect(self.open_file_dialog)
+        self.protection_export_btn.clicked.connect(self.save_results_excel)
+        self.protection_results_btn.clicked.connect(self.protection_results)
+        self.protection_legend_table.resizeRowsToContents()
+        self.protection_legend_table.resizeColumnsToContents()
+        self.damage_check.stateChanged.connect(self.protection_results)
+        self.overload_check.stateChanged.connect(self.protection_results)
+        self.intermodulation_check.stateChanged.connect(self.protection_results)
+        self.desensitization_check.stateChanged.connect(self.protection_results)
+        self.protection_legend_table.setEditTriggers(
+            QtWidgets.QTableWidget.DoubleClicked
+        )
+        self.global_protection_level = True
+        self.protection_levels = {}
+        values = [
+            float(self.protection_legend_table.item(row, 0).text())
+            for row in range(self.protection_legend_table.rowCount())
+        ]
+        self.protection_levels[&quot;Global&quot;] = values
+        self.changing = False
+        self.radio_dropdown.currentIndexChanged.connect(self.radio_dropdown_changed)
+        self.protection_legend_table.itemChanged.connect(self.table_changed)
+        self.protection_save_img_btn.clicked.connect(self.save_image)
+
+        # Widget definitions for interference type
+        self.interference_results_btn = self.findChild(
+            QtWidgets.QPushButton, &quot;interference_results_btn&quot;
+        )
+        self.interference_matrix = self.findChild(
+            QtWidgets.QTableWidget, &quot;interference_matrix&quot;
+        )
+        self.interference_legend_table = self.findChild(
+            QtWidgets.QTableWidget, &quot;interference_legend_table&quot;
+        )
+
+        # set the items read only
+        for i in range(0, self.interference_legend_table.rowCount()):
+            item = self.interference_legend_table.item(i, 0)
+            item.setFlags(QtCore.Qt.ItemIsEnabled)
+            self.interference_legend_table.setItem(i, 0, item)
+
+        self.in_in_check = self.findChild(QtWidgets.QCheckBox, &quot;in_in_check&quot;)
+        self.in_out_check = self.findChild(QtWidgets.QCheckBox, &quot;in_out_check&quot;)
+        self.out_in_check = self.findChild(QtWidgets.QCheckBox, &quot;out_in_check&quot;)
+        self.out_out_check = self.findChild(QtWidgets.QCheckBox, &quot;out_out_check&quot;)
+        self.interference_export_btn = self.findChild(
+            QtWidgets.QPushButton, &quot;interference_export_btn&quot;
+        )
+        self.interference_save_img_btn = self.findChild(
+            QtWidgets.QPushButton, &quot;interference_save_img_btn&quot;
+        )
+
+        # Setup for interference type buttons and table
+        self.interference_results_btn.setEnabled(False)
+        self.interference_export_btn.setEnabled(False)
+        self.interference_save_img_btn.setEnabled(False)
+        self.interference_export_btn.clicked.connect(self.save_results_excel)
+        self.interference_results_btn.clicked.connect(self.interference_results)
+        self.interference_legend_table.resizeRowsToContents()
+        self.interference_legend_table.resizeColumnsToContents()
+        self.in_in_check.stateChanged.connect(self.interference_results)
+        self.in_out_check.stateChanged.connect(self.interference_results)
+        self.out_in_check.stateChanged.connect(self.interference_results)
+        self.out_out_check.stateChanged.connect(self.interference_results)
+        self.radio_specific_levels.stateChanged.connect(self.radio_specific)
+        self.interference_save_img_btn.clicked.connect(self.save_image)
+
+        # Color definition dictionary and previous project/design names
+        self.color_dict = {
+            &quot;green&quot;: [QtGui.QColor(125, 115, 202), &quot;#7d73ca&quot;],
+            &quot;yellow&quot;: [QtGui.QColor(211, 89, 162), &quot;#d359a2&quot;],
+            &quot;orange&quot;: [QtGui.QColor(255, 99, 97), &quot;#ff6361&quot;],
+            &quot;red&quot;: [QtGui.QColor(255, 166, 0), &quot;#ffa600&quot;],
+            &quot;white&quot;: [QtGui.QColor(&quot;white&quot;), &quot;#ffffff&quot;],
+        }
+        self.previous_design = &quot;&quot;
+        self.previous_project = &quot;&quot;
+
+        # Set the legend tables to stretch resize mode
+        header = self.protection_legend_table.horizontalHeader()
+        v_header = self.protection_legend_table.verticalHeader()
+
+        header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        v_header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        v_header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        v_header.setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        v_header.setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeMode.Stretch)
+
+        header = self.interference_legend_table.horizontalHeader()
+        v_header = self.interference_legend_table.verticalHeader()
+
+        header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        v_header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        v_header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        v_header.setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        v_header.setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeMode.Stretch)
+
+        # Input validation for protection level legend table
+        self.delegate = DoubleDelegate(
+            decimals=2, values=values, max_power=1000, min_power=-200
+        )
+        self.protection_legend_table.setItemDelegateForColumn(0, self.delegate)
+        self.open_file_dialog()
+
+    # ## Open file dialog and select project
+    #
+    # Open the file dialog for project selection and populate the design dropdown
+    # with all EMIT designs in the project.
+
+    def open_file_dialog(self):
+        fname, _ = QtWidgets.QFileDialog.getOpenFileName(
+            self,
+            &quot;Select EMIT Project&quot;,
+            &quot;&quot;,
+            &quot;Ansys Electronics Desktop Files (*.aedt)&quot;,
+        )
+        if fname:
+            self.file_path_box.setText(fname)
+
+            # Close previous project and open specified one
+            if self.emitapp is not None:
+                self.emitapp.close_project()
+                self.emitapp = None
+            desktop_proj = desktop.load_project(self.file_path_box.text())
+
+            # check for an empty project (i.e. no designs)
+            if isinstance(desktop_proj, bool):
+                self.file_path_box.setText(&quot;&quot;)
+                msg = QtWidgets.QMessageBox()
+                msg.setWindowTitle(&quot;Error: Project missing designs.&quot;)
+                msg.setText(
+                    &quot;The selected project has no designs. Projects must have at least &quot;
+                    &quot;one EMIT design. See AEDT log for more information.&quot;
+                )
+                x = msg.exec()
+                return
+
+            # Check if project is already open
+            if desktop_proj.lock_file == None:
+                msg = QtWidgets.QMessageBox()
+                msg.setWindowTitle(&quot;Error: Project already open&quot;)
+                msg.setText(
+                    &quot;Project is locked. Close or remove the lock before proceeding. See AEDT log for more information.&quot;
+                )
+                x = msg.exec()
+                return
+
+            # Populate design dropdown with all design names
+            designs = desktop_proj.design_list
+            emit_designs = []
+            self.populating_dropdown = True
+            self.design_name_dropdown.clear()
+            self.populating_dropdown = False
+            for d in designs:
+                design_type = desktop.design_type(desktop_proj.project_name, d)
+                if design_type == &quot;EMIT&quot;:
+                    emit_designs.append(d)
+
+            # Add warning if no EMIT design
+            # NOTE: This should never happen because loading a project without an EMIT design
+            # should add a blank EMIT design
+            self.warning_label.setHidden(True)
+            if len(emit_designs) == 0:
+                self.warning_label.setText(
+                    &quot;Warning: The project must contain at least one EMIT design.&quot;
+                )
+                self.warning_label.setHidden(False)
+                return
+
+            self.populating_dropdown = True
+            self.design_name_dropdown.addItems(emit_designs)
+            self.populating_dropdown = False
+            self.emitapp = get_pyaedt_app(desktop_proj.project_name, emit_designs[0])
+            self.design_name_dropdown.setCurrentIndex(0)
+
+            # Check for at least 2 radios
+            radios = self.emitapp.modeler.components.get_radios()
+            self.warning_label.setHidden(True)
+            if len(radios) &lt; 2:
+                self.warning_label.setText(
+                    &quot;Warning: The selected design must contain at least two radios.&quot;
+                )
+                self.warning_label.setHidden(False)
+
+            if self.radio_specific_levels.isEnabled():
+                self.radio_specific_levels.setChecked(False)
+                self.radio_dropdown.clear()
+                self.radio_dropdown.setEnabled(False)
+                self.protection_levels = {}
+                values = [
+                    float(self.protection_legend_table.item(row, 0).text())
+                    for row in range(self.protection_legend_table.rowCount())
+                ]
+                self.protection_levels[&quot;Global&quot;] = values
+
+            self.radio_specific_levels.setEnabled(True)
+            self.protection_results_btn.setEnabled(True)
+            self.interference_results_btn.setEnabled(True)
+
+    # ### Change design selection
+    #
+    # Refresh the warning messages when the selected design changes
+
+    def design_dropdown_changed(self):
+        if self.populating_dropdown:
+            # Don&#39;t load design&#39;s on initial project load
+            return
+
+        design_name = self.design_name_dropdown.currentText()
+        self.emitapp = get_pyaedt_app(self.emitapp.project_name, design_name)
+        # Check for at least 2 radios
+        radios = self.emitapp.modeler.components.get_radios()
+        self.warning_label.setHidden(True)
+        if len(radios) &lt; 2:
+            self.warning_label.setText(
+                &quot;Warning: The selected design must contain at least two radios.&quot;
+            )
+            self.warning_label.setHidden(False)
+
+        # Clear the table if the design is changed
+        self.clear_table()
+
+    # ### Enable radio specific protection levels
+    #
+    # Activate radio selection dropdown and initialize dictionary to store protection levels
+    # when the radio-specific level dropdown is checked.
+
+    def radio_specific(self):
+        self.radio_dropdown.setEnabled(self.radio_specific_levels.isChecked())
+        self.radio_dropdown.clear()
+        if self.radio_dropdown.isEnabled():
+            self.emitapp.set_active_design(self.design_name_dropdown.currentText())
+            radios = self.emitapp.modeler.components.get_radios()
+            values = [
+                float(self.protection_legend_table.item(row, 0).text())
+                for row in range(self.protection_legend_table.rowCount())
+            ]
+            for radio in radios:
+                if radios[radio].has_rx_channels():
+                    self.protection_levels[radio] = values
+                    self.radio_dropdown.addItem(radio)
+        else:
+            self.radio_dropdown.clear()
+            values = [
+                float(self.protection_legend_table.item(row, 0).text())
+                for row in range(self.protection_legend_table.rowCount())
+            ]
+            self.protection_levels[&quot;Global&quot;] = values
+        self.global_protection_level = not self.radio_specific_levels.isChecked()
+
+    # ### Update legend table
+    #
+    # Update shown legend table values when the radio dropdown value changes.
+
+    def radio_dropdown_changed(self):
+        if self.radio_dropdown.isEnabled():
+            self.changing = True
+            for row in range(self.protection_legend_table.rowCount()):
+                item = self.protection_legend_table.item(row, 0)
+                item.setText(
+                    str(self.protection_levels[self.radio_dropdown.currentText()][row])
+                )
+            self.changing = False
+            # update the validator so min/max for each row is properly set
+            values = [
+                float(self.protection_legend_table.item(row, 0).text())
+                for row in range(self.protection_legend_table.rowCount())
+            ]
+            self.delegate.update_values(values)
+
+    # ### Save legend table values
+    #
+    # Save inputted radio protection level threshold values every time one is changed
+    # in the legend table.
+
+    def table_changed(self):
+        if self.changing == False:
+            values = [
+                float(self.protection_legend_table.item(row, 0).text())
+                for row in range(self.protection_legend_table.rowCount())
+            ]
+            if self.radio_dropdown.currentText() == &quot;&quot;:
+                index = &quot;Global&quot;
+            else:
+                index = self.radio_dropdown.currentText()
+            self.protection_levels[index] = values
+            self.delegate.update_values(values)
+
+    # ### Save scenario matrix to as PNG file
+    #
+    # Save the scenario matrix table as a PNG file.
+
+    def save_image(self):
+        if self.tab_widget.currentIndex() == 0:
+            table = self.protection_matrix
+        else:
+            table = self.interference_matrix
+
+        fname, _ = QtWidgets.QFileDialog.getSaveFileName(
+            self, &quot;Save Scenario Matrix&quot;, &quot;Scenario Matrix&quot;, &quot;png (*.png)&quot;
+        )
+        if fname:
+            image = QtGui.QImage(table.size(), QtGui.QImage.Format_ARGB32)
+            table.render(image)
+            image.save(fname)
+
+    # ### Save scenario matrix to Excel file
+    #
+    # Write the scenario matrix results to an Excel file with color coding.
+
+    def save_results_excel(self):
+        defaultName = &quot;&quot;
+        if self.tab_widget.currentIndex() == 0:
+            table = self.protection_matrix
+            defaultName = &quot;Protection Level Classification&quot;
+        else:
+            table = self.interference_matrix
+            defaultName = &quot;Interference Type Classification&quot;
+
+        fname, _ = QtWidgets.QFileDialog.getSaveFileName(
+            self, &quot;Save Scenario Matrix&quot;, defaultName, &quot;xlsx (*.xlsx)&quot;
+        )
+
+        if fname:
+            workbook = openpyxl.Workbook()
+            worksheet = workbook.active
+            header = self.tx_radios[:]
+            header.insert(0, &quot;Tx/Rx&quot;)
+            worksheet.append(header)
+            for row in range(2, table.rowCount() + 2):
+                worksheet.cell(row=row, column=1, value=str(self.rx_radios[row - 2]))
+                for col in range(2, table.columnCount() + 2):
+                    text = str(table.item(row - 2, col - 2).text())
+                    worksheet.cell(row=row, column=col, value=text)
+                    cell = worksheet.cell(row, col)
+                    cell.fill = PatternFill(
+                        start_color=self.color_dict[self.all_colors[col - 2][row - 2]][
+                            1
+                        ][1:],
+                        end_color=self.color_dict[self.all_colors[col - 2][row - 2]][1][
+                            1:
+                        ],
+                        fill_type=&quot;solid&quot;,
+                    )
+            workbook.save(fname)
+
+    # ### Run interference type simulation
+    #
+    # Run interference type simulation and classify results.
+
+    def interference_results(self):
+        # Initialize filter check marks and expected filter results
+        self.interference_checks = [
+            self.in_in_check.isChecked(),
+            self.out_in_check.isChecked(),
+            self.in_out_check.isChecked(),
+            self.out_out_check.isChecked(),
+        ]
+
+        self.interference_filters = [
+            &quot;TxFundamental:In-band&quot;,
+            [&quot;TxHarmonic/Spurious:In-band&quot;, &quot;Intermod:In-band&quot;, &quot;Broadband:In-band&quot;],
+            &quot;TxFundamental:Out-of-band&quot;,
+            [
+                &quot;TxHarmonic/Spurious:Out-of-band&quot;,
+                &quot;Intermod:Out-of-band&quot;,
+                &quot;Broadband:Out-of-band&quot;,
+            ],
+        ]
+
+        # Create list of problem types to analyze according to inputted filters
+        filter = [
+            i
+            for (i, v) in zip(self.interference_filters, self.interference_checks)
+            if v
+        ]
+
+        if (
+            self.file_path_box.text() != &quot;&quot;
+            and self.design_name_dropdown.currentText() != &quot;&quot;
+        ):
+            if (
+                self.previous_design != self.design_name_dropdown.currentText()
+                or self.previous_project != self.file_path_box.text()
+            ):
+                self.previous_design = self.design_name_dropdown.currentText()
+                self.previous_project = self.file_path_box.text()
+                self.emitapp.set_active_design(self.design_name_dropdown.currentText())
+
+                # Check if directory is read-only
+                try:
+                    testfile = tempfile.TemporaryFile(dir=self.emitapp.odesign.GetManagedFilesPath())
+                    testfile.close()
+                except (OSError, PermissionError):
+                    msg = QtWidgets.QMessageBox()
+                    msg.setWindowTitle(&quot;Writing Error&quot;)
+                    msg.setText(
+                        &quot;An error occurred while writing to the file. Is it readonly? Disk full? See AEDT log for more information.&quot;
+                    )
+                    x = msg.exec()
+                    return
+
+                # Get results and radios
+                self.rev = self.emitapp.results.analyze()
+                self.tx_interferer = InterfererType().TRANSMITTERS
+                self.rx_radios = self.rev.get_receiver_names()
+                self.tx_radios = self.rev.get_interferer_names(self.tx_interferer)
+
+                # Check if design is valid
+                if self.tx_radios is None or self.rx_radios is None:
+                    return
+
+            # Classify the interference
+            # Iterate over all the transmitters and receivers and compute the power
+            # at the input to each receiver due to each of the transmitters. Compute
+            # which, if any, type of interference occurred.
+            domain = self.emitapp.results.interaction_domain()
+            (
+                self.all_colors,
+                self.power_matrix,
+            ) = self.rev.interference_type_classification(
+                domain, use_filter=True, filter_list=filter
+            )
+
+            # Save project and plot results on table widget
+            self.emitapp.save_project()
+            self.populate_table()
+
+    # ### Run protection level simulation
+    #
+    # Run protection level simulation and classify results according to inputted
+    # threshold levels.
+
+    def protection_results(self):
+        # Initialize filter check marks and expected filter results
+        self.protection_checks = [
+            self.damage_check.isChecked(),
+            self.overload_check.isChecked(),
+            self.intermodulation_check.isChecked(),
+            self.desensitization_check.isChecked(),
+        ]
+
+        self.protection_filters = [
+            &quot;damage&quot;,
+            &quot;overload&quot;,
+            &quot;intermodulation&quot;,
+            &quot;desensitization&quot;,
+        ]
+
+        filter = [
+            i for (i, v) in zip(self.protection_filters, self.protection_checks) if v
+        ]
+
+        if (
+            self.file_path_box.text() != &quot;&quot;
+            and self.design_name_dropdown.currentText() != &quot;&quot;
+        ):
+            if (
+                self.previous_design != self.design_name_dropdown.currentText()
+                or self.previous_project != self.file_path_box.text()
+            ):
+                self.previous_design = self.design_name_dropdown.currentText()
+                self.previous_project = self.file_path_box.text()
+                self.emitapp.set_active_design(self.design_name_dropdown.currentText())
+
+                # Check if directory is read-only
+                try:
+                    testfile = tempfile.TemporaryFile(dir=self.emitapp.odesign.GetManagedFilesPath())
+                    testfile.close()
+                except (OSError, PermissionError):
+                    msg = QtWidgets.QMessageBox()
+                    msg.setWindowTitle(&quot;Writing Error&quot;)
+                    msg.setText(
+                        &quot;An error occurred while writing to the file. Is it readonly? Disk full? See AEDT log for more information.&quot;
+                    )
+                    x = msg.exec()
+                    return
+
+                # Get results and design radios
+                self.tx_interferer = InterfererType().TRANSMITTERS
+                self.rev = self.emitapp.results.analyze()
+                self.rx_radios = self.rev.get_receiver_names()
+                self.tx_radios = self.rev.get_interferer_names(self.tx_interferer)
+
+            # Check if there are radios in the design
+            if self.tx_radios is None or self.rx_radios is None:
+                return
+
+            domain = self.emitapp.results.interaction_domain()
+            (
+                self.all_colors,
+                self.power_matrix,
+            ) = self.rev.protection_level_classification(
+                domain=domain,
+                interferer_type=self.tx_interferer,
+                global_protection_level=self.global_protection_level,
+                global_levels=self.protection_levels[&quot;Global&quot;],
+                protection_levels=self.protection_levels,
+                use_filter=True,
+                filter_list=filter,
+            )
+
+            self.populate_table()
+
+    # ### Populate the scenario matrix
+    #
+    # Create a scenario matrix view with the transmitters defined across the top
+    # and receivers down the left-most column.
+
+    def populate_table(self):
+        if self.tab_widget.currentIndex() == 0:
+            table = self.protection_matrix
+            button = self.protection_export_btn
+            img_btn = self.protection_save_img_btn
+        else:
+            table = self.interference_matrix
+            button = self.interference_export_btn
+            img_btn = self.interference_save_img_btn
+
+        num_cols = len(self.all_colors)
+        num_rows = len(self.all_colors[0])
+        table.setColumnCount(num_cols)
+        table.setRowCount(num_rows)
+        table.setVerticalHeaderLabels(self.rx_radios)
+        table.setHorizontalHeaderLabels(self.tx_radios)
+
+        for col in range(num_cols):
+            for row in range(num_rows):
+                item = QtWidgets.QTableWidgetItem(str(self.power_matrix[col][row]))
+                table.setItem(row, col, item)
+                cell = table.item(row, col)
+                cell.setBackground(self.color_dict[self.all_colors[col][row]][0])
+
+        button.setEnabled(True)
+        img_btn.setEnabled(True)
+
+    def clear_table(self):
+        # get the table/buttons based on current tab
+        if self.tab_widget.currentIndex() == 0:
+            table = self.protection_matrix
+            button = self.protection_export_btn
+            img_btn = self.protection_save_img_btn
+        else:
+            table = self.interference_matrix
+            button = self.interference_export_btn
+            img_btn = self.interference_save_img_btn
+
+        # disable export options
+        button.setEnabled(False)
+        img_btn.setEnabled(False)
+
+        # clear the table
+        table.setColumnCount(0)
+        table.setRowCount(0)
+
+    # ### GUI closing event
+    #
+    # Close AEDT if the GUI is closed.
+    def closeEvent(self, event):
+        msg = QtWidgets.QMessageBox()
+        msg.setWindowTitle(&quot;Closing GUI&quot;)
+        msg.setText(&quot;Closing AEDT. Wait for the GUI to close on its own.&quot;)
+        x = msg.exec()
+        if self.emitapp:
+            self.emitapp.close_project()
+            self.emitapp.close_desktop()
+        else:
+            desktop.release_desktop(True, True)
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Run-GUI">
+<h2>Run GUI<a class="headerlink" href="#Run-GUI" title="Link to this heading">#</a></h2>
+<p>Run the GUI.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>if __name__ == &quot;__main__&quot;:
+    app = QtWidgets.QApplication([])
+    window = MainWindow()
+    window.show()
+    app.exec()
+else:
+    desktop.release_desktop(True, True)
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<div class="admonition-download-this-example admonition">
+<p class="admonition-title">Download this example</p>
+<p>Download this example as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/antenna/interferences/interference_type.ipynb">Jupyter Notebook</a>
+or as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/antenna/interferences/interference_type.py">Python script</a>.</p>
+</div>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Perform-imports-and-define-constants">Perform imports and define constants</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Launch-EMIT">Launch EMIT</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Add-EmitApiPython-module-to-system-path-to-import-it">Add <code class="docutils literal notranslate"><span class="pre">EmitApiPython</span></code> module to system path to import it</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Define-GUI">Define GUI</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Run-GUI">Run GUI</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item"> 
+<div class="tocsection editthispage">
+  <a href="https://github.com/ansys/pyaedt-examples/edit/main/doc/source/examples/high_frequency/antenna/interferences/interference_type.ipynb">
+    <i class="fa-solid fa-pencil"></i>
+       Edit
+    on GitHub  
+  </a>
+</div>
+
+</div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../../../../_sources/examples/high_frequency/antenna/interferences/interference_type.ipynb.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright (c) 2021 - 2026 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the
+  <a href="https://sphinxdocs.ansys.com/version/stable/index.html"
+    >Ansys Sphinx Theme</a
+  >
+  1.0.11. <br />Last updated on
+  <span id="date"></span>
+</p>
+<script>
+  var options = { day: "numeric", month: "long", year: "numeric" };
+  var lastModifiedDate = new Date(document.lastModified);
+  var date = lastModifiedDate.toLocaleDateString("en-US", options);
+  document.getElementById("date").innerHTML = date;
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
