@@ -60,7 +60,7 @@ hfss.change_material_override(True)
 hfss.change_automatically_use_causal_materials(True)
 hfss.create_open_region("100GHz")
 hfss.modeler.model_units = "mil"
-hfss.mesh.assign_initial_mesh_from_slider(applycurvilinear=True)
+hfss.mesh.assign_initial_mesh_from_slider(curvilinear=True)
 
 # ## Create variables
 #
