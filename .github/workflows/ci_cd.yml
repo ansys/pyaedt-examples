@@ -147,7 +147,6 @@ jobs:
       - name: Create issue on documentation build failure
         if: failure() && github.event_name == 'schedule'
         run: |
-          # Utiliser les variables GitHub pour éviter les problèmes d'échappement
           TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M UTC")
           
           curl -X POST \
