@@ -135,10 +135,10 @@ These examples use PyAEDT to show electrothermal capabilities of AEDT
 
    .. grid-item-card:: HFSS-Icepak microwave oven analysis
       :padding: 2 2 2 2
-      :link: ../hig_frequency/multiphysics/microwave_oven
+      :link: ../high_frequency/multiphysics/microwave_oven
       :link-type: doc
 
-      .. image:: ../hig_frequency/multiphysics/_static/oven.png
+      .. image:: ../high_frequency/multiphysics/_static/oven.png
          :alt: Microwave Oven
          :width: 250px
          :height: 200px
@@ -149,7 +149,7 @@ These examples use PyAEDT to show electrothermal capabilities of AEDT
 
    .. grid-item-card:: Electrothermal analysis / Q3D-Twinbuilder-Icepak
       :padding: 2 2 2 2
-      :link: 3_phase_inverter
+      :link: three_phase_inverter
       :link-type: doc
 
       .. image:: _static/3_phase_inverter.png
@@ -174,5 +174,5 @@ These examples use PyAEDT to show electrothermal capabilities of AEDT
    icepak_circuit_hfss_coupling
    electrothermal
    ../low_frequency/multiphysics/maxwell_icepak
-   ../hig_frequency/multiphysics/microwave_oven
-   3_phase_inverter
+   ../high_frequency/multiphysics/microwave_oven
+   three_phase_inverter
