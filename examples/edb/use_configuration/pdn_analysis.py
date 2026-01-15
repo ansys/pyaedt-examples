@@ -11,6 +11,8 @@ import json
 import os
 import tempfile
 
+import matplotlib.pyplot as plt
+
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.examples.downloads import download_file
 from pyedb import Edb
@@ -29,7 +31,7 @@ file_edb = download_file(source="edb/ANSYS-HSD_V1.aedb", local_path=temp_folder.
 
 # ## Load example layout
 
-edbapp = Edb(file_edb, version=AEDT_VERSION)
+edbapp = Edb(file_edb, edbversion=AEDT_VERSION)
 
 # ## Create an empty dictionary to host all configurations
 
@@ -111,7 +113,7 @@ cfg["setups"] = [
         "freq_sweep": [
             {
                 "name": "Sweep1",
-                "type": "discrete",
+                "type": "interpolation",
                 "frequencies": [{"distribution": "log_scale", "start": 1e6, "stop": 1e9, "increment": 20}],
             }
         ],
@@ -169,7 +171,15 @@ h3d.analyze()
 # ## Plot impedance
 
 solutions = h3d.post.get_solution_data(expressions="Z(port1,port1)")
-fig = solutions.plot(title="PDN Impedance", x_label="Frequency [GHz]", y_label="Z(port1,port1)")
+plot_data = solutions.get_expression_data(convert_to_SI=True, formula="mag")
+x, y = plot_data
+plt.plot(x, y)
+plt.title("PDN Impedance")
+plt.xlabel("Frequency [GHz]")
+plt.ylabel("Z(port1,port1)")
+plt.xscale("log")
+plt.yscale("log")
+plt.show()
 
 # ## Shut Down Electronics Desktop
 
