@@ -11,12 +11,14 @@
 
 # +
 import os.path
+from pathlib import Path
 import tempfile
 import time
 
 import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_file
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
+import examples.extest
 # -
 
 # Define constants.
@@ -24,6 +26,12 @@ from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 AEDT_VERSION = "2025.2"
 NG_MODE = False
 NUM_CORES = 4
+
+# The following variables serve only for the example testing purpose
+
+RESISTANCE_REF = 1.6724005905658806e-5 # reference resistance value (2025.1)
+CONV_ERROR = 0.01 # percentage error
+FILE = Path(__file__)
 
 # ## Create temporary directory
 #
@@ -311,6 +319,12 @@ pdf_report.add_table(
 
 pdf_report.add_toc()
 pdf_report.save_pdf(temp_folder.name, "AEDT_Results.pdf")
+
+# ## Check whether the example has run to completion
+#
+# The following function is only used to test if this PyAEDT example runs correctly.
+
+examples.extest.reference_check(resistance[0], RESISTANCE_REF, CONV_ERROR, FILE)
 
 # ## Release AEDT
 
