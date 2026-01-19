@@ -1,0 +1,591 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "8f0ded93",
+   "metadata": {},
+   "source": [
+    "# Thermal analysis with 3D components"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "87e4e892",
+   "metadata": {},
+   "source": [
+    "This example shows how to create a thermal analysis of an electronic package by\n",
+    "taking advantage of 3D components with advanced features added by PyAEDT.\n",
+    "\n",
+    "Keywords: **Icepak**, **3D components**, **mesh regions**, **monitor objects**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fca59bd0",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "67efab5e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "71a9abdd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from ansys.aedt.core import Icepak\n",
+    "from ansys.aedt.core.examples.downloads import download_icepak_3d_component"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a80f2c20",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e2f91a99",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2fdfe797",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory and download files\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a163486b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")\n",
+    "package_temp_name, qfp_temp_name = download_icepak_3d_component(\n",
+    "    local_path=temp_folder.name\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e90e770b",
+   "metadata": {},
+   "source": [
+    "## Create heatsink\n",
+    "Create an empty project in non-graphical mode."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "567ccd77",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk = Icepak(\n",
+    "    project=os.path.join(temp_folder.name, \"Heatsink.aedt\"),\n",
+    "    version=AEDT_VERSION,\n",
+    "    non_graphical=NG_MODE,\n",
+    "    close_on_exit=True,\n",
+    "    new_desktop=True,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5d039182",
+   "metadata": {},
+   "source": [
+    "Remove the air region, which is present by default. An air region is not needed as the heatsink\n",
+    "is to be exported as a 3D component."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "47770b32",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.modeler[\"Region\"].delete()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d77035e7",
+   "metadata": {},
+   "source": [
+    "Define the heatsink using multiple boxes."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5427fd4c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hs_base = ipk.modeler.create_box(\n",
+    "    origin=[0, 0, 0], sizes=[37.5, 37.5, 2], name=\"HS_Base\"\n",
+    ")\n",
+    "hs_base.material_name = \"Al-Extruded\"\n",
+    "hs_fin = ipk.modeler.create_box(origin=[0, 0, 2], sizes=[37.5, 1, 18], name=\"HS_Fin1\")\n",
+    "hs_fin.material_name = \"Al-Extruded\"\n",
+    "n_fins = 11\n",
+    "hs_fins = hs_fin.duplicate_along_line(vector=[0, 3.65, 0], clones=n_fins)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "17f72650",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.plot(show=False, output_file=os.path.join(temp_folder.name, \"Heatsink.jpg\"))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e3b6e054",
+   "metadata": {},
+   "source": [
+    "Define a mesh region around the heatsink."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "327e3b2c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mesh_region = ipk.mesh.assign_mesh_region(\n",
+    "    assignment=[hs_base.name, hs_fin.name] + hs_fins\n",
+    ")\n",
+    "mesh_region.manual_settings = True\n",
+    "mesh_region.settings[\"MaxElementSizeX\"] = \"5mm\"\n",
+    "mesh_region.settings[\"MaxElementSizeY\"] = \"5mm\"\n",
+    "mesh_region.settings[\"MaxElementSizeZ\"] = \"1mm\"\n",
+    "mesh_region.settings[\"MinElementsInGap\"] = 4\n",
+    "mesh_region.settings[\"MaxLevels\"] = 2\n",
+    "mesh_region.settings[\"BufferLayers\"] = 2\n",
+    "mesh_region.settings[\"EnableMLM\"] = True\n",
+    "mesh_region.settings[\"UniformMeshParametersType\"] = \"Average\"\n",
+    "mesh_region.update()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2b32eb8b",
+   "metadata": {},
+   "source": [
+    "Assign monitor objects."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "cd9615f3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hs_middle_fin = ipk.modeler.get_object_from_name(assignment=hs_fins[n_fins // 2])\n",
+    "point_monitor_position = [\n",
+    "    0.5 * (hs_base.bounding_box[i] + hs_base.bounding_box[i + 3]) for i in range(2)\n",
+    "] + [\n",
+    "    hs_middle_fin.bounding_box[-1]\n",
+    "]  # average x,y, top z\n",
+    "ipk.monitor.assign_point_monitor(\n",
+    "    point_position=point_monitor_position,\n",
+    "    monitor_quantity=[\"Temperature\", \"HeatFlux\"],\n",
+    "    monitor_name=\"TopPoint\",\n",
+    ")\n",
+    "ipk.monitor.assign_face_monitor(\n",
+    "    face_id=hs_base.bottom_face_z.id,\n",
+    "    monitor_quantity=\"Temperature\",\n",
+    "    monitor_name=\"Bottom\",\n",
+    ")\n",
+    "ipk.monitor.assign_point_monitor_in_object(\n",
+    "    name=hs_middle_fin.name,\n",
+    "    monitor_quantity=\"Temperature\",\n",
+    "    monitor_name=\"MiddleFinCenter\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6cf05bca",
+   "metadata": {},
+   "source": [
+    "Export the heatsink 3D component to a ``\"componentLibrary\"`` folder.\n",
+    "The ``auxiliary_dict`` parameter is set to ``True`` to export the monitor objects\n",
+    "along with the A3DCOMP file."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "788926f2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "os.mkdir(os.path.join(temp_folder.name, \"componentLibrary\"))\n",
+    "ipk.modeler.create_3dcomponent(\n",
+    "    input_file=os.path.join(temp_folder.name, \"componentLibrary\", \"Heatsink.a3dcomp\"),\n",
+    "    name=\"Heatsink\",\n",
+    "    export_auxiliary=True,\n",
+    ")\n",
+    "ipk.close_project(save=False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "01b539c9",
+   "metadata": {},
+   "source": [
+    "## Create QFP\n",
+    "Open the previously downloaded project containing a QPF."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2682873f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk = Icepak(project=qfp_temp_name, version=AEDT_VERSION)\n",
+    "ipk.plot(show=False, output_file=os.path.join(temp_folder.name, \"QFP2.jpg\"))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "45f74fd8",
+   "metadata": {},
+   "source": [
+    "Create a dataset for power dissipation."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f319ccc1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "x_datalist = [45, 53, 60, 70]\n",
+    "y_datalist = [0.5, 3, 6, 9]\n",
+    "ipk.create_dataset(\n",
+    "    name=\"PowerDissipationDataset\",\n",
+    "    x=x_datalist,\n",
+    "    y=y_datalist,\n",
+    "    is_project_dataset=False,\n",
+    "    x_unit=\"cel\",\n",
+    "    y_unit=\"W\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "07f4f44e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Assign a source power condition to the die.\n",
+    "bc_ds=ipk.create_temp_dep_assignment(\"PowerDissipationDataset\")\n",
+    "ipk.assign_source(\n",
+    "    assignment=\"DieSource\",\n",
+    "    assignment_value=bc_ds,\n",
+    "    thermal_condition=\"Total Power\",\n",
+    "    boundary_name=\"DieSource\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0ff28285",
+   "metadata": {},
+   "source": [
+    "Assign thickness to the die attach surface."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0d9aa735",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.assign_conducting_plate_with_thickness(\n",
+    "    obj_plate=\"Die_Attach\",\n",
+    "    shell_conduction=True,\n",
+    "    thickness=\"0.05mm\",\n",
+    "    solid_material=\"Epoxy Resin-Typical\",\n",
+    "    boundary_name=\"Die_Attach\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d5d32e7d",
+   "metadata": {},
+   "source": [
+    "Assign monitor objects."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e2e8c07d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.monitor.assign_point_monitor_in_object(\n",
+    "    name=\"QFP2_die\", monitor_quantity=\"Temperature\", monitor_name=\"DieCenter\"\n",
+    ")\n",
+    "ipk.monitor.assign_surface_monitor(\n",
+    "    surface_name=\"Die_Attach\", monitor_quantity=\"Temperature\", monitor_name=\"DieAttach\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "77396ab2",
+   "metadata": {},
+   "source": [
+    "Export the QFP 3D component in the ``\"componentLibrary\"`` folder and close the project.\n",
+    "Here the auxiliary dictionary allows exporting not only the monitor objects but also the dataset\n",
+    "used for the power source assignment."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "32df1f37",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.modeler.create_3dcomponent(\n",
+    "    input_file=os.path.join(temp_folder.name, \"componentLibrary\", \"QFP.a3dcomp\"),\n",
+    "    name=\"QFP\",\n",
+    "    export_auxiliary=True,\n",
+    "    datasets=[\"PowerDissipationDataset\"],\n",
+    ")\n",
+    "ipk.release_desktop(close_projects=False, close_desktop=False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "73bd98ae",
+   "metadata": {},
+   "source": [
+    "## Create complete electronic package\n",
+    "Download and open a project containing the electronic package."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "af198884",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk = Icepak(\n",
+    "    project=package_temp_name,\n",
+    "    version=AEDT_VERSION,\n",
+    "    non_graphical=NG_MODE,\n",
+    ")\n",
+    "ipk.plot(\n",
+    "    assignment=[o for o in ipk.modeler.object_names if not o.startswith(\"DomainBox\")],\n",
+    "    show=False,\n",
+    "    output_file=os.path.join(temp_folder.name, \"electronic_package_missing_obj.jpg\"),\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b51cc5fc",
+   "metadata": {},
+   "source": [
+    "The heatsink and the QFP are missing. They can be inserted as 3D components.\n",
+    "The auxiliary files are needed because the goal is to also import monitor objects and datasets."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fe2c277a",
+   "metadata": {},
+   "source": [
+    "Create a coordinate system for the heatsink so that it is placed on top of the AGP."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5bfa2c36",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "agp = ipk.modeler.get_object_from_name(assignment=\"AGP_IDF\")\n",
+    "cs = ipk.modeler.create_coordinate_system(\n",
+    "    origin=[agp.bounding_box[0], agp.bounding_box[1], agp.bounding_box[-1]],\n",
+    "    name=\"HeatsinkCS\",\n",
+    "    reference_cs=\"Global\",\n",
+    "    x_pointing=[1, 0, 0],\n",
+    "    y_pointing=[0, 1, 0],\n",
+    ")\n",
+    "heatsink_obj = ipk.modeler.insert_3d_component(\n",
+    "    input_file=os.path.join(temp_folder.name, \"componentLibrary\", \"Heatsink.a3dcomp\"),\n",
+    "    coordinate_system=\"HeatsinkCS\",\n",
+    "    auxiliary_parameters=True,\n",
+    ")\n",
+    "\n",
+    "QFP2_obj = ipk.modeler.insert_3d_component(\n",
+    "    input_file=os.path.join(temp_folder.name, \"componentLibrary\", \"QFP.a3dcomp\"),\n",
+    "    coordinate_system=\"Global\",\n",
+    "    auxiliary_parameters=True,\n",
+    ")\n",
+    "\n",
+    "ipk.plot(\n",
+    "    assignment=[o for o in ipk.modeler.object_names if not o.startswith(\"DomainBox\")],\n",
+    "    show=False,\n",
+    "    plot_air_objects=False,\n",
+    "    output_file=os.path.join(temp_folder.name, \"electronic_package.jpg\"),\n",
+    "    force_opacity_value=0.5,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b52cdfd7",
+   "metadata": {},
+   "source": [
+    "Create a coordinate system at the xmin, ymin, and zmin of the model."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b0461676",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "bounding_box = ipk.modeler.get_model_bounding_box()\n",
+    "cs_pcb_assembly = ipk.modeler.create_coordinate_system(\n",
+    "    origin=[bounding_box[0], bounding_box[1], bounding_box[2]],\n",
+    "    name=\"PCB_Assembly\",\n",
+    "    reference_cs=\"Global\",\n",
+    "    x_pointing=[1, 0, 0],\n",
+    "    y_pointing=[0, 1, 0],\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a659dc67",
+   "metadata": {},
+   "source": [
+    "Export the entire assembly as a 3D component and close the project. First, the nested\n",
+    "hierarchy must be flattened because nested 3D components are currently not supported. Subsequently,\n",
+    "the whole package can be exported as a 3D component. The auxiliary dictionary is needed\n",
+    "to export monitor objects, datasets, and native components."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4130d080",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.flatten_3d_components()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6279e362",
+   "metadata": {},
+   "source": [
+    "## Release AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "96f015c8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.save_project()\n",
+    "ipk.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5da0b0ab",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "00a34966",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

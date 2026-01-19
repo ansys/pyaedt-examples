@@ -1,0 +1,329 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "741f6ee3",
+   "metadata": {},
+   "source": [
+    "# Lumped element filter design\n",
+    "\n",
+    "This example shows how to use PyAEDT to use the ``FilterSolutions`` module to design and\n",
+    "visualize the frequency response of a band-pass Butterworth filter and export the lumped element model to AEDT Circuit.\n",
+    "\n",
+    "Keywords: **filter solutions**"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6951be4b",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "93476de8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import ansys.aedt.core\n",
+    "import ansys.aedt.core.filtersolutions\n",
+    "import matplotlib.pyplot as plt\n",
+    "from ansys.aedt.core.filtersolutions_core.attributes import FilterClass, FilterType\n",
+    "from ansys.aedt.core.filtersolutions_core.export_to_aedt import ExportFormat\n",
+    "from ansys.aedt.core.filtersolutions_core.ideal_response import (\n",
+    "    SParametersResponseColumn,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "aa0e17ef",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "37dbbc4b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4bbff672",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "source": [
+    "## Define function used for plotting\n",
+    "\n",
+    "Define formal plot function."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "795b8293",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def format_plot():\n",
+    "    plt.xlabel(\"Frequency (Hz)\")\n",
+    "    plt.ylabel(\"Magnitude S21 (dB)\")\n",
+    "    plt.title(\"Frequency Response\")\n",
+    "    plt.xscale(\"log\")\n",
+    "    plt.legend()\n",
+    "    plt.grid()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9f2c49df",
+   "metadata": {},
+   "source": [
+    "## Create lumped filter design\n",
+    "\n",
+    "Create a lumped element filter design and assign the class, type, frequency, and order."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a2723357",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "lumped_design = ansys.aedt.core.filtersolutions.LumpedDesign(version=AEDT_VERSION)\n",
+    "lumped_design.attributes.filter_class = FilterClass.BAND_PASS\n",
+    "lumped_design.attributes.filter_type = FilterType.BUTTERWORTH\n",
+    "lumped_design.attributes.pass_band_center_frequency = \"1G\"\n",
+    "lumped_design.attributes.pass_band_width_frequency = \"500M\"\n",
+    "lumped_design.attributes.filter_order = 5"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f8956046",
+   "metadata": {},
+   "source": [
+    "## Plot frequency response of filter\n",
+    "\n",
+    "Plot the frequency response of the filter without any transmission zeros."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "72563590",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "freq, s21_db = lumped_design.ideal_response.s_parameters(SParametersResponseColumn.S21_DB)\n",
+    "plt.plot(freq, s21_db, linewidth=2.0, label=\"Without Tx Zero\")\n",
+    "format_plot()\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b9fa6585",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "source": [
+    "<img src=\"_static/ideal_filter_response.png\" width=\"400\">"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "52a88951",
+   "metadata": {},
+   "source": [
+    "## Add a transmission zero to filter design\n",
+    "\n",
+    "Add a transmission zero that yields nulls separated by two times the pass band width (1 GHz).\n",
+    "Plot the frequency response of the filter with the transmission zero."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d8ffbb10",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "lumped_design.transmission_zeros_ratio.append_row(\"2.0\")\n",
+    "freq_with_zero, s21_db_with_zero = lumped_design.ideal_response.s_parameters(SParametersResponseColumn.S21_DB)\n",
+    "plt.plot(freq, s21_db, linewidth=2.0, label=\"Without Tx Zero\")\n",
+    "plt.plot(freq_with_zero, s21_db_with_zero, linewidth=2.0, label=\"With Tx Zero\")\n",
+    "format_plot()\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d326fd65",
+   "metadata": {},
+   "source": [
+    "<img src=\"_static/filter_response_added_zeros.png\" width=\"400\">"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c18b5546",
+   "metadata": {},
+   "source": [
+    "## Generate netlist for designed filter\n",
+    "\n",
+    "Generate and print the netlist for the designed filter with the added transmission zero to\n",
+    "the filter."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f3662b60",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "netlist = lumped_design.topology.netlist()\n",
+    "print(\"Netlist: \\n\", netlist)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6719c6aa",
+   "metadata": {},
+   "source": [
+    " ### Printed output:\n",
+    "```\n",
+    "Netlist:\n",
+    " *\n",
+    "V1 1 0 AC 1 PULSE 0 1 0 1.592E-13 0\n",
+    "R0 1 2 50\n",
+    "*\n",
+    "* Dummy Resistors Required For Spice\n",
+    "* Have Been Added to Net List.\n",
+    "*\n",
+    "L1 2 0 6.674E-09\n",
+    "C2 2 0 3.796E-12\n",
+    "C3 2 3 1.105E-12\n",
+    "L4 3 4 2.292E-08\n",
+    "L5 4 5 8.53E-09\n",
+    "C5 5 0 7.775E-12\n",
+    "L6 4 6 3.258E-09\n",
+    "C6 6 0 2.97E-12\n",
+    "C7 4 7 1.105E-12\n",
+    "Rq7 4 7 5E+10\n",
+    "L8 7 8 2.292E-08\n",
+    "L9 8 0 6.674E-09\n",
+    "C10 8 0 3.796E-12\n",
+    "R11 8 0 50\n",
+    "*\n",
+    ".AC DEC 200 2E+08 5E+09\n",
+    ".PLOT AC VDB(8) -80 0\n",
+    ".PLOT AC VP(8) -200 200\n",
+    ".PLOT AC VG(8) 0 5E-09\n",
+    ".TRAN  5E-11 1E-08 0\n",
+    ".PLOT TRAN V(8) -0.09 0.1\n",
+    ".END\n",
+    "```"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "74a73f14",
+   "metadata": {},
+   "source": [
+    "## Export lumped element model of the filter to AEDT Circuit\n",
+    "\n",
+    "Export the designed filter with the added transmission zero to\n",
+    "AEDT Circuit with the defined export parameters."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3d1b45a6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "lumped_design.export_to_aedt.schematic_name = \"LumpedElementFilter\"\n",
+    "lumped_design.export_to_aedt.simulate_after_export_enabled = True\n",
+    "lumped_design.export_to_aedt.smith_plot_enabled = True\n",
+    "lumped_design.export_to_aedt.table_data_enabled = True\n",
+    "circuit = lumped_design.export_to_aedt.export_design(export_format=ExportFormat.DIRECT_TO_AEDT)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0d81e433",
+   "metadata": {},
+   "source": [
+    "<img src=\"_static/exported_filter_to_desktop.png\" width=\"400\">"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fcb11115",
+   "metadata": {},
+   "source": [
+    "## Plot the simulated circuit\n",
+    "\n",
+    "Get the scattering parameter data from the AEDT Circuit simulation and create a plot."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c8601334",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "solutions = circuit.post.get_solution_data(\n",
+    "    expressions=circuit.get_traces_for_plot(category=\"S\"),\n",
+    ")\n",
+    "sim_freq = solutions.primary_sweep_values\n",
+    "sim_freq_ghz = [i * 1e9 for i in sim_freq]\n",
+    "sim_s21_db = solutions.data_db20(expression=\"S(Port2,Port1)\")\n",
+    "plt.plot(freq, s21_db, linewidth=2.0, label=\"Without Tx Zero\")\n",
+    "plt.plot(freq_with_zero, s21_db_with_zero, linewidth=2.0, label=\"With Tx Zero\")\n",
+    "plt.plot(sim_freq_ghz, sim_s21_db, linewidth=2.0, linestyle=\"--\", label=\"Simulated\")\n",
+    "format_plot()\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a18cc262",
+   "metadata": {},
+   "source": [
+    "<img src=\"_static/simulated_filter_response.png\" width=\"400\">"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  },
+  "nbsphinx": {
+   "execute": "never"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

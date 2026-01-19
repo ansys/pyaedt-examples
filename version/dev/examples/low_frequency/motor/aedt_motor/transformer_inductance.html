@@ -1,0 +1,1074 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Transformer leakage inductance calculation &#8212; PyAEDT Examples</title>
+
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=fd3f3429" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css\ansys_sphinx_theme.css?v=d2ac875c" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css?v=9233c59b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/highlight.css?v=500661c4" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+ 
+<link href="../../../../_static/css/breadcrumbs.css" rel="stylesheet" />
+
+    <script src="../../../../_static/documentation_options.js?v=e7fb764e"></script>
+    <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=49e1bf35"></script>
+    <script src="../../../../_static/js\table.js?v=b64f5182"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/low_frequency/motor/aedt_motor/transformer_inductance';</script>
+    <link rel="icon" href="../../../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <link rel="canonical" href="https://examples.aedt.docs.pyansys.com/version/stable/examples/low_frequency/motor/aedt_motor/transformer_inductance.html" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container"><!-- Debugging: html_theme_options =  -->
+
+  <!-- If there is no MeiliSearch enabled, use the PyData search -->
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+   
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="https://www.ansys.com/">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../_static/ansys_logo_transparent_black.png" class="logo__image only-light" alt="PyAEDT Examples - Home"/>
+    <script>document.write(`<img src="../../../../_static/ansys_logo_transparent_white.png" class="logo__image only-dark" alt="PyAEDT Examples - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Examples
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+    
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Examples
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+       
+    <li class="breadcrumb-item">
+      <a href="https://aedt.docs.pyansys.com/" class="nav-link">PyAEDT</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="../../../../index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page">Transformer leakage inductance calculation</li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="admonition-download-this-example admonition">
+<p class="admonition-title">Download this example</p>
+<p>Download this example as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/low_frequency/motor/aedt_motor/transformer_inductance.ipynb">Jupyter Notebook</a>
+or as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/low_frequency/motor/aedt_motor/transformer_inductance.py">Python script</a>.</p>
+</div>
+<hr class="docutils" />
+<section id="Transformer-leakage-inductance-calculation">
+<h1>Transformer leakage inductance calculation<a class="headerlink" href="#Transformer-leakage-inductance-calculation" title="Link to this heading">#</a></h1>
+<p>This example shows how to use PyAEDT to create a Maxwell 2D magnetostatic analysis to calculate transformer leakage inductance and reactance. The analysis based on this document is from page 8 in Professor S. V. Kulkami’s paper, <a class="reference external" href="https://www.ee.iitb.ac.in/~fclab/FEM/FEM1.pdf">Basis of Finite Element Method</a>.</p>
+<p>Keywords: <strong>Maxwell 2D</strong>, <strong>transformer</strong>, <strong>motor</strong>.</p>
+<section id="Perform-imports-and-define-constants">
+<h2>Perform imports and define constants<a class="headerlink" href="#Perform-imports-and-define-constants" title="Link to this heading">#</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">ansys.aedt.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">Maxwell2d</span>
+</pre></div>
+</div>
+</div>
+<p>Define constants,</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">AEDT_VERSION</span> <span class="o">=</span> <span class="s2">&quot;2025.2&quot;</span>
+<span class="n">NUM_CORES</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">NG_MODE</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Open AEDT UI when it is launched.</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Create-temporary-directory">
+<h2>Create temporary directory<a class="headerlink" href="#Create-temporary-directory" title="Link to this heading">#</a></h2>
+<p>Create a temporary directory where downloaded data or dumped data can be stored. If you’d like to retrieve the project data for subsequent use, the temporary folder name is given by <code class="docutils literal notranslate"><span class="pre">temp_folder.name</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">temp_folder</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.ansys&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Initialize-and-launch-Maxwell-2D">
+<h2>Initialize and launch Maxwell 2D<a class="headerlink" href="#Initialize-and-launch-Maxwell-2D" title="Link to this heading">#</a></h2>
+<p>Initialize and launch Maxwell 2D, providing the version, the path to the project, the design name, and the type.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><br/><span></span><span class="n">project_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;Magnetostatic.aedt&quot;</span><span class="p">)</span>
+<span class="n">m2d</span> <span class="o">=</span> <span class="n">Maxwell2d</span><span class="p">(</span>
+    <span class="n">version</span><span class="o">=</span><span class="n">AEDT_VERSION</span><span class="p">,</span>
+    <span class="n">new_desktop</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">design</span><span class="o">=</span><span class="s2">&quot;Transformer_leakage_inductance&quot;</span><span class="p">,</span>
+    <span class="n">project</span><span class="o">=</span><span class="n">project_name</span><span class="p">,</span>
+    <span class="n">solution_type</span><span class="o">=</span><span class="s2">&quot;MagnetostaticXY&quot;</span><span class="p">,</span>
+    <span class="n">non_graphical</span><span class="o">=</span><span class="n">NG_MODE</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Python version 3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)].
+PyAEDT INFO: PyAEDT version 0.25.dev0.
+PyAEDT INFO: Initializing new Desktop session.
+PyAEDT INFO: Log on console is enabled.
+PyAEDT INFO: Log on file C:\Users\ansys\AppData\Local\Temp\pyaedt_ansys_21a25ac8-9fdc-43cd-821f-81389ce905cb.log is enabled.
+PyAEDT INFO: Log on AEDT is disabled.
+PyAEDT INFO: Starting new AEDT gRPC session.
+PyAEDT INFO: AEDT installation Path C:\Program Files\ANSYS Inc\v252\AnsysEM
+PyAEDT INFO: Client application successfully started.
+PyAEDT INFO: New AEDT gRPC session session started on port 50051.
+PyAEDT INFO: 2025.2 version started with process ID 5356.
+PyAEDT WARNING: Service Pack is not detected. PyAEDT is currently connecting in Insecure Mode.
+PyAEDT WARNING: Please download and install latest Service Pack to use connect to AEDT in Secure Mode.
+PyAEDT INFO: Debug logger is disabled. PyAEDT methods will not be logged.
+PyAEDT INFO: Project Magnetostatic has been created.
+PyAEDT INFO: Added design &#39;Transformer_leakage_inductance&#39; of type Maxwell 2D.
+PyAEDT INFO: Aedt Objects correctly read
+</pre></div></div>
+</div>
+</section>
+<section id="Initialize-dictionaries">
+<h2>Initialize dictionaries<a class="headerlink" href="#Initialize-dictionaries" title="Link to this heading">#</a></h2>
+<p>Set modeler units and initialize dictionaries that contain all the definitions for the design variables.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m2d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">model_units</span> <span class="o">=</span> <span class="s2">&quot;mm&quot;</span>
+
+<span class="n">dimensions</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;core_width&quot;</span><span class="p">:</span> <span class="s2">&quot;1097mm&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;core_height&quot;</span><span class="p">:</span> <span class="s2">&quot;2880mm&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;core_opening_x1&quot;</span><span class="p">:</span> <span class="s2">&quot;270mm&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;core_opening_x2&quot;</span><span class="p">:</span> <span class="s2">&quot;557mm&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;core_opening_y1&quot;</span><span class="p">:</span> <span class="s2">&quot;540mm&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;core_opening_y2&quot;</span><span class="p">:</span> <span class="s2">&quot;2340mm&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;core_opening_width&quot;</span><span class="p">:</span> <span class="s2">&quot;core_opening_x2-core_opening_x1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;core_opening_height&quot;</span><span class="p">:</span> <span class="s2">&quot;core_opening_y2-core_opening_y1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LV_x1&quot;</span><span class="p">:</span> <span class="s2">&quot;293mm&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LV_x2&quot;</span><span class="p">:</span> <span class="s2">&quot;345mm&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LV_width&quot;</span><span class="p">:</span> <span class="s2">&quot;LV_x2-LV_x1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LV_mean_radius&quot;</span><span class="p">:</span> <span class="s2">&quot;LV_x1+LV_width/2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LV_mean_turn_length&quot;</span><span class="p">:</span> <span class="s2">&quot;pi*2*LV_mean_radius&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LV_y1&quot;</span><span class="p">:</span> <span class="s2">&quot;620mm&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LV_y2&quot;</span><span class="p">:</span> <span class="s2">&quot;2140mm&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LV_height&quot;</span><span class="p">:</span> <span class="s2">&quot;LV_y2-LV_y1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;HV_x1&quot;</span><span class="p">:</span> <span class="s2">&quot;394mm&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;HV_x2&quot;</span><span class="p">:</span> <span class="s2">&quot;459mm&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;HV_width&quot;</span><span class="p">:</span> <span class="s2">&quot;HV_x2-HV_x1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;HV_mean_radius&quot;</span><span class="p">:</span> <span class="s2">&quot;HV_x1+HV_width/2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;HV_mean_turn_length&quot;</span><span class="p">:</span> <span class="s2">&quot;pi*2*HV_mean_radius&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;HV_y1&quot;</span><span class="p">:</span> <span class="s2">&quot;620mm&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;HV_y2&quot;</span><span class="p">:</span> <span class="s2">&quot;2140mm&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;HV_height&quot;</span><span class="p">:</span> <span class="s2">&quot;HV_y2-HV_y1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;HV_LV_gap_radius&quot;</span><span class="p">:</span> <span class="s2">&quot;(LV_x2 + HV_x1)/2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;HV_LV_gap_length&quot;</span><span class="p">:</span> <span class="s2">&quot;pi*2*HV_LV_gap_radius&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">specifications</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;Amp_turns&quot;</span><span class="p">:</span> <span class="s2">&quot;135024A&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Frequency&quot;</span><span class="p">:</span> <span class="s2">&quot;50Hz&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;HV_turns&quot;</span><span class="p">:</span> <span class="s2">&quot;980&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;HV_current&quot;</span><span class="p">:</span> <span class="s2">&quot;Amp_turns/HV_turns&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Modeler2D class has been initialized!
+PyAEDT INFO: Modeler class has been initialized! Elapsed time: 0m 1sec
+</pre></div></div>
+</div>
+</section>
+<section id="Define-variables-from-dictionaries">
+<h2>Define variables from dictionaries<a class="headerlink" href="#Define-variables-from-dictionaries" title="Link to this heading">#</a></h2>
+<p>Define design variables from the created dictionaries.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m2d</span><span class="o">.</span><span class="n">variable_manager</span><span class="o">.</span><span class="n">set_variable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;Dimensions&quot;</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">dimensions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">m2d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+
+<span class="n">m2d</span><span class="o">.</span><span class="n">variable_manager</span><span class="o">.</span><span class="n">set_variable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;Windings&quot;</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">specifications</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">m2d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Create-design-geometries">
+<h2>Create design geometries<a class="headerlink" href="#Create-design-geometries" title="Link to this heading">#</a></h2>
+<p>Create the transformer core, the HV and LV windings, and the region.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">core</span> <span class="o">=</span> <span class="n">m2d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_rectangle</span><span class="p">(</span>
+    <span class="n">origin</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+    <span class="n">sizes</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;core_width&quot;</span><span class="p">,</span> <span class="s2">&quot;core_height&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;core&quot;</span><span class="p">,</span>
+    <span class="n">material</span><span class="o">=</span><span class="s2">&quot;steel_1008&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">core_hole</span> <span class="o">=</span> <span class="n">m2d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_rectangle</span><span class="p">(</span>
+    <span class="n">origin</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;core_opening_x1&quot;</span><span class="p">,</span> <span class="s2">&quot;core_opening_y1&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+    <span class="n">sizes</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;core_opening_width&quot;</span><span class="p">,</span> <span class="s2">&quot;core_opening_height&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;core_hole&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">m2d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">blank_list</span><span class="o">=</span><span class="p">[</span><span class="n">core</span><span class="p">],</span> <span class="n">tool_list</span><span class="o">=</span><span class="p">[</span><span class="n">core_hole</span><span class="p">],</span> <span class="n">keep_originals</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="n">lv</span> <span class="o">=</span> <span class="n">m2d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_rectangle</span><span class="p">(</span>
+    <span class="n">origin</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;LV_x1&quot;</span><span class="p">,</span> <span class="s2">&quot;LV_y1&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+    <span class="n">sizes</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;LV_width&quot;</span><span class="p">,</span> <span class="s2">&quot;LV_height&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;LV&quot;</span><span class="p">,</span>
+    <span class="n">material</span><span class="o">=</span><span class="s2">&quot;copper&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">hv</span> <span class="o">=</span> <span class="n">m2d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_rectangle</span><span class="p">(</span>
+    <span class="n">origin</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;HV_x1&quot;</span><span class="p">,</span> <span class="s2">&quot;HV_y1&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+    <span class="n">sizes</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;HV_width&quot;</span><span class="p">,</span> <span class="s2">&quot;HV_height&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;HV&quot;</span><span class="p">,</span>
+    <span class="n">material</span><span class="o">=</span><span class="s2">&quot;copper&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">region</span> <span class="o">=</span> <span class="n">m2d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_region</span><span class="p">(</span><span class="n">pad_percent</span><span class="o">=</span><span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span>
+
+<span class="c1"># ## Assign boundary condition</span>
+<span class="c1">#</span>
+<span class="c1"># Assign vector potential to zero on all region boundaries. This makes x=0 edge a symmetry boundary.</span>
+
+<span class="n">m2d</span><span class="o">.</span><span class="n">assign_vector_potential</span><span class="p">(</span><span class="n">assignment</span><span class="o">=</span><span class="n">region</span><span class="o">.</span><span class="n">edges</span><span class="p">,</span> <span class="n">boundary</span><span class="o">=</span><span class="s2">&quot;VectorPotential1&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Materials class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Parsing design objects. This operation can take time
+PyAEDT INFO: Refreshing bodies from Object Info
+PyAEDT INFO: Bodies Info Refreshed Elapsed time: 0m 0sec
+PyAEDT INFO: 3D Modeler objects parsed. Elapsed time: 0m 0sec
+PyAEDT INFO: Boundary Vector Potential VectorPotential1 has been created.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+VectorPotential1
+</pre></div></div>
+</div>
+</section>
+<section id="Create-initial-mesh-settings">
+<h2>Create initial mesh settings<a class="headerlink" href="#Create-initial-mesh-settings" title="Link to this heading">#</a></h2>
+<p>Assign a relatively dense mesh to all objects to ensure that the energy is calculated accurately.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m2d</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">assign_length_mesh</span><span class="p">(</span>
+    <span class="n">assignment</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;core&quot;</span><span class="p">,</span> <span class="s2">&quot;Region&quot;</span><span class="p">,</span> <span class="s2">&quot;LV&quot;</span><span class="p">,</span> <span class="s2">&quot;HV&quot;</span><span class="p">],</span>
+    <span class="n">maximum_length</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+    <span class="n">maximum_elements</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;all_objects&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Mesh class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Mesh class has been initialized! Elapsed time: 0m 0sec
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+all_objects
+</pre></div></div>
+</div>
+</section>
+<section id="Define-excitations">
+<h2>Define excitations<a class="headerlink" href="#Define-excitations" title="Link to this heading">#</a></h2>
+<p>Assign the same current in amp-turns but in opposite directions to the HV and LV windings.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m2d</span><span class="o">.</span><span class="n">assign_current</span><span class="p">(</span><span class="n">assignment</span><span class="o">=</span><span class="n">lv</span><span class="p">,</span> <span class="n">amplitude</span><span class="o">=</span><span class="s2">&quot;Amp_turns&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;LV&quot;</span><span class="p">)</span>
+<span class="n">m2d</span><span class="o">.</span><span class="n">assign_current</span><span class="p">(</span><span class="n">assignment</span><span class="o">=</span><span class="n">hv</span><span class="p">,</span> <span class="n">amplitude</span><span class="o">=</span><span class="s2">&quot;Amp_turns&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;HV&quot;</span><span class="p">,</span> <span class="n">swap_direction</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Boundary Current LV has been created.
+PyAEDT INFO: Boundary Current HV has been created.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+HV
+</pre></div></div>
+</div>
+</section>
+<section id="Create-and-analyze-setup">
+<h2>Create and analyze setup<a class="headerlink" href="#Create-and-analyze-setup" title="Link to this heading">#</a></h2>
+<p>Create and analyze the setup. Set the number of minimum passes to 3 to ensure accuracy.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m2d</span><span class="o">.</span><span class="n">create_setup</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;Setup1&quot;</span><span class="p">,</span> <span class="n">MinimumPasses</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">m2d</span><span class="o">.</span><span class="n">analyze_setup</span><span class="p">(</span><span class="n">use_auto_settings</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cores</span><span class="o">=</span><span class="n">NUM_CORES</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Key Desktop/ActiveDSOConfigurations/Maxwell 2D correctly changed.
+PyAEDT INFO: Solving all design setups. Analysis started...
+PyAEDT INFO: Design setup None solved correctly in 0.0h 0.0m 31.0s
+PyAEDT INFO: Key Desktop/ActiveDSOConfigurations/Maxwell 2D correctly changed.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+</section>
+<section id="Calculate-transformer-leakage-inductance-and-reactance">
+<h2>Calculate transformer leakage inductance and reactance<a class="headerlink" href="#Calculate-transformer-leakage-inductance-and-reactance" title="Link to this heading">#</a></h2>
+<p>Calculate transformer leakage inductance from the magnetic energy with PyAEDT advanced fields calculator.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">leakage_inductance</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Leakage_inductance&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Leakage inductance from the magnetic energy&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;design_type&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Maxwell 2D&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;fields_type&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Fields&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;primary_sweep&quot;</span><span class="p">:</span> <span class="s2">&quot;Distance&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;assignment&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;assignment_type&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Line&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;operations&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;Fundamental_Quantity(&#39;Energy&#39;)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;EnterSurface(&#39;HV&#39;)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Operation(&#39;SurfaceValue&#39;)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Operation(&#39;Integrate&#39;)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Scalar_Function(FuncValue=&#39;HV_mean_turn_length&#39;)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Operation(&#39;*&#39;)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Fundamental_Quantity(&#39;Energy&#39;)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;EnterSurface(&#39;LV&#39;)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Operation(&#39;SurfaceValue&#39;)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Operation(&#39;Integrate&#39;)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Scalar_Function(FuncValue=&#39;LV_mean_turn_length&#39;)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Operation(&#39;*&#39;)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Fundamental_Quantity(&#39;Energy&#39;)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;EnterSurface(&#39;Region&#39;)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Operation(&#39;SurfaceValue&#39;)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Operation(&#39;Integrate&#39;)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Scalar_Function(FuncValue=&#39;HV_LV_gap_length&#39;)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Operation(&#39;*&#39;)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Operation(&#39;+&#39;)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Operation(&#39;+&#39;)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Scalar_Constant(2)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Operation(&#39;*&#39;)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Scalar_Function(FuncValue=&#39;HV_current&#39;)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Scalar_Function(FuncValue=&#39;HV_current&#39;)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Operation(&#39;*&#39;)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Operation(&#39;/&#39;)&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;report&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Data Table&quot;</span><span class="p">,</span> <span class="s2">&quot;Rectangular Plot&quot;</span><span class="p">],</span>
+<span class="p">}</span>
+<span class="n">m2d</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">fields_calculator</span><span class="o">.</span><span class="n">add_expression</span><span class="p">(</span><span class="n">leakage_inductance</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+<span class="n">leakage_reactance</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Leakage_reactance&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Leakage reactance from the magnetic energy&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;design_type&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Maxwell 2D&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;fields_type&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Fields&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;primary_sweep&quot;</span><span class="p">:</span> <span class="s2">&quot;Distance&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;assignment&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;assignment_type&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Line&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;operations&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;NameOfExpression(&#39;Leakage_inductance&#39;)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Scalar_Constant(2)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Scalar_Constant(3.14159)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Scalar_Function(FuncValue=&#39;Frequency&#39;)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Operation(&#39;*&#39;)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Operation(&#39;*&#39;)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Operation(&#39;*&#39;)&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;report&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Data Table&quot;</span><span class="p">,</span> <span class="s2">&quot;Rectangular Plot&quot;</span><span class="p">],</span>
+<span class="p">}</span>
+<span class="n">m2d</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">fields_calculator</span><span class="o">.</span><span class="n">add_expression</span><span class="p">(</span><span class="n">leakage_reactance</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+<span class="n">m2d</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">create_report</span><span class="p">(</span>
+    <span class="n">expressions</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Leakage_inductance&quot;</span><span class="p">,</span> <span class="s2">&quot;Leakage_reactance&quot;</span><span class="p">],</span>
+    <span class="n">report_category</span><span class="o">=</span><span class="s2">&quot;Fields&quot;</span><span class="p">,</span>
+    <span class="n">primary_sweep_variable</span><span class="o">=</span><span class="s2">&quot;core_width&quot;</span><span class="p">,</span>
+    <span class="n">plot_type</span><span class="o">=</span><span class="s2">&quot;Data Table&quot;</span><span class="p">,</span>
+    <span class="n">plot_name</span><span class="o">=</span><span class="s2">&quot;Transformer Leakage Inductance&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Parsing C:\Users\ansys\AppData\Local\Temp\tmpclobvbu_.ansys\Magnetostatic.aedt.
+PyAEDT INFO: File C:\Users\ansys\AppData\Local\Temp\tmpclobvbu_.ansys\Magnetostatic.aedt correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: aedt file load time 0.009378194808959961
+PyAEDT INFO: PostProcessor class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: PostProcessor class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Post class has been initialized! Elapsed time: 0m 0sec
+PyAEDT WARNING: No context provided for Fields. Assigned object: None
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Transformer Leakage Inductance
+</pre></div></div>
+</div>
+</section>
+<section id="Print-leakage-inductance-and-reactance-values-in-AEDT-Message-Manager">
+<h2>Print leakage inductance and reactance values in AEDT Message Manager<a class="headerlink" href="#Print-leakage-inductance-and-reactance-values-in-AEDT-Message-Manager" title="Link to this heading">#</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m2d</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">clear_messages</span><span class="p">()</span>
+<span class="n">m2d</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+    <span class="s2">&quot;Leakage_inductance =  </span><span class="si">{:.4f}</span><span class="s2">H&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">m2d</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">get_scalar_field_value</span><span class="p">(</span><span class="n">quantity</span><span class="o">=</span><span class="s2">&quot;Leakage_inductance&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+<span class="n">m2d</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+    <span class="s2">&quot;Leakage_reactance =  </span><span class="si">{:.2f}</span><span class="s2">Ohm&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">m2d</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">get_scalar_field_value</span><span class="p">(</span><span class="n">quantity</span><span class="o">=</span><span class="s2">&quot;Leakage_reactance&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Exporting Leakage_inductance field. Be patient
+PyAEDT INFO: Quantity Leakage_inductance not present. Trying to get it from Stack
+PyAEDT INFO: Leakage_inductance =  0.1564H
+PyAEDT INFO: Exporting Leakage_reactance field. Be patient
+PyAEDT INFO: Quantity Leakage_reactance not present. Trying to get it from Stack
+PyAEDT INFO: Leakage_reactance =  49.15Ohm
+</pre></div></div>
+</div>
+</section>
+<section id="Plot-energy-in-the-simulation-domain">
+<h2>Plot energy in the simulation domain<a class="headerlink" href="#Plot-energy-in-the-simulation-domain" title="Link to this heading">#</a></h2>
+<p>Most of the energy is confined in the air between the HV and LV windings.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">energy_field_overlay</span> <span class="o">=</span> <span class="n">m2d</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">create_fieldplot_surface</span><span class="p">(</span>
+    <span class="n">assignment</span><span class="o">=</span><span class="n">m2d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">object_names</span><span class="p">,</span>
+    <span class="n">quantity</span><span class="o">=</span><span class="s2">&quot;energy&quot;</span><span class="p">,</span>
+    <span class="n">plot_name</span><span class="o">=</span><span class="s2">&quot;Energy&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Active Design set to Transformer_leakage_inductance
+</pre></div></div>
+</div>
+</section>
+<section id="Release-AEDT">
+<h2>Release AEDT<a class="headerlink" href="#Release-AEDT" title="Link to this heading">#</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m2d</span><span class="o">.</span><span class="n">save_project</span><span class="p">()</span>
+<span class="n">m2d</span><span class="o">.</span><span class="n">release_desktop</span><span class="p">()</span>
+<span class="c1"># Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.</span>
+<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Project Magnetostatic Saved correctly
+PyAEDT INFO: Desktop has been released and closed.
+</pre></div></div>
+</div>
+</section>
+<section id="Clean-up">
+<h2>Clean up<a class="headerlink" href="#Clean-up" title="Link to this heading">#</a></h2>
+<p>All project files are saved in the folder <code class="docutils literal notranslate"><span class="pre">temp_folder.name</span></code>. If you’ve run this example as a Jupyter notebook, you can retrieve those project files. The following cell removes all temporary files, including the project folder.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">temp_folder</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<div class="admonition-download-this-example admonition">
+<p class="admonition-title">Download this example</p>
+<p>Download this example as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/low_frequency/motor/aedt_motor/transformer_inductance.ipynb">Jupyter Notebook</a>
+or as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/low_frequency/motor/aedt_motor/transformer_inductance.py">Python script</a>.</p>
+</div>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Perform-imports-and-define-constants">Perform imports and define constants</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-temporary-directory">Create temporary directory</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Initialize-and-launch-Maxwell-2D">Initialize and launch Maxwell 2D</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Initialize-dictionaries">Initialize dictionaries</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Define-variables-from-dictionaries">Define variables from dictionaries</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-design-geometries">Create design geometries</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-initial-mesh-settings">Create initial mesh settings</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Define-excitations">Define excitations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-and-analyze-setup">Create and analyze setup</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Calculate-transformer-leakage-inductance-and-reactance">Calculate transformer leakage inductance and reactance</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Print-leakage-inductance-and-reactance-values-in-AEDT-Message-Manager">Print leakage inductance and reactance values in AEDT Message Manager</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Plot-energy-in-the-simulation-domain">Plot energy in the simulation domain</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Release-AEDT">Release AEDT</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Clean-up">Clean up</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item"> 
+<div class="tocsection editthispage">
+  <a href="https://github.com/ansys/pyaedt-examples/edit/main/doc/source/examples/low_frequency/motor/aedt_motor/transformer_inductance.ipynb">
+    <i class="fa-solid fa-pencil"></i>
+       Edit
+    on GitHub  
+  </a>
+</div>
+
+</div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../../../../_sources/examples/low_frequency/motor/aedt_motor/transformer_inductance.ipynb.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright (c) 2021 - 2026 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the
+  <a href="https://sphinxdocs.ansys.com/version/stable/index.html"
+    >Ansys Sphinx Theme</a
+  >
+  1.0.11. <br />Last updated on
+  <span id="date"></span>
+</p>
+<script>
+  var options = { day: "numeric", month: "long", year: "numeric" };
+  var lastModifiedDate = new Date(document.lastModified);
+  var date = lastModifiedDate.toLocaleDateString("en-US", options);
+  document.getElementById("date").innerHTML = date;
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

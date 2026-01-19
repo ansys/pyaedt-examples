@@ -1,0 +1,883 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "6bd08d7c",
+   "metadata": {},
+   "source": [
+    "# Pre-layout signal integrity\n",
+    "This example shows how to create a parameterized layout design\n",
+    "and load the layout into HFSS 3D Layout for analysis and postprocessing.\n",
+    "\n",
+    "- Create EDB:\n",
+    "\n",
+    "    - Add material.\n",
+    "    - Create stackup.\n",
+    "    - Create a parameterized via padstack definition.\n",
+    "    - Create ground planes.\n",
+    "    - Create a component.\n",
+    "    - Create signal vias and traces.\n",
+    "    - Create ground stitching vias.\n",
+    "    - Create HFSS analysis setup and frequency sweep.\n",
+    "\n",
+    "- Import EDB into HFSS 3D Layout:\n",
+    "\n",
+    "    - Place SMA connector.\n",
+    "    - Analyze.\n",
+    "    - Plot return loss."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7cc6cd4e",
+   "metadata": {},
+   "source": [
+    "Here is an image of the model that is created in this example.\n",
+    "\n",
+    "<img src=\"_static/pre_layout_sma_connector_on_pcb.png\" width=\"600\">\n",
+    "\n",
+    "Keywords: **HFSS 3D Layout**, **signal integrity**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4acb263f",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "Perform required packages."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "dcf04b19",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "from ansys.aedt.core import Hfss3dLayout\n",
+    "from ansys.aedt.core.examples.downloads import download_file\n",
+    "from pyedb import Edb\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8cffc20d",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e3247429",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3b8cf8c5",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory and download example files\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "626677ed",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")\n",
+    "sma_rf_connector = download_file(\n",
+    "    source=\"component_3d\",\n",
+    "    name=\"SMA_RF_SURFACE_MOUNT.a3dcomp\",\n",
+    "    local_path=temp_folder.name,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "70aedea9",
+   "metadata": {},
+   "source": [
+    "# Create layout design"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5183e07f",
+   "metadata": {},
+   "source": [
+    "## Import example design"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3b11f52d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "aedb = os.path.join(temp_folder.name, \"new_layout.aedb\")\n",
+    "edbapp = Edb(edbpath=aedb, edbversion=AEDT_VERSION)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "49c7810e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Set antipad always on.\n",
+    "edbapp.design_options.antipads_always_on = True"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5c78446e",
+   "metadata": {},
+   "source": [
+    "## Add material definitions"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c24fd0d4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.materials.add_conductor_material(name=\"copper\", conductivity=58000000)\n",
+    "edbapp.materials.add_dielectric_material(\n",
+    "    name=\"FR4_epoxy\", permittivity=4, dielectric_loss_tangent=0.02\n",
+    ")\n",
+    "edbapp.materials.add_dielectric_material(\n",
+    "    name=\"solder_mask\", permittivity=3.1, dielectric_loss_tangent=0.035\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1f3ed450",
+   "metadata": {},
+   "source": [
+    "## Create stackup"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2bad6704",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.stackup.create_symmetric_stackup(\n",
+    "    layer_count=4,\n",
+    "    inner_layer_thickness=\"18um\",\n",
+    "    outer_layer_thickness=\"50um\",\n",
+    "    dielectric_thickness=\"100um\",\n",
+    "    dielectric_material=\"FR4_epoxy\",\n",
+    "    soldermask=True,\n",
+    "    soldermask_thickness=\"20um\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "021cb972",
+   "metadata": {},
+   "source": [
+    "## Create parameterized padstack definition"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f9dbdae6",
+   "metadata": {},
+   "source": [
+    "Create signal via padstack definition."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "56b4ea5d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp[\"$antipad\"] = \"0.7mm\"\n",
+    "edbapp.padstacks.create(\n",
+    "    padstackname=\"svia\", holediam=\"0.3mm\", antipaddiam=\"$antipad\", paddiam=\"0.5mm\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "47b143fd",
+   "metadata": {},
+   "source": [
+    "Create component pin padstack definition."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5fd4de08",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.padstacks.create(\n",
+    "    padstackname=\"comp_pin\",\n",
+    "    paddiam=\"400um\",\n",
+    "    antipaddiam=\"600um\",\n",
+    "    start_layer=\"TOP\",\n",
+    "    stop_layer=\"TOP\",\n",
+    "    antipad_shape=\"Circle\",\n",
+    "    has_hole=False,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "50dd882d",
+   "metadata": {},
+   "source": [
+    "## Review stackup"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fc8bc7dc",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.stackup.plot(plot_definitions=\"svia\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ffaaf00e",
+   "metadata": {},
+   "source": [
+    "## Create ground planes"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e9c5b39a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "board_width = \"22mm\"\n",
+    "board_length = \"18mm\"\n",
+    "board_center_point = [0, \"5mm\"]\n",
+    "\n",
+    "gnd_l2 = edbapp.modeler.create_rectangle(\n",
+    "    layer_name=\"L2\",\n",
+    "    net_name=\"GND\",\n",
+    "    center_point=board_center_point,\n",
+    "    width=board_width,\n",
+    "    height=board_length,\n",
+    "    representation_type=\"CenterWidthHeight\",\n",
+    "    corner_radius=\"0mm\",\n",
+    "    rotation=\"0deg\",\n",
+    ")\n",
+    "\n",
+    "gnd_l3 = edbapp.modeler.create_rectangle(\n",
+    "    layer_name=\"L3\",\n",
+    "    net_name=\"GND\",\n",
+    "    center_point=board_center_point,\n",
+    "    width=board_width,\n",
+    "    height=board_length,\n",
+    "    representation_type=\"CenterWidthHeight\",\n",
+    "    corner_radius=\"0mm\",\n",
+    "    rotation=\"0deg\",\n",
+    ")\n",
+    "\n",
+    "gnd_bottom = edbapp.modeler.create_rectangle(\n",
+    "    layer_name=\"BOT\",\n",
+    "    net_name=\"GND\",\n",
+    "    center_point=board_center_point,\n",
+    "    width=board_width,\n",
+    "    height=board_length,\n",
+    "    representation_type=\"CenterWidthHeight\",\n",
+    "    corner_radius=\"0mm\",\n",
+    "    rotation=\"0deg\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "50b6402c",
+   "metadata": {},
+   "source": [
+    "## Create a component"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3ecded1f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.padstacks.place(\n",
+    "    position=[0, 0],\n",
+    "    definition_name=\"comp_pin\",\n",
+    "    net_name=\"SIG\",\n",
+    "    is_pin=True,\n",
+    "    via_name=\"1\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ee0e29aa",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "comp_pins = [\n",
+    "    edbapp.padstacks.place(\n",
+    "        position=[\"-6mm\", 0],\n",
+    "        definition_name=\"comp_pin\",\n",
+    "        net_name=\"GND\",\n",
+    "        is_pin=True,\n",
+    "        via_name=\"2\",\n",
+    "    ),\n",
+    "    edbapp.padstacks.place(\n",
+    "        position=[\"6mm\", 0],\n",
+    "        definition_name=\"comp_pin\",\n",
+    "        net_name=\"GND\",\n",
+    "        is_pin=True,\n",
+    "        via_name=\"3\",\n",
+    "    ),\n",
+    "]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5258cd30",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "comp_u1 = edbapp.components.create(\n",
+    "    pins=comp_pins,\n",
+    "    component_name=\"U1\",\n",
+    "    component_part_name=\"BGA\",\n",
+    "    placement_layer=\"TOP\",\n",
+    ")\n",
+    "comp_u1.create_clearance_on_component(extra_soldermask_clearance=3.5e-3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6532f6da",
+   "metadata": {},
+   "source": [
+    "## Place vias"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fca00137",
+   "metadata": {},
+   "source": [
+    "Place a signal via."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "db6aa637",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.padstacks.place(\n",
+    "    position=[0, 0], definition_name=\"svia\", net_name=\"SIG\", is_pin=False\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c4965c3d",
+   "metadata": {},
+   "source": [
+    "Place ground stitching vias."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "84f04129",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.padstacks.place(\n",
+    "    position=[\"-1mm\", 0], definition_name=\"svia\", net_name=\"GND\", is_pin=False\n",
+    ")\n",
+    "edbapp.padstacks.place(\n",
+    "    position=[\"1mm\", 0], definition_name=\"svia\", net_name=\"GND\", is_pin=False\n",
+    ")\n",
+    "edbapp.padstacks.place(\n",
+    "    position=[0, \"-1mm\"], definition_name=\"svia\", net_name=\"GND\", is_pin=False\n",
+    ")\n",
+    "edbapp.padstacks.place(\n",
+    "    position=[0, \"1mm\"], definition_name=\"svia\", net_name=\"GND\", is_pin=False\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fc9433b6",
+   "metadata": {},
+   "source": [
+    "## Create signal traces"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1941fd85",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp[\"width\"] = \"0.15mm\"\n",
+    "edbapp[\"gap\"] = \"0.1mm\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "cf9aa682",
+   "metadata": {},
+   "source": [
+    "Create signal fanout."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "85913b3b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "sig_trace = edbapp.modeler.create_trace(\n",
+    "    path_list=[[0, 0]],\n",
+    "    layer_name=\"BOT\",\n",
+    "    width=\"width\",\n",
+    "    net_name=\"SIG\",\n",
+    "    start_cap_style=\"Round\",\n",
+    "    end_cap_style=\"Round\",\n",
+    "    corner_style=\"Round\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e130f1e2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "sig_trace.add_point(x=\"0.5mm\", y=\"0.5mm\", incremental=True)\n",
+    "sig_trace.add_point(x=0, y=\"1mm\", incremental=True)\n",
+    "sig_trace.add_point(x=\"-0.5mm\", y=\"0.5mm\", incremental=True)\n",
+    "sig_trace.add_point(x=0, y=\"1mm\", incremental=True)\n",
+    "sig_path = sig_trace.get_center_line()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "510ac04a",
+   "metadata": {},
+   "source": [
+    "Create coplanar waveguide with ground with ground stitching vias."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "bf0cbf19",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "sig2_trace = edbapp.modeler.create_trace(\n",
+    "    path_list=[sig_path[-1]],\n",
+    "    layer_name=\"BOT\",\n",
+    "    width=\"width\",\n",
+    "    net_name=\"SIG\",\n",
+    "    start_cap_style=\"Round\",\n",
+    "    end_cap_style=\"Flat\",\n",
+    "    corner_style=\"Round\",\n",
+    ")\n",
+    "sig2_trace.add_point(x=0, y=\"6mm\", incremental=True)\n",
+    "sig2_trace.create_via_fence(distance=\"0.5mm\", gap=\"1mm\", padstack_name=\"svia\")\n",
+    "sig2_trace.add_point(x=0, y=\"1mm\", incremental=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6f9885d4",
+   "metadata": {},
+   "source": [
+    "Create trace-to-ground clearance."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "187a2a88",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "sig2_path = sig2_trace.get_center_line()\n",
+    "path_list = [sig_path, sig2_path]\n",
+    "for i in path_list:\n",
+    "    void = edbapp.modeler.create_trace(\n",
+    "        path_list=i,\n",
+    "        layer_name=\"BOT\",\n",
+    "        width=\"width+gap*2\",\n",
+    "        start_cap_style=\"Round\",\n",
+    "        end_cap_style=\"Round\",\n",
+    "        corner_style=\"Round\",\n",
+    "    )\n",
+    "    edbapp.modeler.add_void(shape=gnd_bottom, void_shape=void)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6ec86f13",
+   "metadata": {},
+   "source": [
+    "Generate plot to review."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5f86d2b6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.nets.plot()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "18aac014",
+   "metadata": {},
+   "source": [
+    "## Create ports"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ddd2c153",
+   "metadata": {},
+   "source": [
+    "Create a wave port."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2ec450a0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "sig2_trace.create_edge_port(\n",
+    "    name=\"p1_wave_port\",\n",
+    "    position=\"End\",\n",
+    "    port_type=\"Wave\",\n",
+    "    reference_layer=None,\n",
+    "    horizontal_extent_factor=10,\n",
+    "    vertical_extent_factor=10,\n",
+    "    pec_launch_width=\"0.01mm\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "85486052",
+   "metadata": {},
+   "source": [
+    "## Create HFSS analysis setup"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ca4a84e8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup = edbapp.create_hfss_setup(\"Setup1\")\n",
+    "setup.set_solution_single_frequency(\"5GHz\", max_num_passes=1, max_delta_s=\"0.02\")\n",
+    "setup.hfss_solver_settings.order_basis = \"first\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8ed0357b",
+   "metadata": {},
+   "source": [
+    "Add a frequency sweep to the setup.\n",
+    "\n",
+    "When the simulation results are to\n",
+    "be used for transient SPICE analysis, you should\n",
+    "use the following strategy:\n",
+    "\n",
+    "- DC point\n",
+    "- Logarithmic sweep from 1 kHz to 100 MHz\n",
+    "- Linear scale for higher frequencies"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a7d79ade",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup.add_frequency_sweep(\n",
+    "    \"Sweep1\",\n",
+    "    frequency_sweep=[\n",
+    "        [\"log scale\", \"10MHz\", \"100MHz\", 3],\n",
+    "        [\"linear scale\", \"0.1GHz\", \"5GHz\", \"0.2GHz\"],\n",
+    "    ],\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "de353b9a",
+   "metadata": {},
+   "source": [
+    "## Save and close EDB"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9d13d019",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.save()\n",
+    "edbapp.close()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "902422f5",
+   "metadata": {},
+   "source": [
+    "# Analyze in HFSS 3D Layout"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "41d0a963",
+   "metadata": {},
+   "source": [
+    "## Load EDB into HFSS 3D Layout."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "bc49f48f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d = Hfss3dLayout(aedb, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7d2a03c3",
+   "metadata": {},
+   "source": [
+    "## Place SMA RF connector"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d50f1fa1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "comp = h3d.modeler.place_3d_component(\n",
+    "    component_path=sma_rf_connector,\n",
+    "    number_of_terminals=1,\n",
+    "    placement_layer=\"TOP\",\n",
+    "    component_name=\"sma_rf\",\n",
+    "    pos_x=0,\n",
+    "    pos_y=0,\n",
+    "    create_ports=True,\n",
+    ")\n",
+    "comp.angle = \"90deg\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b140b657",
+   "metadata": {},
+   "source": [
+    "## Run simulation"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e283c132",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d.analyze(num_cores=4)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8fac73aa",
+   "metadata": {},
+   "source": [
+    "## Visualize the return loss."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "67f7f909",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d.post.create_report(\"dB(S(port_1, port_1))\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6e79f21b",
+   "metadata": {},
+   "source": [
+    "-"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c96a3d5d",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "source": [
+    "## Create Field Plot on clip plane"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d3091b65",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# solutions = h3d.get_touchstone_data()[0]\n",
+    "# solutions.log_x = False\n",
+    "# solutions.plot()\n",
+    "cp_name = h3d.modeler.clip_plane()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1059a71c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plot = h3d.post.create_fieldplot_cutplane(\n",
+    "    cp_name, \"Mag_E\", h3d.nominal_adaptive, intrinsics={\"Freq\": \"5GHz\", \"Phase\": \"0deg\"}\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "53509262",
+   "metadata": {},
+   "source": [
+    "## Release AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "dfc932be",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d.save_project()\n",
+    "h3d.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f275cb56",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_dir.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "25bf6def",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

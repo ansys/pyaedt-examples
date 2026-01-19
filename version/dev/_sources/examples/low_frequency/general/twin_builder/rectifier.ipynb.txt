@@ -1,0 +1,476 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "4a9cbf7a",
+   "metadata": {},
+   "source": [
+    "# Wiring of a rectifier with a capacitor filter\n",
+    "\n",
+    "This example shows how to use PyAEDT to create a Twin Builder design\n",
+    "and run a Twin Builder time-domain simulation.\n",
+    "\n",
+    "<img src=\"_static/rectifier.png\" width=\"500\">\n",
+    "\n",
+    "Keywords: **Twin Builder**, **rectifier**, **filter**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0a16a2b4",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "247e877a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core\n",
+    "import matplotlib.pyplot as plt"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3bcd4963",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0074daae",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ce530a31",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "bece7596",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "23d3c8f6",
+   "metadata": {},
+   "source": [
+    "## Launch Twin Builder\n",
+    "\n",
+    "Launch Twin Builder using an implicit declaration and add a new design with\n",
+    "the default setup."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "58ddbc80",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_name = os.path.join(temp_folder.name, \"TB_Rectifier_Demo.aedt\")\n",
+    "tb = ansys.aedt.core.TwinBuilder(\n",
+    "    project=project_name,\n",
+    "    version=AEDT_VERSION,\n",
+    "    non_graphical=NG_MODE,\n",
+    "    new_desktop=True,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "af436f2f",
+   "metadata": {},
+   "source": [
+    "## Create components\n",
+    "\n",
+    "Place components for a bridge rectifier and a capacitor filter in the schematic editor.\n",
+    "\n",
+    "Specify the grid spacing to use for placement\n",
+    "of components in the schematic editor. Components are placed using the named\n",
+    "argument ``location`` as a list of ``[x, y]`` values in millimeters."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "39500ae4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "G = 0.00254"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a326ec86",
+   "metadata": {},
+   "source": [
+    "Create an AC sinosoidal voltage source."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5a12ef43",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "source = tb.modeler.schematic.create_voltage_source(\n",
+    "    \"V_AC\", \"ESINE\", 100, 50, location=[-1 * G, 0]\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e90f6917",
+   "metadata": {},
+   "source": [
+    "Place the four diodes of the bridge rectifier. The named argument ``angle`` is the rotation angle\n",
+    "of the component in radians."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4b437847",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "diode1 = tb.modeler.schematic.create_diode(\n",
+    "    name=\"D1\", location=[10 * G, 6 * G], angle=270\n",
+    ")\n",
+    "diode2 = tb.modeler.schematic.create_diode(\n",
+    "    name=\"D2\", location=[20 * G, 6 * G], angle=270\n",
+    ")\n",
+    "diode3 = tb.modeler.schematic.create_diode(\n",
+    "    name=\"D3\", location=[10 * G, -4 * G], angle=270\n",
+    ")\n",
+    "diode4 = tb.modeler.schematic.create_diode(\n",
+    "    name=\"D4\", location=[20 * G, -4 * G], angle=270\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "853a8c92",
+   "metadata": {},
+   "source": [
+    "Place a capacitor filter."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "48b6437b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "capacitor = tb.modeler.schematic.create_capacitor(\n",
+    "    name=\"C_FILTER\", value=1e-6, location=[29 * G, -10 * G]\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e5af940a",
+   "metadata": {},
+   "source": [
+    "Place a load resistor."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "45717add",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "resistor = tb.modeler.schematic.create_resistor(\n",
+    "    name=\"RL\", value=100000, location=[39 * G, -10 * G]\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ba842341",
+   "metadata": {},
+   "source": [
+    "Place the ground component."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8f173883",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "gnd = tb.modeler.components.create_gnd(location=[5 * G, -16 * G])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "95748c1a",
+   "metadata": {},
+   "source": [
+    "## Connect components\n",
+    "\n",
+    "Connect components with wires, and connect the diode pins to create the bridge."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9823fe19",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tb.modeler.schematic.create_wire(\n",
+    "    points=[diode1.pins[0].location, diode3.pins[0].location]\n",
+    ")\n",
+    "tb.modeler.schematic.create_wire(\n",
+    "    points=[diode2.pins[1].location, diode4.pins[1].location]\n",
+    ")\n",
+    "tb.modeler.schematic.create_wire(\n",
+    "    points=[diode1.pins[1].location, diode2.pins[0].location]\n",
+    ")\n",
+    "tb.modeler.schematic.create_wire(\n",
+    "    points=[diode3.pins[1].location, diode4.pins[0].location]\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e9404e67",
+   "metadata": {},
+   "source": [
+    "Connect the voltage source to the bridge."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1cdc51be",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tb.modeler.schematic.create_wire(\n",
+    "    points=[source.pins[1].location, [0, 10 * G], [15 * G, 10 * G], [15 * G, 5 * G]]\n",
+    ")\n",
+    "tb.modeler.schematic.create_wire(\n",
+    "    points=[source.pins[0].location, [0, -10 * G], [15 * G, -10 * G], [15 * G, -5 * G]]\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "56bf5dc2",
+   "metadata": {},
+   "source": [
+    "Connect the filter capacitor and load resistor."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "42cc07b3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tb.modeler.schematic.create_wire(\n",
+    "    points=[resistor.pins[0].location, [40 * G, 0], [22 * G, 0]]\n",
+    ")\n",
+    "tb.modeler.schematic.create_wire(points=[capacitor.pins[0].location, [30 * G, 0]])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ad817454",
+   "metadata": {},
+   "source": [
+    "Add the ground connection."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "457619cd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tb.modeler.schematic.create_wire(\n",
+    "    points=[resistor.pins[1].location, [40 * G, -15 * G], gnd.pins[0].location]\n",
+    ")\n",
+    "tb.modeler.schematic.create_wire(points=[capacitor.pins[1].location, [30 * G, -15 * G]])\n",
+    "tb.modeler.schematic.create_wire(points=[gnd.pins[0].location, [5 * G, 0], [8 * G, 0]])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "404a6e8c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Zoom to fit the schematic\n",
+    "tb.modeler.zoom_to_fit()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ee4c3d0f",
+   "metadata": {},
+   "source": [
+    "The circuit schematic should now be visible in the Twin Builder\n",
+    "schematic editor and look like\n",
+    "the image shown at the beginning of the example.\n",
+    "\n",
+    "## Run the simulation\n",
+    "\n",
+    "Update the total time to be simulated and run the analysis."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1beeb3f9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tb.set_end_time(\"100ms\")\n",
+    "tb.analyze_setup(\"TR\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "51fec3c4",
+   "metadata": {},
+   "source": [
+    "## Get report data and plot using Matplotlib\n",
+    "\n",
+    "Get report data and plot it using Matplotlib. The following code gets and plots\n",
+    "the values for the voltage on the pulse voltage source and the values for the\n",
+    "voltage on the capacitor in the RC circuit."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "724f8ca8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "src_name = source.InstanceName + \".V\"\n",
+    "x = tb.post.get_solution_data(src_name, \"TR\", \"Time\")\n",
+    "plt.plot(x.intrinsics[\"Time\"], x.data_real(src_name))\n",
+    "plt.grid()\n",
+    "plt.xlabel(\"Time\")\n",
+    "plt.ylabel(\"AC Voltage\")\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "cb08e3dd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "r_voltage = resistor.InstanceName + \".V\"\n",
+    "x = tb.post.get_solution_data(r_voltage, \"TR\", \"Time\")\n",
+    "plt.plot(x.intrinsics[\"Time\"], x.data_real(r_voltage))\n",
+    "plt.grid()\n",
+    "plt.xlabel(\"Time\")\n",
+    "plt.ylabel(\"AC to DC Conversion using Rectifier\")\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "219d1596",
+   "metadata": {},
+   "source": [
+    "## Release AEDT\n",
+    "\n",
+    "Release AEDT and close the example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2ca940f4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tb.save_project()\n",
+    "tb.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8a6db235",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "57fbae36",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

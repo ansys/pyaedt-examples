@@ -1,0 +1,493 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "8502cdd5",
+   "metadata": {},
+   "source": [
+    "# PCB component definition from CSV file and model image exports"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "cf370ec4",
+   "metadata": {},
+   "source": [
+    "This example shows how to create different types of blocks and assign power\n",
+    "and material to them using a CSV input file\n",
+    "\n",
+    "Keywords: **Icepak**, **boundaries**, **PyVista**, **CSV**, **PCB**, **components**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4a08302b",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d1535a37",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import csv\n",
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "from pathlib import Path\n",
+    "\n",
+    "import ansys.aedt.core\n",
+    "from ansys.aedt.core.examples.downloads import download_file\n",
+    "import matplotlib as mpl\n",
+    "import numpy as np\n",
+    "import pyvista as pv\n",
+    "from IPython.display import Image\n",
+    "from matplotlib import cm\n",
+    "from matplotlib import pyplot as plt"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "300d3359",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c3280f73",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2567e369",
+   "metadata": {},
+   "source": [
+    "## Download and open project\n",
+    "\n",
+    "Download the project and open it in non-graphical mode, using a temporary folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "265da978",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")\n",
+    "project_name = os.path.join(temp_folder.name, \"Icepak_CSV_Import.aedt\")\n",
+    "ipk = ansys.aedt.core.Icepak(\n",
+    "    project=project_name,\n",
+    "    version=AEDT_VERSION,\n",
+    "    new_desktop=True,\n",
+    "    non_graphical=NG_MODE,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "06594e9d",
+   "metadata": {},
+   "source": [
+    "Create the PCB as a simple block with lumped material properties."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f0f208b1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "board = ipk.modeler.create_box(\n",
+    "    origin=[-30.48, -27.305, 0],\n",
+    "    sizes=[146.685, 71.755, 0.4064],\n",
+    "    name=\"board_outline\",\n",
+    "    material=\"FR-4_Ref\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "836eca78",
+   "metadata": {},
+   "source": [
+    "## Create components from CSV file\n",
+    "\n",
+    "Components are represented as simple cubes with dimensions and properties specified in a CSV file."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e8b7f7cc",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "filename = download_file(\n",
+    "    \"icepak\", \"blocks-list.csv\", local_path=temp_folder.name\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "cf7fa788",
+   "metadata": {},
+   "source": [
+    "The CSV file lists block properties:\n",
+    "\n",
+    "- Type (solid, network, hollow)\n",
+    "- Name\n",
+    "- Dtart point (xs, ys, zs) and end point (xd, yd, zd)\n",
+    "- Material properties (for solid blocks)\n",
+    "- Power assignment\n",
+    "- Resistances to the board and to the case (for network blocks)\n",
+    "- Whether to add a monitor point to the block (0 or 1)\n",
+    "\n",
+    "The following table does not show entire rows and dat. It provides only a sample.\n",
+    "\n",
+    "\n",
+    "| block_type | name | xs     | ys     | zs   | xd    | yd    | zd   | matname          | power | Rjb | Rjc | Monitor_point |\n",
+    "|------------|------|--------|--------|------|-------|-------|------|------------------|-------|-----|-----|---------------|\n",
+    "| hollow     | R8   | 31.75  | -20.32 | 0.40 | 15.24 | 2.54  | 2.54 |                  | 1     |     |     | 0             |\n",
+    "| solid      | U1   | 16.55  | 10.20  | 0.40 | 10.16 | 20.32 | 5.08 | Ceramic_material | 0.2   |     |     | 1             |\n",
+    "| solid      | U2   | -51    | 10.16  | 0.40 | 10.16 | 27.94 | 5.08 | Ceramic_material | 0.1   |     |     | 1             |\n",
+    "| network    | C180 | 47.62  | 19.05  | 0.40 | 3.81  | 2.54  | 2.43 |                  | 1.13  | 2   | 3   | 0             |\n",
+    "| network    | C10  | 65.40  | -1.27  | 0.40 | 3.81  | 2.54  | 2.43 |                  | 0.562 | 2   | 3   | 0             |\n",
+    "| network    | C20  | 113.03 | -0.63  | 0.40 | 2.54  | 3.81  | 2.43 |                  | 0.445 | 2   | 3   | 0             |\n",
+    "\n",
+    "The following code loops over each line of the CSV file, creating solid blocks\n",
+    "and assigning boundary conditions.\n",
+    "\n",
+    "Every row of the CSV file has information on a particular block."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "76e3250d",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "with open(filename, \"r\") as csv_file:\n",
+    "    csv_reader = csv.DictReader(csv_file)\n",
+    "    for row in csv_reader:\n",
+    "        origin = [\n",
+    "            float(row[\"xs\"]),\n",
+    "            float(row[\"ys\"]),\n",
+    "            float(row[\"zs\"]),\n",
+    "        ]  # block starting point\n",
+    "        dimensions = [\n",
+    "            float(row[\"xd\"]),\n",
+    "            float(row[\"yd\"]),\n",
+    "            float(row[\"zd\"]),\n",
+    "        ]  # block lengths in 3 dimensions\n",
+    "        block_name = row[\"name\"]  # block name\n",
+    "\n",
+    "        # Define material name\n",
+    "        if row[\"matname\"]:\n",
+    "            material_name = row[\"matname\"]\n",
+    "        else:\n",
+    "            material_name = \"copper\"\n",
+    "\n",
+    "        # Creates the block with the given name, coordinates, material, and type\n",
+    "        block = ipk.modeler.create_box(\n",
+    "            origin=origin, sizes=dimensions, name=block_name, material=material_name\n",
+    "        )\n",
+    "\n",
+    "        # Assign boundary conditions\n",
+    "        if row[\"block_type\"] == \"solid\":\n",
+    "            ipk.assign_solid_block(\n",
+    "                object_name=block_name,\n",
+    "                power_assignment=row[\"power\"] + \"W\",\n",
+    "                boundary_name=block_name,\n",
+    "            )\n",
+    "        elif row[\"block_type\"] == \"network\":\n",
+    "            ipk.create_two_resistor_network_block(\n",
+    "                object_name=block_name,\n",
+    "                pcb=board.name,\n",
+    "                power=row[\"power\"] + \"W\",\n",
+    "                rjb=row[\"Rjb\"],\n",
+    "                rjc=row[\"Rjc\"],\n",
+    "            )\n",
+    "        else:\n",
+    "            ipk.modeler[block.name].solve_inside = False\n",
+    "            ipk.assign_hollow_block(\n",
+    "                object_name=block_name,\n",
+    "                assignment_type=\"Total Power\",\n",
+    "                assignment_value=row[\"power\"] + \"W\",\n",
+    "                boundary_name=block_name,\n",
+    "            )\n",
+    "\n",
+    "        # Create temperature monitor points if assigned value is 1 in the last\n",
+    "        # column of the CSV file\n",
+    "        if row[\"Monitor_point\"] == \"1\":\n",
+    "            ipk.monitor.assign_point_monitor_in_object(\n",
+    "                name=row[\"name\"],\n",
+    "                monitor_quantity=\"Temperature\",\n",
+    "                monitor_name=row[\"name\"],\n",
+    "            )"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b09dfc9b",
+   "metadata": {},
+   "source": [
+    "## Calculate the power assigned to all components"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c4d4afcb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "power_budget, total_power = ipk.post.power_budget(units=\"W\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0f5ae62c",
+   "metadata": {},
+   "source": [
+    "## Plot model using AEDT\n",
+    "\n",
+    "Set the colormap to use. You can use the previously computed power budget to set the minimum and maximum values."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b6392098",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cmap = plt.get_cmap(\"plasma\")\n",
+    "norm = mpl.colors.Normalize(\n",
+    "    vmin=min(power_budget.values()), vmax=max(power_budget.values())\n",
+    ")\n",
+    "scalarMap = cm.ScalarMappable(norm=norm, cmap=cmap)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1c807a21",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Color the objects depending\n",
+    "for obj in ipk.modeler.objects.values():\n",
+    "    if obj.name in power_budget:\n",
+    "        obj.color = [\n",
+    "            int(i * 255) for i in scalarMap.to_rgba(power_budget[obj.name])[0:3]\n",
+    "        ]\n",
+    "        obj.transparency = 0\n",
+    "    else:\n",
+    "        obj.color = [0, 0, 0]\n",
+    "        obj.transparency = 0.9"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c18dc767",
+   "metadata": {},
+   "source": [
+    "Export the model image by creating a list of all objects that excludes ``Region``.\n",
+    "This list is then passed to the `export_model_picture()` function.\n",
+    "This approach ensures that the exported image is fitted to the PCB and its components."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8483af30",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "obj_list_noregion = list(ipk.modeler.object_names)\n",
+    "obj_list_noregion.remove(\"Region\")\n",
+    "export_file = os.path.join(temp_folder.name, \"object_power_AEDTExport.jpg\")\n",
+    "ipk.post.export_model_picture(\n",
+    "    export_file, selections=obj_list_noregion, width=1920, height=1080\n",
+    ")\n",
+    "Image(export_file)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f93e0ae5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# ### Plot model using PyAEDT\n",
+    "#\n",
+    "# Initialize a PyVista plotter\n",
+    "plotter = pv.Plotter(off_screen=True, window_size=[2048, 1536])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f1f4ae8e",
+   "metadata": {},
+   "source": [
+    "Export all models objects to OBJ files."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "69b28a6e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "f = ipk.post.export_model_obj(\n",
+    "    export_path=temp_folder.name, export_as_multiple_objects=True, air_objects=False\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c47d459c",
+   "metadata": {},
+   "source": [
+    "Add objects to the PyVista plotter. These objects are either set to a black color or assigned scalar values,\n",
+    "allowing them to be visualized with a colormap."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b437da60",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "for file, color, opacity in f:\n",
+    "    if color == (0, 0, 0):\n",
+    "        plotter.add_mesh(mesh=pv.read(file), color=\"black\", opacity=opacity)\n",
+    "    else:\n",
+    "        mesh = pv.read(filename=file)\n",
+    "        mesh[\"Power\"] = np.full(\n",
+    "            shape=mesh.n_points, fill_value=power_budget[Path(file).stem]\n",
+    "        )\n",
+    "        plotter.add_mesh(mesh=mesh, scalars=\"Power\", cmap=\"viridis\", opacity=opacity)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ac3347dd",
+   "metadata": {},
+   "source": [
+    "Add a label to the object with the maximum temperature."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3b483367",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "max_pow_obj = \"MP1\"\n",
+    "plotter.add_point_labels(\n",
+    "    points=[ipk.modeler[max_pow_obj].top_face_z.center],\n",
+    "    labels=[f\"{max_pow_obj}, {power_budget[max_pow_obj]}W\"],\n",
+    "    point_size=20,\n",
+    "    font_size=30,\n",
+    "    text_color=\"red\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4b48d341",
+   "metadata": {},
+   "source": [
+    "Export the file."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e37f70ac",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "export_file = os.path.join(temp_folder.name, \"object_power_pyVista.png\")\n",
+    "plotter.screenshot(filename=export_file, scale=1)\n",
+    "Image(export_file)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "80724e28",
+   "metadata": {},
+   "source": [
+    "## Release AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "58be91d3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.save_project()\n",
+    "ipk.release_desktop()\n",
+    "time.sleep(\n",
+    "    3\n",
+    ")  # Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4b5dd1e9",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ff00dc4e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

@@ -1,0 +1,1077 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Frequency Selective Surface &#8212; PyAEDT Examples</title>
+
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css\ansys_sphinx_theme.css?v=d2ac875c" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=9233c59b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/highlight.css?v=500661c4" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+ 
+<link href="../../../_static/css/breadcrumbs.css" rel="stylesheet" />
+
+    <script src="../../../_static/documentation_options.js?v=e7fb764e"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=49e1bf35"></script>
+    <script src="../../../_static/js\table.js?v=b64f5182"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/high_frequency/antenna/fss_unitcell';</script>
+    <link rel="icon" href="../../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Circuit schematic creation and analysis" href="../../aedt_general/modeler/circuit_schematic.html" />
+    <link rel="prev" title="Probe-fed patch antenna" href="patch.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <link rel="canonical" href="https://examples.aedt.docs.pyansys.com/version/stable/examples/high_frequency/antenna/fss_unitcell.html" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container"><!-- Debugging: html_theme_options =  -->
+
+  <!-- If there is no MeiliSearch enabled, use the PyData search -->
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+   
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="https://www.ansys.com/">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/ansys_logo_transparent_black.png" class="logo__image only-light" alt="PyAEDT Examples - Home"/>
+    <script>document.write(`<img src="../../../_static/ansys_logo_transparent_white.png" class="logo__image only-dark" alt="PyAEDT Examples - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Examples
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+    
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Examples
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../aedt/index.html">Examples by AEDT application</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">High frequency</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="index.html">Antenna</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../radiofrequency_mmwave/index.html">Radio frequency and millimeter wave</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../radiofrequency_mmwave/iris_filter.html">Inductive iris waveguide filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../radiofrequency_mmwave/spiral.html">Spiral inductor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../radiofrequency_mmwave/coplanar_waveguide.html">Coplanar waveguide setup and analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../radiofrequency_mmwave/stripline.html">Stripline analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../radiofrequency_mmwave/lumped_element.html">Lumped element filter design</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../emc/flex_cable.html">Flex cable CPWG</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../emc/eigenmode.html">Eigenmode filter</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">Frequency Selective Surface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="interferences/index.html">RF interference</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../layout/index.html">IC-Package-PCB</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../emc/index.html">EMC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../multiphysics/index.html">Multiphysics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../aedt_general/report/index.html">Report</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../low_frequency/index.html">Low frequency</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../electrothermal/index.html">Electrothermal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aedt_general/index.html">Pre-processing and post-processing</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+       
+    <li class="breadcrumb-item">
+      <a href="https://aedt.docs.pyansys.com/" class="nav-link">PyAEDT</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="../../../index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../../index.html" class="nav-link">Examples</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../index.html" class="nav-link">High frequency</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="index.html" class="nav-link">Antenna</a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page">Frequency Selective Surface</li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="admonition-download-this-example admonition">
+<p class="admonition-title">Download this example</p>
+<p>Download this example as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/antenna/fss_unitcell.ipynb">Jupyter Notebook</a>
+or as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/antenna/fss_unitcell.py">Python script</a>.</p>
+</div>
+<hr class="docutils" />
+<section id="Frequency-Selective-Surface">
+<h1>Frequency Selective Surface<a class="headerlink" href="#Frequency-Selective-Surface" title="Link to this heading">#</a></h1>
+<p>This example shows how to use PyAEDT to model and simulate a frequency-selective surface (FSS) by applying the periodic (Floquet) boundary condition at the boundaries of a unit cell.</p>
+<p>Keywords: <strong>HFSS</strong>, <strong>FSS</strong>, <strong>Floquet</strong>.</p>
+<section id="Prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#Prerequisites" title="Link to this heading">#</a></h2>
+<section id="Perform-imports">
+<h3>Perform imports<a class="headerlink" href="#Perform-imports" title="Link to this heading">#</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ansys.aedt.core</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ansys.aedt.core.examples.downloads</span><span class="w"> </span><span class="kn">import</span> <span class="n">download_file</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Define-constants">
+<h3>Define constants<a class="headerlink" href="#Define-constants" title="Link to this heading">#</a></h3>
+<p>Constants help ensure consistency and avoid repetition throughout the example.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">AEDT_VERSION</span> <span class="o">=</span> <span class="s2">&quot;2025.2&quot;</span>
+<span class="n">NG_MODE</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Open AEDT UI when it is launched.</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Create-temporary-directory">
+<h3>Create temporary directory<a class="headerlink" href="#Create-temporary-directory" title="Link to this heading">#</a></h3>
+<p>Create a temporary working directory. The name of the working folder is stored in <code class="docutils literal notranslate"><span class="pre">temp_folder.name</span></code>.</p>
+<blockquote>
+<div><p><strong>Note:</strong> The final cell in the notebook cleans up the temporary folder. If you want to retrieve the AEDT project and data, do so before executing the final cell in the notebook.</p>
+</div></blockquote>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">temp_folder</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.ansys&quot;</span><span class="p">)</span>
+<span class="n">temp_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Launch-HFSS">
+<h3>Launch HFSS<a class="headerlink" href="#Launch-HFSS" title="Link to this heading">#</a></h3>
+<p>The Ansys Electronics Desktop (AEDT) will be launched and an HFSS design will be inserted into the project.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">project_name</span> <span class="o">=</span> <span class="n">temp_path</span> <span class="o">/</span> <span class="s2">&quot;FSS.aedt&quot;</span>
+<span class="n">hfss</span> <span class="o">=</span> <span class="n">ansys</span><span class="o">.</span><span class="n">aedt</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Hfss</span><span class="p">(</span>
+    <span class="n">version</span><span class="o">=</span><span class="n">AEDT_VERSION</span><span class="p">,</span>
+    <span class="n">project</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">project_name</span><span class="p">),</span>
+    <span class="n">design</span><span class="o">=</span><span class="s2">&quot;SquarePatch&quot;</span><span class="p">,</span>
+    <span class="n">non_graphical</span><span class="o">=</span><span class="n">NG_MODE</span><span class="p">,</span>
+    <span class="n">solution_type</span><span class="o">=</span><span class="s2">&quot;Modal&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Python version 3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)].
+PyAEDT INFO: PyAEDT version 0.25.dev0.
+PyAEDT INFO: Initializing new Desktop session.
+PyAEDT INFO: Log on console is enabled.
+PyAEDT INFO: Log on file C:\Users\ansys\AppData\Local\Temp\pyaedt_ansys_c93206ed-748c-43fe-9060-523a91442485.log is enabled.
+PyAEDT INFO: Log on AEDT is disabled.
+PyAEDT INFO: Starting new AEDT gRPC session.
+PyAEDT INFO: AEDT installation Path C:\Program Files\ANSYS Inc\v252\AnsysEM
+PyAEDT INFO: Client application successfully started.
+PyAEDT INFO: New AEDT gRPC session session started on port 50051.
+PyAEDT INFO: 2025.2 version started with process ID 3888.
+PyAEDT WARNING: Service Pack is not detected. PyAEDT is currently connecting in Insecure Mode.
+PyAEDT WARNING: Please download and install latest Service Pack to use connect to AEDT in Secure Mode.
+PyAEDT INFO: Debug logger is disabled. PyAEDT methods will not be logged.
+PyAEDT INFO: Project FSS has been created.
+PyAEDT INFO: Added design &#39;SquarePatch&#39; of type HFSS.
+PyAEDT INFO: Aedt Objects correctly read
+</pre></div></div>
+</div>
+</section>
+<section id="Define-a-parameter">
+<h3>Define a parameter<a class="headerlink" href="#Define-a-parameter" title="Link to this heading">#</a></h3>
+<p>Parameters can be defined in HFSS to run parametric studies. In this example, <code class="docutils literal notranslate"><span class="pre">&quot;patch_dim&quot;</span></code> will be used to modify the size of a square conducting patch in the center of the FSS.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">hfss</span><span class="p">[</span><span class="s2">&quot;patch_dim&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;10mm&quot;</span>
+</pre></div>
+</div>
+</div>
+<p>The parameter is assigned to the HFSS design as shown here. <img alt="d7dac3f074724a599d53fa165b8a0857" class="no-scaled-link" src="../../../_images/design_param.svg" style="width: 400px;" /></p>
+</section>
+</section>
+<section id="Model-Preparation">
+<h2>Model Preparation<a class="headerlink" href="#Model-Preparation" title="Link to this heading">#</a></h2>
+<section id="Define-the-unit-cell">
+<h3>Define the unit cell<a class="headerlink" href="#Define-the-unit-cell" title="Link to this heading">#</a></h3>
+<p>The FSS unit cell will be defined from a 3D component. The 3D component is downloaded from the <a class="reference external" href="https://github.com/ansys/example-data/tree/main/pyaedt">example data repository</a> and inserted into the HFSS design.</p>
+<ol class="arabic simple">
+<li><p>Download the component.</p></li>
+</ol>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">component_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">download_file</span><span class="p">(</span><span class="s2">&quot;fss_3d_component&quot;</span><span class="p">,</span> <span class="n">local_path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">temp_path</span><span class="p">)))</span>
+</pre></div>
+</div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Get the file name of the 3D component. &gt; <strong>Note:</strong> It should be the only file in the <code class="docutils literal notranslate"><span class="pre">component_path</span></code> folder.</p></li>
+</ol>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">unit_cell_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">component_path</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*.a3dcomp&quot;</span><span class="p">)]</span>
+<span class="n">unit_cell_path</span> <span class="o">=</span> <span class="n">unit_cell_paths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Insert the dipole as a 3D component into the HFSS model. the HFSS model.</p></li>
+</ol>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">comp</span> <span class="o">=</span> <span class="n">hfss</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">insert_3d_component</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">unit_cell_path</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Modeler class has been initialized! Elapsed time: 0m 1sec
+PyAEDT INFO: Parsing C:\Users\ansys\AppData\Local\Temp\tmp97mwoxvr.ansys\FSS.aedt.
+PyAEDT INFO: File C:\Users\ansys\AppData\Local\Temp\tmp97mwoxvr.ansys\FSS.aedt correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: aedt file load time 0.015642404556274414
+</pre></div></div>
+</div>
+<p>You can retrieve the names of all 3D components defined in the HFSS design as shown below. In this case, only one component has been defined.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">component_names</span> <span class="o">=</span> <span class="n">hfss</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">user_defined_component_names</span>
+</pre></div>
+</div>
+</div>
+<p>You can also get the name of each component using the <code class="docutils literal notranslate"><span class="pre">name</span></code> property.</p>
+<p>Check that only one 3D component has been placed in the HFSS design.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">same</span> <span class="o">=</span> <span class="n">comp</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">component_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="k">if</span> <span class="n">same</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">component_names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;The single 3D component in this HFSS design is named &#39;</span><span class="si">{</span><span class="n">comp</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">msg</span> <span class="o">=</span><span class="s2">&quot;Something went wrong!&quot;</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+The single 3D component in this HFSS design is named &#39;FSS_unitcell_23R2_1&#39;.
+</pre></div></div>
+</div>
+</section>
+<section id="Set-component-parameters">
+<h3>Set component parameters<a class="headerlink" href="#Set-component-parameters" title="Link to this heading">#</a></h3>
+<p>The 3D component is a parameteric model.</p>
+<p><img alt="b90ea2196dda4cc18ec07ff045544b28" class="no-scaled-link" src="../../../_images/comp3d.svg" style="width: 500px;" /></p>
+<p>The HFSS parameter <code class="docutils literal notranslate"><span class="pre">patch_dim</span></code> can be assigned to the component parameter <code class="docutils literal notranslate"><span class="pre">a</span></code> to modify the size of the patch in the unit cell.</p>
+<blockquote>
+<div><p><strong>Note:</strong> Multiple instances of a 3D component can be used having different parameter values for each instance. For example, consider creating a “super-cell” having multiple component instances to improve the bandwidth of the FSS.</p>
+</div></blockquote>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">comp</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;patch_dim&quot;</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Extend-the-solution-domain">
+<h3>Extend the solution domain<a class="headerlink" href="#Extend-the-solution-domain" title="Link to this heading">#</a></h3>
+<p>Extend the solution domain in the <span class="math notranslate nohighlight">\(+z\)</span> direction. If the Floquet port is placed too close to the 3D structure, evanescent fields on the Floquet port surface can lead to erroneous results.</p>
+<p>The unit cell model is extended away from the patch by <code class="docutils literal notranslate"><span class="pre">z_extent</span></code>. The phase reference will later be moved back to the surface of the FSS by deembedding the port solution.</p>
+<p><img alt="fc0a6a58c0334d00b17bd7cade261d68" class="no-scaled-link" src="../../../_images/deembed.svg" style="width: 400px;" /></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">period_x</span><span class="p">,</span> <span class="n">period_y</span><span class="p">,</span> <span class="n">z_dim</span> <span class="o">=</span> <span class="n">hfss</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">get_bounding_dimension</span><span class="p">()</span>
+
+<span class="n">z_extent</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">period_x</span> <span class="o">+</span> <span class="n">period_y</span><span class="p">)</span>
+<span class="n">region</span> <span class="o">=</span> <span class="n">hfss</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_air_region</span><span class="p">(</span>
+    <span class="n">z_pos</span><span class="o">=</span><span class="n">z_extent</span><span class="p">,</span>
+    <span class="n">is_percentage</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="p">[</span><span class="n">x_min</span><span class="p">,</span> <span class="n">y_min</span><span class="p">,</span> <span class="n">z_min</span><span class="p">,</span> <span class="n">x_max</span><span class="p">,</span> <span class="n">y_max</span><span class="p">,</span> <span class="n">z_max</span><span class="p">]</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">bounding_box</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Assign-boundary-conditions-and-sources">
+<h3>Assign boundary conditions and sources<a class="headerlink" href="#Assign-boundary-conditions-and-sources" title="Link to this heading">#</a></h3>
+<p>Assign the lattice pair periodic boundary conditions.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">boundaries</span> <span class="o">=</span> <span class="n">hfss</span><span class="o">.</span><span class="n">auto_assign_lattice_pairs</span><span class="p">(</span><span class="n">assignment</span><span class="o">=</span><span class="n">region</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+<span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;The periodic boundary conditions are: &quot;</span>
+<span class="n">msg</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">boundaries</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+The periodic boundary conditions are: [&#39;LatticePair1&#39;, &#39;LatticePair2&#39;]
+</pre></div></div>
+</div>
+<p>The Floquet port is asigned to the top surface of the solution domain where the plane wave is incident on the FSS. The following arguments define the periodicity of the FSS.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">lattice_origin</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lattice_a_end</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lattice_b_end</span></code></p></li>
+</ul>
+<p>The phase reference is deembedded to the surface of the FSS.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">floquet_boundary</span> <span class="o">=</span> <span class="n">hfss</span><span class="o">.</span><span class="n">create_floquet_port</span><span class="p">(</span>
+                               <span class="n">assignment</span><span class="o">=</span><span class="n">region</span><span class="o">.</span><span class="n">top_face_z</span><span class="p">,</span>
+                               <span class="n">lattice_origin</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">z_max</span><span class="p">],</span>
+                               <span class="n">lattice_a_end</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">y_max</span><span class="p">,</span> <span class="n">z_max</span><span class="p">],</span>
+                               <span class="n">lattice_b_end</span><span class="o">=</span><span class="p">[</span><span class="n">x_max</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">z_max</span><span class="p">],</span>
+                               <span class="n">name</span><span class="o">=</span><span class="s2">&quot;port_z_max&quot;</span><span class="p">,</span>
+                               <span class="n">deembed_distance</span><span class="o">=</span><span class="n">z_extent</span><span class="p">,</span>
+                               <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Boundary Floquet Port port_z_max has been created.
+</pre></div></div>
+</div>
+</section>
+<section id="Define-solution-setup">
+<h3>Define solution setup<a class="headerlink" href="#Define-solution-setup" title="Link to this heading">#</a></h3>
+<p>The solution setup specifies details used to run the analysis in HFSS. In this example adaptive mesh refinement runs at 10 GHz while default values are used for all other settings.</p>
+<p>The frequency sweep is used to specify the range over which scattering parameters will be calculated.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">setup</span> <span class="o">=</span> <span class="n">hfss</span><span class="o">.</span><span class="n">create_setup</span><span class="p">(</span><span class="s2">&quot;MySetup&quot;</span><span class="p">)</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Frequency&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;10GHz&quot;</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;MaximumPasses&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">hfss</span><span class="o">.</span><span class="n">create_linear_count_sweep</span><span class="p">(</span>
+    <span class="n">setup</span><span class="o">=</span><span class="n">setup</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+    <span class="n">units</span><span class="o">=</span><span class="s2">&quot;GHz&quot;</span><span class="p">,</span>
+    <span class="n">start_frequency</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+    <span class="n">stop_frequency</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+    <span class="n">num_of_freq_points</span><span class="o">=</span><span class="mi">401</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sweep1&quot;</span><span class="p">,</span>
+    <span class="n">sweep_type</span><span class="o">=</span><span class="s2">&quot;Interpolating&quot;</span><span class="p">,</span>
+    <span class="n">interpolation_tol</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+    <span class="n">save_fields</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Linear count sweep sweep1 has been correctly created.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+MySetup : sweep1
+</pre></div></div>
+</div>
+</section>
+<section id="Run-analysis">
+<h3>Run analysis<a class="headerlink" href="#Run-analysis" title="Link to this heading">#</a></h3>
+<p>Save the project and run the analysis.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">hfss</span><span class="o">.</span><span class="n">save_project</span><span class="p">()</span>
+<span class="n">hfss</span><span class="o">.</span><span class="n">analyze</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Project FSS Saved correctly
+PyAEDT INFO: Project FSS Saved correctly
+PyAEDT INFO: Solving all design setups. Analysis started...
+PyAEDT INFO: Design setup None solved correctly in 0.0h 1.0m 7.0s
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="Postprocess">
+<h2>Postprocess<a class="headerlink" href="#Postprocess" title="Link to this heading">#</a></h2>
+<p>The syntax used to plot network parameters (S-, Y-, Z-) can be complicated. The method <code class="docutils literal notranslate"><span class="pre">get_traces_for_plot()</span></code> is helpful to retrieve the names of valid traces to use for ploting.</p>
+<p>We’ll plot imaginary impedance, $ :nbsphinx-math:<a href="#id1"><span class="problematic" id="id2">`</span></a>Im <a href="#id3"><span class="problematic" id="id4">`</span></a>(Z_{i,j}) $ where $ i $, and $ j $ indices correspond to the two linear polarization states.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_data</span> <span class="o">=</span> <span class="n">hfss</span><span class="o">.</span><span class="n">get_traces_for_plot</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="s2">&quot;im(Z&quot;</span><span class="p">)</span>
+<span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;The imaginary wave impedance can be displayed using &quot;</span>
+<span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;the traces</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;--&gt; &quot;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">plot_data</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+The imaginary wave impedance can be displayed using the traces
+--&gt; im(Z(port_z_max:1,port_z_max:1))
+--&gt; im(Z(port_z_max:2,port_z_max:2))
+--&gt; im(Z(port_z_max:1,port_z_max:2))
+--&gt; im(Z(port_z_max:2,port_z_max:1))
+
+</pre></div></div>
+</div>
+<p>The Floquet port was automatically named “port_z_max”. Due to symmetry, only the first two parameters are unique.</p>
+<section id="Generate-a-report-in-HFSS">
+<h3>Generate a report in HFSS<a class="headerlink" href="#Generate-a-report-in-HFSS" title="Link to this heading">#</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">report</span> <span class="o">=</span> <span class="n">hfss</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">create_report</span><span class="p">(</span><span class="n">plot_data</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Parsing C:\Users\ansys\AppData\Local\Temp\tmp97mwoxvr.ansys\FSS.aedt.
+PyAEDT INFO: File C:\Users\ansys\AppData\Local\Temp\tmp97mwoxvr.ansys\FSS.aedt correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: aedt file load time 0.03170180320739746
+PyAEDT INFO: PostProcessor class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: PostProcessor class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Post class has been initialized! Elapsed time: 0m 0sec
+PyAEDT WARNING: No report category provided. Automatically identified Modal Solution Data
+</pre></div></div>
+</div>
+</section>
+<section id="Retrieve-data-for-postprocessing-in-Matplotlib">
+<h3>Retrieve data for postprocessing in Matplotlib<a class="headerlink" href="#Retrieve-data-for-postprocessing-in-Matplotlib" title="Link to this heading">#</a></h3>
+<p>The method <code class="docutils literal notranslate"><span class="pre">get_solution_data()</span></code> retrieves data from the report in HFSS and makes it available for postprocessing with Matplotlib.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">solution</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">get_solution_data</span><span class="p">()</span>
+<span class="n">plt</span> <span class="o">=</span> <span class="n">solution</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">solution</span><span class="o">.</span><span class="n">expressions</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Solution Data Correctly Loaded.
+Time to initialize solution data:0.015685319900512695
+Time to initialize solution data:0.015685319900512695
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/examples_high_frequency_antenna_fss_unitcell_40_1.png" src="../../../_images/examples_high_frequency_antenna_fss_unitcell_40_1.png" />
+</div>
+</div>
+</section>
+</section>
+<section id="Release-AEDT">
+<h2>Release AEDT<a class="headerlink" href="#Release-AEDT" title="Link to this heading">#</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">hfss</span><span class="o">.</span><span class="n">release_desktop</span><span class="p">()</span>
+<span class="c1"># Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.</span>
+<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Desktop has been released and closed.
+</pre></div></div>
+</div>
+</section>
+<section id="Clean-up">
+<h2>Clean up<a class="headerlink" href="#Clean-up" title="Link to this heading">#</a></h2>
+<p>All project files are saved in the folder <code class="docutils literal notranslate"><span class="pre">temp_folder.name</span></code>. If you’ve run this example as a Jupyter notebook, you can retrieve those project files. The following cell removes all temporary files, including the project folder.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">temp_folder</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<div class="admonition-download-this-example admonition">
+<p class="admonition-title">Download this example</p>
+<p>Download this example as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/antenna/fss_unitcell.ipynb">Jupyter Notebook</a>
+or as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/antenna/fss_unitcell.py">Python script</a>.</p>
+</div>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Prerequisites">Prerequisites</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Perform-imports">Perform imports</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Define-constants">Define constants</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-temporary-directory">Create temporary directory</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Launch-HFSS">Launch HFSS</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Define-a-parameter">Define a parameter</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Model-Preparation">Model Preparation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Define-the-unit-cell">Define the unit cell</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Set-component-parameters">Set component parameters</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Extend-the-solution-domain">Extend the solution domain</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Assign-boundary-conditions-and-sources">Assign boundary conditions and sources</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Define-solution-setup">Define solution setup</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Run-analysis">Run analysis</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Postprocess">Postprocess</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Generate-a-report-in-HFSS">Generate a report in HFSS</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Retrieve-data-for-postprocessing-in-Matplotlib">Retrieve data for postprocessing in Matplotlib</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Release-AEDT">Release AEDT</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Clean-up">Clean up</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item"> 
+<div class="tocsection editthispage">
+  <a href="https://github.com/ansys/pyaedt-examples/edit/main/doc/source/examples/high_frequency/antenna/fss_unitcell.ipynb">
+    <i class="fa-solid fa-pencil"></i>
+       Edit
+    on GitHub  
+  </a>
+</div>
+
+</div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../../../_sources/examples/high_frequency/antenna/fss_unitcell.ipynb.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright (c) 2021 - 2026 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the
+  <a href="https://sphinxdocs.ansys.com/version/stable/index.html"
+    >Ansys Sphinx Theme</a
+  >
+  1.0.11. <br />Last updated on
+  <span id="date"></span>
+</p>
+<script>
+  var options = { day: "numeric", month: "long", year: "numeric" };
+  var lastModifiedDate = new Date(document.lastModified);
+  var date = lastModifiedDate.toLocaleDateString("en-US", options);
+  document.getElementById("date").innerHTML = date;
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

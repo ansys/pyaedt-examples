@@ -1,0 +1,544 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "daccedf9",
+   "metadata": {},
+   "source": [
+    "# Busbar analysis"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4877f807",
+   "metadata": {},
+   "source": [
+    "This example shows how to use PyAEDT to create a busbar design in\n",
+    "Q3D Extractor and run a simulation.\n",
+    "\n",
+    "Keywords: **Q3D**, **EMC*, **busbar**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "44098246",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ad2adb5b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "31d0011d",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a4f2f89c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "676599f3",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "81c0dec4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "130b07c7",
+   "metadata": {},
+   "source": [
+    "## Launch AEDT and Q3D Extractor\n",
+    "\n",
+    "Launch AEDT 2024 R2 in graphical mode and launch Q3D Extractor. This example uses SI units."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "abe375f1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "q3d = ansys.aedt.core.Q3d(\n",
+    "    project=os.path.join(temp_folder.name, \"busbar.aedt\"),\n",
+    "    version=AEDT_VERSION,\n",
+    "    non_graphical=NG_MODE,\n",
+    "    new_desktop=True,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9eecf4fc",
+   "metadata": {},
+   "source": [
+    "## Create and set up the Q3D model\n",
+    "\n",
+    "Create polylines for three busbars and a box for the substrate."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a929bc59",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "b1 = q3d.modeler.create_polyline(\n",
+    "    points=[[0, 0, 0], [-100, 0, 0]],\n",
+    "    name=\"Bar1\",\n",
+    "    material=\"copper\",\n",
+    "    xsection_type=\"Rectangle\",\n",
+    "    xsection_width=\"5mm\",\n",
+    "    xsection_height=\"1mm\",\n",
+    ")\n",
+    "q3d.modeler[\"Bar1\"].color = (255, 0, 0)\n",
+    "\n",
+    "q3d.modeler.create_polyline(\n",
+    "    points=[[0, -15, 0], [-150, -15, 0]],\n",
+    "    name=\"Bar2\",\n",
+    "    material=\"aluminum\",\n",
+    "    xsection_type=\"Rectangle\",\n",
+    "    xsection_width=\"5mm\",\n",
+    "    xsection_height=\"1mm\",\n",
+    ")\n",
+    "q3d.modeler[\"Bar2\"].color = (0, 255, 0)\n",
+    "\n",
+    "q3d.modeler.create_polyline(\n",
+    "    points=[[0, -30, 0], [-175, -30, 0], [-175, -10, 0]],\n",
+    "    name=\"Bar3\",\n",
+    "    material=\"copper\",\n",
+    "    xsection_type=\"Rectangle\",\n",
+    "    xsection_width=\"5mm\",\n",
+    "    xsection_height=\"1mm\",\n",
+    ")\n",
+    "q3d.modeler[\"Bar3\"].color = (0, 0, 255)\n",
+    "\n",
+    "q3d.modeler.create_box(\n",
+    "    origin=[50, 30, -0.5],\n",
+    "    sizes=[-250, -100, -3],\n",
+    "    name=\"substrate\",\n",
+    "    material=\"FR4_epoxy\",\n",
+    ")\n",
+    "q3d.modeler[\"substrate\"].color = (128, 128, 128)\n",
+    "q3d.modeler[\"substrate\"].transparency = 0.8\n",
+    "\n",
+    "q3d.plot(\n",
+    "    show=False,\n",
+    "    output_file=os.path.join(temp_folder.name, \"Q3D.jpg\"),\n",
+    "    plot_air_objects=False,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2e6647b3",
+   "metadata": {},
+   "source": [
+    "Identify nets and assign sources and sinks to all nets.\n",
+    "There is a source and sink for each busbar."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4557455e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "q3d.auto_identify_nets()\n",
+    "\n",
+    "q3d.source(assignment=\"Bar1\", direction=q3d.axis_directions.XPos, name=\"Source1\")\n",
+    "q3d.sink(assignment=\"Bar1\", direction=q3d.axis_directions.XNeg, name=\"Sink1\")\n",
+    "\n",
+    "q3d.source(assignment=\"Bar2\", direction=q3d.axis_directions.XPos, name=\"Source2\")\n",
+    "q3d.sink(assignment=\"Bar2\", direction=q3d.axis_directions.XNeg, name=\"Sink2\")\n",
+    "q3d.source(assignment=\"Bar3\", direction=q3d.axis_directions.XPos, name=\"Source3\")\n",
+    "bar3_sink = q3d.sink(assignment=\"Bar3\", direction=q3d.axis_directions.YPos, name=\"Sink3\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "96ebc3ec",
+   "metadata": {},
+   "source": [
+    "Print information about nets and terminal assignments."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d07bbbf4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print(q3d.net_names)\n",
+    "print(q3d.net_sinks(\"Bar1\"))\n",
+    "print(q3d.net_sinks(\"Bar2\"))\n",
+    "print(q3d.net_sinks(\"Bar3\"))\n",
+    "print(q3d.net_sources(\"Bar1\"))\n",
+    "print(q3d.net_sources(\"Bar2\"))\n",
+    "print(q3d.net_sources(\"Bar3\"))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b6a35f9c",
+   "metadata": {},
+   "source": [
+    "## Create Matrix Reduction Operations\n",
+    "\n",
+    "Series of Bar1 and Bar2"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5a05bdae",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mr_series = q3d.insert_reduced_matrix(\n",
+    "    operation_name=\"JoinSeries\",\n",
+    "    assignment=[\"Sink1\", \"Source2\"],\n",
+    "    reduced_matrix=\"MR_1_Series\",\n",
+    "    new_net_name=\"Series1\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f5f545d9",
+   "metadata": {},
+   "source": [
+    "Add Parallel with Bar3"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2093fa36",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mr_series.add_operation(\n",
+    "    operation_type=\"JoinParallel\",\n",
+    "    source_names=[\"Source1\", \"Source3\"],\n",
+    "    new_net_name=\"SeriesPar\",\n",
+    "    new_source_name=\"src_par\",\n",
+    "    new_sink_name=\"snk_par\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "efe4d276",
+   "metadata": {},
+   "source": [
+    "Series of Bar1 and Bar2"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4c5837f7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mr_series2 = q3d.insert_reduced_matrix(\n",
+    "    operation_name=\"JoinSeries\",\n",
+    "    assignment=[\"Sink1\", \"Source2\"],\n",
+    "    reduced_matrix=\"MR_2_Series\",\n",
+    "    new_net_name=\"Series2\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "619b1dde",
+   "metadata": {},
+   "source": [
+    "Add Series with Bar3"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3f0d11bb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mr_series2.add_operation(\n",
+    "    operation_type=\"JoinSeries\",\n",
+    "    source_names=[\"Sink3\", \"Source1\"],\n",
+    "    new_net_name=\"MR_2_Series1\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "11c32e5f",
+   "metadata": {},
+   "source": [
+    "## Add a solution Setup and an interpolating frequency sweep"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "83561fd4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "freq_sweep_name = \"my_sweep\"\n",
+    "setup1 = q3d.create_setup(props={\"AdaptiveFreq\": \"1000MHz\"})\n",
+    "sweep = setup1.create_linear_step_sweep(\n",
+    "    start_frequency=0,\n",
+    "    stop_frequency=10,\n",
+    "    step_size=0.05,\n",
+    "    name=freq_sweep_name,\n",
+    "    sweep_type=\"Interpolating\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "89e7f9bb",
+   "metadata": {},
+   "source": [
+    "## Analyze\n",
+    "\n",
+    "Solve the setup."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6165ec17",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "q3d.analyze(cores=NUM_CORES)\n",
+    "q3d.save_project()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "46dbff0a",
+   "metadata": {},
+   "source": [
+    "## Specify the traces to display and create the Reports.\n",
+    "\n",
+    "Capacitances - Original Matrix."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fc59dd08",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "original_matrix_self = q3d.matrices[0].get_sources_for_plot(\n",
+    "    get_self_terms=True, get_mutual_terms=False\n",
+    ")\n",
+    "original_matrix_mutual = q3d.matrices[0].get_sources_for_plot(\n",
+    "    get_self_terms=False, get_mutual_terms=True\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "588ea284",
+   "metadata": {},
+   "source": [
+    "ACL - Reduced Matrix MR_1_Series"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d3e9e8bb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "reduced_matrix_1_self = mr_series.get_sources_for_plot(\n",
+    "    get_self_terms=True, get_mutual_terms=False, category=\"ACL\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "656ad08d",
+   "metadata": {},
+   "source": [
+    "ACL - Reduced Matrix MR_2_Series"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d19c6731",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "reduced_matrix_2_self = mr_series2.get_sources_for_plot(\n",
+    "    get_self_terms=True, get_mutual_terms=False, category=\"ACL\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5c8fb293",
+   "metadata": {},
+   "source": [
+    "Define plots and a data table in AEDT for visualizing results."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d902385d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "original_matrix_self_report = q3d.post.create_report(\n",
+    "    expressions=original_matrix_self, plot_name=\"Original, Self Capacitances\"\n",
+    ")\n",
+    "original_matrix_mutual_report = q3d.post.create_report(\n",
+    "    expressions=original_matrix_mutual,\n",
+    "    context=\"Original\",\n",
+    "    plot_type=\"Data Table\",\n",
+    "    plot_name=\"Original, Mutual Capacitances\",\n",
+    ")\n",
+    "reduced_matrix_1_self_report = q3d.post.create_report(\n",
+    "    expressions=reduced_matrix_1_self,\n",
+    "    context=\"MR_1_Series\",\n",
+    "    plot_name=\"MR_1_Series, Self Inductances\",\n",
+    ")\n",
+    "reduced_matrix_2_self_report = q3d.post.create_report(\n",
+    "    expressions=reduced_matrix_2_self,\n",
+    "    context=\"MR_2_Series\",\n",
+    "    plot_name=\"MR_2_Series, Self Inductances\",\n",
+    ")\n",
+    "reduced_matrix_2_self_report.edit_x_axis_scaling(linear_scaling=False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "06167f69",
+   "metadata": {},
+   "source": [
+    "Retrieve solution data for processing in Python."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5632de74",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "data = q3d.post.get_solution_data(expressions=original_matrix_self, context=\"Original\")\n",
+    "data.plot()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d3b30127",
+   "metadata": {},
+   "source": [
+    "## Release AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "37a68250",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "q3d.save_project()\n",
+    "q3d.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "23052ee1",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7949dcf1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

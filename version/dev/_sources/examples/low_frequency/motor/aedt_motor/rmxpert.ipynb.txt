@@ -1,0 +1,408 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "1c959751",
+   "metadata": {},
+   "source": [
+    "# Motor creation and export\n",
+    "\n",
+    "This example uses PyAEDT to create a RMxprt project and export it to Maxwell 2D.\n",
+    "It shows how to create an ASSM (Adjust-Speed Synchronous Machine) in RMxprt\n",
+    "and how to access rotor and stator settings.\n",
+    "It then exports the model to a Maxwell 2D design\n",
+    "and the RMxprt settings to a JSON file to be reused.\n",
+    "\n",
+    "Keywords: **RMxprt**, **Maxwell 2D**"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d1565ea7",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "52627959",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "367aa9c3",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "180a7886",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6231b3ec",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "db8960b4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "63578a80",
+   "metadata": {},
+   "source": [
+    "## Launch AEDT and RMxprt\n",
+    "\n",
+    "Launch AEDT and RMxprt after first setting up the project name.\n",
+    "This example uses ASSM (Adjust-Speed Synchronous Machine) as the solution type."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "81ce155b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_name = os.path.join(temp_folder.name, \"ASSM.aedt\")\n",
+    "rmxprt = ansys.aedt.core.Rmxprt(\n",
+    "    version=AEDT_VERSION,\n",
+    "    new_desktop=True,\n",
+    "    close_on_exit=True,\n",
+    "    solution_type=\"ASSM\",\n",
+    "    project=project_name,\n",
+    "    non_graphical=NG_MODE,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "80c8ca41",
+   "metadata": {},
+   "source": [
+    "## Define global machine settings"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6d86b9b8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "rmxprt.general[\"Number of Poles\"] = 4\n",
+    "rmxprt.general[\"Rotor Position\"] = \"Inner Rotor\"\n",
+    "rmxprt.general[\"Frictional Loss\"] = \"12W\"\n",
+    "rmxprt.general[\"Windage Loss\"] = \"0W\"\n",
+    "rmxprt.general[\"Reference Speed\"] = \"1500rpm\"\n",
+    "rmxprt.general[\"Control Type\"] = \"DC\"\n",
+    "rmxprt.general[\"Circuit Type\"] = \"Y3\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d9e95ade",
+   "metadata": {},
+   "source": [
+    "## Define circuit settings"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "10380bf9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "rmxprt.circuit[\"Trigger Pulse Width\"] = \"120deg\"\n",
+    "rmxprt.circuit[\"Transistor Drop\"] = \"2V\"\n",
+    "rmxprt.circuit[\"Diode Drop\"] = \"2V\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3a1c7f44",
+   "metadata": {},
+   "source": [
+    "## Define stator\n",
+    "\n",
+    "Define stator and slot and winding settings."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "82f262f9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "rmxprt.stator[\"Outer Diameter\"] = \"122mm\"\n",
+    "rmxprt.stator[\"Inner Diameter\"] = \"75mm\"\n",
+    "rmxprt.stator[\"Length\"] = \"65mm\"\n",
+    "rmxprt.stator[\"Stacking Factor\"] = 0.95\n",
+    "rmxprt.stator.properties.properties[\"Steel Type\"] = [\n",
+    "    \"Material:=\",\n",
+    "    \"steel_1008\",\n",
+    "]\n",
+    "rmxprt.stator[\"Number of Slots\"] = 24\n",
+    "rmxprt.stator[\"Slot Type\"] = 2"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e72df649",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "rmxprt.stator.properties.children[\"Slot\"].properties[\"Auto Design\"] = False\n",
+    "rmxprt.stator.properties.children[\"Slot\"].properties[\"Hs0\"] = \"0.5mm\"\n",
+    "rmxprt.stator.properties.children[\"Slot\"].properties[\"Hs1\"] = \"1.2mm\"\n",
+    "rmxprt.stator.properties.children[\"Slot\"].properties[\"Hs2\"] = \"8.2mm\"\n",
+    "rmxprt.stator.properties.children[\"Slot\"].properties[\"Bs0\"] = \"2.5mm\"\n",
+    "rmxprt.stator.properties.children[\"Slot\"].properties[\"Bs1\"] = \"5.6mm\"\n",
+    "rmxprt.stator.properties.children[\"Slot\"].properties[\"Bs2\"] = \"7.6mm\""
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c5e7c240",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "rmxprt.stator.properties.children[\"Winding\"].properties[\"Winding Layers\"] = 2\n",
+    "rmxprt.stator.properties.children[\"Winding\"].properties[\"Parallel Branches\"] = 1\n",
+    "rmxprt.stator.properties.children[\"Winding\"].properties[\"Conductors per Slot\"] = 52\n",
+    "rmxprt.stator.properties.children[\"Winding\"].properties[\"Coil Pitch\"] = 5\n",
+    "rmxprt.stator.properties.children[\"Winding\"].properties[\"Number of Strands\"] = 1"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0c92d9cf",
+   "metadata": {},
+   "source": [
+    "## Define rotor\n",
+    "\n",
+    "Define rotor and pole settings."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d5a9bf48",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "rmxprt.rotor[\"Outer Diameter\"] = \"74mm\"\n",
+    "rmxprt.rotor[\"Inner Diameter\"] = \"26mm\"\n",
+    "rmxprt.rotor[\"Length\"] = \"65mm\"\n",
+    "rmxprt.rotor[\"Stacking Factor\"] = 0.95\n",
+    "rmxprt.rotor[\"Steel Type\"] = [\n",
+    "    \"Material:=\",\n",
+    "    \"steel_1008\",\n",
+    "]\n",
+    "rmxprt.rotor[\"Pole Type\"] = 1"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fc798fe6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "rmxprt.rotor.properties.children[\"Pole\"].properties[\"Embrace\"] = 0.7\n",
+    "rmxprt.rotor.properties.children[\"Pole\"].properties[\"Offset\"] = \"0mm\"\n",
+    "rmxprt.rotor.properties.children[\"Pole\"].properties[\"Magnet Type\"] = [\n",
+    "    \"Material:=\",\n",
+    "    \"Alnico9\",\n",
+    "]\n",
+    "rmxprt.rotor.properties.children[\"Pole\"].properties[\"Magnet Thickness\"] = \"3.5mm\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b2f0f0f5",
+   "metadata": {},
+   "source": [
+    "## Create setup\n",
+    "\n",
+    "Create a setup and define the main settings."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5e0b0cc8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup = rmxprt.create_setup()\n",
+    "setup.props[\"RatedVoltage\"] = \"220V\"\n",
+    "setup.props[\"RatedOutputPower\"] = \"550W\"\n",
+    "setup.props[\"RatedSpeed\"] = \"1500rpm\"\n",
+    "setup.props[\"OperatingTemperature\"] = \"75cel\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "78ab4f52",
+   "metadata": {},
+   "source": [
+    "## Analyze setup."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c4609f4f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup.analyze(cores=NUM_CORES)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "21c1404a",
+   "metadata": {},
+   "source": [
+    "## Export to Maxwell\n",
+    "\n",
+    "After the project is solved, you can export it to either Maxwell 2D or Maxwell 3D."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8ed3dbd1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d = rmxprt.create_maxwell_design(setup_name=setup.name, maxwell_2d=True)\n",
+    "m2d.plot(\n",
+    "    show=False,\n",
+    "    output_file=os.path.join(temp_folder.name, \"Image.jpg\"),\n",
+    "    plot_air_objects=True,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5973a436",
+   "metadata": {},
+   "source": [
+    "## Export RMxprt settings\n",
+    "\n",
+    "Export all RMxprt settings to a JSON file to reuse it for another\n",
+    "project with the the import function."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2f3c87df",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "config = rmxprt.export_configuration(os.path.join(temp_folder.name, \"assm.json\"))\n",
+    "rmxprt2 = ansys.aedt.core.Rmxprt(\n",
+    "    project=\"assm_test2\",\n",
+    "    solution_type=rmxprt.solution_type,\n",
+    "    design=\"from_configuration\",\n",
+    ")\n",
+    "rmxprt2.import_configuration(config)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d436193b",
+   "metadata": {},
+   "source": [
+    "## Save project\n",
+    "\n",
+    "Save the project containing the Maxwell design."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4e1f49df",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.save_project(file_name=project_name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f86a3d4f",
+   "metadata": {},
+   "source": [
+    "## Release AEDT and clean up temporary directory\n",
+    "\n",
+    "Release AEDT and remove both the project and temporary directory."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "25c12e5e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.release_desktop()\n",
+    "time.sleep(3)\n",
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

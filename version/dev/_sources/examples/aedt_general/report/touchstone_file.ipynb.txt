@@ -1,0 +1,157 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "35aa9d74",
+   "metadata": {},
+   "source": [
+    "# Touchstone files\n",
+    "\n",
+    "This example shows how to use objects in a Touchstone file without opening AEDT.\n",
+    "\n",
+    "To provide the advanced postprocessing features needed for this example, Matplotlib and NumPy\n",
+    "must be installed on your machine.\n",
+    "\n",
+    "This example runs only on Windows using CPython.\n",
+    "\n",
+    "Keywords: **Touchstone**, **report**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0d2dddfe",
+   "metadata": {},
+   "source": [
+    "## Prerequisites\n",
+    "\n",
+    "### Perform imports"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "11efbfae",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from ansys.aedt.core.examples.downloads import download_touchstone\n",
+    "from ansys.aedt.core.visualization.advanced.touchstone_parser import \\\n",
+    "    read_touchstone"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3a5f20a2",
+   "metadata": {},
+   "source": [
+    "### Download example data"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7e15ad13",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "example_path = download_touchstone()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b60576d9",
+   "metadata": {},
+   "source": [
+    "## Read the Touchstone file"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "11992e24",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "data = read_touchstone(example_path)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6cb874a5",
+   "metadata": {},
+   "source": [
+    "## Demonstrate post-processing\n",
+    "\n",
+    "### Plot serial channel metrics\n",
+    "\n",
+    "Get the curve plot by category. The following code shows how to plot lists of the return losses,\n",
+    "insertion losses, next, and fext based on a few inputs and port names."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b678cdfe",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "data.plot_return_losses()\n",
+    "data.plot_insertion_losses()\n",
+    "data.plot_next_xtalk_losses(\"U1\")\n",
+    "data.plot_fext_xtalk_losses(tx_prefix=\"U1\", rx_prefix=\"U7\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d2cb5139",
+   "metadata": {},
+   "source": [
+    "### Visualize cross-talk\n",
+    "\n",
+    "Identify the worst case cross-talk."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1f082584",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "worst_rl, global_mean = data.get_worst_curve(\n",
+    "    freq_min=1,\n",
+    "    freq_max=20,\n",
+    "    worst_is_higher=True,\n",
+    "    curve_list=data.get_return_loss_index(),\n",
+    ")\n",
+    "worst_il, mean2 = data.get_worst_curve(\n",
+    "    freq_min=1,\n",
+    "    freq_max=20,\n",
+    "    worst_is_higher=False,\n",
+    "    curve_list=data.get_insertion_loss_index(),\n",
+    ")\n",
+    "worst_fext, mean3 = data.get_worst_curve(\n",
+    "    freq_min=1,\n",
+    "    freq_max=20,\n",
+    "    worst_is_higher=True,\n",
+    "    curve_list=data.get_fext_xtalk_index_from_prefix(tx_prefix=\"U1\", rx_prefix=\"U7\"),\n",
+    ")\n",
+    "worst_next, mean4 = data.get_worst_curve(\n",
+    "    freq_min=1,\n",
+    "    freq_max=20,\n",
+    "    worst_is_higher=True,\n",
+    "    curve_list=data.get_next_xtalk_index(\"U1\"),\n",
+    ")"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

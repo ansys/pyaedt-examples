@@ -1,0 +1,516 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "07bc268e",
+   "metadata": {},
+   "source": [
+    "# SIwave DC-IR Analysis\n",
+    "\n",
+    "This example demonstrates the use of EDB to interact with a PCB\n",
+    "layout and run DC-IR analysis in SIwave."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a7c5c5e7",
+   "metadata": {},
+   "source": [
+    "## Perform imports\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "bf6784e0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import pyedb\n",
+    "from pyedb.misc.downloads import download_file"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "377ebd44",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_dir = tempfile.TemporaryDirectory(suffix=\".ansys\")\n",
+    "targetfile = download_file(\"edb/ANSYS-HSD_V1.aedb\", destination=temp_dir.name)\n",
+    "\n",
+    "siwave_file = os.path.join(os.path.dirname(targetfile), \"ANSYS-HSD_V1.siw\")\n",
+    "print(targetfile)\n",
+    "aedt_file = targetfile[:-4] + \"aedt\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4ff6cc84",
+   "metadata": {},
+   "source": [
+    "## Launch Ansys Electronics Database (EDB)\n",
+    "\n",
+    "Instantiate an instance of the `pyedb.Edb` class using SI units."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5e2a13aa",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "if os.path.exists(aedt_file):\n",
+    "    os.remove(aedt_file)\n",
+    "\n",
+    "# Select EDB version (change it manually if needed, e.g. \"2025.1\")\n",
+    "edb_version = \"2025.2\"\n",
+    "print(f\"EDB version: {edb_version}\")\n",
+    "\n",
+    "edb = pyedb.Edb(edbpath=targetfile, edbversion=edb_version)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9cff8d42",
+   "metadata": {},
+   "source": [
+    "## Identify nets and components\n",
+    "\n",
+    "The ``Edb.nets.netlist`` and ``Edb.components.instances`` properties contain information\n",
+    "about all of the nets and components. The following cell uses this information to print the\n",
+    "number of nets and components."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7d1bfff1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print(\"Nets {}\".format(len(edb.nets.netlist)))\n",
+    "start = time.time()\n",
+    "print(\"Components {}\".format(len(edb.components.instances.keys())))\n",
+    "print(\"elapsed time = \", time.time() - start)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b089c50b",
+   "metadata": {},
+   "source": [
+    "## Identify pin positions\n",
+    "\n",
+    "This code shows how to obtain all pins for a specific component and\n",
+    "print the ``[x, y]`` position of each pin."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "80fd3c76",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pins = edb.components[\"U2\"].pins\n",
+    "count = 0\n",
+    "for pin in edb.components[\"U2\"].pins.values():\n",
+    "    if count < 10:  # Only print the first 10 pin coordinates.\n",
+    "        print(pin.position)\n",
+    "    elif count == 10:\n",
+    "        print(\"...and many more.\")\n",
+    "    else:\n",
+    "        pass\n",
+    "    count += 1"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ccb12070",
+   "metadata": {},
+   "source": [
+    "Get all nets connected to a specific component. Print\n",
+    "the pin and the name of the net that it is connected to."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b7260e17",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "connections = edb.components.get_component_net_connection_info(\"U2\")\n",
+    "n_print = 0  # Counter to limit the number of printed lines.\n",
+    "print_max = 15\n",
+    "for m in range(len(connections[\"pin_name\"])):\n",
+    "    ref_des = connections[\"refdes\"][m]\n",
+    "    pin_name = connections[\"pin_name\"][m]\n",
+    "    net_name = connections[\"net_name\"][m]\n",
+    "    if net_name != \"\" and (n_print < print_max):\n",
+    "        print('{}, pin {} -> net \"{}\"'.format(ref_des, pin_name, net_name))\n",
+    "        n_print += 1\n",
+    "    elif n_print == print_max:\n",
+    "        print(\"...and many more.\")\n",
+    "        n_print += 1"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "70864053",
+   "metadata": {},
+   "source": [
+    "Compute rats."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9b62f368",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "rats = edb.components.get_rats()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e73f8c2d",
+   "metadata": {},
+   "source": [
+    "## Identify connected nets\n",
+    "\n",
+    "The ``get_dcconnected_net_list()`` method retrieves a list of\n",
+    "all DC-connected power nets. Each group of connected nets is returned\n",
+    "as a [set](https://docs.python.org/3/tutorial/datastructures.html#sets).\n",
+    "The first argument to the method is the list of ground nets, which are\n",
+    "not considered in the search for connected nets."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "74b3aeea",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "GROUND_NETS = [\"GND\", \"GND_DP\"]\n",
+    "dc_connected_net_list = edb.nets.get_dcconnected_net_list(GROUND_NETS)\n",
+    "for pnets in dc_connected_net_list:\n",
+    "    print(pnets)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ab614db2",
+   "metadata": {},
+   "source": [
+    "## Power Tree\n",
+    "\n",
+    "The power tree provides connectivity through all components from the VRM to\n",
+    "the device."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fa882246",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "VRM = \"U1\"\n",
+    "OUTPUT_NET = \"AVCC_1V3\"\n",
+    "powertree_df, component_list_columns, net_group = edb.nets.get_powertree(OUTPUT_NET, GROUND_NETS)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a761d78b",
+   "metadata": {},
+   "source": [
+    "Print some information about the power tree."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7d82278a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print_columns = [\"refdes\", \"pin_name\", \"component_partname\"]\n",
+    "ncol = [component_list_columns.index(c) for c in print_columns]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8acad451",
+   "metadata": {},
+   "source": [
+    "This prints the header. Replace \"pin_name\" with \"pin\" to\n",
+    "make the header align with the values."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a38c1f7c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print(\"\\t\".join(print_columns).replace(\"pin_name\", \"pin\"))\n",
+    "\n",
+    "for el in powertree_df:\n",
+    "    s = \"\"\n",
+    "    count = 0\n",
+    "    for e in el:\n",
+    "        if count in ncol:\n",
+    "            s += \"{}\\t\".format(e)\n",
+    "        count += 1\n",
+    "    s.rstrip()\n",
+    "    print(s)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "68585fc3",
+   "metadata": {},
+   "source": [
+    "## Remove unused components\n",
+    "\n",
+    "Delete all RLC components that are connected with only one pin.\n",
+    "The ``Edb.components.delete_single_pin_rlc()`` method\n",
+    "provides a useful way to\n",
+    "remove components that are not needed for the simulation."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d94c5923",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.components.delete_single_pin_rlc()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ea768567",
+   "metadata": {},
+   "source": [
+    "You can also remove unused components explicitly by name."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "cddb1fd2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.components.delete(\"C380\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e1c24c2c",
+   "metadata": {},
+   "source": [
+    "Nets can also be removed explicitly."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8387fa1a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.nets.delete(\"PDEN\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1c741f0a",
+   "metadata": {},
+   "source": [
+    "Print the top and bottom elevation of the stackup obtained using\n",
+    "the ``Edb.stackup.limits()`` method."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "bebc779f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "s = 'Top layer name: \"{top}\", Elevation: {top_el:.2f} '\n",
+    "s += 'mm\\nBottom layer name: \"{bot}\", Elevation: {bot_el:2f} mm'\n",
+    "top, top_el, bot, bot_el = edb.stackup.limits()\n",
+    "print(s.format(top=top, top_el=top_el * 1e3, bot=bot, bot_el=bot_el * 1e3))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "41e3fadc",
+   "metadata": {},
+   "source": [
+    "## Set up for SIwave DCIR analysis\n",
+    "\n",
+    "Create a voltage source and then set up a DCIR analysis."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0592eb8f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.siwave.create_voltage_source_on_net(\"U1\", \"AVCC_1V3\", \"U1\", \"GND\", 1.3, 0, \"V1\")\n",
+    "edb.siwave.create_current_source_on_net(\"IC2\", \"NetD3_2\", \"IC2\", \"GND\", 1.0, 0, \"I1\")\n",
+    "setup = edb.siwave.add_siwave_dc_analysis(\"myDCIR_4\")\n",
+    "setup.use_dc_custom_settings = True\n",
+    "setup.set_dc_slider = 0\n",
+    "setup.add_source_terminal_to_ground(\"V1\", 1)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8cc2acd5",
+   "metadata": {},
+   "source": [
+    "## Solve\n",
+    "\n",
+    "Save the modifications and run the analysis in SIwave."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "bf9238f4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.save_edb()\n",
+    "edb.nets.plot(None, \"1_Top\", plot_components_on_top=True)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3df3cede",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c2a026e7",
+   "metadata": {},
+   "source": [
+    "## Export results\n",
+    "\n",
+    "Export all quantities calculated from the DC-IR analysis.\n",
+    "The following method runs SIwave in batch mode from the command line.\n",
+    "Results are written to the edb folder.\n",
+    "Un-commment following lines to analyze with SIwave and export results."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c089636c",
+   "metadata": {},
+   "source": [
+    "siw_file = edb.solve_siwave()\n",
+    "outputs = edb.export_siwave_dc_results(\n",
+    "    siw_file,\n",
+    "    setup.name,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4ba77e17",
+   "metadata": {},
+   "source": [
+    "Close EDB. After EDB is closed, it can be opened by AEDT."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "706112e2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.close_edb()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "cd7c3933",
+   "metadata": {},
+   "source": [
+    "## View Layout in SIwave\n",
+    "\n",
+    "The SIwave user interface can be visualized and manipulated\n",
+    "using the SIwave user interface. This command works on Window OS only."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9ce992aa",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# siwave = pyedb.Siwave(\"2025.1\")\n",
+    "# siwave.open_project(siwave_file)\n",
+    "# report_file = os.path.join(temp_folder,'Ansys.htm')\n",
+    "\n",
+    "# siwave.export_siwave_report(\"myDCIR_4\", report_file)\n",
+    "# siwave.close_project()\n",
+    "# siwave.quit_application()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7bb77d01",
+   "metadata": {},
+   "source": [
+    "Clean up the temporary files and directory."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d9f0c3f3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_dir.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

@@ -1,0 +1,769 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Lumped element filter design &#8212; PyAEDT Examples</title>
+
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css\ansys_sphinx_theme.css?v=d2ac875c" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=9233c59b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/highlight.css?v=500661c4" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+ 
+<link href="../../../_static/css/breadcrumbs.css" rel="stylesheet" />
+
+    <script src="../../../_static/documentation_options.js?v=e7fb764e"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=49e1bf35"></script>
+    <script src="../../../_static/js\table.js?v=b64f5182"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/high_frequency/radiofrequency_mmwave/lumped_element';</script>
+    <link rel="icon" href="../../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Flex cable CPWG" href="../emc/flex_cable.html" />
+    <link rel="prev" title="Stripline analysis" href="stripline.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <link rel="canonical" href="https://examples.aedt.docs.pyansys.com/version/stable/examples/high_frequency/radiofrequency_mmwave/lumped_element.html" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container"><!-- Debugging: html_theme_options =  -->
+
+  <!-- If there is no MeiliSearch enabled, use the PyData search -->
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+   
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="https://www.ansys.com/">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/ansys_logo_transparent_black.png" class="logo__image only-light" alt="PyAEDT Examples - Home"/>
+    <script>document.write(`<img src="../../../_static/ansys_logo_transparent_white.png" class="logo__image only-dark" alt="PyAEDT Examples - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Examples
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+    
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Examples
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../aedt/index.html">Examples by AEDT application</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">High frequency</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../antenna/index.html">Antenna</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Radio frequency and millimeter wave</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="iris_filter.html">Inductive iris waveguide filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spiral.html">Spiral inductor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="coplanar_waveguide.html">Coplanar waveguide setup and analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stripline.html">Stripline analysis</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">Lumped element filter design</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../emc/flex_cable.html">Flex cable CPWG</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../emc/eigenmode.html">Eigenmode filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../antenna/fss_unitcell.html">Frequency Selective Surface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../antenna/interferences/index.html">RF interference</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../layout/index.html">IC-Package-PCB</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../emc/index.html">EMC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../multiphysics/index.html">Multiphysics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../aedt_general/report/index.html">Report</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../low_frequency/index.html">Low frequency</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../electrothermal/index.html">Electrothermal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aedt_general/index.html">Pre-processing and post-processing</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+       
+    <li class="breadcrumb-item">
+      <a href="https://aedt.docs.pyansys.com/" class="nav-link">PyAEDT</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="../../../index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../../index.html" class="nav-link">Examples</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../index.html" class="nav-link">High frequency</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="index.html" class="nav-link">Radio frequency and millimeter wave</a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page">Lumped element filter design</li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="admonition-download-this-example admonition">
+<p class="admonition-title">Download this example</p>
+<p>Download this example as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/radiofrequency_mmwave/lumped_element.ipynb">Jupyter Notebook</a>
+or as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/radiofrequency_mmwave/lumped_element.py">Python script</a>.</p>
+</div>
+<hr class="docutils" />
+<section id="Lumped-element-filter-design">
+<h1>Lumped element filter design<a class="headerlink" href="#Lumped-element-filter-design" title="Link to this heading">#</a></h1>
+<p>This example shows how to use PyAEDT to use the <code class="docutils literal notranslate"><span class="pre">FilterSolutions</span></code> module to design and visualize the frequency response of a band-pass Butterworth filter and export the lumped element model to AEDT Circuit.</p>
+<p>Keywords: <strong>filter solutions</strong></p>
+<section id="Perform-imports-and-define-constants">
+<h2>Perform imports and define constants<a class="headerlink" href="#Perform-imports-and-define-constants" title="Link to this heading">#</a></h2>
+<p>Perform required imports.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>import ansys.aedt.core
+import ansys.aedt.core.filtersolutions
+import matplotlib.pyplot as plt
+from ansys.aedt.core.filtersolutions_core.attributes import FilterClass, FilterType
+from ansys.aedt.core.filtersolutions_core.export_to_aedt import ExportFormat
+from ansys.aedt.core.filtersolutions_core.ideal_response import (
+    SParametersResponseColumn,
+)
+</pre></div>
+</div>
+</div>
+<p>Define constants.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>AEDT_VERSION = &quot;2025.2&quot;
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Define-function-used-for-plotting">
+<h2>Define function used for plotting<a class="headerlink" href="#Define-function-used-for-plotting" title="Link to this heading">#</a></h2>
+<p>Define formal plot function.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>def format_plot():
+    plt.xlabel(&quot;Frequency (Hz)&quot;)
+    plt.ylabel(&quot;Magnitude S21 (dB)&quot;)
+    plt.title(&quot;Frequency Response&quot;)
+    plt.xscale(&quot;log&quot;)
+    plt.legend()
+    plt.grid()
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Create-lumped-filter-design">
+<h2>Create lumped filter design<a class="headerlink" href="#Create-lumped-filter-design" title="Link to this heading">#</a></h2>
+<p>Create a lumped element filter design and assign the class, type, frequency, and order.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>lumped_design = ansys.aedt.core.filtersolutions.LumpedDesign(version=AEDT_VERSION)
+lumped_design.attributes.filter_class = FilterClass.BAND_PASS
+lumped_design.attributes.filter_type = FilterType.BUTTERWORTH
+lumped_design.attributes.pass_band_center_frequency = &quot;1G&quot;
+lumped_design.attributes.pass_band_width_frequency = &quot;500M&quot;
+lumped_design.attributes.filter_order = 5
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Plot-frequency-response-of-filter">
+<h2>Plot frequency response of filter<a class="headerlink" href="#Plot-frequency-response-of-filter" title="Link to this heading">#</a></h2>
+<p>Plot the frequency response of the filter without any transmission zeros.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>freq, s21_db = lumped_design.ideal_response.s_parameters(SParametersResponseColumn.S21_DB)
+plt.plot(freq, s21_db, linewidth=2.0, label=&quot;Without Tx Zero&quot;)
+format_plot()
+plt.show()
+</pre></div>
+</div>
+</div>
+<p><img alt="d489ef7752d64127806ece1cb594fb30" class="no-scaled-link" src="examples/high_frequency/radiofrequency_mmwave/_static/ideal_filter_response.png" style="width: 400px;" /></p>
+</section>
+<section id="Add-a-transmission-zero-to-filter-design">
+<h2>Add a transmission zero to filter design<a class="headerlink" href="#Add-a-transmission-zero-to-filter-design" title="Link to this heading">#</a></h2>
+<p>Add a transmission zero that yields nulls separated by two times the pass band width (1 GHz). Plot the frequency response of the filter with the transmission zero.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>lumped_design.transmission_zeros_ratio.append_row(&quot;2.0&quot;)
+freq_with_zero, s21_db_with_zero = lumped_design.ideal_response.s_parameters(SParametersResponseColumn.S21_DB)
+plt.plot(freq, s21_db, linewidth=2.0, label=&quot;Without Tx Zero&quot;)
+plt.plot(freq_with_zero, s21_db_with_zero, linewidth=2.0, label=&quot;With Tx Zero&quot;)
+format_plot()
+plt.show()
+</pre></div>
+</div>
+</div>
+<p><img alt="01f15e0d069b4014a6697d486b368223" class="no-scaled-link" src="../../../_images/filter_response_added_zeros.png" style="width: 400px;" /></p>
+</section>
+<section id="Generate-netlist-for-designed-filter">
+<h2>Generate netlist for designed filter<a class="headerlink" href="#Generate-netlist-for-designed-filter" title="Link to this heading">#</a></h2>
+<p>Generate and print the netlist for the designed filter with the added transmission zero to the filter.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>netlist = lumped_design.topology.netlist()
+print(&quot;Netlist: \n&quot;, netlist)
+</pre></div>
+</div>
+</div>
+<p>### Printed output:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Netlist:
+ *
+V1 1 0 AC 1 PULSE 0 1 0 1.592E-13 0
+R0 1 2 50
+*
+* Dummy Resistors Required For Spice
+* Have Been Added to Net List.
+*
+L1 2 0 6.674E-09
+C2 2 0 3.796E-12
+C3 2 3 1.105E-12
+L4 3 4 2.292E-08
+L5 4 5 8.53E-09
+C5 5 0 7.775E-12
+L6 4 6 3.258E-09
+C6 6 0 2.97E-12
+C7 4 7 1.105E-12
+Rq7 4 7 5E+10
+L8 7 8 2.292E-08
+L9 8 0 6.674E-09
+C10 8 0 3.796E-12
+R11 8 0 50
+*
+.AC DEC 200 2E+08 5E+09
+.PLOT AC VDB(8) -80 0
+.PLOT AC VP(8) -200 200
+.PLOT AC VG(8) 0 5E-09
+.TRAN  5E-11 1E-08 0
+.PLOT TRAN V(8) -0.09 0.1
+.END
+</pre></div>
+</div>
+</section>
+<section id="Export-lumped-element-model-of-the-filter-to-AEDT-Circuit">
+<h2>Export lumped element model of the filter to AEDT Circuit<a class="headerlink" href="#Export-lumped-element-model-of-the-filter-to-AEDT-Circuit" title="Link to this heading">#</a></h2>
+<p>Export the designed filter with the added transmission zero to AEDT Circuit with the defined export parameters.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>lumped_design.export_to_aedt.schematic_name = &quot;LumpedElementFilter&quot;
+lumped_design.export_to_aedt.simulate_after_export_enabled = True
+lumped_design.export_to_aedt.smith_plot_enabled = True
+lumped_design.export_to_aedt.table_data_enabled = True
+circuit = lumped_design.export_to_aedt.export_design(export_format=ExportFormat.DIRECT_TO_AEDT)
+</pre></div>
+</div>
+</div>
+<p><img alt="5c10ab59815944d195ac90e241bbc1de" class="no-scaled-link" src="../../../_images/exported_filter_to_desktop.png" style="width: 400px;" /></p>
+</section>
+<section id="Plot-the-simulated-circuit">
+<h2>Plot the simulated circuit<a class="headerlink" href="#Plot-the-simulated-circuit" title="Link to this heading">#</a></h2>
+<p>Get the scattering parameter data from the AEDT Circuit simulation and create a plot.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>solutions = circuit.post.get_solution_data(
+    expressions=circuit.get_traces_for_plot(category=&quot;S&quot;),
+)
+sim_freq = solutions.primary_sweep_values
+sim_freq_ghz = [i * 1e9 for i in sim_freq]
+sim_s21_db = solutions.data_db20(expression=&quot;S(Port2,Port1)&quot;)
+plt.plot(freq, s21_db, linewidth=2.0, label=&quot;Without Tx Zero&quot;)
+plt.plot(freq_with_zero, s21_db_with_zero, linewidth=2.0, label=&quot;With Tx Zero&quot;)
+plt.plot(sim_freq_ghz, sim_s21_db, linewidth=2.0, linestyle=&quot;--&quot;, label=&quot;Simulated&quot;)
+format_plot()
+plt.show()
+</pre></div>
+</div>
+</div>
+<p><img alt="467d0ccee3664fab962a426306d762c8" class="no-scaled-link" src="../../../_images/simulated_filter_response.png" style="width: 400px;" /></p>
+</section>
+</section>
+<hr class="docutils" />
+<div class="admonition-download-this-example admonition">
+<p class="admonition-title">Download this example</p>
+<p>Download this example as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/radiofrequency_mmwave/lumped_element.ipynb">Jupyter Notebook</a>
+or as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/radiofrequency_mmwave/lumped_element.py">Python script</a>.</p>
+</div>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Perform-imports-and-define-constants">Perform imports and define constants</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Define-function-used-for-plotting">Define function used for plotting</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-lumped-filter-design">Create lumped filter design</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Plot-frequency-response-of-filter">Plot frequency response of filter</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Add-a-transmission-zero-to-filter-design">Add a transmission zero to filter design</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Generate-netlist-for-designed-filter">Generate netlist for designed filter</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Export-lumped-element-model-of-the-filter-to-AEDT-Circuit">Export lumped element model of the filter to AEDT Circuit</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Plot-the-simulated-circuit">Plot the simulated circuit</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item"> 
+<div class="tocsection editthispage">
+  <a href="https://github.com/ansys/pyaedt-examples/edit/main/doc/source/examples/high_frequency/radiofrequency_mmwave/lumped_element.ipynb">
+    <i class="fa-solid fa-pencil"></i>
+       Edit
+    on GitHub  
+  </a>
+</div>
+
+</div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../../../_sources/examples/high_frequency/radiofrequency_mmwave/lumped_element.ipynb.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright (c) 2021 - 2026 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the
+  <a href="https://sphinxdocs.ansys.com/version/stable/index.html"
+    >Ansys Sphinx Theme</a
+  >
+  1.0.11. <br />Last updated on
+  <span id="date"></span>
+</p>
+<script>
+  var options = { day: "numeric", month: "long", year: "numeric" };
+  var lastModifiedDate = new Date(document.lastModified);
+  var date = lastModifiedDate.toLocaleDateString("en-US", options);
+  document.getElementById("date").innerHTML = date;
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

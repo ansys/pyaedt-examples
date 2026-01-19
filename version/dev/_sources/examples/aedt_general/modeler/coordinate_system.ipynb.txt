@@ -1,0 +1,775 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "7e0c24ae",
+   "metadata": {},
+   "source": [
+    "# Coordinate system creation\n",
+    "\n",
+    "This example shows how to use PyAEDT to create and modify coordinate systems in the modeler.\n",
+    "\n",
+    "Keywords: **AEDT**, **modeler**, **coordinate system**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c303385c",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "Import the required packages."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a44733b4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3760cc46",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7282aa0a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NG_MODE = False  # Open the AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "705ca20d",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4d1f17f6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fcbc80f6",
+   "metadata": {},
+   "source": [
+    "## Launch AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f99061ce",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "d = ansys.aedt.core.launch_desktop(version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2cc19b05",
+   "metadata": {},
+   "source": [
+    "## Insert HFSS design\n",
+    "\n",
+    "Insert an HFSS design with the default name."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2ac64117",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_name = os.path.join(temp_folder.name, \"CoordSysDemo.aedt\")\n",
+    "hfss = ansys.aedt.core.Hfss(version=AEDT_VERSION, project=project_name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d61fe753",
+   "metadata": {},
+   "source": [
+    "## Create coordinate system\n",
+    "\n",
+    "The coordinate system is centered on the global origin and has the axis\n",
+    "aligned to the global coordinate system. The new coordinate system is\n",
+    "saved in the object ``cs1``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ee6bc984",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cs1 = hfss.modeler.create_coordinate_system()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5bb05524",
+   "metadata": {},
+   "source": [
+    "## Modify coordinate system\n",
+    "\n",
+    "The ``cs1`` object exposes properties and methods to manipulate the\n",
+    "coordinate system. The origin can be changed."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c054eb97",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cs1[\"OriginX\"] = 10\n",
+    "cs1.props[\"OriginY\"] = 10\n",
+    "cs1.props[\"OriginZ\"] = 10"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "227c21c7",
+   "metadata": {},
+   "source": [
+    "The orientation of the coordinate system can be modified by\n",
+    "updating the direction vectors for the coordinate system."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3b55441b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ypoint = [0, -1, 0]\n",
+    "cs1.props[\"YAxisXvec\"] = ypoint[0]\n",
+    "cs1.props[\"YAxisYvec\"] = ypoint[1]\n",
+    "cs1.props[\"YAxisZvec\"] = ypoint[2]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "75238a6e",
+   "metadata": {},
+   "source": [
+    "## Rename coordinate system\n",
+    "\n",
+    "Rename the coordinate system."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "907b80f3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cs1.rename(\"newCS\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "41fd59db",
+   "metadata": {},
+   "source": [
+    "## Change coordinate system mode\n",
+    "\n",
+    "Use the ``change_cs_mode`` method to change the mode. Options are:\n",
+    "\n",
+    "- ``0`` for axis/position\n",
+    "- ``1`` for Euler angle ZXZ\n",
+    "- ``2`` for Euler angle ZYZ\n",
+    "\n",
+    "Here ``1`` sets Euler angle ZXZ as the mode."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e0ee073a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cs1.change_cs_mode(1)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "708569c1",
+   "metadata": {},
+   "source": [
+    "The following lines use the ZXZ Euler angle definition to rotate the coordinate system."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2e8d57e5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cs1.props[\"Phi\"] = \"10deg\"\n",
+    "cs1.props[\"Theta\"] = \"22deg\"\n",
+    "cs1.props[\"Psi\"] = \"30deg\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c3efa078",
+   "metadata": {},
+   "source": [
+    "## Delete coordinate system\n",
+    "\n",
+    "Delete the coordinate system."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "dee60f5b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cs1.delete()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d738be9a",
+   "metadata": {},
+   "source": [
+    "## Define a new coordinate system\n",
+    "\n",
+    "Create a coordinate system by defining the axes. You can\n",
+    "specify all coordinate system properties as shown here."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e36ed075",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cs2 = hfss.modeler.create_coordinate_system(\n",
+    "    name=\"CS2\",\n",
+    "    origin=[1, 2, 3.5],\n",
+    "    mode=\"axis\",\n",
+    "    x_pointing=[1, 0, 1],\n",
+    "    y_pointing=[0, -1, 0],\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "550e0dfc",
+   "metadata": {},
+   "source": [
+    "A new coordinate system can also be created based on the Euler angle convention."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e2340153",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cs3 = hfss.modeler.create_coordinate_system(name=\"CS3\", origin=[2, 2, 2], mode=\"zyz\", phi=10, theta=20, psi=30)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1db1df5a",
+   "metadata": {},
+   "source": [
+    "Create a coordinate system that is defined by standard views in the modeler. The options are:\n",
+    "\n",
+    "- ``\"iso\"``\n",
+    "- ``\"XY\"``\n",
+    "- ``\"XZ\"``\n",
+    "- ``\"XY\"``\n",
+    "\n",
+    "Here ``\"iso\"`` is specified. The axes are set automatically."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7e687c77",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cs4 = hfss.modeler.create_coordinate_system(name=\"CS4\", origin=[1, 0, 0], reference_cs=\"CS3\", mode=\"view\", view=\"iso\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6c469ab2",
+   "metadata": {},
+   "source": [
+    "## Create coordinate system by defining axis and angle rotation\n",
+    "\n",
+    "Create a coordinate system by defining the axis and angle rotation. When you\n",
+    "specify the axis and angle rotation, this data is automatically translated\n",
+    "to Euler angles."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3b5da981",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cs5 = hfss.modeler.create_coordinate_system(name=\"CS5\", mode=\"axisrotation\", u=[1, 0, 0], theta=123)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7b880391",
+   "metadata": {},
+   "source": [
+    "Face coordinate systems are bound to an object face.\n",
+    "First create a box and then define the face coordinate system on one of its\n",
+    "faces. To create the reference face for the face coordinate system, you must\n",
+    "specify starting and ending points for the axis."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "858f32ed",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "box = hfss.modeler.create_box([0, 0, 0], [2, 2, 2])\n",
+    "face = box.faces[0]\n",
+    "fcs1 = hfss.modeler.create_face_coordinate_system(face=face, origin=face.edges[0], axis_position=face.edges[1], name=\"FCS1\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "da39eb32",
+   "metadata": {},
+   "source": [
+    "Create a face coordinate system centered on the face with the X axis pointing\n",
+    "to the edge vertex."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "87060a70",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fcs2 = hfss.modeler.create_face_coordinate_system(face=face, origin=face, axis_position=face.edges[0].vertices[0], name=\"FCS2\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3ffcce5c",
+   "metadata": {},
+   "source": [
+    "Swap the X axis and Y axis of the face coordinate system. The X axis is the\n",
+    "pointing ``axis_position`` by default. You can optionally select the Y axis."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "15c6c205",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fcs3 = hfss.modeler.create_face_coordinate_system(face=face, origin=face, axis_position=face.edges[0], axis=\"Y\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "194ba945",
+   "metadata": {},
+   "source": [
+    "The face coordinate system can also be rotated by changing the\n",
+    "reference axis."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8b06f4de",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "fcs3.props[\"WhichAxis\"] = \"X\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5b8afbfc",
+   "metadata": {},
+   "source": [
+    "### Rotate the coordinate system\n",
+    "\n",
+    "Apply a rotation around the Z axis. The Z axis of a face coordinate system\n",
+    "is always orthogonal to the face. A rotation can be applied at definition.\n",
+    "Rotation is expressed in degrees."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6721c87c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fcs4 = hfss.modeler.create_face_coordinate_system(face=face, origin=face, axis_position=face.edges[1], rotation=10.3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "acda36fd",
+   "metadata": {},
+   "source": [
+    "Rotation can also be changed after coordinate system creation."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b383e845",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fcs4.props[\"ZRotationAngle\"] = \"3deg\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "93f15239",
+   "metadata": {},
+   "source": [
+    "### Offset the coordinate system\n",
+    "\n",
+    "Apply an offset to the X axis and Y axis of a face coordinate system.\n",
+    "The offset is in respect to the face coordinate system itself."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e6cc6fb9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fcs5 = hfss.modeler.create_face_coordinate_system(face=face, origin=face, axis_position=face.edges[2], offset=[0.5, 0.3])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "cca9d2f7",
+   "metadata": {},
+   "source": [
+    "The offset can be changed after the coordinate system has been created."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6fc2a268",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fcs5.props[\"XOffset\"] = \"0.2mm\"\n",
+    "fcs5.props[\"YOffset\"] = \"0.1mm\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "86e05599",
+   "metadata": {},
+   "source": [
+    "### Create a dependent coordinate system\n",
+    "\n",
+    "The use of dependent coordinate systems can simplify model creation. The following\n",
+    "cell shows how to create a coordinate system whose reference is the face coordinate system."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9005dd65",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "face = box.faces[1]\n",
+    "fcs6 = hfss.modeler.create_face_coordinate_system(face=face, origin=face, axis_position=face.edges[0])\n",
+    "cs_fcs = hfss.modeler.create_coordinate_system(name=\"CS_FCS\", origin=[0, 0, 0], reference_cs=fcs6.name, mode=\"view\", view=\"iso\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7e545902",
+   "metadata": {},
+   "source": [
+    "### Create object coordinate systems\n",
+    "\n",
+    "A coordinate system can also be defined relative to elements\n",
+    "belonging to an object. For example, the coordinate system can be\n",
+    "connected to an object face."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "36c5afa7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "obj_cs = hfss.modeler.create_object_coordinate_system(\n",
+    "    assignment=box,\n",
+    "    origin=box.faces[0],\n",
+    "    x_axis=box.edges[0],\n",
+    "    y_axis=[0, 0, 0],\n",
+    "    name=\"box_obj_cs\",\n",
+    ")\n",
+    "obj_cs.rename(\"new_obj_cs\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "38fb8a7b",
+   "metadata": {},
+   "source": [
+    "Create an object coordinate system whose origin is linked to the edge of an object."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "36f49268",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "obj_cs_1 = hfss.modeler.create_object_coordinate_system(\n",
+    "    assignment=box.name,\n",
+    "    origin=box.edges[0],\n",
+    "    x_axis=[1, 0, 0],\n",
+    "    y_axis=[0, 1, 0],\n",
+    "    name=\"obj_cs_1\",\n",
+    ")\n",
+    "obj_cs_1.set_as_working_cs()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9090a660",
+   "metadata": {},
+   "source": [
+    "Create an object coordinate system with an origin specified on a point within an object."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "05d9d03d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "obj_cs_2 = hfss.modeler.create_object_coordinate_system(\n",
+    "    assignment=box.name,\n",
+    "    origin=[0, 0.8, 0],\n",
+    "    x_axis=[1, 0, 0],\n",
+    "    y_axis=[0, 1, 0],\n",
+    "    name=\"obj_cs_2\",\n",
+    ")\n",
+    "new_obj_cs_2 = hfss.modeler.duplicate_coordinate_system_to_global(obj_cs_2)\n",
+    "obj_cs_2.delete()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "20beac60",
+   "metadata": {},
+   "source": [
+    "Create an object coordinate system with an origin on the vertex."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "146264fa",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "obj_cs_3 = hfss.modeler.create_object_coordinate_system(\n",
+    "    assignment=box.name,\n",
+    "    origin=box.vertices[1],\n",
+    "    x_axis=box.faces[2],\n",
+    "    y_axis=box.faces[4],\n",
+    "    name=\"obj_cs_3\",\n",
+    ")\n",
+    "obj_cs_3.props[\"MoveToEnd\"] = False\n",
+    "obj_cs_3.update()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a2795b5d",
+   "metadata": {},
+   "source": [
+    "### Get all coordinate systems\n",
+    "\n",
+    "Easily retrieve and subsequently manipulate all coordinate systems."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "09e59a1a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "css = hfss.modeler.coordinate_systems\n",
+    "names = [i.name for i in css]\n",
+    "print(names)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "46f71144",
+   "metadata": {},
+   "source": [
+    "## Select coordinate system\n",
+    "\n",
+    "Select an existing coordinate system."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0cf9fcde",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "css = hfss.modeler.coordinate_systems\n",
+    "cs_selected = css[0]\n",
+    "cs_selected.delete()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "bd8a3510",
+   "metadata": {},
+   "source": [
+    "## Get point coordinate under another coordinate system\n",
+    "\n",
+    "Get a point coordinate under another coordinate system. A point coordinate\n",
+    "can be translated in respect to any coordinate system."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5917c94a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss.modeler.create_box([-10, -10, -10], [20, 20, 20], \"Box1\")\n",
+    "p = hfss.modeler[\"Box1\"].faces[0].vertices[0].position\n",
+    "print(\"Global: \", p)\n",
+    "p2 = hfss.modeler.global_to_cs(p, \"CS5\")\n",
+    "print(\"CS5 :\", p2)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3e0e8bf8",
+   "metadata": {},
+   "source": [
+    "## Release AEDT\n",
+    "Close the project and release AEDT."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fb3079bc",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "d.release_desktop()\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "edf5001f",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d7a0ac79",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

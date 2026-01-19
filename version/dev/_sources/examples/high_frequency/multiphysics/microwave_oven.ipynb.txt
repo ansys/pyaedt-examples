@@ -1,0 +1,723 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "1149109b",
+   "metadata": {},
+   "source": [
+    "# Multi physics HFSS-Icepak microwave oven simulation\n",
+    "This example shows how to couple together HFSS and Icepak to\n",
+    "run multi physics analysis on a well-know problem of microwave oven.\n",
+    "\n",
+    "Keywords: **HFSS**, **modal**, **microwave oven**, **Icepak**, **Multi physics**.\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0cc17fdc",
+   "metadata": {},
+   "source": [
+    "<img src=\"_static/oven.png\" width=\"500\">"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ffa9a5a7",
+   "metadata": {},
+   "source": [
+    "## Prerequisites\n",
+    "\n",
+    "### Perform imports"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d857ae2a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import ansys.aedt.core\n",
+    "import os\n",
+    "import time\n",
+    "import tempfile\n",
+    "\n",
+    "import pyvista\n",
+    "import numpy as np\n",
+    "from ansys.aedt.core import generate_unique_name\n",
+    "from ansys.aedt.core.examples.downloads import download_file\n",
+    "from ansys.aedt.core.visualization.plot.pdf import AnsysReport"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c074a539",
+   "metadata": {},
+   "source": [
+    "### Define constants.\n",
+    "\n",
+    "Constants help ensure consistency and avoid repetition throughout the example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c4cd3263",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e75a1947",
+   "metadata": {},
+   "source": [
+    "### Create temporary directory\n",
+    "\n",
+    "Create a temporary working directory.\n",
+    "The name of the working folder is stored in ``working_dir.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5c56c18f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "working_dir = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "aab74792",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "source": [
+    "### Download the project\n",
+    "Download and open the project. Save it to the temporary working folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0ac03609",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "parasolid_path = download_file(\n",
+    "    source=\"oven\", name=\"gingerbread.x_t\", local_path=working_dir.name\n",
+    ")\n",
+    "oven_path = download_file(\n",
+    "    source=\"oven\", name=\"microwave_oven.aedt\", local_path=working_dir.name\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2168bede",
+   "metadata": {},
+   "source": [
+    "### Launch HFSS\n",
+    "Open AEDT and initialize the microwave oven project.\n",
+    "\n",
+    "After the project is opened, we save it in our working directory."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c755f509",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss = ansys.aedt.core.Hfss(version=AEDT_VERSION,\n",
+    "                            project=oven_path,\n",
+    "                            non_graphical=NG_MODE,\n",
+    "                            new_desktop=True)\n",
+    "hfss.save_project(file_name=os.path.join(working_dir.name, 'lets_cook.aedt'))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0defae22",
+   "metadata": {},
+   "source": [
+    "## Model Preparation\n",
+    "\n",
+    "### Assign material\n",
+    "This phase is fundamental because we need to assign correct material properties that are valid for both electrical\n",
+    "and thermal analysis.\n",
+    "\n",
+    "PyAEDT simplifies the creation and modification of a material \n",
+    "definitions using _getter_ and _setter_ methods. In this example we modify 5 material parameters."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f99446d8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ginger_material = hfss.materials.add_material(name=\"ginger_bread\")\n",
+    "ginger_material.permittivity = 41\n",
+    "ginger_material.dielectric_loss_tangent = 0.32\n",
+    "ginger_material.thermal_conductivity = 0.38\n",
+    "ginger_material.mass_density = 1831\n",
+    "ginger_material.specific_heat = 3520"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "df327609",
+   "metadata": {},
+   "source": [
+    "### Import the gingerbread man and assign material\n",
+    "\n",
+    "Once the object is imported all of its properties can be edited. \n",
+    "We are going to move the gingerbread at the center of the plate and assign material to it.\n",
+    "\n",
+    "Finally, we are going to change the transparency of the glass bowl."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1de10130",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss.modeler.import_3d_cad(input_file=parasolid_path)\n",
+    "ginger_bread = hfss.modeler[\"plateauPainEpices_Unnamed_5\"]\n",
+    "hfss.modeler.move(assignment=ginger_bread, vector=[\"-0.5in\", \"-0.2in\", \"-38.1mm\"])\n",
+    "ginger_bread.material_name = ginger_material.name\n",
+    "hfss.modeler[\"glassBowl\"].transparency = 0.75"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5ddaeade",
+   "metadata": {},
+   "source": [
+    "### Export an image\n",
+    "\n",
+    "At the end of this example we will generate a PDF report that summarizes the workflow and simulation results.\n",
+    "\n",
+    "We now save an image of the model as a PNG file to insert into the report later."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fd6dc80a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss.post.export_model_picture(full_name=os.path.join(working_dir.name, 'ginger_bread_cookie.png'))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0225791a",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "source": [
+    "### Launch Icepak\n",
+    "\n",
+    "In order to run a multiphysics analysis we need to create an Icepak project that will be retrieve the loss data\n",
+    "from HFSS to use as a heat source."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6cac6695",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk = ansys.aedt.core.Icepak(solution_type=\"Transient Thermal\")\n",
+    "ipk.copy_solid_bodies_from(design=hfss, no_vacuum=False, no_pec=False, include_sheets=True)\n",
+    "ipk.modeler[\"Region\"].delete()\n",
+    "ipk.modeler.fit_all()\n",
+    "exc = ipk.assign_em_losses(\n",
+    "    design=hfss.design_name,\n",
+    "    setup=hfss.setups[0].name,\n",
+    "    sweep=\"LastAdaptive\",\n",
+    "    map_frequency=hfss.setups[0].props[\"Frequency\"],\n",
+    "    surface_objects=[],\n",
+    "    assignment=[\"glassBowl\", ginger_bread.name]\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c877feaf",
+   "metadata": {},
+   "source": [
+    "### Thermal boundaries\n",
+    "\n",
+    "Main thermal boundaries will be free opening of the microwave oven. \n",
+    "\n",
+    "In this example we set 2 different types of openings on the two faces of the oven."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "96d81535",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.modeler[\"ovenCavity\"].transparency = 1\n",
+    "ipk.assign_free_opening(assignment=ipk.modeler[\"ovenCavity\"].top_face_y.id,\n",
+    "                        flow_type=\"Velocity\",\n",
+    "                        velocity=[\"0m_per_sec\", \"-0.5m_per_sec\", \"0m_per_sec\"])\n",
+    "ipk.assign_free_opening(assignment=ipk.modeler[\"ovenCavity\"].bottom_face_y.id,\n",
+    "                        flow_type=\"Pressure\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "19627471",
+   "metadata": {},
+   "source": [
+    "#### Icepak multiple reference frame (MRF)\n",
+    "\n",
+    "The MRF assumes mesh rotation as a solid block.\n",
+    "In this example is useful to rotate the oven plate and cookie to reduce cooking time."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1f4ea317",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "rot_cyl = ipk.modeler.create_cylinder(orientation=\"Z\",\n",
+    "                                      origin=[158.75, 228.6, 0],\n",
+    "                                      radius=110, height=150,\n",
+    "                                      material=\"air\",\n",
+    "                                      name=\"rotating_cylinder\")\n",
+    "rot_cyl.display_wireframe = True\n",
+    "rot_cyl.transparency = 1\n",
+    "block = ipk.assign_solid_block(rot_cyl.name, 0)\n",
+    "block.props[\"Use MRF\"] = True\n",
+    "block.props[\"MRF\"] = \"6rpm\"\n",
+    "block.props[\"Is Cylinder MRF\"] = True"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fceb6714",
+   "metadata": {},
+   "source": [
+    "### Icepak mesh settings\n",
+    "\n",
+    "Icepak mesh settings are used to optimize the simulation time and accuracy. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "88acb67f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.mesh.global_mesh_region.manual_settings = True\n",
+    "ipk.mesh.global_mesh_region.settings[\"MaxElementSizeX\"] = \"15mm\"\n",
+    "ipk.mesh.global_mesh_region.settings[\"MaxElementSizeY\"] = \"15mm\"\n",
+    "ipk.mesh.global_mesh_region.settings[\"MaxElementSizeZ\"] = \"15mm\"\n",
+    "ipk.mesh.global_mesh_region.settings[\"BufferLayers\"] = '2'\n",
+    "ipk.mesh.global_mesh_region.settings[\"MaxLevels\"] = '2'\n",
+    "ipk.mesh.global_mesh_region.update()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e0fcbd27",
+   "metadata": {},
+   "source": [
+    "### Icepak solution setup\n",
+    "\n",
+    "In this example we are limiting the number of steps to a maximum of 5 steps to make the example quick to run.\n",
+    "Ideally this number has to be increased to improve the simulation accuracy and obtain more precise results."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "46b95d96",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup = ipk.create_setup()\n",
+    "setup.props[\"SaveFieldsType\"] = \"Every N Steps\"\n",
+    "setup.props[\"N Steps\"] = \"5\"\n",
+    "setup.props[\"Turbulent Model Eqn\"] = \"kOmegaSST\"\n",
+    "setup.props[\"Flow Regime\"] = \"Turbulent\"\n",
+    "solved = False\n",
+    "stop_time = 0"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "86ee7269",
+   "metadata": {},
+   "source": [
+    "### Icepak report preparation"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "649daa49",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.save_project()\n",
+    "ginger_bread_thermal = ipk.modeler[\"plateauPainEpices_Unnamed_5\"]\n",
+    "ginger_bread_thermal.transparency = 1\n",
+    "objects = ipk.modeler.non_model_objects[::] + [\"glassBowl\"]\n",
+    "\n",
+    "microwave_objects = ipk.post.export_model_obj(objects, export_as_multiple_objects=True, )"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "bef793f2",
+   "metadata": {},
+   "source": [
+    "### Initialize Ansys report\n",
+    "\n",
+    "``AnsysReport`` PyAEDT class that allows creation of\n",
+    "simple and effective PDF reports\n",
+    "that include text, images, tables and charts."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5ac1822f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "report = AnsysReport(\n",
+    "    version=ipk.aedt_version_id, design_name=ipk.design_name, project_name=ipk.project_name\n",
+    ")\n",
+    "report.create()\n",
+    "report.add_section()\n",
+    "report.add_chapter(f\"Ansys GingerBread Recipe\")\n",
+    "report.add_sub_chapter(\"Ingredients\")\n",
+    "\n",
+    "report.add_text(\"Step 1: Melt the sugar, golden syrup and butter in a saucepan, then bubble for 1-2 mins.\")\n",
+    "report.add_text(\"Leave to cool for about 10 mins.\")\n",
+    "\n",
+    "report.add_text(\"Step 2: Tip the flour, baking soda and spices into a large bowl.\")\n",
+    "report.add_text(\n",
+    "    \"Add the warm syrup mixture and the egg, stir everything together, then gently knead in the bowl until smooth and streak-free.\")\n",
+    "report.add_text(\"The dough will firm up once cooled. Wrap in cling film and chill for at least 30 mins.\")\n",
+    "\n",
+    "report.add_text(\"Step 3: Remove the dough from the fridge, leave at room temperature until softened. \")\n",
+    "report.add_text(\"Set the microwave oven power to 1200W but be careful about the time!!!\")\n",
+    "report.add_page_break()\n",
+    "report.add_sub_chapter(\"Design the Microwave Oven... with HFSS\")\n",
+    "report.add_text(\"An accurate Microwave Oven design requires:\")\n",
+    "report.add_text(\"1- Ansys HFSS\")\n",
+    "report.add_text(\"2- PyAEDT\")\n",
+    "\n",
+    "report.add_image(path=os.path.join(working_dir.name, 'ginger_bread_cookie.png'),\n",
+    "                 caption=\"HFSS Design of Ansys Microwave Oven\")\n",
+    "\n",
+    "report.add_page_break()\n",
+    "report.add_sub_chapter(\"Determine cooking time... with Icepak\")\n",
+    "report.add_text(\"\")\n",
+    "report.add_text(\"\")\n",
+    "report.add_text(\"A complete Icepak project requires:\")\n",
+    "report.add_text(\"1- Correct material assignment\")\n",
+    "report.add_text(\"2- Rotating gingerbread\")\n",
+    "report.add_text(\"3- Convection settings\")\n",
+    "report.add_text(\"4- Accurate EM Losses from HFSS\")\n",
+    "report.add_page_break()\n",
+    "report.add_sub_chapter(\"Recipe experiments\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7a104063",
+   "metadata": {},
+   "source": [
+    "### Compute average temperature of the cookie\n",
+    "The following set of commands show how to use Icepak field summary to\n",
+    "compute the temperature on the gingerbread biscuit and get the mean value of it."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9f999a03",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def get_average_temperature():\n",
+    "    fs = ipk.post.create_field_summary()\n",
+    "    fs.add_calculation(entity=\"Object\",\n",
+    "                       geometry=\"Surface\",\n",
+    "                       geometry_name=ginger_bread_thermal.name,\n",
+    "                       quantity=\"Temperature\",\n",
+    "                       time=f\"{stop_time}s\")\n",
+    "    df = fs.get_field_summary_data(pandas_output=True)\n",
+    "    return float(df[\"Mean\"])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b0d06024",
+   "metadata": {},
+   "source": [
+    "### Method to generate streamline plot on gingerbread cookie\n",
+    "\n",
+    "This method encapsulate a set of action to plot and arrange the view of\n",
+    "the gingerbread inside the microwave oven with velocity streamline plot.\n",
+    "The view is set to front $(y-z)$."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "79196a18",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "def generate_streamline(stop):\n",
+    "    def generate_case(quantity_in, field_time, assignment=[\"ovenCavity\", \"rotating_cylinder\"]):\n",
+    "        f1 = ipk.post.create_fieldplot_volume(assignment=assignment,\n",
+    "                                              quantity=quantity_in,\n",
+    "                                              intrinsics={\"Time\": f\"{field_time}s\"})\n",
+    "        air_ux_case = ipk.post.export_field_plot(plot_name=f1.name,\n",
+    "                                                 output_dir=working_dir.name,\n",
+    "                                                 file_format=\"case\")\n",
+    "        mesh_in = pyvista.read(air_ux_case)\n",
+    "        return mesh_in\n",
+    "\n",
+    "    mesh_ux = generate_case(quantity_in=\"Ux\", field_time=stop)\n",
+    "    mesh_uy = generate_case(quantity_in=\"Uy\", field_time=stop)\n",
+    "    mesh_uz = generate_case(quantity_in=\"Uz\", field_time=stop)\n",
+    "    mesh_temp = generate_case(quantity_in=\"Temperature\", field_time=stop)\n",
+    "    mesh_ginger = generate_case(assignment=[\"plateauPainEpices_Unnamed_5\"],\n",
+    "                                quantity_in=\"Temperature\",\n",
+    "                                field_time=stop)\n",
+    "\n",
+    "    temp_block = mesh_temp[0]  # First block for temperature\n",
+    "    # Extract the actual mesh (assuming it's the first block in MultiBlock)\n",
+    "    ux_block = mesh_ux[0]  # First block\n",
+    "    uy_block = mesh_uy[0]  # First block\n",
+    "    uz_block = mesh_uz[0]  # First block\n",
+    "    ux = ux_block.point_data.values()[0]\n",
+    "    uy = uy_block.point_data.values()[0]\n",
+    "    uz = uz_block.point_data.values()[0]\n",
+    "    temperature = temp_block.point_data.values()[0]  # Temperature data\n",
+    "    velocity = np.column_stack((ux, uy, uz))\n",
+    "    ux_block.point_data[\"Velocity\"] = velocity\n",
+    "    ux_block.point_data[\"Temperature\"] = temperature\n",
+    "    seed = pyvista.Box(bounds=(50, 260, 0, 500, -1, 150), level=10)\n",
+    "    streamlines = ux_block.streamlines_from_source(\n",
+    "        seed, max_time=200.0, integration_direction=\"both\"\n",
+    "    )\n",
+    "\n",
+    "    pl = pyvista.Plotter(off_screen=True, window_size=(3840, 2160))\n",
+    "    for filename, color, opacity in microwave_objects:\n",
+    "        reader = pyvista.get_reader(filename)\n",
+    "        mesh = reader.read()\n",
+    "        pl.add_mesh(\n",
+    "            mesh,\n",
+    "            smooth_shading=True,\n",
+    "            split_sharp_edges=True,\n",
+    "            color=color,\n",
+    "            opacity=opacity,\n",
+    "            ambient=0.05,\n",
+    "        )\n",
+    "\n",
+    "    pl.add_mesh(streamlines, line_width=4, scalars=\"Temperature\", cmap=\"coolwarm\")\n",
+    "    pl.add_mesh(mesh_ginger)\n",
+    "    pl.enable_ssao(kernel_size=128, radius=15, bias=0.5)\n",
+    "    pl.enable_anti_aliasing(\"ssaa\")\n",
+    "    pl.camera_position = \"yz\"\n",
+    "    pl.camera.elevation += 20\n",
+    "    pl.enable_ssao(kernel_size=128, radius=15, bias=0.5)\n",
+    "    pl.enable_anti_aliasing(\"ssaa\")\n",
+    "    pl.screenshot(os.path.join(working_dir.name, \"streamlines.png\"))\n",
+    "    return os.path.join(working_dir.name, \"streamlines.png\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1859a0f2",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "source": [
+    "### Method to generate temperature plot on gingerbread\n",
+    "\n",
+    "This method encapsulates a set of actions to plot and arrange the view of\n",
+    "the gingerbread inside the microwave oven. The view is set to front $(y-z)$."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fd8c20d7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def generate_temps(stop):\n",
+    "    pl = ipk.post.plot_field(\n",
+    "        quantity=\"Temperature\",\n",
+    "        assignment=ginger_bread_thermal.faces,\n",
+    "        plot_cad_objs=True,\n",
+    "        show=False,\n",
+    "        intrinsics={\"Time\": f\"{stop}s\"},\n",
+    "        scale_min=22,\n",
+    "        scale_max=110,\n",
+    "        show_legend=False,\n",
+    "        dark_mode=False,\n",
+    "    )\n",
+    "    for mw_obj in microwave_objects:\n",
+    "        pl.add_object(mw_obj[0], mw_obj[1], mw_obj[2])\n",
+    "    pl.camera_position = 'yz'\n",
+    "    pl.elevation_angle = 20\n",
+    "    pl.plot(export_image_path=os.path.join(working_dir.name, f'{generate_unique_name(\"Temperature\")}.jpg'),\n",
+    "            show=False)\n",
+    "    return pl"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "532191dd",
+   "metadata": {},
+   "source": [
+    "## Cook the gingerbread\n",
+    "\n",
+    "### Loop to determine transient time\n",
+    "\n",
+    "This is the core of our optimization process.\n",
+    "We increase the Icepak stop time by steps of 5 seconds until the mean temperature of the gingerbread reaches the\n",
+    "50 degrees.\n",
+    "We could also have used an optimizer (Optislang) or run a longer time and plot the average temperature over time."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "945dc2cd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "while not solved:\n",
+    "    stop_time = stop_time + 5\n",
+    "    setup.props[\"Stop Time\"] = f\"{stop_time}s\"\n",
+    "    setup.analyze(cores=4, tasks=4)\n",
+    "    mean_temperature = get_average_temperature()\n",
+    "    if mean_temperature > 50:\n",
+    "        solved = True\n",
+    "        report.add_page_break()\n",
+    "        report.add_sub_chapter(f\"The Gingerbread is ready!!!!\")\n",
+    "        report.add_text(f\"The perfect time for cooking the Gingerbread is {stop_time}s\")\n",
+    "        plot4 = generate_temps(stop_time)\n",
+    "        report.add_image(plot4.image_file, f\"GingerBread at the end of cooking.\")\n",
+    "    else:\n",
+    "        ipk.logger.info(\n",
+    "            f'Mean Temperature in the Gingerbread is {mean_temperature} after {stop_time}s in the microwave')\n",
+    "        if mean_temperature > 30:\n",
+    "            report.add_text(f\"Gingerbread is almost ready. Don't worry we will notify you when ready.\")\n",
+    "            output_file = generate_streamline(stop_time)\n",
+    "            report.add_image(os.path.join(working_dir.name, \"streamlines.png\"),\n",
+    "                             f\"GingerBread while cooking after {stop_time}s\")\n",
+    "        else:\n",
+    "            report.add_text(f\"Take a cup of tea and relax. It will take longer.\")\n",
+    "        ipk.save_project()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ab77caff",
+   "metadata": {},
+   "source": [
+    "### Generate PDF"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3db36d5a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "report.add_toc()\n",
+    "report.save_pdf(working_dir.name, \"Gingerbread_ansys_recipe.pdf\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4fad2c1d",
+   "metadata": {},
+   "source": [
+    "## Release AEDT\n",
+    "\n",
+    "Release AEDT and close the example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6b0d26fc",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.save_project()\n",
+    "ipk.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "60ef3e0e",
+   "metadata": {},
+   "source": [
+    "### Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "72954741",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "working_dir.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

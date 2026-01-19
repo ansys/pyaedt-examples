@@ -1,0 +1,804 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "4b7ca574",
+   "metadata": {},
+   "source": [
+    "# Pre-layout Parameterized PCB\n",
+    "\n",
+    "This example shows how to use the EDB interface along with HFSS 3D Layout to create and solve a\n",
+    "parameterized layout. The layout shows a differential via transition on a printed circuit board\n",
+    "with back-to-back microstrip to stripline transitions.\n",
+    "The model is fully parameterized to enable investigation of the transition performance on the\n",
+    "many degrees of freedom.\n",
+    "\n",
+    "The resulting model is shown below\n",
+    "\n",
+    "<img src=\"_static\\pre_layout_parameterized_pcb.png\" width=\"500\">"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "23fc9b8b",
+   "metadata": {},
+   "source": [
+    "## Preparation\n",
+    "Import the required packages"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "997db494",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "from ansys.aedt.core import Hfss3dLayout\n",
+    "from pyedb import Edb\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "16354631",
+   "metadata": {},
+   "source": [
+    "## Define constants"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9f75b90a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2522d93b",
+   "metadata": {},
+   "source": [
+    "## Launch EDB"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "307f8a4b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")\n",
+    "aedb_path = os.path.join(temp_folder.name, \"pcb.aedb\")\n",
+    "edb = Edb(edbpath=aedb_path, edbversion=AEDT_VERSION)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "68ac4722",
+   "metadata": {},
+   "source": [
+    "## Create layout\n",
+    "### Define the parameters."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3bc84da8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "params = {\n",
+    "    \"$ms_width\": \"0.4mm\",\n",
+    "    \"$sl_width\": \"0.2mm\",\n",
+    "    \"$ms_spacing\": \"0.2mm\",\n",
+    "    \"$sl_spacing\": \"0.1mm\",\n",
+    "    \"$via_spacing\": \"0.5mm\",\n",
+    "    \"$via_diam\": \"0.3mm\",\n",
+    "    \"$pad_diam\": \"0.6mm\",\n",
+    "    \"$anti_pad_diam\": \"0.7mm\",\n",
+    "    \"$pcb_len\": \"15mm\",\n",
+    "    \"$pcb_w\": \"5mm\",\n",
+    "    \"$x_size\": \"1.2mm\",\n",
+    "    \"$y_size\": \"1mm\",\n",
+    "    \"$corner_rad\": \"0.5mm\",\n",
+    "}\n",
+    "\n",
+    "for par_name in params:\n",
+    "    edb.add_project_variable(par_name, params[par_name])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "78148f45",
+   "metadata": {},
+   "source": [
+    "### Create stackup\n",
+    "Define the stackup layers from bottom to top."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7c276291",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "layers = [\n",
+    "    {\n",
+    "        \"name\": \"bottom\",\n",
+    "        \"layer_type\": \"signal\",\n",
+    "        \"thickness\": \"35um\",\n",
+    "        \"material\": \"copper\",\n",
+    "    },\n",
+    "    {\n",
+    "        \"name\": \"diel_3\",\n",
+    "        \"layer_type\": \"dielectric\",\n",
+    "        \"thickness\": \"275um\",\n",
+    "        \"material\": \"FR4_epoxy\",\n",
+    "    },\n",
+    "    {\n",
+    "        \"name\": \"sig_2\",\n",
+    "        \"layer_type\": \"signal\",\n",
+    "        \"thickness\": \"35um\",\n",
+    "        \"material\": \"copper\",\n",
+    "    },\n",
+    "    {\n",
+    "        \"name\": \"diel_2\",\n",
+    "        \"layer_type\": \"dielectric\",\n",
+    "        \"thickness\": \"275um\",\n",
+    "        \"material\": \"FR4_epoxy\",\n",
+    "    },\n",
+    "    {\n",
+    "        \"name\": \"sig_1\",\n",
+    "        \"layer_type\": \"signal\",\n",
+    "        \"thickness\": \"35um\",\n",
+    "        \"material\": \"copper\",\n",
+    "    },\n",
+    "    {\n",
+    "        \"name\": \"diel_1\",\n",
+    "        \"layer_type\": \"dielectric\",\n",
+    "        \"thickness\": \"275um\",\n",
+    "        \"material\": \"FR4_epoxy\",\n",
+    "    },\n",
+    "    {\"name\": \"top\", \"layer_type\": \"signal\", \"thickness\": \"35um\", \"material\": \"copper\"},\n",
+    "]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8c656e24",
+   "metadata": {},
+   "source": [
+    "Define the bottom layer"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "32079a80",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "prev = None\n",
+    "for layer in layers:\n",
+    "    edb.stackup.add_layer(\n",
+    "        layer[\"name\"],\n",
+    "        base_layer=prev,\n",
+    "        layer_type=layer[\"layer_type\"],\n",
+    "        thickness=layer[\"thickness\"],\n",
+    "        material=layer[\"material\"],\n",
+    "    )\n",
+    "    prev = layer[\"name\"]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c3bbd96a",
+   "metadata": {},
+   "source": [
+    "### Create a parametrized padstack for the signal via.\n",
+    "Create a padstack definition."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "404bf056",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "signal_via_padstack = \"automated_via\"\n",
+    "edb.padstacks.create(\n",
+    "    padstackname=signal_via_padstack,\n",
+    "    holediam=\"$via_diam\",\n",
+    "    paddiam=\"$pad_diam\",\n",
+    "    antipaddiam=\"\",\n",
+    "    antipad_shape=\"Bullet\",\n",
+    "    x_size=\"$x_size\",\n",
+    "    y_size=\"$y_size\",\n",
+    "    corner_radius=\"$corner_rad\",\n",
+    "    start_layer=layers[-1][\"name\"],\n",
+    "    stop_layer=layers[-3][\"name\"],\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8a9108f9",
+   "metadata": {},
+   "source": [
+    "Assign net names. There are only two signal nets."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7db832e2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "net_p = \"p\"\n",
+    "net_n = \"n\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "81450405",
+   "metadata": {},
+   "source": [
+    "Place the signal vias."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "015e33e9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.padstacks.place(\n",
+    "    position=[\"$pcb_len/3\", \"($ms_width+$ms_spacing+$via_spacing)/2\"],\n",
+    "    definition_name=signal_via_padstack,\n",
+    "    net_name=net_p,\n",
+    "    via_name=\"\",\n",
+    "    rotation=90.0,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6c26f4f0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.padstacks.place(\n",
+    "    position=[\"2*$pcb_len/3\", \"($ms_width+$ms_spacing+$via_spacing)/2\"],\n",
+    "    definition_name=signal_via_padstack,\n",
+    "    net_name=net_p,\n",
+    "    via_name=\"\",\n",
+    "    rotation=90.0,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0fa40c4a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.padstacks.place(\n",
+    "    position=[\"$pcb_len/3\", \"-($ms_width+$ms_spacing+$via_spacing)/2\"],\n",
+    "    definition_name=signal_via_padstack,\n",
+    "    net_name=net_n,\n",
+    "    via_name=\"\",\n",
+    "    rotation=-90.0,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a942fb34",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "edb.padstacks.place(\n",
+    "    position=[\"2*$pcb_len/3\", \"-($ms_width+$ms_spacing+$via_spacing)/2\"],\n",
+    "    definition_name=signal_via_padstack,\n",
+    "    net_name=net_n,\n",
+    "    via_name=\"\",\n",
+    "    rotation=-90.0,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a64c433a",
+   "metadata": {},
+   "source": [
+    "### Draw parametrized traces\n",
+    "\n",
+    "Trace width and the routing (Microstrip-Stripline-Microstrip).\n",
+    "Applies to both p and n nets."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "86e1736b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Trace width, n and p\n",
+    "width = [\"$ms_width\", \"$sl_width\", \"$ms_width\"]\n",
+    "# Routing layer, n and p\n",
+    "route_layer = [layers[-1][\"name\"], layers[4][\"name\"], layers[-1][\"name\"]]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d81a212b",
+   "metadata": {},
+   "source": [
+    "Define points for three traces in the \"p\" net"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "35ff266f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "points_p = [\n",
+    "    [\n",
+    "        [\"0.0\", \"($ms_width+$ms_spacing)/2\"],\n",
+    "        [\"$pcb_len/3-2*$via_spacing\", \"($ms_width+$ms_spacing)/2\"],\n",
+    "        [\"$pcb_len/3-$via_spacing\", \"($ms_width+$ms_spacing+$via_spacing)/2\"],\n",
+    "        [\"$pcb_len/3\", \"($ms_width+$ms_spacing+$via_spacing)/2\"],\n",
+    "    ],\n",
+    "    [\n",
+    "        [\"$pcb_len/3\", \"($ms_width+$sl_spacing+$via_spacing)/2\"],\n",
+    "        [\"$pcb_len/3+$via_spacing\", \"($ms_width+$sl_spacing+$via_spacing)/2\"],\n",
+    "        [\"$pcb_len/3+2*$via_spacing\", \"($sl_width+$sl_spacing)/2\"],\n",
+    "        [\"2*$pcb_len/3-2*$via_spacing\", \"($sl_width+$sl_spacing)/2\"],\n",
+    "        [\"2*$pcb_len/3-$via_spacing\", \"($ms_width+$sl_spacing+$via_spacing)/2\"],\n",
+    "        [\"2*$pcb_len/3\", \"($ms_width+$sl_spacing+$via_spacing)/2\"],\n",
+    "    ],\n",
+    "    [\n",
+    "        [\"2*$pcb_len/3\", \"($ms_width+$ms_spacing+$via_spacing)/2\"],\n",
+    "        [\"2*$pcb_len/3+$via_spacing\", \"($ms_width+$ms_spacing+$via_spacing)/2\"],\n",
+    "        [\"2*$pcb_len/3+2*$via_spacing\", \"($ms_width+$ms_spacing)/2\"],\n",
+    "        [\"$pcb_len\", \"($ms_width+$ms_spacing)/2\"],\n",
+    "    ],\n",
+    "]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2742f49c",
+   "metadata": {},
+   "source": [
+    "Define points for three traces in the \"n\" net"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "29d72e74",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "points_n = [\n",
+    "    [\n",
+    "        [\"0.0\", \"-($ms_width+$ms_spacing)/2\"],\n",
+    "        [\"$pcb_len/3-2*$via_spacing\", \"-($ms_width+$ms_spacing)/2\"],\n",
+    "        [\"$pcb_len/3-$via_spacing\", \"-($ms_width+$ms_spacing+$via_spacing)/2\"],\n",
+    "        [\"$pcb_len/3\", \"-($ms_width+$ms_spacing+$via_spacing)/2\"],\n",
+    "    ],\n",
+    "    [\n",
+    "        [\"$pcb_len/3\", \"-($ms_width+$sl_spacing+$via_spacing)/2\"],\n",
+    "        [\"$pcb_len/3+$via_spacing\", \"-($ms_width+$sl_spacing+$via_spacing)/2\"],\n",
+    "        [\"$pcb_len/3+2*$via_spacing\", \"-($ms_width+$sl_spacing)/2\"],\n",
+    "        [\"2*$pcb_len/3-2*$via_spacing\", \"-($ms_width+$sl_spacing)/2\"],\n",
+    "        [\"2*$pcb_len/3-$via_spacing\", \"-($ms_width+$sl_spacing+$via_spacing)/2\"],\n",
+    "        [\"2*$pcb_len/3\", \"-($ms_width+$sl_spacing+$via_spacing)/2\"],\n",
+    "    ],\n",
+    "    [\n",
+    "        [\"2*$pcb_len/3\", \"-($ms_width+$ms_spacing+$via_spacing)/2\"],\n",
+    "        [\"2*$pcb_len/3 + $via_spacing\", \"-($ms_width+$ms_spacing+$via_spacing)/2\"],\n",
+    "        [\"2*$pcb_len/3 + 2*$via_spacing\", \"-($ms_width+$ms_spacing)/2\"],\n",
+    "        [\"$pcb_len\", \"-($ms_width + $ms_spacing)/2\"],\n",
+    "    ],\n",
+    "]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4bbfafa8",
+   "metadata": {},
+   "source": [
+    "Add traces to the EDB."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "894740f0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "trace_p = []\n",
+    "trace_n = []\n",
+    "for n in range(len(points_p)):\n",
+    "    trace_p.append(edb.modeler.create_trace(points_p[n], route_layer[n], width[n], net_p, \"Flat\", \"Flat\"))\n",
+    "    trace_n.append(edb.modeler.create_trace(points_n[n], route_layer[n], width[n], net_n, \"Flat\", \"Flat\"))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ab6f065b",
+   "metadata": {},
+   "source": [
+    "Create the wave ports"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "33bbd19a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.hfss.create_differential_wave_port(\n",
+    "    trace_p[0].id,\n",
+    "    [\"0.0\", \"($ms_width+$ms_spacing)/2\"],\n",
+    "    trace_n[0].id,\n",
+    "    [\"0.0\", \"-($ms_width+$ms_spacing)/2\"],\n",
+    "    \"wave_port_1\",\n",
+    ")\n",
+    "edb.hfss.create_differential_wave_port(\n",
+    "    trace_p[2].id,\n",
+    "    [\"$pcb_len\", \"($ms_width+$ms_spacing)/2\"],\n",
+    "    trace_n[2].id,\n",
+    "    [\"$pcb_len\", \"-($ms_width + $ms_spacing)/2\"],\n",
+    "    \"wave_port_2\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fc4dd7de",
+   "metadata": {},
+   "source": [
+    "Draw a conducting rectangle on the the ground layers."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "90990171",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "gnd_poly = [\n",
+    "    [0.0, \"-$pcb_w/2\"],\n",
+    "    [\"$pcb_len\", \"-$pcb_w/2\"],\n",
+    "    [\"$pcb_len\", \"$pcb_w/2\"],\n",
+    "    [0.0, \"$pcb_w/2\"],\n",
+    "]\n",
+    "gnd_shape = edb.modeler.Shape(\"polygon\", points=gnd_poly)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a8de9aa4",
+   "metadata": {},
+   "source": [
+    "Void in ground for traces on the signal routing layer"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "79082ce4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "void_poly = [\n",
+    "    [\n",
+    "        \"$pcb_len/3\",\n",
+    "        \"-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2-$via_spacing/2\",\n",
+    "    ],\n",
+    "    [\n",
+    "        \"$pcb_len/3 + $via_spacing\",\n",
+    "        \"-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2-$via_spacing/2\",\n",
+    "    ],\n",
+    "    [\n",
+    "        \"$pcb_len/3 + 2*$via_spacing\",\n",
+    "        \"-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2\",\n",
+    "    ],\n",
+    "    [\n",
+    "        \"2*$pcb_len/3 - 2*$via_spacing\",\n",
+    "        \"-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2\",\n",
+    "    ],\n",
+    "    [\n",
+    "        \"2*$pcb_len/3 - $via_spacing\",\n",
+    "        \"-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2-$via_spacing/2\",\n",
+    "    ],\n",
+    "    [\n",
+    "        \"2*$pcb_len/3\",\n",
+    "        \"-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2-$via_spacing/2\",\n",
+    "    ],\n",
+    "    [\n",
+    "        \"2*$pcb_len/3\",\n",
+    "        \"($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2+$via_spacing/2\",\n",
+    "    ],\n",
+    "    [\n",
+    "        \"2*$pcb_len/3 - $via_spacing\",\n",
+    "        \"($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2+$via_spacing/2\",\n",
+    "    ],\n",
+    "    [\n",
+    "        \"2*$pcb_len/3 - 2*$via_spacing\",\n",
+    "        \"($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2\",\n",
+    "    ],\n",
+    "    [\n",
+    "        \"$pcb_len/3 + 2*$via_spacing\",\n",
+    "        \"($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2\",\n",
+    "    ],\n",
+    "    [\n",
+    "        \"$pcb_len/3 + $via_spacing\",\n",
+    "        \"($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2+$via_spacing/2\",\n",
+    "    ],\n",
+    "    [\n",
+    "        \"$pcb_len/3\",\n",
+    "        \"($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2+$via_spacing/2\",\n",
+    "    ],\n",
+    "    [\"$pcb_len/3\", \"($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2\"],\n",
+    "]\n",
+    "\n",
+    "void_shape = edb.modeler.Shape(\"polygon\", points=void_poly)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b39c1183",
+   "metadata": {},
+   "source": [
+    "Add ground conductors."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a07d7606",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "for layer in layers[:-1:2]:\n",
+    "\n",
+    "    # add void if the layer is the signal routing layer.\n",
+    "    void = [void_shape] if layer[\"name\"] == route_layer[1] else []\n",
+    "\n",
+    "    edb.modeler.create_polygon(main_shape=gnd_shape, layer_name=layer[\"name\"], voids=void, net_name=\"gnd\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f49de736",
+   "metadata": {},
+   "source": [
+    "Plot the layout."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "383567c0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.nets.plot(None)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "bdea7f78",
+   "metadata": {},
+   "source": [
+    "Save the EDB."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7964d469",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.save_edb()\n",
+    "edb.close_edb()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e0e6dd44",
+   "metadata": {},
+   "source": [
+    "## Open the project in HFSS 3D Layout."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9a81eef4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d = Hfss3dLayout(\n",
+    "    project=aedb_path,\n",
+    "    version=AEDT_VERSION,\n",
+    "    non_graphical=NG_MODE,\n",
+    "    new_desktop=True,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8004db87",
+   "metadata": {},
+   "source": [
+    "### Add a HFSS simulation setup"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1c4232ef",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup = h3d.create_setup()\n",
+    "setup.props[\"AdaptiveSettings\"][\"SingleFrequencyDataList\"][\"AdaptiveFrequencyData\"][\"MaxPasses\"] = 3\n",
+    "\n",
+    "h3d.create_linear_count_sweep(\n",
+    "    setup=setup.name,\n",
+    "    unit=\"GHz\",\n",
+    "    start_frequency=0,\n",
+    "    stop_frequency=10,\n",
+    "    num_of_freq_points=101,\n",
+    "    name=\"sweep1\",\n",
+    "    sweep_type=\"Interpolating\",\n",
+    "    interpolation_tol_percent=1,\n",
+    "    interpolation_max_solutions=255,\n",
+    "    save_fields=False,\n",
+    "    use_q3d_for_dc=False,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "290be7b3",
+   "metadata": {},
+   "source": [
+    "### Define the differential pairs to used to calculate differential and common mode  s-parameters"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8670a6e0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d.set_differential_pair(differential_mode=\"In\", assignment=\"wave_port_1:T1\", reference=\"wave_port_1:T2\")\n",
+    "h3d.set_differential_pair(differential_mode=\"Out\", assignment=\"wave_port_2:T1\", reference=\"wave_port_2:T2\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "52882813",
+   "metadata": {},
+   "source": [
+    "Solve the project."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "03457805",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d.analyze(cores=NUM_CORES)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "95c58ff0",
+   "metadata": {},
+   "source": [
+    "Plot the results and shut down AEDT."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "db80e9f1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "solutions = h3d.post.get_solution_data(expressions=[\"dB(S(In,In))\", \"dB(S(In,Out))\"], context=\"Differential Pairs\")\n",
+    "solutions.plot()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "eb3fe100",
+   "metadata": {},
+   "source": [
+    "## Release AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b0459638",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d.save_project()\n",
+    "h3d.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6ef99117",
+   "metadata": {},
+   "source": [
+    "Note that the ground nets are only connected to each other due\n",
+    "to the wave ports. The problem with poor grounding can be seen in the\n",
+    "S-parameters. This example can be downloaded as a Jupyter Notebook, so\n",
+    "you can modify it. Try changing parameters or adding ground vias to improve performance.\n",
+    "\n",
+    "The final cell cleans up the temporary directory, removing all files."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0b04943b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

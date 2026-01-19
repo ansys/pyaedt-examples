@@ -1,0 +1,756 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "e700bd3b",
+   "metadata": {},
+   "source": [
+    "# Magnetic behavior of a magnet-collector system\n",
+    "\n",
+    "This example shows how to use PyAEDT to understand the magnetic behavior of a simplified\n",
+    "magnet-collector system when the magnet position changes.\n",
+    "The example shows how to setup the model, an optimetrics analysis to sweep the magnet position\n",
+    "and the post-processing of the results, from report creation to field plotting using PyVista.\n",
+    "\n",
+    "Keywords: **Maxwell 3D**, **Magnetostatic**, **Magnetic**, **Optimetrics**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ea4cbae7",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3e39895f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core  # Interface to Ansys Electronics Desktop\n",
+    "from ansys.aedt.core.generic.constants import Axis\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fa32a526",
+   "metadata": {},
+   "source": [
+    "## Define constants\n",
+    "\n",
+    "Constants help ensure consistency and avoid repetition throughout the example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f880185e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "614e7a86",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary working directory.\n",
+    "The name of the working folder is stored in ``temp_folder.name``.\n",
+    "\n",
+    "> **Note:** The final cell in the notebook cleans up the temporary folder. If you want to\n",
+    "> retrieve the AEDT project and data, do so before executing the final cell in the notebook."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0d8769eb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "cfb6ef1c",
+   "metadata": {},
+   "source": [
+    "## Launch Maxwell 3d\n",
+    "\n",
+    "Create an instance of\n",
+    "the ``Maxwell3d`` class. The Ansys Electronics Desktop will be launched\n",
+    "with an active Maxwell3D design. The ``m3d`` object is subsequently\n",
+    "used to create and simulate the model."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d14f0596",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m3d = ansys.aedt.core.Maxwell3d(\n",
+    "    project=\"magnet_collector\",\n",
+    "    solution_type=\"Magnetostatic\",\n",
+    "    version=AEDT_VERSION,\n",
+    "    non_graphical=NG_MODE,\n",
+    "    new_desktop=True,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4eeb951d",
+   "metadata": {},
+   "source": [
+    "## Define variables\n",
+    "\n",
+    "Later on we want to see how the magnetic behavior of the system changes with the position of the magnet."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "34fd0844",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m3d[\"magnet_radius\"] = \"2mm\"\n",
+    "m3d[\"magnet_height\"] = \"15mm\"\n",
+    "m3d[\"magnet_z_pos\"] = \"0mm\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1f930001",
+   "metadata": {},
+   "source": [
+    "## Add materials\n",
+    "\n",
+    "Create custom material ``\"Aimant\"``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6ec5dfc6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mat = m3d.materials.add_material(\"Aimant\")\n",
+    "mat.permeability = \"1.1\"\n",
+    "mat.set_magnetic_coercivity(value=2005600, x=1, y=1, z=0)\n",
+    "mat.update()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5f6cd46b",
+   "metadata": {},
+   "source": [
+    "## Create non-linear magnetic material with single valued BH curve\n",
+    "\n",
+    "Create list with  BH curve data"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8e7597fd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "bh_curve = [\n",
+    "    [0.0, 0.0],\n",
+    "    [0.032, 0.5],\n",
+    "    [0.049, 0.8],\n",
+    "    [0.065, 1],\n",
+    "    [0.081, 1.13],\n",
+    "    [0.17, 1.52],\n",
+    "    [0.32, 1.59],\n",
+    "    [0.65, 1.62],\n",
+    "    [0.81, 1.65],\n",
+    "    [1.61, 1.7],\n",
+    "    [3.19, 1.75],\n",
+    "    [4.78, 1.79],\n",
+    "    [6.34, 1.83],\n",
+    "    [7.96, 1.86],\n",
+    "    [15.89, 1.99],\n",
+    "    [31.77, 2.1],\n",
+    "    [63.53, 2.2],\n",
+    "    [158.77, 2.41],\n",
+    "    [317.48, 2.65],\n",
+    "    [635, 3.1],\n",
+    "]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b04449f0",
+   "metadata": {},
+   "source": [
+    "## Create custom material \"Fer\" and assign the BH curve to the permeability value"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "57e92720",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mat = m3d.materials.add_material(\"Fer\")\n",
+    "mat.permeability.value = bh_curve\n",
+    "mat.set_magnetic_coercivity(value=0, x=1, y=0, z=0)\n",
+    "mat.update()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8410960f",
+   "metadata": {},
+   "source": [
+    "## Create the collector\n",
+    "\n",
+    "Create a simple geometry to model the collector and assign a material to it."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e9cf0b8b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "collector = m3d.modeler.create_cylinder(\n",
+    "    orientation=ansys.aedt.core.constants.Axis.Z,\n",
+    "    origin=[12, 13, 25],\n",
+    "    height=\"3mm\",\n",
+    "    radius=\"9.5mm\",\n",
+    "    axisdir=\"Z\",\n",
+    "    name=\"collector\",\n",
+    ")\n",
+    "cylinder2 = m3d.modeler.create_cylinder(\n",
+    "    orientation=ansys.aedt.core.constants.Axis.Z,\n",
+    "    origin=[12, 13, 25],\n",
+    "    height=\"3mm\",\n",
+    "    radius=\"8mm\",\n",
+    "    axisdir=\"Z\",\n",
+    "    name=\"cyl2\",\n",
+    ")\n",
+    "\n",
+    "m3d.modeler.subtract(\n",
+    "    blank_list=[collector], tool_list=[cylinder2], keep_originals=False\n",
+    ")\n",
+    "\n",
+    "cylinder3 = m3d.modeler.create_cylinder(\n",
+    "    orientation=ansys.aedt.core.constants.Axis.Z,\n",
+    "    origin=[12, 13, 28],\n",
+    "    height=\"3mm\",\n",
+    "    radius=\"8.7mm\",\n",
+    "    axisdir=\"Z\",\n",
+    "    name=\"cyl3\",\n",
+    ")\n",
+    "cylinder4 = m3d.modeler.create_cylinder(\n",
+    "    orientation=ansys.aedt.core.constants.Axis.Z,\n",
+    "    origin=[12, 13, 28],\n",
+    "    height=\"3mm\",\n",
+    "    radius=\"2mm\",\n",
+    "    axisdir=\"Z\",\n",
+    "    name=\"cyl4\",\n",
+    ")\n",
+    "\n",
+    "m3d.modeler.subtract(\n",
+    "    blank_list=[cylinder3], tool_list=[cylinder4], keep_originals=False\n",
+    ")\n",
+    "m3d.modeler.unite(assignment=[collector, cylinder3], keep_originals=False)\n",
+    "\n",
+    "collector.material_name = \"Fer\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e481cc99",
+   "metadata": {},
+   "source": [
+    "## Create magnet\n",
+    "\n",
+    "Create a cylinder and assign a material to it."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7b6f5923",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "magnet = m3d.modeler.create_cylinder(\n",
+    "    orientation=Axis.Z,\n",
+    "    origin=[0, 0, \"magnet_z_pos\"],\n",
+    "    radius=\"magnet_radius\",\n",
+    "    height=\"magnet_height\",\n",
+    "    num_sides=0,\n",
+    "    name=\"magnet\",\n",
+    "    material=\"Aimant\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "456e20c9",
+   "metadata": {},
+   "source": [
+    "## Create a polyline\n",
+    "\n",
+    "Create a polyline to plot the field onto.\n",
+    "The polyline is placed in the center of the collector so to capture the magnetic flux density."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7415c647",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "line = m3d.modeler.create_polyline(points=[[12, 13, 0], [12, 13, \"32mm\"]], name=\"line\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "006947cc",
+   "metadata": {},
+   "source": [
+    "## Create a vacuum region to enclose all objects"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "81a9ab7b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "region = m3d.modeler.create_region(\n",
+    "    pad_value=50, pad_type=\"Percentage Offset\", name=\"Region\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8964e236",
+   "metadata": {},
+   "source": [
+    "## Create the collector cross-section on the XZ plane"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d5312563",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "collector_relative_cs = m3d.modeler.create_coordinate_system(\n",
+    "    origin=[12, 13, 28], name=\"collector_cs\"\n",
+    ")\n",
+    "section = m3d.modeler.create_rectangle(\n",
+    "    orientation=\"XZ\",\n",
+    "    origin=[-25, 0, -35],\n",
+    "    sizes=[\"50mm\", \"50mm\"],\n",
+    "    name=\"section\",\n",
+    ")\n",
+    "m3d.modeler.set_working_coordinate_system(\"Global\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "006bc77b",
+   "metadata": {},
+   "source": [
+    "## Create a dummy geometry for mesh operations\n",
+    "\n",
+    "Create a cylinder that encloses the polyline to force the mesh to be finer on the polyline."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "00a0df57",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "dummy_cylinder = m3d.modeler.create_cylinder(\n",
+    "    orientation=Axis.Z,\n",
+    "    origin=[12, 13, 0],\n",
+    "    radius=\"1mm\",\n",
+    "    height=\"32mm\",\n",
+    "    num_sides=6,\n",
+    "    name=\"dummy_cylinder\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "dfb25597",
+   "metadata": {},
+   "source": [
+    "## Create a custom named expression\n",
+    "\n",
+    "Create a custom named expression to calculate relative permeability of the ferromagnetic material.\n",
+    "This expression is used to see how the relative permeability of the collector changes with magnet position."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2bc21f1a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mu_r = {\n",
+    "    \"name\": \"mu_r\",\n",
+    "    \"description\": \"Relative permeability of the ferromagnetic material\",\n",
+    "    \"design_type\": [\"Maxwell 3D\"],\n",
+    "    \"fields_type\": [\"Fields\"],\n",
+    "    \"primary_sweep\": \"Time\",\n",
+    "    \"assignment\": \"\",\n",
+    "    \"assignment_type\": [\"\"],\n",
+    "    \"operations\": [\n",
+    "        \"NameOfExpression('Mag_B')\",\n",
+    "        \"NameOfExpression('Mag_H')\",\n",
+    "        \"Scalar_Constant(1.25664e-06)\",\n",
+    "        \"Operation('*')\",\n",
+    "        \"Operation('/')\",\n",
+    "    ],\n",
+    "    \"report\": [\"Field_3D\"],\n",
+    "}\n",
+    "m3d.post.fields_calculator.add_expression(mu_r, None)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "158e27e4",
+   "metadata": {},
+   "source": [
+    "## Set mesh operations\n",
+    "\n",
+    "Assign mesh operations to the dummy cylinder and the collector."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "818a7cfb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "poly_mesh = m3d.mesh.assign_length_mesh(\n",
+    "    assignment=[dummy_cylinder], maximum_length=\"1mm\", name=\"polyline\"\n",
+    ")\n",
+    "collector_mesh = m3d.mesh.assign_length_mesh(\n",
+    "    assignment=[collector],\n",
+    "    inside_selection=False,\n",
+    "    maximum_length=\"3.8mm\",\n",
+    "    name=\"collector\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "12553651",
+   "metadata": {},
+   "source": [
+    "## Create simulation setup"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ef30260b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup = m3d.create_setup()\n",
+    "setup.props[\"MaximumPasses\"] = 10\n",
+    "setup.props[\"PercentRefinement\"] = 30\n",
+    "setup.props[\"PercentError\"] = 2\n",
+    "setup.props[\"MinimumPasses\"] = 2\n",
+    "setup.props[\"NonlinearResidual\"] = 1e-3"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "dbac28e2",
+   "metadata": {},
+   "source": [
+    "## Add parametric sweep\n",
+    "\n",
+    "Create a linear count sweep where the parameter to sweep is ``\"magnet_z_pos\"``.\n",
+    "The magnet position is changed at each step to see how the magnetic behavior of the system changes.\n",
+    "Enable the saving fields option."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8fcb9f02",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "param_sweep = m3d.parametrics.add(\n",
+    "    variable=\"magnet_z_pos\",\n",
+    "    start_point=m3d[\"magnet_z_pos\"],\n",
+    "    end_point=\"25mm\",\n",
+    "    step=5,\n",
+    "    variation_type=\"LinearCount\",\n",
+    ")\n",
+    "\n",
+    "param_sweep.props[\"ProdOptiSetupDataV2\"][\"SaveFields\"] = True"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "dec53ed3",
+   "metadata": {},
+   "source": [
+    "## Analyze parametric sweep"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f2b677e0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "param_sweep.analyze(cores=NUM_CORES)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "026df505",
+   "metadata": {},
+   "source": [
+    "## Create reports\n",
+    "\n",
+    "Create rectangular and data plots on the polyline for different magnet positions."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "592ddc10",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "data_table = m3d.post.create_report(\n",
+    "    expressions=\"Mag_B\",\n",
+    "    report_category=\"Fields\",\n",
+    "    plot_type=\"Data Table\",\n",
+    "    plot_name=\"Mag_B\",\n",
+    "    variations={\"magnet_z_pos\": \"All\"},\n",
+    "    context=line.name,\n",
+    "    polyline_points=101,\n",
+    ")\n",
+    "\n",
+    "rectangular_plot = m3d.post.create_report(\n",
+    "    expressions=\"Mag_B\",\n",
+    "    report_category=\"Fields\",\n",
+    "    plot_type=\"Rectangular Plot\",\n",
+    "    plot_name=\"Mag_B\",\n",
+    "    variations={\"magnet_z_pos\": \"All\"},\n",
+    "    context=line.name,\n",
+    "    polyline_points=101,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a14aee78",
+   "metadata": {},
+   "source": [
+    "## Create field plots\n",
+    "\n",
+    "Create field plots over the collector cross-section and on\n",
+    "the collector surface to see how the magnetic flux density (B),\n",
+    "the vector B field, the magnetic field strength (H) and the permeability\n",
+    "of the ferromagnetic material (μ) change."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1f42e8e7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mag_b = m3d.post.create_fieldplot_surface(\n",
+    "    assignment=[section.name], quantity=\"Mag_B\", plot_name=\"Mag_B\", field_type=\"Fields\"\n",
+    ")\n",
+    "vector_b = m3d.post.create_fieldplot_volume(\n",
+    "    assignment=[collector.name],\n",
+    "    quantity=\"B_Vector\",\n",
+    "    plot_name=\"B_Vector\",\n",
+    "    field_type=\"Fields\",\n",
+    ")\n",
+    "mag_h = m3d.post.create_fieldplot_surface(\n",
+    "    assignment=[section.name], quantity=\"Mag_H\", plot_name=\"Mag_H\", field_type=\"Fields\"\n",
+    ")\n",
+    "mu_r = m3d.post.create_fieldplot_surface(\n",
+    "    assignment=[collector.name], quantity=\"mu_r\", plot_name=\"mu_r\", field_type=\"Fields\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "cd8e7c48",
+   "metadata": {},
+   "source": [
+    "## Export field\n",
+    "\n",
+    "Export magnetic flux density B on the collector cross-section in a .fld file."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f52f83a4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fld_filename = os.path.join(temp_folder.name, \"Mag_B.fld\")\n",
+    "m3d.post.export_field_file(\n",
+    "    quantity=\"Mag_B\",\n",
+    "    output_file=fld_filename,\n",
+    "    assignment=section.name,\n",
+    "    objects_type=\"Surf\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7dc79d20",
+   "metadata": {},
+   "source": [
+    "## Overlay fields using PyVista\n",
+    "\n",
+    "Plot electric field using PyVista and save to an image file.\n",
+    "Plot the relative permeability on the collector surface at a given magnet position.\n",
+    "Change argument ``\"show\"`` to ``True`` see the permeability plot."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d5bdd908",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m3d[\"magnet_z_pos\"] = \"18.75mm\""
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a0eb0c91",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "py_vista_plot = m3d.post.plot_field(\n",
+    "    quantity=\"mu_r\", assignment=collector.name, plot_cad_objs=True, show=False\n",
+    ")\n",
+    "py_vista_plot.isometric_view = True\n",
+    "py_vista_plot.plot(\n",
+    "    export_image_path=os.path.join(temp_folder.name, \"mu_r.jpg\"), show=True\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e46b748d",
+   "metadata": {},
+   "source": [
+    "## BH curve of the ferromagnetic material\n",
+    "\n",
+    "From the plot exported in the previous section, we can see the trend of the relative permeability\n",
+    "when the magnet gets close to the collector.\n",
+    "Looking at the scale of the relative permeability, we can see that the collector is far from saturation.\n",
+    "With a permeability peak value around 1.3E+7, the collector is still in the linear region of the BH curve.\n",
+    "![BH curve and relative permeability of the ferromagnetic material](_static/BH.png)\n",
+    "![Zoom in on the relative permeability of the ferromagnetic material](_static/BH_zoom_in.png)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ae8b377b",
+   "metadata": {},
+   "source": [
+    "## Release AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "546b5c70",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m3d.save_project()\n",
+    "m3d.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7c19a358",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3fd4068c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

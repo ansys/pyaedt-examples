@@ -1,0 +1,1523 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Asymmetric conductor analysis &#8212; PyAEDT Examples</title>
+
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css\ansys_sphinx_theme.css?v=d2ac875c" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=9233c59b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/highlight.css?v=500661c4" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+ 
+<link href="../../../_static/css/breadcrumbs.css" rel="stylesheet" />
+
+    <script src="../../../_static/documentation_options.js?v=e7fb764e"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=49e1bf35"></script>
+    <script src="../../../_static/js\table.js?v=b64f5182"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/low_frequency/team_problem/asymmetric_conductor';</script>
+    <link rel="icon" href="../../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Bath plate analysis" href="bath_plate.html" />
+    <link rel="prev" title="T.E.A.M." href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <link rel="canonical" href="https://examples.aedt.docs.pyansys.com/version/stable/examples/low_frequency/team_problem/asymmetric_conductor.html" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container"><!-- Debugging: html_theme_options =  -->
+
+  <!-- If there is no MeiliSearch enabled, use the PyData search -->
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+   
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="https://www.ansys.com/">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/ansys_logo_transparent_black.png" class="logo__image only-light" alt="PyAEDT Examples - Home"/>
+    <script>document.write(`<img src="../../../_static/ansys_logo_transparent_white.png" class="logo__image only-dark" alt="PyAEDT Examples - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Examples
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+    
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Examples
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../aedt/index.html">Examples by AEDT application</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../high_frequency/index.html">High frequency</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">Low frequency</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../general/index.html">General</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../motor/index.html">Motor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../magnetic/index.html">Magnetics</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">T.E.A.M.</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">Asymmetric conductor analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bath_plate.html">Bath plate analysis</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../multiphysics/index.html">Multiphysics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../aedt_general/report/index.html">Report</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../electrothermal/index.html">Electrothermal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aedt_general/index.html">Pre-processing and post-processing</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+       
+    <li class="breadcrumb-item">
+      <a href="https://aedt.docs.pyansys.com/" class="nav-link">PyAEDT</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="../../../index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../../index.html" class="nav-link">Examples</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../index.html" class="nav-link">Low frequency</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="index.html" class="nav-link">T.E.A.M.</a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page">Asymmetric conductor analysis</li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="admonition-download-this-example admonition">
+<p class="admonition-title">Download this example</p>
+<p>Download this example as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/low_frequency/team_problem/asymmetric_conductor.ipynb">Jupyter Notebook</a>
+or as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/low_frequency/team_problem/asymmetric_conductor.py">Python script</a>.</p>
+</div>
+<hr class="docutils" />
+<section id="Asymmetric-conductor-analysis">
+<h1>Asymmetric conductor analysis<a class="headerlink" href="#Asymmetric-conductor-analysis" title="Link to this heading">#</a></h1>
+<p>This example uses PyAEDT to set up the TEAM 7 problem for an asymmetric conductor with a hole and solve it using the Maxwell 3D eddy current solver. For more information on this problem, see this <a class="reference external" href="https://www.compumag.org/wp/wp-content/uploads/2018/06/problem7.pdf">paper</a>.</p>
+<p>Keywords: <strong>Maxwell 3D</strong>, <strong>Asymmetric conductor</strong>.</p>
+<section id="Prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#Prerequisites" title="Link to this heading">#</a></h2>
+<section id="Perform-imports">
+<h3>Perform imports<a class="headerlink" href="#Perform-imports" title="Link to this heading">#</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ansys.aedt.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">Maxwell3d</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ansys.aedt.core.generic.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">SolutionsMaxwell3D</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ansys.aedt.core.generic.file_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_csv</span>
+<br/></pre></div>
+</div>
+</div>
+</section>
+<section id="Define-constants">
+<h3>Define constants<a class="headerlink" href="#Define-constants" title="Link to this heading">#</a></h3>
+<p>Constants help ensure consistency and avoid repetition throughout the example.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">AEDT_VERSION</span> <span class="o">=</span> <span class="s2">&quot;2025.2&quot;</span>
+<span class="n">NUM_CORES</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">NG_MODE</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Open AEDT UI when it is launched.</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Create-temporary-directory">
+<h3>Create temporary directory<a class="headerlink" href="#Create-temporary-directory" title="Link to this heading">#</a></h3>
+<p>Create a temporary working directory. The name of the working folder is stored in <code class="docutils literal notranslate"><span class="pre">temp_folder.name</span></code>.</p>
+<blockquote>
+<div><p><strong>Note:</strong> The final cell in the notebook cleans up the temporary folder. If you want to retrieve the AEDT project and data, do so before executing the final cell in the notebook.</p>
+</div></blockquote>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">temp_folder</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.ansys&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Launch-Maxwell-3D">
+<h3>Launch Maxwell 3D<a class="headerlink" href="#Launch-Maxwell-3D" title="Link to this heading">#</a></h3>
+<p>Create an instance of the <code class="docutils literal notranslate"><span class="pre">Maxwell3d</span></code> class named <code class="docutils literal notranslate"><span class="pre">m3d</span></code> by providing the project and design names, the solver, and the version.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">project_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;COMPUMAG2.aedt&quot;</span><span class="p">)</span>
+<span class="n">m3d</span> <span class="o">=</span> <span class="n">Maxwell3d</span><span class="p">(</span>
+    <span class="n">project</span><span class="o">=</span><span class="n">project_name</span><span class="p">,</span>
+    <span class="n">design</span><span class="o">=</span><span class="s2">&quot;TEAM_7_Asymmetric_Conductor&quot;</span><span class="p">,</span>
+    <span class="n">solution_type</span><span class="o">=</span><span class="n">SolutionsMaxwell3D</span><span class="o">.</span><span class="n">ACMagnetic</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="n">AEDT_VERSION</span><span class="p">,</span>
+    <span class="n">non_graphical</span><span class="o">=</span><span class="n">NG_MODE</span><span class="p">,</span>
+    <span class="n">new_desktop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">m3d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">model_units</span> <span class="o">=</span> <span class="s2">&quot;mm&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Python version 3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)].
+PyAEDT INFO: PyAEDT version 0.25.dev0.
+PyAEDT INFO: Initializing new Desktop session.
+PyAEDT INFO: Log on console is enabled.
+PyAEDT INFO: Log on file C:\Users\ansys\AppData\Local\Temp\pyaedt_ansys_5145e863-afb2-4805-bd7e-25bdf1808e0a.log is enabled.
+PyAEDT INFO: Log on AEDT is disabled.
+PyAEDT INFO: Starting new AEDT gRPC session.
+PyAEDT INFO: AEDT installation Path C:\Program Files\ANSYS Inc\v252\AnsysEM
+PyAEDT INFO: Client application successfully started.
+PyAEDT INFO: New AEDT gRPC session session started on port 50051.
+PyAEDT INFO: 2025.2 version started with process ID 7300.
+PyAEDT WARNING: Service Pack is not detected. PyAEDT is currently connecting in Insecure Mode.
+PyAEDT WARNING: Please download and install latest Service Pack to use connect to AEDT in Secure Mode.
+PyAEDT INFO: Debug logger is disabled. PyAEDT methods will not be logged.
+PyAEDT INFO: Project COMPUMAG2 has been created.
+PyAEDT INFO: Added design &#39;TEAM_7_Asymmetric_Conductor&#39; of type Maxwell 3D.
+PyAEDT INFO: Aedt Objects correctly read
+PyAEDT INFO: Modeler class has been initialized! Elapsed time: 0m 1sec
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="Model-Preparation">
+<h2>Model Preparation<a class="headerlink" href="#Model-Preparation" title="Link to this heading">#</a></h2>
+<section id="Define-the-Maxwell-3D-analysis-setup">
+<h3>Define the Maxwell 3D analysis setup<a class="headerlink" href="#Define-the-Maxwell-3D-analysis-setup" title="Link to this heading">#</a></h3>
+<p>Add a Maxwell 3D setup with frequency points at DC, 50 Hz, and 200Hz. Otherwise, the default PyAEDT setup values are used. To approximate a DC field in the eddy current solver, use a low frequency value. Second-order shape functions improve the smoothness of the induced currents in the plate.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dc_freq</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="n">stop_freq</span> <span class="o">=</span> <span class="mi">50</span>
+
+<span class="n">setup</span> <span class="o">=</span> <span class="n">m3d</span><span class="o">.</span><span class="n">create_setup</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;Setup1&quot;</span><span class="p">)</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Frequency&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;200Hz&quot;</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;HasSweepSetup&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">add_eddy_current_sweep</span><span class="p">(</span>
+    <span class="n">sweep_type</span><span class="o">=</span><span class="s2">&quot;LinearStep&quot;</span><span class="p">,</span>
+    <span class="n">start_frequency</span><span class="o">=</span><span class="n">dc_freq</span><span class="p">,</span>
+    <span class="n">stop_frequency</span><span class="o">=</span><span class="n">stop_freq</span><span class="p">,</span>
+    <span class="n">step_size</span><span class="o">=</span><span class="n">stop_freq</span> <span class="o">-</span> <span class="n">dc_freq</span><span class="p">,</span>
+    <span class="n">clear</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;UseHighOrderShapeFunc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;PercentError&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.4</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Parsing C:\Users\ansys\AppData\Local\Temp\tmp_0slj_go.ansys\COMPUMAG2.aedt.
+PyAEDT INFO: File C:\Users\ansys\AppData\Local\Temp\tmp_0slj_go.ansys\COMPUMAG2.aedt correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: aedt file load time 0.01576519012451172
+</pre></div></div>
+</div>
+</section>
+<section id="Define-coil-dimensions">
+<h3>Define coil dimensions<a class="headerlink" href="#Define-coil-dimensions" title="Link to this heading">#</a></h3>
+<p>Define coil dimensions as shown on the TEAM7 drawing of the coil.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">coil_external</span> <span class="o">=</span> <span class="mi">150</span> <span class="o">+</span> <span class="mi">25</span> <span class="o">+</span> <span class="mi">25</span>
+<span class="n">coil_internal</span> <span class="o">=</span> <span class="mi">150</span>
+<span class="n">coil_r1</span> <span class="o">=</span> <span class="mi">25</span>
+<span class="n">coil_r2</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">coil_thk</span> <span class="o">=</span> <span class="n">coil_r2</span> <span class="o">-</span> <span class="n">coil_r1</span>
+<span class="n">coil_height</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">coil_centre</span> <span class="o">=</span> <span class="p">[</span><span class="mi">294</span> <span class="o">-</span> <span class="mi">25</span> <span class="o">-</span> <span class="mi">150</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">25</span> <span class="o">+</span> <span class="mi">150</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">19</span> <span class="o">+</span> <span class="mi">30</span> <span class="o">+</span> <span class="mi">100</span> <span class="o">/</span> <span class="mi">2</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Define-expressions-to-evaluate-solution-data">
+<h3>Define expressions to evaluate solution data<a class="headerlink" href="#Define-expressions-to-evaluate-solution-data" title="Link to this heading">#</a></h3>
+<p>Use expressions to construct the three dimensions needed to describe the midpoints of the coil.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dim1</span> <span class="o">=</span> <span class="n">coil_internal</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">coil_external</span> <span class="o">-</span> <span class="n">coil_internal</span><span class="p">)</span> <span class="o">/</span> <span class="mi">4</span>
+<span class="n">dim2</span> <span class="o">=</span> <span class="n">coil_internal</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">coil_r1</span>
+<span class="n">dim3</span> <span class="o">=</span> <span class="n">dim2</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(((</span><span class="n">coil_r1</span> <span class="o">+</span> <span class="p">(</span><span class="n">coil_r2</span> <span class="o">-</span> <span class="n">coil_r1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Draw-the-coil">
+<h3>Draw the coil<a class="headerlink" href="#Draw-the-coil" title="Link to this heading">#</a></h3>
+<p>Use coordinates to draw a polyline along which to sweep the coil cross sections.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">P1</span> <span class="o">=</span> <span class="p">[</span><span class="n">dim1</span><span class="p">,</span> <span class="o">-</span><span class="n">dim2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="n">P2</span> <span class="o">=</span> <span class="p">[</span><span class="n">dim1</span><span class="p">,</span> <span class="n">dim2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="n">P3</span> <span class="o">=</span> <span class="p">[</span><span class="n">dim3</span><span class="p">,</span> <span class="n">dim3</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="n">P4</span> <span class="o">=</span> <span class="p">[</span><span class="n">dim2</span><span class="p">,</span> <span class="n">dim1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<p>Create a coordinate system to use as a reference for the coil.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m3d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_coordinate_system</span><span class="p">(</span><span class="n">origin</span><span class="o">=</span><span class="n">coil_centre</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;view&quot;</span><span class="p">,</span> <span class="n">view</span><span class="o">=</span><span class="s2">&quot;XY&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Coil_CS&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Coil_CS
+</pre></div></div>
+</div>
+<p>Create a polyline. One quarter of the coil is modeled by sweeping a 2D sheet along a polyline.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">test</span> <span class="o">=</span> <span class="n">m3d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_polyline</span><span class="p">(</span><span class="n">points</span><span class="o">=</span><span class="p">[</span><span class="n">P1</span><span class="p">,</span> <span class="n">P2</span><span class="p">,</span> <span class="n">P3</span><span class="p">,</span> <span class="n">P4</span><span class="p">],</span> <span class="n">segment_type</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Line&quot;</span><span class="p">,</span> <span class="s2">&quot;Arc&quot;</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Coil&quot;</span><span class="p">)</span>
+<span class="n">test</span><span class="o">.</span><span class="n">set_crosssection_properties</span><span class="p">(</span><span class="n">section</span><span class="o">=</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">coil_thk</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">coil_height</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Materials class has been initialized! Elapsed time: 0m 0sec
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+<p>Duplicate and unite the polyline to create the full coil.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m3d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">duplicate_around_axis</span><span class="p">(</span>
+    <span class="n">assignment</span><span class="o">=</span><span class="s2">&quot;Coil&quot;</span><span class="p">,</span>
+    <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;Global&quot;</span><span class="p">,</span>
+    <span class="n">angle</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span>
+    <span class="n">clones</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="n">create_new_objects</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">is_3d_comp</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">m3d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">unite</span><span class="p">(</span><span class="s2">&quot;Coil, Coil_1, Coil_2&quot;</span><span class="p">)</span>
+<span class="n">m3d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">unite</span><span class="p">(</span><span class="s2">&quot;Coil, Coil_3&quot;</span><span class="p">)</span>
+<span class="n">m3d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">fit_all</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Parsing design objects. This operation can take time
+PyAEDT INFO: Refreshing bodies from Object Info
+PyAEDT INFO: Bodies Info Refreshed Elapsed time: 0m 0sec
+PyAEDT INFO: 3D Modeler objects parsed. Elapsed time: 0m 0sec
+PyAEDT INFO: Union of 20 objects has been executed.
+PyAEDT INFO: Parsing design objects. This operation can take time
+PyAEDT INFO: Refreshing bodies from Object Info
+PyAEDT INFO: Bodies Info Refreshed Elapsed time: 0m 0sec
+PyAEDT INFO: 3D Modeler objects parsed. Elapsed time: 0m 0sec
+PyAEDT INFO: Union of 12 objects has been executed.
+</pre></div></div>
+</div>
+</section>
+<section id="Assign-material-and-enable-the-field-solution-inside-the-copper-coil">
+<h3>Assign material and enable the field solution inside the copper coil<a class="headerlink" href="#Assign-material-and-enable-the-field-solution-inside-the-copper-coil" title="Link to this heading">#</a></h3>
+<p>Assign the material <code class="docutils literal notranslate"><span class="pre">Cooper</span></code> from the Maxwell internal library to the coil and allow a solution inside the coil.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m3d</span><span class="o">.</span><span class="n">assign_material</span><span class="p">(</span><span class="n">assignment</span><span class="o">=</span><span class="s2">&quot;Coil&quot;</span><span class="p">,</span> <span class="n">material</span><span class="o">=</span><span class="s2">&quot;Copper&quot;</span><span class="p">)</span>
+<span class="n">m3d</span><span class="o">.</span><span class="n">solve_inside</span><span class="p">(</span><span class="s2">&quot;Coil&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+</section>
+<section id="Create-terminal">
+<h3>Create terminal<a class="headerlink" href="#Create-terminal" title="Link to this heading">#</a></h3>
+<p>Create a terminal for the coil from a cross-section that is split and one half deleted.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m3d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">section</span><span class="p">(</span><span class="n">assignment</span><span class="o">=</span><span class="s2">&quot;Coil&quot;</span><span class="p">,</span> <span class="n">plane</span><span class="o">=</span><span class="s2">&quot;YZ&quot;</span><span class="p">)</span>
+<span class="n">m3d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">separate_bodies</span><span class="p">(</span><span class="n">assignment</span><span class="o">=</span><span class="s2">&quot;Coil_Section1&quot;</span><span class="p">)</span>
+<span class="n">m3d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">assignment</span><span class="o">=</span><span class="s2">&quot;Coil_Section1_Separate1&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Parsing design objects. This operation can take time
+PyAEDT INFO: Refreshing bodies from Object Info
+PyAEDT INFO: Bodies Info Refreshed Elapsed time: 0m 0sec
+PyAEDT INFO: 3D Modeler objects parsed. Elapsed time: 0m 0sec
+PyAEDT INFO: Deleted 1 Objects: Coil_Section1_Separate1.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+</section>
+<section id="Add-variable-for-coil-excitation">
+<h3>Add variable for coil excitation<a class="headerlink" href="#Add-variable-for-coil-excitation" title="Link to this heading">#</a></h3>
+<p>Use a parameter to define the coil current. The units in this case are Ampere<span class="math notranslate nohighlight">\(\times\)</span>Turns.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">Coil_Excitation</span> <span class="o">=</span> <span class="mi">2742</span>
+<span class="n">m3d</span><span class="p">[</span><span class="s2">&quot;Coil_Excitation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Coil_Excitation</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;A&quot;</span>
+<span class="n">m3d</span><span class="o">.</span><span class="n">assign_current</span><span class="p">(</span><span class="n">assignment</span><span class="o">=</span><span class="s2">&quot;Coil_Section1&quot;</span><span class="p">,</span> <span class="n">amplitude</span><span class="o">=</span><span class="s2">&quot;Coil_Excitation&quot;</span><span class="p">,</span> <span class="n">solid</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">m3d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">set_working_coordinate_system</span><span class="p">(</span><span class="s2">&quot;Global&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Boundary Current Current_P07QEM has been created.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+</section>
+<section id="Add-material">
+<h3>Add material<a class="headerlink" href="#Add-material" title="Link to this heading">#</a></h3>
+<p>Add a material named <code class="docutils literal notranslate"><span class="pre">team3_aluminium</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mat</span> <span class="o">=</span> <span class="n">m3d</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">add_material</span><span class="p">(</span><span class="s2">&quot;team7_aluminium&quot;</span><span class="p">)</span>
+<span class="n">mat</span><span class="o">.</span><span class="n">conductivity</span> <span class="o">=</span> <span class="mf">3.526e7</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Adding new material to the Project Library: team7_aluminium
+PyAEDT INFO: Material has been added in Desktop.
+</pre></div></div>
+</div>
+</section>
+<section id="Create-the-aluminium-plate-with-a-hole">
+<h3>Create the aluminium plate with a hole<a class="headerlink" href="#Create-the-aluminium-plate-with-a-hole" title="Link to this heading">#</a></h3>
+<p>Draw the aluminium plate with a hole by subtracting two cuboids.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plate</span> <span class="o">=</span> <span class="n">m3d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_box</span><span class="p">(</span><span class="n">origin</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">sizes</span><span class="o">=</span><span class="p">[</span><span class="mi">294</span><span class="p">,</span> <span class="mi">294</span><span class="p">,</span> <span class="mi">19</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Plate&quot;</span><span class="p">,</span> <span class="n">material</span><span class="o">=</span><span class="s2">&quot;team7_aluminium&quot;</span><span class="p">)</span>
+<span class="n">m3d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">fit_all</span><span class="p">()</span>
+<span class="n">hole</span> <span class="o">=</span> <span class="n">m3d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_box</span><span class="p">(</span><span class="n">origin</span><span class="o">=</span><span class="p">[</span><span class="mi">18</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">sizes</span><span class="o">=</span><span class="p">[</span><span class="mi">108</span><span class="p">,</span> <span class="mi">108</span><span class="p">,</span> <span class="mi">19</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Hole&quot;</span><span class="p">)</span>
+<span class="n">m3d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">blank_list</span><span class="o">=</span><span class="s2">&quot;Plate&quot;</span><span class="p">,</span> <span class="n">tool_list</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Hole&quot;</span><span class="p">],</span> <span class="n">keep_originals</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Parsing design objects. This operation can take time
+PyAEDT INFO: Refreshing bodies from Object Info
+PyAEDT INFO: Bodies Info Refreshed Elapsed time: 0m 0sec
+PyAEDT INFO: 3D Modeler objects parsed. Elapsed time: 0m 0sec
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+</section>
+<section id="Draw-background-region">
+<h3>Draw background region<a class="headerlink" href="#Draw-background-region" title="Link to this heading">#</a></h3>
+<p>The background air region defines the full volumetric solution domain.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m3d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_air_region</span><span class="p">(</span><span class="n">x_pos</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y_pos</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">z_pos</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">x_neg</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y_neg</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">z_neg</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Region
+</pre></div></div>
+</div>
+</section>
+<section id="Adjust-eddy-effects-for-plate-and-coil">
+<h3>Adjust eddy effects for plate and coil<a class="headerlink" href="#Adjust-eddy-effects-for-plate-and-coil" title="Link to this heading">#</a></h3>
+<p>Disable the eddy effects for the plate and coil. This forces the current to flow uniformly through the coils cross-section as would be the case for stranded wires.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m3d</span><span class="o">.</span><span class="n">eddy_effects_on</span><span class="p">(</span><span class="n">assignment</span><span class="o">=</span><span class="s2">&quot;Plate&quot;</span><span class="p">)</span>
+<span class="n">m3d</span><span class="o">.</span><span class="n">eddy_effects_on</span><span class="p">(</span>
+    <span class="n">assignment</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Coil&quot;</span><span class="p">,</span> <span class="s2">&quot;Region&quot;</span><span class="p">,</span> <span class="s2">&quot;Line_A1_B1mesh&quot;</span><span class="p">,</span> <span class="s2">&quot;Line_A2_B2mesh&quot;</span><span class="p">],</span>
+    <span class="n">enable_eddy_effects</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">enable_displacement_current</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+</section>
+<section id="Create-expression-for-B_z-in-Gauss">
+<h3>Create expression for <span class="math notranslate nohighlight">\(B_z\)</span> in Gauss<a class="headerlink" href="#Create-expression-for-B_z-in-Gauss" title="Link to this heading">#</a></h3>
+<p>Create an expression for the <span class="math notranslate nohighlight">\(z\)</span>-component of <span class="math notranslate nohighlight">\(\bf{B}\)</span> in Gauss using PyAEDT advanced fields calculator.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bz</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Bz&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Z component of B in Gauss&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;design_type&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Maxwell 3D&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;fields_type&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Fields&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;primary_sweep&quot;</span><span class="p">:</span> <span class="s2">&quot;Distance&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;assignment&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;assignment_type&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Line&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;operations&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;NameOfExpression(&#39;&lt;Bx,By,Bz&gt;&#39;)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Operation(&#39;ScalarZ&#39;)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Scalar_Function(FuncValue=&#39;Phase&#39;)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Operation(&#39;AtPhase&#39;)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Scalar_Constant(10000)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Operation(&#39;*&#39;)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Operation(&#39;Smooth&#39;)&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;report&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Field_3D&quot;</span><span class="p">],</span>
+<span class="p">}</span>
+<span class="n">m3d</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">fields_calculator</span><span class="o">.</span><span class="n">add_expression</span><span class="p">(</span><span class="n">bz</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: PostProcessor class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: PostProcessor class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Post class has been initialized! Elapsed time: 0m 0sec
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&#39;Bz&#39;
+</pre></div></div>
+</div>
+</section>
+<section id="Draw-two-lines-along-which-to-plot-B_z">
+<h3>Draw two lines along which to plot <span class="math notranslate nohighlight">\(B_z\)</span><a class="headerlink" href="#Draw-two-lines-along-which-to-plot-B_z" title="Link to this heading">#</a></h3>
+<p>Draw two lines along which to plot Bz. The following code also adds a small cylinder to refine the mesh locally around each line.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Line_A1_B1&quot;</span><span class="p">,</span> <span class="s2">&quot;Line_A2_B2&quot;</span><span class="p">]</span>
+<span class="n">mesh_diameter</span> <span class="o">=</span> <span class="s2">&quot;2mm&quot;</span>
+
+<span class="n">line_points_1</span> <span class="o">=</span> <span class="p">[[</span><span class="s2">&quot;0mm&quot;</span><span class="p">,</span> <span class="s2">&quot;72mm&quot;</span><span class="p">,</span> <span class="s2">&quot;34mm&quot;</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;288mm&quot;</span><span class="p">,</span> <span class="s2">&quot;72mm&quot;</span><span class="p">,</span> <span class="s2">&quot;34mm&quot;</span><span class="p">]]</span>
+<span class="n">polyline</span> <span class="o">=</span> <span class="n">m3d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_polyline</span><span class="p">(</span><span class="n">points</span><span class="o">=</span><span class="n">line_points_1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">l1_mesh</span> <span class="o">=</span> <span class="n">m3d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_polyline</span><span class="p">(</span><span class="n">points</span><span class="o">=</span><span class="n">line_points_1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;mesh&quot;</span><span class="p">)</span>
+<span class="n">l1_mesh</span><span class="o">.</span><span class="n">set_crosssection_properties</span><span class="p">(</span><span class="n">section</span><span class="o">=</span><span class="s2">&quot;Circle&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">mesh_diameter</span><span class="p">)</span>
+
+<span class="n">line_points_2</span> <span class="o">=</span> <span class="p">[[</span><span class="s2">&quot;0mm&quot;</span><span class="p">,</span> <span class="s2">&quot;144mm&quot;</span><span class="p">,</span> <span class="s2">&quot;34mm&quot;</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;288mm&quot;</span><span class="p">,</span> <span class="s2">&quot;144mm&quot;</span><span class="p">,</span> <span class="s2">&quot;34mm&quot;</span><span class="p">]]</span>
+<span class="n">polyline2</span> <span class="o">=</span> <span class="n">m3d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_polyline</span><span class="p">(</span><span class="n">points</span><span class="o">=</span><span class="n">line_points_2</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">l2_mesh</span> <span class="o">=</span> <span class="n">m3d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_polyline</span><span class="p">(</span><span class="n">points</span><span class="o">=</span><span class="n">line_points_2</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;mesh&quot;</span><span class="p">)</span>
+<span class="n">l2_mesh</span><span class="o">.</span><span class="n">set_crosssection_properties</span><span class="p">(</span><span class="n">section</span><span class="o">=</span><span class="s2">&quot;Circle&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">mesh_diameter</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+<p>Published measurement results are included with this script via the following list. Test results are used to create text files for import into a rectangular plot and to overlay simulation results.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">project_dir</span> <span class="o">=</span> <span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;Bz A1_B1 000 0&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Bz A1_B1 050 0&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Bz A1_B1 050 90&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Bz A1_B1 200 0&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Bz A1_B1 200 90&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Bz A2_B2 050 0&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Bz A2_B2 050 90&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Bz A2_B2 200 0&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Bz A2_B2 200 90&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">header</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Distance [mm]&quot;</span><span class="p">,</span> <span class="s2">&quot;Bz [Tesla]&quot;</span><span class="p">]</span>
+
+<span class="n">line_length</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="mi">0</span><span class="p">,</span>
+    <span class="mi">18</span><span class="p">,</span>
+    <span class="mi">36</span><span class="p">,</span>
+    <span class="mi">54</span><span class="p">,</span>
+    <span class="mi">72</span><span class="p">,</span>
+    <span class="mi">90</span><span class="p">,</span>
+    <span class="mi">108</span><span class="p">,</span>
+    <span class="mi">126</span><span class="p">,</span>
+    <span class="mi">144</span><span class="p">,</span>
+    <span class="mi">162</span><span class="p">,</span>
+    <span class="mi">180</span><span class="p">,</span>
+    <span class="mi">198</span><span class="p">,</span>
+    <span class="mi">216</span><span class="p">,</span>
+    <span class="mi">234</span><span class="p">,</span>
+    <span class="mi">252</span><span class="p">,</span>
+    <span class="mi">270</span><span class="p">,</span>
+    <span class="mi">288</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[</span>
+        <span class="o">-</span><span class="mf">6.667</span><span class="p">,</span>
+        <span class="o">-</span><span class="mf">7.764</span><span class="p">,</span>
+        <span class="o">-</span><span class="mf">8.707</span><span class="p">,</span>
+        <span class="o">-</span><span class="mf">8.812</span><span class="p">,</span>
+        <span class="o">-</span><span class="mf">5.870</span><span class="p">,</span>
+        <span class="mf">8.713</span><span class="p">,</span>
+        <span class="mf">50.40</span><span class="p">,</span>
+        <span class="mf">88.47</span><span class="p">,</span>
+        <span class="mf">100.9</span><span class="p">,</span>
+        <span class="mf">104.0</span><span class="p">,</span>
+        <span class="mf">104.8</span><span class="p">,</span>
+        <span class="mf">104.9</span><span class="p">,</span>
+        <span class="mf">104.6</span><span class="p">,</span>
+        <span class="mf">103.1</span><span class="p">,</span>
+        <span class="mf">97.32</span><span class="p">,</span>
+        <span class="mf">75.19</span><span class="p">,</span>
+        <span class="mf">29.04</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="p">[</span>
+        <span class="mf">4.90</span><span class="p">,</span>
+        <span class="o">-</span><span class="mf">17.88</span><span class="p">,</span>
+        <span class="o">-</span><span class="mf">22.13</span><span class="p">,</span>
+        <span class="o">-</span><span class="mf">20.19</span><span class="p">,</span>
+        <span class="o">-</span><span class="mf">15.67</span><span class="p">,</span>
+        <span class="mf">0.36</span><span class="p">,</span>
+        <span class="mf">43.64</span><span class="p">,</span>
+        <span class="mf">78.11</span><span class="p">,</span>
+        <span class="mf">71.55</span><span class="p">,</span>
+        <span class="mf">60.44</span><span class="p">,</span>
+        <span class="mf">53.91</span><span class="p">,</span>
+        <span class="mf">52.62</span><span class="p">,</span>
+        <span class="mf">53.81</span><span class="p">,</span>
+        <span class="mf">56.91</span><span class="p">,</span>
+        <span class="mf">59.24</span><span class="p">,</span>
+        <span class="mf">52.78</span><span class="p">,</span>
+        <span class="mf">27.61</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="p">[</span>
+        <span class="o">-</span><span class="mf">1.16</span><span class="p">,</span>
+        <span class="mf">2.84</span><span class="p">,</span>
+        <span class="mf">4.15</span><span class="p">,</span>
+        <span class="mf">4.00</span><span class="p">,</span>
+        <span class="mf">3.07</span><span class="p">,</span>
+        <span class="mf">2.31</span><span class="p">,</span>
+        <span class="mf">1.89</span><span class="p">,</span>
+        <span class="mf">4.97</span><span class="p">,</span>
+        <span class="mf">12.61</span><span class="p">,</span>
+        <span class="mf">14.15</span><span class="p">,</span>
+        <span class="mf">13.04</span><span class="p">,</span>
+        <span class="mf">12.40</span><span class="p">,</span>
+        <span class="mf">12.05</span><span class="p">,</span>
+        <span class="mf">12.27</span><span class="p">,</span>
+        <span class="mf">12.66</span><span class="p">,</span>
+        <span class="mf">9.96</span><span class="p">,</span>
+        <span class="mf">2.36</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="p">[</span>
+        <span class="o">-</span><span class="mf">3.63</span><span class="p">,</span>
+        <span class="o">-</span><span class="mf">18.46</span><span class="p">,</span>
+        <span class="o">-</span><span class="mf">23.62</span><span class="p">,</span>
+        <span class="o">-</span><span class="mf">21.59</span><span class="p">,</span>
+        <span class="o">-</span><span class="mf">16.09</span><span class="p">,</span>
+        <span class="mf">0.23</span><span class="p">,</span>
+        <span class="mf">44.35</span><span class="p">,</span>
+        <span class="mf">75.53</span><span class="p">,</span>
+        <span class="mf">63.42</span><span class="p">,</span>
+        <span class="mf">53.20</span><span class="p">,</span>
+        <span class="mf">48.66</span><span class="p">,</span>
+        <span class="mf">47.31</span><span class="p">,</span>
+        <span class="mf">48.31</span><span class="p">,</span>
+        <span class="mf">51.26</span><span class="p">,</span>
+        <span class="mf">53.61</span><span class="p">,</span>
+        <span class="mf">46.11</span><span class="p">,</span>
+        <span class="mf">24.96</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="p">[</span>
+        <span class="o">-</span><span class="mf">1.38</span><span class="p">,</span>
+        <span class="mf">1.20</span><span class="p">,</span>
+        <span class="mf">2.15</span><span class="p">,</span>
+        <span class="mf">1.63</span><span class="p">,</span>
+        <span class="mf">1.10</span><span class="p">,</span>
+        <span class="mf">0.27</span><span class="p">,</span>
+        <span class="o">-</span><span class="mf">2.28</span><span class="p">,</span>
+        <span class="o">-</span><span class="mf">1.40</span><span class="p">,</span>
+        <span class="mf">4.17</span><span class="p">,</span>
+        <span class="mf">3.94</span><span class="p">,</span>
+        <span class="mf">4.86</span><span class="p">,</span>
+        <span class="mf">4.09</span><span class="p">,</span>
+        <span class="mf">3.69</span><span class="p">,</span>
+        <span class="mf">4.60</span><span class="p">,</span>
+        <span class="mf">3.48</span><span class="p">,</span>
+        <span class="mf">4.10</span><span class="p">,</span>
+        <span class="mf">0.98</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="p">[</span>
+        <span class="o">-</span><span class="mf">1.83</span><span class="p">,</span>
+        <span class="o">-</span><span class="mf">8.50</span><span class="p">,</span>
+        <span class="o">-</span><span class="mf">13.60</span><span class="p">,</span>
+        <span class="o">-</span><span class="mf">15.21</span><span class="p">,</span>
+        <span class="o">-</span><span class="mf">14.48</span><span class="p">,</span>
+        <span class="o">-</span><span class="mf">5.62</span><span class="p">,</span>
+        <span class="mf">28.77</span><span class="p">,</span>
+        <span class="mf">60.34</span><span class="p">,</span>
+        <span class="mf">61.84</span><span class="p">,</span>
+        <span class="mf">56.64</span><span class="p">,</span>
+        <span class="mf">53.40</span><span class="p">,</span>
+        <span class="mf">52.36</span><span class="p">,</span>
+        <span class="mf">53.93</span><span class="p">,</span>
+        <span class="mf">56.82</span><span class="p">,</span>
+        <span class="mf">59.48</span><span class="p">,</span>
+        <span class="mf">52.08</span><span class="p">,</span>
+        <span class="mf">26.56</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="p">[</span>
+        <span class="o">-</span><span class="mf">1.63</span><span class="p">,</span>
+        <span class="o">-</span><span class="mf">0.60</span><span class="p">,</span>
+        <span class="o">-</span><span class="mf">0.43</span><span class="p">,</span>
+        <span class="mf">0.11</span><span class="p">,</span>
+        <span class="mf">1.26</span><span class="p">,</span>
+        <span class="mf">3.40</span><span class="p">,</span>
+        <span class="mf">6.53</span><span class="p">,</span>
+        <span class="mf">10.25</span><span class="p">,</span>
+        <span class="mf">11.83</span><span class="p">,</span>
+        <span class="mf">11.83</span><span class="p">,</span>
+        <span class="mf">11.01</span><span class="p">,</span>
+        <span class="mf">10.58</span><span class="p">,</span>
+        <span class="mf">10.80</span><span class="p">,</span>
+        <span class="mf">10.54</span><span class="p">,</span>
+        <span class="mf">10.62</span><span class="p">,</span>
+        <span class="mf">9.03</span><span class="p">,</span>
+        <span class="mf">1.79</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="p">[</span>
+        <span class="o">-</span><span class="mf">0.86</span><span class="p">,</span>
+        <span class="o">-</span><span class="mf">7.00</span><span class="p">,</span>
+        <span class="o">-</span><span class="mf">11.58</span><span class="p">,</span>
+        <span class="o">-</span><span class="mf">13.36</span><span class="p">,</span>
+        <span class="o">-</span><span class="mf">13.77</span><span class="p">,</span>
+        <span class="o">-</span><span class="mf">6.74</span><span class="p">,</span>
+        <span class="mf">24.63</span><span class="p">,</span>
+        <span class="mf">53.19</span><span class="p">,</span>
+        <span class="mf">54.89</span><span class="p">,</span>
+        <span class="mf">50.72</span><span class="p">,</span>
+        <span class="mf">48.03</span><span class="p">,</span>
+        <span class="mf">47.13</span><span class="p">,</span>
+        <span class="mf">48.25</span><span class="p">,</span>
+        <span class="mf">51.35</span><span class="p">,</span>
+        <span class="mf">53.35</span><span class="p">,</span>
+        <span class="mf">45.37</span><span class="p">,</span>
+        <span class="mf">24.01</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="p">[</span>
+        <span class="o">-</span><span class="mf">1.35</span><span class="p">,</span>
+        <span class="o">-</span><span class="mf">0.71</span><span class="p">,</span>
+        <span class="o">-</span><span class="mf">0.81</span><span class="p">,</span>
+        <span class="o">-</span><span class="mf">0.67</span><span class="p">,</span>
+        <span class="mf">0.15</span><span class="p">,</span>
+        <span class="mf">1.39</span><span class="p">,</span>
+        <span class="mf">2.67</span><span class="p">,</span>
+        <span class="mf">3.00</span><span class="p">,</span>
+        <span class="mf">4.01</span><span class="p">,</span>
+        <span class="mf">3.80</span><span class="p">,</span>
+        <span class="mf">4.00</span><span class="p">,</span>
+        <span class="mf">3.02</span><span class="p">,</span>
+        <span class="mf">2.20</span><span class="p">,</span>
+        <span class="mf">2.78</span><span class="p">,</span>
+        <span class="mf">1.58</span><span class="p">,</span>
+        <span class="mf">1.37</span><span class="p">,</span>
+        <span class="mf">0.93</span><span class="p">,</span>
+    <span class="p">],</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Write-dataset-values-to-a-CSV-file">
+<h3>Write dataset values to a CSV file<a class="headerlink" href="#Write-dataset-values-to-a-CSV-file" title="Link to this heading">#</a></h3>
+<p>Dataset details are used to encode test parameters in the text files. For example, <code class="docutils literal notranslate"><span class="pre">Bz</span> <span class="pre">A1_B1</span> <span class="pre">050</span> <span class="pre">0</span></code> is the Z component of flux density <code class="docutils literal notranslate"><span class="pre">B</span></code> along line <code class="docutils literal notranslate"><span class="pre">A1_B1</span></code> at 50 Hz and 0 deg.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">line_length</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">header</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">)):</span>
+    <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">header</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">ziplist</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">line_length</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;.csv&quot;</span><span class="p">)</span>
+    <span class="n">write_csv</span><span class="p">(</span><span class="n">output_file</span><span class="o">=</span><span class="n">file_path</span><span class="p">,</span> <span class="n">list_data</span><span class="o">=</span><span class="n">ziplist</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Create-rectangular-plots-and-import-test-data-into-report">
+<h3>Create rectangular plots and import test data into report<a class="headerlink" href="#Create-rectangular-plots-and-import-test-data-into-report" title="Link to this heading">#</a></h3>
+<p>Create rectangular plots, using text file encoding to control their formatting. Import test data into the correct plot and overlay with the simulation results. Variations for a DC plot must have a different frequency and phase than the other plots.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">)):</span>
+    <span class="k">if</span> <span class="n">item</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="n">item</span><span class="p">]</span>
+        <span class="n">plot_name</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;Along the Line&quot;</span> <span class="o">+</span> <span class="n">t</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">9</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span> <span class="o">+</span> <span class="n">t</span><span class="p">[</span><span class="mi">9</span><span class="p">:</span><span class="mi">12</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;Hz&quot;</span>
+        <span class="k">if</span> <span class="n">t</span><span class="p">[</span><span class="mi">9</span><span class="p">:</span><span class="mi">12</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;000&quot;</span><span class="p">:</span>
+            <span class="n">variations</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;Distance&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;All&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;Freq&quot;</span><span class="p">:</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">dc_freq</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;Hz&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;Phase&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;0deg&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;Coil_Excitation&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;All&quot;</span><span class="p">],</span>
+            <span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">variations</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;Distance&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;All&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;Freq&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">t</span><span class="p">[</span><span class="mi">9</span><span class="p">:</span><span class="mi">12</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;Hz&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;Phase&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;0deg&quot;</span><span class="p">,</span> <span class="s2">&quot;90deg&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;Coil_Excitation&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;All&quot;</span><span class="p">],</span>
+            <span class="p">}</span>
+        <span class="n">report</span> <span class="o">=</span> <span class="n">m3d</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">create_report</span><span class="p">(</span>
+            <span class="n">plot_name</span><span class="o">=</span><span class="n">plot_name</span><span class="p">,</span>
+            <span class="n">report_category</span><span class="o">=</span><span class="s2">&quot;Fields&quot;</span><span class="p">,</span>
+            <span class="n">context</span><span class="o">=</span><span class="s2">&quot;Line_&quot;</span> <span class="o">+</span> <span class="n">t</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="mi">8</span><span class="p">],</span>
+            <span class="n">primary_sweep_variable</span><span class="o">=</span><span class="s2">&quot;Distance&quot;</span><span class="p">,</span>
+            <span class="n">variations</span><span class="o">=</span><span class="n">variations</span><span class="p">,</span>
+            <span class="n">expressions</span><span class="o">=</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;.csv&quot;</span><span class="p">)</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">import_traces</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="n">file_path</span><span class="p">,</span> <span class="n">plot_name</span><span class="o">=</span><span class="n">plot_name</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Analyze project.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m3d</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span><span class="n">cores</span><span class="o">=</span><span class="n">NUM_CORES</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Project COMPUMAG2 Saved correctly
+PyAEDT INFO: Key Desktop/ActiveDSOConfigurations/Maxwell 3D correctly changed.
+PyAEDT INFO: Solving all design setups. Analysis started...
+PyAEDT INFO: Design setup None solved correctly in 0.0h 3.0m 35.0s
+PyAEDT INFO: Key Desktop/ActiveDSOConfigurations/Maxwell 3D correctly changed.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+</section>
+<section id="Create-plots-of-induced-current-and-flux-density-on-surface-of-plate">
+<h3>Create plots of induced current and flux density on surface of plate<a class="headerlink" href="#Create-plots-of-induced-current-and-flux-density-on-surface-of-plate" title="Link to this heading">#</a></h3>
+<p>Create two plots of the induced current (<code class="docutils literal notranslate"><span class="pre">Mag_J</span></code>) and the flux density (<code class="docutils literal notranslate"><span class="pre">Mag_B</span></code>) on the surface of the plate.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">surf_list</span> <span class="o">=</span> <span class="n">m3d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">get_object_faces</span><span class="p">(</span><span class="n">assignment</span><span class="o">=</span><span class="s2">&quot;Plate&quot;</span><span class="p">)</span>
+<span class="n">intrinsic_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Freq&quot;</span><span class="p">:</span> <span class="s2">&quot;200Hz&quot;</span><span class="p">,</span> <span class="s2">&quot;Phase&quot;</span><span class="p">:</span> <span class="s2">&quot;0deg&quot;</span><span class="p">}</span>
+<span class="n">m3d</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">create_fieldplot_surface</span><span class="p">(</span>
+    <span class="n">assignment</span><span class="o">=</span><span class="n">surf_list</span><span class="p">,</span>
+    <span class="n">quantity</span><span class="o">=</span><span class="s2">&quot;Mag_J&quot;</span><span class="p">,</span>
+    <span class="n">intrinsics</span><span class="o">=</span><span class="n">intrinsic_dict</span><span class="p">,</span>
+    <span class="n">plot_name</span><span class="o">=</span><span class="s2">&quot;Mag_J&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">m3d</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">create_fieldplot_surface</span><span class="p">(</span>
+    <span class="n">assignment</span><span class="o">=</span><span class="n">surf_list</span><span class="p">,</span>
+    <span class="n">quantity</span><span class="o">=</span><span class="s2">&quot;Mag_B&quot;</span><span class="p">,</span>
+    <span class="n">intrinsics</span><span class="o">=</span><span class="n">intrinsic_dict</span><span class="p">,</span>
+    <span class="n">plot_name</span><span class="o">=</span><span class="s2">&quot;Mag_B&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">m3d</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">create_fieldplot_surface</span><span class="p">(</span><span class="n">assignment</span><span class="o">=</span><span class="n">surf_list</span><span class="p">,</span> <span class="n">quantity</span><span class="o">=</span><span class="s2">&quot;Mesh&quot;</span><span class="p">,</span> <span class="n">intrinsics</span><span class="o">=</span><span class="n">intrinsic_dict</span><span class="p">,</span> <span class="n">plot_name</span><span class="o">=</span><span class="s2">&quot;Mesh&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Active Design set to TEAM_7_Asymmetric_Conductor
+PyAEDT INFO: Active Design set to TEAM_7_Asymmetric_Conductor
+PyAEDT INFO: Active Design set to TEAM_7_Asymmetric_Conductor
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Class: ansys.aedt.core.visualization.post.field_data.FieldPlot
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="Finish">
+<h2>Finish<a class="headerlink" href="#Finish" title="Link to this heading">#</a></h2>
+<section id="Save-the-project">
+<h3>Save the project<a class="headerlink" href="#Save-the-project" title="Link to this heading">#</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m3d</span><span class="o">.</span><span class="n">save_project</span><span class="p">()</span>
+<span class="n">m3d</span><span class="o">.</span><span class="n">release_desktop</span><span class="p">()</span>
+<span class="c1"># Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.</span>
+<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Project COMPUMAG2 Saved correctly
+PyAEDT INFO: Desktop has been released and closed.
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="Clean-up">
+<h2>Clean up<a class="headerlink" href="#Clean-up" title="Link to this heading">#</a></h2>
+<p>All project files are saved in the folder <code class="docutils literal notranslate"><span class="pre">temp_folder.name</span></code>. If you’ve run this example as a Jupyter notebook, you can retrieve those project files. The following cell removes all temporary files, including the project folder.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">temp_folder</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<div class="admonition-download-this-example admonition">
+<p class="admonition-title">Download this example</p>
+<p>Download this example as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/low_frequency/team_problem/asymmetric_conductor.ipynb">Jupyter Notebook</a>
+or as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/low_frequency/team_problem/asymmetric_conductor.py">Python script</a>.</p>
+</div>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Prerequisites">Prerequisites</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Perform-imports">Perform imports</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Define-constants">Define constants</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-temporary-directory">Create temporary directory</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Launch-Maxwell-3D">Launch Maxwell 3D</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Model-Preparation">Model Preparation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Define-the-Maxwell-3D-analysis-setup">Define the Maxwell 3D analysis setup</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Define-coil-dimensions">Define coil dimensions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Define-expressions-to-evaluate-solution-data">Define expressions to evaluate solution data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Draw-the-coil">Draw the coil</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Assign-material-and-enable-the-field-solution-inside-the-copper-coil">Assign material and enable the field solution inside the copper coil</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-terminal">Create terminal</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Add-variable-for-coil-excitation">Add variable for coil excitation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Add-material">Add material</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-the-aluminium-plate-with-a-hole">Create the aluminium plate with a hole</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Draw-background-region">Draw background region</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Adjust-eddy-effects-for-plate-and-coil">Adjust eddy effects for plate and coil</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-expression-for-B_z-in-Gauss">Create expression for <span class="math notranslate nohighlight">\(B_z\)</span> in Gauss</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Draw-two-lines-along-which-to-plot-B_z">Draw two lines along which to plot <span class="math notranslate nohighlight">\(B_z\)</span></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Write-dataset-values-to-a-CSV-file">Write dataset values to a CSV file</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-rectangular-plots-and-import-test-data-into-report">Create rectangular plots and import test data into report</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-plots-of-induced-current-and-flux-density-on-surface-of-plate">Create plots of induced current and flux density on surface of plate</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Finish">Finish</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Save-the-project">Save the project</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Clean-up">Clean up</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item"> 
+<div class="tocsection editthispage">
+  <a href="https://github.com/ansys/pyaedt-examples/edit/main/doc/source/examples/low_frequency/team_problem/asymmetric_conductor.ipynb">
+    <i class="fa-solid fa-pencil"></i>
+       Edit
+    on GitHub  
+  </a>
+</div>
+
+</div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../../../_sources/examples/low_frequency/team_problem/asymmetric_conductor.ipynb.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright (c) 2021 - 2026 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the
+  <a href="https://sphinxdocs.ansys.com/version/stable/index.html"
+    >Ansys Sphinx Theme</a
+  >
+  1.0.11. <br />Last updated on
+  <span id="date"></span>
+</p>
+<script>
+  var options = { day: "numeric", month: "long", year: "numeric" };
+  var lastModifiedDate = new Date(document.lastModified);
+  var date = lastModifiedDate.toLocaleDateString("en-US", options);
+  document.getElementById("date").innerHTML = date;
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

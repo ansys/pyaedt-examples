@@ -1,0 +1,637 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "4aa06702",
+   "metadata": {},
+   "source": [
+    "# PCB DCIR analysis\n",
+    "\n",
+    "This example shows how to use PyAEDT to create a design in\n",
+    "Q3D Extractor and run a DC IR drop simulation starting from an EDB project.\n",
+    "\n",
+    "Keywords: **Q3D**, **layout**, **DCIR**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "910c9587",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "885ba54f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core\n",
+    "from ansys.aedt.core.examples.downloads import download_file\n",
+    "from ansys.aedt.core.generic.constants import Axis, Plane\n",
+    "import pyedb"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ec7fed58",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a0f2c54d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "821cfd87",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9e62bab9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")\n",
+    "# ## Set up project files and path\n",
+    "#\n",
+    "# Download needed project file and set up temporary project directory."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8a01bac0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "aedb_project = download_file(\n",
+    "    \"edb/ANSYS-HSD_V1.aedb\", local_path=temp_folder.name\n",
+    ")\n",
+    "coil = download_file(\n",
+    "    source=\"inductance_3d_component\",\n",
+    "    name=\"air_coil.a3dcomp\",\n",
+    "    local_path=temp_folder.name,\n",
+    ")\n",
+    "res = download_file(\n",
+    "    source=\"resistors\", name=\"Res_0402.a3dcomp\", local_path=temp_folder.name\n",
+    ")\n",
+    "project_name = \"HSD\"\n",
+    "output_edb = os.path.join(temp_folder.name, project_name + \".aedb\")\n",
+    "output_q3d = os.path.join(temp_folder.name, project_name + \"_q3d.aedt\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e51a66c1",
+   "metadata": {},
+   "source": [
+    "## Open EDB project\n",
+    "\n",
+    "Open the EDB project and create a cutout on the selected nets\n",
+    "before exporting to Q3D."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2883d176",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb = pyedb.Edb(aedb_project, version=AEDT_VERSION)\n",
+    "signal_nets = [\"1.2V_AVDLL_PLL\", \"1.2V_AVDDL\", \"1.2V_DVDDL\", \"NetR106_1\"]\n",
+    "ground_nets = [\"GND\"]\n",
+    "cutout_points = edb.cutout(\n",
+    "    signal_list=signal_nets,\n",
+    "    reference_list=ground_nets,\n",
+    "    output_aedb_path=output_edb,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "bc91f9ba",
+   "metadata": {},
+   "source": [
+    "## Identify pin positions\n",
+    "\n",
+    "Identify [x,y] pin locations on the components to define where to assign sources\n",
+    "and sinks for Q3D."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a00d2e14",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pin_u11_scl = [\n",
+    "    i for i in edb.components[\"U11\"].pins.values() if i.net_name == \"1.2V_AVDLL_PLL\"\n",
+    "]\n",
+    "pin_u9_1 = [i for i in edb.components[\"U9\"].pins.values() if i.net_name == \"1.2V_AVDDL\"]\n",
+    "pin_u9_2 = [i for i in edb.components[\"U9\"].pins.values() if i.net_name == \"1.2V_DVDDL\"]\n",
+    "pin_u11_r106 = [\n",
+    "    i for i in edb.components[\"U11\"].pins.values() if i.net_name == \"NetR106_1\"\n",
+    "]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1706ee97",
+   "metadata": {},
+   "source": [
+    "## Append Z Positions\n",
+    "\n",
+    "Compute the Q3D 3D position. The units in EDB are meters so the\n",
+    "factor 1000 converts from meters to millimeters."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0d5e337b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "location_u11_scl = [i * 1000 for i in pin_u11_scl[0].position]\n",
+    "location_u11_scl.append(edb.components[\"U11\"].upper_elevation * 1000)\n",
+    "\n",
+    "location_u9_1_scl = [i * 1000 for i in pin_u9_1[0].position]\n",
+    "location_u9_1_scl.append(edb.components[\"U9\"].upper_elevation * 1000)\n",
+    "\n",
+    "location_u9_2_scl = [i * 1000 for i in pin_u9_2[0].position]\n",
+    "location_u9_2_scl.append(edb.components[\"U9\"].upper_elevation * 1000)\n",
+    "\n",
+    "location_u11_r106 = [i * 1000 for i in pin_u11_r106[0].position]\n",
+    "location_u11_r106.append(edb.components[\"U11\"].upper_elevation * 1000)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8e76db59",
+   "metadata": {},
+   "source": [
+    "## Identify pin positions for 3D components\n",
+    "\n",
+    "Identify the pin positions where 3D components of passives are to be added."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4c9ebdcb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "location_l2_1 = [i * 1000 for i in edb.components[\"L2\"].pins[\"1\"].position]\n",
+    "location_l2_1.append(edb.components[\"L2\"].upper_elevation * 1000)\n",
+    "location_l4_1 = [i * 1000 for i in edb.components[\"L4\"].pins[\"1\"].position]\n",
+    "location_l4_1.append(edb.components[\"L4\"].upper_elevation * 1000)\n",
+    "\n",
+    "location_r106_1 = [i * 1000 for i in edb.components[\"R106\"].pins[\"1\"].position]\n",
+    "location_r106_1.append(edb.components[\"R106\"].upper_elevation * 1000)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9c6b01e0",
+   "metadata": {},
+   "source": [
+    "## Save and close EDB\n",
+    "\n",
+    "Save and close EDB. Then, open EDT in HFSS 3D Layout to generate the 3D model."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "43befae4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.save_edb()\n",
+    "edb.close_edb()\n",
+    "time.sleep(3)\n",
+    "\n",
+    "h3d = ansys.aedt.core.Hfss3dLayout(\n",
+    "    output_edb, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ed1e0238",
+   "metadata": {},
+   "source": [
+    "## Export to Q3D\n",
+    "\n",
+    "Create a dummy setup and export the layout to Q3D.\n",
+    "The ``keep_net_name`` parameter reassigns Q3D net names from HFSS 3D Layout."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "339d5afa",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup = h3d.create_setup()\n",
+    "setup.export_to_q3d(output_q3d, keep_net_name=True)\n",
+    "h3d.close_project()\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9bb5adf5",
+   "metadata": {},
+   "source": [
+    "## Open Q3D\n",
+    "\n",
+    "Launch the newly created Q3D project."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d4a32a82",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "q3d = ansys.aedt.core.Q3d(output_q3d, version=AEDT_VERSION)\n",
+    "q3d.modeler.delete(\"GND\")\n",
+    "q3d.modeler.delete(\"16_Bottom_L6\")\n",
+    "q3d.delete_all_nets()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ebff03da",
+   "metadata": {},
+   "source": [
+    "## Insert inductors\n",
+    "\n",
+    "Create coordinate systems and place 3D component inductors."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "32e08345",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "q3d.modeler.create_coordinate_system(location_l2_1, name=\"L2\")\n",
+    "comp = q3d.modeler.insert_3d_component(coil, coordinate_system=\"L2\")\n",
+    "comp.rotate(Axis.Z, -90)\n",
+    "comp.parameters[\"n_turns\"] = \"3\"\n",
+    "comp.parameters[\"d_wire\"] = \"100um\"\n",
+    "q3d.modeler.set_working_coordinate_system(\"Global\")\n",
+    "q3d.modeler.create_coordinate_system(location_l4_1, name=\"L4\")\n",
+    "comp2 = q3d.modeler.insert_3d_component(coil, coordinate_system=\"L4\")\n",
+    "comp2.rotate(Axis.Z, -90)\n",
+    "comp2.parameters[\"n_turns\"] = \"3\"\n",
+    "comp2.parameters[\"d_wire\"] = \"100um\"\n",
+    "q3d.modeler.set_working_coordinate_system(\"Global\")\n",
+    "\n",
+    "q3d.modeler.set_working_coordinate_system(\"Global\")\n",
+    "q3d.modeler.create_coordinate_system(location_r106_1, name=\"R106\")\n",
+    "comp3 = q3d.modeler.insert_3d_component(\n",
+    "    res, geometry_parameters={\"$Resistance\": 2000}, coordinate_system=\"R106\"\n",
+    ")\n",
+    "comp3.rotate(Axis.Z, -90)\n",
+    "\n",
+    "q3d.modeler.set_working_coordinate_system(\"Global\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "19961619",
+   "metadata": {},
+   "source": [
+    "## Delete dielectrics\n",
+    "\n",
+    "Delete all dielectric objects since they are not needed in DC analysis."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4ce51ac5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "q3d.modeler.delete(q3d.modeler.get_objects_by_material(\"Megtron4\"))\n",
+    "q3d.modeler.delete(q3d.modeler.get_objects_by_material(\"Megtron4_2\"))\n",
+    "q3d.modeler.delete(q3d.modeler.get_objects_by_material(\"Megtron4_3\"))\n",
+    "q3d.modeler.delete(q3d.modeler.get_objects_by_material(\"Solder Resist\"))\n",
+    "\n",
+    "objs_copper = q3d.modeler.get_objects_by_material(\"copper\")\n",
+    "objs_copper_names = [i.name for i in objs_copper]\n",
+    "q3d.plot(\n",
+    "    show=False,\n",
+    "    assignment=objs_copper_names,\n",
+    "    plot_as_separate_objects=False,\n",
+    "    output_file=os.path.join(temp_folder.name, \"Q3D.jpg\"),\n",
+    "    plot_air_objects=False,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1bc6d02c",
+   "metadata": {},
+   "source": [
+    "## Assign source and sink\n",
+    "\n",
+    "Use previously calculated positions to identify faces. Select the net ``1_Top`` and\n",
+    "assign sources and sinks on nets."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0b9a9e79",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "sink_f = q3d.modeler.create_circle(Plane.XY, location_u11_scl, 0.1)\n",
+    "source_f1 = q3d.modeler.create_circle(Plane.XY, location_u9_1_scl, 0.1)\n",
+    "source_f2 = q3d.modeler.create_circle(Plane.XY, location_u9_2_scl, 0.1)\n",
+    "source_f3 = q3d.modeler.create_circle(Plane.XY, location_u11_r106, 0.1)\n",
+    "sources_objs = [source_f1, source_f2, source_f3]\n",
+    "\n",
+    "q3d.auto_identify_nets()\n",
+    "\n",
+    "identified_net = q3d.net_names[0]\n",
+    "\n",
+    "q3d.sink(sink_f, net_name=identified_net)\n",
+    "\n",
+    "source1 = q3d.source(source_f1, net_name=identified_net)\n",
+    "\n",
+    "source2 = q3d.source(source_f2, net_name=identified_net)\n",
+    "source3 = q3d.source(source_f3, net_name=identified_net)\n",
+    "sources_bounds = [source1, source2, source3]\n",
+    "\n",
+    "q3d.edit_sources(\n",
+    "    dcrl={\n",
+    "        \"{}:{}\".format(source1.props[\"Net\"], source1.name): \"-1.0A\",\n",
+    "        \"{}:{}\".format(source2.props[\"Net\"], source2.name): \"-1.0A\",\n",
+    "        \"{}:{}\".format(source2.props[\"Net\"], source3.name): \"-1.0A\",\n",
+    "    }\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8cd86514",
+   "metadata": {},
+   "source": [
+    "## Create setup\n",
+    "\n",
+    "Create a setup and a frequency sweep from DC to 2GHz.\n",
+    "Then, analyze the project."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f0eaf894",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup = q3d.create_setup()\n",
+    "setup.dc_enabled = True\n",
+    "setup.capacitance_enabled = False\n",
+    "setup.ac_rl_enabled = False\n",
+    "setup.props[\"SaveFields\"] = True\n",
+    "setup.props[\"DC\"][\"Cond\"][\"MaxPass\"] = 3"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f142c852",
+   "metadata": {},
+   "source": [
+    "## Solve setup"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1b597fe2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "q3d.save_project()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "be462fa7",
+   "metadata": {},
+   "source": [
+    "## Create a named expression\n",
+    "\n",
+    "Use PyAEDT advanced fields calculator to add from the expressions catalog the voltage drop."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9f93915b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "voltage_drop = q3d.post.fields_calculator.add_expression(\"voltage_drop\", None)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "650fed07",
+   "metadata": {},
+   "source": [
+    "## Following post-processing workflow is not supported in 2025R1"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0d9faf29",
+   "metadata": {},
+   "source": [
+    "## Create Phi plot\n",
+    "\n",
+    "Compute ACL solutions and plot them. This report does not work in 2025R1."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "70f925d2",
+   "metadata": {},
+   "source": [
+    "## Analyze project"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "78444633",
+   "metadata": {},
+   "source": [
+    "setup.analyze(cores=NUM_CORES)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6ca9a388",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# plot1 = q3d.post.create_fieldplot_surface(\n",
+    "#     q3d.modeler.get_objects_by_material(\"copper\"),\n",
+    "#     quantity=voltage_drop,\n",
+    "#     intrinsics={\"Freq\": \"1GHz\"},\n",
+    "# )\n",
+    "#\n",
+    "# q3d.post.plot_field_from_fieldplot(\n",
+    "#     plot1.name,\n",
+    "#     project_path=temp_folder.name,\n",
+    "#     mesh_plot=False,\n",
+    "#     image_format=\"jpg\",\n",
+    "#     view=\"isometric\",\n",
+    "#     show=False,\n",
+    "#     plot_cad_objs=False,\n",
+    "#     log_scale=False,\n",
+    "# )\n",
+    "# # -\n",
+    "\n",
+    "\n",
+    "# ## Compute voltage on source circles\n",
+    "#\n",
+    "# Use PyAEDT advanced field calculator to compute the voltage on source circles and get the value\n",
+    "# using the ``get_solution_data()`` method."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8e077c7b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# v_surface = {\n",
+    "#     \"name\": \"\",\n",
+    "#     \"description\": \"Maximum value of voltage on a surface\",\n",
+    "#     \"design_type\": [\"Q3D Extractor\"],\n",
+    "#     \"fields_type\": [\"DC R/L Fields\"],\n",
+    "#     \"primary_sweep\": \"Freq\",\n",
+    "#     \"assignment\": \"\",\n",
+    "#     \"assignment_type\": [\"Face\", \"Sheet\"],\n",
+    "#     \"operations\": [\n",
+    "#         f\"NameOfExpression({voltage_drop})\",\n",
+    "#         \"EnterSurface('assignment')\",\n",
+    "#         \"Operation('SurfaceValue')\",\n",
+    "#         \"Operation('Maximum')\",\n",
+    "#     ],\n",
+    "#     \"report\": [\"Field_3D\"],\n",
+    "# }\n",
+    "# for source_circle, source_bound in zip(sources_objs, sources_bounds):\n",
+    "#     v_surface[\"name\"] = \"V{}\".format(source_bound.name)\n",
+    "#     q3d.post.fields_calculator.add_expression(v_surface, source_circle.name)\n",
+    "#\n",
+    "#     data = q3d.post.get_solution_data(\n",
+    "#         \"V{}\".format(source_bound.name),\n",
+    "#         q3d.nominal_adaptive,\n",
+    "#         variations={\"Freq\": \"1GHz\"},\n",
+    "#         report_category=\"DC R/L Fields\",\n",
+    "#     )\n",
+    "#     if data:\n",
+    "#         print(data.data_real(\"V{}\".format(source_bound.name)))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "111e57d6",
+   "metadata": {},
+   "source": [
+    "## Release AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a7cfe767",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "q3d.save_project()\n",
+    "q3d.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4d1ef559",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "46825e46",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

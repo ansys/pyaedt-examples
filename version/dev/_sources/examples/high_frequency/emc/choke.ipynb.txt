@@ -1,0 +1,508 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "7660db3e",
+   "metadata": {},
+   "source": [
+    "# Choke\n",
+    "\n",
+    "This example shows how to use PyAEDT to create a choke setup in HFSS.\n",
+    "\n",
+    "Keywords: **HFSS**, **EMC**, **choke**, ."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b377aabf",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f5e557f3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import json\n",
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "53cedc60",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "64b77bb5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "cf02dbb6",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "71757a15",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d143ad32",
+   "metadata": {},
+   "source": [
+    "## Launch HFSS"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "41452e43",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_name = os.path.join(temp_folder.name, \"choke.aedt\")\n",
+    "hfss = ansys.aedt.core.Hfss(\n",
+    "    project=project_name,\n",
+    "    version=AEDT_VERSION,\n",
+    "    non_graphical=NG_MODE,\n",
+    "    new_desktop=True,\n",
+    "    solution_type=\"Terminal\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d2809792",
+   "metadata": {},
+   "source": [
+    "## Define parameters\n",
+    "\n",
+    "The dictionary values contain the different parameter values of the core and\n",
+    "the windings that compose the choke. You must not change the main structure of\n",
+    "the dictionary. The dictionary has many primary keys, including\n",
+    "``\"Number of Windings\"``, ``\"Layer\"``, and ``\"Layer Type\"``, that have\n",
+    "dictionaries as values. The keys of these dictionaries are secondary keys\n",
+    "of the dictionary values, such as ``\"1\"``, ``\"2\"``, ``\"3\"``, ``\"4\"``, and\n",
+    "``\"Simple\"``.\n",
+    "\n",
+    "You must not modify the primary or secondary keys. You can modify only their values.\n",
+    "You must not change the data types for these keys. For the dictionaries from\n",
+    "``\"Number of Windings\"`` through ``\"Wire Section\"``, values must be Boolean. Only\n",
+    "one value per dictionary can be ``True``. If all values are ``True``, only the first one\n",
+    "remains set to ``True``. If all values are ``False``, the first value is chosen as the\n",
+    "correct one by default. For the dictionaries from ``\"Core\"`` through ``\"Inner Winding\"``,\n",
+    "values must be strings, floats, or integers.\n",
+    "\n",
+    "Descriptions follow for the primary keys:\n",
+    "\n",
+    "- ``\"Number of Windings\"``: Number of windings around the core.\n",
+    "- ``\"Layer\"``: Number of layers of all windings.\n",
+    "- ``\"Layer Type\"``: Whether layers of a winding are linked to each other\n",
+    "- ``\"Similar Layer\"``: Whether layers of a winding have the same number of turns and\n",
+    "same spacing between turns.\n",
+    "- ``\"Mode\"``: When there are only two windows, whether they are in common or differential mode.\n",
+    "- ``\"Wire Section\"``: Type of wire section and number of segments.\n",
+    "- ``\"Core\"``: Design of the core.\n",
+    "- ``\"Outer Winding\"``: Design of the first layer or outer layer of a winding and the common\n",
+    "parameters for all layers.\n",
+    "- ``\"Mid Winding\"``: Turns and turns spacing (``Coil Pit``) for the second or\n",
+    "mid layer if it is necessary.\n",
+    "- ``\"Inner Winding\"``: Turns and turns spacing (``Coil Pit``) for the third or inner\n",
+    "layer if it is necessary.\n",
+    "- ``\"Occupation(%)\"``: An informative parameter that is useless to modify.\n",
+    "\n",
+    "The following parameter values work. You can modify them if you want."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6ffc8c8b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "values = {\n",
+    "    \"Number of Windings\": {\"1\": False, \"2\": True, \"3\": False, \"4\": False},\n",
+    "    \"Layer\": {\"Simple\": False, \"Double\": True, \"Triple\": False},\n",
+    "    \"Layer Type\": {\"Separate\": False, \"Linked\": True},\n",
+    "    \"Similar Layer\": {\"Similar\": False, \"Different\": True},\n",
+    "    \"Mode\": {\"Differential\": False, \"Common\": True},\n",
+    "    \"Wire Section\": {\"None\": False, \"Hexagon\": True, \"Octagon\": False, \"Circle\": False},\n",
+    "    \"Core\": {\n",
+    "        \"Name\": \"Core\",\n",
+    "        \"Material\": \"ferrite\",\n",
+    "        \"Inner Radius\": 20,\n",
+    "        \"Outer Radius\": 30,\n",
+    "        \"Height\": 10,\n",
+    "        \"Chamfer\": 0.8,\n",
+    "    },\n",
+    "    \"Outer Winding\": {\n",
+    "        \"Name\": \"Winding\",\n",
+    "        \"Material\": \"copper\",\n",
+    "        \"Inner Radius\": 20,\n",
+    "        \"Outer Radius\": 30,\n",
+    "        \"Height\": 10,\n",
+    "        \"Wire Diameter\": 1.5,\n",
+    "        \"Turns\": 20,\n",
+    "        \"Coil Pit(deg)\": 0.1,\n",
+    "        \"Occupation(%)\": 0,\n",
+    "    },\n",
+    "    \"Mid Winding\": {\"Turns\": 25, \"Coil Pit(deg)\": 0.1, \"Occupation(%)\": 0},\n",
+    "    \"Inner Winding\": {\"Turns\": 4, \"Coil Pit(deg)\": 0.1, \"Occupation(%)\": 0},\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3bdcd3d4",
+   "metadata": {},
+   "source": [
+    "## Convert dictionary to JSON file\n",
+    "\n",
+    "Convert the dictionary to a JSON file. You must supply the path of the\n",
+    "JSON file as an argument."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "cd063e73",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "json_path = os.path.join(hfss.working_directory, \"choke_example.json\")\n",
+    "with open(json_path, \"w\") as outfile:\n",
+    "    json.dump(values, outfile)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "600ff814",
+   "metadata": {},
+   "source": [
+    "## Verify parameters of JSON file\n",
+    "\n",
+    "Verify parameters of the JSON file. The ``check_choke_values()`` method takes\n",
+    "the JSON file path as an argument and does the following:\n",
+    "\n",
+    "- Checks if the JSON file is correctly written (as explained earlier).\n",
+    "- Checks equations on windings parameters to avoid having unintended intersections."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2e7ee31b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "dictionary_values = hfss.modeler.check_choke_values(\n",
+    "    json_path, create_another_file=False\n",
+    ")\n",
+    "print(dictionary_values)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5e531613",
+   "metadata": {},
+   "source": [
+    "## Create choke\n",
+    "\n",
+    "Create the choke. The ``Hfss.modeler.create_choke()`` method takes the JSON file path as an\n",
+    "argument."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6ca2f3ca",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "list_object = hfss.modeler.create_choke(json_path)\n",
+    "print(list_object)\n",
+    "core = list_object[1]\n",
+    "first_winding_list = list_object[2]\n",
+    "second_winding_list = list_object[3]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "61526abb",
+   "metadata": {},
+   "source": [
+    "## Create ground"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f0ae60cf",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ground_radius = 1.2 * dictionary_values[1][\"Outer Winding\"][\"Outer Radius\"]\n",
+    "ground_position = [0, 0, first_winding_list[1][0][2] - 2]\n",
+    "ground = hfss.modeler.create_circle(\n",
+    "    \"XY\", ground_position, ground_radius, name=\"GND\", material=\"copper\"\n",
+    ")\n",
+    "coat = hfss.assign_finite_conductivity(ground, is_infinite_ground=True)\n",
+    "ground.transparency = 0.9"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0fc0b49b",
+   "metadata": {},
+   "source": [
+    "## Create lumped ports"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "602ad5f1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "port_position_list = [\n",
+    "    [\n",
+    "        first_winding_list[1][0][0],\n",
+    "        first_winding_list[1][0][1],\n",
+    "        first_winding_list[1][0][2] - 1,\n",
+    "    ],\n",
+    "    [\n",
+    "        first_winding_list[1][-1][0],\n",
+    "        first_winding_list[1][-1][1],\n",
+    "        first_winding_list[1][-1][2] - 1,\n",
+    "    ],\n",
+    "    [\n",
+    "        second_winding_list[1][0][0],\n",
+    "        second_winding_list[1][0][1],\n",
+    "        second_winding_list[1][0][2] - 1,\n",
+    "    ],\n",
+    "    [\n",
+    "        second_winding_list[1][-1][0],\n",
+    "        second_winding_list[1][-1][1],\n",
+    "        second_winding_list[1][-1][2] - 1,\n",
+    "    ],\n",
+    "]\n",
+    "port_dimension_list = [2, dictionary_values[1][\"Outer Winding\"][\"Wire Diameter\"]]\n",
+    "for position in port_position_list:\n",
+    "    sheet = hfss.modeler.create_rectangle(\n",
+    "        \"XZ\", position, port_dimension_list, name=\"sheet_port\"\n",
+    "    )\n",
+    "    sheet.move([-dictionary_values[1][\"Outer Winding\"][\"Wire Diameter\"] / 2, 0, -1])\n",
+    "    hfss.lumped_port(\n",
+    "        assignment=sheet.name,\n",
+    "        name=\"port_\" + str(port_position_list.index(position) + 1),\n",
+    "        reference=[ground],\n",
+    "    )"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "82a4ef0c",
+   "metadata": {},
+   "source": [
+    "## Create mesh"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9d9e4451",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "cylinder_height = 2.5 * dictionary_values[1][\"Outer Winding\"][\"Height\"]\n",
+    "cylinder_position = [0, 0, first_winding_list[1][0][2] - 4]\n",
+    "mesh_operation_cylinder = hfss.modeler.create_cylinder(\n",
+    "    \"XY\",\n",
+    "    cylinder_position,\n",
+    "    ground_radius,\n",
+    "    cylinder_height,\n",
+    "    num_sides=36,\n",
+    "    name=\"mesh_cylinder\",\n",
+    ")\n",
+    "\n",
+    "hfss.mesh.assign_length_mesh(\n",
+    "    [mesh_operation_cylinder],\n",
+    "    maximum_length=15,\n",
+    "    maximum_elements=None,\n",
+    "    name=\"choke_mesh\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "caf505a7",
+   "metadata": {},
+   "source": [
+    "## Create boundaries\n",
+    "\n",
+    "Create the boundaries. A region with openings is needed to run the analysis."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9f953b81",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "region = hfss.modeler.create_region(pad_percent=1000)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ac4d71be",
+   "metadata": {},
+   "source": [
+    "## Create setup\n",
+    "\n",
+    "Create a setup with a sweep to run the simulation. Depending on your machine's\n",
+    "computing power, the simulation can take some time to run."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "078cc23c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup = hfss.create_setup(\"MySetup\")\n",
+    "setup.props[\"Frequency\"] = \"50MHz\"\n",
+    "setup[\"MaximumPasses\"] = 10\n",
+    "hfss.create_linear_count_sweep(\n",
+    "    setup=setup.name,\n",
+    "    units=\"MHz\",\n",
+    "    start_frequency=0.1,\n",
+    "    stop_frequency=100,\n",
+    "    num_of_freq_points=100,\n",
+    "    name=\"sweep1\",\n",
+    "    sweep_type=\"Interpolating\",\n",
+    "    save_fields=False,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f21a49be",
+   "metadata": {},
+   "source": [
+    "## Plot objects"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fdd9066b",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "hfss.modeler.fit_all()\n",
+    "hfss.plot(\n",
+    "    show=False,\n",
+    "    output_file=os.path.join(hfss.working_directory, \"Image.jpg\"),\n",
+    "    plot_air_objects=False,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "53601663",
+   "metadata": {},
+   "source": [
+    "## Release AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a016c89d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss.save_project()\n",
+    "hfss.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "20e61aae",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f78d7dec",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

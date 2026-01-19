@@ -1,0 +1,368 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "b2cd6e8c",
+   "metadata": {},
+   "source": [
+    "# Configuration files\n",
+    "\n",
+    "This example shows how to use PyAEDT to export configuration files and reuse\n",
+    "them to import in a new project. A configuration file is supported by these applications:\n",
+    "\n",
+    "* HFSS\n",
+    "* 2D Extractor and Q3D Extractor\n",
+    "* Maxwell\n",
+    "* Icepak (in AEDT)\n",
+    "* Mechanical (in AEDT)\n",
+    "\n",
+    "The following topics are covered:\n",
+    "\n",
+    "* Variables\n",
+    "* Mesh operations (except Icepak)\n",
+    "* Setup and optimetrics\n",
+    "* Material properties\n",
+    "* Object properties\n",
+    "* Boundaries and excitations\n",
+    "\n",
+    "When a boundary is attached to a face, PyAEDT tries to match it with a\n",
+    "``FaceByPosition`` on the same object name on the target design. If for\n",
+    "any reason this face position has changed or the object name in the target\n",
+    "design has changed, the boundary fails to apply.\n",
+    "\n",
+    "Keywords: **AEDT**, **general**, **configuration file**, **setup**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "299adf13",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "Import the required packages."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "92a24134",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core\n",
+    "from ansys.aedt.core.examples.downloads import download_icepak"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4b3435fc",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "103a4653",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8702ddbb",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create the temporary directory.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "cc890d91",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0d8e6e09",
+   "metadata": {},
+   "source": [
+    "## Download project\n",
+    "\n",
+    "Download the Icepack project."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "602ddc94",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_full_name = download_icepak(\n",
+    "    local_path=temp_folder.name\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "05badd45",
+   "metadata": {},
+   "source": [
+    "## Open project\n",
+    "\n",
+    "Open the Icepak project from the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "751ae18a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk = ansys.aedt.core.Icepak(\n",
+    "    project=project_full_name,\n",
+    "    version=AEDT_VERSION,\n",
+    "    new_desktop=True,\n",
+    "    non_graphical=NG_MODE,\n",
+    ")\n",
+    "ipk.autosave_disable()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d3e852a3",
+   "metadata": {},
+   "source": [
+    "## Create source blocks\n",
+    "\n",
+    "Create a source block on the CPU and memories."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a75439ff",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.assign_solid_block(object_name=\"CPU\", power_assignment=\"25W\")\n",
+    "ipk.assign_solid_block(object_name=[\"MEMORY1\", \"MEMORY1_1\"], power_assignment=\"5W\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "55bac7e5",
+   "metadata": {},
+   "source": [
+    "## Assign boundaries\n",
+    "\n",
+    "Assign the opening and grille."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "71ef0566",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "region = ipk.modeler[\"Region\"]\n",
+    "ipk.assign_openings(air_faces=region.bottom_face_x.id)\n",
+    "ipk.assign_grille(air_faces=region.top_face_x.id, free_area_ratio=0.8)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f84507fa",
+   "metadata": {},
+   "source": [
+    "## Create setup\n",
+    "\n",
+    "Create the setup. Properties can be set up from the ``setup`` object\n",
+    "with getters and setters. They don't have to perfectly match the property\n",
+    "syntax."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "639c1b6f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup1 = ipk.create_setup()\n",
+    "setup1[\"FlowRegime\"] = \"Turbulent\"\n",
+    "setup1[\"Max Iterations\"] = 5\n",
+    "setup1[\"Solver Type Pressure\"] = \"flex\"\n",
+    "setup1[\"Solver Type Temperature\"] = \"flex\"\n",
+    "ipk.save_project()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9f38041d",
+   "metadata": {},
+   "source": [
+    "## Export project to step file\n",
+    "\n",
+    "Export the project to the step file."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f0b1709d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "filename = ipk.design_name\n",
+    "file_path = os.path.join(ipk.working_directory, filename + \".step\")\n",
+    "ipk.export_3d_model(\n",
+    "    file_name=filename,\n",
+    "    file_path=ipk.working_directory,\n",
+    "    file_format=\".step\",\n",
+    "    assignment_to_export=[],\n",
+    "    assignment_to_remove=[],\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1a245ce1",
+   "metadata": {},
+   "source": [
+    "## Export configuration files\n",
+    "\n",
+    "Export the configuration files. You can optionally disable the export and\n",
+    "import sections. Supported formats are JSON and TOML files."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b41df8d8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "conf_file = ipk.configurations.export_config(\n",
+    "    os.path.join(ipk.working_directory, \"config.toml\")\n",
+    ")\n",
+    "ipk.close_project()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7dfe20a2",
+   "metadata": {},
+   "source": [
+    "## Create project\n",
+    "\n",
+    "Create an Icepak project and import the step."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2edac195",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "new_project = os.path.join(temp_folder.name, \"example.aedt\")\n",
+    "app = ansys.aedt.core.Icepak(version=AEDT_VERSION, project=new_project)\n",
+    "app.modeler.import_3d_cad(file_path)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6c1babcf",
+   "metadata": {},
+   "source": [
+    "## Import and apply configuration file\n",
+    "\n",
+    "Import and apply the configuration file. You can apply all or part of the\n",
+    "JSON file that you import using options in the ``configurations`` object."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "46a8dc16",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "out = app.configurations.import_config(conf_file)\n",
+    "is_conf_imported = app.configurations.results.global_import_success"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a29f7742",
+   "metadata": {},
+   "source": [
+    "## Release AEDT\n",
+    "Close the project and release AEDT."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a21e257e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "app.release_desktop()\n",
+    "time.sleep(3)  # Allow AEDT to shut down before cleaning the temporary project folder."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f1408d86",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell removes\n",
+    "all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "14a65f46",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

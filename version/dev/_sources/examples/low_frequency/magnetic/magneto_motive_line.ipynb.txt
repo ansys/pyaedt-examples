@@ -1,0 +1,520 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "6a6a3b3b",
+   "metadata": {},
+   "source": [
+    "# Magnetomotive force along a line\n",
+    "\n",
+    "This example shows how to use PyAEDT to calculate\n",
+    "the magnetomotive force along a line that changes position.\n",
+    "It shows how to leverage the PyAEDT advanced fields calculator\n",
+    "to insert a custom formula, which in this case is the integral\n",
+    "of the H field along a line.\n",
+    "The example shows two options to achieve the intent.\n",
+    "The first one creates many lines as to simulate a contour that changes position.\n",
+    "The integral of the H field is computed for each line.\n",
+    "The second option creates one parametric polyline and then uses a parametric sweep to change its position.\n",
+    "The integral of the H field is computed for each position."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "db0c43d2",
+   "metadata": {},
+   "source": [
+    "Keywords: **Maxwell 2D**, **magnetomotive force**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6805020b",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ca8907ba",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core\n",
+    "from ansys.aedt.core.examples.downloads import download_file"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a2c235fc",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5ea1624e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "be1dbe6e",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "89d770e2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6cdb33a2",
+   "metadata": {},
+   "source": [
+    "## Import project\n",
+    "\n",
+    "Download the files required to run this example to the temporary working folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3485fe1e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_path = download_file(\n",
+    "    source=\"maxwell_magnetic_force\",\n",
+    "    name=\"Maxwell_Magnetic_Force.aedt\",\n",
+    "    local_path=temp_folder.name,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "59d75d25",
+   "metadata": {},
+   "source": [
+    "## Initialize and launch Maxwell 2D\n",
+    "\n",
+    "Initialize and launch Maxwell 2D, providing the version and the path of the project."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b12d29d9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d = ansys.aedt.core.Maxwell2d(\n",
+    "    version=AEDT_VERSION,\n",
+    "    non_graphical=NG_MODE,\n",
+    "    project=project_path,\n",
+    "    new_desktop=True,\n",
+    "    design=\"Maxwell2DDesign1\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ccdcdac1",
+   "metadata": {},
+   "source": [
+    "# First option"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ac7326d6",
+   "metadata": {},
+   "source": [
+    "## Create a polyline\n",
+    "\n",
+    "Create a polyline, specifying its ends."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9d6b70a1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "poly = m2d.modeler.create_polyline(points=[[10, -10, 0], [10, 10, 0]], name=\"polyline\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8e85fec5",
+   "metadata": {},
+   "source": [
+    "Duplicate the polyline along a vector."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e31fdb26",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "polys = [poly.name]\n",
+    "polys.extend(poly.duplicate_along_line(vector=[-0.5, 0, 0], clones=10))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9256d699",
+   "metadata": {},
+   "source": [
+    "## Compute magnetomotive force along each line\n",
+    "\n",
+    "Create and add a new formula to add in the PyAEDT advanced fields calculator.\n",
+    "Create the fields report object and get field data.\n",
+    "Create a data table report for the H field along each line and export it to a .csv file."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7c2e71ca",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "my_expression = {\n",
+    "    \"name\": None,\n",
+    "    \"description\": \"Magnetomotive force along a line\",\n",
+    "    \"design_type\": [\"Maxwell 2D\", \"Maxwell 3D\"],\n",
+    "    \"fields_type\": [\"Fields\"],\n",
+    "    \"primary_sweep\": \"distance\",\n",
+    "    \"assignment\": None,\n",
+    "    \"assignment_type\": [\"Line\"],\n",
+    "    \"operations\": [\n",
+    "        \"Fundamental_Quantity('H')\",\n",
+    "        \"Operation('Tangent')\",\n",
+    "        \"Operation('Dot')\",\n",
+    "        \"EnterLine('assignment')\",\n",
+    "        \"Operation('LineValue')\",\n",
+    "        \"Operation('Integrate')\",\n",
+    "    ],\n",
+    "    \"report\": [\"Data Table\"],\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "673ea0d3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "quantities = []\n",
+    "for p in polys:\n",
+    "    quantity = \"H_field_{}\".format(p)\n",
+    "    quantities.append(quantity)\n",
+    "    my_expression[\"name\"] = quantity\n",
+    "    my_expression[\"assignment\"] = quantity\n",
+    "    m2d.post.fields_calculator.add_expression(my_expression, p)\n",
+    "    report = m2d.post.create_report(\n",
+    "        expressions=quantity,\n",
+    "        report_category=\"Fields\",\n",
+    "        plot_type=\"Data Table\",\n",
+    "        plot_name=quantity\n",
+    "    )"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a0ecb3d8",
+   "metadata": {},
+   "source": [
+    "# Second option"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5b635179",
+   "metadata": {},
+   "source": [
+    "## Create a design variable\n",
+    "\n",
+    "Parametrize the polyline x position."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b4fe9e7f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d[\"xl\"] = \"10mm\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5fecf970",
+   "metadata": {},
+   "source": [
+    "## Create polyline\n",
+    "\n",
+    "Create a parametrized polyline, specifying its ends."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "29369a16",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "poly = m2d.modeler.create_polyline(\n",
+    "    points=[[\"xl\", -10, 0], [\"xl\", 10, 0]], name=\"polyline_sweep\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c0866974",
+   "metadata": {},
+   "source": [
+    "## Add parametric sweep\n",
+    "\n",
+    "Add a parametric sweep where the parameter to sweep is ``xl``.\n",
+    "Create a linear step sweep from ``10mm`` to ``15mm`` every ``1mm`` step."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "932730b2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "param_sweep = m2d.parametrics.add(\n",
+    "    variable=\"xl\",\n",
+    "    start_point=\"10mm\",\n",
+    "    end_point=\"15mm\",\n",
+    "    step=1,\n",
+    "    variation_type=\"LinearStep\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d3f3dca0",
+   "metadata": {},
+   "source": [
+    "## Compute magnetomotive force along the line\n",
+    "\n",
+    "Create and add a new formula to add in the PyAEDT advanced fields calculator."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "81d7d09a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "quantity_sweep = \"H_field_{}\".format(poly.name)\n",
+    "my_expression[\"name\"] = quantity_sweep\n",
+    "my_expression[\"assignment\"] = poly.name\n",
+    "m2d.post.fields_calculator.add_expression(my_expression, poly.name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "045e1357",
+   "metadata": {},
+   "source": [
+    "## Add parametric sweep calculation specifying the quantity (H) and save fields."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b4597cc8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "param_sweep.add_calculation(calculation=quantity_sweep, report_type=\"Fields\", ranges={})\n",
+    "param_sweep.props[\"ProdOptiSetupDataV2\"][\"SaveFields\"] = True"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "03017627",
+   "metadata": {},
+   "source": [
+    "## Create data table report\n",
+    "\n",
+    "Create a data table report to display H for each polyline position."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d99fd77a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "report_sweep = m2d.post.create_report(\n",
+    "    expressions=quantity_sweep,\n",
+    "    report_category=\"Fields\",\n",
+    "    plot_type=\"Data Table\",\n",
+    "    plot_name=quantity_sweep,\n",
+    "    primary_sweep_variable=\"xl\",\n",
+    "    variations={\"xl\": \"All\"},\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e66fabb9",
+   "metadata": {},
+   "source": [
+    "## Analyze parametric sweep"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "41dafc59",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "param_sweep.analyze(cores=NUM_CORES)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3a70165b",
+   "metadata": {},
+   "source": [
+    "## Export results\n",
+    "\n",
+    "Export results in a .csv file for the parametric sweep analysis (second option)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b2e8449f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.post.export_report_to_csv(\n",
+    "    project_dir=temp_folder.name,\n",
+    "    plot_name=quantity_sweep,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4c21c8ac",
+   "metadata": {},
+   "source": [
+    "Export results in a .csv file for each polyline (first option)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "de0d2b14",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "[\n",
+    "    m2d.post.export_report_to_csv(\n",
+    "        project_dir=temp_folder.name,\n",
+    "        plot_name=q,\n",
+    "    )\n",
+    "    for q in quantities\n",
+    "]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a72aec3b",
+   "metadata": {},
+   "source": [
+    "## Release AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0fbc107e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.save_project()\n",
+    "m2d.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "521caf74",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "34850957",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

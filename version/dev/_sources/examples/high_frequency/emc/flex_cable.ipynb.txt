@@ -1,0 +1,512 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "99ce6f0d",
+   "metadata": {},
+   "source": [
+    "# Flex cable CPWG\n",
+    "\n",
+    "This example shows how to use PyAEDT to create a flex cable CPWG\n",
+    "(coplanar waveguide with ground).\n",
+    "\n",
+    "Keywords: **HFSS**, **flex cable**, **CPWG**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "25df8e03",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3f85bf79",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "from math import cos, radians, sin, sqrt\n",
+    "\n",
+    "import ansys.aedt.core\n",
+    "from ansys.aedt.core.generic.file_utils import generate_unique_name"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a759642f",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3fa76125",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d92ac752",
+   "metadata": {},
+   "source": [
+    "## Set non-graphical mode\n",
+    "\n",
+    "Set non-graphical mode.\n",
+    "You can set ``non_graphical`` either to ``True`` or ``False``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d5a93601",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "non_graphical = False"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a797a12b",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "710d3516",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c29d088a",
+   "metadata": {},
+   "source": [
+    "## Launch AEDT\n",
+    "\n",
+    "Launch AEDT, create an HFSS design, and save the project."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d7caaa97",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss = ansys.aedt.core.Hfss(\n",
+    "    version=AEDT_VERSION,\n",
+    "    solution_type=\"DrivenTerminal\",\n",
+    "    new_desktop=True,\n",
+    "    non_graphical=non_graphical,\n",
+    ")\n",
+    "hfss.save_project(\n",
+    "    os.path.join(temp_folder.name, generate_unique_name(\"example\") + \".aedt\")\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8fb46d62",
+   "metadata": {},
+   "source": [
+    "## Modify design settings\n",
+    "\n",
+    "Modify some design settings."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a77653a6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss.change_material_override(True)\n",
+    "hfss.change_automatically_use_causal_materials(True)\n",
+    "hfss.create_open_region(\"100GHz\")\n",
+    "hfss.modeler.model_units = \"mil\"\n",
+    "hfss.mesh.assign_initial_mesh_from_slider(curvilinear=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ace3c846",
+   "metadata": {},
+   "source": [
+    "## Create variables\n",
+    "\n",
+    "Create input variables for creating the flex cable CPWG."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "be6c066c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "total_length = 300\n",
+    "theta = 120\n",
+    "r = 100\n",
+    "width = 3\n",
+    "height = 0.1\n",
+    "spacing = 1.53\n",
+    "gnd_width = 10\n",
+    "gnd_thickness = 2\n",
+    "\n",
+    "xt = (total_length - r * radians(theta)) / 2"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e0f239aa",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "source": [
+    "## Create bend\n",
+    "\n",
+    "The ``create_bending()`` method creates a list of points for\n",
+    "the bend based on the curvature radius and extension."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "52985e78",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def create_bending(radius, extension=0):\n",
+    "    points = [(-xt, 0, -radius), (0, 0, -radius)]\n",
+    "\n",
+    "    for i in [radians(i) for i in range(theta)] + [radians(theta + 0.000000001)]:\n",
+    "        points.append((radius * sin(i), 0, -radius * cos(i)))\n",
+    "\n",
+    "    x1, y1, z1 = points[-1]\n",
+    "    x0, y0, z0 = points[-2]\n",
+    "\n",
+    "    scale = (xt + extension) / sqrt((x1 - x0) ** 2 + (z1 - z0) ** 2)\n",
+    "    x, y, z = (x1 - x0) * scale + x0, 0, (z1 - z0) * scale + z0\n",
+    "\n",
+    "    points[-1] = (x, y, z)\n",
+    "    return points"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c5ea3b87",
+   "metadata": {},
+   "source": [
+    "## Draw signal line\n",
+    "\n",
+    "Draw a signal line to create a bent signal wire."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "698bfadf",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "points = create_bending(r, 1)\n",
+    "line = hfss.modeler.create_polyline(\n",
+    "    points=points,\n",
+    "    xsection_type=\"Rectangle\",\n",
+    "    xsection_width=height,\n",
+    "    xsection_height=width,\n",
+    "    material=\"copper\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "afbd9c97",
+   "metadata": {},
+   "source": [
+    "## Draw ground line\n",
+    "\n",
+    "Draw a ground line to create two bent ground wires."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4495c0e6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "gnd_r = [(x, spacing + width / 2 + gnd_width / 2, z) for x, y, z in points]\n",
+    "gnd_l = [(x, -y, z) for x, y, z in gnd_r]\n",
+    "\n",
+    "gnd_objs = []\n",
+    "for gnd in [gnd_r, gnd_l]:\n",
+    "    x = hfss.modeler.create_polyline(\n",
+    "        points=gnd,\n",
+    "        xsection_type=\"Rectangle\",\n",
+    "        xsection_width=height,\n",
+    "        xsection_height=gnd_width,\n",
+    "        material=\"copper\",\n",
+    "    )\n",
+    "    x.color = (255, 0, 0)\n",
+    "    gnd_objs.append(x)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2f81e097",
+   "metadata": {},
+   "source": [
+    "## Draw dielectric\n",
+    "\n",
+    "Draw a dielectric to create a dielectric cable."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6adae690",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "points = create_bending(r + (height + gnd_thickness) / 2)\n",
+    "\n",
+    "fr4 = hfss.modeler.create_polyline(\n",
+    "    points=points,\n",
+    "    xsection_type=\"Rectangle\",\n",
+    "    xsection_width=gnd_thickness,\n",
+    "    xsection_height=width + 2 * spacing + 2 * gnd_width,\n",
+    "    material=\"FR4_epoxy\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "49123809",
+   "metadata": {},
+   "source": [
+    "## Create bottom metals\n",
+    "\n",
+    "Create the bottom metals."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a663d0bb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "points = create_bending(r + height + gnd_thickness, 1)\n",
+    "\n",
+    "bot = hfss.modeler.create_polyline(\n",
+    "    points=points,\n",
+    "    xsection_type=\"Rectangle\",\n",
+    "    xsection_width=height,\n",
+    "    xsection_height=width + 2 * spacing + 2 * gnd_width,\n",
+    "    material=\"copper\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "63ca8e40",
+   "metadata": {},
+   "source": [
+    "## Create port interfaces\n",
+    "\n",
+    "Create port interfaces (PEC enclosures)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9b4cfa07",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "port_faces = []\n",
+    "for face, blockname in zip([fr4.top_face_z, fr4.bottom_face_x], [\"b1\", \"b2\"]):\n",
+    "    xc, yc, zc = face.center\n",
+    "    positions = [i.position for i in face.vertices]\n",
+    "\n",
+    "    port_sheet_list = [\n",
+    "        ((x - xc) * 10 + xc, (y - yc) + yc, (z - zc) * 10 + zc) for x, y, z in positions\n",
+    "    ]\n",
+    "    s = hfss.modeler.create_polyline(\n",
+    "        port_sheet_list, close_surface=True, cover_surface=True\n",
+    "    )\n",
+    "    center = [round(i, 6) for i in s.faces[0].center]\n",
+    "\n",
+    "    port_block = hfss.modeler.thicken_sheet(s.name, -5)\n",
+    "    port_block.name = blockname\n",
+    "    for f in port_block.faces:\n",
+    "\n",
+    "        if [round(i, 6) for i in f.center] == center:\n",
+    "            port_faces.append(f)\n",
+    "\n",
+    "    port_block.material_name = \"PEC\"\n",
+    "\n",
+    "    for i in [line, bot] + gnd_objs:\n",
+    "        i.subtract([port_block], True)\n",
+    "\n",
+    "    print(port_faces)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "db919006",
+   "metadata": {},
+   "source": [
+    "## Create boundary condition\n",
+    "\n",
+    "Creates a Perfect E boundary condition."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a09e0af9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "boundary = []\n",
+    "for face in [fr4.top_face_y, fr4.bottom_face_y]:\n",
+    "    s = hfss.modeler.create_object_from_face(face)\n",
+    "    boundary.append(s)\n",
+    "    hfss.assign_perfecte_to_sheets(s)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9cbb384b",
+   "metadata": {},
+   "source": [
+    "## Create ports\n",
+    "\n",
+    "Create ports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "aaeb9b1c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "for s, port_name in zip(port_faces, [\"1\", \"2\"]):\n",
+    "    reference = [i.name for i in gnd_objs + boundary + [bot]] + [\"b1\", \"b2\"]\n",
+    "\n",
+    "    hfss.wave_port(s.id, name=port_name, reference=reference)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f223c4a0",
+   "metadata": {},
+   "source": [
+    "## Create setup and sweep\n",
+    "\n",
+    "Create the setup and sweep."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f83b6c47",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup = hfss.create_setup(\"setup1\")\n",
+    "setup[\"Frequency\"] = \"2GHz\"\n",
+    "setup.props[\"MaximumPasses\"] = 10\n",
+    "setup.props[\"MinimumConvergedPasses\"] = 2\n",
+    "hfss.create_linear_count_sweep(\n",
+    "    setup=\"setup1\",\n",
+    "    units=\"GHz\",\n",
+    "    start_frequency=1e-1,\n",
+    "    stop_frequency=4,\n",
+    "    num_of_freq_points=101,\n",
+    "    name=\"sweep1\",\n",
+    "    save_fields=False,\n",
+    "    sweep_type=\"Interpolating\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "254e635a",
+   "metadata": {},
+   "source": [
+    "## Release AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fdde7f41",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss.release_desktop()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e3fc164f",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files.\n",
+    "The following cell removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "21358ff4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

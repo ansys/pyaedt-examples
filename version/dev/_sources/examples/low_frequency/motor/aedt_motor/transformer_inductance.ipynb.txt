@@ -1,0 +1,514 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "db6252c1",
+   "metadata": {},
+   "source": [
+    "# Transformer leakage inductance calculation\n",
+    "\n",
+    "This example shows how to use PyAEDT to create a Maxwell 2D\n",
+    "magnetostatic analysis to calculate transformer leakage\n",
+    "inductance and reactance.\n",
+    "The analysis based on this document is from page 8 in Professor S. V.\n",
+    "Kulkami's paper, [Basis of Finite Element Method](https://www.ee.iitb.ac.in/~fclab/FEM/FEM1.pdf).\n",
+    "\n",
+    "Keywords: **Maxwell 2D**, **transformer**, **motor**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "61961682",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2312c0df",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "from ansys.aedt.core import Maxwell2d"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6510d242",
+   "metadata": {},
+   "source": [
+    "Define constants,"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fd42c545",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "03e24562",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "994d4000",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "48d04ef7",
+   "metadata": {},
+   "source": [
+    "## Initialize and launch Maxwell 2D\n",
+    "\n",
+    "Initialize and launch Maxwell 2D, providing the version, the path to the project, the design\n",
+    "name, and the type."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "92ef4264",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "\n",
+    "project_name = os.path.join(temp_folder.name, \"Magnetostatic.aedt\")\n",
+    "m2d = Maxwell2d(\n",
+    "    version=AEDT_VERSION,\n",
+    "    new_desktop=False,\n",
+    "    design=\"Transformer_leakage_inductance\",\n",
+    "    project=project_name,\n",
+    "    solution_type=\"MagnetostaticXY\",\n",
+    "    non_graphical=NG_MODE,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1002ffd5",
+   "metadata": {},
+   "source": [
+    "## Initialize dictionaries\n",
+    "\n",
+    "Set modeler units and initialize dictionaries\n",
+    "that contain all the definitions for the design variables."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5886c743",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.modeler.model_units = \"mm\"\n",
+    "\n",
+    "dimensions = {\n",
+    "    \"core_width\": \"1097mm\",\n",
+    "    \"core_height\": \"2880mm\",\n",
+    "    \"core_opening_x1\": \"270mm\",\n",
+    "    \"core_opening_x2\": \"557mm\",\n",
+    "    \"core_opening_y1\": \"540mm\",\n",
+    "    \"core_opening_y2\": \"2340mm\",\n",
+    "    \"core_opening_width\": \"core_opening_x2-core_opening_x1\",\n",
+    "    \"core_opening_height\": \"core_opening_y2-core_opening_y1\",\n",
+    "    \"LV_x1\": \"293mm\",\n",
+    "    \"LV_x2\": \"345mm\",\n",
+    "    \"LV_width\": \"LV_x2-LV_x1\",\n",
+    "    \"LV_mean_radius\": \"LV_x1+LV_width/2\",\n",
+    "    \"LV_mean_turn_length\": \"pi*2*LV_mean_radius\",\n",
+    "    \"LV_y1\": \"620mm\",\n",
+    "    \"LV_y2\": \"2140mm\",\n",
+    "    \"LV_height\": \"LV_y2-LV_y1\",\n",
+    "    \"HV_x1\": \"394mm\",\n",
+    "    \"HV_x2\": \"459mm\",\n",
+    "    \"HV_width\": \"HV_x2-HV_x1\",\n",
+    "    \"HV_mean_radius\": \"HV_x1+HV_width/2\",\n",
+    "    \"HV_mean_turn_length\": \"pi*2*HV_mean_radius\",\n",
+    "    \"HV_y1\": \"620mm\",\n",
+    "    \"HV_y2\": \"2140mm\",\n",
+    "    \"HV_height\": \"HV_y2-HV_y1\",\n",
+    "    \"HV_LV_gap_radius\": \"(LV_x2 + HV_x1)/2\",\n",
+    "    \"HV_LV_gap_length\": \"pi*2*HV_LV_gap_radius\",\n",
+    "}\n",
+    "\n",
+    "specifications = {\n",
+    "    \"Amp_turns\": \"135024A\",\n",
+    "    \"Frequency\": \"50Hz\",\n",
+    "    \"HV_turns\": \"980\",\n",
+    "    \"HV_current\": \"Amp_turns/HV_turns\",\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "54bc287e",
+   "metadata": {},
+   "source": [
+    "## Define variables from dictionaries\n",
+    "\n",
+    "Define design variables from the created dictionaries."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2eb42b19",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.variable_manager.set_variable(name=\"Dimensions\")\n",
+    "\n",
+    "for k, v in dimensions.items():\n",
+    "    m2d[k] = v\n",
+    "\n",
+    "m2d.variable_manager.set_variable(name=\"Windings\")\n",
+    "\n",
+    "for k, v in specifications.items():\n",
+    "    m2d[k] = v"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2f119cfd",
+   "metadata": {},
+   "source": [
+    "## Create design geometries\n",
+    "\n",
+    "Create the transformer core, the HV and LV windings, and the region."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f0b268ab",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "core = m2d.modeler.create_rectangle(\n",
+    "    origin=[0, 0, 0],\n",
+    "    sizes=[\"core_width\", \"core_height\", 0],\n",
+    "    name=\"core\",\n",
+    "    material=\"steel_1008\",\n",
+    ")\n",
+    "\n",
+    "core_hole = m2d.modeler.create_rectangle(\n",
+    "    origin=[\"core_opening_x1\", \"core_opening_y1\", 0],\n",
+    "    sizes=[\"core_opening_width\", \"core_opening_height\", 0],\n",
+    "    name=\"core_hole\",\n",
+    ")\n",
+    "\n",
+    "m2d.modeler.subtract(blank_list=[core], tool_list=[core_hole], keep_originals=False)\n",
+    "\n",
+    "lv = m2d.modeler.create_rectangle(\n",
+    "    origin=[\"LV_x1\", \"LV_y1\", 0],\n",
+    "    sizes=[\"LV_width\", \"LV_height\", 0],\n",
+    "    name=\"LV\",\n",
+    "    material=\"copper\",\n",
+    ")\n",
+    "\n",
+    "hv = m2d.modeler.create_rectangle(\n",
+    "    origin=[\"HV_x1\", \"HV_y1\", 0],\n",
+    "    sizes=[\"HV_width\", \"HV_height\", 0],\n",
+    "    name=\"HV\",\n",
+    "    material=\"copper\",\n",
+    ")\n",
+    "\n",
+    "region = m2d.modeler.create_region(pad_percent=[20, 10, 0, 10])\n",
+    "\n",
+    "# ## Assign boundary condition\n",
+    "#\n",
+    "# Assign vector potential to zero on all region boundaries. This makes x=0 edge a symmetry boundary.\n",
+    "\n",
+    "m2d.assign_vector_potential(assignment=region.edges, boundary=\"VectorPotential1\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b12dad5a",
+   "metadata": {},
+   "source": [
+    "## Create initial mesh settings\n",
+    "\n",
+    "Assign a relatively dense mesh to all objects to ensure that the energy is calculated accurately."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6ee92823",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.mesh.assign_length_mesh(\n",
+    "    assignment=[\"core\", \"Region\", \"LV\", \"HV\"],\n",
+    "    maximum_length=50,\n",
+    "    maximum_elements=None,\n",
+    "    name=\"all_objects\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "01773974",
+   "metadata": {},
+   "source": [
+    "## Define excitations\n",
+    "\n",
+    "Assign the same current in amp-turns but in opposite directions to the HV and LV windings."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "044baa50",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.assign_current(assignment=lv, amplitude=\"Amp_turns\", name=\"LV\")\n",
+    "m2d.assign_current(assignment=hv, amplitude=\"Amp_turns\", name=\"HV\", swap_direction=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "dd0e0901",
+   "metadata": {},
+   "source": [
+    "## Create and analyze setup\n",
+    "\n",
+    "Create and analyze the setup. Set the number of minimum passes to 3 to ensure accuracy."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "731ddcb2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.create_setup(name=\"Setup1\", MinimumPasses=3)\n",
+    "m2d.analyze_setup(use_auto_settings=False, cores=NUM_CORES)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9d584644",
+   "metadata": {},
+   "source": [
+    "## Calculate transformer leakage inductance and reactance\n",
+    "\n",
+    "Calculate transformer leakage inductance from the magnetic energy with PyAEDT advanced fields calculator."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6b53eb73",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "leakage_inductance = {\n",
+    "    \"name\": \"Leakage_inductance\",\n",
+    "    \"description\": \"Leakage inductance from the magnetic energy\",\n",
+    "    \"design_type\": [\"Maxwell 2D\"],\n",
+    "    \"fields_type\": [\"Fields\"],\n",
+    "    \"primary_sweep\": \"Distance\",\n",
+    "    \"assignment\": \"\",\n",
+    "    \"assignment_type\": [\"Line\"],\n",
+    "    \"operations\": [\n",
+    "        \"Fundamental_Quantity('Energy')\",\n",
+    "        \"EnterSurface('HV')\",\n",
+    "        \"Operation('SurfaceValue')\",\n",
+    "        \"Operation('Integrate')\",\n",
+    "        \"Scalar_Function(FuncValue='HV_mean_turn_length')\",\n",
+    "        \"Operation('*')\",\n",
+    "        \"Fundamental_Quantity('Energy')\",\n",
+    "        \"EnterSurface('LV')\",\n",
+    "        \"Operation('SurfaceValue')\",\n",
+    "        \"Operation('Integrate')\",\n",
+    "        \"Scalar_Function(FuncValue='LV_mean_turn_length')\",\n",
+    "        \"Operation('*')\",\n",
+    "        \"Fundamental_Quantity('Energy')\",\n",
+    "        \"EnterSurface('Region')\",\n",
+    "        \"Operation('SurfaceValue')\",\n",
+    "        \"Operation('Integrate')\",\n",
+    "        \"Scalar_Function(FuncValue='HV_LV_gap_length')\",\n",
+    "        \"Operation('*')\",\n",
+    "        \"Operation('+')\",\n",
+    "        \"Operation('+')\",\n",
+    "        \"Scalar_Constant(2)\",\n",
+    "        \"Operation('*')\",\n",
+    "        \"Scalar_Function(FuncValue='HV_current')\",\n",
+    "        \"Scalar_Function(FuncValue='HV_current')\",\n",
+    "        \"Operation('*')\",\n",
+    "        \"Operation('/')\",\n",
+    "    ],\n",
+    "    \"report\": [\"Data Table\", \"Rectangular Plot\"],\n",
+    "}\n",
+    "m2d.post.fields_calculator.add_expression(leakage_inductance, None)\n",
+    "\n",
+    "leakage_reactance = {\n",
+    "    \"name\": \"Leakage_reactance\",\n",
+    "    \"description\": \"Leakage reactance from the magnetic energy\",\n",
+    "    \"design_type\": [\"Maxwell 2D\"],\n",
+    "    \"fields_type\": [\"Fields\"],\n",
+    "    \"primary_sweep\": \"Distance\",\n",
+    "    \"assignment\": \"\",\n",
+    "    \"assignment_type\": [\"Line\"],\n",
+    "    \"operations\": [\n",
+    "        \"NameOfExpression('Leakage_inductance')\",\n",
+    "        \"Scalar_Constant(2)\",\n",
+    "        \"Scalar_Constant(3.14159)\",\n",
+    "        \"Scalar_Function(FuncValue='Frequency')\",\n",
+    "        \"Operation('*')\",\n",
+    "        \"Operation('*')\",\n",
+    "        \"Operation('*')\",\n",
+    "    ],\n",
+    "    \"report\": [\"Data Table\", \"Rectangular Plot\"],\n",
+    "}\n",
+    "m2d.post.fields_calculator.add_expression(leakage_reactance, None)\n",
+    "\n",
+    "m2d.post.create_report(\n",
+    "    expressions=[\"Leakage_inductance\", \"Leakage_reactance\"],\n",
+    "    report_category=\"Fields\",\n",
+    "    primary_sweep_variable=\"core_width\",\n",
+    "    plot_type=\"Data Table\",\n",
+    "    plot_name=\"Transformer Leakage Inductance\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "450dc373",
+   "metadata": {},
+   "source": [
+    "## Print leakage inductance and reactance values in AEDT Message Manager"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "955d6440",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.logger.clear_messages()\n",
+    "m2d.logger.info(\n",
+    "    \"Leakage_inductance =  {:.4f}H\".format(\n",
+    "        m2d.post.get_scalar_field_value(quantity=\"Leakage_inductance\")\n",
+    "    )\n",
+    ")\n",
+    "m2d.logger.info(\n",
+    "    \"Leakage_reactance =  {:.2f}Ohm\".format(\n",
+    "        m2d.post.get_scalar_field_value(quantity=\"Leakage_reactance\")\n",
+    "    )\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "375b7201",
+   "metadata": {},
+   "source": [
+    "## Plot energy in the simulation domain\n",
+    "\n",
+    "Most of the energy is confined in the air between the HV and LV windings."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c2b9fa98",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "energy_field_overlay = m2d.post.create_fieldplot_surface(\n",
+    "    assignment=m2d.modeler.object_names,\n",
+    "    quantity=\"energy\",\n",
+    "    plot_name=\"Energy\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9a0dcf67",
+   "metadata": {},
+   "source": [
+    "## Release AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "cdc62683",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.save_project()\n",
+    "m2d.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ddb2fbb5",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e589ecd7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

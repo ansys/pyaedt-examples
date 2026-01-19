@@ -1,0 +1,291 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "445c8d09",
+   "metadata": {},
+   "source": [
+    "# HFSS to SBR+ time animation\n",
+    "\n",
+    "This example shows how to use PyAEDT to create an SBR+ time animation\n",
+    "and save it to a GIF file. This example works only on CPython.\n",
+    "\n",
+    "Keywords: **HFSS**, **SBR+**, **time domain**, **IFFT**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b87fee59",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ebeccc0a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "from ansys.aedt.core import Hfss\n",
+    "from ansys.aedt.core.examples.downloads import download_sbr_time"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c0ef3e09",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ce57d975",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b5f186ca",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "24f50ba0",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "996cdd85",
+   "metadata": {},
+   "source": [
+    "## Download project"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4a458768",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_file = download_sbr_time(local_path=temp_folder.name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8b9821b8",
+   "metadata": {},
+   "source": [
+    "## Launch HFSS and analyze"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e9bd2d33",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss = Hfss(\n",
+    "    project=project_file,\n",
+    "    version=AEDT_VERSION,\n",
+    "    non_graphical=NG_MODE,\n",
+    "    new_desktop=True,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5d8d56c9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss.analyze(cores=NUM_CORES)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f6014f45",
+   "metadata": {},
+   "source": [
+    "## Get solution data\n",
+    "\n",
+    "Get solution data. After the simulation is performed, you can load solutions\n",
+    "in the ``solution_data`` object."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "873e5917",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "solution_data = hfss.post.get_solution_data(\n",
+    "    expressions=[\"NearEX\", \"NearEY\", \"NearEZ\"],\n",
+    "    variations={\"_u\": [\"All\"], \"_v\": [\"All\"], \"Freq\": [\"All\"]},\n",
+    "    context=\"Near_Field\",\n",
+    "    report_category=\"Near Fields\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "947a1f19",
+   "metadata": {},
+   "source": [
+    "## Compute IFFT\n",
+    "\n",
+    "Compute IFFT (Inverse Fast Fourier Transform)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a42538b3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "t_matrix = solution_data.ifft(\"NearE\", window=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4ffa0cd4",
+   "metadata": {},
+   "source": [
+    "## Export IFFT to CSV file\n",
+    "\n",
+    "Export IFFT to a CSV file."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "425e612e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "frames_list_file = solution_data.ifft_to_file(\n",
+    "    coord_system_center=[-0.15, 0, 0],\n",
+    "    db_val=True,\n",
+    "    csv_path=os.path.join(hfss.working_directory, \"csv\"),\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c7ae3bb4",
+   "metadata": {},
+   "source": [
+    "## Plot scene\n",
+    "\n",
+    "Plot the scene to create the time plot animation"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "be11dfda",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss.post.plot_scene(\n",
+    "    frames=frames_list_file,\n",
+    "    gif_path=os.path.join(hfss.working_directory, \"animation.gif\"),\n",
+    "    norm_index=15,\n",
+    "    dy_rng=35,\n",
+    "    show=False,\n",
+    "    view=\"xy\",\n",
+    "    zoom=1,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "dbdc0363",
+   "metadata": {},
+   "source": [
+    "## Release AEDT\n",
+    "\n",
+    "Release AEDT and close the example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5c59b7d7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss.save_project()\n",
+    "hfss.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "92cd811b",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "902f94c5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

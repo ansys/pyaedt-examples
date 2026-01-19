@@ -1,0 +1,583 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "4b69e2a9",
+   "metadata": {},
+   "source": [
+    "# Stripline analysis"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6669c20c",
+   "metadata": {},
+   "source": [
+    "This example shows how to use PyAEDT to create a differential stripline design in\n",
+    "2D Extractor and run a simulation.\n",
+    "\n",
+    "Keywords: **Q2D**, **Stripline**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "723b28e3",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "447a119e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core\n",
+    "from ansys.aedt.core.generic.constants import MatrixOperationsQ2D\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "72e34364",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "bc81acd3",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NUM_CORES = 4"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d033d982",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "87d5ad20",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e79bbe3d",
+   "metadata": {},
+   "source": [
+    "## Launch AEDT and 2D Extractor\n",
+    "\n",
+    "Launch AEDT 2025.2 in graphical mode and launch 2D Extractor. This example\n",
+    "uses SI units."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "59750a25",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "q2d = ansys.aedt.core.Q2d(\n",
+    "    project=os.path.join(temp_folder.name, \"stripline\"),\n",
+    "    design=\"differential_stripline\",\n",
+    "    version=AEDT_VERSION,\n",
+    "    non_graphical=False,\n",
+    "    new_desktop=True,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fcc91352",
+   "metadata": {},
+   "source": [
+    "## Define variables\n",
+    "\n",
+    "Define variables."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "09a16cd6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "e_factor = \"e_factor\"\n",
+    "sig_w = \"sig_bot_w\"\n",
+    "sig_gap = \"sig_gap\"\n",
+    "co_gnd_w = \"gnd_w\"\n",
+    "clearance = \"clearance\"\n",
+    "cond_h = \"cond_h\"\n",
+    "core_h = \"core_h\"\n",
+    "pp_h = \"pp_h\"\n",
+    "\n",
+    "for var_name, var_value in {\n",
+    "    \"e_factor\": \"2\",\n",
+    "    \"sig_bot_w\": \"150um\",\n",
+    "    \"sig_gap\": \"150um\",\n",
+    "    \"gnd_w\": \"500um\",\n",
+    "    \"clearance\": \"150um\",\n",
+    "    \"cond_h\": \"17um\",\n",
+    "    \"core_h\": \"150um\",\n",
+    "    \"pp_h\": \"150um\",\n",
+    "}.items():\n",
+    "    q2d[var_name] = var_value\n",
+    "\n",
+    "delta_w_half = \"({0}/{1})\".format(cond_h, e_factor)\n",
+    "sig_top_w = \"({1}-{0}*2)\".format(delta_w_half, sig_w)\n",
+    "co_gnd_top_w = \"({1}-{0}*2)\".format(delta_w_half, co_gnd_w)\n",
+    "model_w = \"{}*2+{}*2+{}*2+{}\".format(co_gnd_w, clearance, sig_w, sig_gap)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e7acd5ac",
+   "metadata": {},
+   "source": [
+    "## Create primitives\n",
+    "\n",
+    "Create primitives and define the layer heights."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "324435bc",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "layer_1_lh = 0\n",
+    "layer_1_uh = cond_h\n",
+    "layer_2_lh = layer_1_uh + \"+\" + core_h\n",
+    "layer_2_uh = layer_2_lh + \"+\" + cond_h\n",
+    "layer_3_lh = layer_2_uh + \"+\" + pp_h\n",
+    "layer_3_uh = layer_3_lh + \"+\" + cond_h"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0fb33c45",
+   "metadata": {},
+   "source": [
+    "## Create positive signal\n",
+    "\n",
+    "Create a positive signal."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2245ef79",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "signal_p_1 = q2d.modeler.create_polyline(points=[[0, layer_2_lh, 0], [sig_w, layer_2_lh, 0]], name=\"signal_p_1\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "09395d9b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "signal_p_2 = q2d.modeler.create_polyline(points=[[0, layer_2_uh, 0], [sig_top_w, layer_2_uh, 0]], name=\"signal_p_2\")\n",
+    "q2d.modeler.move([signal_p_2], [delta_w_half, 0, 0])\n",
+    "q2d.modeler.connect([signal_p_1, signal_p_2])\n",
+    "q2d.modeler.move(assignment=[signal_p_1], vector=[\"{}+{}\".format(co_gnd_w, clearance), 0, 0])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2182a108",
+   "metadata": {},
+   "source": [
+    "## Create negative signal\n",
+    "\n",
+    "Create a negative signal."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "36eec09f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "signal_n_1 = q2d.modeler.create_polyline(points=[[0, layer_2_lh, 0], [sig_w, layer_2_lh, 0]], name=\"signal_n_1\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8eaf1150",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "signal_n_2 = q2d.modeler.create_polyline(points=[[0, layer_2_uh, 0], [sig_top_w, layer_2_uh, 0]], name=\"signal_n_2\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2bf43357",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "q2d.modeler.move(assignment=[signal_n_2], vector=[delta_w_half, 0, 0])\n",
+    "q2d.modeler.connect([signal_n_1, signal_n_2])\n",
+    "q2d.modeler.move(\n",
+    "    assignment=[signal_n_1],\n",
+    "    vector=[\"{}+{}+{}+{}\".format(co_gnd_w, clearance, sig_w, sig_gap), 0, 0],\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c3e77905",
+   "metadata": {},
+   "source": [
+    "## Create reference ground plane\n",
+    "\n",
+    "Create a reference ground plane."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0604992a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ref_gnd_u = q2d.modeler.create_rectangle(origin=[0, layer_1_lh, 0], sizes=[model_w, cond_h], name=\"ref_gnd_u\")\n",
+    "ref_gnd_l = q2d.modeler.create_rectangle(origin=[0, layer_3_lh, 0], sizes=[model_w, cond_h], name=\"ref_gnd_l\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6be6b17f",
+   "metadata": {},
+   "source": [
+    "## Create dielectric\n",
+    "\n",
+    "Create a dielectric."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d61d8cc0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "q2d.modeler.create_rectangle(\n",
+    "    origin=[0, layer_1_uh, 0],\n",
+    "    sizes=[model_w, core_h],\n",
+    "    name=\"Core\",\n",
+    "    material=\"FR4_epoxy\",\n",
+    ")\n",
+    "q2d.modeler.create_rectangle(\n",
+    "    origin=[0, layer_2_uh, 0],\n",
+    "    sizes=[model_w, pp_h],\n",
+    "    name=\"Prepreg\",\n",
+    "    material=\"FR4_epoxy\",\n",
+    ")\n",
+    "q2d.modeler.create_rectangle(\n",
+    "    origin=[0, layer_2_lh, 0],\n",
+    "    sizes=[model_w, cond_h],\n",
+    "    name=\"Filling\",\n",
+    "    material=\"FR4_epoxy\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "628dbf32",
+   "metadata": {},
+   "source": [
+    "## Assign conductors\n",
+    "\n",
+    "Assign conductors to the signal."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9bbe0fc6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "q2d.assign_single_conductor(\n",
+    "    name=signal_p_1.name,\n",
+    "    assignment=[signal_p_1],\n",
+    "    conductor_type=\"SignalLine\",\n",
+    "    solve_option=\"SolveOnBoundary\",\n",
+    "    units=\"mm\",\n",
+    ")\n",
+    "\n",
+    "q2d.assign_single_conductor(\n",
+    "    name=signal_n_1.name,\n",
+    "    assignment=[signal_n_1],\n",
+    "    conductor_type=\"SignalLine\",\n",
+    "    solve_option=\"SolveOnBoundary\",\n",
+    "    units=\"mm\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "da05ff9d",
+   "metadata": {},
+   "source": [
+    "## Create reference ground\n",
+    "\n",
+    "Create a reference ground."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "54a2a5c0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "q2d.assign_single_conductor(\n",
+    "    name=\"gnd\",\n",
+    "    assignment=[ref_gnd_u, ref_gnd_l],\n",
+    "    conductor_type=\"ReferenceGround\",\n",
+    "    solve_option=\"SolveOnBoundary\",\n",
+    "    units=\"mm\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "68706dd2",
+   "metadata": {},
+   "source": [
+    "## Assign Huray model on signals\n",
+    "\n",
+    "Assign the Huray model on the signals."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8a17cea9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "q2d.assign_huray_finitecond_to_edges(signal_p_1.edges, radius=\"0.5um\", ratio=3, name=\"b_\" + signal_p_1.name)\n",
+    "\n",
+    "q2d.assign_huray_finitecond_to_edges(signal_n_1.edges, radius=\"0.5um\", ratio=3, name=\"b_\" + signal_n_1.name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "010cda29",
+   "metadata": {},
+   "source": [
+    "## Define differential pair\n",
+    "\n",
+    "Define the differential pair."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f512aa7f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "matrix = q2d.insert_reduced_matrix(\n",
+    "    operation_name=MatrixOperationsQ2D.DiffPair,\n",
+    "    assignment=[\"signal_p_1\", \"signal_n_1\"],\n",
+    "    reduced_matrix=\"diff_pair\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b7ca7e22",
+   "metadata": {},
+   "source": [
+    "## Create setup, analyze, and plot\n",
+    "\n",
+    "Create a setup, analyze, and plot solution data."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d57cf570",
+   "metadata": {},
+   "source": [
+    "Create a setup."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4327b849",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup = q2d.create_setup(name=\"new_setup\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "49f43947",
+   "metadata": {},
+   "source": [
+    "Add a sweep."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c96944de",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "sweep = setup.add_sweep(name=\"sweep1\", sweep_type=\"Discrete\")\n",
+    "sweep.props[\"RangeType\"] = \"LinearStep\"\n",
+    "sweep.props[\"RangeStart\"] = \"1GHz\"\n",
+    "sweep.props[\"RangeStep\"] = \"100MHz\"\n",
+    "sweep.props[\"RangeEnd\"] = \"5GHz\"\n",
+    "sweep.props[\"SaveFields\"] = False\n",
+    "sweep.props[\"SaveRadFields\"] = False\n",
+    "sweep.props[\"Type\"] = \"Interpolating\"\n",
+    "sweep.update()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "916b7dc0",
+   "metadata": {},
+   "source": [
+    "Analyze the nominal design and plot characteristic impedance."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b4e234bf",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "q2d.analyze(cores=NUM_CORES)\n",
+    "plot_sources = matrix.get_sources_for_plot(category=\"Z0\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "104e26b8",
+   "metadata": {},
+   "source": [
+    "Get simulation results as a ``SolutionData`` object and plot to a JPG file."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "56749652",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "data = q2d.post.get_solution_data(expressions=plot_sources, context=matrix.name)\n",
+    "data.plot(snapshot_path=os.path.join(temp_folder.name, \"plot.jpg\"))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "750e557d",
+   "metadata": {},
+   "source": [
+    "-"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "601bebac",
+   "metadata": {},
+   "source": [
+    "## Release AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f50d511e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "q2d.save_project()\n",
+    "q2d.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3c120722",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e4bb9c7c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

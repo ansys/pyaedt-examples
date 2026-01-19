@@ -1,0 +1,715 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "e4164569",
+   "metadata": {},
+   "source": [
+    "# Cable parameter identification"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "68b4cfbb",
+   "metadata": {},
+   "source": [
+    "This example shows how to use PyAEDT to perform these tasks:\n",
+    "\n",
+    " - Create a Q2D design using modeler primitives and an imported CAD.\n",
+    " - Set up the simulation.\n",
+    " - Link the solution to a Simplorer design.\n",
+    "\n",
+    "For information on the cable model used in this example, see\n",
+    "[4 Core Armoured Power Cable](https://www.luxingcable.com/low-voltage-cables/4-core-armoured-power-cable.html).\n",
+    "\n",
+    "Keywords: **Q2D**, **EMC**, **cable**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "03a11681",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c18b67fc",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import math\n",
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fd4d4122",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "557f0b2e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "452f7bbc",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "294ed764",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "89d70213",
+   "metadata": {},
+   "source": [
+    "## Set up for model creation\n",
+    "\n",
+    "Initialize cable sizing by specifying radii in millimeters."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d7c1176b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "c_strand_radius = 2.575\n",
+    "cable_n_cores = 4\n",
+    "core_n_strands = 6\n",
+    "core_xlpe_ins_thickness = 0.5\n",
+    "core_xy_coord = math.ceil(3 * c_strand_radius + 2 * core_xlpe_ins_thickness)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f86146d5",
+   "metadata": {},
+   "source": [
+    "Initialize radii of further structures incrementally adding thicknesses."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f4eae859",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "filling_radius = 1.4142 * (\n",
+    "    core_xy_coord + 3 * c_strand_radius + core_xlpe_ins_thickness + 0.5\n",
+    ")\n",
+    "inner_sheath_radius = filling_radius + 0.75\n",
+    "armour_thickness = 3\n",
+    "armour_radius = inner_sheath_radius + armour_thickness\n",
+    "outer_sheath_radius = armour_radius + 2"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "53bb47a6",
+   "metadata": {},
+   "source": [
+    "Initialize radii."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "be0d34ff",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "armour_centre_pos = inner_sheath_radius + armour_thickness / 2.0\n",
+    "arm_strand_rad = armour_thickness / 2.0 - 0.2\n",
+    "n_arm_strands = 30"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "32989986",
+   "metadata": {},
+   "source": [
+    "Start an instance of Q2D Extractor, providing the version, project name, design\n",
+    "name, and type."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6c823c3d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_name = os.path.join(temp_folder.name, \"Q2D_ArmouredCableExample.aedt\")\n",
+    "q2d_design_name = \"2D_Extractor_Cable\"\n",
+    "setup_name = \"AnalysisSeetup\"\n",
+    "sweep_name = \"FreqSweep\"\n",
+    "tb_design_name = \"CableSystem\"\n",
+    "q2d = ansys.aedt.core.Q2d(\n",
+    "    project=project_name,\n",
+    "    design=q2d_design_name,\n",
+    "    version=AEDT_VERSION,\n",
+    "    non_graphical=NG_MODE,\n",
+    ")\n",
+    "q2d.modeler.model_units = \"mm\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2db67c7f",
+   "metadata": {},
+   "source": [
+    "Assign variables to the Q3D design."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "444e4ba6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "core_params = {\n",
+    "    \"n_cores\": str(cable_n_cores),\n",
+    "    \"n_strands_core\": str(core_n_strands),\n",
+    "    \"c_strand_radius\": str(c_strand_radius) + \"mm\",\n",
+    "    \"c_strand_xy_coord\": str(core_xy_coord) + \"mm\",\n",
+    "}\n",
+    "outer_params = {\n",
+    "    \"filling_radius\": str(filling_radius) + \"mm\",\n",
+    "    \"inner_sheath_radius\": str(inner_sheath_radius) + \"mm\",\n",
+    "    \"armour_radius\": str(armour_radius) + \"mm\",\n",
+    "    \"outer_sheath_radius\": str(outer_sheath_radius) + \"mm\",\n",
+    "}\n",
+    "armour_params = {\n",
+    "    \"armour_centre_pos\": str(armour_centre_pos) + \"mm\",\n",
+    "    \"arm_strand_rad\": str(arm_strand_rad) + \"mm\",\n",
+    "    \"n_arm_strands\": str(n_arm_strands),\n",
+    "}\n",
+    "for k, v in core_params.items():\n",
+    "    q2d[k] = v\n",
+    "for k, v in outer_params.items():\n",
+    "    q2d[k] = v\n",
+    "for k, v in armour_params.items():\n",
+    "    q2d[k] = v"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9ad8af85",
+   "metadata": {},
+   "source": [
+    "Cable insulators require the definition of specific materials since they are not\n",
+    "included in the ``Sys`` library.\n",
+    "\n",
+    "Define Plastic, PE (cross-linked, wire, and cable grade):"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "12861a7f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mat_pe_cable_grade = q2d.materials.add_material(\"plastic_pe_cable_grade\")\n",
+    "mat_pe_cable_grade.conductivity = \"1.40573e-16\"\n",
+    "mat_pe_cable_grade.permittivity = \"2.09762\"\n",
+    "mat_pe_cable_grade.dielectric_loss_tangent = \"0.000264575\"\n",
+    "mat_pe_cable_grade.update()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7acefb8e",
+   "metadata": {},
+   "source": [
+    "Define Plastic, PP (10% carbon fiber):"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6eb6ff19",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mat_pp = q2d.materials.add_material(\"plastic_pp_carbon_fiber\")\n",
+    "mat_pp.conductivity = \"0.0003161\"\n",
+    "mat_pp.update()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fdcbe075",
+   "metadata": {},
+   "source": [
+    "## Create model\n",
+    "\n",
+    "Create the geometry for core strands, fill, and XLPE insulation."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4ba8cb25",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "q2d.modeler.create_coordinate_system(\n",
+    "    origin=[\"c_strand_xy_coord\", \"c_strand_xy_coord\", \"0mm\"], name=\"CS_c_strand_1\"\n",
+    ")\n",
+    "q2d.modeler.set_working_coordinate_system(\"CS_c_strand_1\")\n",
+    "c1_id = q2d.modeler.create_circle(\n",
+    "    origin=[\"0mm\", \"0mm\", \"0mm\"],\n",
+    "    radius=\"c_strand_radius\",\n",
+    "    name=\"c_strand_1\",\n",
+    "    material=\"copper\",\n",
+    ")\n",
+    "c2_id = c1_id.duplicate_along_line(\n",
+    "    vector=[\"0mm\", \"2.0*c_strand_radius\", \"0mm\"], clones=2\n",
+    ")\n",
+    "q2d.modeler.duplicate_around_axis(c2_id, axis=\"Z\", angle=360 / core_n_strands, clones=6)\n",
+    "c_unite_name = q2d.modeler.unite(q2d.get_all_conductors_names())"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "71a8d18e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fill_id = q2d.modeler.create_circle(\n",
+    "    origin=[\"0mm\", \"0mm\", \"0mm\"],\n",
+    "    radius=\"3*c_strand_radius\",\n",
+    "    name=\"c_strand_fill\",\n",
+    "    material=\"plastic_pp_carbon_fiber\",\n",
+    ")\n",
+    "fill_id.color = (255, 255, 0)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "19c3f0ca",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "xlpe_id = q2d.modeler.create_circle(\n",
+    "    origin=[\"0mm\", \"0mm\", \"0mm\"],\n",
+    "    radius=\"3*c_strand_radius+\" + str(core_xlpe_ins_thickness) + \"mm\",\n",
+    "    name=\"c_strand_xlpe\",\n",
+    "    material=\"plastic_pe_cable_grade\",\n",
+    ")\n",
+    "xlpe_id.color = (0, 128, 128)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f75cb677",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "q2d.modeler.set_working_coordinate_system(\"Global\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a3544631",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "all_obj_names = q2d.get_all_conductors_names() + q2d.get_all_dielectrics_names()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a6e62aae",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "q2d.modeler.duplicate_around_axis(\n",
+    "    all_obj_names, axis=\"Z\", angle=360 / cable_n_cores, clones=4\n",
+    ")\n",
+    "cond_names = q2d.get_all_conductors_names()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3682622f",
+   "metadata": {},
+   "source": [
+    "Define the filling object."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "df9adc7d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "filling_id = q2d.modeler.create_circle(\n",
+    "    origin=[\"0mm\", \"0mm\", \"0mm\"],\n",
+    "    radius=\"filling_radius\",\n",
+    "    name=\"Filling\",\n",
+    "    material=\"plastic_pp_carbon_fiber\",\n",
+    ")\n",
+    "filling_id.color = (255, 255, 180)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "555891eb",
+   "metadata": {},
+   "source": [
+    "Define the inner sheath."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a6eee86e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "inner_sheath_id = q2d.modeler.create_circle(\n",
+    "    origin=[\"0mm\", \"0mm\", \"0mm\"],\n",
+    "    radius=\"inner_sheath_radius\",\n",
+    "    name=\"InnerSheath\",\n",
+    "    material=\"PVC plastic\",\n",
+    ")\n",
+    "inner_sheath_id.color = (0, 0, 0)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "030b2fe1",
+   "metadata": {},
+   "source": [
+    "Create the armature fill."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6ccd7d34",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "arm_fill_id = q2d.modeler.create_circle(\n",
+    "    origin=[\"0mm\", \"0mm\", \"0mm\"],\n",
+    "    radius=\"armour_radius\",\n",
+    "    name=\"ArmourFilling\",\n",
+    "    material=\"plastic_pp_carbon_fiber\",\n",
+    ")\n",
+    "arm_fill_id.color = (255, 255, 255)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c7db429e",
+   "metadata": {},
+   "source": [
+    "Create the geometry for the outer sheath."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "565ca07e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "outer_sheath_id = q2d.modeler.create_circle(\n",
+    "    origin=[\"0mm\", \"0mm\", \"0mm\"],\n",
+    "    radius=\"outer_sheath_radius\",\n",
+    "    name=\"OuterSheath\",\n",
+    "    material=\"PVC plastic\",\n",
+    ")\n",
+    "outer_sheath_id.color = (0, 0, 0)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "aea7a15d",
+   "metadata": {},
+   "source": [
+    "Create the geometry for the armature steel strands."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "80399cb7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "arm_strand_1_id = q2d.modeler.create_circle(\n",
+    "    origin=[\"0mm\", \"armour_centre_pos\", \"0mm\"],\n",
+    "    radius=\"1.1mm\",\n",
+    "    name=\"arm_strand_1\",\n",
+    "    material=\"steel_stainless\",\n",
+    ")\n",
+    "arm_strand_1_id.color = (128, 128, 64)\n",
+    "arm_strand_1_id.duplicate_around_axis(\n",
+    "    axis=\"Z\", angle=\"360deg/n_arm_strands\", clones=\"n_arm_strands\"\n",
+    ")\n",
+    "arm_strand_names = q2d.modeler.get_objects_w_string(\"arm_strand\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "896536db",
+   "metadata": {},
+   "source": [
+    "Define the outer region that defines the solution domain."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "722cf5d7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "region = q2d.modeler.create_region([500, 500, 500, 500])\n",
+    "region.material_name = \"vacuum\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7b6b51f0",
+   "metadata": {},
+   "source": [
+    "Assign conductors and reference ground."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "40e9e228",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "obj = [q2d.modeler.get_object_from_name(i) for i in cond_names]\n",
+    "[\n",
+    "    q2d.assign_single_conductor(\n",
+    "        name=\"C1\" + str(obj.index(i) + 1), assignment=i, conductor_type=\"SignalLine\"\n",
+    "    )\n",
+    "    for i in obj\n",
+    "]\n",
+    "obj = [q2d.modeler.get_object_from_name(i) for i in arm_strand_names]\n",
+    "q2d.assign_single_conductor(\n",
+    "    name=\"gnd\", assignment=obj, conductor_type=\"ReferenceGround\"\n",
+    ")\n",
+    "q2d.modeler.fit_all()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "61cd56a5",
+   "metadata": {},
+   "source": [
+    "Specify the design settings."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "25f39ee8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "lumped_length = \"100m\"\n",
+    "q2d.design_settings[\"LumpedLength\"] = lumped_length"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f280689c",
+   "metadata": {},
+   "source": [
+    "## Solve model\n",
+    "\n",
+    "Insert the setup and frequency sweep."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4a98c4f7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "q2d_setup = q2d.create_setup(name=setup_name)\n",
+    "q2d_sweep = q2d_setup.add_sweep(name=sweep_name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1c0c5e74",
+   "metadata": {},
+   "source": [
+    "The cable model is generated by running two solution types:\n",
+    "\n",
+    "1. Capacitance and conductance per unit length (CG).\n",
+    "For this model, the CG solution runs in a few seconds.\n",
+    "\n",
+    "2. Series resistance and inductance (RL).\n",
+    "For this model, the solution time can range from 15-20 minutes,\n",
+    "depending on the available hardware.\n",
+    "\n",
+    "Uncomment the following line to run the analysis."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ff04038f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# q2d.analyze()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9b4b44e7",
+   "metadata": {},
+   "source": [
+    "## Evaluate results\n",
+    "\n",
+    "Add a Simplorer/Twin Builder design and the Q3D dynamic component."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3a736bd1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tb = ansys.aedt.core.TwinBuilder(design=tb_design_name, version=AEDT_VERSION)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "dca30bcf",
+   "metadata": {},
+   "source": [
+    "Add a Q2D dynamic component."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a3d00697",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tb.add_q3d_dynamic_component(\n",
+    "    project_name,\n",
+    "    q2d_design_name,\n",
+    "    q2d_setup.name,\n",
+    "    q2d_sweep.name,\n",
+    "    model_depth=lumped_length,\n",
+    "    coupling_matrix_name=\"Original\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a847ce7c",
+   "metadata": {},
+   "source": [
+    "## Release AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fc73ced9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tb.save_project()\n",
+    "tb.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "28eff68a",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "423c331f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

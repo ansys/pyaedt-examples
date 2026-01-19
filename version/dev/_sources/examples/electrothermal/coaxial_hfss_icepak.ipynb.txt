@@ -1,0 +1,897 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "e5c9cdd2",
+   "metadata": {},
+   "source": [
+    "# Coaxial\n",
+    "\n",
+    "This example shows how to create a project from scratch in HFSS and Icepak.\n",
+    "This includes creating a setup, solving it, and creating postprocessing outputs.\n",
+    "\n",
+    "Keywords: **Multiphysics**, **HFSS**, **Icepak**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "cbf250dd",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ca128075",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core\n",
+    "from ansys.aedt.core.visualization.plot.pdf import AnsysReport\n",
+    "from ansys.aedt.core.generic.constants import Plane, Gravity, SolutionsIcepak"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ff05e8c5",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "03502eb5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2c656f68",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b0dfb903",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "34159751",
+   "metadata": {},
+   "source": [
+    "## Launch AEDT and initialize HFSS\n",
+    "\n",
+    "Launch AEDT and initialize HFSS. If there is an active HFSS design, the ``hfss``\n",
+    "object is linked to it. Otherwise, a new design is created."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "83f07880",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss = ansys.aedt.core.Hfss(\n",
+    "    project=os.path.join(temp_folder.name, \"Icepak_HFSS_Coupling\"),\n",
+    "    design=\"RF\",\n",
+    "    version=AEDT_VERSION,\n",
+    "    non_graphical=NG_MODE,\n",
+    "    new_desktop=True,\n",
+    "    solution_type=\"Modal\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a76282fd",
+   "metadata": {},
+   "source": [
+    "## Define parameters\n",
+    "\n",
+    "Parameters can be instantiated by defining them as a key used for the application\n",
+    "instance as demonstrated in the following code. The prefix ``$`` is used to define\n",
+    "a project-wide scope for the parameter. Otherwise, the parameter scope is limited to\n",
+    "the current design."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d6259897",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss[\"$coax_dimension\"] = \"100mm\"  # Project-wide scope.\n",
+    "udp = hfss.modeler.Position(0, 0, 0)\n",
+    "hfss[\"inner\"] = \"3mm\"  # Local \"Design\" scope."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3154a5aa",
+   "metadata": {},
+   "source": [
+    "## Create coaxial and cylinders\n",
+    "\n",
+    "Create a coaxial and three cylinders. You can apply parameters\n",
+    "directly using the `ansys.aedt.core.modeler.Primitives3D.Primitives3D.create_cylinder()`\n",
+    "method. You can assign a material directly to the object creation action.\n",
+    "Optionally, you can assign a material using the `assign_material()` method."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ac75662e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "o1 = hfss.modeler.create_cylinder(\n",
+    "    orientation=Plane.ZX,\n",
+    "    origin=udp,\n",
+    "    radius=\"inner\",\n",
+    "    height=\"$coax_dimension\",\n",
+    "    num_sides=0,\n",
+    "    name=\"inner\",\n",
+    ")\n",
+    "o2 = hfss.modeler.create_cylinder(\n",
+    "    orientation=Plane.ZX,\n",
+    "    origin=udp,\n",
+    "    radius=8,\n",
+    "    height=\"$coax_dimension\",\n",
+    "    num_sides=0,\n",
+    "    name=\"teflon_based\",\n",
+    ")\n",
+    "o3 = hfss.modeler.create_cylinder(\n",
+    "    orientation=Plane.ZX,\n",
+    "    origin=udp,\n",
+    "    radius=10,\n",
+    "    height=\"$coax_dimension\",\n",
+    "    num_sides=0,\n",
+    "    name=\"outer\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c5beb3fc",
+   "metadata": {},
+   "source": [
+    "## Assign colors\n",
+    "\n",
+    "Assign colors to each primitive."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4c6f8832",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "o1.color = (255, 0, 0)\n",
+    "o2.color = (0, 255, 0)\n",
+    "o3.color = (255, 0, 0)\n",
+    "o3.transparency = 0.8\n",
+    "hfss.modeler.fit_all()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f9722e8e",
+   "metadata": {},
+   "source": [
+    "## Assign materials\n",
+    "\n",
+    "Assign materials. You can assign materials either directly when creating the primitive,\n",
+    "which was done for ``id2``, or after the object is created."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "cb6186c5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "o1.material_name = \"Copper\"\n",
+    "o3.material_name = \"Copper\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d7f12fec",
+   "metadata": {},
+   "source": [
+    "## Perform modeler operations\n",
+    "\n",
+    "Perform modeler operations. You can subtract, add, and perform other operations\n",
+    "using either the object ID or object name."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "46f7e986",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss.modeler.subtract(o3, o2, True)\n",
+    "hfss.modeler.subtract(o2, o1, True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "54cacfed",
+   "metadata": {},
+   "source": [
+    "## Assign mesh operations\n",
+    "\n",
+    "Most mesh operations are accessible using the ``mesh`` property,\n",
+    "which is an instance of the ``ansys.aedt.core.modules.MeshIcepak.IcepakMesh`` class.\n",
+    "\n",
+    "This code shows how to use several common mesh operations."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "80b380ae",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss.mesh.assign_initial_mesh_from_slider(level=6)\n",
+    "hfss.mesh.assign_model_resolution(assignment=[o1.name, o3.name], defeature_length=None)\n",
+    "hfss.mesh.assign_length_mesh(\n",
+    "    assignment=o2.faces, inside_selection=False, maximum_length=1, maximum_elements=2000\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "dfa8a13d",
+   "metadata": {},
+   "source": [
+    "## Create HFSS sources\n",
+    "\n",
+    "The RF power dissipated in the HFSS model acts as the thermal\n",
+    "source for in Icepak. The ``create_wave_port_between_objects()`` method\n",
+    "is used to assign the RF ports that inject RF power into the HFSS\n",
+    "model. If ``add_pec_cap=True``, then the method\n",
+    "creates a perfectly conducting (lossless) cap covering the port."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "07fdd61e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss.wave_port(\n",
+    "    assignment=\"inner\",\n",
+    "    reference=\"outer\",\n",
+    "    integration_line=1,\n",
+    "    create_port_sheet=True,\n",
+    "    create_pec_cap=True,\n",
+    "    name=\"P1\",\n",
+    ")\n",
+    "\n",
+    "hfss.wave_port(\n",
+    "    assignment=\"inner\",\n",
+    "    reference=\"outer\",\n",
+    "    integration_line=4,\n",
+    "    create_pec_cap=True,\n",
+    "    create_port_sheet=True,\n",
+    "    name=\"P2\",\n",
+    ")\n",
+    "\n",
+    "port_names = hfss.get_all_sources()\n",
+    "hfss.modeler.fit_all()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "87aa5b9e",
+   "metadata": {},
+   "source": [
+    "## Set up simulation\n",
+    "\n",
+    "Create a HFSS setup with default values. After its creation,\n",
+    "you can change values and update the setup. The ``update()`` method returns a Boolean\n",
+    "value."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c75fd5b0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss.set_active_design(hfss.design_name)\n",
+    "setup = hfss.create_setup(\"MySetup\")\n",
+    "setup.props[\"Frequency\"] = \"1GHz\"\n",
+    "setup.props[\"BasisOrder\"] = 2\n",
+    "setup.props[\"MaximumPasses\"] = 1"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4d1496d4",
+   "metadata": {},
+   "source": [
+    "## Create frequency sweep\n",
+    "\n",
+    "The HFSS frequency sweep defines the RF frequency range over which the RF power is\n",
+    "injected into the structure."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "cd32e733",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "sweepname = hfss.create_linear_count_sweep(\n",
+    "    setup=\"MySetup\",\n",
+    "    units=\"GHz\",\n",
+    "    start_frequency=0.8,\n",
+    "    stop_frequency=1.2,\n",
+    "    num_of_freq_points=401,\n",
+    "    sweep_type=\"Interpolating\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1296c2a6",
+   "metadata": {},
+   "source": [
+    "## Create Icepak model\n",
+    "\n",
+    "After an HFSS setup has been defined, the model can be lnked to an Icepak\n",
+    "design. The coupled physics analysis can then be run. The `FieldAnalysis3D.copy_solid_bodies_from()`\n",
+    "method imports a model from HFSS into Icepak, including all material definitions."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fcc6d030",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk = ansys.aedt.core.Icepak(design=\"CalcTemp\", version=AEDT_VERSION)\n",
+    "ipk.copy_solid_bodies_from(hfss)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1112b719",
+   "metadata": {},
+   "source": [
+    "## Link RF thermal source\n",
+    "\n",
+    "The RF loss in HFSS is used as the thermal source in Icepak."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6e84fa8f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "surfaceobj = [\"inner\", \"outer\"]\n",
+    "ipk.assign_em_losses(\n",
+    "    design=hfss.design_name,\n",
+    "    setup=\"MySetup\",\n",
+    "    sweep=\"LastAdaptive\",\n",
+    "    map_frequency=\"1GHz\",\n",
+    "    surface_objects=surfaceobj,\n",
+    "    parameters=[\"$coax_dimension\", \"inner\"],\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fd5b967d",
+   "metadata": {},
+   "source": [
+    "## Set direction of gravity\n",
+    "\n",
+    "Set the direction of gravity for convection in Icepak. Gravity drives a temperature gradient\n",
+    "due to the dependence of gas density on temperature."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d0bee1ef",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.edit_design_settings(Gravity.ZNeg)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4c670ddd",
+   "metadata": {},
+   "source": [
+    "## Set up Icepak Project\n",
+    "\n",
+    "The initial solution setup applies default values that can subsequently\n",
+    "be modified as shown in the following code.\n",
+    "The ``props`` property enables access to all solution settings.\n",
+    "\n",
+    "The ``update`` function applies the settings to the setup. The setup creation\n",
+    "process is identical for all tools."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e630b732",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup_ipk = ipk.create_setup(\"SetupIPK\")\n",
+    "setup_ipk.props[\"Convergence Criteria - Max Iterations\"] = 3"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5138c2e7",
+   "metadata": {},
+   "source": [
+    "### Access Icepak solution properties\n",
+    "\n",
+    "Setup properties are accessible through the ``props`` property as\n",
+    "an ordered dictionary. You can use the ``keys()`` method to retrieve all settings for\n",
+    "the setup.\n",
+    "\n",
+    "Find properties that contain the string ``\"Convergence\"`` and print the default values."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8d9026cb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "conv_props = [k for k in setup_ipk.props.keys() if \"Convergence\" in k]\n",
+    "print(\"Here are some default setup properties:\")\n",
+    "for p in conv_props:\n",
+    "    print('\"' + p + '\" -> ' + str(setup_ipk.props[p]))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6ae1f054",
+   "metadata": {},
+   "source": [
+    "### Edit or review mesh parameters\n",
+    "\n",
+    "Edit or review the mesh parameters. After a mesh is created, you can access\n",
+    "a mesh operation to edit or review parameter values."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2ebbefb2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "airbox = ipk.modeler.get_obj_id(\"Region\")\n",
+    "ipk.modeler[airbox].display_wireframe = True\n",
+    "airfaces = ipk.modeler.get_object_faces(airbox)\n",
+    "ipk.assign_openings(airfaces)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c6f6a965",
+   "metadata": {},
+   "source": [
+    "Save the project and attach to the Icepak instance."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "40562b7c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss.save_project()\n",
+    "ipk = ansys.aedt.core.Icepak(version=AEDT_VERSION)\n",
+    "ipk.solution_type = SolutionsIcepak.SteadyState\n",
+    "ipk.modeler.fit_all()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "932a1244",
+   "metadata": {},
+   "source": [
+    "## Solve models\n",
+    "\n",
+    "Solve the Icepak and HFSS models."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "47115d83",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.setups[0].analyze(cores=NUM_CORES, tasks=NUM_CORES)\n",
+    "hfss.save_project()\n",
+    "hfss.modeler.fit_all()\n",
+    "hfss.setups[0].analyze()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "922f84ca",
+   "metadata": {},
+   "source": [
+    "### Plot and export results\n",
+    "\n",
+    "Generate field plots in the HFSS project and export them as images."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0966a323",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "quantity_name = \"ComplexMag_H\"\n",
+    "intrinsic = {\"Freq\": hfss.setups[0].props[\"Frequency\"], \"Phase\": \"0deg\"}\n",
+    "surface_list = hfss.modeler.get_object_faces(\"outer\")\n",
+    "plot1 = hfss.post.create_fieldplot_surface(\n",
+    "    assignment=surface_list,\n",
+    "    quantity=quantity_name,\n",
+    "    setup=hfss.nominal_adaptive,\n",
+    "    intrinsics=intrinsic,\n",
+    ")\n",
+    "\n",
+    "hfss.post.plot_field_from_fieldplot(\n",
+    "    plot1.name,\n",
+    "    project_path=temp_folder.name,\n",
+    "    mesh_plot=False,\n",
+    "    image_format=\"jpg\",\n",
+    "    view=\"isometric\",\n",
+    "    show=False,\n",
+    "    plot_cad_objs=False,\n",
+    "    log_scale=False,\n",
+    "    file_format=\"aedtplt\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0f803fa1",
+   "metadata": {},
+   "source": [
+    "## Generate animation from field plots\n",
+    "\n",
+    "Generate an animation from field plots using PyVista."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e0756547",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "start = time.time()\n",
+    "cutlist = [\"Global:XY\"]\n",
+    "phase_values = [str(i * 5) + \"deg\" for i in range(18)]\n",
+    "\n",
+    "animated = hfss.post.plot_animated_field(\n",
+    "    quantity=\"Mag_E\",\n",
+    "    assignment=cutlist,\n",
+    "    plot_type=\"CutPlane\",\n",
+    "    setup=hfss.nominal_adaptive,\n",
+    "    intrinsics=intrinsic,\n",
+    "    export_path=temp_folder.name,\n",
+    "    variation_variable=\"Phase\",\n",
+    "    variations=phase_values,\n",
+    "    show=False,\n",
+    "    export_gif=False,\n",
+    "    log_scale=True,\n",
+    ")\n",
+    "animated.gif_file = os.path.join(temp_folder.name, \"animate.gif\")\n",
+    "\n",
+    "# Set off_screen to False to visualize the animation.\n",
+    "# animated.off_screen = False\n",
+    "\n",
+    "animated.animate()\n",
+    "\n",
+    "end_time = time.time() - start\n",
+    "print(\"Total Time\", end_time)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c40d69f7",
+   "metadata": {},
+   "source": [
+    "## Postprocess\n",
+    "\n",
+    "Create Icepak plots and export them as images using the same functions that\n",
+    "were used early. Only the quantity is different."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9889278c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup_name = ipk.existing_analysis_sweeps[0]\n",
+    "intrinsic = \"\"\n",
+    "surface_list = ipk.modeler.get_object_faces(\"inner\") + ipk.modeler.get_object_faces(\n",
+    "    \"outer\"\n",
+    ")\n",
+    "plot5 = ipk.post.create_fieldplot_surface(surface_list, quantity=\"SurfTemperature\")\n",
+    "\n",
+    "hfss.save_project()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "18a650d6",
+   "metadata": {},
+   "source": [
+    "Plot results using Matplotlib."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "dbc2411e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "trace_names = hfss.get_traces_for_plot(category=\"S\")\n",
+    "context = [\"Domain:=\", \"Sweep\"]\n",
+    "families = [\"Freq:=\", [\"All\"]]\n",
+    "my_data = hfss.post.get_solution_data(expressions=trace_names)\n",
+    "my_data.plot(\n",
+    "    trace_names,\n",
+    "    formula=\"db20\",\n",
+    "    x_label=\"Frequency (Ghz)\",\n",
+    "    y_label=\"SParameters(dB)\",\n",
+    "    title=\"Scattering Chart\",\n",
+    "    snapshot_path=os.path.join(temp_folder.name, \"Touchstone_from_matplotlib.jpg\"),\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "aee8d4dd",
+   "metadata": {},
+   "source": [
+    "Create a PDF report summarizig results."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "56726d1b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pdf_report = AnsysReport(\n",
+    "    project_name=hfss.project_name, design_name=hfss.design_name, version=AEDT_VERSION\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ea29c6cb",
+   "metadata": {},
+   "source": [
+    "Create the report."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3c00fb24",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pdf_report.create()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "226c1553",
+   "metadata": {},
+   "source": [
+    "Add a section for plots."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "131ab4e1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pdf_report.add_section()\n",
+    "pdf_report.add_chapter(\"HFSS Results\")\n",
+    "pdf_report.add_sub_chapter(\"Field plot\")\n",
+    "pdf_report.add_text(\"This section contains field plots of HFSS Coaxial.\")\n",
+    "pdf_report.add_image(\n",
+    "    os.path.join(temp_folder.name, plot1.name + \".jpg\"), caption=\"Coaxial cable\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "95de5127",
+   "metadata": {},
+   "source": [
+    "Add a page break and a subchapter for S Parameter results."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "77be567a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pdf_report.add_page_break()\n",
+    "pdf_report.add_sub_chapter(\"S Parameters\")\n",
+    "pdf_report.add_chart(\n",
+    "    x_values=my_data.intrinsics[\"Freq\"],\n",
+    "    y_values=my_data.get_expression_data(formula=\"db20\")[1],\n",
+    "    x_caption=\"Freq\",\n",
+    "    y_caption=trace_names[0],\n",
+    "    title=\"S-Parameters\",\n",
+    ")\n",
+    "pdf_report.add_image(\n",
+    "    path=os.path.join(temp_folder.name, \"Touchstone_from_matplotlib.jpg\"),\n",
+    "    caption=\"Touchstone from Matplotlib\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b40112f0",
+   "metadata": {},
+   "source": [
+    "Add a new section for Icepak results."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "947ff722",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pdf_report.add_section()\n",
+    "pdf_report.add_chapter(\"Icepak Results\")\n",
+    "pdf_report.add_sub_chapter(\"Temperature Plot\")\n",
+    "pdf_report.add_text(\"This section contains Multiphysics temperature plot.\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "511c0411",
+   "metadata": {},
+   "source": [
+    "Add table of content and save the PDF."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "74b9941e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pdf_report.add_toc()\n",
+    "pdf_report.save_pdf(file_path=temp_folder.name, file_name=\"AEDT_Results.pdf\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "15f49b52",
+   "metadata": {},
+   "source": [
+    "## Release AEDT\n",
+    "\n",
+    "Release AEDT and close the example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c4f90ff5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.save_project()\n",
+    "hfss.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "970e0a63",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0ceb9598",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

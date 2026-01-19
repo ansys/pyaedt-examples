@@ -1,0 +1,692 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "cc912cfd",
+   "metadata": {},
+   "source": [
+    "# 3D component creation and reuse\n",
+    "\n",
+    "This example demonstrates how to create and use an HFSS 3D component by\n",
+    "performing the following:\n",
+    "1. Create a patch antenna using the HFSS 3D Modeler.\n",
+    "2. Save the antenna as a 3D component on the disk.\n",
+    "3. Import multiple instances of patch antenna as\n",
+    "   a 3D component in a new project to create a small array.\n",
+    "5. Set up the new design for simulation and optimization.\n",
+    "\n",
+    "Keywords: **AEDT**, **Antenna**, **3D component**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "201265ca",
+   "metadata": {},
+   "source": [
+    "## Prerequisites\n",
+    "\n",
+    "### Perform imports"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0a683806",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# +\n",
+    "import os\n",
+    "import tempfile\n",
+    "import time"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8ebee6c4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from ansys.aedt.core import Hfss\n",
+    "# -"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6e523474",
+   "metadata": {},
+   "source": [
+    "### Define constants\n",
+    "Constants help ensure consistency and avoid repetition throughout the example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c059497c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "61121302",
+   "metadata": {},
+   "source": [
+    "### Create temporary directory\n",
+    "\n",
+    "Create a temporary working directory.\n",
+    "The name of the working folder is stored in ``temp_folder.name``.\n",
+    "\n",
+    "> **Note:** The final cell in the notebook cleans up the temporary folder. If you want to\n",
+    "> retrieve the AEDT project and data, do so before executing the final cell in the notebook.\n",
+    "\n",
+    "This example creates two projects defined in `project_names. \n",
+    "The first will be used to\n",
+    "create the patch antenna model and the 2nd project\n",
+    "will be used to demonstrate the use 3D components."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c1906a28",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")\n",
+    "project_names = [os.path.join(temp_folder.name, \"start_project.aedt\"),\n",
+    "                 os.path.join(temp_folder.name, \"final_project.aedt\"),\n",
+    "                ]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "53c6f100",
+   "metadata": {},
+   "source": [
+    "### Launch HFSS\n",
+    "AEDT is started when an instance of the ``Hfss()`` class is\n",
+    "instantiated. An HFSS design is automatically inserted in the\n",
+    "AEDT project."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6e58e9ba",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss = Hfss(\n",
+    "    version=AEDT_VERSION,\n",
+    "    design=\"build_comp\",\n",
+    "    new_desktop=True,  # Set to False if you want to connect to an existing AEDT session.\n",
+    "    close_on_exit=True,\n",
+    "    non_graphical=NG_MODE,\n",
+    "    solution_type=\"Modal\",\n",
+    ")\n",
+    "hfss.save_project(project_names[0])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "732a5122",
+   "metadata": {},
+   "source": [
+    "## Model preparation\n",
+    "\n",
+    "### Define parameters\n",
+    "\n",
+    "Parameters can be defined in the HFSS design and subsequently \n",
+    "used to optimiuze\n",
+    "performance, run parametric studies or \n",
+    "explore the impact of tolerance on performance."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "85a1cf23",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss[\"thickness\"] = \"0.1mm\"\n",
+    "hfss[\"width\"] = \"1mm\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1adba87e",
+   "metadata": {},
+   "source": [
+    "###  Build the antenna model\n",
+    "\n",
+    "The compact, \n",
+    "[pythonic syntax](https://docs.python-guide.org/writing/style/#code-style) \n",
+    "allows you to create the model from simple\n",
+    "primitives. This patch antenna is comprised of the FR-4 substrate, a rectangle, \n",
+    "and the coaxial\n",
+    "probe feed. Each primitive is of type ``Object3D``.\n",
+    "\n",
+    "> **Note: ** The feed length of the patch antenna is fixed and is not\n",
+    "> parametric in HFSS."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2c9a6036",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# +\n",
+    "substrate = hfss.modeler.create_box(\n",
+    "    [\"-width\", \"-width\", \"-thickness\"],\n",
+    "    [\"2*width\", \"2*width\", \"thickness\"],\n",
+    "    material=\"FR4_epoxy\",\n",
+    "    name=\"substrate\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "75b86b65",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "feed_length = \"0.1mm\"  # This parameter is defined only in Python and is not varied"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b749cf0b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "patch = hfss.modeler.create_rectangle(\n",
+    "    \"XY\", [\"-width/2\", \"-width/2\", \"0mm\"], [\"width\", \"width\"], name=\"patch\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1f70c3a7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "inner_conductor = hfss.modeler.create_cylinder(\n",
+    "    2,\n",
+    "    [\"-width/8\", \"-width/4\", f\"-thickness - {feed_length}\"],\n",
+    "    \"0.01mm\",\n",
+    "    f\"thickness + {feed_length}\",\n",
+    "    material=\"copper\",\n",
+    "    name=\"via_inner\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b97dbbd6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "via_outer = hfss.modeler.create_cylinder(\n",
+    "    2,\n",
+    "    [\"-width/8\", \"-width/4\", \"-thickness\"],\n",
+    "    \"0.025mm\",\n",
+    "    f\"-{feed_length}\",\n",
+    "    material=\"Teflon_based\",\n",
+    "    name=\"via_teflon\",\n",
+    ")\n",
+    "# -"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9c030be7",
+   "metadata": {},
+   "source": [
+    "### Assign boundaries\n",
+    "\n",
+    "Boundary conditions can be assigned to faces or bodies in the model\n",
+    "using methods of the ``Hfss`` class."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "589d6b82",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss.assign_perfecte_to_sheets(patch, name=\"patch_bc\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "670f1af3",
+   "metadata": {},
+   "source": [
+    "### Assign boundaries to the via\n",
+    "\n",
+    "The following statement selects the outer surface of the cylinder \n",
+    "``via_outer``, excluding the upper and lower faces, and assigns\n",
+    "the \"perfect conductor\" boundary condition."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d0e1a50e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# +\n",
+    "side_face = [i for i in via_outer.faces if i.id not in \n",
+    "             [via_outer.top_face_z.id, via_outer.bottom_face_z.id]\n",
+    "            ]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1880afeb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss.assign_perfecte_to_sheets(side_face, name=\"feed_gnd\")\n",
+    "hfss.assign_perfecte_to_sheets(substrate.bottom_face_z, name=\"ground_plane\")\n",
+    "hfss.assign_perfecth_to_sheets(via_outer.top_face_z, name=\"feed_thru\")  # Ensure power flows through the ground plane.\n",
+    "hfss.change_material_override(material_override=True)  # Allow the probe feed to extend outside the substrate.\n",
+    "# -"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f1d16cf9",
+   "metadata": {},
+   "source": [
+    "### Create wave port\n",
+    "\n",
+    "A wave port is assigned to the bottom face of the via. Note that the property `via_outer.bottom_face_z` \n",
+    "is a ``FacePrimitive`` object."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "100f0fed",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "p1 = hfss.wave_port(\n",
+    "    via_outer.bottom_face_z,\n",
+    "    name=\"P1\",\n",
+    "    create_pec_cap=True\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c9e24e36",
+   "metadata": {},
+   "source": [
+    "### Query the object properties\n",
+    "\n",
+    "Everything in Python is an object. You can use the object\n",
+    "properties to obtain detailed information as shown below:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "07377c26",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "out_str = f\"A port named '{p1.name}' was assigned to a surface object\"\n",
+    "out_str += f\" of type \\n   {type(via_outer.bottom_face_z)}\\n\"\n",
+    "out_str += f\"which is located at the bottom surface of the object '{via_outer.name}'\\n\"\n",
+    "out_str += f\"at the z-elevation: {via_outer.bottom_face_z.bottom_edge_z} \"\n",
+    "out_str += f\"{hfss.modeler.model_units}\\n\"\n",
+    "out_str += f\"and has the face ID: {via_outer.bottom_face_z.id}.\"\n",
+    "print(out_str)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "235d54ef",
+   "metadata": {},
+   "source": [
+    "## Create 3D component\n",
+    "\n",
+    "You can now create a 3D component from the antenna model. The following statements\n",
+    "save the component to the specified location with the name \"patch_antenna\"."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "08d8f1bb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "component_path = os.path.join(temp_folder.name, \"patch_antenna.a3dcomp\")\n",
+    "hfss.modeler.create_3dcomponent(component_path, name=\"patch_antenna\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "bce678be",
+   "metadata": {},
+   "source": [
+    "A 2nd instance of HFSS is created to demonstrate how the new 3D component can be\n",
+    "used within a new design."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c5ad1e41",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss2 = Hfss(\n",
+    "    version=AEDT_VERSION,\n",
+    "    project=project_names[1],\n",
+    "    design=\"new_design\",\n",
+    "    solution_type=\"Modal\",\n",
+    ")\n",
+    "hfss2.change_material_override(material_override=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f874fd0f",
+   "metadata": {},
+   "source": [
+    "### Insert 3D components\n",
+    "\n",
+    "Place 4 antennas to make a small array. \n",
+    "- The substrate thickness is modified by creating the parameter \"p_thick\" and\n",
+    "  assigning it to the \"thickness\" parameter of the components.\n",
+    "- The first antenna is placed at the origin.\n",
+    "- The spacing between elements is defined by the parameter $2\\times w$"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "27cfc42c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# +\n",
+    "# Define a parameter to use for the substrate thickness.\n",
+    "hfss2[\"p_thick\"] = \"0.2mm\""
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "89a2b13d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Define a parameter to specify the patch width.\n",
+    "hfss2[\"w\"] = \"1mm\""
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "07e7320b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# [x, y, z] location of the patch elements.\n",
+    "positions = [[\"2*w\", \"w\", 0], [\"-2*w\", \"w\", 0], [0, \"2.5*w\", 0]]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0fcccb30",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Keep track of patch elements and their coordinate systems in Python lists:\n",
+    "elements = []\n",
+    "cs = []"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3c6607f9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# The first patch is located at the origin.\n",
+    "elements.append(hfss2.modeler.insert_3d_component(component_path, name=\"patch_0\"))\n",
+    "elements[0].parameters[\"thickness\"] = \"p_thick\"\n",
+    "elements[0].parameters[\"width\"] = \"w\""
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "59be774d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Now place the other 3 patches:\n",
+    "count = 1\n",
+    "for p in positions:\n",
+    "    cs.append(hfss2.modeler.create_coordinate_system(origin=p, name=\"cs_\" + str(count)))  # Create the patch coordinate system.\n",
+    "    elements.append(hfss2.modeler.insert_3d_component(component_path,  # Place the patch element.\n",
+    "                                                      coordinate_system=cs[-1].name,\n",
+    "                                                      name=\"patch_\" + str(count))\n",
+    "                    )\n",
+    "    count +=1\n",
+    "\n",
+    "    elements[-1].parameters[\"thickness\"] = \"p_thick\"\n",
+    "    elements[-1].parameters[\"width\"] = \"w\"\n",
+    "# -"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7d430871",
+   "metadata": {},
+   "source": [
+    "You can inspect the component parameters."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "00053562",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "units = hfss2.modeler.model_units  # Retrieve the length units as a string.\n",
+    "for e in elements:\n",
+    "    print(f\"Component '{e.name}' is located at (x={e.center[0]} {units}, y={e.center[1]} {units})\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2a894161",
+   "metadata": {},
+   "source": [
+    "### Move 3D components\n",
+    "\n",
+    "The position of each 3D component can be changed by modifying the ``origin`` \n",
+    "of the corresponding coordinate system."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8b993e53",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss2.modeler.coordinate_systems[0].origin = [0, \"2*w\", 0]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6a9507ae",
+   "metadata": {},
+   "source": [
+    "### Create air region\n",
+    "\n",
+    "The volume of the solution domain is defined\n",
+    "by an air region object. The following cell creates the\n",
+    "region object and assigns the radiation boundary to the outer surfaces of \n",
+    "the region."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "23cee7fe",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss2.modeler.create_air_region( x_pos=2, y_pos=2, z_pos=2.5, x_neg=2, y_neg=2, z_neg=2, is_percentage=False)\n",
+    "hfss2.assign_radiation_boundary_to_faces(hfss2.modeler[\"Region\"].faces)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "702212fe",
+   "metadata": {},
+   "source": [
+    "### Create solution setup and optimetrics analysis\n",
+    "\n",
+    "Once a project is ready to be solved, define the solution setup and parametric analysis."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6788060f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# +\n",
+    "setup1 = hfss2.create_setup(RangeStart=\"60GHz\", RangeEnd=\"80GHz\")\n",
+    "optim = hfss2.parametrics.add(\"w\", start_point=\"0.8mm\",\n",
+    "                              end_point=\"1.2mm\",\n",
+    "                              step=\"0.05mm\",\n",
+    "                              variation_type=\"LinearStep\",\n",
+    "                              name=\"Sweep Patch Width\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c5384f50",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "if hfss.valid_design:\n",
+    "    print(f\"The HFSS design '{hfss.design_name}' is ready to solve.\")\n",
+    "else:\n",
+    "    print(f\"Something is not quite right.\")\n",
+    "# -"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "93fb827d",
+   "metadata": {},
+   "source": [
+    "### Visualize the model"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "705ac7fd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss2.modeler.fit_all()\n",
+    "hfss2.plot(\n",
+    "    show=False,\n",
+    "    output_file=os.path.join(hfss.working_directory, \"Image.jpg\"),\n",
+    "    plot_air_objects=True,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4be6172c",
+   "metadata": {},
+   "source": [
+    "## Finish\n",
+    "\n",
+    "### Save the project"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c9199acd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss2.save_project()\n",
+    "hfss2.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "27bdf44e",
+   "metadata": {},
+   "source": [
+    "### Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2744b42e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_markers": "region,endregion",
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

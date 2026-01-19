@@ -1,0 +1,541 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "b27a7b2f",
+   "metadata": {},
+   "source": [
+    "# Compute receiver protection levels\n",
+    "\n",
+    "This example shows how to open an AEDT project with\n",
+    "an EMIT design and analyze the results to determine if the received\n",
+    "power at the input to each receiver exceeds the specified protection\n",
+    "levels.\n",
+    "\n",
+    "Keywords: **EMIT**, **protection levels**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "be997d47",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f5ae2059",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import sys\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import plotly.graph_objects as go\n",
+    "from ansys.aedt.core import Emit"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "eb0ca9ea",
+   "metadata": {},
+   "source": [
+    "from ansys.aedt.core.emit_core.emit_constants import \\\n",
+    "    InterfererType  # noqa: F401"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "db6d2d2b",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "cb5ebd77",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "223bbb74",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "bed1eb79",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "32867577",
+   "metadata": {},
+   "source": [
+    "## Launch AEDT with EMIT\n",
+    "\n",
+    "Launch AEDT with EMIT. The ``Desktop`` class initializes AEDT and starts it\n",
+    "on the specified version and in the specified graphical mode.\n",
+    "\n",
+    "Check that the correct version of EMIT is installed."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7ead8db1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "if AEDT_VERSION <= \"2023.1\":\n",
+    "    print(\"Warning: This example requires AEDT 2023.2 or later.\")\n",
+    "    sys.exit()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7aac121f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_name = os.path.join(temp_folder.name, \"emit.aedt\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f9206a32",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "emitapp = Emit(\n",
+    "    non_graphical=NG_MODE, new_desktop=True, project=project_name, version=AEDT_VERSION\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2613fd4a",
+   "metadata": {},
+   "source": [
+    "## Specify protection levels\n",
+    "\n",
+    "The protection levels are specified in dBm.\n",
+    "If the damage threshold is exceeded, permanent damage to the receiver front\n",
+    "end may occur.\n",
+    "Exceeding the overload threshold severely densensitizes the receiver.\n",
+    "Exceeding the intermod threshold can drive the victim receiver into non-linear\n",
+    "operation, where it operates as a mixer.\n",
+    "Exceeding the desense threshold reduces the signal-to-noise ratio and can\n",
+    "reduce the maximum range, maximum bandwidth, and/or the overall link quality."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1abfeb7c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "header_color = \"grey\"\n",
+    "damage_threshold = 30\n",
+    "overload_threshold = -4\n",
+    "intermod_threshold = -30\n",
+    "desense_threshold = -104\n",
+    "\n",
+    "protection_levels = [\n",
+    "    damage_threshold,\n",
+    "    overload_threshold,\n",
+    "    intermod_threshold,\n",
+    "    desense_threshold,\n",
+    "]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8952371d",
+   "metadata": {},
+   "source": [
+    "## Create and connect EMIT components\n",
+    "\n",
+    "Set up the scenario with radios connected to antennas."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8fb164f1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "bluetooth, blue_ant = emitapp.modeler.components.create_radio_antenna(\n",
+    "    \"Bluetooth Low Energy (LE)\", \"Bluetooth\"\n",
+    ")\n",
+    "gps, gps_ant = emitapp.modeler.components.create_radio_antenna(\"GPS Receiver\", \"GPS\")\n",
+    "wifi, wifi_ant = emitapp.modeler.components.create_radio_antenna(\n",
+    "    \"WiFi - 802.11-2012\", \"WiFi\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5066bdf0",
+   "metadata": {},
+   "source": [
+    "## Configure the radios\n",
+    "\n",
+    "Enable the HR-DSSS bands for the Wi-Fi radio and set the power level\n",
+    "for all transmit bands to -20 dBm."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "963a304e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "bands = wifi.bands()\n",
+    "for band in bands:\n",
+    "    if \"HR-DSSS\" in band.node_name:\n",
+    "        if \"Ch 1-13\" in band.node_name:\n",
+    "            band.enabled = True\n",
+    "            band.set_band_power_level(-20, 'dBm')\n",
+    "\n",
+    "# Reduce the bluetooth transmit power\n",
+    "bands = bluetooth.bands()\n",
+    "for band in bands:\n",
+    "    band.set_band_power_level(-20, 'dBm')\n",
+    "\n",
+    "\n",
+    "def get_radio_node(radio_name):\n",
+    "    \"\"\"Get the radio node that matches the\n",
+    "    given radio name.\n",
+    "\n",
+    "    Arguments:\n",
+    "       radio_name: String name of the radio.\n",
+    "\n",
+    "    Returns: Instance of the radio.\n",
+    "    \"\"\"\n",
+    "    if gps.name == radio_name:\n",
+    "        radio = gps\n",
+    "    elif bluetooth.name == radio_name:\n",
+    "        radio = bluetooth\n",
+    "    else:\n",
+    "        radio = wifi\n",
+    "    return radio\n",
+    "\n",
+    "\n",
+    "bands = gps.bands()\n",
+    "for band in bands:\n",
+    "    for child in band.children:\n",
+    "        if \"L2 P(Y)\" in band.node_name:\n",
+    "            band.enabled = True\n",
+    "        else:\n",
+    "            band.enabled = False"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1193dfd4",
+   "metadata": {},
+   "source": [
+    "## Load the results set\n",
+    "\n",
+    "Create a results revision and load it for analysis."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "091bfded",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "rev = emitapp.results.analyze()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2c7b3caf",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "source": [
+    "## Create a legend\n",
+    "\n",
+    "Create a legend, defining the thresholds and colors used to display the results of\n",
+    "the protection level analysis."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5102a721",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "def create_legend_table():\n",
+    "    \"\"\"Create a table showing the defined protection levels.\"\"\"\n",
+    "    protectionLevels = [\n",
+    "        \">{} dBm\".format(damage_threshold),\n",
+    "        \">{} dBm\".format(overload_threshold),\n",
+    "        \">{} dBm\".format(intermod_threshold),\n",
+    "        \">{} dBm\".format(desense_threshold),\n",
+    "    ]\n",
+    "    fig = go.Figure(\n",
+    "        data=[\n",
+    "            go.Table(\n",
+    "                header=dict(\n",
+    "                    values=[\"<b>Interference</b>\", \"<b>Power Level Threshold</b>\"],\n",
+    "                    line_color=\"darkslategray\",\n",
+    "                    fill_color=header_color,\n",
+    "                    align=[\"left\", \"center\"],\n",
+    "                    font=dict(color=\"white\", size=16),\n",
+    "                ),\n",
+    "                cells=dict(\n",
+    "                    values=[\n",
+    "                        [\"Damage\", \"Overload\", \"Intermodulation\", \"Clear\"],\n",
+    "                        protectionLevels,\n",
+    "                    ],\n",
+    "                    line_color=\"darkslategray\",\n",
+    "                    fill_color=[\"white\", [\"red\", \"orange\", \"yellow\", \"green\"]],\n",
+    "                    align=[\"left\", \"center\"],\n",
+    "                    font=dict(color=[\"darkslategray\", \"black\"], size=15),\n",
+    "                ),\n",
+    "            )\n",
+    "        ]\n",
+    "    )\n",
+    "    fig.update_layout(\n",
+    "        title=dict(\n",
+    "            text=\"Protection Levels (dBm)\",\n",
+    "            font=dict(color=\"darkslategray\", size=20),\n",
+    "            x=0.5,\n",
+    "        ),\n",
+    "        width=600,\n",
+    "    )\n",
+    "    fig.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "dfdb85b0",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "source": [
+    "## Create a scenario matrix view\n",
+    "\n",
+    "Create a scenario matrix view with the transmitters defined across the top\n",
+    "and receivers down the left-most column. The power at the input to each\n",
+    "receiver is shown in each cell of the matrix and color-coded based on the\n",
+    "protection level thresholds defined."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "15906a93",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def create_scenario_view(emis, colors, tx_radios, rx_radios):\n",
+    "    \"\"\"Create a scenario matrix-like table with the higher received\n",
+    "    power for each Tx-Rx radio combination. The colors\n",
+    "    used for the scenario matrix view are based on the highest\n",
+    "    protection level that the received power exceeds.\"\"\"\n",
+    "    fig = go.Figure(\n",
+    "        data=[\n",
+    "            go.Table(\n",
+    "                header=dict(\n",
+    "                    values=[\n",
+    "                        \"<b>Tx/Rx</b>\",\n",
+    "                        \"<b>{}</b>\".format(tx_radios[0]),\n",
+    "                        \"<b>{}</b>\".format(tx_radios[1]),\n",
+    "                    ],\n",
+    "                    line_color=\"darkslategray\",\n",
+    "                    fill_color=header_color,\n",
+    "                    align=[\"left\", \"center\"],\n",
+    "                    font=dict(color=\"white\", size=16),\n",
+    "                ),\n",
+    "                cells=dict(\n",
+    "                    values=[rx_radios, emis[0], emis[1]],\n",
+    "                    line_color=\"darkslategray\",\n",
+    "                    fill_color=[\"white\", colors[0], colors[1]],\n",
+    "                    align=[\"left\", \"center\"],\n",
+    "                    font=dict(color=[\"darkslategray\", \"black\"], size=15),\n",
+    "                ),\n",
+    "            )\n",
+    "        ]\n",
+    "    )\n",
+    "    fig.update_layout(\n",
+    "        title=dict(\n",
+    "            text=\"Protection Levels (dBm)\",\n",
+    "            font=dict(color=\"darkslategray\", size=20),\n",
+    "            x=0.5,\n",
+    "        ),\n",
+    "        width=600,\n",
+    "    )\n",
+    "    fig.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c6c3023e",
+   "metadata": {},
+   "source": [
+    "## Get all the radios in the project\n",
+    "\n",
+    "Get lists of all transmitters and receivers in the project."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7675e8ac",
+   "metadata": {},
+   "source": [
+    "> **Note:** You can uncomment the following code.\n",
+    "\n",
+    "rev = emitapp.results.current_revision\n",
+    "rx_radios = rev.get_receiver_names()\n",
+    "tx_radios = rev.get_interferer_names(InterfererType.TRANSMITTERS)\n",
+    "domain = emitapp.results.interaction_domain()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "585b432d",
+   "metadata": {},
+   "source": [
+    "## Classify the results\n",
+    "\n",
+    "Iterate over all the transmitters and receivers and compute the power\n",
+    "at the input to each receiver due to each of the transmitters. Computes\n",
+    "which protection levels are exceeded by these power levels, if any."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e511e789",
+   "metadata": {},
+   "source": [
+    "> **Note:** Your ability to uncomment the following code depends on whether you uncommented the earlier code.\n",
+    "\n",
+    "power_matrix = []\n",
+    "all_colors = []"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "75c268f6",
+   "metadata": {},
+   "source": [
+    "all_colors, power_matrix = rev.protection_level_classification(\n",
+    "    domain, global_levels=protection_levels\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fe2ecb07",
+   "metadata": {},
+   "source": [
+    "## Create a scenario matrix-like view for the protection levels\n",
+    "create_scenario_view(power_matrix, all_colors, tx_radios, rx_radios)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "bd5b3ead",
+   "metadata": {},
+   "source": [
+    "## Create a legend for the protection levels\n",
+    "create_legend_table()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5c4dadff",
+   "metadata": {},
+   "source": [
+    "## Release AEDT\n",
+    "\n",
+    "Release AEDT and close the example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b84aa9f5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "emitapp.save_project()\n",
+    "emitapp.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0d752c27",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "386cfd2e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  },
+  "nbsphinx": {
+   "execute": "never"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

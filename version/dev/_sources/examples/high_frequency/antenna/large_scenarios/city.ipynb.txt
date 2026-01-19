@@ -1,0 +1,246 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "9d60c578",
+   "metadata": {},
+   "source": [
+    "# Environment import from [open street map](https://www.openstreetmap.org/)\n",
+    "\n",
+    "This example shows how to use PyAEDT to create an HFSS SBR+ project from\n",
+    "OpenStreetMap.\n",
+    "\n",
+    "Keywords: **HFSS**,  **SBR+**, **city**, **OpenStreetMap**"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "91024cb0",
+   "metadata": {},
+   "source": [
+    "## Prerequisites\n",
+    "\n",
+    "### Perform imports"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9993722c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "743cd6c4",
+   "metadata": {},
+   "source": [
+    "### Define constants\n",
+    "Constants help ensure consistency and avoid repetition throughout the example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4f6879bd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fdec5c7b",
+   "metadata": {},
+   "source": [
+    "### Create temporary directory\n",
+    "\n",
+    "Create a temporary working directory.\n",
+    "The name of the working folder is stored in ``temp_folder.name``.\n",
+    "\n",
+    "> **Note:** The final cell in the notebook cleans up the temporary folder. If you want to\n",
+    "> retrieve the AEDT project and data, do so before executing the final cell in the notebook."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b4260294",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b2f60e65",
+   "metadata": {},
+   "source": [
+    "### Launch HFSS and open project\n",
+    "\n",
+    "Launch HFSS and open the project. The solution type\n",
+    "[SBR+](https://www.ansys.com/blog/new-hfss-sbr-technology-in-ansys-2021-r2) instantiates a design type that supports the SBR+ solver."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "603aaa30",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_name = os.path.join(temp_folder.name, \"city.aedt\")\n",
+    "app = ansys.aedt.core.Hfss(\n",
+    "    project=project_name,\n",
+    "    design=\"Ansys\",\n",
+    "    solution_type=\"SBR+\",\n",
+    "    version=AEDT_VERSION,\n",
+    "    new_desktop=True,\n",
+    "    non_graphical=NG_MODE,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ce7c50c8",
+   "metadata": {},
+   "source": [
+    "## Model Preparation\n",
+    "\n",
+    "### Define the global location\n",
+    "\n",
+    "Define the latitude and longitude of the \n",
+    "[location](https://www.openstreetmap.org/#map=12/40.2740/-80.1680) \n",
+    "to import from OpenStreetMap."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a13b8337",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ansys_home = [40.273726, -80.168269]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a78ce4fc",
+   "metadata": {},
+   "source": [
+    "### Generate map and import\n",
+    "\n",
+    "Import the model and define the domain size. The radius that defines the domain is specified in meters."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "03f5092e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "app.modeler.import_from_openstreet_map(\n",
+    "    ansys_home,\n",
+    "    terrain_radius=250,\n",
+    "    road_step=3,\n",
+    "    plot_before_importing=True,\n",
+    "    import_in_aedt=True,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1a3ffa0b",
+   "metadata": {},
+   "source": [
+    "### Visualize the model\n",
+    "\n",
+    "Plot the model."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7dbd1363",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plot_obj = app.plot(show=False, plot_air_objects=True)\n",
+    "plot_obj.background_color = [153, 203, 255]\n",
+    "plot_obj.zoom = 1.5\n",
+    "plot_obj.show_grid = False\n",
+    "plot_obj.show_axes = False\n",
+    "plot_obj.bounding_box = False\n",
+    "plot_obj.plot(os.path.join(temp_folder.name, \"Source.jpg\"))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0e601fb2",
+   "metadata": {},
+   "source": [
+    "## Finish\n",
+    "\n",
+    "### Save the project\n",
+    "Release AEDT and close the example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1750455f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "app.save_project()\n",
+    "app.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9a9ea308",
+   "metadata": {},
+   "source": [
+    "### Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "28c5e377",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

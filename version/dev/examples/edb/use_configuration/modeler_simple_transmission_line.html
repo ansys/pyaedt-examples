@@ -1,0 +1,930 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Create a simple transmission line &#8212; PyAEDT Examples</title>
+
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css\ansys_sphinx_theme.css?v=d2ac875c" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=9233c59b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/highlight.css?v=500661c4" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+ 
+<link href="../../../_static/css/breadcrumbs.css" rel="stylesheet" />
+
+    <script src="../../../_static/documentation_options.js?v=e7fb764e"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=49e1bf35"></script>
+    <script src="../../../_static/js\table.js?v=b64f5182"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/edb/use_configuration/modeler_simple_transmission_line';</script>
+    <link rel="icon" href="../../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Import Stackup" href="import_stackup.html" />
+    <link rel="prev" title="EDB: parameterized design" href="post_layout_parametrize.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <link rel="canonical" href="https://examples.aedt.docs.pyansys.com/version/stable/examples/edb/use_configuration/modeler_simple_transmission_line.html" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container"><!-- Debugging: html_theme_options =  -->
+
+  <!-- If there is no MeiliSearch enabled, use the PyData search -->
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+   
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="https://www.ansys.com/">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/ansys_logo_transparent_black.png" class="logo__image only-light" alt="PyAEDT Examples - Home"/>
+    <script>document.write(`<img src="../../../_static/ansys_logo_transparent_white.png" class="logo__image only-dark" alt="PyAEDT Examples - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Examples
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+    
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Examples
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../aedt/index.html">Examples by AEDT application</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../high_frequency/index.html">High frequency</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../high_frequency/antenna/index.html">Antenna</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../high_frequency/radiofrequency_mmwave/index.html">Radio frequency and millimeter wave</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../../high_frequency/layout/index.html">IC-Package-PCB</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../../high_frequency/layout/power_integrity/index.html">Power integrity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../high_frequency/layout/signal_integrity/index.html">Signal integrity</a></li>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="../../high_frequency/layout/workflows/index.html">Workflows</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4 current active"><a class="reference internal" href="index.html">Use configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../legacy_standalone/edb_to_ipc2581.html">EDB: IPC2581 export</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../legacy_standalone/plot_nets.html">EDB: plot nets with Matplotlib</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../legacy_standalone/gds_workflow.html">GDS Import</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../high_frequency/layout/gui_manipulation.html">HFSS Layout UI modification</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../high_frequency/emc/index.html">EMC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../high_frequency/multiphysics/index.html">Multiphysics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../aedt_general/report/index.html">Report</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../low_frequency/index.html">Low frequency</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../electrothermal/index.html">Electrothermal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aedt_general/index.html">Pre-processing and post-processing</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+       
+    <li class="breadcrumb-item">
+      <a href="https://aedt.docs.pyansys.com/" class="nav-link">PyAEDT</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="../../../index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../../index.html" class="nav-link">Examples</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../../high_frequency/index.html" class="nav-link">High frequency</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../../high_frequency/layout/index.html" class="nav-link">IC-Package-PCB</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../../high_frequency/layout/workflows/index.html" class="nav-link">Workflows</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="index.html" class="nav-link">Use configuration</a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page">Create a simple transmission line</li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="admonition-download-this-example admonition">
+<p class="admonition-title">Download this example</p>
+<p>Download this example as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/edb/use_configuration/modeler_simple_transmission_line.ipynb">Jupyter Notebook</a>
+or as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/edb/use_configuration/modeler_simple_transmission_line.py">Python script</a>.</p>
+</div>
+<hr class="docutils" />
+<section id="Create-a-simple-transmission-line">
+<h1>Create a simple transmission line<a class="headerlink" href="#Create-a-simple-transmission-line" title="Link to this heading">#</a></h1>
+<section id="Perform-imports-and-define-constants">
+<h2>Perform imports and define constants<a class="headerlink" href="#Perform-imports-and-define-constants" title="Link to this heading">#</a></h2>
+<p>Perform required imports.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyedb</span><span class="w"> </span><span class="kn">import</span> <span class="n">Edb</span>
+</pre></div>
+</div>
+</div>
+<p>Define constants.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">AEDT_VERSION</span> <span class="o">=</span> <span class="s2">&quot;2025.2&quot;</span>
+<span class="n">NG_MODE</span> <span class="o">=</span> <span class="kc">False</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Create-an-empty-design">
+<h2>Create an empty design<a class="headerlink" href="#Create-an-empty-design" title="Link to this heading">#</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">temp_folder</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.ansys&quot;</span><span class="p">)</span>
+<span class="n">edb_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;simple_transmission_line.aedb&quot;</span><span class="p">)</span>
+<span class="n">edbapp</span> <span class="o">=</span> <span class="n">Edb</span><span class="p">(</span><span class="n">edb_path</span><span class="p">,</span> <span class="n">edbversion</span><span class="o">=</span><span class="n">AEDT_VERSION</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+C:\actions-runner\_work\pyaedt-examples\pyaedt-examples\.venv\lib\site-packages\pyedb\misc\decorators.py:55: UserWarning: Argument `edbversion` is deprecated for method `Edb`; use `version` instead.
+  warnings.warn(
+C:\actions-runner\_work\pyaedt-examples\pyaedt-examples\.venv\lib\site-packages\pyedb\generic\design_types.py:301: UserWarning: Your ANSYS AEDT version is eligible to gRPC version.You might consider switching to that version for better user experience.For more information please check this link: https://edb.docs.pyansys.com/version/dev/grpc_api/index.html
+  warnings.warn(GRPC_GENERAL_WARNING, UserWarning)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyEDB INFO: Star initializing Edb 10:31:01.161149
+PyEDB INFO: Edb version 2025.2
+PyEDB INFO: Logger is initialized. Log file is saved to C:\Users\ansys\AppData\Local\Temp\pyedb_ansys.log.
+PyEDB INFO: legacy v0.67.1
+PyEDB INFO: Python version 3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)]
+PyEDB INFO: create_edb completed in 8.5544 seconds.
+PyEDB INFO: EDB C:\Users\ansys\AppData\Local\Temp\tmpr25sah3w.ansys\simple_transmission_line.aedb created correctly.
+PyEDB INFO: EDB initialization completed in 8.6182 seconds.
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a default 2-layer stackup</span>
+<span class="n">edbapp</span><span class="o">.</span><span class="n">stackup</span><span class="o">.</span><span class="n">create_symmetric_stackup</span><span class="p">(</span><span class="n">layer_count</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">soldermask</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+</section>
+<section id="Create-config-file">
+<h2>Create config file<a class="headerlink" href="#Create-config-file" title="Link to this heading">#</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cfg</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;stackup&quot;</span><span class="p">:</span> <span class="p">{},</span> <span class="s2">&quot;modeler&quot;</span><span class="p">:</span> <span class="p">{},</span> <span class="s2">&quot;variables&quot;</span><span class="p">:</span> <span class="p">{}}</span>
+
+<span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;variables&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;trace_width&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;0.2mm&quot;</span><span class="p">}]</span>
+
+<span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;stackup&quot;</span><span class="p">][</span><span class="s2">&quot;materials&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;copper&quot;</span><span class="p">,</span> <span class="s2">&quot;permittivity&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;conductivity&quot;</span><span class="p">:</span> <span class="mf">58000000.0</span><span class="p">},</span>
+    <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;fr4&quot;</span><span class="p">,</span> <span class="s2">&quot;permittivity&quot;</span><span class="p">:</span> <span class="mf">3.77</span><span class="p">,</span> <span class="s2">&quot;dielectric_loss_tangent&quot;</span><span class="p">:</span> <span class="mf">0.005</span><span class="p">},</span>
+    <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;solder_resist&quot;</span><span class="p">,</span> <span class="s2">&quot;permittivity&quot;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span> <span class="s2">&quot;dielectric_loss_tangent&quot;</span><span class="p">:</span> <span class="mf">0.035</span><span class="p">},</span>
+<span class="p">]</span>
+
+<span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;stackup&quot;</span><span class="p">][</span><span class="s2">&quot;layers&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;TOP&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;signal&quot;</span><span class="p">,</span> <span class="s2">&quot;material&quot;</span><span class="p">:</span> <span class="s2">&quot;copper&quot;</span><span class="p">,</span> <span class="s2">&quot;fill_material&quot;</span><span class="p">:</span> <span class="s2">&quot;solder_resist&quot;</span><span class="p">,</span> <span class="s2">&quot;thickness&quot;</span><span class="p">:</span> <span class="s2">&quot;0.035mm&quot;</span><span class="p">},</span>
+    <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;DE&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;dielectric&quot;</span><span class="p">,</span> <span class="s2">&quot;material&quot;</span><span class="p">:</span> <span class="s2">&quot;fr4&quot;</span><span class="p">,</span> <span class="s2">&quot;fill_material&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;thickness&quot;</span><span class="p">:</span> <span class="s2">&quot;0.5mm&quot;</span><span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;BOTTOM&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;signal&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;material&quot;</span><span class="p">:</span> <span class="s2">&quot;copper&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fill_material&quot;</span><span class="p">:</span> <span class="s2">&quot;solder_resist&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;thickness&quot;</span><span class="p">:</span> <span class="s2">&quot;0.035mm&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">]</span>
+
+<span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;modeler&quot;</span><span class="p">][</span><span class="s2">&quot;traces&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;trace_1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;layer&quot;</span><span class="p">:</span> <span class="s2">&quot;TOP&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="s2">&quot;trace_width&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;3mm&quot;</span><span class="p">]],</span>
+        <span class="s2">&quot;net_name&quot;</span><span class="p">:</span> <span class="s2">&quot;SIG&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;start_cap_style&quot;</span><span class="p">:</span> <span class="s2">&quot;flat&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;end_cap_style&quot;</span><span class="p">:</span> <span class="s2">&quot;flat&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;trace_1_void&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;layer&quot;</span><span class="p">:</span> <span class="s2">&quot;TOP&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="s2">&quot;trace_width+0.3mm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;3mm&quot;</span><span class="p">]],</span>
+        <span class="s2">&quot;net_name&quot;</span><span class="p">:</span> <span class="s2">&quot;GND&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">]</span>
+<span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;modeler&quot;</span><span class="p">][</span><span class="s2">&quot;planes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;rectangle&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;GND_TOP&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;layer&quot;</span><span class="p">:</span> <span class="s2">&quot;TOP&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;net_name&quot;</span><span class="p">:</span> <span class="s2">&quot;GND&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lower_left_point&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;-2mm&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+        <span class="s2">&quot;upper_right_point&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;2mm&quot;</span><span class="p">,</span> <span class="s2">&quot;3mm&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;voids&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;trace_1_void&quot;</span><span class="p">],</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;rectangle&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;GND_BOTTOM&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;layer&quot;</span><span class="p">:</span> <span class="s2">&quot;BOTTOM&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;net_name&quot;</span><span class="p">:</span> <span class="s2">&quot;GND&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lower_left_point&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;-2mm&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+        <span class="s2">&quot;upper_right_point&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;2mm&quot;</span><span class="p">,</span> <span class="s2">&quot;3mm&quot;</span><span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">]</span>
+
+<span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;modeler&quot;</span><span class="p">][</span><span class="s2">&quot;padstack_definitions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;via&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;hole_plating_thickness&quot;</span><span class="p">:</span> <span class="s2">&quot;0.025mm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;material&quot;</span><span class="p">:</span> <span class="s2">&quot;copper&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;pad_parameters&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;regular_pad&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;layer_name&quot;</span><span class="p">:</span> <span class="s2">&quot;TOP&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;shape&quot;</span><span class="p">:</span> <span class="s2">&quot;circle&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;diameter&quot;</span><span class="p">:</span> <span class="s2">&quot;0.5mm&quot;</span><span class="p">,</span>
+                <span class="p">},</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;layer_name&quot;</span><span class="p">:</span> <span class="s2">&quot;BOTTOM&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;shape&quot;</span><span class="p">:</span> <span class="s2">&quot;circle&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;diameter&quot;</span><span class="p">:</span> <span class="s2">&quot;0.5mm&quot;</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;hole_range&quot;</span><span class="p">:</span> <span class="s2">&quot;through&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;hole_parameters&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;shape&quot;</span><span class="p">:</span> <span class="s2">&quot;circle&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;diameter&quot;</span><span class="p">:</span> <span class="s2">&quot;0.25mm&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+
+<span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;modeler&quot;</span><span class="p">][</span><span class="s2">&quot;padstack_instances&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;gvia_l_1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;definition&quot;</span><span class="p">:</span> <span class="s2">&quot;via&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;layer_range&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;TOP&quot;</span><span class="p">,</span> <span class="s2">&quot;BOTTOM&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;position&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;-1mm&quot;</span><span class="p">,</span> <span class="s2">&quot;0.5mm&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;net_name&quot;</span><span class="p">:</span> <span class="s2">&quot;GND&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;gvia_l_2&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;definition&quot;</span><span class="p">:</span> <span class="s2">&quot;via&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;layer_range&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;TOP&quot;</span><span class="p">,</span> <span class="s2">&quot;BOTTOM&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;position&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;-1mm&quot;</span><span class="p">,</span> <span class="s2">&quot;1.5mm&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;net_name&quot;</span><span class="p">:</span> <span class="s2">&quot;GND&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;gvia_l_3&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;definition&quot;</span><span class="p">:</span> <span class="s2">&quot;via&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;layer_range&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;TOP&quot;</span><span class="p">,</span> <span class="s2">&quot;BOTTOM&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;position&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;-1mm&quot;</span><span class="p">,</span> <span class="s2">&quot;2.5mm&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;net_name&quot;</span><span class="p">:</span> <span class="s2">&quot;GND&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;gvia_r_1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;definition&quot;</span><span class="p">:</span> <span class="s2">&quot;via&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;layer_range&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;TOP&quot;</span><span class="p">,</span> <span class="s2">&quot;BOTTOM&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;position&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;1mm&quot;</span><span class="p">,</span> <span class="s2">&quot;0.5mm&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;net_name&quot;</span><span class="p">:</span> <span class="s2">&quot;GND&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;gvia_r_2&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;definition&quot;</span><span class="p">:</span> <span class="s2">&quot;via&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;layer_range&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;TOP&quot;</span><span class="p">,</span> <span class="s2">&quot;BOTTOM&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;position&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;1mm&quot;</span><span class="p">,</span> <span class="s2">&quot;1.5mm&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;net_name&quot;</span><span class="p">:</span> <span class="s2">&quot;GND&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;gvia_r_3&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;definition&quot;</span><span class="p">:</span> <span class="s2">&quot;via&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;layer_range&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;TOP&quot;</span><span class="p">,</span> <span class="s2">&quot;BOTTOM&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;position&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;1mm&quot;</span><span class="p">,</span> <span class="s2">&quot;2.5mm&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;net_name&quot;</span><span class="p">:</span> <span class="s2">&quot;GND&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">]</span>
+
+<span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;ports&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;wport_1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;wave_port&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;primitive_name&quot;</span><span class="p">:</span> <span class="s2">&quot;trace_1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;point_on_edge&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+        <span class="s2">&quot;horizontal_extent_factor&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="s2">&quot;vertical_extent_factor&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="s2">&quot;pec_launch_width&quot;</span><span class="p">:</span> <span class="s2">&quot;0,2mm&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;wport_2&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;wave_port&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;primitive_name&quot;</span><span class="p">:</span> <span class="s2">&quot;trace_1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;point_on_edge&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;3mm&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;horizontal_extent_factor&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="s2">&quot;vertical_extent_factor&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="s2">&quot;pec_launch_width&quot;</span><span class="p">:</span> <span class="s2">&quot;0,2mm&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<p>Create the config file.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">file_json</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;cfg.json&quot;</span><span class="p">)</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_json</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Apply configuration to the example layout</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">edbapp</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config_file</span><span class="o">=</span><span class="n">file_json</span><span class="p">)</span>
+<span class="n">edbapp</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyEDB INFO: Updating nets finished. Time lapse 0:00:00
+PyEDB INFO: Updating components finished. Time lapse 0:00:00
+PyEDB INFO: Creating pin groups finished. Time lapse 0:00:00
+PyEDB INFO: Placing sources finished. Time lapse 0:00:00
+PyEDB INFO: Applying materials finished. Time lapse 0:00:00
+PyEDB INFO: Updating stackup finished. Time lapse 0:00:00.047691
+PyEDB INFO: Applying padstack definitions and instances completed in 0.0000 seconds.
+PyEDB INFO: Applying S-parameters finished. Time lapse 0:00:00
+PyEDB INFO: Applying package definitions finished. Time lapse 0:00:00
+PyEDB INFO: Applying modeler finished. Time lapse 0:00:00.158324
+PyEDB INFO: Placing ports finished. Time lapse 0:00:00.015875
+PyEDB INFO: Placing terminals completed in 0.0000 seconds.
+PyEDB INFO: Placing probes finished. Time lapse 0:00:00
+PyEDB INFO: Applying operations completed in 0.0000 seconds.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+<p>Save and close EDB.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">edbapp</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+<span class="n">edbapp</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyEDB INFO: Save Edb file completed in 0.0000 seconds.
+PyEDB INFO: Close Edb file completed in 0.0000 seconds.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+</section>
+<section id="Uncomment-to-load-edb-into-HFSS-3D-Layout.">
+<h2>Uncomment to load edb into HFSS 3D Layout.<a class="headerlink" href="#Uncomment-to-load-edb-into-HFSS-3D-Layout." title="Link to this heading">#</a></h2>
+<p>h3d = Hfss3dLayout(edbapp.edbpath, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True)</p>
+</section>
+<section id="Clean-up">
+<h2>Clean up<a class="headerlink" href="#Clean-up" title="Link to this heading">#</a></h2>
+<p>All project files are saved in the folder <code class="docutils literal notranslate"><span class="pre">temp_folder.name</span></code>. If you’ve run this example as a Jupyter notebook, you can retrieve those project files. The following cell removes all temporary files, including the project folder.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">temp_folder</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<div class="admonition-download-this-example admonition">
+<p class="admonition-title">Download this example</p>
+<p>Download this example as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/edb/use_configuration/modeler_simple_transmission_line.ipynb">Jupyter Notebook</a>
+or as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/edb/use_configuration/modeler_simple_transmission_line.py">Python script</a>.</p>
+</div>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Perform-imports-and-define-constants">Perform imports and define constants</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-an-empty-design">Create an empty design</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-config-file">Create config file</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Uncomment-to-load-edb-into-HFSS-3D-Layout.">Uncomment to load edb into HFSS 3D Layout.</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Clean-up">Clean up</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item"> 
+<div class="tocsection editthispage">
+  <a href="https://github.com/ansys/pyaedt-examples/edit/main/doc/source/examples/edb/use_configuration/modeler_simple_transmission_line.ipynb">
+    <i class="fa-solid fa-pencil"></i>
+       Edit
+    on GitHub  
+  </a>
+</div>
+
+</div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../../../_sources/examples/edb/use_configuration/modeler_simple_transmission_line.ipynb.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright (c) 2021 - 2026 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the
+  <a href="https://sphinxdocs.ansys.com/version/stable/index.html"
+    >Ansys Sphinx Theme</a
+  >
+  1.0.11. <br />Last updated on
+  <span id="date"></span>
+</p>
+<script>
+  var options = { day: "numeric", month: "long", year: "numeric" };
+  var lastModifiedDate = new Date(document.lastModified);
+  var date = lastModifiedDate.toLocaleDateString("en-US", options);
+  document.getElementById("date").innerHTML = date;
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,487 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "378563f5",
+   "metadata": {},
+   "source": [
+    "# EDB: Pin to Pin project\n",
+    "\n",
+    "This example demonstrates the use of the Electronics\n",
+    "Database (EDB) interface to create a layout using the BOM and\n",
+    "a configuration file."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2152e99e",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "95136329",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "\n",
+    "import ansys.aedt.core\n",
+    "\n",
+    "import pyedb\n",
+    "from pyedb.misc.downloads import download_file"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1ff63df5",
+   "metadata": {},
+   "source": [
+    "Download the AEDB file and copy it to a temporary folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "37c7f6b4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_dir = tempfile.TemporaryDirectory(suffix=\".ansys\")\n",
+    "target_aedb = download_file(\"edb/ANSYS-HSD_V1.aedb\", destination=temp_dir.name)\n",
+    "print(\"Project folder is\", target_aedb)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e633a407",
+   "metadata": {},
+   "source": [
+    "## Launch EDB\n",
+    "\n",
+    "Launch the ``pyedb.Edb`` class using EDB 2023 R2. Length units are SI."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f6339233",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Select EDB version (change it manually if needed, e.g. \"2025.1\")\n",
+    "edb_version = \"2025.2\"\n",
+    "print(f\"EDB version: {edb_version}\")\n",
+    "\n",
+    "edbapp = pyedb.Edb(target_aedb, edbversion=edb_version)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6e9a37f2",
+   "metadata": {},
+   "source": [
+    "## Import definitions\n",
+    "\n",
+    "The definition file uses the [json](https://www.json.org/json-en.html) to\n",
+    "map layout part numbers to their corresponding models.\n",
+    "\n",
+    "The model may be an RLC, S-parameter, or\n",
+    "[SPICE](https://en.wikipedia.org/wiki/SPICE) model definition.\n",
+    "Once imported, the definition is applied to the components in the layout.\n",
+    "In this example, the JSON file is in the ``*.aedb`` folder and has the following format:\n",
+    "``` json\n",
+    "{\n",
+    "    \"SParameterModel\": {\n",
+    "        \"GRM32_DC0V_25degC_series\": \"./GRM32_DC0V_25degC_series.s2p\"\n",
+    "    },\n",
+    "    \"SPICEModel\": {\n",
+    "        \"GRM32_DC0V_25degC\": \"./GRM32_DC0V_25degC.mod\"\n",
+    "    },\n",
+    "    \"Definitions\": {\n",
+    "        \"CAPC1005X05N\": {\n",
+    "            \"Component_type\": \"Capacitor\",\n",
+    "            \"Model_type\": \"RLC\",\n",
+    "            \"Res\": 1,\n",
+    "            \"Ind\": 2,\n",
+    "            \"Cap\": 3,\n",
+    "            \"Is_parallel\": false\n",
+    "        },\n",
+    "        \"'CAPC3216X180X55ML20T25\": {\n",
+    "            \"Component_type\": \"Capacitor\",\n",
+    "            \"Model_type\": \"SParameterModel\",\n",
+    "            \"Model_name\": \"GRM32_DC0V_25degC_series\"\n",
+    "        },\n",
+    "        \"'CAPC3216X180X20ML20\": {\n",
+    "            \"Component_type\": \"Capacitor\",\n",
+    "            \"Model_type\": \"SPICEModel\",\n",
+    "            \"Model_name\": \"GRM32_DC0V_25degC\"\n",
+    "        }\n",
+    "    }\n",
+    "}\n",
+    "```\n",
+    "\n",
+    "The ``Edb.components.import_definitions()`` method imports the component definitions that map\n",
+    "electrical models to the components in the simulation model."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "40a666a0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.components.import_definition(os.path.join(target_aedb, \"1_comp_definition.json\"))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "151d3268",
+   "metadata": {},
+   "source": [
+    "## Import BOM\n",
+    "\n",
+    "The bill of materials (BOM) file provides the list of all components\n",
+    "by reference designator, part name, component type, and nominal value.\n",
+    "\n",
+    "Components that are not contained in the BOM are deactivated in the\n",
+    "simulation model.\n",
+    "This example saves the CSV file in the ``aedb`` folder.\n",
+    "\n",
+    "```\n",
+    "+------------+-----------------------+-----------+------------+\n",
+    "| RefDes     | Part name             | Type      | Value      |\n",
+    "+============+=======================+===========+============+\n",
+    "| C380       | CAPC1005X55X25LL05T10 | Capacitor | 11nF       |\n",
+    "+------------+-----------------------+-----------+------------+\n",
+    "```\n",
+    "\n",
+    "Having red the information in the BOM and definitions file, electrical models can be\n",
+    "assigned to all of the components in the simulation model."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5c96bb3b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.components.import_bom(\n",
+    "    os.path.join(target_aedb, \"0_bom.csv\"),\n",
+    "    refdes_col=0,\n",
+    "    part_name_col=1,\n",
+    "    comp_type_col=2,\n",
+    "    value_col=3,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3835e53c",
+   "metadata": {},
+   "source": [
+    "## Verify a Component\n",
+    "\n",
+    "Component property allows to access all components instances and their property with\n",
+    "getters and setters."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a216e8db",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "comp = edbapp.components[\"C1\"]\n",
+    "comp.model_type, comp.value"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "40d6ea97",
+   "metadata": {},
+   "source": [
+    "## Check component definition\n",
+    "\n",
+    "When an s-parameter model is associated to a component it will be available in\n",
+    "nport_comp_definition property."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c3d04646",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.components.nport_comp_definition\n",
+    "edbapp.save_edb()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f1e268ab",
+   "metadata": {},
+   "source": [
+    "## Configure the simulation setup\n",
+    "\n",
+    "This step enables the following:\n",
+    "\n",
+    "- Definition of the nets to include in the cutout region\n",
+    "- Cutout details\n",
+    "- Components to create the ports on\n",
+    "- Simulation settings\n",
+    "\n",
+    "The ``Edb.new_simulaton_configuration()`` method returns an instance\n",
+    "of the ``SimulationConfiguration`` class."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a41a83de",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "sim_setup = edbapp.new_simulation_configuration()\n",
+    "sim_setup.solver_type = sim_setup.SOLVER_TYPE.SiwaveSYZ\n",
+    "sim_setup.batch_solve_settings.cutout_subdesign_expansion = 0.003\n",
+    "sim_setup.batch_solve_settings.do_cutout_subdesign = True\n",
+    "sim_setup.batch_solve_settings.use_pyaedt_cutout = True\n",
+    "sim_setup.ac_settings.max_arc_points = 6\n",
+    "sim_setup.ac_settings.max_num_passes = 5\n",
+    "\n",
+    "sim_setup.batch_solve_settings.signal_nets = [\n",
+    "    \"PCIe_Gen4_TX2_CAP_P\",\n",
+    "    \"PCIe_Gen4_TX2_CAP_N\",\n",
+    "    \"PCIe_Gen4_TX2_P\",\n",
+    "    \"PCIe_Gen4_TX2_N\",\n",
+    "]\n",
+    "sim_setup.batch_solve_settings.components = [\"U1\", \"X1\"]\n",
+    "sim_setup.batch_solve_settings.power_nets = [\"GND\", \"GND_DP\"]\n",
+    "sim_setup.ac_settings.start_freq = \"100Hz\"\n",
+    "sim_setup.ac_settings.stop_freq = \"6GHz\"\n",
+    "sim_setup.ac_settings.step_freq = \"10MHz\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7eaa11fe",
+   "metadata": {},
+   "source": [
+    "## Implement the setup\n",
+    "\n",
+    "The cutout and all other simulation settings are applied to the simulation model."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "94930148",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "sim_setup.export_json(os.path.join(temp_dir.name, \"configuration.json\"))\n",
+    "edbapp.build_simulation_project(sim_setup)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "57d77cd1",
+   "metadata": {},
+   "source": [
+    "## Display the cutout\n",
+    "\n",
+    "Plot cutout once finished. The model is ready to simulate."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3c53d0c9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.nets.plot(None, None)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a7aa207a",
+   "metadata": {},
+   "source": [
+    "## Save and close EDB\n",
+    "\n",
+    "EDB is saved and re-opened in HFSS\n",
+    "3D Layout, where the HFSS simulation can be run."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "48196a5a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.save_edb()\n",
+    "edbapp.close_edb()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "64855730",
+   "metadata": {},
+   "source": [
+    "## Open Electronics Desktop\n",
+    "\n",
+    "The EDB is opened in AEDT Hfss3DLayout.\n",
+    "\n",
+    "Set ``non_graphical=True`` to run the simulation in non-graphical mode."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1eb88a31",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "aedt_version = edb_version"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1c7537f1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d = ansys.aedt.core.Hfss3dLayout(\n",
+    "    version=aedt_version,\n",
+    "    project=target_aedb,\n",
+    "    non_graphical=False,\n",
+    "    new_desktop=False,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c30e7f37",
+   "metadata": {},
+   "source": [
+    "## Analyze\n",
+    "\n",
+    "This project is ready to solve.\n",
+    "Executing the following cell runs the HFSS simulation on the layout."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c9fb8972",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d.analyze()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8ef1fc96",
+   "metadata": {},
+   "source": [
+    "## View results\n",
+    "\n",
+    "S-parameter data is loaded at the end of simulation."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "99a1aaf6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "solutions = h3d.post.get_solution_data()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d4bd7f78",
+   "metadata": {},
+   "source": [
+    "## Plot results\n",
+    "\n",
+    "Plot S-Parameter data."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fc867418",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "solutions.plot(solutions.expressions, \"db20\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e63c0ee3",
+   "metadata": {},
+   "source": [
+    "## Save and close AEDT\n",
+    "\n",
+    "HFSS 3D Layout is saved and closed."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "609033dd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d.save_project()\n",
+    "h3d.release_desktop()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b9d04c8a",
+   "metadata": {},
+   "source": [
+    "Clean up the temporary directory. All files and the temporary project\n",
+    "folder will be deleted in the next step."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0b8dd0eb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_dir.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

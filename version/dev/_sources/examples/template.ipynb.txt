@@ -1,0 +1,258 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "b93fcbdd",
+   "metadata": {},
+   "source": [
+    "# Short, Descriptive Title \n",
+    "\n",
+    "(do not specify the solver type in the title, i.e.: Maxwell2D, Maxwell3D etc)\n",
+    "\n",
+    "Most examples can be described as a series of steps that comprise a workflow.\n",
+    "1. Import packages and instantiate the application.\n",
+    "2. Do something useful and interesting like creating the model, assing materials and boundary conditions, etc.\n",
+    "3. Run one or more analyses.\n",
+    "4. View the results.\n",
+    "\n",
+    "Keywords: **Template**, **Jupyter**"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f7d7b221",
+   "metadata": {},
+   "source": [
+    "## Prerequisites\n",
+    "\n",
+    "### Perform imports"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "bd9a1c3a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core  # Interface to Ansys Electronics Desktop"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9a66de05",
+   "metadata": {},
+   "source": [
+    "### Define constants\n",
+    "Constants help ensure consistency and avoid repetition throughout the example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "502c66cf",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ee2d0881",
+   "metadata": {},
+   "source": [
+    "### Create temporary directory\n",
+    "\n",
+    "Create a temporary working directory.\n",
+    "The name of the working folder is stored in ``temp_folder.name``.\n",
+    "\n",
+    "> **Note:** The final cell in the notebook cleans up the temporary folder. If you want to\n",
+    "> retrieve the AEDT project and data, do so before executing the final cell in the notebook."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "50b16ce5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a339c47c",
+   "metadata": {},
+   "source": [
+    "### Launch application\n",
+    "\n",
+    "AEDT applications are accessed through Python classes.\n",
+    "Each application has it's own class, for example:\n",
+    "- ``Maxwell3d``\n",
+    "- ``Hfss``\n",
+    "- ``Maxwell2d``\n",
+    "- ``Icepak``\n",
+    "- ``Emit``\n",
+    "- ``QExtractor``\n",
+    "\n",
+    "> **Note:** Some examples access multiple applications. When the first\n",
+    "> application is\n",
+    "> started, an AEDT _Project_ is created.\n",
+    "> When a 2nd application instance for a different AEDT\n",
+    "> application is created, the corresponding design\n",
+    "> type will be inserted into the project."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "38fe7372",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_name = os.path.join(temp_folder.name, \"my_project.aedt\")\n",
+    "m3d = ansys.aedt.core.Maxwell3d(\n",
+    "    project=project_name,\n",
+    "    design=\"my_design\",\n",
+    "    solution_type=\"my_solver\",\n",
+    "    version=AEDT_VERSION,\n",
+    "    non_graphical=NG_MODE,\n",
+    "    new_desktop=True,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "dbd3c42e",
+   "metadata": {},
+   "source": [
+    "## Model Preparation\n",
+    "\n",
+    "Description of steps used to create and prepare the model for simulation.\n",
+    "Add as many sections as needed for preprocessing tasks. Use level 3 headers\n",
+    "for subsequent headers in this section."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b15a3c9a",
+   "metadata": {},
+   "source": [
+    "### Create 3D model\n",
+    "\n",
+    "> Insert code to build the model from scratch or import a model.\n",
+    "\n",
+    "### Assign boundary conditions\n",
+    "\n",
+    "> Insert code to assign boundaries here.\n",
+    "\n",
+    "### Define solution setup\n",
+    "\n",
+    "> Insert code to specify solver settings here.\n",
+    "\n",
+    "### Run analysis\n",
+    "\n",
+    "> Run the simulation."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6ef217e8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m3d.analyze_setup(\"Setup1\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fc45397a",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "source": [
+    "## Postprocess\n",
+    "\n",
+    "After generating results demonstrate how to visualize and evaluate results\n",
+    "in this section.\n",
+    "Level 3 headers can be used to identify various post-processing\n",
+    "steps. \n",
+    "\n",
+    "### Evaluate loss\n",
+    "> For example, in this section you may use code to demonstrate how to evaluate loss.\n",
+    "\n",
+    "### Visualize fields\n",
+    "> PyAEDT provides access to field solution data via the "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "265ee91b",
+   "metadata": {},
+   "source": [
+    "## Finish\n",
+    "\n",
+    "### Save the project"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5f669c61",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m3d.save_project()\n",
+    "m3d.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ccc040f1",
+   "metadata": {},
+   "source": [
+    "### Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "cd4a26e6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  },
+  "nbsphinx": {
+   "execute": "never"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

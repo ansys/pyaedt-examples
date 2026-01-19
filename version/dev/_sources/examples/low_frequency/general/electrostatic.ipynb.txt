@@ -1,0 +1,530 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "d5118983",
+   "metadata": {},
+   "source": [
+    "# Electrostatic analysis"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ab1400dd",
+   "metadata": {},
+   "source": [
+    "This example shows how to use PyAEDT to create a Maxwell 2D electrostatic analysis.\n",
+    "It shows how to create the geometry, load material properties from a Microsoft Excel file, and\n",
+    "set up the mesh settings. Moreover, it focuses on postprocessing operations, in particular how to\n",
+    "plot field line traces, which are relevant for an electrostatic analysis.\n",
+    "\n",
+    "Keywords: **Maxwell 2D**, **electrostatic**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "710bc880",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9d3f8689",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core\n",
+    "from ansys.aedt.core.examples.downloads import download_file"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e4343336",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "194278ee",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ce3dd784",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``.."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "066bb7c5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "09d263ca",
+   "metadata": {},
+   "source": [
+    "## Download Excel file\n",
+    "\n",
+    "Set the local temporary folder to export the Excel (XLSX) file to."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c4eaefd3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "file_name_xlsx = download_file(\n",
+    "    source=\"field_line_traces\", name=\"my_copper.xlsx\", local_path=temp_folder.name\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1325c6d4",
+   "metadata": {},
+   "source": [
+    "## Initialize dictionaries\n",
+    "\n",
+    "Initialize the dictionaries that contain all the definitions for the design variables."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ebd1a3c8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "geom_params_circle = {\n",
+    "    \"circle_x0\": \"-10mm\",\n",
+    "    \"circle_y0\": \"0mm\",\n",
+    "    \"circle_z0\": \"0mm\",\n",
+    "    \"circle_axis\": \"Z\",\n",
+    "    \"circle_radius\": \"1mm\",\n",
+    "}\n",
+    "\n",
+    "geom_params_rectangle = {\n",
+    "    \"r_x0\": \"1mm\",\n",
+    "    \"r_y0\": \"5mm\",\n",
+    "    \"r_z0\": \"0mm\",\n",
+    "    \"r_axis\": \"Z\",\n",
+    "    \"r_dx\": \"-1mm\",\n",
+    "    \"r_dy\": \"-10mm\",\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "72e3978c",
+   "metadata": {},
+   "source": [
+    "## Launch AEDT and Maxwell 2D\n",
+    "\n",
+    "Launch AEDT and Maxwell 2D after first setting up the project and design names,\n",
+    "the solver, and the version. The following code also creates an instance of the\n",
+    "``Maxwell2d`` class named ``m2d``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9da74c25",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_name = os.path.join(temp_folder.name, \"M2D_Electrostatic.aedt\")\n",
+    "m2d = ansys.aedt.core.Maxwell2d(\n",
+    "    project=project_name,\n",
+    "    version=AEDT_VERSION,\n",
+    "    design=\"Design1\",\n",
+    "    solution_type=\"Electrostatic\",\n",
+    "    new_desktop=True,\n",
+    "    non_graphical=NG_MODE,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6f73cf7d",
+   "metadata": {},
+   "source": [
+    "## Set modeler units\n",
+    "\n",
+    "Set modeler units to ``mm``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c71a6ff0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.modeler.model_units = \"mm\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6b9a3173",
+   "metadata": {},
+   "source": [
+    "## Define variables from dictionaries\n",
+    "\n",
+    "Define design variables from the created dictionaries."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "89466997",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "for k, v in geom_params_circle.items():\n",
+    "    m2d[k] = v\n",
+    "for k, v in geom_params_rectangle.items():\n",
+    "    m2d[k] = v"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "92bc3013",
+   "metadata": {},
+   "source": [
+    "## Read materials from Excel file\n",
+    "\n",
+    "Read materials from the Excel file into the design."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "92538920",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mats = m2d.materials.import_materials_from_excel(file_name_xlsx)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4d7abb17",
+   "metadata": {},
+   "source": [
+    "## Create design geometries\n",
+    "\n",
+    "Create a rectangle and a circle. Assign the material read from the Excel file.\n",
+    "Create two new polylines and a region."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "66bb5dc8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "rect = m2d.modeler.create_rectangle(\n",
+    "    origin=[\"r_x0\", \"r_y0\", \"r_z0\"],\n",
+    "    sizes=[\"r_dx\", \"r_dy\", 0],\n",
+    "    name=\"Ground\",\n",
+    "    material=mats[0],\n",
+    ")\n",
+    "rect.color = (0, 0, 255)  # rgb\n",
+    "rect.solve_inside = False\n",
+    "\n",
+    "circle = m2d.modeler.create_circle(\n",
+    "    origin=[\"circle_x0\", \"circle_y0\", \"circle_z0\"],\n",
+    "    radius=\"circle_radius\",\n",
+    "    num_sides=\"0\",\n",
+    "    is_covered=True,\n",
+    "    name=\"Electrode\",\n",
+    "    material=mats[0],\n",
+    ")\n",
+    "circle.color = (0, 0, 255)  # rgb\n",
+    "circle.solve_inside = False\n",
+    "\n",
+    "poly1_points = [[-9, 2, 0], [-4, 2, 0], [2, -2, 0], [8, 2, 0]]\n",
+    "poly2_points = [[-9, 0, 0], [9, 0, 0]]\n",
+    "poly1_id = m2d.modeler.create_polyline(\n",
+    "    points=poly1_points, segment_type=\"Spline\", name=\"Poly1\"\n",
+    ")\n",
+    "poly2_id = m2d.modeler.create_polyline(points=poly2_points, name=\"Poly2\")\n",
+    "m2d.modeler.split(assignment=[poly1_id, poly2_id], plane=\"YZ\", sides=\"NegativeOnly\")\n",
+    "m2d.modeler.create_region(pad_value=[20, 100, 20, 100])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "80897e9a",
+   "metadata": {},
+   "source": [
+    "## Define excitations\n",
+    "\n",
+    "Assign voltage excitations to the rectangle and circle."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1c1e41b0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.assign_voltage(assignment=rect.id, amplitude=0, name=\"Ground\")\n",
+    "m2d.assign_voltage(assignment=circle.id, amplitude=50e6, name=\"50kV\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1e34b458",
+   "metadata": {},
+   "source": [
+    "## Create initial mesh settings\n",
+    "\n",
+    "Assign a surface mesh to the rectangle."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ac207cff",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.mesh.assign_surface_mesh_manual(assignment=[\"Ground\"], surface_deviation=0.001)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "12821581",
+   "metadata": {},
+   "source": [
+    "## Create, validate, and analyze setup"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c97038d5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup_name = \"MySetupAuto\"\n",
+    "setup = m2d.create_setup(name=setup_name)\n",
+    "setup.props[\"PercentError\"] = 0.5\n",
+    "setup.update()\n",
+    "m2d.validate_simple()\n",
+    "m2d.analyze_setup(name=setup_name, use_auto_settings=False, cores=NUM_CORES)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b64d52e2",
+   "metadata": {},
+   "source": [
+    "## Evaluate the E Field tangential component\n",
+    "\n",
+    "Evaluate the E Field tangential component along the given polylines.\n",
+    "Add these operations to the **Named Expression** list in the field calculator."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "aa26f1eb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "e_line = m2d.post.fields_calculator.add_expression(\n",
+    "    calculation=\"e_line\", assignment=None\n",
+    ")\n",
+    "m2d.post.fields_calculator.expression_plot(\n",
+    "    calculation=\"e_line\", assignment=\"Poly1\", names=[e_line]\n",
+    ")\n",
+    "m2d.post.fields_calculator.expression_plot(\n",
+    "    calculation=\"e_line\", assignment=\"Poly12\", names=[e_line]\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8445fdc8",
+   "metadata": {},
+   "source": [
+    "## Create field line traces plot\n",
+    "\n",
+    "Create a field line traces plot specifying as seeding faces\n",
+    "the ground, the electrode, and the region\n",
+    "and as ``In surface objects`` only the region."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "acfa3b66",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plot = m2d.post.create_fieldplot_line_traces(\n",
+    "    seeding_faces=[\"Ground\", \"Electrode\", \"Region\"],\n",
+    "    in_volume_tracing_objs=[\"Region\"],\n",
+    "    plot_name=\"LineTracesTest\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "459f9329",
+   "metadata": {},
+   "source": [
+    "## Update field line traces plot\n",
+    "\n",
+    "Update the field line traces plot.\n",
+    "Update the seeding points number, line style, and line width."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "98542467",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plot.SeedingPointsNumber = 20\n",
+    "plot.LineStyle = \"Cylinder\"\n",
+    "plot.LineWidth = 3\n",
+    "plot.update()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ed08680b",
+   "metadata": {},
+   "source": [
+    "## Export field line traces plot\n",
+    "\n",
+    "Export the field line traces plot.\n",
+    "For the field lint traces plot, the export file format is ``.fldplt``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e61e722c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.post.export_field_plot(\n",
+    "    plot_name=\"LineTracesTest\", output_dir=temp_folder.name, file_format=\"fldplt\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "29a88cbd",
+   "metadata": {},
+   "source": [
+    "## Export mesh field plot\n",
+    "\n",
+    "Export the mesh to an AEDTPLT file."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0c4c6f73",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.post.export_mesh_obj(setup=m2d.nominal_adaptive)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "35b06148",
+   "metadata": {},
+   "source": [
+    "## Release AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8189fa03",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.save_project()\n",
+    "m2d.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9cdddd9e",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a85e4d56",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

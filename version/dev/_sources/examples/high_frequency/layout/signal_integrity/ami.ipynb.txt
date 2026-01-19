@@ -1,0 +1,624 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "297c13b2",
+   "metadata": {},
+   "source": [
+    "# AMI Postprocessing\n",
+    "\n",
+    "This example demonstrates advanced postprocessing of AMI simulations.\n",
+    "\n",
+    "Keywords: **Circuit**, **AMI**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "97e965f9",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports.\n",
+    "\n",
+    "> **Note:** [Numpy](https://numpy.org/)\n",
+    "> and [Matplotlib](https://matplotlib.org/) are required to run this example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d3a9b583",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core\n",
+    "from ansys.aedt.core.examples.downloads import download_file\n",
+    "import numpy as np\n",
+    "from matplotlib import pyplot as plt"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "deef750f",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ad188a73",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6051ab2f",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory and download example files\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b47020cf",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7e55b057",
+   "metadata": {},
+   "source": [
+    "## Download example data\n",
+    "\n",
+    "The ``download_file()`` method retrieves example\n",
+    "data from the PyAnsys\n",
+    "[example-data](https://github.com/ansys/example-data/tree/master/pyaedt) repository.\n",
+    "\n",
+    "- The fist argument is the folder name where\n",
+    "  the example files are located in the GitHub repository.\n",
+    "- The 2nd argument is the file to retrieve.\n",
+    "- The 3rd argument is the destination folder.\n",
+    "\n",
+    "Files are placed in the destination folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ca8162c5",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "project_path = download_file(\n",
+    "    \"ami\", name=\"ami_usb.aedtz\", local_path=temp_folder.name\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "12cc8e43",
+   "metadata": {},
+   "source": [
+    "## Launch AEDT with Circuit and enable Pandas as the output format\n",
+    "\n",
+    "All outputs obtained with the `get_solution_data()` method are in the\n",
+    "[Pandas](https://pandas.pydata.org/docs/user_guide/index.html) format.\n",
+    "Launch AEDT with Circuit. The `ansys.aedt.core.Desktop` class initializes AEDT\n",
+    "and starts the specified version in the specified mode."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4719415b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ansys.aedt.core.settings.enable_pandas_output = True\n",
+    "circuit = ansys.aedt.core.Circuit(\n",
+    "    project=os.path.join(project_path),\n",
+    "    non_graphical=NG_MODE,\n",
+    "    version=AEDT_VERSION,\n",
+    "    new_desktop=True,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5f199786",
+   "metadata": {},
+   "source": [
+    "## Solve AMI setup\n",
+    "\n",
+    "Solve the transient setup."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c23945e1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "circuit.analyze()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "bc2d8c60",
+   "metadata": {},
+   "source": [
+    "## Get AMI report\n",
+    "\n",
+    "Get AMI report data."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "260cd8fa",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plot_name = \"WaveAfterProbe<b_input_43.int_ami_rx>\"\n",
+    "circuit.solution_type = \"NexximAMI\"\n",
+    "original_data = circuit.post.get_solution_data(\n",
+    "    expressions=plot_name,\n",
+    "    setup_sweep_name=\"AMIAnalysis\",\n",
+    "    domain=\"Time\",\n",
+    "    variations=circuit.available_variations.nominal,\n",
+    ")\n",
+    "original_data_value = original_data.full_matrix_real_imag[0]\n",
+    "original_data_sweep = original_data.primary_sweep_values\n",
+    "print(original_data_value)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "347fa752",
+   "metadata": {},
+   "source": [
+    "## Plot data\n",
+    "\n",
+    "Create a plot based on solution data."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d01e54d0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fig = original_data.plot()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9d244562",
+   "metadata": {},
+   "source": [
+    "## Extract wave form\n",
+    "\n",
+    "Use the ``WaveAfterProbe`` plot type to extract the\n",
+    "waveform using an AMI receiver clock probe.\n",
+    "The signal is extracted at a specific clock\n",
+    "flank with additional half unit interval."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5b9cf5fc",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "probe_name = \"b_input_43\"\n",
+    "source_name = \"b_output4_42\"\n",
+    "plot_type = \"WaveAfterProbe\"\n",
+    "setup_name = \"AMIAnalysis\"\n",
+    "ignore_bits = 100\n",
+    "unit_interval = 0.1e-9\n",
+    "sample_waveform = circuit.post.sample_ami_waveform(\n",
+    "    setup=setup_name,\n",
+    "    probe=probe_name,\n",
+    "    source=source_name,\n",
+    "    variation_list_w_value=circuit.available_variations.nominal,\n",
+    "    unit_interval=unit_interval,\n",
+    "    ignore_bits=ignore_bits,\n",
+    "    plot_type=plot_type,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "30947a5a",
+   "metadata": {},
+   "source": [
+    "## Plot waveform and samples\n",
+    "\n",
+    "Create the plot from a start time to stop time in seconds."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c84a86b0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tstop = 55e-9\n",
+    "tstart = 50e-9\n",
+    "scale_time = ansys.aedt.core.constants.unit_converter(\n",
+    "    1,\n",
+    "    unit_system=\"Time\",\n",
+    "    input_units=\"s\",\n",
+    "    output_units=original_data.units_sweeps[\"Time\"],\n",
+    ")\n",
+    "scale_data = ansys.aedt.core.constants.unit_converter(\n",
+    "    1,\n",
+    "    unit_system=\"Voltage\",\n",
+    "    input_units=\"V\",\n",
+    "    output_units=original_data.units_data[plot_name],\n",
+    ")\n",
+    "\n",
+    "tstop_ns = scale_time * tstop\n",
+    "tstart_ns = scale_time * tstart\n",
+    "\n",
+    "orig_times = np.array([row[0] for row in original_data_value[plot_name]])\n",
+    "start_index_original_data = int(np.searchsorted(orig_times, tstart_ns, side=\"left\"))\n",
+    "if start_index_original_data >= orig_times.size:\n",
+    "    start_index_original_data = orig_times.size - 1\n",
+    "stop_index_original_data = int(np.searchsorted(orig_times, tstop_ns, side=\"left\"))\n",
+    "if stop_index_original_data >= orig_times.size:\n",
+    "    stop_index_original_data = orig_times.size - 1\n",
+    "\n",
+    "sample_index_array = np.array(sample_waveform[0].index)\n",
+    "start_index_waveform = int(np.searchsorted(sample_index_array, tstart, side=\"left\"))\n",
+    "if start_index_waveform >= sample_index_array.size:\n",
+    "    start_index_waveform = sample_index_array.size - 1\n",
+    "stop_index_waveform = int(np.searchsorted(sample_index_array, tstop, side=\"left\"))\n",
+    "if stop_index_waveform >= sample_index_array.size:\n",
+    "    stop_index_waveform = sample_index_array.size - 1\n",
+    "\n",
+    "original_data_zoom = original_data_value[plot_name][\n",
+    "    start_index_original_data:stop_index_original_data\n",
+    "]\n",
+    "sampled_data_zoom = (\n",
+    "    sample_waveform[0].values[start_index_waveform:stop_index_waveform] * scale_data\n",
+    ")\n",
+    "sampled_time_zoom = (\n",
+    "    sample_waveform[0].index[start_index_waveform:stop_index_waveform] * scale_time\n",
+    ")\n",
+    "\n",
+    "fig, ax = plt.subplots()\n",
+    "ax.plot(sampled_time_zoom, sampled_data_zoom, \"r*\")\n",
+    "ax.plot(\n",
+    "    np.array(list(original_data_zoom[:,0])),\n",
+    "    original_data_zoom[:,1],\n",
+    "    color=\"blue\",\n",
+    ")\n",
+    "ax.set_title(\"WaveAfterProbe\")\n",
+    "ax.set_xlabel(original_data.units_sweeps[\"Time\"])\n",
+    "ax.set_ylabel(original_data.units_data[plot_name])\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ebc93a0e",
+   "metadata": {},
+   "source": [
+    "## Plot slicer scatter\n",
+    "\n",
+    "Create the plot from a start time to stop time in seconds."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "cb131868",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fig, ax2 = plt.subplots()\n",
+    "ax2.plot(sample_waveform[0].index, np.concatenate(sample_waveform[0].values), \"r*\")\n",
+    "ax2.set_title(\"Slicer Scatter: WaveAfterProbe\")\n",
+    "ax2.set_xlabel(\"s\")\n",
+    "ax2.set_ylabel(\"V\")\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f887878d",
+   "metadata": {},
+   "source": [
+    "## Plot scatter histogram\n",
+    "\n",
+    "Create the plot from a start time to stop time in seconds."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "265c8483",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fig, ax4 = plt.subplots()\n",
+    "ax4.set_title(\"Slicer Histogram: WaveAfterProbe\")\n",
+    "ax4.hist(np.concatenate(sample_waveform[0].values), orientation=\"horizontal\")\n",
+    "ax4.set_ylabel(\"V\")\n",
+    "ax4.grid()\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "15afc0c8",
+   "metadata": {},
+   "source": [
+    "## Get transient report data"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5f38ae86",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plot_name = \"V(b_input_43.int_ami_rx.eye_probe.out)\"\n",
+    "circuit.solution_type = \"NexximTransient\"\n",
+    "context = {\"time_start\": \"0ps\",\"time_stop\": \"100ns\"}\n",
+    "original_data = circuit.post.get_solution_data(\n",
+    "    expressions=plot_name,\n",
+    "    setup_sweep_name=\"NexximTransient\",\n",
+    "    domain=\"Time\",\n",
+    "    variations=circuit.available_variations.nominal,\n",
+    "    context=context\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "575534b5",
+   "metadata": {},
+   "source": [
+    "## Extract sample waveform\n",
+    "\n",
+    "Extract a waveform at a specific clock time plus a half unit interval."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1b4ae984",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "original_data.enable_pandas_output = False\n",
+    "original_data_value = original_data.get_expression_data(formula=\"real\")[1]\n",
+    "original_data_sweep = original_data.primary_sweep_values\n",
+    "waveform_unit = original_data.units_data[plot_name]\n",
+    "\n",
+    "waveform_sweep_unit = original_data.units_sweeps[\"Time\"]\n",
+    "tics = np.arange(20e-9, 100e-9, 1e-10, dtype=float)\n",
+    "\n",
+    "sample_waveform = circuit.post.sample_waveform(\n",
+    "    waveform_data=original_data_value,\n",
+    "    waveform_sweep=original_data_sweep,\n",
+    "    waveform_unit=waveform_unit,\n",
+    "    waveform_sweep_unit=waveform_sweep_unit,\n",
+    "    unit_interval=unit_interval,\n",
+    "    clock_tics=tics,\n",
+    "    pandas_enabled=False,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9e4ecafc",
+   "metadata": {},
+   "source": [
+    "## Plot waveform\n",
+    "\n",
+    "Create the plot from a start time to stop time in seconds."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "426415de",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tstop = 40.0e-9\n",
+    "tstart = 25.0e-9\n",
+    "scale_time = ansys.aedt.core.constants.unit_converter(\n",
+    "    1, unit_system=\"Time\", input_units=\"s\", output_units=waveform_sweep_unit\n",
+    ")\n",
+    "scale_data = ansys.aedt.core.constants.unit_converter(\n",
+    "    1, unit_system=\"Voltage\", input_units=\"V\", output_units=waveform_unit\n",
+    ")\n",
+    "\n",
+    "tstop_ns = scale_time * tstop\n",
+    "tstart_ns = scale_time * tstart\n",
+    "\n",
+    "start_index_original_data = int(np.searchsorted(original_data_sweep, tstart_ns, side=\"left\"))\n",
+    "if start_index_original_data >= original_data_sweep.size:\n",
+    "    start_index_original_data = original_data_sweep.size - 1\n",
+    "\n",
+    "stop_index_original_data = int(np.searchsorted(original_data_sweep, tstop_ns, side=\"left\"))\n",
+    "if stop_index_original_data >= original_data_sweep.size:\n",
+    "    stop_index_original_data = original_data_sweep.size - 1\n",
+    "\n",
+    "cont = 0\n",
+    "for frame in sample_waveform:\n",
+    "    if tstart <= frame[0]:\n",
+    "        start_index_waveform = cont\n",
+    "        break\n",
+    "    cont += 1\n",
+    "for frame in sample_waveform[start_index_waveform:]:\n",
+    "    if frame[0] >= tstop:\n",
+    "        stop_index_waveform = cont\n",
+    "        break\n",
+    "    cont += 1\n",
+    "\n",
+    "original_data_zoom = original_data_value[\n",
+    "    start_index_original_data:stop_index_original_data\n",
+    "]\n",
+    "original_sweep_zoom = original_data_sweep[\n",
+    "    start_index_original_data:stop_index_original_data\n",
+    "]\n",
+    "original_data_zoom_array = np.array(\n",
+    "    list(map(list, zip(original_sweep_zoom, original_data_zoom)))\n",
+    ")\n",
+    "original_data_zoom_array[:, 0] *= 1\n",
+    "sampled_slice = sample_waveform[start_index_waveform:stop_index_waveform]\n",
+    "# Build a homogeneous Nx2 array [time, value] from the sliced frames, with a guard for empty slices.\n",
+    "if len(sampled_slice):\n",
+    "    sampled_data_zoom_array = np.array(\n",
+    "        [\n",
+    "            [\n",
+    "                float(np.asarray(frame[0]).ravel()[0]),\n",
+    "                float(np.asarray(frame[1]).ravel()[0]),\n",
+    "            ]\n",
+    "            for frame in sampled_slice\n",
+    "        ],\n",
+    "        dtype=float,\n",
+    "    )\n",
+    "    sampled_data_zoom_array[:, 0] *= scale_time\n",
+    "    sampled_data_zoom_array[:, 1] *= scale_data\n",
+    "else:\n",
+    "    sampled_data_zoom_array = np.empty((0, 2))\n",
+    "\n",
+    "fig, ax = plt.subplots()\n",
+    "ax.plot(sampled_data_zoom_array[:, 0], sampled_data_zoom_array[:, 1], \"r*\")\n",
+    "ax.plot(original_sweep_zoom, original_data_zoom_array[:, 1], color=\"blue\")\n",
+    "ax.set_title(plot_name)\n",
+    "ax.set_xlabel(waveform_sweep_unit)\n",
+    "ax.set_ylabel(waveform_unit)\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c7b5cfbc",
+   "metadata": {},
+   "source": [
+    "## Plot slicer scatter\n",
+    "\n",
+    "Create the plot from a start time to stop time in seconds."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c6030ee1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "sample_waveform_array = np.array(\n",
+    "        [\n",
+    "            [float(frame[0]), float(np.asarray(frame[1]).ravel()[0])]\n",
+    "            for frame in sample_waveform\n",
+    "        ],\n",
+    "        dtype=float,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "48e6d308",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fig, ax2 = plt.subplots()\n",
+    "ax2.plot(sample_waveform_array[:, 0], sample_waveform_array[:, 1], \"r*\")\n",
+    "ax2.set_title(\"Slicer Scatter: \" + plot_name)\n",
+    "ax2.set_xlabel(\"s\")\n",
+    "ax2.set_ylabel(\"V\")\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e2b5374d",
+   "metadata": {},
+   "source": [
+    "## Release AEDT\n",
+    "\n",
+    "Release AEDT and close the example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "facbf848",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "circuit.save_project()\n",
+    "circuit.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "97535791",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "89801c18",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

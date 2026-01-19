@@ -1,0 +1,507 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "fbb27cd3",
+   "metadata": {},
+   "source": [
+    "# Dipole antenna\n",
+    "\n",
+    "This example demonstrates how to create and analyze a half-wave dipole\n",
+    "antenna in HFSS.\n",
+    "\n",
+    "Keywords: **HFSS**, **antenna**, **3D component**, **far field**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6bda8ea1",
+   "metadata": {},
+   "source": [
+    "## Prerequisites\n",
+    "\n",
+    "### Perform imports\n",
+    "\n",
+    "Import the packages required to run this example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ceb7beee",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "from ansys.aedt.core import Hfss"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "32ba98f4",
+   "metadata": {},
+   "source": [
+    "### Define constants\n",
+    "Constants help ensure consistency and avoid repetition throughout the example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "058e8620",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "aaaffd56",
+   "metadata": {},
+   "source": [
+    "### Create temporary directory\n",
+    "\n",
+    "Create a temporary working directory.\n",
+    "The name of the working folder is stored in ``temp_folder.name``.\n",
+    "\n",
+    "> **Note:** The final cell in this notebook cleans up the temporary folder. If you want to\n",
+    "> retrieve the AEDT project and data, do so before executing the final cell in the notebook."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "29c1c46c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2e834958",
+   "metadata": {},
+   "source": [
+    "### Launch HFSS\n",
+    "\n",
+    "Create an instance of\n",
+    "the ``Hfss`` class. The Ansys Electronics Desktop will be launched\n",
+    "with an active HFSS design. The ``hfss`` object is subsequently\n",
+    "used to\n",
+    "create and simulate the dipole antenna."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "86b5333d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_name = os.path.join(temp_folder.name, \"dipole.aedt\")\n",
+    "hfss = Hfss(version=AEDT_VERSION,\n",
+    "            non_graphical=NG_MODE,\n",
+    "            project=project_name,\n",
+    "            new_desktop=True,\n",
+    "            solution_type=\"Modal\",\n",
+    "            )"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "914709bf",
+   "metadata": {},
+   "source": [
+    "## Model Preparation\n",
+    "\n",
+    "### Define the dipole length as a parameter\n",
+    "\n",
+    "The dipole length can be modified by changing the\n",
+    "parameter ``l_dipole`` to tune the resonance frequency.\n",
+    "\n",
+    "The dipole will nominally be resonant at the half-wavelength frequency:\n",
+    "$$\n",
+    "l = \\lambda / 2 = \\frac{c_0}{2f}\n",
+    "$$"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9f2a5ed6",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "hfss[\"l_dipole\"] = \"10.2cm\"\n",
+    "component_name = \"Dipole_Antenna_DM\"\n",
+    "freq_range = [\"1GHz\", \"2GHz\"]      # Frequency range for analysis and post-processing.\n",
+    "center_freq = \"1.5GHz\"             # Center frequency\n",
+    "freq_step = \"0.5GHz\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "67561ef2",
+   "metadata": {},
+   "source": [
+    "### Insert the dipole antenna model\n",
+    "\n",
+    "The 3D component \"Dipole_Antenna_DM\" will be inserted from\n",
+    "the built-in ``syslib`` folder. The full path to the 3D components\n",
+    "can be retrieved from ``hfss.components3d``.\n",
+    "\n",
+    "The component is inserted using the method\n",
+    "``hfss.modeler.insert_3d_component()``.\n",
+    "\n",
+    "  - The first argument passed to ``insert_3d_component()``\n",
+    "    is the full path and name of the\n",
+    "      ``*.a3dcomp`` file.\n",
+    "  - The second argument is a ``dict`` whose keys are the names of the parameters\n",
+    "    accessible in the 3D component. In this case, we assign the\n",
+    "    dipole length, ``\"l_dipole\"`` to the 3D Component\n",
+    "    parameter ``dipole_length`` and leave other parameters unchanged."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4eaacd76",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "component_fn = hfss.components3d[component_name]          # Full file name.\n",
+    "comp_params = hfss.get_component_variables(component_name)  # Retrieve dipole parameters.\n",
+    "comp_params[\"dipole_length\"] = \"l_dipole\"                 # Update the dipole length.\n",
+    "hfss.modeler.insert_3d_component(component_fn, geometry_parameters=comp_params)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d5695a9d",
+   "metadata": {},
+   "source": [
+    "### Create the 3D domain region\n",
+    "\n",
+    "An open region object places a an airbox around the dipole antenna\n",
+    "and assigns a radiation boundary to the outer surfaces of the region."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "500d1032",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss.create_open_region(frequency=center_freq)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9c203ca9",
+   "metadata": {},
+   "source": [
+    "### Specify the solution setup\n",
+    "\n",
+    "The solution setup defines parameters that govern the HFSS solution process. This example demonstrates\n",
+    "how to adapt the solution mesh simultaneously at two frequencies.\n",
+    "- ``\"MaximumPasses\"`` specifies the maximum number of passes used for automatic\n",
+    "  adaptive mesh refinement. In this example the solution runs very fast since only two passes\n",
+    "  are used. Accuracy can be improved by increasing this value.\n",
+    "- ``\"MultipleAdaptiveFreqsSetup\"`` specifies the solution frequencies used during adaptive\n",
+    "  mesh refinement. Selection of two frequencies, one above and one below the\n",
+    "  expected resonance frequency help improve mesh quality at the resonant frequency.\n",
+    "\n",
+    "> **Note:** The parameter names used here are passed directly to the native AEDT API and therfore\n",
+    "> do not adhere to [PEP-8](https://peps.python.org/pep-0008/).\n",
+    "\n",
+    "Both a discrete frequency sweep and an interpolating sweep are added to the solution setup.\n",
+    "The discrete sweep provides access to field solution data for post-processing.\n",
+    "The interpolating sweep builds the\n",
+    "rational polynomial fit for the network (scattering) parameters over the\n",
+    "frequency interval defined by ``RangeStart`` and\n",
+    "``RangeEnd``.  The solutions from the discrete sweep are used as the starting\n",
+    "solutions for the interpolating sweep."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "67638aff",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup = hfss.create_setup(name=\"MySetup\", MultipleAdaptiveFreqsSetup=freq_range, MaximumPasses=2)\n",
+    "\n",
+    "disc_sweep = setup.add_sweep(name=\"DiscreteSweep\", sweep_type=\"Discrete\",\n",
+    "                             RangeStart=freq_range[0], RangeEnd=freq_range[1], RangeStep=freq_step,\n",
+    "                             SaveFields=True)\n",
+    "\n",
+    "interp_sweep = setup.add_sweep(name=\"InterpolatingSweep\", sweep_type=\"Interpolating\",\n",
+    "                               RangeStart=freq_range[0], RangeEnd=freq_range[1],\n",
+    "                               SaveFields=False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "bbf257c4",
+   "metadata": {},
+   "source": [
+    "### Run simulation\n",
+    "\n",
+    "The following cell runs the analysis in HFSS including adaptive mesh refinement and\n",
+    "solution of both frequency sweeps."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8613d750",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup.analyze()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ed2c17f7",
+   "metadata": {},
+   "source": [
+    "### Postprocess\n",
+    "\n",
+    "Plot the return loss in Ansys Electronics Desktop (AEDT). A plot similar to the one shown here will be\n",
+    "generated in the HFSS design.\n",
+    "\n",
+    "<img src=\"_static/dipole_return_loss.png\" width=\"800\">"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "83260b03",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "spar_plot = hfss.create_scattering(plot=\"Return Loss\", sweep=interp_sweep.name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e9174581",
+   "metadata": {},
+   "source": [
+    "### Visualize far-field data\n",
+    "\n",
+    "Parameters passed to ``hfss.post.create_report()`` specify which quantities will be\n",
+    "displayed in the HFSS design.\n",
+    "Below you can see how parameters map from Python to the reporter in the AEDT user interface.\n",
+    "\n",
+    "<img src=\"_static/ff_report_ui_1.png\" width=\"800\">\n",
+    "<img src=\"_static/ff_report_ui_2.png\" width=\"800\">\n",
+    "\n",
+    "> **Note:** These images were created using the 25R1 release."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3a1a53cd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "variations = hfss.available_variations.nominal_values\n",
+    "variations[\"Freq\"] = [center_freq]\n",
+    "variations[\"Theta\"] = [\"All\"]\n",
+    "variations[\"Phi\"] = [\"All\"]\n",
+    "elevation_ffd_plot = hfss.post.create_report(expressions=\"db(GainTheta)\",\n",
+    "                                             setup_sweep_name=disc_sweep.name,\n",
+    "                                             variations=variations,\n",
+    "                                             primary_sweep_variable=\"Theta\",\n",
+    "                                             context=\"Elevation\",           # Far-field setup is pre-defined.\n",
+    "                                             report_category=\"Far Fields\",\n",
+    "                                             plot_type=\"Radiation Pattern\",\n",
+    "                                             plot_name=\"Elevation Gain (dB)\"\n",
+    "                                            )\n",
+    "elevation_ffd_plot.children[\"Legend\"].properties[\"Show Trace Name\"] = False\n",
+    "elevation_ffd_plot.children[\"Legend\"].properties[\"Show Solution Name\"] = False"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2f372528",
+   "metadata": {},
+   "source": [
+    "### Create a far-field report\n",
+    "\n",
+    "The ``hfss.post.reports_by_category`` helps simplify the syntax required to access\n",
+    "post-processing capabilities. In this case, results are shown for the current\n",
+    "variation. The concept of\n",
+    "\"variations\" is essential for managing parametric solutions\n",
+    "in HFSS.\n",
+    "\n",
+    "The argument ``sphere_name`` specifies the far-field sphere used to generate the plot.\n",
+    "In this case, the far-field sphere \"3D\" was automatically created when HFSS was launched by\n",
+    "instantiating the ``Hfss`` class.\n",
+    "\n",
+    "<img src=\"_static/sphere_3d.png\" width=\"550\">"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4c1fd56b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "report_3d = hfss.post.reports_by_category.far_field(\"db(RealizedGainTheta)\",\n",
+    "                                                      disc_sweep.name,\n",
+    "                                                      sphere_name=\"3D\",\n",
+    "                                                      Freq= [center_freq],)\n",
+    "\n",
+    "report_3d.report_type = \"3D Polar Plot\"\n",
+    "report_3d.create(name=\"Realized Gain (dB)\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9ca0c225",
+   "metadata": {},
+   "source": [
+    "### Retrieve solution data for post-processing in Python\n",
+    "\n",
+    "An instance of the ``SolutionData`` class can be created from the report by calling ``get_solution_data()``. \n",
+    "This class provides access to data for further post-processing using\n",
+    "[Matplotlib](https://matplotlib.org/)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "553616d6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "report_3d_data = report_3d.get_solution_data()\n",
+    "new_plot = report_3d_data.plot_3d()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fe1a1bbb",
+   "metadata": {},
+   "source": [
+    "### View cross-polarization\n",
+    "\n",
+    "The dipole is linearly polarized as can be seen from the comparison of $\\theta$-polarized\n",
+    "and $\\phi$-polarized \"realized gain\" at $\\theta=90^\\circ$ degrees.\n",
+    "The following code creates the gain plots in AEDT."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9b74d1cc",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "xpol_expressions = [\"db(RealizedGainTheta)\", \"db(RealizedGainPhi)\"]\n",
+    "xpol = hfss.post.reports_by_category.far_field([\"db(RealizedGainTheta)\", \"db(RealizedGainPhi)\"],\n",
+    "                                                disc_sweep.name,\n",
+    "                                                name=\"Cross Polarization\",\n",
+    "                                                sphere_name=\"Azimuth\",\n",
+    "                                                Freq= [center_freq],)\n",
+    "\n",
+    "xpol.report_type = \"Radiation Pattern\"\n",
+    "xpol.create(name=\"xpol\")\n",
+    "xpol.children[\"Legend\"].properties[\"Show Solution Name\"] = False\n",
+    "xpol.children[\"Legend\"].properties[\"Show Variation Key\"] = False"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4599aaf1",
+   "metadata": {},
+   "source": [
+    "The ``get_solution_data()`` method is again used to create an inline plot of cross-polarization from\n",
+    "the report in HFSS."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "544c91cc",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "ff_el_data = elevation_ffd_plot.get_solution_data()\n",
+    "ff_el_data.plot(x_label=\"Theta\", y_label=\"Gain\", is_polar=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "27857df8",
+   "metadata": {},
+   "source": [
+    "## Release AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "57336732",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss.save_project()\n",
+    "hfss.release_desktop()\n",
+    "\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e74e6da2",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files.\n",
+    "The following cell removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "895e0d83",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

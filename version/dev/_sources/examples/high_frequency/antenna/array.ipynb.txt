@@ -1,0 +1,516 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "eface200",
+   "metadata": {},
+   "source": [
+    "# Component antenna array"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "514fe397",
+   "metadata": {},
+   "source": [
+    "This example shows how to create an antenna array using 3D components for the unit\n",
+    "cell definition. You will see how to set\n",
+    "up the analysis, generates the EM solution, and post-process the solution data\n",
+    "using Matplotlib and\n",
+    "PyVista. This example runs only on Windows using CPython.\n",
+    "\n",
+    "Keywords: **HFSS**, **antenna array**, **3D components**, **far field**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "36170a18",
+   "metadata": {},
+   "source": [
+    "## Prerequisites\n",
+    "\n",
+    "### Perform imports"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d64e4783",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "from ansys.aedt.core import Hfss\n",
+    "from ansys.aedt.core.visualization.advanced.farfield_visualization import \\\n",
+    "    FfdSolutionData\n",
+    "from ansys.aedt.core.examples.downloads import download_3dcomponent\n",
+    "from ansys.aedt.core.generic import file_utils"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4f678e0b",
+   "metadata": {},
+   "source": [
+    "### Define constants\n",
+    "Constants help ensure consistency and avoid repetition throughout the example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7662bd40",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f5560ecc",
+   "metadata": {},
+   "source": [
+    "### Create temporary directory\n",
+    "\n",
+    "Create a temporary working directory.\n",
+    "The name of the working folder is stored in ``temp_folder.name``.\n",
+    "\n",
+    "> **Note:** The final cell in the notebook cleans up the temporary folder. If you want to\n",
+    "> retrieve the AEDT project and data, do so before executing the final cell in the notebook.\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f294fa98",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "050daf01",
+   "metadata": {},
+   "source": [
+    "### Download 3D component\n",
+    "Download the 3D component that will be used to define\n",
+    "the unit cell in the antenna array."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "67e1c500",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "path_to_3dcomp = download_3dcomponent(local_path=temp_folder.name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3a5f71d3",
+   "metadata": {},
+   "source": [
+    "### Launch HFSS\n",
+    "\n",
+    "The following cell creates a new ``Hfss`` object. Electronics desktop is launched and\n",
+    "a new HFSS design is inserted into the project."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7015f4c4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_name = os.path.join(temp_folder.name, \"array.aedt\")\n",
+    "hfss = Hfss(\n",
+    "    project=project_name,\n",
+    "    version=AEDT_VERSION,\n",
+    "    design=\"Array_Simple\",\n",
+    "    non_graphical=NG_MODE,\n",
+    "    new_desktop=False,  # Set to `False` to connect to an existing AEDT session.\n",
+    ")\n",
+    "\n",
+    "print(\"Project name \" + project_name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2cec3e8f",
+   "metadata": {},
+   "source": [
+    "### Read array definition\n",
+    "\n",
+    "Read array definition from the JSON file."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "14e9d272",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "array_definition = file_utils.read_json(\n",
+    "    os.path.join(path_to_3dcomp, \"array_simple.json\")\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "63b37aad",
+   "metadata": {},
+   "source": [
+    "### Add the 3D component definition\n",
+    "\n",
+    "The JSON file links the unit cell to the 3D component\n",
+    "named \"Circ_Patch_5GHz1\".\n",
+    "This can be seen by examining ``array_definition[\"cells\"]``. The following\n",
+    "code prints the row and column indices of the array elements along with the name\n",
+    "of the 3D component for each element.\n",
+    "\n",
+    "> **Note:** The ``array_definition[\"cells\"]`` is of type ``dict`` and the key\n",
+    "> is builta as a string from the _(row, column)_ indices of the array element. For example:\n",
+    "> the key for the element in the first row and 2nd column is ``\"(1,2)\"``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fef1a202",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print(\"Element\\t\\tName\")\n",
+    "print(\"--------\\t-------------\")\n",
+    "for cell in array_definition[\"cells\"]:\n",
+    "    cell_name = array_definition[\"cells\"][cell][\"name\"]\n",
+    "    print(f\"{cell}\\t\\t'{cell_name}'.\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5b07c35e",
+   "metadata": {},
+   "source": [
+    "Each unit cell is defined by a 3D Component. The 3D component may be added\n",
+    "to the HFSS design using the method\n",
+    "[Hfss.modeler.insert_3d_component()](https://aedt.docs.pyansys.com/version/stable/API/_autosummary/ansys.aedt.core.modeler.modeler_3d.Modeler3D.insert_3d_component.html)\n",
+    "or it can be added as a key to the ``array_definition`` as shown below."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "582bc3f2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "array_definition[\"Circ_Patch_5GHz1\"] = os.path.join(path_to_3dcomp, \"Circ_Patch_5GHz.a3dcomp\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "61598d86",
+   "metadata": {},
+   "source": [
+    "Note that the 3D component name is identical to the value for each element\n",
+    "in the ``\"cells\"`` dictionary. For example,\n",
+    "``array_definition[\"cells\"][0][0][\"name\"]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "88c20a18",
+   "metadata": {},
+   "source": [
+    "### Create the 3D component array in HFSS\n",
+    "\n",
+    "The array is now generated in HFSS from the information in\n",
+    "``array_definition``.\n",
+    "If a 3D component is not available in the design, it is loaded\n",
+    "into the dictionary from the path that you specify. The following\n",
+    "code edits the dictionary to point to the location of the ``A3DCOMP`` file."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "475b9758",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "array = hfss.create_3d_component_array(array_definition, name=\"circ_patch_array\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c05a64af",
+   "metadata": {},
+   "source": [
+    "### Modify cells\n",
+    "\n",
+    "Make the center element passive and rotate the corner elements."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "52f9bb01",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "array.cells[1][1].is_active = False\n",
+    "array.cells[0][0].rotation = 90\n",
+    "array.cells[0][2].rotation = 90\n",
+    "array.cells[2][0].rotation = 90\n",
+    "array.cells[2][2].rotation = 90"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a5125b00",
+   "metadata": {},
+   "source": [
+    "### Set up simulation and run analysis\n",
+    "\n",
+    "Set up a simulation and analyze it."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "23bf654e",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "setup = hfss.create_setup()\n",
+    "setup.props[\"Frequency\"] = \"5GHz\"\n",
+    "setup.props[\"MaximumPasses\"] = 3\n",
+    "hfss.analyze(cores=NUM_CORES)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5ee7645f",
+   "metadata": {},
+   "source": [
+    "## Postprocess\n",
+    "\n",
+    "### Retrieve far-field data\n",
+    "\n",
+    "Get far-field data. After the simulation completes, the far\n",
+    "field data is generated port by port and stored in a data class."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "75b19012",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ffdata = hfss.get_antenna_data(setup=hfss.nominal_adaptive, sphere=\"Infinite Sphere1\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ee8e27bb",
+   "metadata": {},
+   "source": [
+    "### Generate contour plot\n",
+    "\n",
+    "Generate a contour plot. You can define the Theta scan and Phi scan."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "85e74bed",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ffdata.farfield_data.plot_contour(\n",
+    "    quantity=\"RealizedGain\",\n",
+    "    title=f\"Contour at {ffdata.farfield_data.frequency * 1E-9:0.1f} GHz\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0e302246",
+   "metadata": {},
+   "source": [
+    "### Save the project and data\n",
+    "\n",
+    "Farfield data can be accessed from disk after the solution has been generated\n",
+    "using the ``metadata_file`` property of ``ffdata``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "da674eab",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "metadata_file = ffdata.metadata_file\n",
+    "working_directory = hfss.working_directory\n",
+    "\n",
+    "hfss.save_project()\n",
+    "hfss.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "05a23589",
+   "metadata": {},
+   "source": [
+    "### Load far field data\n",
+    "\n",
+    "An instance of the ``FfdSolutionData`` class\n",
+    "can be instantiated from the metadata file. Embedded element\n",
+    "patters are linked through the metadata file."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "590b6911",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ffdata = FfdSolutionData(input_file=metadata_file)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "04207ba7",
+   "metadata": {},
+   "source": [
+    "## Generate contour plot\n",
+    "\n",
+    "Generate a contour plot. You can define the Theta scan\n",
+    "and Phi scan."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3bc33f39",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ffdata.plot_contour(\n",
+    "    quantity=\"RealizedGain\", title=f\"Contour at {ffdata.frequency * 1e-9:.1f} GHz\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7981752e",
+   "metadata": {},
+   "source": [
+    "### Generate 2D cutout plots\n",
+    "\n",
+    "Generate 2D cutout plots. You can define the Theta scan\n",
+    "and Phi scan."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b71bc2db",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ffdata.plot_cut(\n",
+    "    quantity=\"RealizedGain\",\n",
+    "    primary_sweep=\"theta\",\n",
+    "    secondary_sweep_value=[-180, -75, 75],\n",
+    "    title=f\"Azimuth at {ffdata.frequency * 1E-9:.1f} GHz\",\n",
+    "    quantity_format=\"dB10\",\n",
+    ")\n",
+    "\n",
+    "ffdata.plot_cut(\n",
+    "    quantity=\"RealizedGain\",\n",
+    "    primary_sweep=\"phi\",\n",
+    "    secondary_sweep_value=30,\n",
+    "    title=\"Elevation\",\n",
+    "    quantity_format=\"dB10\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b5d4be56",
+   "metadata": {},
+   "source": [
+    "### Generate 3D plot\n",
+    "\n",
+    "Generate 3D plots. You can define the Theta scan and Phi scan."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0b307735",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ffdata.plot_3d(\n",
+    "    quantity=\"RealizedGain\",\n",
+    "    output_file=os.path.join(working_directory, \"Image.jpg\"),\n",
+    "    show=False,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "04781c64",
+   "metadata": {},
+   "source": [
+    "### Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "660f7247",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

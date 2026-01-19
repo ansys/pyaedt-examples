@@ -1,0 +1,354 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "c7433735",
+   "metadata": {},
+   "source": [
+    "# HFSS to EMIT coupling\n",
+    "\n",
+    "This example shows how to link an HFSS design\n",
+    "to EMIT and model RF interference among various components.\n",
+    "\n",
+    "<img src=\"_static/emit_hfss.png\" width=\"400\">\n",
+    "\n",
+    "> **Note:** This example uses the ``Cell Phone RFI Desense``\n",
+    "> project that is available with the AEDT installation in the\n",
+    "> ``\\Examples\\EMIT\\`` directory.\n",
+    "\n",
+    "Keywords: **EMIT**, **Coupling**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4d4218b7",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e01cb692",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import shutil\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core\n",
+    "\n",
+    "from ansys.aedt.core.emit_core.emit_constants import ResultType, TxRxMode\n",
+    "from ansys.aedt.core.emit_core.nodes.generated import AntennaNode, RadioNode"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7daeb366",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c28b0706",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1e0370b6",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6b63c9db",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "218128d9",
+   "metadata": {},
+   "source": [
+    "## Launch AEDT with EMIT\n",
+    "\n",
+    "Launch AEDT with EMIT. The ``Desktop`` class initializes AEDT and starts it\n",
+    "on the specified version and in the specified graphical mode.\n",
+    "A temporary working directory is created using ``tempfile``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1fd33a58",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "d = ansys.aedt.core.launch_desktop(version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7418c2af",
+   "metadata": {},
+   "source": [
+    "## Copy example files\n",
+    "\n",
+    "Copy the ``Cell Phone RFT Defense`` example data from the\n",
+    "installed ``Examples`` directory to the temporary working\n",
+    "directory.\n",
+    "\n",
+    "> **Note:** The HFSS design from the installed example\n",
+    "> used to model the RF environment\n",
+    "> has been pre-solved. Hence, the results folder is copied and\n",
+    "> the RF interference between transceivers is calculated in EMIT using\n",
+    "> results from the linked HFSS design.\n",
+    "\n",
+    "The following lambda functions help create file and directory\n",
+    "names when copying data from the ``Examples`` directory."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "32c01548",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "file_name = lambda s: s + \".aedt\"\n",
+    "results_name = lambda s: s + \".aedtresults\"\n",
+    "pdf_name = lambda s: s + \" Example.pdf\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c443466c",
+   "metadata": {},
+   "source": [
+    "Build the names of the source files for this example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2d4569a0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "example = \"Cell Phone RFI Desense\"\n",
+    "example_dir = os.path.join(d.install_path, \"Examples\\\\EMIT\")\n",
+    "example_project = os.path.join(example_dir, file_name(example))\n",
+    "example_results_folder = os.path.join(example_dir, results_name(example))\n",
+    "example_pdf = os.path.join(example_dir, pdf_name(example))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "cff50a0e",
+   "metadata": {},
+   "source": [
+    "Copy the files to the temporary working directory."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9c5885d4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_name = shutil.copyfile(example_project, os.path.join(temp_folder.name, file_name(example)))\n",
+    "results_folder = shutil.copytree(example_results_folder, os.path.join(temp_folder.name, results_name(example)))\n",
+    "project_pdf = shutil.copyfile(example_pdf, os.path.join(temp_folder.name, pdf_name(example)))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1ab8d9ea",
+   "metadata": {},
+   "source": [
+    "Open the project in the working directory."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "89d47b67",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "aedtapp = ansys.aedt.core.Emit(project_name, version=AEDT_VERSION)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "40289468",
+   "metadata": {},
+   "source": [
+    "## Create and connect EMIT components\n",
+    "\n",
+    "Create two radios with antennas connected to each one."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "aad9db35",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "rad1, ant1 = aedtapp.schematic.create_radio_antenna(\"Bluetooth Low Energy (LE)\")\n",
+    "rad2, ant2 = aedtapp.schematic.create_radio_antenna(\"Bluetooth Low Energy (LE)\")\n",
+    "#rad1, ant1 = aedtapp.modeler.components.create_radio_antenna(\"Bluetooth Low Energy (LE)\")\n",
+    "#rad2, ant2 = aedtapp.modeler.components.create_radio_antenna(\"Bluetooth Low Energy (LE)\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "57fc2757",
+   "metadata": {},
+   "source": [
+    "## Define coupling among RF systems\n",
+    "\n",
+    "Define coupling among the RF systems."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "98f09330",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "for link in aedtapp.couplings.linkable_design_names:\n",
+    "    aedtapp.couplings.add_link(link)\n",
+    "    print('linked \"' + link + '\".')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "556e53db",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "for link in aedtapp.couplings.coupling_names:\n",
+    "    aedtapp.couplings.update_link(link)\n",
+    "    print('linked \"' + link + '\".')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "03c9a2f6",
+   "metadata": {},
+   "source": [
+    "## Calculate RF interference\n",
+    "\n",
+    "Run the EMIT simulation. This portion of the EMIT API is not yet implemented.\n",
+    "\n",
+    "This part of the example requires Ansys AEDT 2023 R2."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "eca83868",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "if AEDT_VERSION > \"2023.1\":\n",
+    "    rev = aedtapp.results.analyze()\n",
+    "    rx_bands = rev.get_band_names(radio_name=rad1.name, tx_rx_mode=TxRxMode.RX)\n",
+    "    tx_bands = rev.get_band_names(radio_name=rad2.name, tx_rx_mode=TxRxMode.TX)\n",
+    "    domain = aedtapp.results.interaction_domain()\n",
+    "    domain.set_receiver(rad1.name, rx_bands[0], -1)\n",
+    "    domain.set_interferer(rad2.name, tx_bands[0])\n",
+    "    interaction = rev.run(domain)\n",
+    "    worst = interaction.get_worst_instance(ResultType.EMI)\n",
+    "    if worst.has_valid_values():\n",
+    "        emi = worst.get_value(ResultType.EMI)\n",
+    "        print(\"Worst case interference is: {} dB\".format(emi))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3d644417",
+   "metadata": {},
+   "source": [
+    "## Release AEDT\n",
+    "\n",
+    "Release AEDT and close the example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4ac996a0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "aedtapp.save_project()\n",
+    "aedtapp.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "27e6979a",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "de8d2907",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  },
+  "nbsphinx": {
+   "execute": "never"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

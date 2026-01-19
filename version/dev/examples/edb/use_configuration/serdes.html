@@ -1,0 +1,1188 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Set up EDB for Serdes channel S-parameter extraction &#8212; PyAEDT Examples</title>
+
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css\ansys_sphinx_theme.css?v=d2ac875c" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=9233c59b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/highlight.css?v=500661c4" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+ 
+<link href="../../../_static/css/breadcrumbs.css" rel="stylesheet" />
+
+    <script src="../../../_static/documentation_options.js?v=e7fb764e"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=49e1bf35"></script>
+    <script src="../../../_static/js\table.js?v=b64f5182"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/edb/use_configuration/serdes';</script>
+    <link rel="icon" href="../../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Set up EDB for PCB DC IR Analysis" href="pcb_dc_ir.html" />
+    <link rel="prev" title="Set up EDB for Power Distribution Network Analysis" href="pdn_analysis.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <link rel="canonical" href="https://examples.aedt.docs.pyansys.com/version/stable/examples/edb/use_configuration/serdes.html" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container"><!-- Debugging: html_theme_options =  -->
+
+  <!-- If there is no MeiliSearch enabled, use the PyData search -->
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+   
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="https://www.ansys.com/">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/ansys_logo_transparent_black.png" class="logo__image only-light" alt="PyAEDT Examples - Home"/>
+    <script>document.write(`<img src="../../../_static/ansys_logo_transparent_white.png" class="logo__image only-dark" alt="PyAEDT Examples - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Examples
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+    
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Examples
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../aedt/index.html">Examples by AEDT application</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../high_frequency/index.html">High frequency</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../high_frequency/antenna/index.html">Antenna</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../high_frequency/radiofrequency_mmwave/index.html">Radio frequency and millimeter wave</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../../high_frequency/layout/index.html">IC-Package-PCB</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../../high_frequency/layout/power_integrity/index.html">Power integrity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../high_frequency/layout/signal_integrity/index.html">Signal integrity</a></li>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="../../high_frequency/layout/workflows/index.html">Workflows</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4 current active"><a class="reference internal" href="index.html">Use configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../legacy_standalone/edb_to_ipc2581.html">EDB: IPC2581 export</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../legacy_standalone/plot_nets.html">EDB: plot nets with Matplotlib</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../legacy_standalone/gds_workflow.html">GDS Import</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../high_frequency/layout/gui_manipulation.html">HFSS Layout UI modification</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../high_frequency/emc/index.html">EMC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../high_frequency/multiphysics/index.html">Multiphysics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../aedt_general/report/index.html">Report</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../low_frequency/index.html">Low frequency</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../electrothermal/index.html">Electrothermal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aedt_general/index.html">Pre-processing and post-processing</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+       
+    <li class="breadcrumb-item">
+      <a href="https://aedt.docs.pyansys.com/" class="nav-link">PyAEDT</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="../../../index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../../index.html" class="nav-link">Examples</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../../high_frequency/index.html" class="nav-link">High frequency</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../../high_frequency/layout/index.html" class="nav-link">IC-Package-PCB</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../../high_frequency/layout/workflows/index.html" class="nav-link">Workflows</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="index.html" class="nav-link">Use configuration</a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page">Set up EDB for Serdes channel S-parameter extraction</li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="admonition-download-this-example admonition">
+<p class="admonition-title">Download this example</p>
+<p>Download this example as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/edb/use_configuration/serdes.ipynb">Jupyter Notebook</a>
+or as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/edb/use_configuration/serdes.py">Python script</a>.</p>
+</div>
+<hr class="docutils" />
+<section id="Set-up-EDB-for-Serdes-channel-S-parameter-extraction">
+<h1>Set up EDB for Serdes channel S-parameter extraction<a class="headerlink" href="#Set-up-EDB-for-Serdes-channel-S-parameter-extraction" title="Link to this heading">#</a></h1>
+<section id="Perform-imports-and-define-constants">
+<h2>Perform imports and define constants<a class="headerlink" href="#Perform-imports-and-define-constants" title="Link to this heading">#</a></h2>
+<p>Perform required imports.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">ansys.aedt.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">Hfss3dLayout</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ansys.aedt.core.examples.downloads</span><span class="w"> </span><span class="kn">import</span> <span class="n">download_file</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyedb</span><span class="w"> </span><span class="kn">import</span> <span class="n">Edb</span>
+</pre></div>
+</div>
+</div>
+<p>Define constants.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">AEDT_VERSION</span> <span class="o">=</span> <span class="s2">&quot;2025.2&quot;</span>
+<span class="n">NG_MODE</span> <span class="o">=</span> <span class="kc">False</span>
+</pre></div>
+</div>
+</div>
+<p>Download the example PCB data.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">temp_folder</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.ansys&quot;</span><span class="p">)</span>
+<span class="n">file_edb</span> <span class="o">=</span> <span class="n">download_file</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;edb/ANSYS-HSD_V1.aedb&quot;</span><span class="p">,</span> <span class="n">local_path</span><span class="o">=</span><span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<span class="n">download_file</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;touchstone&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;GRM32_DC0V_25degC_series.s2p&quot;</span><span class="p">,</span> <span class="n">local_path</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">file_edb</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&#39;C:\\Users\\ansys\\AppData\\Local\\Temp\\tmp2vdf6l9b.ansys\\edb\\touchstone\\GRM32_DC0V_25degC_series.s2p&#39;
+</pre></div></div>
+</div>
+</section>
+<section id="Load-example-layout">
+<h2>Load example layout<a class="headerlink" href="#Load-example-layout" title="Link to this heading">#</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">edbapp</span> <span class="o">=</span> <span class="n">Edb</span><span class="p">(</span><span class="n">file_edb</span><span class="p">,</span> <span class="n">edbversion</span><span class="o">=</span><span class="n">AEDT_VERSION</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+C:\actions-runner\_work\pyaedt-examples\pyaedt-examples\.venv\lib\site-packages\pyedb\misc\decorators.py:55: UserWarning: Argument `edbversion` is deprecated for method `Edb`; use `version` instead.
+  warnings.warn(
+C:\actions-runner\_work\pyaedt-examples\pyaedt-examples\.venv\lib\site-packages\pyedb\generic\design_types.py:301: UserWarning: Your ANSYS AEDT version is eligible to gRPC version.You might consider switching to that version for better user experience.For more information please check this link: https://edb.docs.pyansys.com/version/dev/grpc_api/index.html
+  warnings.warn(GRPC_GENERAL_WARNING, UserWarning)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyEDB INFO: Star initializing Edb 10:37:05.878943
+PyEDB INFO: Edb version 2025.2
+PyEDB INFO: Logger is initialized. Log file is saved to C:\Users\ansys\AppData\Local\Temp\pyedb_ansys.log.
+PyEDB INFO: legacy v0.67.1
+PyEDB INFO: Python version 3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)]
+PyEDB INFO: Database ANSYS-HSD_V1.aedb Opened in 2025.2
+PyEDB INFO: Cell main Opened
+PyEDB INFO: Builder was initialized.
+PyEDB INFO: open_edb completed in 9.0571 seconds.
+PyEDB INFO: EDB initialization completed in 9.1209 seconds.
+</pre></div></div>
+</div>
+</section>
+<section id="Create-config-file">
+<h2>Create config file<a class="headerlink" href="#Create-config-file" title="Link to this heading">#</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cfg_general</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;anti_pads_always_on&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;suppress_pads&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>Define dielectric materials, stackup and surface roughness model.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cfg_stackup</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;materials&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;copper&quot;</span><span class="p">,</span> <span class="s2">&quot;permittivity&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;conductivity&quot;</span><span class="p">:</span> <span class="mf">58000000.0</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;megtron4&quot;</span><span class="p">,</span> <span class="s2">&quot;permittivity&quot;</span><span class="p">:</span> <span class="mf">3.77</span><span class="p">,</span> <span class="s2">&quot;dielectric_loss_tangent&quot;</span><span class="p">:</span> <span class="mf">0.005</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;solder_resist&quot;</span><span class="p">,</span> <span class="s2">&quot;permittivity&quot;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span> <span class="s2">&quot;dielectric_loss_tangent&quot;</span><span class="p">:</span> <span class="mf">0.035</span><span class="p">},</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;layers&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Top&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;signal&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;material&quot;</span><span class="p">:</span> <span class="s2">&quot;copper&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fill_material&quot;</span><span class="p">:</span> <span class="s2">&quot;solder_resist&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;thickness&quot;</span><span class="p">:</span> <span class="s2">&quot;0.035mm&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;roughness&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;top&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="s2">&quot;huray&quot;</span><span class="p">,</span> <span class="s2">&quot;nodule_radius&quot;</span><span class="p">:</span> <span class="s2">&quot;0.5um&quot;</span><span class="p">,</span> <span class="s2">&quot;surface_ratio&quot;</span><span class="p">:</span> <span class="s2">&quot;5&quot;</span><span class="p">},</span>
+                <span class="s2">&quot;bottom&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="s2">&quot;huray&quot;</span><span class="p">,</span> <span class="s2">&quot;nodule_radius&quot;</span><span class="p">:</span> <span class="s2">&quot;0.5um&quot;</span><span class="p">,</span> <span class="s2">&quot;surface_ratio&quot;</span><span class="p">:</span> <span class="s2">&quot;5&quot;</span><span class="p">},</span>
+                <span class="s2">&quot;side&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="s2">&quot;huray&quot;</span><span class="p">,</span> <span class="s2">&quot;nodule_radius&quot;</span><span class="p">:</span> <span class="s2">&quot;0.5um&quot;</span><span class="p">,</span> <span class="s2">&quot;surface_ratio&quot;</span><span class="p">:</span> <span class="s2">&quot;5&quot;</span><span class="p">},</span>
+                <span class="s2">&quot;enabled&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;DE1&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;dielectric&quot;</span><span class="p">,</span> <span class="s2">&quot;material&quot;</span><span class="p">:</span> <span class="s2">&quot;megtron4&quot;</span><span class="p">,</span> <span class="s2">&quot;fill_material&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;thickness&quot;</span><span class="p">:</span> <span class="s2">&quot;0.1mm&quot;</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Inner1&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;signal&quot;</span><span class="p">,</span> <span class="s2">&quot;material&quot;</span><span class="p">:</span> <span class="s2">&quot;copper&quot;</span><span class="p">,</span> <span class="s2">&quot;fill_material&quot;</span><span class="p">:</span> <span class="s2">&quot;megtron4&quot;</span><span class="p">,</span> <span class="s2">&quot;thickness&quot;</span><span class="p">:</span> <span class="s2">&quot;0.017mm&quot;</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;DE2&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;dielectric&quot;</span><span class="p">,</span> <span class="s2">&quot;material&quot;</span><span class="p">:</span> <span class="s2">&quot;megtron4&quot;</span><span class="p">,</span> <span class="s2">&quot;fill_material&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;thickness&quot;</span><span class="p">:</span> <span class="s2">&quot;0.088mm&quot;</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Inner2&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;signal&quot;</span><span class="p">,</span> <span class="s2">&quot;material&quot;</span><span class="p">:</span> <span class="s2">&quot;copper&quot;</span><span class="p">,</span> <span class="s2">&quot;fill_material&quot;</span><span class="p">:</span> <span class="s2">&quot;megtron4&quot;</span><span class="p">,</span> <span class="s2">&quot;thickness&quot;</span><span class="p">:</span> <span class="s2">&quot;0.017mm&quot;</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;DE3&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;dielectric&quot;</span><span class="p">,</span> <span class="s2">&quot;material&quot;</span><span class="p">:</span> <span class="s2">&quot;megtron4&quot;</span><span class="p">,</span> <span class="s2">&quot;fill_material&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;thickness&quot;</span><span class="p">:</span> <span class="s2">&quot;0.1mm&quot;</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Inner3&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;signal&quot;</span><span class="p">,</span> <span class="s2">&quot;material&quot;</span><span class="p">:</span> <span class="s2">&quot;copper&quot;</span><span class="p">,</span> <span class="s2">&quot;fill_material&quot;</span><span class="p">:</span> <span class="s2">&quot;megtron4&quot;</span><span class="p">,</span> <span class="s2">&quot;thickness&quot;</span><span class="p">:</span> <span class="s2">&quot;0.017mm&quot;</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Megtron4-1mm&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;dielectric&quot;</span><span class="p">,</span> <span class="s2">&quot;material&quot;</span><span class="p">:</span> <span class="s2">&quot;megtron4&quot;</span><span class="p">,</span> <span class="s2">&quot;fill_material&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;thickness&quot;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Inner4&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;signal&quot;</span><span class="p">,</span> <span class="s2">&quot;material&quot;</span><span class="p">:</span> <span class="s2">&quot;copper&quot;</span><span class="p">,</span> <span class="s2">&quot;fill_material&quot;</span><span class="p">:</span> <span class="s2">&quot;megtron4&quot;</span><span class="p">,</span> <span class="s2">&quot;thickness&quot;</span><span class="p">:</span> <span class="s2">&quot;0.017mm&quot;</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;DE5&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;dielectric&quot;</span><span class="p">,</span> <span class="s2">&quot;material&quot;</span><span class="p">:</span> <span class="s2">&quot;megtron4&quot;</span><span class="p">,</span> <span class="s2">&quot;fill_material&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;thickness&quot;</span><span class="p">:</span> <span class="s2">&quot;0.1mm&quot;</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Inner5&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;signal&quot;</span><span class="p">,</span> <span class="s2">&quot;material&quot;</span><span class="p">:</span> <span class="s2">&quot;copper&quot;</span><span class="p">,</span> <span class="s2">&quot;fill_material&quot;</span><span class="p">:</span> <span class="s2">&quot;megtron4&quot;</span><span class="p">,</span> <span class="s2">&quot;thickness&quot;</span><span class="p">:</span> <span class="s2">&quot;0.017mm&quot;</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;DE6&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;dielectric&quot;</span><span class="p">,</span> <span class="s2">&quot;material&quot;</span><span class="p">:</span> <span class="s2">&quot;megtron4&quot;</span><span class="p">,</span> <span class="s2">&quot;fill_material&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;thickness&quot;</span><span class="p">:</span> <span class="s2">&quot;0.088mm&quot;</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Inner6&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;signal&quot;</span><span class="p">,</span> <span class="s2">&quot;material&quot;</span><span class="p">:</span> <span class="s2">&quot;copper&quot;</span><span class="p">,</span> <span class="s2">&quot;fill_material&quot;</span><span class="p">:</span> <span class="s2">&quot;megtron4&quot;</span><span class="p">,</span> <span class="s2">&quot;thickness&quot;</span><span class="p">:</span> <span class="s2">&quot;0.017mm&quot;</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;DE7&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;dielectric&quot;</span><span class="p">,</span> <span class="s2">&quot;material&quot;</span><span class="p">:</span> <span class="s2">&quot;megtron4&quot;</span><span class="p">,</span> <span class="s2">&quot;fill_material&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;thickness&quot;</span><span class="p">:</span> <span class="s2">&quot;0.1mm&quot;</span><span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Bottom&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;signal&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;material&quot;</span><span class="p">:</span> <span class="s2">&quot;copper&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fill_material&quot;</span><span class="p">:</span> <span class="s2">&quot;solder_resist&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;thickness&quot;</span><span class="p">:</span> <span class="s2">&quot;0.035mm&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">],</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>Define Component with solderballs.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cfg_components</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;reference_designator&quot;</span><span class="p">:</span> <span class="s2">&quot;U1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;part_type&quot;</span><span class="p">:</span> <span class="s2">&quot;io&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;solder_ball_properties&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;shape&quot;</span><span class="p">:</span> <span class="s2">&quot;cylinder&quot;</span><span class="p">,</span> <span class="s2">&quot;diameter&quot;</span><span class="p">:</span> <span class="s2">&quot;300um&quot;</span><span class="p">,</span> <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="s2">&quot;300um&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;port_properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;reference_offset&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;reference_size_auto&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;reference_size_x&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;reference_size_y&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<p>Edit via padstack definition. Add backdrilling.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cfg_padstacks</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;definitions&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;v40h15-2&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;material&quot;</span><span class="p">:</span> <span class="s2">&quot;copper&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;hole_range&quot;</span><span class="p">:</span> <span class="s2">&quot;upper_pad_to_lower_pad&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;hole_parameters&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;shape&quot;</span><span class="p">:</span> <span class="s2">&quot;circle&quot;</span><span class="p">,</span> <span class="s2">&quot;diameter&quot;</span><span class="p">:</span> <span class="s2">&quot;0.2mm&quot;</span><span class="p">},</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;v35h15-1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;material&quot;</span><span class="p">:</span> <span class="s2">&quot;copper&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;hole_range&quot;</span><span class="p">:</span> <span class="s2">&quot;upper_pad_to_lower_pad&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;hole_parameters&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;shape&quot;</span><span class="p">:</span> <span class="s2">&quot;circle&quot;</span><span class="p">,</span> <span class="s2">&quot;diameter&quot;</span><span class="p">:</span> <span class="s2">&quot;0.25mm&quot;</span><span class="p">},</span>
+        <span class="p">},</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;instances&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Via313&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;backdrill_parameters&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;from_bottom&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;drill_to_layer&quot;</span><span class="p">:</span> <span class="s2">&quot;Inner3&quot;</span><span class="p">,</span> <span class="s2">&quot;diameter&quot;</span><span class="p">:</span> <span class="s2">&quot;1mm&quot;</span><span class="p">,</span> <span class="s2">&quot;stub_length&quot;</span><span class="p">:</span> <span class="s2">&quot;0.2mm&quot;</span><span class="p">}</span>
+            <span class="p">},</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Via314&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;backdrill_parameters&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;from_bottom&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;drill_to_layer&quot;</span><span class="p">:</span> <span class="s2">&quot;Inner3&quot;</span><span class="p">,</span> <span class="s2">&quot;diameter&quot;</span><span class="p">:</span> <span class="s2">&quot;1mm&quot;</span><span class="p">,</span> <span class="s2">&quot;stub_length&quot;</span><span class="p">:</span> <span class="s2">&quot;0.2mm&quot;</span><span class="p">}</span>
+            <span class="p">},</span>
+        <span class="p">},</span>
+    <span class="p">],</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>Define ports.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cfg_ports</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;port_1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;reference_designator&quot;</span><span class="p">:</span> <span class="s2">&quot;U1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;coax&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;positive_terminal&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;net&quot;</span><span class="p">:</span> <span class="s2">&quot;PCIe_Gen4_TX2_CAP_P&quot;</span><span class="p">},</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;port_2&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;reference_designator&quot;</span><span class="p">:</span> <span class="s2">&quot;U1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;coax&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;positive_terminal&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;net&quot;</span><span class="p">:</span> <span class="s2">&quot;PCIe_Gen4_TX2_CAP_N&quot;</span><span class="p">},</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;port_3&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;reference_designator&quot;</span><span class="p">:</span> <span class="s2">&quot;X1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;circuit&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;positive_terminal&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;pin&quot;</span><span class="p">:</span> <span class="s2">&quot;B8&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;negative_terminal&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;pin&quot;</span><span class="p">:</span> <span class="s2">&quot;B7&quot;</span><span class="p">},</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;port_4&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;reference_designator&quot;</span><span class="p">:</span> <span class="s2">&quot;X1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;circuit&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;positive_terminal&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;pin&quot;</span><span class="p">:</span> <span class="s2">&quot;B9&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;negative_terminal&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;pin&quot;</span><span class="p">:</span> <span class="s2">&quot;B10&quot;</span><span class="p">},</span>
+    <span class="p">},</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<p>Define S-parameter assignment</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cfg_s_parameters</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;cap_10nf&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;file_path&quot;</span><span class="p">:</span> <span class="s2">&quot;$PROJECTDIR</span><span class="se">\\</span><span class="s2">touchstone</span><span class="se">\\</span><span class="s2">GRM32_DC0V_25degC_series.s2p&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;component_definition&quot;</span><span class="p">:</span> <span class="s2">&quot;CAPC1005X55X25LL05T10&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;components&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;C375&quot;</span><span class="p">,</span> <span class="s2">&quot;C376&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;reference_net&quot;</span><span class="p">:</span> <span class="s2">&quot;GND&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<p>Define SIwave setup.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cfg_setups</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;siwave_setup&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;siwave_ac&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;si_slider_position&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;freq_sweep&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Sweep1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;interpolation&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;frequencies&quot;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="p">{</span><span class="s2">&quot;distribution&quot;</span><span class="p">:</span> <span class="s2">&quot;linear_scale&quot;</span><span class="p">,</span> <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="s2">&quot;50MHz&quot;</span><span class="p">,</span> <span class="s2">&quot;stop&quot;</span><span class="p">:</span> <span class="s2">&quot;20GHz&quot;</span><span class="p">,</span> <span class="s2">&quot;increment&quot;</span><span class="p">:</span> <span class="s2">&quot;50MHz&quot;</span><span class="p">}</span>
+                <span class="p">],</span>
+            <span class="p">}</span>
+        <span class="p">],</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<p>Define cutout.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cfg_operations</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;cutout&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;signal_list&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;PCIe_Gen4_TX2_CAP_P&quot;</span><span class="p">,</span> <span class="s2">&quot;PCIe_Gen4_TX2_CAP_N&quot;</span><span class="p">,</span> <span class="s2">&quot;PCIe_Gen4_TX2_P&quot;</span><span class="p">,</span> <span class="s2">&quot;PCIe_Gen4_TX2_N&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;reference_list&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;GND&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;custom_extent&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">[</span><span class="mf">0.014</span><span class="p">,</span> <span class="mf">0.055</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.03674271504652968</span><span class="p">,</span> <span class="mf">0.05493094625752912</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.07</span><span class="p">,</span> <span class="mf">0.039</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.07</span><span class="p">,</span> <span class="mf">0.034</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.05609890516829415</span><span class="p">,</span> <span class="mf">0.03395233061637539</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.014</span><span class="p">,</span> <span class="mf">0.044</span><span class="p">],</span>
+        <span class="p">],</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>Create final configuration.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cfg</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;general&quot;</span><span class="p">:</span> <span class="n">cfg_general</span><span class="p">,</span>
+    <span class="s2">&quot;stackup&quot;</span><span class="p">:</span> <span class="n">cfg_stackup</span><span class="p">,</span>
+    <span class="s2">&quot;components&quot;</span><span class="p">:</span> <span class="n">cfg_components</span><span class="p">,</span>
+    <span class="s2">&quot;padstacks&quot;</span><span class="p">:</span> <span class="n">cfg_padstacks</span><span class="p">,</span>
+    <span class="s2">&quot;ports&quot;</span><span class="p">:</span> <span class="n">cfg_ports</span><span class="p">,</span>
+    <span class="s2">&quot;s_parameters&quot;</span><span class="p">:</span> <span class="n">cfg_s_parameters</span><span class="p">,</span>
+    <span class="s2">&quot;setups&quot;</span><span class="p">:</span> <span class="n">cfg_setups</span><span class="p">,</span>
+    <span class="s2">&quot;operations&quot;</span><span class="p">:</span> <span class="n">cfg_operations</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>Create the config file.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">file_json</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;edb_configuration.json&quot;</span><span class="p">)</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_json</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Apply-Config-file">
+<h2>Apply Config file<a class="headerlink" href="#Apply-Config-file" title="Link to this heading">#</a></h2>
+<p>Apply configuration to the example layout</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">edbapp</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config_file</span><span class="o">=</span><span class="n">file_json</span><span class="p">)</span>
+<span class="n">edbapp</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyEDB INFO: Updating nets finished. Time lapse 0:00:00
+PyEDB INFO: Updating components finished. Time lapse 0:00:00.031686
+PyEDB INFO: Creating pin groups finished. Time lapse 0:00:00
+PyEDB INFO: Placing sources finished. Time lapse 0:00:00
+PyEDB INFO: Applying materials finished. Time lapse 0:00:00.015908
+PyEDB INFO: Updating stackup finished. Time lapse 0:00:08.939713
+PyEDB INFO: Applying padstack definitions and instances completed in 1.3966 seconds.
+PyEDB INFO: Applying S-parameters finished. Time lapse 0:00:00.011795
+PyEDB INFO: Applying package definitions finished. Time lapse 0:00:00
+PyEDB INFO: Applying modeler finished. Time lapse 0:00:00
+PyEDB INFO: Placing ports finished. Time lapse 0:00:00.292480
+PyEDB INFO: Placing terminals completed in 0.0000 seconds.
+PyEDB INFO: Placing probes finished. Time lapse 0:00:00
+PyEDB INFO: -----------------------------------------
+PyEDB INFO: Trying cutout with (0.002)*(1000.0)mm expansion size
+PyEDB INFO: -----------------------------------------
+PyEDB INFO: Cutout Multithread started.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+C:\actions-runner\_work\pyaedt-examples\pyaedt-examples\.venv\lib\site-packages\pydantic\main.py:464: UserWarning: Pydantic serializer warnings:
+  PydanticSerializationUnexpectedValue(Unexpected Value)
+  PydanticSerializationUnexpectedValue(Expected `str` - serialized value may not be as expected [field_name=&#39;resistor_below&#39;, input_value=100, input_type=int])
+  PydanticSerializationUnexpectedValue(Unexpected Value)
+  PydanticSerializationUnexpectedValue(Expected `str` - serialized value may not be as expected [field_name=&#39;inductor_below&#39;, input_value=1, input_type=int])
+  return self.__pydantic_serializer__.to_python(
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyEDB INFO: Net clean up Elapsed time: 0m 1sec
+PyEDB INFO: Extent Creation Elapsed time: 0m 0sec
+PyEDB INFO: 1949 Padstack Instances deleted. Elapsed time: 0m 1sec
+PyEDB INFO: 443 Primitives deleted. Elapsed time: 0m 3sec
+PyEDB INFO: 980 components deleted
+PyEDB INFO: Cutout completed. Elapsed time: 0m 5sec
+PyEDB INFO: EDB file save completed in 0.0630 seconds.
+PyEDB INFO: Cutout completed in 1 iterations with expansion size of (0.002)*(1000.0)mm Elapsed time: 0m 5sec
+PyEDB INFO: Applying operations completed in 4.8022 seconds.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">edbapp</span><span class="o">.</span><span class="n">nets</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">nets</span><span class="o">=</span><span class="p">[])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/examples_edb_use_configuration_serdes_32_0.png" src="../../../_images/examples_edb_use_configuration_serdes_32_0.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyEDB INFO: Plot Generation time 0.788
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(&lt;Figure size 6000x3000 with 1 Axes&gt;,
+ &lt;Axes: title={&#39;center&#39;: &#39;Edb Top View main&#39;}&gt;)
+</pre></div></div>
+</div>
+<p>Save and close EDB.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">edbapp</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+<span class="n">edbapp</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyEDB INFO: Save Edb file completed in 0.0475 seconds.
+PyEDB INFO: Close Edb file completed in 0.0951 seconds.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+<p>The configured EDB file is saved in a temp folder.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+C:\Users\ansys\AppData\Local\Temp\tmp2vdf6l9b.ansys
+</pre></div></div>
+</div>
+</section>
+<section id="Load-edb-into-HFSS-3D-Layout.">
+<h2>Load edb into HFSS 3D Layout.<a class="headerlink" href="#Load-edb-into-HFSS-3D-Layout." title="Link to this heading">#</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">h3d</span> <span class="o">=</span> <span class="n">Hfss3dLayout</span><span class="p">(</span><span class="n">edbapp</span><span class="o">.</span><span class="n">edbpath</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">AEDT_VERSION</span><span class="p">,</span> <span class="n">non_graphical</span><span class="o">=</span><span class="n">NG_MODE</span><span class="p">,</span> <span class="n">new_desktop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Python version 3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)].
+PyAEDT INFO: PyAEDT version 0.25.dev0.
+PyAEDT INFO: Initializing new Desktop session.
+PyAEDT INFO: Log on console is enabled.
+PyAEDT INFO: Log on file C:\Users\ansys\AppData\Local\Temp\pyaedt_ansys_b1ea32be-74c2-444e-8d42-9c600dcd1702.log is enabled.
+PyAEDT INFO: Log on AEDT is disabled.
+PyAEDT INFO: Starting new AEDT gRPC session.
+PyAEDT INFO: AEDT installation Path C:\Program Files\ANSYS Inc\v252\AnsysEM
+PyAEDT INFO: Client application successfully started.
+PyAEDT INFO: New AEDT gRPC session session started on port 50051.
+PyAEDT INFO: 2025.2 version started with process ID 8948.
+PyAEDT WARNING: Service Pack is not detected. PyAEDT is currently connecting in Insecure Mode.
+PyAEDT WARNING: Please download and install latest Service Pack to use connect to AEDT in Secure Mode.
+PyAEDT INFO: Debug logger is disabled. PyAEDT methods will not be logged.
+PyAEDT INFO: EDB folder C:\Users\ansys\AppData\Local\Temp\tmp2vdf6l9b.ansys\edb\ANSYS-HSD_V1.aedb has been imported to project ANSYS-HSD_V1
+PyAEDT INFO: Active Design set to 0;main
+PyAEDT INFO: Active Design set to 0;main
+PyAEDT INFO: Aedt Objects correctly read
+</pre></div></div>
+</div>
+<p>Create differential pair definition.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">h3d</span><span class="o">.</span><span class="n">set_differential_pair</span><span class="p">(</span>
+    <span class="n">differential_mode</span><span class="o">=</span><span class="s2">&quot;DIFF_BGA&quot;</span><span class="p">,</span>
+    <span class="n">assignment</span><span class="o">=</span><span class="s2">&quot;port_1&quot;</span><span class="p">,</span>
+    <span class="n">reference</span><span class="o">=</span><span class="s2">&quot;port_2&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">h3d</span><span class="o">.</span><span class="n">set_differential_pair</span><span class="p">(</span>
+    <span class="n">differential_mode</span><span class="o">=</span><span class="s2">&quot;DIFF_CONN&quot;</span><span class="p">,</span>
+    <span class="n">assignment</span><span class="o">=</span><span class="s2">&quot;port_3&quot;</span><span class="p">,</span>
+    <span class="n">reference</span><span class="o">=</span><span class="s2">&quot;port_4&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+<p>Solve. Un-comment to analyze SIwave.</p>
+<p>h3d.analyze(setup=”siwave_setup”)</p>
+<p>Plot insertion loss.</p>
+<p>solutions = h3d.post.get_solution_data(expressions=”mag(S(DIFF_CONN,DIFF_BGA))”, context=”Differential Pairs”) solutions.plot(formula=”db20”)</p>
+<p>Shut Down Electronics Desktop</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">h3d</span><span class="o">.</span><span class="n">close_desktop</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Desktop has been released and closed.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+<p>All project files are saved in the folder <code class="docutils literal notranslate"><span class="pre">temp_file.dir</span></code>. If you’ve run this example as a Jupyter notebook you can retrieve those project files.</p>
+</section>
+</section>
+<hr class="docutils" />
+<div class="admonition-download-this-example admonition">
+<p class="admonition-title">Download this example</p>
+<p>Download this example as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/edb/use_configuration/serdes.ipynb">Jupyter Notebook</a>
+or as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/edb/use_configuration/serdes.py">Python script</a>.</p>
+</div>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Perform-imports-and-define-constants">Perform imports and define constants</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Load-example-layout">Load example layout</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-config-file">Create config file</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Apply-Config-file">Apply Config file</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Load-edb-into-HFSS-3D-Layout.">Load edb into HFSS 3D Layout.</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item"> 
+<div class="tocsection editthispage">
+  <a href="https://github.com/ansys/pyaedt-examples/edit/main/doc/source/examples/edb/use_configuration/serdes.ipynb">
+    <i class="fa-solid fa-pencil"></i>
+       Edit
+    on GitHub  
+  </a>
+</div>
+
+</div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../../../_sources/examples/edb/use_configuration/serdes.ipynb.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright (c) 2021 - 2026 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the
+  <a href="https://sphinxdocs.ansys.com/version/stable/index.html"
+    >Ansys Sphinx Theme</a
+  >
+  1.0.11. <br />Last updated on
+  <span id="date"></span>
+</p>
+<script>
+  var options = { day: "numeric", month: "long", year: "numeric" };
+  var lastModifiedDate = new Date(document.lastModified);
+  var date = lastModifiedDate.toLocaleDateString("en-US", options);
+  document.getElementById("date").innerHTML = date;
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

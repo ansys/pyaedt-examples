@@ -1,0 +1,526 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "7bffe226",
+   "metadata": {},
+   "source": [
+    "# Doppler setup\n",
+    "\n",
+    "This example shows how to use PyAEDT to create a multipart scenario in HFSS SBR+\n",
+    "and set up a doppler analysis.\n",
+    "\n",
+    "Keywords: **HFSS**, **SBR+**, **doppler**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e41a526b",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f2f02047",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core\n",
+    "from ansys.aedt.core.examples.downloads import download_multiparts\n",
+    "from ansys.aedt.core.examples.downloads import download_file\n",
+    "from ansys.aedt.core.examples.downloads import unzip"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "183e5b8a",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c7d9bf03",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "33a3884c",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fdb58ecb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c72288ba",
+   "metadata": {},
+   "source": [
+    "## Download 3D component\n",
+    "Download the 3D component that is needed to run the example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "abaf29a2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "library_path = download_multiparts(\n",
+    "    local_path=temp_folder.name\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "07a1693a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "zip_file = download_file(\n",
+    "    \"frtm\",\n",
+    "    name=\"doppler_sbr.results.zip\",\n",
+    "    local_path=temp_folder.name\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5d786819",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "results = os.path.join(temp_folder.name, \"doppler_sbr.results\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "196bc070",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "unzip(zip_file, results)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7e67dd95",
+   "metadata": {},
+   "source": [
+    "## Launch HFSS and open project\n",
+    "\n",
+    "Launch HFSS and open the project."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "72bd8eff",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_name = os.path.join(temp_folder.name, \"doppler.aedt\")\n",
+    "app = ansys.aedt.core.Hfss(\n",
+    "    version=AEDT_VERSION,\n",
+    "    solution_type=\"SBR+\",\n",
+    "    new_desktop=True,\n",
+    "    project=project_name,\n",
+    "    close_on_exit=True,\n",
+    "    non_graphical=NG_MODE,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "47d7e93c",
+   "metadata": {},
+   "source": [
+    "Creation of the \"actors\" in the scene is comprised of many editing steps. Disabling the autosave option helps\n",
+    "avoid delays that occur while the project is being saved."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "84cc91ff",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "app.autosave_disable()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "363a5ceb",
+   "metadata": {},
+   "source": [
+    "## Save project and rename design\n",
+    "\n",
+    "Save the project to the temporary folder and rename the design."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0f675b89",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "design = \"doppler_sbr\"\n",
+    "app.rename_design(design)\n",
+    "app.save_project()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8641c179",
+   "metadata": {},
+   "source": [
+    "## Set up library paths\n",
+    "\n",
+    "Specify the location of 3D components used to create the scene."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1fbcfcb1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "actor_lib = os.path.join(library_path, \"actor_library\")\n",
+    "env_lib = os.path.join(library_path, \"environment_library\")\n",
+    "radar_lib = os.path.join(library_path, \"radar_modules\")\n",
+    "env_folder = os.path.join(env_lib, \"road1\")\n",
+    "person_folder = os.path.join(actor_lib, \"person3\")\n",
+    "car_folder = os.path.join(actor_lib, \"vehicle1\")\n",
+    "bike_folder = os.path.join(actor_lib, \"bike1\")\n",
+    "bird_folder = os.path.join(actor_lib, \"bird1\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "782c2229",
+   "metadata": {},
+   "source": [
+    "## Define environment\n",
+    "\n",
+    "Define the background environment."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "73ee316f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "road1 = app.modeler.add_environment(input_dir=env_folder, name=\"Bari\")\n",
+    "prim = app.modeler"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "59d6dd15",
+   "metadata": {},
+   "source": [
+    "## Place actors\n",
+    "\n",
+    "Place actors in the environment. This code places persons, birds, bikes, and cars\n",
+    "in the environment."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ae2401ac",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "person1 = app.modeler.add_person(\n",
+    "    input_dir=person_folder,\n",
+    "    speed=1.0,\n",
+    "    global_offset=[25, 1.5, 0],\n",
+    "    yaw=180,\n",
+    "    name=\"Massimo\",\n",
+    ")\n",
+    "person2 = app.modeler.add_person(\n",
+    "    input_dir=person_folder,\n",
+    "    speed=1.0,\n",
+    "    global_offset=[25, 2.5, 0],\n",
+    "    yaw=180,\n",
+    "    name=\"Devin\",\n",
+    ")\n",
+    "car1 = app.modeler.add_vehicle(\n",
+    "    input_dir=car_folder, speed=8.7, global_offset=[3, -2.5, 0], name=\"LuxuryCar\"\n",
+    ")\n",
+    "bike1 = app.modeler.add_vehicle(\n",
+    "    input_dir=bike_folder,\n",
+    "    speed=2.1,\n",
+    "    global_offset=[24, 3.6, 0],\n",
+    "    yaw=180,\n",
+    "    name=\"Alberto_in_bike\",\n",
+    ")\n",
+    "bird1 = app.modeler.add_bird(\n",
+    "    input_dir=bird_folder,\n",
+    "    speed=1.0,\n",
+    "    global_offset=[19, 4, 3],\n",
+    "    yaw=120,\n",
+    "    pitch=-5,\n",
+    "    flapping_rate=30,\n",
+    "    name=\"Pigeon\",\n",
+    ")\n",
+    "bird2 = app.modeler.add_bird(\n",
+    "    input_dir=bird_folder,\n",
+    "    speed=1.0,\n",
+    "    global_offset=[6, 2, 3],\n",
+    "    yaw=-60,\n",
+    "    pitch=10,\n",
+    "    name=\"Eagle\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d684daf3",
+   "metadata": {},
+   "source": [
+    "## Place radar\n",
+    "\n",
+    "Place radar on the car. The radar is created relative to the car's coordinate\n",
+    "system."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "747e3c9e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "radar1 = app.create_sbr_radar_from_json(\n",
+    "    radar_file=radar_lib,\n",
+    "    name=\"Example_1Tx_1Rx\",\n",
+    "    offset=[2.57, 0, 0.54],\n",
+    "    use_relative_cs=True,\n",
+    "    relative_cs_name=car1.cs_name,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ffa488dd",
+   "metadata": {},
+   "source": [
+    "## Create setup\n",
+    "\n",
+    "Create setup and validate it. The ``create_sbr_pulse_doppler_setup()`` method\n",
+    "creates a setup and a parametric sweep on the time variable with a\n",
+    "duration of two seconds. The step is computed automatically from CPI."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fe8e1226",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup, sweep = app.create_sbr_pulse_doppler_setup(sweep_time_duration=2, velocity_resolution=0.05)\n",
+    "app.set_sbr_current_sources_options()\n",
+    "app.validate_simple()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "11425179",
+   "metadata": {},
+   "source": [
+    "## Solve and release AEDT\n",
+    "\n",
+    "Solve and release AEDT. To solve, uncomment the ``app.analyze_setup`` command\n",
+    "to activate the simulation."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e47471c4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# app.analyze_setup(sweep.name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "295b277b",
+   "metadata": {},
+   "source": [
+    "## Doppler post-processing\n",
+    "\n",
+    "Once the design is solved, you can get the raw data inside the .aedtresults directory. The format of this data is\n",
+    "called FRTM.\n",
+    "PyAEDT offers sophisticated tools for FRTM post-processing\n",
+    "[FRTM](https://aedt.docs.pyansys.com/version/stable/API/visualization/advanced.html#frtm-processing/)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "18e0532e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from ansys.aedt.core.visualization.advanced.frtm_visualization import get_results_files\n",
+    "from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMPlotter\n",
+    "from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9228ffc4",
+   "metadata": {},
+   "source": [
+    "## Load FRTM files\n",
+    "\n",
+    "You can load all the FRTM files inside a directory or you could load one single file."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "23441c29",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "doppler_data_frames = {}\n",
+    "frames_dict = get_results_files(results)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8af4573f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "for frame, data_frame in frames_dict.items():\n",
+    "    doppler_data = FRTMData(data_frame)\n",
+    "    doppler_data_frames[frame] = doppler_data"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6a71544e",
+   "metadata": {},
+   "source": [
+    "## FRTM plotter\n",
+    "\n",
+    "You can perform multiple post-processing operations like range-doppler or direction of arrival."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "cb400487",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "frtm_plotter = FRTMPlotter(doppler_data_frames)\n",
+    "frame_number = frtm_plotter.frames[0]\n",
+    "frtm_plotter.plot_range_doppler(frame=frame_number)\n",
+    "frtm_plotter.plot_range_angle_map(frame=frame_number, polar=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a92516af",
+   "metadata": {},
+   "source": [
+    "## Release AEDT\n",
+    "\n",
+    "Release AEDT and close the example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b13d71f5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "app.save_project()\n",
+    "app.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c3a8766a",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "209fc79a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

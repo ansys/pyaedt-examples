@@ -1,0 +1,361 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "ca061e10",
+   "metadata": {},
+   "source": [
+    "# Create a simple transmission line"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "929869c6",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "97ed8d4a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import json\n",
+    "import os\n",
+    "import tempfile\n",
+    "\n",
+    "from pyedb import Edb"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6bf00819",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5466f50a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NG_MODE = False"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "87c8af20",
+   "metadata": {},
+   "source": [
+    "## Create an empty design"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ce01de57",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")\n",
+    "edb_path = os.path.join(temp_folder.name, \"simple_transmission_line.aedb\")\n",
+    "edbapp = Edb(edb_path, edbversion=AEDT_VERSION)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b207a884",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Create a default 2-layer stackup\n",
+    "edbapp.stackup.create_symmetric_stackup(layer_count=2, soldermask=False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "87be6748",
+   "metadata": {},
+   "source": [
+    "## Create config file"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "555e35b9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg = {\"stackup\": {}, \"modeler\": {}, \"variables\": {}}\n",
+    "\n",
+    "cfg[\"variables\"] = [{\"name\": \"trace_width\", \"value\": \"0.2mm\"}]\n",
+    "\n",
+    "cfg[\"stackup\"][\"materials\"] = [\n",
+    "    {\"name\": \"copper\", \"permittivity\": 1, \"conductivity\": 58000000.0},\n",
+    "    {\"name\": \"fr4\", \"permittivity\": 3.77, \"dielectric_loss_tangent\": 0.005},\n",
+    "    {\"name\": \"solder_resist\", \"permittivity\": 3.0, \"dielectric_loss_tangent\": 0.035},\n",
+    "]\n",
+    "\n",
+    "cfg[\"stackup\"][\"layers\"] = [\n",
+    "    {\"name\": \"TOP\", \"type\": \"signal\", \"material\": \"copper\", \"fill_material\": \"solder_resist\", \"thickness\": \"0.035mm\"},\n",
+    "    {\"name\": \"DE\", \"type\": \"dielectric\", \"material\": \"fr4\", \"fill_material\": \"\", \"thickness\": \"0.5mm\"},\n",
+    "    {\n",
+    "        \"name\": \"BOTTOM\",\n",
+    "        \"type\": \"signal\",\n",
+    "        \"material\": \"copper\",\n",
+    "        \"fill_material\": \"solder_resist\",\n",
+    "        \"thickness\": \"0.035mm\",\n",
+    "    },\n",
+    "]\n",
+    "\n",
+    "cfg[\"modeler\"][\"traces\"] = [\n",
+    "    {\n",
+    "        \"name\": \"trace_1\",\n",
+    "        \"layer\": \"TOP\",\n",
+    "        \"width\": \"trace_width\",\n",
+    "        \"path\": [[0, 0], [0, \"3mm\"]],\n",
+    "        \"net_name\": \"SIG\",\n",
+    "        \"start_cap_style\": \"flat\",\n",
+    "        \"end_cap_style\": \"flat\",\n",
+    "    },\n",
+    "    {\n",
+    "        \"name\": \"trace_1_void\",\n",
+    "        \"layer\": \"TOP\",\n",
+    "        \"width\": \"trace_width+0.3mm\",\n",
+    "        \"path\": [[0, 0], [0, \"3mm\"]],\n",
+    "        \"net_name\": \"GND\",\n",
+    "    },\n",
+    "]\n",
+    "cfg[\"modeler\"][\"planes\"] = [\n",
+    "    {\n",
+    "        \"type\": \"rectangle\",\n",
+    "        \"name\": \"GND_TOP\",\n",
+    "        \"layer\": \"TOP\",\n",
+    "        \"net_name\": \"GND\",\n",
+    "        \"lower_left_point\": [\"-2mm\", 0],\n",
+    "        \"upper_right_point\": [\"2mm\", \"3mm\"],\n",
+    "        \"voids\": [\"trace_1_void\"],\n",
+    "    },\n",
+    "    {\n",
+    "        \"type\": \"rectangle\",\n",
+    "        \"name\": \"GND_BOTTOM\",\n",
+    "        \"layer\": \"BOTTOM\",\n",
+    "        \"net_name\": \"GND\",\n",
+    "        \"lower_left_point\": [\"-2mm\", 0],\n",
+    "        \"upper_right_point\": [\"2mm\", \"3mm\"],\n",
+    "    },\n",
+    "]\n",
+    "\n",
+    "cfg[\"modeler\"][\"padstack_definitions\"] = [\n",
+    "    {\n",
+    "        \"name\": \"via\",\n",
+    "        \"hole_plating_thickness\": \"0.025mm\",\n",
+    "        \"material\": \"copper\",\n",
+    "        \"pad_parameters\": {\n",
+    "            \"regular_pad\": [\n",
+    "                {\n",
+    "                    \"layer_name\": \"TOP\",\n",
+    "                    \"shape\": \"circle\",\n",
+    "                    \"diameter\": \"0.5mm\",\n",
+    "                },\n",
+    "                {\n",
+    "                    \"layer_name\": \"BOTTOM\",\n",
+    "                    \"shape\": \"circle\",\n",
+    "                    \"diameter\": \"0.5mm\",\n",
+    "                },\n",
+    "            ],\n",
+    "        },\n",
+    "        \"hole_range\": \"through\",\n",
+    "        \"hole_parameters\": {\n",
+    "            \"shape\": \"circle\",\n",
+    "            \"diameter\": \"0.25mm\",\n",
+    "        },\n",
+    "    }\n",
+    "]\n",
+    "\n",
+    "cfg[\"modeler\"][\"padstack_instances\"] = [\n",
+    "    {\n",
+    "        \"name\": \"gvia_l_1\",\n",
+    "        \"definition\": \"via\",\n",
+    "        \"layer_range\": [\"TOP\", \"BOTTOM\"],\n",
+    "        \"position\": [\"-1mm\", \"0.5mm\"],\n",
+    "        \"net_name\": \"GND\",\n",
+    "    },\n",
+    "    {\n",
+    "        \"name\": \"gvia_l_2\",\n",
+    "        \"definition\": \"via\",\n",
+    "        \"layer_range\": [\"TOP\", \"BOTTOM\"],\n",
+    "        \"position\": [\"-1mm\", \"1.5mm\"],\n",
+    "        \"net_name\": \"GND\",\n",
+    "    },\n",
+    "    {\n",
+    "        \"name\": \"gvia_l_3\",\n",
+    "        \"definition\": \"via\",\n",
+    "        \"layer_range\": [\"TOP\", \"BOTTOM\"],\n",
+    "        \"position\": [\"-1mm\", \"2.5mm\"],\n",
+    "        \"net_name\": \"GND\",\n",
+    "    },\n",
+    "    {\n",
+    "        \"name\": \"gvia_r_1\",\n",
+    "        \"definition\": \"via\",\n",
+    "        \"layer_range\": [\"TOP\", \"BOTTOM\"],\n",
+    "        \"position\": [\"1mm\", \"0.5mm\"],\n",
+    "        \"net_name\": \"GND\",\n",
+    "    },\n",
+    "    {\n",
+    "        \"name\": \"gvia_r_2\",\n",
+    "        \"definition\": \"via\",\n",
+    "        \"layer_range\": [\"TOP\", \"BOTTOM\"],\n",
+    "        \"position\": [\"1mm\", \"1.5mm\"],\n",
+    "        \"net_name\": \"GND\",\n",
+    "    },\n",
+    "    {\n",
+    "        \"name\": \"gvia_r_3\",\n",
+    "        \"definition\": \"via\",\n",
+    "        \"layer_range\": [\"TOP\", \"BOTTOM\"],\n",
+    "        \"position\": [\"1mm\", \"2.5mm\"],\n",
+    "        \"net_name\": \"GND\",\n",
+    "    },\n",
+    "]\n",
+    "\n",
+    "cfg[\"ports\"] = [\n",
+    "    {\n",
+    "        \"name\": \"wport_1\",\n",
+    "        \"type\": \"wave_port\",\n",
+    "        \"primitive_name\": \"trace_1\",\n",
+    "        \"point_on_edge\": [0, 0],\n",
+    "        \"horizontal_extent_factor\": 10,\n",
+    "        \"vertical_extent_factor\": 2,\n",
+    "        \"pec_launch_width\": \"0,2mm\",\n",
+    "    },\n",
+    "    {\n",
+    "        \"name\": \"wport_2\",\n",
+    "        \"type\": \"wave_port\",\n",
+    "        \"primitive_name\": \"trace_1\",\n",
+    "        \"point_on_edge\": [0, \"3mm\"],\n",
+    "        \"horizontal_extent_factor\": 10,\n",
+    "        \"vertical_extent_factor\": 2,\n",
+    "        \"pec_launch_width\": \"0,2mm\",\n",
+    "    },\n",
+    "]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "aa4cf084",
+   "metadata": {},
+   "source": [
+    "Create the config file."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8c2f09e0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "file_json = os.path.join(temp_folder.name, \"cfg.json\")\n",
+    "with open(file_json, \"w\") as f:\n",
+    "    json.dump(cfg, f, indent=4, ensure_ascii=False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8ba8ca3d",
+   "metadata": {},
+   "source": [
+    "Apply configuration to the example layout"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "933d8680",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.configuration.load(config_file=file_json)\n",
+    "edbapp.configuration.run()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ed3136d8",
+   "metadata": {},
+   "source": [
+    "Save and close EDB."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2ebbc5e2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.save()\n",
+    "edbapp.close()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fd946bc3",
+   "metadata": {},
+   "source": [
+    "## Uncomment to load edb into HFSS 3D Layout."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "87d787bc",
+   "metadata": {},
+   "source": [
+    "h3d = Hfss3dLayout(edbapp.edbpath, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2060bc0c",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2fe7c8e8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

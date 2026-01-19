@@ -1,0 +1,377 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "068e6852",
+   "metadata": {},
+   "source": [
+    "# Eigenmode filter\n",
+    "\n",
+    "This example shows how to use PyAEDT to automate the Eigenmode solver in HFSS.\n",
+    "Eigenmode analysis can be applied to open radiating structures\n",
+    "using an absorbing boundary condition. This type of analysis is useful for\n",
+    "determining the resonant frequency of a geometry or an antenna, and it can be used to refine\n",
+    "the mesh at the resonance, even when the resonant frequency of the antenna is not known.\n",
+    "\n",
+    "The challenge posed by this method is to identify and filter the non-physical modes\n",
+    "resulting from reflection from boundaries of the main domain.\n",
+    "Because the Eigenmode solver sorts by frequency and does not filter on the\n",
+    "quality factor, these virtual modes are present when the Eigenmode approach is\n",
+    "applied to nominally open structures.\n",
+    "\n",
+    "When looking for resonant modes over a wide frequency range for nominally\n",
+    "enclosed structures, several iterations may be required because the minimum frequency\n",
+    "is determined manually. Simulations re-run until the complete frequency range is covered\n",
+    "and all important physical modes are calculated.\n",
+    "\n",
+    "The following script finds the physical modes of a model in a wide frequency\n",
+    "range by automating the solution setup.\n",
+    "During each simulation, a user-defined number of modes is simulated, and the modes\n",
+    "with a Q higher than a user-defined value are filtered.\n",
+    "The next simulation automatically continues to find modes having a frequency higher\n",
+    "than the last mode of the previous analysis.\n",
+    "This continues until the maximum frequency in the desired range is achieved.\n",
+    "\n",
+    "Keywords: **HFSS**, **Eigenmode**, **resonance**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7c018edc",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "36cf1d97",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core\n",
+    "from ansys.aedt.core.examples.downloads import download_file"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4749e074",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "52c41843",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a9cbc530",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4a981926",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f075dab0",
+   "metadata": {},
+   "source": [
+    "## Download 3D component\n",
+    "Download the 3D component that is needed to run the example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "37bed9ac",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_path = download_file(\n",
+    "    \"eigenmode\", \"emi_PCB_house.aedt\", temp_folder.name\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b4bd6450",
+   "metadata": {},
+   "source": [
+    "## Launch AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "97335e6b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "d = ansys.aedt.core.launch_desktop(\n",
+    "    AEDT_VERSION,\n",
+    "    non_graphical=NG_MODE,\n",
+    "    new_desktop=True,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "64b93e72",
+   "metadata": {},
+   "source": [
+    "## Launch HFSS\n",
+    "\n",
+    "Create an HFSS design."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "50770dae",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss = ansys.aedt.core.Hfss(\n",
+    "    version=AEDT_VERSION, project=project_path, non_graphical=NG_MODE\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "58462a97",
+   "metadata": {},
+   "source": [
+    "## Input parameters for Eigenmode solver\n",
+    "\n",
+    "The geometry and material should be already set. The analyses are generated by the code.\n",
+    "The ``num_modes`` parameter is the number of modes during each analysis. The maximum\n",
+    "allowed number is 20. Entering a number higher than 10 might result in a long simulation\n",
+    "time as the Eigenmode solver must converge on modes. The ``fmin`` parameter is the lowest\n",
+    "frequency of interest. The ``fmax`` parameter is the highest frequency of interest.\n",
+    "The ``limit`` parameter determines which modes are ignored."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "758fc900",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "num_modes = 6\n",
+    "fmin = 1\n",
+    "fmax = 2\n",
+    "next_fmin = fmin\n",
+    "setup_nr = 1\n",
+    "limit = 10\n",
+    "resonance = {}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4bb3fe35",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "source": [
+    "## Find modes\n",
+    "\n",
+    "The following cell defines a function that can be used to create and solve an Eigenmode setup.\n",
+    "After solving the model, information about each mode is saved for subsequent processing."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a8eab146",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "def find_resonance():\n",
+    "    # Setup creation\n",
+    "    next_min_freq = f\"{next_fmin} GHz\"\n",
+    "    setup_name = f\"em_setup{setup_nr}\"\n",
+    "    setup = hfss.create_setup(setup_name)\n",
+    "    setup.props[\"MinimumFrequency\"] = next_min_freq\n",
+    "    setup.props[\"NumModes\"] = num_modes\n",
+    "    setup.props[\"ConvergeOnRealFreq\"] = True\n",
+    "    setup.props[\"MaximumPasses\"] = 10\n",
+    "    setup.props[\"MinimumPasses\"] = 3\n",
+    "    setup.props[\"MaxDeltaFreq\"] = 5\n",
+    "\n",
+    "    # Analyze the Eigenmode setup\n",
+    "    hfss.analyze_setup(setup_name, cores=NUM_CORES, use_auto_settings=True)\n",
+    "\n",
+    "    # Get the Q and real frequency of each mode\n",
+    "    eigen_q_quantities = hfss.post.available_report_quantities(\n",
+    "        quantities_category=\"Eigen Q\"\n",
+    "    )\n",
+    "    eigen_mode_quantities = hfss.post.available_report_quantities()\n",
+    "    data = {}\n",
+    "    for i, expression in enumerate(eigen_mode_quantities):\n",
+    "        eigen_q_value = hfss.post.get_solution_data(\n",
+    "            expressions=eigen_q_quantities[i],\n",
+    "            setup_sweep_name=f\"{setup_name} : LastAdaptive\",\n",
+    "            report_category=\"Eigenmode\",\n",
+    "        )\n",
+    "        eigen_mode_value = hfss.post.get_solution_data(\n",
+    "            expressions=expression,\n",
+    "            setup_sweep_name=f\"{setup_name} : LastAdaptive\",\n",
+    "            report_category=\"Eigenmode\",\n",
+    "        )\n",
+    "        data[i] = [eigen_q_value.data_real()[0], eigen_mode_value.data_real()[0]]\n",
+    "\n",
+    "    print(data)\n",
+    "    return data"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fe20b4c7",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "source": [
+    "## Automate Eigenmode solution\n",
+    "\n",
+    "Running the next cell calls the resonance function and saves\n",
+    "only those modes with a Q higher than the defined\n",
+    "limit. The ``find_resonance()`` function is called until the complete\n",
+    "frequency range is covered.\n",
+    "When the automation ends, the physical modes in the whole frequency\n",
+    "range are reported."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8a1f3cef",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "while next_fmin < fmax:\n",
+    "    output = find_resonance()\n",
+    "    next_fmin = output[len(output) - 1][1] / 1e9\n",
+    "    setup_nr += 1\n",
+    "    cont_res = len(resonance)\n",
+    "    for q in output:\n",
+    "        if output[q][0] > limit:\n",
+    "            resonance[cont_res] = output[q]\n",
+    "            cont_res += 1\n",
+    "\n",
+    "resonance_frequencies = [f\"{resonance[i][1] / 1e9:.5} GHz\" for i in resonance]\n",
+    "print(str(resonance_frequencies))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "46d16a33",
+   "metadata": {},
+   "source": [
+    "Plot the model."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ddbf9159",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss.modeler.fit_all()\n",
+    "hfss.plot(\n",
+    "    show=False,\n",
+    "    output_file=os.path.join(hfss.working_directory, \"Image.jpg\"),\n",
+    "    plot_air_objects=False,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0010313c",
+   "metadata": {},
+   "source": [
+    "## Release AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6990d8db",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss.save_project()\n",
+    "d.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d0d91e8b",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell removes\n",
+    "all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "809d3e62",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

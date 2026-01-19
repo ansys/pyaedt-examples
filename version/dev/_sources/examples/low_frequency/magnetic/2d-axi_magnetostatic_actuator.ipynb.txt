@@ -1,0 +1,451 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "02db93d6",
+   "metadata": {},
+   "source": [
+    "# 2D Axi-symmetric Actuator\n",
+    "\n",
+    "This example demonstrates how to leverage both: axi-symmetry and the magnetostatic solver\n",
+    "to calculate the forces experienced by the anchor of an actuator due to change in\n",
+    "current and anchor location\n",
+    "\n",
+    "Keywords: **Maxwell2D**, **axi-symmetry** **magnetostatic**, **translational motion**, **parametric sweep**,\n",
+    "**installation example**"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5a20af12",
+   "metadata": {},
+   "source": [
+    "## Prerequisites\n",
+    "\n",
+    "### Perform imports"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6e3662e1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core  # Interface to Ansys Electronics Desktop\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "350056e6",
+   "metadata": {},
+   "source": [
+    "### Define constants\n",
+    "Constants help ensure consistency and avoid repetition throughout the example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "306a19cf",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "72a2a4ca",
+   "metadata": {},
+   "source": [
+    "### Create temporary directory\n",
+    "\n",
+    "Create a temporary working directory.\n",
+    "The name of the working folder is stored in ``temp_folder.name``.\n",
+    "\n",
+    "> **Note:** The final cell in the notebook cleans up the temporary folder. If you want to\n",
+    "> retrieve the AEDT project and data, do so before executing the final cell in the notebook."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6822e4cc",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5edd1acf",
+   "metadata": {},
+   "source": [
+    "### Launch Maxwell 2d\n",
+    "\n",
+    "Create an instance of\n",
+    "the ``Maxwell2d`` class. The Ansys Electronics Desktop will be launched\n",
+    "with an active Maxwell2D design. The ``m2d`` object is subsequently\n",
+    "used to\n",
+    "create and simulate the actuator model."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4c39ed4e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_name = os.path.join(temp_folder.name, \"2d_axi_magsta_actuator.aedt\")\n",
+    "m2d = ansys.aedt.core.Maxwell2d(\n",
+    "    project=project_name,\n",
+    "    solution_type=\"MagnetostaticZ\",\n",
+    "    version=AEDT_VERSION,\n",
+    "    non_graphical=NG_MODE,\n",
+    "    new_desktop=True,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0dcf0ad8",
+   "metadata": {},
+   "source": [
+    "## Model Preparation\n",
+    "\n",
+    "### Define actuator's housing point location\n",
+    "\n",
+    "The actuator's housing is built using line segments\n",
+    "for readability and reusability we define the points\n",
+    "as a python's list of lists, where each sublist defines an\n",
+    "x-, y-, z-coordinate. (e.g., [[x1,y1,z1],...,[xn,yn,zn]]."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "75ca9ba2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "points_housing = [\n",
+    "    [0, 0, 0],\n",
+    "    [0, 0, -10],\n",
+    "    [12, 0, -10],\n",
+    "    [12, 0, 10],\n",
+    "    [2.5, 0, 10],\n",
+    "    [2.5, 0, 8],\n",
+    "    [10, 0, 8],\n",
+    "    [10, 0, -8],\n",
+    "    [2, 0, -8],\n",
+    "    [2, 0, 0],\n",
+    "]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d2c94689",
+   "metadata": {},
+   "source": [
+    "### Declare and initialize design parameters"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7598b95a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.modeler.model_units = \"mm\"  # Global units used in geometry creation\n",
+    "m2d[\"Amp_1\"] = \"1000A\"  # Net current applied to coil\n",
+    "m2d[\"move\"] = \"0mm\"  # Displacement applied to anchor"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5b54dc6c",
+   "metadata": {},
+   "source": [
+    "### Create 2D model\n",
+    "Build coil, anchor and housing geometries"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "477ae3ee",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "coil_m = m2d.modeler.create_rectangle(origin=[\"3mm\", \"0mm\", \"7mm\"], sizes=[-14, 6], name=\"Coil\", material=\"Copper\")\n",
+    "anchor_m = m2d.modeler.create_rectangle(\n",
+    "    origin=[\"0mm\", \"0mm\", \"13mm - move\"],\n",
+    "    sizes=[-8, 2],\n",
+    "    name=\"Anchor\",\n",
+    "    material=\"steel_1008\",\n",
+    ")\n",
+    "housing_m = m2d.modeler.create_polyline(points_housing, close_surface=True, name=\"Housing\", material=\"steel_1008\")\n",
+    "m2d.modeler.cover_lines(housing_m)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "461b7160",
+   "metadata": {},
+   "source": [
+    "Create surrounding vacuum domain"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4cc4087d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "region_m = m2d.modeler.create_region(pad_percent=100)\n",
+    "region_m.material_name = \"vacuum\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b3616d2a",
+   "metadata": {},
+   "source": [
+    "Fit all geometrical entities into the modeler's window"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "37224f67",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.modeler.fit_all()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "113e5ca0",
+   "metadata": {},
+   "source": [
+    "### Assign boundary conditions\n",
+    "\n",
+    "Apply zero magnetic vector potential on the region edges\n",
+    "that the field only has a tangential component at the edge of the\n",
+    "surrounding domain/region"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "63499d13",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.assign_vector_potential(assignment=region_m.edges, boundary=\"VectorPotential1\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "203a40da",
+   "metadata": {},
+   "source": [
+    "### Assign Excitation\n",
+    "\n",
+    "Create a current driven coil by applying a current excitation in the coil domain"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "17c27726",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.assign_current(assignment=coil_m.name, amplitude=\"Amp_1\", name=\"Current1\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4b3c912e",
+   "metadata": {},
+   "source": [
+    "### Enable force calculation on the anchor"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8cdc00bb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.assign_force(\n",
+    "    assignment=anchor_m,\n",
+    "    force_name=\"Force\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3ef731ef",
+   "metadata": {},
+   "source": [
+    "### Define solution setup"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "154d3f4b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup = m2d.create_setup(\"MySetup\")\n",
+    "print(setup.props)\n",
+    "setup.props[\"MaximumPasses\"] = 3\n",
+    "setup.props[\"PercentRefinement\"] = 30\n",
+    "setup.props[\"PercentError\"] = 0.1\n",
+    "setup.props[\"MinimumPasses\"] = 1\n",
+    "setup.props[\"RelativeResidual\"] = 1e-6"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a77db75d",
+   "metadata": {},
+   "source": [
+    "### Create variable/parameter sweeps\n",
+    "\n",
+    "Enable sweeps over coil net current and anchor displacement"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e422a978",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "value_sweep = m2d.parametrics.add(\"Amp_1\", 500, 1000, 500, name=\"ParametricSetup1\", variation_type=\"LinearStep\")\n",
+    "value_sweep.add_variation(\"move\", 0, 2, 1, variation_type=\"LinearStep\")\n",
+    "#"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "75598cae",
+   "metadata": {},
+   "source": [
+    "### Run analysis"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0aceb952",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "value_sweep.analyze(cores=NUM_CORES)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fe01af4f",
+   "metadata": {},
+   "source": [
+    "## Postprocess\n",
+    "\n",
+    "Create a Force vs. move (displacement) Report/Plot for every current value"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b18669ad",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "m2d.post.create_report(\n",
+    "    expressions=[\"Force.Force_z\"],\n",
+    "    variations={\"Amp_1\": \"All\", \"move\": \"All\"},\n",
+    "    plot_name=\"Force Plot 1\",\n",
+    "    primary_sweep_variable=\"move\",\n",
+    "    plot_type=\"Rectangular Plot\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e308822b",
+   "metadata": {},
+   "source": [
+    "## Finish\n",
+    "\n",
+    "### Save the project"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a59a6a4b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.save_project()\n",
+    "m2d.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9ba700fd",
+   "metadata": {},
+   "source": [
+    "### Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "682b9438",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

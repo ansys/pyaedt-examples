@@ -1,0 +1,245 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "49b13f11",
+   "metadata": {},
+   "source": [
+    "# GDS Import\n",
+    "\n",
+    "Integrated circuit layout data is defined in GDS data which specifies the layout\n",
+    "geometry. Additionally, layer mapping and layer material information is defined in a\n",
+    "technology file.\n",
+    "\n",
+    "This example demonstrates how to import GDS files and translate GDS data\n",
+    "into an EDB file along with some simplified technology data\n",
+    "for subsequent use in HFSS 3D Layout.\n",
+    "\n",
+    "Keywords: **GDS**, **RFIC**"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e226c3bb",
+   "metadata": {},
+   "source": [
+    "## Prerequisites\n",
+    "\n",
+    "### Perform imports"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5e18a6f9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "from pyedb import Edb\n",
+    "from pyedb.misc.downloads import download_file\n",
+    "from ansys.aedt.core.hfss3dlayout import  Hfss3dLayout"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b1abb4c7",
+   "metadata": {},
+   "source": [
+    "### Define constant\n",
+    "Constants help ensure consistency and avoid repetition throughout the example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7e18e9f7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION= \"2025.2\"\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fa5e5775",
+   "metadata": {},
+   "source": [
+    "### Create temporary directory\n",
+    "\n",
+    "Create a temporary working directory.\n",
+    "The name of the working folder is stored in ``temp_folder.name``.\n",
+    "\n",
+    "> **Note:** The final cell in the notebook cleans up the temporary folder. If you want to\n",
+    "> retrieve the AEDT project and data, do so before executing the final cell in the notebook."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2303856e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8f693a6c",
+   "metadata": {},
+   "source": [
+    "### Import a GDS file.\n",
+    "\n",
+    "Download the test case folder and copy it to the working directory. The \n",
+    "method ``download_file()`` retrieves example data from the \n",
+    "[Ansys GitHub \"example_data\" repository](https://github.com/ansys/example-data/tree/main/pyaedt).\n",
+    "\n",
+    "The following files are used in this example:\n",
+    "\n",
+    "- ``Model.xml`` defines physical information such\n",
+    "  as material properties, stackup layer names, and boundary conditions.\n",
+    "- ``Model.gds`` contains the GDS data for the layout.\n",
+    "- ``Model.map`` maps properties to stackup layers."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "589a33e9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "control_fn = \"Model.xml\"\n",
+    "gds_fn = \"Model.gds\"\n",
+    "layer_map = \"Model.map\"\n",
+    "\n",
+    "local_path = download_file(\"gds\", destination=temp_folder.name)\n",
+    "control_file = os.path.join(local_path, control_fn)\n",
+    "map_file = os.path.join(local_path, layer_map)\n",
+    "gds_in = os.path.join(local_path, gds_fn)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "35e6fb4c",
+   "metadata": {},
+   "source": [
+    "### Open the EDB\n",
+    "\n",
+    "Each GDS file requires a control file (XML) or a technology file (IRCX, VLC.TECH, or ITF)\n",
+    "that maps the GDS geometry to a physical layer in the stackup.\n",
+    "The MAP file is also regularly used to map the stackup layers, and finally in some cases a layer filter (XML) is deployed, when\n",
+    "only a part of the stackup is needed.\n",
+    "\n",
+    "Open the EDB by creating an instance of the ``Edb`` class."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ae633903",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb = Edb(gds_in, control_file=control_file, map_file=map_file, version=AEDT_VERSION)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8d04450d",
+   "metadata": {},
+   "source": [
+    "### View the layer stackup"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f4ed926e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.stackup.plot()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3da3c07e",
+   "metadata": {},
+   "source": [
+    "### Save and close the EDB\n",
+    "\n",
+    "The GDS file has been converted to an EDB and is ready for subsequent processing either in the\n",
+    "3D Layout UI of Electronics Desktop or using \n",
+    "PyEDB. \n",
+    "The following commands save and close the EDB. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0fcbd2a5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb_path = os.path.join(temp_folder.name, \"gds_design.aedb\")\n",
+    "edb.save_as(edb_path)\n",
+    "edb.close()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "349f6d5f",
+   "metadata": {},
+   "source": [
+    "## View the layout\n",
+    "### Open the EDB in Electronics Desktop\n",
+    "\n",
+    "The following command opens the EDB in Electronics Desktop. If you're running this example locally, you should see something like this:\n",
+    "\n",
+    "<img src=\"_static/layout.png\" width=\"800\">"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f33a2824",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d = Hfss3dLayout(project=edb_path, version=AEDT_VERSION, new_desktop=NG_MODE)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9ebddb6e",
+   "metadata": {},
+   "source": [
+    "### Close the HFSS 3D Layout \n",
+    "The following command releases Ansys Electronics Desktop and closes the project."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f7285db6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d.release_desktop()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

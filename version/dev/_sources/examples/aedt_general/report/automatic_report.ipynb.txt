@@ -1,0 +1,356 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "60695e4f",
+   "metadata": {},
+   "source": [
+    "# Automatic report creation\n",
+    "\n",
+    "This example shows how to create reports from a JSON template file.\n",
+    "\n",
+    "\n",
+    "Keywords: **Circuit**, **report**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "16c7ab0c",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Import the required packages. This example uses\n",
+    "data from the [example-data repository](https://github.com/ansys/example-data/tree/master)\n",
+    "located in ``pyaedt\\custom_reports``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9dfe6af5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core\n",
+    "from ansys.aedt.core.examples.downloads import download_file\n",
+    "from IPython.display import Image"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "760a2262",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "64fa192c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c0393d9e",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5a79d9ee",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b7789cd8",
+   "metadata": {},
+   "source": [
+    "## Launch AEDT with Circuit\n",
+    "\n",
+    "AEDT is started by instantiating an instance of\n",
+    "[pyaedt.Circuit](https://aedt.docs.pyansys.com/version/stable/API/_autosummary/pyaedt.circuit.Circuit.html).\n",
+    "\n",
+    "### Application keyword arguments\n",
+    "\n",
+    "- The argument ``non_graphical`` specifies whether an interactive session is launched or if\n",
+    "  AEDT is to run in non-graphical mode.\n",
+    "- The Boolean parameter ``new_desktop`` specifies if a new instance\n",
+    "  of AEDT is launched. If it is set to ``False``, the API tries to connect to a running session.\n",
+    "\n",
+    "This example extracts an archived project. The full path\n",
+    "to the extracted project is accessible from the ``cir.project_file`` property."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e3665695",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_path = download_file(\n",
+    "    source=\"custom_reports/\", local_path=temp_folder.name\n",
+    ")\n",
+    "\n",
+    "circuit = ansys.aedt.core.Circuit(\n",
+    "    project=os.path.join(project_path, \"CISPR25_Radiated_Emissions_Example23R1.aedtz\"),\n",
+    "    non_graphical=NG_MODE,\n",
+    "    version=AEDT_VERSION,\n",
+    "    new_desktop=True,\n",
+    ")\n",
+    "circuit.analyze()  # Run the circuit analysis."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "706c3015",
+   "metadata": {},
+   "source": [
+    "## Create a spectral report\n",
+    "\n",
+    "The JSON file is used to customize the report. In a spectral report, you can add limit lines. You can also\n",
+    "add notes to a report and modify the axes, grid, and legend. Custom reports\n",
+    "can be created in AEDT in non-graphical mode using version 2023 R2 and later."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c6a07ddb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "report1 = circuit.post.create_report_from_configuration(\n",
+    "    os.path.join(project_path, \"Spectrum_CISPR_Basic.json\")\n",
+    ")\n",
+    "out = circuit.post.export_report_to_jpg(\n",
+    "    project_path=circuit.working_directory, plot_name=report1.plot_name\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "36a9e12b",
+   "metadata": {},
+   "source": [
+    "Render the image."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "edfae64d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "Image(os.path.join(circuit.working_directory, report1.plot_name + \".jpg\"))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f5502aa4",
+   "metadata": {},
+   "source": [
+    "You can customize every aspect of the report. The method ``crate_report_from_configuration()`` reads the\n",
+    "report configuration from a JSON file and generates the custom report."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "02f231d0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "report1_full = circuit.post.create_report_from_configuration(\n",
+    "    os.path.join(project_path, \"Spectrum_CISPR_Custom.json\")\n",
+    ")\n",
+    "out = circuit.post.export_report_to_jpg(\n",
+    "    circuit.working_directory, report1_full.plot_name\n",
+    ")\n",
+    "Image(os.path.join(circuit.working_directory, report1_full.plot_name + \".jpg\"))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "cfd86d07",
+   "metadata": {},
+   "source": [
+    "## Create a transient report\n",
+    "\n",
+    "The JSON configuration file can be read and modified from the API prior to creating the report.\n",
+    "The following code modifies the trace rendering prior to creating the report."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "317c685a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "props = ansys.aedt.core.generic.file_utils.read_json(\n",
+    "    os.path.join(project_path, \"Transient_CISPR_Custom.json\")\n",
+    ")\n",
+    "\n",
+    "report2 = circuit.post.create_report_from_configuration(\n",
+    "    report_settings=props, solution_name=\"NexximTransient\"\n",
+    ")\n",
+    "out = circuit.post.export_report_to_jpg(circuit.working_directory, report2.plot_name)\n",
+    "Image(os.path.join(circuit.working_directory, report2.plot_name + \".jpg\"))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "58337dc8",
+   "metadata": {},
+   "source": [
+    "The ``props`` dictionary can be used to customize any aspect of an existing report or generate a new report.\n",
+    "In this example, the name of the curve is customized."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e0cf4b1a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "props[\"expressions\"] = {\"V(Battery)\": {}, \"V(U1_VDD)\": {}}\n",
+    "props[\"plot_name\"] = \"Battery Voltage\"\n",
+    "report3 = circuit.post.create_report_from_configuration(\n",
+    "    report_settings=props, solution_name=\"NexximTransient\"\n",
+    ")\n",
+    "out = circuit.post.export_report_to_jpg(circuit.working_directory, report3.plot_name)\n",
+    "Image(os.path.join(circuit.working_directory, report3.plot_name + \".jpg\"))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "21a67cce",
+   "metadata": {},
+   "source": [
+    "## Create an eye diagram\n",
+    "\n",
+    "You can use the JSON file to create an eye diagram. The following code includes the eye."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ec7d88e2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "report4 = circuit.post.create_report_from_configuration(\n",
+    "    os.path.join(project_path, \"EyeDiagram_CISPR_Basic.json\")\n",
+    ")\n",
+    "out = circuit.post.export_report_to_jpg(circuit.working_directory, report4.plot_name)\n",
+    "Image(os.path.join(circuit.working_directory, report4.plot_name + \".jpg\"))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f172f77a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "report4_full = circuit.post.create_report_from_configuration(\n",
+    "    os.path.join(project_path, \"EyeDiagram_CISPR_Custom.json\")\n",
+    ")\n",
+    "\n",
+    "out = circuit.post.export_report_to_jpg(\n",
+    "    circuit.working_directory, report4_full.plot_name\n",
+    ")\n",
+    "Image(os.path.join(circuit.working_directory, report4_full.plot_name + \".jpg\"))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "abba440d",
+   "metadata": {},
+   "source": [
+    "## Save project and close AEDT\n",
+    "\n",
+    "Save the project and close AEDT. The example has finished running. You can retrieve project files\n",
+    "from ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8f9667fa",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "circuit.save_project()\n",
+    "print(\"Project Saved in {}\".format(circuit.project_path))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d046d6f8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "circuit.release_desktop()\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6de6acda",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "The following cell cleans up the temporary directory and\n",
+    "removes all project files."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9d302828",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

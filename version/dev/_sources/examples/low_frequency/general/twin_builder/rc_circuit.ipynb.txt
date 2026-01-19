@@ -1,0 +1,305 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "105f3d57",
+   "metadata": {},
+   "source": [
+    "# RC circuit design analysis\n",
+    "\n",
+    "This example shows how to use PyAEDT to create a Twin Builder design\n",
+    "and run a Twin Builder time-domain simulation.\n",
+    "\n",
+    "Keywords: **Twin Builder**, **RC**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9cee0564",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constantss\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2c6c6f3b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c1ec3ccd",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "72a5aa4f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d6128fe7",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "04e629f8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "49073e66",
+   "metadata": {},
+   "source": [
+    "## Launch Twin Builder\n",
+    "\n",
+    "Launch Twin Builder using an implicit declaration and add a new design with\n",
+    "a default setup."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9b174e35",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_name = os.path.join(temp_folder.name, \"rc_circuit.aedt\")\n",
+    "tb = ansys.aedt.core.TwinBuilder(\n",
+    "    project=project_name,\n",
+    "    version=AEDT_VERSION,\n",
+    "    non_graphical=NG_MODE,\n",
+    "    new_desktop=True,\n",
+    ")\n",
+    "tb.modeler.schematic_units = \"mil\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "39120460",
+   "metadata": {},
+   "source": [
+    "## Create components for RC circuit\n",
+    "\n",
+    "Create components for an RC circuit driven by a pulse voltage source.\n",
+    "Create components, such as a voltage source, resistor, and capacitor."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9c49cf8e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "source = tb.modeler.schematic.create_voltage_source(\"E1\", \"EPULSE\", 10, 10, [0, 0])\n",
+    "resistor = tb.modeler.schematic.create_resistor(\"R1\", 10000, [1000, 1000], 90)\n",
+    "capacitor = tb.modeler.schematic.create_capacitor(\"C1\", 1e-6, [2000, 0])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9cfa5c66",
+   "metadata": {},
+   "source": [
+    "## Create ground\n",
+    "\n",
+    "Create a ground, which is needed for an analog analysis."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "bf750c29",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "gnd = tb.modeler.components.create_gnd([0, -1000])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "40a99f5b",
+   "metadata": {},
+   "source": [
+    "## Connect components\n",
+    "\n",
+    "Connects components with pins."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e5090dc5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "source.pins[1].connect_to_component(resistor.pins[0])\n",
+    "resistor.pins[1].connect_to_component(capacitor.pins[0])\n",
+    "capacitor.pins[1].connect_to_component(source.pins[0])\n",
+    "source.pins[0].connect_to_component(gnd.pins[0])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "18ac97e4",
+   "metadata": {},
+   "source": [
+    "## Parametrize transient setup\n",
+    "\n",
+    "Parametrize the default transient setup by setting the end time."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d7365801",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tb.set_end_time(\"300ms\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b2dcca5a",
+   "metadata": {},
+   "source": [
+    "## Solve transient setup"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c1f2c51b",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "tb.analyze_setup(\"TR\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b99355b1",
+   "metadata": {},
+   "source": [
+    "## Get report data and plot using Matplotlib\n",
+    "\n",
+    "Get report data and plot it using Matplotlib. The following code gets and plots\n",
+    "the values for the voltage on the pulse voltage source and the values for the\n",
+    "voltage on the capacitor in the RC circuit."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ec238e3d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "E_Value = \"E1.V\"\n",
+    "C_Value = \"C1.V\""
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6d9d417a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "x = tb.post.get_solution_data([E_Value, C_Value], \"TR\", \"Time\")\n",
+    "x.plot([E_Value, C_Value], x_label=\"Time\", y_label=\"Capacitor Voltage vs Input Pulse\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "243b900b",
+   "metadata": {},
+   "source": [
+    "## Release AEDT\n",
+    "\n",
+    "Release AEDT and close the example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4af82efe",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tb.save_project()\n",
+    "tb.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2f94804e",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3689492a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

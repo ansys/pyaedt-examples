@@ -1,0 +1,454 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "461726ee",
+   "metadata": {},
+   "source": [
+    "# Circuit transient analysis and eye diagram\n",
+    "\n",
+    "This example shows how to create a circuit design,\n",
+    "run a Nexxim time-domain simulation, and create an eye diagram.\n",
+    "\n",
+    "Keywords: **Circuit**, **transient**, **eye diagram**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4d402b2d",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b9efcc7a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core\n",
+    "from ansys.aedt.core.generic.constants import LineStyle, TraceType, SymbolStyle\n",
+    "import numpy as np\n",
+    "from matplotlib import pyplot as plt"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5c412e37",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3c1d3bf8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d5fb030f",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "dbfa2062",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "04af7b3a",
+   "metadata": {},
+   "source": [
+    "## Launch AEDT with Circuit\n",
+    "\n",
+    "Launch AEDT in graphical mode with the Circuit schematic editor."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "344435f9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "circuit = ansys.aedt.core.Circuit(\n",
+    "    project=os.path.join(temp_folder.name, \"CktTransient\"),\n",
+    "    design=\"Circuit Examples\",\n",
+    "    version=AEDT_VERSION,\n",
+    "    new_desktop=True,\n",
+    "    non_graphical=NG_MODE,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5bc96ed3",
+   "metadata": {},
+   "source": [
+    "## Place IBIS buffer\n",
+    "\n",
+    "Read an IBIS file and place a buffer in the schematic editor."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c96600a3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ibis = circuit.get_ibis_model_from_file(\n",
+    "    os.path.join(circuit.desktop_install_dir, \"buflib\", \"IBIS\", \"u26a_800.ibs\")\n",
+    ")\n",
+    "ibs = ibis.buffers[\"DQ_FULL_800\"].insert(0, 0)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c64f741c",
+   "metadata": {},
+   "source": [
+    "## Place ideal transmission line\n",
+    "\n",
+    "Place an ideal transmission line in the schematic and parametrize it."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4e30c98d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tr1 = circuit.modeler.schematic.components_catalog[\"Ideal Distributed:TRLK_NX\"].place(\n",
+    "    \"tr1\"\n",
+    ")\n",
+    "tr1.parameters[\"P\"] = \"50mm\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d4e51de0",
+   "metadata": {},
+   "source": [
+    "## Place components\n",
+    "\n",
+    "Create a resistor and ground in the schematic."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e7d10ff1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "res = circuit.modeler.schematic.create_resistor(name=\"R1\", value=\"1Meg\")\n",
+    "gnd1 = circuit.modeler.schematic.create_gnd()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5adc0dbf",
+   "metadata": {},
+   "source": [
+    "## Connect componennts\n",
+    "\n",
+    "Connect the components in the schematic."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fa1e3ea1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tr1.pins[0].connect_to_component(ibs.pins[0])\n",
+    "tr1.pins[1].connect_to_component(res.pins[0])\n",
+    "res.pins[1].connect_to_component(gnd1.pins[0])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "afa495ae",
+   "metadata": {},
+   "source": [
+    "## Place a probe\n",
+    "\n",
+    "Place a voltage probe and rename it to ``Vout``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "48cfff66",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pr1 = circuit.modeler.schematic.components_catalog[\"Probes:VPROBE\"].place(\"vout\")\n",
+    "pr1.parameters[\"Name\"] = \"Vout\"\n",
+    "pr1.pins[0].connect_to_component(res.pins[0])\n",
+    "pr2 = circuit.modeler.schematic.components_catalog[\"Probes:VPROBE\"].place(\"Vin\")\n",
+    "pr2.parameters[\"Name\"] = \"Vin\"\n",
+    "pr2.pins[0].connect_to_component(ibs.pins[0])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "33fe9272",
+   "metadata": {},
+   "source": [
+    "## Analyze\n",
+    "\n",
+    "Create a transient analysis setup and analyze it."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e7365650",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "trans_setup = circuit.create_setup(name=\"TransientRun\", setup_type=\"NexximTransient\")\n",
+    "trans_setup.props[\"TransientData\"] = [\"0.01ns\", \"200ns\"]\n",
+    "circuit.analyze_setup(\"TransientRun\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "964840e2",
+   "metadata": {},
+   "source": [
+    "## Create report\n",
+    "\n",
+    "Create a report using the ``get_solution_data()`` method. This\n",
+    "method allows you to view and postprocess results using Python packages.\n",
+    "The ``solutions.plot()`` method uses\n",
+    "[Matplotlib](https://matplotlib.org/)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4cc7bd22",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "report = circuit.post.create_report(\"V(Vout)\", domain=\"Time\")\n",
+    "if not NG_MODE:\n",
+    "    report.add_cartesian_y_marker(0)\n",
+    "solutions = circuit.post.get_solution_data(domain=\"Time\")\n",
+    "solutions.plot(\"V(Vout)\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d9055f46",
+   "metadata": {},
+   "source": [
+    "## Visualize results\n",
+    "\n",
+    "Create a report inside AEDT using the ``new_report`` object. This object is\n",
+    "fully customizable and usable with most of the reports available in AEDT.\n",
+    "The standard report is the main one used in Circuit and Twin Builder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9f161f0e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "new_report = circuit.post.reports_by_category.standard(\"V(Vout)\")\n",
+    "new_report.domain = \"Time\"\n",
+    "new_report.create()\n",
+    "if not NG_MODE:\n",
+    "    new_report.add_limit_line_from_points([60, 80], [1, 1], \"ns\", \"V\")\n",
+    "    vout = new_report.traces[0]\n",
+    "    vout.set_trace_properties(\n",
+    "        style=LineStyle.Dot,\n",
+    "        width=2,\n",
+    "        trace_type=TraceType.Continuous,\n",
+    "        color=(0, 0, 255),\n",
+    "    )\n",
+    "    vout.set_symbol_properties(\n",
+    "        style=SymbolStyle.Circle, fill=True, color=(255, 255, 0)\n",
+    "    )\n",
+    "    ll = new_report.limit_lines[0]\n",
+    "    ll.set_line_properties(\n",
+    "        style=LineStyle.Solid,\n",
+    "        width=4,\n",
+    "        hatch_above=True,\n",
+    "        violation_emphasis=True,\n",
+    "        hatch_pixels=2,\n",
+    "        color=(0, 0, 255),\n",
+    "    )\n",
+    "new_report.time_start = \"20ns\"\n",
+    "new_report.time_stop = \"100ns\"\n",
+    "new_report.create()\n",
+    "sol = new_report.get_solution_data()\n",
+    "sol.plot()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6843ad8c",
+   "metadata": {},
+   "source": [
+    "## Create eye diagram in AEDT\n",
+    "\n",
+    "Create an eye diagram inside AEDT using the ``new_eye`` object."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a2ae6028",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "new_eye = circuit.post.reports_by_category.eye_diagram(\"V(Vout)\")\n",
+    "new_eye.unit_interval = \"1e-9s\"\n",
+    "new_eye.time_stop = \"100ns\"\n",
+    "new_eye.create()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3490a596",
+   "metadata": {},
+   "source": [
+    "## Create eye diagram in Matplotlib\n",
+    "\n",
+    "Create the same eye diagram outside AEDT using Matplotlib and the\n",
+    "``get_solution_data()`` method."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5bce3a24",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "unit_interval = 1\n",
+    "offset = 0.25\n",
+    "tstop = 200\n",
+    "tstart = 0\n",
+    "t_steps = []\n",
+    "i = tstart + offset\n",
+    "while i < tstop:\n",
+    "    i += 2 * unit_interval\n",
+    "    t_steps.append(i)\n",
+    "\n",
+    "t = [\n",
+    "    [i for i in solutions.intrinsics[\"Time\"] if k - 2 * unit_interval < i <= k]\n",
+    "    for k in t_steps\n",
+    "]\n",
+    "ys = [\n",
+    "    [\n",
+    "        i / 1000\n",
+    "        for i, j in zip(solutions.get_expression_data()[1], solutions.intrinsics[\"Time\"])\n",
+    "        if k - 2 * unit_interval < j <= k\n",
+    "    ]\n",
+    "    for k in t_steps\n",
+    "]\n",
+    "fig, ax = plt.subplots(sharex=True)\n",
+    "cells = np.array([])\n",
+    "cellsv = np.array([])\n",
+    "for a, b in zip(t, ys):\n",
+    "    an = np.array(a)\n",
+    "    an = an - an.mean()\n",
+    "    bn = np.array(b)\n",
+    "    cells = np.append(cells, an)\n",
+    "    cellsv = np.append(cellsv, bn)\n",
+    "plt.plot(cells.T, cellsv.T, zorder=0)\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1f527423",
+   "metadata": {},
+   "source": [
+    "## Release AEDT\n",
+    "\n",
+    "Release AEDT and close the example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "05c5d14c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "circuit.save_project()\n",
+    "circuit.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7f4d2ab2",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "455be6de",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

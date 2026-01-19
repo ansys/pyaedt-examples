@@ -1,0 +1,1090 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Doppler setup &#8212; PyAEDT Examples</title>
+
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=fd3f3429" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css\ansys_sphinx_theme.css?v=d2ac875c" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css?v=9233c59b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/highlight.css?v=500661c4" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+ 
+<link href="../../../../_static/css/breadcrumbs.css" rel="stylesheet" />
+
+    <script src="../../../../_static/documentation_options.js?v=e7fb764e"></script>
+    <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=49e1bf35"></script>
+    <script src="../../../../_static/js\table.js?v=b64f5182"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/high_frequency/antenna/large_scenarios/doppler';</script>
+    <link rel="icon" href="../../../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="Reflector" href="reflector.html" />
+    <link rel="prev" title="Environment import from open street map" href="city.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <link rel="canonical" href="https://examples.aedt.docs.pyansys.com/version/stable/examples/high_frequency/antenna/large_scenarios/doppler.html" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container"><!-- Debugging: html_theme_options =  -->
+
+  <!-- If there is no MeiliSearch enabled, use the PyData search -->
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+   
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="https://www.ansys.com/">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../_static/ansys_logo_transparent_black.png" class="logo__image only-light" alt="PyAEDT Examples - Home"/>
+    <script>document.write(`<img src="../../../../_static/ansys_logo_transparent_white.png" class="logo__image only-dark" alt="PyAEDT Examples - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Examples
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+    
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Examples
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../aedt/index.html">Examples by AEDT application</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../index.html">High frequency</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../index.html">Antenna</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../dipole.html">Dipole antenna</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../array.html">Component antenna array</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../patch.html">Probe-fed patch antenna</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../fss_unitcell.html">Frequency Selective Surface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../aedt_general/modeler/circuit_schematic.html">Circuit schematic creation and analysis</a></li>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="index.html">Large scenarios</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="city.html">Environment import from open street map</a></li>
+<li class="toctree-l4 current active"><a class="current reference internal" href="#">Doppler setup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="reflector.html">Reflector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="time_domain.html">HFSS to SBR+ time animation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../interferences/index.html">RF interference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../5G_antenna_parametrics.html">EDB: Layout Components</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../radiofrequency_mmwave/index.html">Radio frequency and millimeter wave</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../layout/index.html">IC-Package-PCB</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../emc/index.html">EMC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../multiphysics/index.html">Multiphysics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../aedt_general/report/index.html">Report</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../low_frequency/index.html">Low frequency</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../electrothermal/index.html">Electrothermal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../aedt_general/index.html">Pre-processing and post-processing</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+       
+    <li class="breadcrumb-item">
+      <a href="https://aedt.docs.pyansys.com/" class="nav-link">PyAEDT</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="../../../../index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../../../index.html" class="nav-link">Examples</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../../index.html" class="nav-link">High frequency</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../index.html" class="nav-link">Antenna</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="index.html" class="nav-link">Large scenarios</a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page">Doppler setup</li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="admonition-download-this-example admonition">
+<p class="admonition-title">Download this example</p>
+<p>Download this example as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/antenna/large_scenarios/doppler.ipynb">Jupyter Notebook</a>
+or as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/antenna/large_scenarios/doppler.py">Python script</a>.</p>
+</div>
+<hr class="docutils" />
+<section id="Doppler-setup">
+<h1>Doppler setup<a class="headerlink" href="#Doppler-setup" title="Link to this heading">#</a></h1>
+<p>This example shows how to use PyAEDT to create a multipart scenario in HFSS SBR+ and set up a doppler analysis.</p>
+<p>Keywords: <strong>HFSS</strong>, <strong>SBR+</strong>, <strong>doppler</strong>.</p>
+<section id="Perform-imports-and-define-constants">
+<h2>Perform imports and define constants<a class="headerlink" href="#Perform-imports-and-define-constants" title="Link to this heading">#</a></h2>
+<p>Perform required imports.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">ansys.aedt.core</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ansys.aedt.core.examples.downloads</span><span class="w"> </span><span class="kn">import</span> <span class="n">download_multiparts</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ansys.aedt.core.examples.downloads</span><span class="w"> </span><span class="kn">import</span> <span class="n">download_file</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ansys.aedt.core.examples.downloads</span><span class="w"> </span><span class="kn">import</span> <span class="n">unzip</span>
+</pre></div>
+</div>
+</div>
+<p>Define constants.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">AEDT_VERSION</span> <span class="o">=</span> <span class="s2">&quot;2025.2&quot;</span>
+<span class="n">NUM_CORES</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">NG_MODE</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Open AEDT UI when it is launched.</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Create-temporary-directory">
+<h2>Create temporary directory<a class="headerlink" href="#Create-temporary-directory" title="Link to this heading">#</a></h2>
+<p>Create a temporary directory where downloaded data or dumped data can be stored. If you’d like to retrieve the project data for subsequent use, the temporary folder name is given by <code class="docutils literal notranslate"><span class="pre">temp_folder.name</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">temp_folder</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.ansys&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Download-3D-component">
+<h2>Download 3D component<a class="headerlink" href="#Download-3D-component" title="Link to this heading">#</a></h2>
+<p>Download the 3D component that is needed to run the example.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">library_path</span> <span class="o">=</span> <span class="n">download_multiparts</span><span class="p">(</span>
+    <span class="n">local_path</span><span class="o">=</span><span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+C:\Users\ansys\AppData\Local\Temp\tmprf7buwsh.ansys\multiparts
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">zip_file</span> <span class="o">=</span> <span class="n">download_file</span><span class="p">(</span>
+    <span class="s2">&quot;frtm&quot;</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;doppler_sbr.results.zip&quot;</span><span class="p">,</span>
+    <span class="n">local_path</span><span class="o">=</span><span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;doppler_sbr.results&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">unzip</span><span class="p">(</span><span class="n">zip_file</span><span class="p">,</span> <span class="n">results</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+C:\Users\ansys\AppData\Local\Temp\tmprf7buwsh.ansys\doppler_sbr.results
+</pre></div></div>
+</div>
+</section>
+<section id="Launch-HFSS-and-open-project">
+<h2>Launch HFSS and open project<a class="headerlink" href="#Launch-HFSS-and-open-project" title="Link to this heading">#</a></h2>
+<p>Launch HFSS and open the project.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">project_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;doppler.aedt&quot;</span><span class="p">)</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">ansys</span><span class="o">.</span><span class="n">aedt</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Hfss</span><span class="p">(</span>
+    <span class="n">version</span><span class="o">=</span><span class="n">AEDT_VERSION</span><span class="p">,</span>
+    <span class="n">solution_type</span><span class="o">=</span><span class="s2">&quot;SBR+&quot;</span><span class="p">,</span>
+    <span class="n">new_desktop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">project</span><span class="o">=</span><span class="n">project_name</span><span class="p">,</span>
+    <span class="n">close_on_exit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">non_graphical</span><span class="o">=</span><span class="n">NG_MODE</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Python version 3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)].
+PyAEDT INFO: PyAEDT version 0.25.dev0.
+PyAEDT INFO: Initializing new Desktop session.
+PyAEDT INFO: Log on console is enabled.
+PyAEDT INFO: Log on file C:\Users\ansys\AppData\Local\Temp\pyaedt_ansys_aef76f9a-3356-4c30-b4ac-3c703f8bf4d8.log is enabled.
+PyAEDT INFO: Log on AEDT is disabled.
+PyAEDT INFO: Starting new AEDT gRPC session.
+PyAEDT INFO: AEDT installation Path C:\Program Files\ANSYS Inc\v252\AnsysEM
+PyAEDT INFO: Client application successfully started.
+PyAEDT INFO: New AEDT gRPC session session started on port 50051.
+PyAEDT INFO: 2025.2 version started with process ID 4576.
+PyAEDT WARNING: Service Pack is not detected. PyAEDT is currently connecting in Insecure Mode.
+PyAEDT WARNING: Please download and install latest Service Pack to use connect to AEDT in Secure Mode.
+PyAEDT INFO: Debug logger is disabled. PyAEDT methods will not be logged.
+PyAEDT INFO: Project doppler has been created.
+PyAEDT INFO: No design is present. Inserting a new design.
+PyAEDT INFO: Added design &#39;HFSS_C74&#39; of type HFSS.
+PyAEDT INFO: Aedt Objects correctly read
+</pre></div></div>
+</div>
+<p>Creation of the “actors” in the scene is comprised of many editing steps. Disabling the autosave option helps avoid delays that occur while the project is being saved.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">app</span><span class="o">.</span><span class="n">autosave_disable</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+</section>
+<section id="Save-project-and-rename-design">
+<h2>Save project and rename design<a class="headerlink" href="#Save-project-and-rename-design" title="Link to this heading">#</a></h2>
+<p>Save the project to the temporary folder and rename the design.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">design</span> <span class="o">=</span> <span class="s2">&quot;doppler_sbr&quot;</span>
+<span class="n">app</span><span class="o">.</span><span class="n">rename_design</span><span class="p">(</span><span class="n">design</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">save_project</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Project doppler Saved correctly
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+</section>
+<section id="Set-up-library-paths">
+<h2>Set up library paths<a class="headerlink" href="#Set-up-library-paths" title="Link to this heading">#</a></h2>
+<p>Specify the location of 3D components used to create the scene.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">actor_lib</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">library_path</span><span class="p">,</span> <span class="s2">&quot;actor_library&quot;</span><span class="p">)</span>
+<span class="n">env_lib</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">library_path</span><span class="p">,</span> <span class="s2">&quot;environment_library&quot;</span><span class="p">)</span>
+<span class="n">radar_lib</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">library_path</span><span class="p">,</span> <span class="s2">&quot;radar_modules&quot;</span><span class="p">)</span>
+<span class="n">env_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">env_lib</span><span class="p">,</span> <span class="s2">&quot;road1&quot;</span><span class="p">)</span>
+<span class="n">person_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">actor_lib</span><span class="p">,</span> <span class="s2">&quot;person3&quot;</span><span class="p">)</span>
+<span class="n">car_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">actor_lib</span><span class="p">,</span> <span class="s2">&quot;vehicle1&quot;</span><span class="p">)</span>
+<span class="n">bike_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">actor_lib</span><span class="p">,</span> <span class="s2">&quot;bike1&quot;</span><span class="p">)</span>
+<span class="n">bird_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">actor_lib</span><span class="p">,</span> <span class="s2">&quot;bird1&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Define-environment">
+<h2>Define environment<a class="headerlink" href="#Define-environment" title="Link to this heading">#</a></h2>
+<p>Define the background environment.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">road1</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">add_environment</span><span class="p">(</span><span class="n">input_dir</span><span class="o">=</span><span class="n">env_folder</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Bari&quot;</span><span class="p">)</span>
+<span class="n">prim</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">modeler</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Modeler class has been initialized! Elapsed time: 0m 1sec
+PyAEDT INFO: Parsing C:\Users\ansys\AppData\Local\Temp\tmprf7buwsh.ansys\doppler.aedt.
+PyAEDT INFO: File C:\Users\ansys\AppData\Local\Temp\tmprf7buwsh.ansys\doppler.aedt correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: aedt file load time 0.01603984832763672
+</pre></div></div>
+</div>
+</section>
+<section id="Place-actors">
+<h2>Place actors<a class="headerlink" href="#Place-actors" title="Link to this heading">#</a></h2>
+<p>Place actors in the environment. This code places persons, birds, bikes, and cars in the environment.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">person1</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">add_person</span><span class="p">(</span>
+    <span class="n">input_dir</span><span class="o">=</span><span class="n">person_folder</span><span class="p">,</span>
+    <span class="n">speed</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">global_offset</span><span class="o">=</span><span class="p">[</span><span class="mi">25</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+    <span class="n">yaw</span><span class="o">=</span><span class="mi">180</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Massimo&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">person2</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">add_person</span><span class="p">(</span>
+    <span class="n">input_dir</span><span class="o">=</span><span class="n">person_folder</span><span class="p">,</span>
+    <span class="n">speed</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">global_offset</span><span class="o">=</span><span class="p">[</span><span class="mi">25</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+    <span class="n">yaw</span><span class="o">=</span><span class="mi">180</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Devin&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">car1</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">add_vehicle</span><span class="p">(</span>
+    <span class="n">input_dir</span><span class="o">=</span><span class="n">car_folder</span><span class="p">,</span> <span class="n">speed</span><span class="o">=</span><span class="mf">8.7</span><span class="p">,</span> <span class="n">global_offset</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;LuxuryCar&quot;</span>
+<span class="p">)</span>
+<span class="n">bike1</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">add_vehicle</span><span class="p">(</span>
+    <span class="n">input_dir</span><span class="o">=</span><span class="n">bike_folder</span><span class="p">,</span>
+    <span class="n">speed</span><span class="o">=</span><span class="mf">2.1</span><span class="p">,</span>
+    <span class="n">global_offset</span><span class="o">=</span><span class="p">[</span><span class="mi">24</span><span class="p">,</span> <span class="mf">3.6</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+    <span class="n">yaw</span><span class="o">=</span><span class="mi">180</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Alberto_in_bike&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">bird1</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">add_bird</span><span class="p">(</span>
+    <span class="n">input_dir</span><span class="o">=</span><span class="n">bird_folder</span><span class="p">,</span>
+    <span class="n">speed</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">global_offset</span><span class="o">=</span><span class="p">[</span><span class="mi">19</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+    <span class="n">yaw</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span>
+    <span class="n">pitch</span><span class="o">=-</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">flapping_rate</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Pigeon&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">bird2</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">add_bird</span><span class="p">(</span>
+    <span class="n">input_dir</span><span class="o">=</span><span class="n">bird_folder</span><span class="p">,</span>
+    <span class="n">speed</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">global_offset</span><span class="o">=</span><span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+    <span class="n">yaw</span><span class="o">=-</span><span class="mi">60</span><span class="p">,</span>
+    <span class="n">pitch</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Eagle&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Adding person: Massimo_0
+PyAEDT INFO: Adding person: Devin_1
+PyAEDT INFO: Adding vehicle: LuxuryCar_0
+PyAEDT INFO: Adding vehicle: Alberto_in_bike_0
+PyAEDT INFO: Adding Vehicle: Pigeon_0
+PyAEDT INFO: Adding Vehicle: Eagle_1
+</pre></div></div>
+</div>
+</section>
+<section id="Place-radar">
+<h2>Place radar<a class="headerlink" href="#Place-radar" title="Link to this heading">#</a></h2>
+<p>Place radar on the car. The radar is created relative to the car’s coordinate system.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">radar1</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">create_sbr_radar_from_json</span><span class="p">(</span>
+    <span class="n">radar_file</span><span class="o">=</span><span class="n">radar_lib</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Example_1Tx_1Rx&quot;</span><span class="p">,</span>
+    <span class="n">offset</span><span class="o">=</span><span class="p">[</span><span class="mf">2.57</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.54</span><span class="p">],</span>
+    <span class="n">use_relative_cs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">relative_cs_name</span><span class="o">=</span><span class="n">car1</span><span class="o">.</span><span class="n">cs_name</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Adding radar module:  Example_1Tx_1Rx_0
+PyAEDT INFO: Native component Parametric Beam Example_1Tx_1Rx_0_tx1 has been correctly created.
+PyAEDT INFO: Native component Parametric Beam Example_1Tx_1Rx_0_rx1 has been correctly created.
+PyAEDT INFO: Boundary SBRTxRxSettings SBRTxRxSettings has been created.
+PyAEDT INFO: Group Created:  Example_1Tx_1Rx_0
+</pre></div></div>
+</div>
+</section>
+<section id="Create-setup">
+<h2>Create setup<a class="headerlink" href="#Create-setup" title="Link to this heading">#</a></h2>
+<p>Create setup and validate it. The <code class="docutils literal notranslate"><span class="pre">create_sbr_pulse_doppler_setup()</span></code> method creates a setup and a parametric sweep on the time variable with a duration of two seconds. The step is computed automatically from CPI.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">setup</span><span class="p">,</span> <span class="n">sweep</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">create_sbr_pulse_doppler_setup</span><span class="p">(</span><span class="n">sweep_time_duration</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">velocity_resolution</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">set_sbr_current_sources_options</span><span class="p">()</span>
+<span class="n">app</span><span class="o">.</span><span class="n">validate_simple</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT WARNING: Field Observation Domain not defined
+PyAEDT INFO: SBR+ current source options correctly applied.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+</section>
+<section id="Solve-and-release-AEDT">
+<h2>Solve and release AEDT<a class="headerlink" href="#Solve-and-release-AEDT" title="Link to this heading">#</a></h2>
+<p>Solve and release AEDT. To solve, uncomment the <code class="docutils literal notranslate"><span class="pre">app.analyze_setup</span></code> command to activate the simulation.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># app.analyze_setup(sweep.name)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Doppler-post-processing">
+<h2>Doppler post-processing<a class="headerlink" href="#Doppler-post-processing" title="Link to this heading">#</a></h2>
+<p>Once the design is solved, you can get the raw data inside the .aedtresults directory. The format of this data is called FRTM. PyAEDT offers sophisticated tools for FRTM post-processing <a class="reference external" href="https://aedt.docs.pyansys.com/version/stable/API/visualization/advanced.html#frtm-processing/">FRTM</a></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">ansys.aedt.core.visualization.advanced.frtm_visualization</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_results_files</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ansys.aedt.core.visualization.advanced.frtm_visualization</span><span class="w"> </span><span class="kn">import</span> <span class="n">FRTMPlotter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ansys.aedt.core.visualization.advanced.frtm_visualization</span><span class="w"> </span><span class="kn">import</span> <span class="n">FRTMData</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Load-FRTM-files">
+<h2>Load FRTM files<a class="headerlink" href="#Load-FRTM-files" title="Link to this heading">#</a></h2>
+<p>You can load all the FRTM files inside a directory or you could load one single file.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">doppler_data_frames</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">frames_dict</span> <span class="o">=</span> <span class="n">get_results_files</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">frame</span><span class="p">,</span> <span class="n">data_frame</span> <span class="ow">in</span> <span class="n">frames_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">doppler_data</span> <span class="o">=</span> <span class="n">FRTMData</span><span class="p">(</span><span class="n">data_frame</span><span class="p">)</span>
+    <span class="n">doppler_data_frames</span><span class="p">[</span><span class="n">frame</span><span class="p">]</span> <span class="o">=</span> <span class="n">doppler_data</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="FRTM-plotter">
+<h2>FRTM plotter<a class="headerlink" href="#FRTM-plotter" title="Link to this heading">#</a></h2>
+<p>You can perform multiple post-processing operations like range-doppler or direction of arrival.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">frtm_plotter</span> <span class="o">=</span> <span class="n">FRTMPlotter</span><span class="p">(</span><span class="n">doppler_data_frames</span><span class="p">)</span>
+<span class="n">frame_number</span> <span class="o">=</span> <span class="n">frtm_plotter</span><span class="o">.</span><span class="n">frames</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">frtm_plotter</span><span class="o">.</span><span class="n">plot_range_doppler</span><span class="p">(</span><span class="n">frame</span><span class="o">=</span><span class="n">frame_number</span><span class="p">)</span>
+<span class="n">frtm_plotter</span><span class="o">.</span><span class="n">plot_range_angle_map</span><span class="p">(</span><span class="n">frame</span><span class="o">=</span><span class="n">frame_number</span><span class="p">,</span> <span class="n">polar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Class: ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../../_images/examples_high_frequency_antenna_large_scenarios_doppler_36_1.png" src="../../../../_images/examples_high_frequency_antenna_large_scenarios_doppler_36_1.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../../_images/examples_high_frequency_antenna_large_scenarios_doppler_36_2.png" src="../../../../_images/examples_high_frequency_antenna_large_scenarios_doppler_36_2.png" />
+</div>
+</div>
+</section>
+<section id="Release-AEDT">
+<h2>Release AEDT<a class="headerlink" href="#Release-AEDT" title="Link to this heading">#</a></h2>
+<p>Release AEDT and close the example.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">app</span><span class="o">.</span><span class="n">save_project</span><span class="p">()</span>
+<span class="n">app</span><span class="o">.</span><span class="n">release_desktop</span><span class="p">()</span>
+<span class="c1"># Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.</span>
+<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Project doppler Saved correctly
+PyAEDT INFO: Desktop has been released and closed.
+</pre></div></div>
+</div>
+</section>
+<section id="Clean-up">
+<h2>Clean up<a class="headerlink" href="#Clean-up" title="Link to this heading">#</a></h2>
+<p>All project files are saved in the folder <code class="docutils literal notranslate"><span class="pre">temp_folder.name</span></code>. If you’ve run this example as a Jupyter notebook, you can retrieve those project files. The following cell removes all temporary files, including the project folder.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">temp_folder</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<div class="admonition-download-this-example admonition">
+<p class="admonition-title">Download this example</p>
+<p>Download this example as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/antenna/large_scenarios/doppler.ipynb">Jupyter Notebook</a>
+or as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/antenna/large_scenarios/doppler.py">Python script</a>.</p>
+</div>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Perform-imports-and-define-constants">Perform imports and define constants</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-temporary-directory">Create temporary directory</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Download-3D-component">Download 3D component</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Launch-HFSS-and-open-project">Launch HFSS and open project</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Save-project-and-rename-design">Save project and rename design</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Set-up-library-paths">Set up library paths</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Define-environment">Define environment</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Place-actors">Place actors</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Place-radar">Place radar</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-setup">Create setup</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Solve-and-release-AEDT">Solve and release AEDT</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Doppler-post-processing">Doppler post-processing</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Load-FRTM-files">Load FRTM files</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#FRTM-plotter">FRTM plotter</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Release-AEDT">Release AEDT</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Clean-up">Clean up</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item"> 
+<div class="tocsection editthispage">
+  <a href="https://github.com/ansys/pyaedt-examples/edit/main/doc/source/examples/high_frequency/antenna/large_scenarios/doppler.ipynb">
+    <i class="fa-solid fa-pencil"></i>
+       Edit
+    on GitHub  
+  </a>
+</div>
+
+</div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../../../../_sources/examples/high_frequency/antenna/large_scenarios/doppler.ipynb.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright (c) 2021 - 2026 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the
+  <a href="https://sphinxdocs.ansys.com/version/stable/index.html"
+    >Ansys Sphinx Theme</a
+  >
+  1.0.11. <br />Last updated on
+  <span id="date"></span>
+</p>
+<script>
+  var options = { day: "numeric", month: "long", year: "numeric" };
+  var lastModifiedDate = new Date(document.lastModified);
+  var date = lastModifiedDate.toLocaleDateString("en-US", options);
+  document.getElementById("date").innerHTML = date;
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

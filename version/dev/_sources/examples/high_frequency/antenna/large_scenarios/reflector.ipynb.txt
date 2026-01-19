@@ -1,0 +1,315 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "52b7802c",
+   "metadata": {},
+   "source": [
+    "# Reflector\n",
+    "\n",
+    "This example shows how to use PyAEDT to create an HFSS SBR+ project from an\n",
+    "HFSS antenna and run a simulation.\n",
+    "\n",
+    "Keywords: **HFSS**,  **SBR+**, **reflector**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a41e32bd",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports and set up the local path to the path for the PyAEDT\n",
+    "directory."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5596ff32",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core\n",
+    "from ansys.aedt.core.examples.downloads import download_sbr\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "89a85c7d",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e76b5265",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8ed39ba9",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "90f5587a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "70cd1381",
+   "metadata": {},
+   "source": [
+    "## Download project"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "06db6ed1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_full_name = download_sbr(local_path=temp_folder.name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2e16787b",
+   "metadata": {},
+   "source": [
+    "## Define designs\n",
+    "\n",
+    "Define two designs, one source and one target, with each design connected to\n",
+    "a different object."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1a8eb7a1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "target = ansys.aedt.core.Hfss(\n",
+    "    project=project_full_name,\n",
+    "    design=\"Cassegrain_\",\n",
+    "    solution_type=\"SBR+\",\n",
+    "    version=AEDT_VERSION,\n",
+    "    new_desktop=True,\n",
+    "    non_graphical=NG_MODE,\n",
+    ")\n",
+    "\n",
+    "source = ansys.aedt.core.Hfss(\n",
+    "    project=target.project_name,\n",
+    "    design=\"feeder\",\n",
+    "    version=AEDT_VERSION,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f9e237d1",
+   "metadata": {},
+   "source": [
+    "## Define linked antenna\n",
+    "\n",
+    "Define a linked antenna. This is HFSS far field applied to HFSS SBR+."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d5635700",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "target.create_sbr_linked_antenna(source, target_cs=\"feederPosition\", field_type=\"farfield\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4536e86d",
+   "metadata": {},
+   "source": [
+    "## Assign boundaries\n",
+    "\n",
+    "Assign boundaries."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "267954fc",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "target.assign_perfecte_to_sheets([\"Reflector\", \"Subreflector\"])\n",
+    "target.mesh.assign_curvilinear_elements([\"Reflector\", \"Subreflector\"])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4b086e07",
+   "metadata": {},
+   "source": [
+    "## Create setup and solve\n",
+    "\n",
+    "Create a setup and solve it."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7467c9f6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup1 = target.create_setup()\n",
+    "setup1.props[\"RadiationSetup\"] = \"ATK_3D\"\n",
+    "setup1.props[\"ComputeFarFields\"] = True\n",
+    "setup1.props[\"RayDensityPerWavelength\"] = 2\n",
+    "setup1.props[\"MaxNumberOfBounces\"] = 3\n",
+    "setup1[\"RangeType\"] = \"SinglePoints\"\n",
+    "setup1[\"RangeStart\"] = \"10GHz\"\n",
+    "target.analyze(cores=NUM_CORES)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6f804cb1",
+   "metadata": {},
+   "source": [
+    "## Postprocess\n",
+    "\n",
+    "Plot results in AEDT."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b99aa5be",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "variations = target.available_variations.get_independent_nominal_values()\n",
+    "variations[\"Freq\"] = [\"10GHz\"]\n",
+    "variations[\"Theta\"] = [\"All\"]\n",
+    "variations[\"Phi\"] = [\"All\"]\n",
+    "target.post.create_report(\n",
+    "    \"db(GainTotal)\",\n",
+    "    target.nominal_adaptive,\n",
+    "    variations=variations,\n",
+    "    primary_sweep_variable=\"Theta\",\n",
+    "    context=\"ATK_3D\",\n",
+    "    report_category=\"Far Fields\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "249c1718",
+   "metadata": {},
+   "source": [
+    "Plot results using Matplotlib."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "aa23f65c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "solution = target.post.get_solution_data(\n",
+    "    \"GainTotal\",\n",
+    "    target.nominal_adaptive,\n",
+    "    variations=variations,\n",
+    "    primary_sweep_variable=\"Theta\",\n",
+    "    context=\"ATK_3D\",\n",
+    "    report_category=\"Far Fields\",\n",
+    ")\n",
+    "solution.plot()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "44bea156",
+   "metadata": {},
+   "source": [
+    "## Release AEDT\n",
+    "\n",
+    "Release AEDT and close the example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "58f998e7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "target.save_project()\n",
+    "target.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f4159ec0",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "88f4d67b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

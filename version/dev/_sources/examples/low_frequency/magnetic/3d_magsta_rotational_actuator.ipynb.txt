@@ -1,0 +1,587 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "380f955f",
+   "metadata": {},
+   "source": [
+    "# 3D Rotational Actuator\n",
+    "\n",
+    "In this example the rotational position of the actuator is defined and controlled by a global parameter named ``angle``.\n",
+    "By leveraging the magnetostatics formulation we can sweep through the rotational motion\n",
+    "and calculate the change in coil inductance, and field in a non-linear core.\n",
+    "\n",
+    "The model also shows how to set up a custom non-linear material using BH curve data.\n",
+    "\n",
+    "Keywords: **Maxwell3D**, **3D**, **magnetostatic**, **rotational motion**, **parametric sweep**, **inductance**,\n",
+    "**installation example**\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "71c660f4",
+   "metadata": {},
+   "source": [
+    "## Prerequisites\n",
+    "\n",
+    "### Perform imports"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fa53c59f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core  # Interface to Ansys Electronics Desktop\n",
+    "from ansys.aedt.core.generic.constants import Axis\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2e40c06c",
+   "metadata": {},
+   "source": [
+    "### Define constants"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e6fb9fbe",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "787f5724",
+   "metadata": {},
+   "source": [
+    "### Create temporary directory\n",
+    "\n",
+    "Create a temporary working directory.\n",
+    "The name of the working folder is stored in ``temp_folder.name``.\n",
+    "\n",
+    "> **Note:** The final cell in the notebook cleans up the temporary folder. If you want to\n",
+    "> retrieve the AEDT project and data, do so before executing the final cell in the notebook."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1711933e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fd5454bf",
+   "metadata": {},
+   "source": [
+    "### Launch Maxwell 3d\n",
+    "Create an instance of the ``Maxwell3d`` class. The Ansys Electronics Desktop will be launched\n",
+    "with an active Maxwell2D design. The ``m3d`` object is subsequently used to create and simulate the actuator model."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "14e76c3d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_name = os.path.join(temp_folder.name, \"rotational_actuator.aedt\")\n",
+    "m3d = ansys.aedt.core.Maxwell3d(\n",
+    "    project=project_name,\n",
+    "    design=\"3d_magsta_actuator\",\n",
+    "    solution_type=\"Magnetostatic\",\n",
+    "    version=AEDT_VERSION,\n",
+    "    non_graphical=NG_MODE,\n",
+    "    new_desktop=True,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "785d1301",
+   "metadata": {},
+   "source": [
+    "## Model Preparation\n",
+    "\n",
+    "### Declare and initialize design parameters\n",
+    "The ``angle`` parameter will be used to sweep through the actuators rotational motion"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ecdc4b7e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m3d[\"angle\"] = \"0deg\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ae348feb",
+   "metadata": {},
+   "source": [
+    "### Create 3D model\n",
+    "\n",
+    "#### Set model units\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c7823f35",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m3d.modeler.model_units = \"mm\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6b60eff5",
+   "metadata": {},
+   "source": [
+    "#### Create non-linear magnetic material with single valued BH curve\n",
+    "\n",
+    "Create list with  BH curve data"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "db1332cb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "bh_curve = [\n",
+    "    [0.0, 0.0],\n",
+    "    [4000.0, 1.413],\n",
+    "    [8010.0, 1.594],\n",
+    "    [16010.0, 1.751],\n",
+    "    [24020.0, 1.839],\n",
+    "    [32030.0, 1.896],\n",
+    "    [40030.0, 1.936],\n",
+    "    [48040.0, 1.967],\n",
+    "    [64050.0, 2.008],\n",
+    "    [80070.0, 2.042],\n",
+    "    [96080.0, 2.073],\n",
+    "    [112100.0, 2.101],\n",
+    "    [128110.0, 2.127],\n",
+    "    [144120.0, 2.151],\n",
+    "    [176150.0, 2.197],\n",
+    "    [208180.0, 2.24],\n",
+    "    [272230.0, 2.325],\n",
+    "    [304260.0, 2.37],\n",
+    "    [336290.0, 2.42],\n",
+    "    [396000.0, 2.5],\n",
+    "]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c007fa07",
+   "metadata": {},
+   "source": [
+    "Create custom material and add it to the AEDT library using the ``add_material`` method"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9b4e7121",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "arm_steel = m3d.materials.add_material(name=\"arm_steel\")\n",
+    "arm_steel.conductivity = 2000000\n",
+    "arm_steel.permeability.value = bh_curve"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ca787452",
+   "metadata": {},
+   "source": [
+    "#### Create outer arm"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c8082f15",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "outer_arm = m3d.modeler.create_cylinder(orientation=Axis.Z, origin=[0, 0, 0], radius=104.5, height=25.4, num_sides=0, name=\"Outer_arm\", material=arm_steel.name)\n",
+    "cylinder_tool = m3d.modeler.create_cylinder(orientation=Axis.Z, origin=[0, 0, 0], radius=83.1, height=25.4, num_sides=0, name=\"Cylinder_tool\")\n",
+    "m3d.modeler.subtract([outer_arm], [cylinder_tool], keep_originals=False)\n",
+    "box_1 = m3d.modeler.create_box(origin=[-13.9, 0, 0], sizes=[27.8, -40, 25.4], name=\"Box1\")\n",
+    "m3d.modeler.move(box_1, vector=[0, -45, 0])\n",
+    "m3d.modeler.duplicate_and_mirror(assignment=box_1, origin=[0, 0, 0], vector=[0, 1, 0])\n",
+    "m3d.modeler.unite([outer_arm, box_1.name, box_1.name + \"_1\"])\n",
+    "cylinder_1 = m3d.modeler.create_cylinder(orientation=Axis.Z, origin=[0, 0, 0], radius=53.75, height=25.4, num_sides=0, name=\"Cylinder1\")\n",
+    "m3d.modeler.subtract([outer_arm], [cylinder_1], keep_originals=False)\n",
+    "outer_arm.color = \"(192 192 192)\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e444f03c",
+   "metadata": {},
+   "source": [
+    "#### Create inner arm"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "18317922",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "inner_arm = m3d.modeler.create_cylinder(orientation=Axis.Z, origin=[0, 0, 0], radius=38.1, height=25.4, num_sides=0, name=\"Inner_arm\", material=arm_steel.name)\n",
+    "shaft = m3d.modeler.create_cylinder(orientation=Axis.Z, origin=[0, 0, 0], radius=25.4, height=25.4, num_sides=0, name=\"shaft\")\n",
+    "m3d.modeler.subtract([inner_arm], [shaft], keep_originals=False)\n",
+    "box_2 = m3d.modeler.create_box(origin=[-12.7, 0, 0], sizes=[25.4, -20, 25.4], name=\"Box2\")\n",
+    "m3d.modeler.move(box_2, vector=[0, -35, 0])\n",
+    "m3d.modeler.duplicate_and_mirror(assignment=box_2, origin=[0, 0, 0], vector=[0, 1, 0])\n",
+    "m3d.modeler.unite([inner_arm, box_2.name, box_2.name + \"_1\"])\n",
+    "finalpole2 = m3d.modeler.create_cylinder(orientation=Axis.Z, origin=[0, 0, 0], radius=51.05, height=25.4, num_sides=0, name=\"finalpole2\")\n",
+    "m3d.modeler.intersect(assignment=[inner_arm, finalpole2])\n",
+    "inner_arm.color = \"(192 192 192)\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8e56455c",
+   "metadata": {},
+   "source": [
+    "#### Create a local/relative coordinate system"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b0cd7917",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m3d.modeler.create_coordinate_system(origin=[0, 0, 12.7], reference_cs=\"Global\", name=\"RelativeCS1\", mode=\"axis\", x_pointing=[1, 0, 0], y_pointing=[0, 1, 0])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1ded4942",
+   "metadata": {},
+   "source": [
+    "#### Apply rotation on relative coordinate system"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5a1484e4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m3d.modeler.rotate(assignment=[inner_arm], axis=\"RelativeCS1\", angle=\"angle\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "24cc1a2e",
+   "metadata": {},
+   "source": [
+    "#### Create coils"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "112bd19a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "coil1 = m3d.modeler.create_rectangle(orientation=Axis.X, origin=[0, 0, 15.5], sizes=[17, 24], name=\"coil1\", material=\"copper\")\n",
+    "coil1.color = \"(249 186 70)\"\n",
+    "path_rectangle = m3d.modeler.create_rectangle(orientation=Axis.Y, origin=[-17, 0, -15.5], sizes=[31, 34], name=\"path\")\n",
+    "m3d.modeler.uncover_faces([path_rectangle.faces[0]])\n",
+    "m3d.modeler.sweep_along_path(assignment=coil1, sweep_object=path_rectangle)\n",
+    "round = m3d.modeler.create_cylinder(orientation=Axis.Y, origin=[0, 0, 0], radius=46.238512086788, height=17, num_sides=0, name=\"Round\")\n",
+    "m3d.modeler.intersect(assignment=[coil1, round])\n",
+    "m3d.modeler.move(assignment=coil1, vector=[0, 54.5, 0])\n",
+    "m3d.modeler.duplicate_and_mirror(assignment=coil1, origin=[0, 0, 0], vector=[0, 1, 0])\n",
+    "m3d.modeler.section(assignment=coil1, plane=\"XY\")\n",
+    "m3d.modeler.section(assignment=coil1.name + \"_1\", plane=\"XY\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3df39da3",
+   "metadata": {},
+   "source": [
+    "#### Create air region"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3fe711e6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "bgnd = m3d.modeler.create_box(origin=[-250, -250, -250], sizes=[500, 500, 500], name=\"bgnd\")\n",
+    "bgnd.transparency = 1"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "34219fa5",
+   "metadata": {},
+   "source": [
+    "#### Create Coil Terminals by Separating Sheet bodies"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "81365935",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "coil_terminal1 = coil1.name + \"_1_Section1_Separate1\"\n",
+    "coil_terminal2 = coil1.name + \"_Section1\"\n",
+    "m3d.modeler.separate_bodies(assignment=coil_terminal2)\n",
+    "m3d.modeler.delete(assignment=coil1.name + \"_Section1_Separate1\")\n",
+    "m3d.modeler.separate_bodies(assignment=coil1.name + \"_1_Section1\")\n",
+    "m3d.modeler.delete(assignment=coil1.name + \"_1_Section1\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "730e9a4b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m3d.modeler.fit_all()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "79360286",
+   "metadata": {},
+   "source": [
+    "### Assign boundary conditions"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3cb9c8dd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m3d.assign_current(assignment=coil_terminal1, amplitude=675.5, solid=False, name=\"Current_1\")\n",
+    "m3d.assign_current(assignment=coil_terminal2, amplitude=675.5, solid=False, name=\"Current_2\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fb31dd1f",
+   "metadata": {},
+   "source": [
+    "### Define solution setup"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "342dfa0b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m3d.assign_matrix(assignment=[\"Current_1\", \"Current_2\"], matrix_name=\"Matrix1\")\n",
+    "m3d.assign_torque(assignment=inner_arm.name, is_virtual=True, coordinate_system=\"Global\", axis=\"Z\", torque_name=\"Virtual_Torque\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d2958fe4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup = m3d.create_setup(\"MySetup\")\n",
+    "print(setup.props)\n",
+    "setup.props[\"MaximumPasses\"] = 3\n",
+    "setup.props[\"PercentRefinement\"] = 30\n",
+    "setup.props[\"PercentError\"] = 1\n",
+    "setup.props[\"MinimumPasses\"] = 2\n",
+    "setup.props[\"RelativeResidual\"] = 1e-3"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "49d2d2af",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "parametric_sweep = m3d.parametrics.add(variable=\"angle\", start_point=\"0\", end_point=\"30\", step=\"10\", variation_type=\"LinearStep\", name=\"ParametricSetup1\")\n",
+    "parametric_sweep.add_calculation(calculation=\"Virtual_Torque.Torque\")\n",
+    "parametric_sweep.add_calculation(calculation=\"Matrix1.L(Current_1, Current_1)\")\n",
+    "parametric_sweep.add_calculation(calculation=\"Matrix1.L(Current_1, Current_2)\")\n",
+    "parametric_sweep.add_calculation(calculation=\"Matrix1.L(Current_2, Current_1)\")\n",
+    "parametric_sweep.add_calculation(calculation=\"Matrix1.L(Current_2, Current_2)\")\n",
+    "parametric_sweep.props[\"ProdOptiSetupDataV2\"][\"SaveFields\"] = True"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9d4bb98b",
+   "metadata": {},
+   "source": [
+    "### Run analysis\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "61c61a68",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "parametric_sweep.analyze(cores=NUM_CORES)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1111560b",
+   "metadata": {},
+   "source": [
+    "## Postprocess\n",
+    "\n",
+    "### Create a Rectangular plot of Coil Inductance vs. Rotational Angle"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "39cd648f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m3d.post.create_report(\n",
+    "    expressions=[\"Matrix1.L(Current_1, Current_1)\", \"Matrix1.L(Current_1, Current_2)\"],\n",
+    "    variations={\"angle\": \"All\"},\n",
+    "    plot_name=\"Coil Inductance vs. Angle\",\n",
+    "    primary_sweep_variable=\"angle\",\n",
+    "    plot_type=\"Rectangular Plot\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "abde4e6b",
+   "metadata": {},
+   "source": [
+    "### Create field plots on the surface of the actuator's arms"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b0387f3c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m3d.post.create_fieldplot_surface(assignment=[inner_arm, outer_arm], quantity=\"Mag_B\", plot_name=\"Mag_B1\", field_type=\"Fields\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fe362fe8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m3d.post.create_fieldplot_surface(assignment=[inner_arm, outer_arm], quantity=\"B_Vector\", plot_name=\"B_Vector1\", field_type=\"Fields\")  #"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "faa03510",
+   "metadata": {},
+   "source": [
+    "## Finish\n",
+    "\n",
+    "### Save the project"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "24b7b255",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m3d.save_project()\n",
+    "m3d.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2ad1bd2f",
+   "metadata": {},
+   "source": [
+    "### Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ae07800c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

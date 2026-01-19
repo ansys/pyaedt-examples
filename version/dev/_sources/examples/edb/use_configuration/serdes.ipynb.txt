@@ -1,0 +1,629 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "cc90d002",
+   "metadata": {},
+   "source": [
+    "# Set up EDB for Serdes channel S-parameter extraction"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6f07099c",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "48ece613",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import json\n",
+    "import os\n",
+    "import tempfile\n",
+    "\n",
+    "from ansys.aedt.core import Hfss3dLayout\n",
+    "from ansys.aedt.core.examples.downloads import download_file\n",
+    "from pyedb import Edb"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b001c962",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "77626947",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NG_MODE = False"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "012f82bd",
+   "metadata": {},
+   "source": [
+    "Download the example PCB data."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "cc6bdf45",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")\n",
+    "file_edb = download_file(source=\"edb/ANSYS-HSD_V1.aedb\", local_path=temp_folder.name)\n",
+    "download_file(source=\"touchstone\", name=\"GRM32_DC0V_25degC_series.s2p\", local_path=os.path.split(file_edb)[0])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "75a6c9da",
+   "metadata": {},
+   "source": [
+    "## Load example layout"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e8623b3b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp = Edb(file_edb, edbversion=AEDT_VERSION)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ffbb1dd5",
+   "metadata": {},
+   "source": [
+    "## Create config file"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "82ead2d6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg_general = {\"anti_pads_always_on\": True, \"suppress_pads\": True}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b6f27c98",
+   "metadata": {},
+   "source": [
+    "Define dielectric materials, stackup and surface roughness model."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1fd26dc1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg_stackup = {\n",
+    "    \"materials\": [\n",
+    "        {\"name\": \"copper\", \"permittivity\": 1, \"conductivity\": 58000000.0},\n",
+    "        {\"name\": \"megtron4\", \"permittivity\": 3.77, \"dielectric_loss_tangent\": 0.005},\n",
+    "        {\"name\": \"solder_resist\", \"permittivity\": 3.0, \"dielectric_loss_tangent\": 0.035},\n",
+    "    ],\n",
+    "    \"layers\": [\n",
+    "        {\n",
+    "            \"name\": \"Top\",\n",
+    "            \"type\": \"signal\",\n",
+    "            \"material\": \"copper\",\n",
+    "            \"fill_material\": \"solder_resist\",\n",
+    "            \"thickness\": \"0.035mm\",\n",
+    "            \"roughness\": {\n",
+    "                \"top\": {\"model\": \"huray\", \"nodule_radius\": \"0.5um\", \"surface_ratio\": \"5\"},\n",
+    "                \"bottom\": {\"model\": \"huray\", \"nodule_radius\": \"0.5um\", \"surface_ratio\": \"5\"},\n",
+    "                \"side\": {\"model\": \"huray\", \"nodule_radius\": \"0.5um\", \"surface_ratio\": \"5\"},\n",
+    "                \"enabled\": True,\n",
+    "            },\n",
+    "        },\n",
+    "        {\"name\": \"DE1\", \"type\": \"dielectric\", \"material\": \"megtron4\", \"fill_material\": \"\", \"thickness\": \"0.1mm\"},\n",
+    "        {\"name\": \"Inner1\", \"type\": \"signal\", \"material\": \"copper\", \"fill_material\": \"megtron4\", \"thickness\": \"0.017mm\"},\n",
+    "        {\"name\": \"DE2\", \"type\": \"dielectric\", \"material\": \"megtron4\", \"fill_material\": \"\", \"thickness\": \"0.088mm\"},\n",
+    "        {\"name\": \"Inner2\", \"type\": \"signal\", \"material\": \"copper\", \"fill_material\": \"megtron4\", \"thickness\": \"0.017mm\"},\n",
+    "        {\"name\": \"DE3\", \"type\": \"dielectric\", \"material\": \"megtron4\", \"fill_material\": \"\", \"thickness\": \"0.1mm\"},\n",
+    "        {\"name\": \"Inner3\", \"type\": \"signal\", \"material\": \"copper\", \"fill_material\": \"megtron4\", \"thickness\": \"0.017mm\"},\n",
+    "        {\"name\": \"Megtron4-1mm\", \"type\": \"dielectric\", \"material\": \"megtron4\", \"fill_material\": \"\", \"thickness\": 0.001},\n",
+    "        {\"name\": \"Inner4\", \"type\": \"signal\", \"material\": \"copper\", \"fill_material\": \"megtron4\", \"thickness\": \"0.017mm\"},\n",
+    "        {\"name\": \"DE5\", \"type\": \"dielectric\", \"material\": \"megtron4\", \"fill_material\": \"\", \"thickness\": \"0.1mm\"},\n",
+    "        {\"name\": \"Inner5\", \"type\": \"signal\", \"material\": \"copper\", \"fill_material\": \"megtron4\", \"thickness\": \"0.017mm\"},\n",
+    "        {\"name\": \"DE6\", \"type\": \"dielectric\", \"material\": \"megtron4\", \"fill_material\": \"\", \"thickness\": \"0.088mm\"},\n",
+    "        {\"name\": \"Inner6\", \"type\": \"signal\", \"material\": \"copper\", \"fill_material\": \"megtron4\", \"thickness\": \"0.017mm\"},\n",
+    "        {\"name\": \"DE7\", \"type\": \"dielectric\", \"material\": \"megtron4\", \"fill_material\": \"\", \"thickness\": \"0.1mm\"},\n",
+    "        {\n",
+    "            \"name\": \"Bottom\",\n",
+    "            \"type\": \"signal\",\n",
+    "            \"material\": \"copper\",\n",
+    "            \"fill_material\": \"solder_resist\",\n",
+    "            \"thickness\": \"0.035mm\",\n",
+    "        },\n",
+    "    ],\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7c9c16e4",
+   "metadata": {},
+   "source": [
+    "Define Component with solderballs."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8a249114",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg_components = [\n",
+    "    {\n",
+    "        \"reference_designator\": \"U1\",\n",
+    "        \"part_type\": \"io\",\n",
+    "        \"solder_ball_properties\": {\"shape\": \"cylinder\", \"diameter\": \"300um\", \"height\": \"300um\"},\n",
+    "        \"port_properties\": {\n",
+    "            \"reference_offset\": \"0\",\n",
+    "            \"reference_size_auto\": True,\n",
+    "            \"reference_size_x\": 0,\n",
+    "            \"reference_size_y\": 0,\n",
+    "        },\n",
+    "    }\n",
+    "]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "104a579e",
+   "metadata": {},
+   "source": [
+    "Edit via padstack definition. Add backdrilling."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9823e3d5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg_padstacks = {\n",
+    "    \"definitions\": [\n",
+    "        {\n",
+    "            \"name\": \"v40h15-2\",\n",
+    "            \"material\": \"copper\",\n",
+    "            \"hole_range\": \"upper_pad_to_lower_pad\",\n",
+    "            \"hole_parameters\": {\"shape\": \"circle\", \"diameter\": \"0.2mm\"},\n",
+    "        },\n",
+    "        {\n",
+    "            \"name\": \"v35h15-1\",\n",
+    "            \"material\": \"copper\",\n",
+    "            \"hole_range\": \"upper_pad_to_lower_pad\",\n",
+    "            \"hole_parameters\": {\"shape\": \"circle\", \"diameter\": \"0.25mm\"},\n",
+    "        },\n",
+    "    ],\n",
+    "    \"instances\": [\n",
+    "        {\n",
+    "            \"name\": \"Via313\",\n",
+    "            \"backdrill_parameters\": {\n",
+    "                \"from_bottom\": {\"drill_to_layer\": \"Inner3\", \"diameter\": \"1mm\", \"stub_length\": \"0.2mm\"}\n",
+    "            },\n",
+    "        },\n",
+    "        {\n",
+    "            \"name\": \"Via314\",\n",
+    "            \"backdrill_parameters\": {\n",
+    "                \"from_bottom\": {\"drill_to_layer\": \"Inner3\", \"diameter\": \"1mm\", \"stub_length\": \"0.2mm\"}\n",
+    "            },\n",
+    "        },\n",
+    "    ],\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "504ad098",
+   "metadata": {},
+   "source": [
+    "Define ports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "11ede295",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg_ports = [\n",
+    "    {\n",
+    "        \"name\": \"port_1\",\n",
+    "        \"reference_designator\": \"U1\",\n",
+    "        \"type\": \"coax\",\n",
+    "        \"positive_terminal\": {\"net\": \"PCIe_Gen4_TX2_CAP_P\"},\n",
+    "    },\n",
+    "    {\n",
+    "        \"name\": \"port_2\",\n",
+    "        \"reference_designator\": \"U1\",\n",
+    "        \"type\": \"coax\",\n",
+    "        \"positive_terminal\": {\"net\": \"PCIe_Gen4_TX2_CAP_N\"},\n",
+    "    },\n",
+    "    {\n",
+    "        \"name\": \"port_3\",\n",
+    "        \"reference_designator\": \"X1\",\n",
+    "        \"type\": \"circuit\",\n",
+    "        \"positive_terminal\": {\"pin\": \"B8\"},\n",
+    "        \"negative_terminal\": {\"pin\": \"B7\"},\n",
+    "    },\n",
+    "    {\n",
+    "        \"name\": \"port_4\",\n",
+    "        \"reference_designator\": \"X1\",\n",
+    "        \"type\": \"circuit\",\n",
+    "        \"positive_terminal\": {\"pin\": \"B9\"},\n",
+    "        \"negative_terminal\": {\"pin\": \"B10\"},\n",
+    "    },\n",
+    "]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8e0f58a3",
+   "metadata": {},
+   "source": [
+    "Define S-parameter assignment"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ccd207b2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg_s_parameters = [\n",
+    "    {\n",
+    "        \"name\": \"cap_10nf\",\n",
+    "        \"file_path\": \"$PROJECTDIR\\\\touchstone\\\\GRM32_DC0V_25degC_series.s2p\",\n",
+    "        \"component_definition\": \"CAPC1005X55X25LL05T10\",\n",
+    "        \"components\": [\"C375\", \"C376\"],\n",
+    "        \"reference_net\": \"GND\",\n",
+    "    }\n",
+    "]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "455a48eb",
+   "metadata": {},
+   "source": [
+    "Define SIwave setup."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "59803c4b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg_setups = [\n",
+    "    {\n",
+    "        \"name\": \"siwave_setup\",\n",
+    "        \"type\": \"siwave_ac\",\n",
+    "        \"si_slider_position\": 1,\n",
+    "        \"freq_sweep\": [\n",
+    "            {\n",
+    "                \"name\": \"Sweep1\",\n",
+    "                \"type\": \"interpolation\",\n",
+    "                \"frequencies\": [\n",
+    "                    {\"distribution\": \"linear_scale\", \"start\": \"50MHz\", \"stop\": \"20GHz\", \"increment\": \"50MHz\"}\n",
+    "                ],\n",
+    "            }\n",
+    "        ],\n",
+    "    }\n",
+    "]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a7983186",
+   "metadata": {},
+   "source": [
+    "Define cutout."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "80a6dea6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg_operations = {\n",
+    "    \"cutout\": {\n",
+    "        \"signal_list\": [\"PCIe_Gen4_TX2_CAP_P\", \"PCIe_Gen4_TX2_CAP_N\", \"PCIe_Gen4_TX2_P\", \"PCIe_Gen4_TX2_N\"],\n",
+    "        \"reference_list\": [\"GND\"],\n",
+    "        \"custom_extent\": [\n",
+    "            [0.014, 0.055],\n",
+    "            [0.03674271504652968, 0.05493094625752912],\n",
+    "            [0.07, 0.039],\n",
+    "            [0.07, 0.034],\n",
+    "            [0.05609890516829415, 0.03395233061637539],\n",
+    "            [0.014, 0.044],\n",
+    "        ],\n",
+    "    }\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1de42cad",
+   "metadata": {},
+   "source": [
+    "Create final configuration."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "73643a62",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg = {\n",
+    "    \"general\": cfg_general,\n",
+    "    \"stackup\": cfg_stackup,\n",
+    "    \"components\": cfg_components,\n",
+    "    \"padstacks\": cfg_padstacks,\n",
+    "    \"ports\": cfg_ports,\n",
+    "    \"s_parameters\": cfg_s_parameters,\n",
+    "    \"setups\": cfg_setups,\n",
+    "    \"operations\": cfg_operations,\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "39d254bb",
+   "metadata": {},
+   "source": [
+    "Create the config file."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6a7f29b1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "file_json = os.path.join(temp_folder.name, \"edb_configuration.json\")\n",
+    "with open(file_json, \"w\") as f:\n",
+    "    json.dump(cfg, f, indent=4, ensure_ascii=False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "99302a83",
+   "metadata": {},
+   "source": [
+    "## Apply Config file"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "782c2169",
+   "metadata": {},
+   "source": [
+    "Apply configuration to the example layout"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a4e4a263",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.configuration.load(config_file=file_json)\n",
+    "edbapp.configuration.run()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "bd6aaaf6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.nets.plot(nets=[])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a1c7c462",
+   "metadata": {},
+   "source": [
+    "Save and close EDB."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "30cf8308",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.save()\n",
+    "edbapp.close()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2bd039f0",
+   "metadata": {},
+   "source": [
+    "The configured EDB file is saved in a temp folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ae4e62cb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print(temp_folder.name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b6087d3c",
+   "metadata": {},
+   "source": [
+    "## Load edb into HFSS 3D Layout."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "91f7eaa0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d = Hfss3dLayout(edbapp.edbpath, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "38880a7a",
+   "metadata": {},
+   "source": [
+    "Create differential pair definition."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "98d12d57",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d.set_differential_pair(\n",
+    "    differential_mode=\"DIFF_BGA\",\n",
+    "    assignment=\"port_1\",\n",
+    "    reference=\"port_2\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a06806ff",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d.set_differential_pair(\n",
+    "    differential_mode=\"DIFF_CONN\",\n",
+    "    assignment=\"port_3\",\n",
+    "    reference=\"port_4\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "01689629",
+   "metadata": {},
+   "source": [
+    "Solve.\n",
+    "Un-comment to analyze SIwave."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d377175d",
+   "metadata": {},
+   "source": [
+    "h3d.analyze(setup=\"siwave_setup\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0f28f4f5",
+   "metadata": {},
+   "source": [
+    "Plot insertion loss."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f1731123",
+   "metadata": {},
+   "source": [
+    "solutions = h3d.post.get_solution_data(expressions=\"mag(S(DIFF_CONN,DIFF_BGA))\", context=\"Differential Pairs\")\n",
+    "solutions.plot(formula=\"db20\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8e6eb501",
+   "metadata": {},
+   "source": [
+    "Shut Down Electronics Desktop"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e0f08d46",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d.close_desktop()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "47241782",
+   "metadata": {},
+   "source": [
+    "All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notebook you\n",
+    "can retrieve those project files."
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

@@ -1,0 +1,485 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "aaf399f8",
+   "metadata": {},
+   "source": [
+    "# Set up EDB for Power Distribution Network Analysis\n",
+    "This example shows how to set up the electronics database (EDB) for power integrity analysis from a single\n",
+    "configuration file."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e474c2b9",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "bc9fba11",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import json\n",
+    "import os\n",
+    "import tempfile\n",
+    "\n",
+    "import matplotlib.pyplot as plt\n",
+    "\n",
+    "from ansys.aedt.core import Hfss3dLayout\n",
+    "from ansys.aedt.core.examples.downloads import download_file\n",
+    "from pyedb import Edb"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "11041136",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6d8fec9d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NG_MODE = False"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "02b083eb",
+   "metadata": {},
+   "source": [
+    "Download the example PCB data."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0c1245fd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")\n",
+    "download_file(source=\"touchstone\", name=\"GRM32_DC0V_25degC_series.s2p\", local_path=temp_folder.name)\n",
+    "file_edb = download_file(source=\"edb/ANSYS-HSD_V1.aedb\", local_path=temp_folder.name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e64c8e27",
+   "metadata": {},
+   "source": [
+    "## Load example layout"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "52837e86",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp = Edb(file_edb, edbversion=AEDT_VERSION)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8a51efc9",
+   "metadata": {},
+   "source": [
+    "## Create an empty dictionary to host all configurations"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "028e0682",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg = dict()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6f1b5d55",
+   "metadata": {},
+   "source": [
+    "## Assign S-parameter model to capactitors."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3dd4af68",
+   "metadata": {},
+   "source": [
+    "Set S-parameter library path."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "16207f3a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg[\"general\"] = {\"s_parameter_library\": os.path.join(temp_folder.name, \"touchstone\")}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "bc937119",
+   "metadata": {},
+   "source": [
+    "Assign the S-parameter model.\n",
+    "\n",
+    "Keywords\n",
+    "\n",
+    "- **name**. Name of the S-parameter model in AEDT.\n",
+    "- **component**_definition. Known as component part number of part name.\n",
+    "- **file_path**. Touchstone file or full path to the touchstone file.\n",
+    "- **apply_to_all**. When set to True, assign the S-parameter model to all components share the same\n",
+    "component_definition. When set to False, Only components in \"components\" are assigned.\n",
+    "- **components**. when apply_to_all=False, components in the list are assigned an S-parameter model.\n",
+    "When apply_to_all=False, components in the list are NOT assigned.\n",
+    "- **reference_net**. Reference net of the S-parameter model."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2b524787",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg[\"s_parameters\"] = [\n",
+    "    {\n",
+    "        \"name\": \"GRM32_DC0V_25degC_series\",\n",
+    "        \"component_definition\": \"CAPC0603X33X15LL03T05\",\n",
+    "        \"file_path\": \"GRM32_DC0V_25degC_series.s2p\",\n",
+    "        \"apply_to_all\": False,\n",
+    "        \"components\": [\"C110\", \"C206\"],\n",
+    "        \"reference_net\": \"GND\",\n",
+    "    }\n",
+    "]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "eeead88a",
+   "metadata": {},
+   "source": [
+    "## Define ports\n",
+    "Create a circuit port between power and ground nets.\n",
+    "\n",
+    "Keywords\n",
+    "\n",
+    "- **name**. Name of the port.\n",
+    "- **reference_desinator**.\n",
+    "- **type**. Type of the port. Supported types are 'ciruict', 'coax'.\n",
+    "- **positive_terminal**. Positive terminal of the port. Supported types are 'net', 'pin', 'pin_group', 'coordinates'.\n",
+    "- **negative_terminal**. Positive terminal of the port. Supported types are 'net', 'pin', 'pin_group', 'coordinates'."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "728aa376",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg[\"ports\"] = [\n",
+    "    {\n",
+    "        \"name\": \"port1\",\n",
+    "        \"reference_designator\": \"U1\",\n",
+    "        \"type\": \"circuit\",\n",
+    "        \"positive_terminal\": {\"net\": \"1V0\"},\n",
+    "        \"negative_terminal\": {\"net\": \"GND\"},\n",
+    "    }\n",
+    "]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "050ba5b7",
+   "metadata": {},
+   "source": [
+    "## Define SIwave SYZ analysis setup\n",
+    "\n",
+    "Keywords\n",
+    "\n",
+    "- **name**. Name of the setup.\n",
+    "- **type**. Type of the analysis setup. Supported types are 'siwave_ac', 'siwave_dc', 'hfss'.\n",
+    "- **pi_slider_position**. PI slider position. Supported values are from '0', '1', '2'. 0:speed, 1:balanced,\n",
+    "2:accuracy.\n",
+    "- **freq_sweep**. List of frequency sweeps.\n",
+    "  - **name**. Name of the sweep.\n",
+    "  - **type**. Type of the sweep. Supported types are 'interpolation', 'discrete', 'broadband'.\n",
+    "  - **frequencies**. Frequency distribution.\n",
+    "    - **distribution**. Supported distributions are 'linear_count', 'linear_scale', 'log_scale'.\n",
+    "    - **start**. Start frequency. Example, 1e6, \"1MHz\".\n",
+    "    - **stop**. Stop frequency. Example, 1e9, \"1GHz\".\n",
+    "    - **increment**."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d27aabd5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg[\"setups\"] = [\n",
+    "    {\n",
+    "        \"name\": \"siwave_syz\",\n",
+    "        \"type\": \"siwave_ac\",\n",
+    "        \"pi_slider_position\": 1,\n",
+    "        \"freq_sweep\": [\n",
+    "            {\n",
+    "                \"name\": \"Sweep1\",\n",
+    "                \"type\": \"interpolation\",\n",
+    "                \"frequencies\": [{\"distribution\": \"log_scale\", \"start\": 1e6, \"stop\": 1e9, \"increment\": 20}],\n",
+    "            }\n",
+    "        ],\n",
+    "    }\n",
+    "]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "06557ed6",
+   "metadata": {},
+   "source": [
+    "## Define Cutout\n",
+    "\n",
+    "Keywords\n",
+    "\n",
+    "- **signal_list**. List of nets to be kept after cutout.\n",
+    "- **reference_list**. List of nets as reference planes.\n",
+    "- **extent_type**. Supported extend types are 'Conforming', 'ConvexHull', 'Bounding'.\n",
+    "For optional input arguments, refer to method pyedb.Edb.cutout()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a112d1e3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg[\"operations\"] = {\n",
+    "    \"cutout\": {\n",
+    "        \"signal_list\": [\"1V0\"],\n",
+    "        \"reference_list\": [\"GND\"],\n",
+    "        \"extent_type\": \"ConvexHull\",\n",
+    "    }\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ba99bdfd",
+   "metadata": {},
+   "source": [
+    "## Write configuration into as json file"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fb7b402b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "file_json = os.path.join(temp_folder.name, \"edb_configuration.json\")\n",
+    "with open(file_json, \"w\") as f:\n",
+    "    json.dump(cfg, f, indent=4, ensure_ascii=False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "de9518d1",
+   "metadata": {},
+   "source": [
+    "## Import configuration into example layout"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5f5a6b7c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.configuration.load(config_file=file_json)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4537b038",
+   "metadata": {},
+   "source": [
+    "Apply configuration to EDB."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "cd0ce48f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.configuration.run()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c2f5fab2",
+   "metadata": {},
+   "source": [
+    "Save and close EDB."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "25870559",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.save()\n",
+    "edbapp.close()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e80f7daf",
+   "metadata": {},
+   "source": [
+    "The configured EDB file is saved in a temp folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b515f444",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print(temp_folder.name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "78130d8f",
+   "metadata": {},
+   "source": [
+    "## Load edb into HFSS 3D Layout."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c8a3db82",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d = Hfss3dLayout(edbapp.edbpath, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "613ce9cb",
+   "metadata": {},
+   "source": [
+    "## Analyze"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9b08cf42",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d.analyze()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "22402913",
+   "metadata": {},
+   "source": [
+    "## Plot impedance"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a5249baa",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "solutions = h3d.post.get_solution_data(expressions=\"Z(port1,port1)\")\n",
+    "plot_data = solutions.get_expression_data(convert_to_SI=True, formula=\"mag\")\n",
+    "x, y = plot_data\n",
+    "plt.plot(x, y)\n",
+    "plt.title(\"PDN Impedance\")\n",
+    "plt.xlabel(\"Frequency [GHz]\")\n",
+    "plt.ylabel(\"Z(port1,port1)\")\n",
+    "plt.xscale(\"log\")\n",
+    "plt.yscale(\"log\")\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7c136d0a",
+   "metadata": {},
+   "source": [
+    "## Shut Down Electronics Desktop"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f3de0299",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d.close_desktop()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "855c85ab",
+   "metadata": {},
+   "source": [
+    "All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notebook you\n",
+    "can retrieve those project files."
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

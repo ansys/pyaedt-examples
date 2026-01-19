@@ -1,0 +1,769 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "51008026",
+   "metadata": {},
+   "source": [
+    "# Resistance calculation"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "26ae6272",
+   "metadata": {},
+   "source": [
+    "This example uses PyAEDT to set up a resistance calculation\n",
+    "and solve it using the Maxwell 2D DCConduction solver.\n",
+    "\n",
+    "Keywords: **Maxwell 2D**, **DXF import**, **material sweep**, **expression cache**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8a14a6b2",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fe253f55",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os.path\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core\n",
+    "from ansys.aedt.core.examples.downloads import download_file\n",
+    "from ansys.aedt.core.visualization.plot.pdf import AnsysReport"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4b3169e3",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1c8b52ad",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NG_MODE = False\n",
+    "NUM_CORES = 4"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4c7d335b",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "08cb5d7f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "bfa033d2",
+   "metadata": {},
+   "source": [
+    "## Launch AEDT and Maxwell 2D\n",
+    "\n",
+    "Launch AEDT and Maxwell 2D after first setting up the project and design names,\n",
+    "the solver, and the version. The following code also creates an instance of the\n",
+    "``Maxwell2d`` class named ``m2d``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2dd4c0ae",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_name = os.path.join(temp_folder.name, \"M2D_DC_Conduction.aedt\")\n",
+    "m2d = ansys.aedt.core.Maxwell2d(\n",
+    "    version=AEDT_VERSION,\n",
+    "    new_desktop=True,\n",
+    "    close_on_exit=True,\n",
+    "    solution_type=\"DCConduction\",\n",
+    "    project=project_name,\n",
+    "    design=\"Ansys_resistor\",\n",
+    "    non_graphical=NG_MODE,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e91bceac",
+   "metadata": {},
+   "source": [
+    "## Import geometry as a DXF file\n",
+    "\n",
+    "You can test importing a DXF or a Parasolid file by commenting and uncommenting\n",
+    "the following lines.\n",
+    "Importing DXF files only works in graphical mode."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "851ebacf",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# dxf_path = ansys.aedt.core.examples.downloads.download_file(\"dxf\", \"Ansys_logo_2D.dxf\")\n",
+    "# dxf_layers = m2d.get_dxf_layers(dxf_path)\n",
+    "# m2d.import_dxf(dxf_path, dxf_layers, scale=1E-05)\n",
+    "\n",
+    "parasolid_path = download_file(\n",
+    "    source=\"x_t\", name=\"Ansys_logo_2D.x_t\", local_path=temp_folder.name\n",
+    ")\n",
+    "m2d.modeler.import_3d_cad(parasolid_path)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a4aeaab8",
+   "metadata": {},
+   "source": [
+    "## Define variables\n",
+    "\n",
+    "Define the conductor thickness in the z-direction, the material array with four materials,\n",
+    "and the material index referring to the material array."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a4488d11",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d[\"MaterialThickness\"] = \"5mm\"\n",
+    "m2d[\"ConductorMaterial\"] = '[\"Copper\", \"Aluminum\", \"silver\", \"gold\"]'\n",
+    "material_index = 0\n",
+    "m2d[\"MaterialIndex\"] = str(material_index)\n",
+    "no_materials = 4"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a41591e8",
+   "metadata": {},
+   "source": [
+    "## Assign materials\n",
+    "\n",
+    "Voltage ports are defined as gold. The conductor\n",
+    "gets the material defined by the 0th entry of the material array."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0c5345dd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.assign_material(assignment=[\"ANSYS_LOGO_2D_1\", \"ANSYS_LOGO_2D_2\"], material=\"gold\")\n",
+    "m2d.modeler[\"ANSYS_LOGO_2D_3\"].material_name = \"ConductorMaterial[MaterialIndex]\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "675e92f7",
+   "metadata": {},
+   "source": [
+    "## Assign voltages"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1a500403",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.assign_voltage(assignment=[\"ANSYS_LOGO_2D_1\"], amplitude=1, name=\"1V\")\n",
+    "m2d.assign_voltage(assignment=[\"ANSYS_LOGO_2D_2\"], amplitude=0, name=\"0V\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5732f3a5",
+   "metadata": {},
+   "source": [
+    "## Set up conductance calculation\n",
+    "\n",
+    "``1V`` is the source. ``0V`` is the ground."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "31ea0b51",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.assign_matrix(assignment=[\"1V\"], group_sources=[\"0V\"], matrix_name=\"Matrix1\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2f3d6202",
+   "metadata": {},
+   "source": [
+    "## Assign mesh operation\n",
+    "\n",
+    "Assign three millimeters as the maximum length."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "12fc47f9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.mesh.assign_length_mesh(\n",
+    "    assignment=[\"ANSYS_LOGO_2D_3\"],\n",
+    "    name=\"conductor\",\n",
+    "    maximum_length=3,\n",
+    "    maximum_elements=None,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9755d278",
+   "metadata": {},
+   "source": [
+    "## Create simulation setup and enable expression cache\n",
+    "\n",
+    "Create the simulation setup with a minimum of four adaptive passes to ensure convergence.\n",
+    "Enable the expression cache to observe the convergence."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "88c703b2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup = m2d.create_setup(name=\"Setup1\", MinimumPasses=4)\n",
+    "setup.enable_expression_cache(\n",
+    "    report_type=\"DCConduction\",\n",
+    "    expressions=\"1/Matrix1.G(1V,1V)/MaterialThickness\",\n",
+    "    isconvergence=True,\n",
+    "    conv_criteria=1,\n",
+    "    use_cache_for_freq=False,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d37ac134",
+   "metadata": {},
+   "source": [
+    "## Analyze setup\n",
+    "\n",
+    "Run the analysis."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "60070b92",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.save_project()\n",
+    "m2d.analyze(setup=setup.name, cores=NUM_CORES, use_auto_settings=False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "34192352",
+   "metadata": {},
+   "source": [
+    "## Create parametric sweep\n",
+    "\n",
+    "Create a parametric sweep to sweep all the entries in the material array.\n",
+    "Save fields and mesh. Use the mesh for all the materials."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "09274be1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "sweep = m2d.parametrics.add(\n",
+    "    variable=\"MaterialIndex\",\n",
+    "    start_point=0,\n",
+    "    end_point=no_materials - 1,\n",
+    "    step=1,\n",
+    "    variation_type=\"LinearStep\",\n",
+    "    name=\"MaterialSweep\",\n",
+    ")\n",
+    "sweep[\"SaveFields\"] = True\n",
+    "sweep[\"CopyMesh\"] = True\n",
+    "sweep[\"SolveWithCopiedMeshOnly\"] = True\n",
+    "sweep.analyze(cores=NUM_CORES)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5a1ae8c7",
+   "metadata": {},
+   "source": [
+    "## Output variable\n",
+    "\n",
+    "Define output variable."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3a74ce3b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "expression = \"1/Matrix1.G(1V,1V)/MaterialThickness\"\n",
+    "m2d.ooutput_variable.CreateOutputVariable(\n",
+    "    \"out1\", expression, m2d.nominal_sweep, \"DCConduction\", []\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a89a04b7",
+   "metadata": {},
+   "source": [
+    "## Create report\n",
+    "\n",
+    "Create a material resistance versus material index report."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f925b0f0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "variations = {\"MaterialIndex\": [\"All\"], \"MaterialThickness\": [\"Nominal\"]}\n",
+    "report = m2d.post.create_report(\n",
+    "    expressions=\"out1\",\n",
+    "    primary_sweep_variable=\"MaterialIndex\",\n",
+    "    report_category=\"DCConduction\",\n",
+    "    plot_type=\"Data Table\",\n",
+    "    variations=variations,\n",
+    "    plot_name=\"Resistance vs. Material\",\n",
+    ")\n",
+    "\n",
+    "# ## Get solution data\n",
+    "#\n",
+    "# Get solution data using the ``report``` object to get resistance values\n",
+    "# and plot data outside AEDT.\n",
+    "\n",
+    "data = report.get_solution_data()\n",
+    "resistance = data.get_expression_data(formula=\"magnitude\")[1]\n",
+    "material_index = data.primary_sweep_values\n",
+    "data.primary_sweep = \"MaterialIndex\"\n",
+    "data.plot(snapshot_path=os.path.join(temp_folder.name, \"M2D_DCConduction.jpg\"))\n",
+    "\n",
+    "# ## Create material index versus resistance table\n",
+    "#\n",
+    "# Create material index versus resistance table to use in the PDF report generator.\n",
+    "# Create ``colors`` table to customize each row of the material index versus resistance table.\n",
+    "\n",
+    "material_index_vs_resistance = [[\"Material\", \"Resistance\"]]\n",
+    "colors = [[(255, 255, 255), (0, 255, 0)]]\n",
+    "for i in range(len(data.primary_sweep_values)):\n",
+    "    material_index_vs_resistance.append(\n",
+    "        [str(data.primary_sweep_values[i]), str(resistance[i])]\n",
+    "    )\n",
+    "    colors.append([None, None])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9c8e57f0",
+   "metadata": {},
+   "source": [
+    "## Overlay fields\n",
+    "\n",
+    "Plot the electric field and current density on the conductor surface."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "34f8dc56",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "conductor_surface = m2d.modeler[\"ANSYS_LOGO_2D_3\"].faces\n",
+    "plot1 = m2d.post.create_fieldplot_surface(\n",
+    "    assignment=conductor_surface, quantity=\"Mag_E\", plot_name=\"Electric Field\"\n",
+    ")\n",
+    "plot2 = m2d.post.create_fieldplot_surface(\n",
+    "    assignment=conductor_surface, quantity=\"Mag_J\", plot_name=\"Current Density\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9ee11ddd",
+   "metadata": {},
+   "source": [
+    "## Overlay fields using PyVista\n",
+    "\n",
+    "Plot electric field using PyVista and save to an image file."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c32aa4e4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "py_vista_plot = m2d.post.plot_field(\n",
+    "    quantity=\"Mag_E\", assignment=conductor_surface, plot_cad_objs=False, show=False\n",
+    ")\n",
+    "py_vista_plot.isometric_view = False\n",
+    "py_vista_plot.camera_position = [0, 0, 7]\n",
+    "py_vista_plot.focal_point = [0, 0, 0]\n",
+    "py_vista_plot.roll_angle = 0\n",
+    "py_vista_plot.elevation_angle = 0\n",
+    "py_vista_plot.azimuth_angle = 0\n",
+    "py_vista_plot.plot(os.path.join(temp_folder.name, \"mag_E.jpg\"))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1f7de6a0",
+   "metadata": {},
+   "source": [
+    "## Plot field animation\n",
+    "\n",
+    "Plot current density verus the material index."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2fd011f1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "animated_plot = m2d.post.plot_animated_field(\n",
+    "    quantity=\"Mag_J\",\n",
+    "    assignment=conductor_surface,\n",
+    "    export_path=temp_folder.name,\n",
+    "    variation_variable=\"MaterialIndex\",\n",
+    "    variations=[0, 1, 2, 3],\n",
+    "    show=False,\n",
+    "    export_gif=False,\n",
+    "    log_scale=True,\n",
+    ")\n",
+    "animated_plot.isometric_view = False\n",
+    "animated_plot.camera_position = [0, 0, 7]\n",
+    "animated_plot.focal_point = [0, 0, 0]\n",
+    "animated_plot.roll_angle = 0\n",
+    "animated_plot.elevation_angle = 0\n",
+    "animated_plot.azimuth_angle = 0\n",
+    "animated_plot.animate(show=False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9c9ef2ca",
+   "metadata": {},
+   "source": [
+    "## Export model picture"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "63ceeec9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "model_picture = m2d.post.export_model_picture()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ed1d54b5",
+   "metadata": {},
+   "source": [
+    "## Generate PDF report\n",
+    "\n",
+    "Generate a PDF report with the output of the simulation."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ea037805",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pdf_report = AnsysReport(\n",
+    "    project_name=m2d.project_name, design_name=m2d.design_name, version=AEDT_VERSION\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2c936c3d",
+   "metadata": {},
+   "source": [
+    "Customize the text font."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5f90c94e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pdf_report.report_specs.font = \"times\"\n",
+    "pdf_report.report_specs.text_font_size = 10"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b63b39dc",
+   "metadata": {},
+   "source": [
+    "Create the report"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "26baa079",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pdf_report.create()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b6e3f19f",
+   "metadata": {},
+   "source": [
+    "Add project's design information to the report."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "609cb653",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pdf_report.add_project_info(m2d)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e3a87408",
+   "metadata": {},
+   "source": [
+    "Add the model picture in a new chapter. Then, add text."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "acfcfa90",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pdf_report.add_chapter(\"Model Picture\")\n",
+    "pdf_report.add_text(\"This section contains the model picture.\")\n",
+    "pdf_report.add_image(path=model_picture, caption=\"Model Picture\", width=80, height=60)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "41aefc6b",
+   "metadata": {},
+   "source": [
+    "Add field overlay plots in a new chapter."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a519f413",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pdf_report.add_chapter(\"Field overlay\")\n",
+    "pdf_report.add_sub_chapter(\"Plots\")\n",
+    "pdf_report.add_text(\"This section contains the fields overlay.\")\n",
+    "pdf_report.add_image(\n",
+    "    os.path.join(temp_folder.name, \"mag_E.jpg\"), caption=\"Mag E\", width=120, height=80\n",
+    ")\n",
+    "pdf_report.add_page_break()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "bdd8010f",
+   "metadata": {},
+   "source": [
+    "Add a new section to display results."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0d9b3855",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pdf_report.add_section()\n",
+    "pdf_report.add_chapter(\"Results\")\n",
+    "pdf_report.add_sub_chapter(\"Resistance vs. Material\")\n",
+    "pdf_report.add_text(\"This section contains resistance versus material data.\")\n",
+    "# Aspect ratio is automatically calculated if only width is provided\n",
+    "pdf_report.add_image(os.path.join(temp_folder.name, \"M2D_DCConduction.jpg\"), width=130)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7b81d923",
+   "metadata": {},
+   "source": [
+    "Add a new subchapter to display resistance data from the previously created table."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8fcf8423",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pdf_report.add_sub_chapter(\"Resistance data table\")\n",
+    "pdf_report.add_text(\"This section contains resistance data.\")\n",
+    "pdf_report.add_table(\n",
+    "    title=\"Resistance Data\",\n",
+    "    content=material_index_vs_resistance,\n",
+    "    formatting=colors,\n",
+    "    col_widths=[75, 100],\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "533f1e5b",
+   "metadata": {},
+   "source": [
+    "Add a table of contents and save the PDF."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d9886e81",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pdf_report.add_toc()\n",
+    "pdf_report.save_pdf(temp_folder.name, \"AEDT_Results.pdf\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c27cec74",
+   "metadata": {},
+   "source": [
+    "## Release AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "809164d5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.save_project()\n",
+    "m2d.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e1bf804b",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b3b79a0d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

@@ -1,0 +1,531 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "378d199d",
+   "metadata": {},
+   "source": [
+    "# Choke setup\n",
+    "\n",
+    "This example shows how to use PyAEDT to create a choke setup in Maxwell 3D.\n",
+    "\n",
+    "Keywords: **Maxwell 3D**, **choke**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f4cd790c",
+   "metadata": {},
+   "source": [
+    "## Prerequisites\n",
+    "\n",
+    "### Perform imports"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0ba7423d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import json\n",
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core  # Interface to Ansys Electronics Desktop"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "aa97f61a",
+   "metadata": {},
+   "source": [
+    "### Define constants.\n",
+    "Constants help ensure consistency and avoid repetition throughout the example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e5f53c0a",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "10626c6b",
+   "metadata": {},
+   "source": [
+    "### Create temporary directory\n",
+    "\n",
+    "Create a temporary working directory.\n",
+    "The name of the working folder is stored in ``temp_folder.name``.\n",
+    "\n",
+    "> **Note:** The final cell in the notebook cleans up the temporary folder. If you want to\n",
+    "> retrieve the AEDT project and data, do so before executing the final cell in the notebook."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2ac9c86c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a1cf4ba6",
+   "metadata": {},
+   "source": [
+    "### Launch Maxwell3D\n",
+    "\n",
+    "Launch Maxwell by creating an instance of ``Maxwell3d``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9d21afea",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_name = os.path.join(temp_folder.name, \"choke.aedt\")\n",
+    "m3d = ansys.aedt.core.Maxwell3d(\n",
+    "    project=project_name,\n",
+    "    solution_type=\"EddyCurrent\",\n",
+    "    version=AEDT_VERSION,\n",
+    "    non_graphical=NG_MODE,\n",
+    "    new_desktop=True,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "11b1dc8a",
+   "metadata": {},
+   "source": [
+    "## Model Preparation\n",
+    "\n",
+    "This example uses a custom ``create_choke()`` method\n",
+    "to create a common-mode choke in Maxwell 3D. The geometric parameters are passed to the method as a ``dict`` instance.\n",
+    "\n",
+    "### Choke Geometric Parameters\n",
+    "\n",
+    "The dictionary values contain the different parameter values of the core and\n",
+    "the windings that compose the choke. You must not change the main structure of\n",
+    "the dictionary. The dictionary has many primary keys, including\n",
+    "``\"Number of Windings\"``, ``\"Layer\"``, and ``\"Layer Type\"``, that have\n",
+    "dictionaries as values. The keys of these dictionaries are secondary keys\n",
+    "of the dictionary values, such as ``\"1\"``, ``\"2\"``, ``\"3\"``, ``\"4\"``, and\n",
+    "``\"Simple\"``.\n",
+    "\n",
+    "You must not modify the primary or secondary keys. You can modify only their values.\n",
+    "You must not change the data types for these keys. For the dictionaries from\n",
+    "``\"Number of Windings\"`` through ``\"Wire Section\"``, values must be Boolean. Only\n",
+    "one value per dictionary can be ``True``. If all values are ``True``, only the first one\n",
+    "remains set to ``True``. If all values are ``False``, the first value is chosen as the\n",
+    "correct one by default. For the dictionaries from ``\"Core\"`` through ``\"Inner Winding\"``,\n",
+    "values must be strings, floats, or integers.\n",
+    "\n",
+    "Descriptions follow for the primary keys:\n",
+    "\n",
+    "- ``\"Number of Windings\"``: Number of windings around the core.\n",
+    "- ``\"Layer\"``: Number of layers of all windings.\n",
+    "- ``\"Layer Type\"``: Whether layers of a winding are linked to each other\n",
+    "- ``\"Similar Layer\"``: Whether layers of a winding have the same number of turns and\n",
+    "same spacing between turns.\n",
+    "- ``\"Mode\"``: When there are only two windows, whether they are in common or differential mode.\n",
+    "- ``\"Wire Section\"``: Type of wire section and number of segments.\n",
+    "- ``\"Core\"``: Design of the core.\n",
+    "- ``\"Outer Winding\"``: Design of the first layer or outer layer of a winding and the common\n",
+    "parameters for all layers.\n",
+    "- ``\"Mid Winding\"``: Turns and turns spacing (``Coil Pit``) for the second or\n",
+    "mid layer if it is necessary.\n",
+    "- ``\"Inner Winding\"``: Turns and turns spacing (``Coil Pit``) for the third or inner\n",
+    "layer if it is necessary.\n",
+    "- ``\"Occupation(%)\"``: An informative parameter that is useless to modify.\n",
+    "\n",
+    "The following parameter values work. You can modify them if you want."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "32cc9557",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "choke_descriptor = {\n",
+    "    \"Number of Windings\": {\"1\": False, \"2\": False, \"3\": True, \"4\": False},\n",
+    "    \"Layer\": {\"Simple\": False, \"Double\": False, \"Triple\": True},\n",
+    "    \"Layer Type\": {\"Separate\": False, \"Linked\": True},\n",
+    "    \"Similar Layer\": {\"Similar\": False, \"Different\": True},\n",
+    "    \"Mode\": {\"Differential\": True, \"Common\": False},\n",
+    "    \"Wire Section\": {\"None\": False, \"Hexagon\": False, \"Octagon\": True, \"Circle\": False},\n",
+    "    \"Core\": {\n",
+    "        \"Name\": \"Core\",\n",
+    "        \"Material\": \"ferrite\",\n",
+    "        \"Inner Radius\": 100,\n",
+    "        \"Outer Radius\": 143,\n",
+    "        \"Height\": 25,\n",
+    "        \"Chamfer\": 0.8,\n",
+    "    },\n",
+    "    \"Outer Winding\": {\n",
+    "        \"Name\": \"Winding\",\n",
+    "        \"Material\": \"copper\",\n",
+    "        \"Inner Radius\": 100,\n",
+    "        \"Outer Radius\": 143,\n",
+    "        \"Height\": 25,\n",
+    "        \"Wire Diameter\": 5,\n",
+    "        \"Turns\": 2,\n",
+    "        \"Coil Pit(deg)\": 4,\n",
+    "        \"Occupation(%)\": 0,\n",
+    "    },\n",
+    "    \"Mid Winding\": {\"Turns\": 7, \"Coil Pit(deg)\": 4, \"Occupation(%)\": 0},\n",
+    "    \"Inner Winding\": {\"Turns\": 10, \"Coil Pit(deg)\": 4, \"Occupation(%)\": 0},\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5097e836",
+   "metadata": {},
+   "source": [
+    "## Convert dictionary to JSON file\n",
+    "\n",
+    "Convert the dictionary to a JSON file. PyAEDT methods ask for the path of the\n",
+    "JSON file as an argument. You can convert a dictionary to a JSON file."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2efba09d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "choke_fn = os.path.join(temp_folder.name, \"choke_example.json\")\n",
+    "\n",
+    "with open(choke_fn, \"w\") as outfile:\n",
+    "    json.dump(choke_descriptor, outfile)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "03de6066",
+   "metadata": {},
+   "source": [
+    "## Verify parameters of JSON file\n",
+    "\n",
+    "Verify parameters of the JSON file. The ``check_choke_values()`` method takes\n",
+    "the JSON file path as an argument and does the following:\n",
+    "\n",
+    "- Checks if the JSON file is correctly written (as explained earlier)\n",
+    "- Checks equations on windings parameters to avoid having unintended intersections"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5174d4b6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "choke_descriptor_2 = m3d.modeler.check_choke_values(\n",
+    "    input_dir=choke_fn, create_another_file=False\n",
+    ")\n",
+    "print(choke_descriptor_2)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "46ffaa84",
+   "metadata": {},
+   "source": [
+    "## Create choke\n",
+    "\n",
+    "Create the choke. The ``create_choke()`` method takes the JSON file path as an\n",
+    "argument."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9f559990",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "list_object = m3d.modeler.create_choke(input_file=choke_fn)\n",
+    "# print(list_object)\n",
+    "core = list_object[1]\n",
+    "first_winding_list = list_object[2]\n",
+    "second_winding_list = list_object[3]\n",
+    "third_winding_list = list_object[4]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "140f6d4a",
+   "metadata": {},
+   "source": [
+    "### Assign excitations"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "989b9297",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "first_winding_faces = m3d.modeler.get_object_faces(\n",
+    "    assignment=first_winding_list[0].name\n",
+    ")\n",
+    "second_winding_faces = m3d.modeler.get_object_faces(\n",
+    "    assignment=second_winding_list[0].name\n",
+    ")\n",
+    "third_winding_faces = m3d.modeler.get_object_faces(\n",
+    "    assignment=third_winding_list[0].name\n",
+    ")\n",
+    "m3d.assign_current(\n",
+    "    assignment=[first_winding_faces[-1]],\n",
+    "    amplitude=1000,\n",
+    "    phase=\"0deg\",\n",
+    "    swap_direction=False,\n",
+    "    name=\"phase_1_in\",\n",
+    ")\n",
+    "m3d.assign_current(\n",
+    "    assignment=[first_winding_faces[-2]],\n",
+    "    amplitude=1000,\n",
+    "    phase=\"0deg\",\n",
+    "    swap_direction=True,\n",
+    "    name=\"phase_1_out\",\n",
+    ")\n",
+    "m3d.assign_current(\n",
+    "    assignment=[second_winding_faces[-1]],\n",
+    "    amplitude=1000,\n",
+    "    phase=\"120deg\",\n",
+    "    swap_direction=False,\n",
+    "    name=\"phase_2_in\",\n",
+    ")\n",
+    "m3d.assign_current(\n",
+    "    assignment=[second_winding_faces[-2]],\n",
+    "    amplitude=1000,\n",
+    "    phase=\"120deg\",\n",
+    "    swap_direction=True,\n",
+    "    name=\"phase_2_out\",\n",
+    ")\n",
+    "m3d.assign_current(\n",
+    "    assignment=[third_winding_faces[-1]],\n",
+    "    amplitude=1000,\n",
+    "    phase=\"240deg\",\n",
+    "    swap_direction=False,\n",
+    "    name=\"phase_3_in\",\n",
+    ")\n",
+    "m3d.assign_current(\n",
+    "    assignment=[third_winding_faces[-2]],\n",
+    "    amplitude=1000,\n",
+    "    phase=\"240deg\",\n",
+    "    swap_direction=True,\n",
+    "    name=\"phase_3_out\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ca08c7c2",
+   "metadata": {},
+   "source": [
+    "### Assign matrix"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0cb4cefd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m3d.assign_matrix(\n",
+    "    assignment=[\"phase_1_in\", \"phase_2_in\", \"phase_3_in\"], matrix_name=\"current_matrix\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "40f69081",
+   "metadata": {},
+   "source": [
+    "### Create mesh operation"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a88b21e3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mesh = m3d.mesh\n",
+    "mesh.assign_skin_depth(\n",
+    "    assignment=[first_winding_list[0], second_winding_list[0], third_winding_list[0]],\n",
+    "    skin_depth=0.20,\n",
+    "    triangulation_max_length=\"10mm\",\n",
+    "    name=\"skin_depth\",\n",
+    ")\n",
+    "mesh.assign_surface_mesh_manual(\n",
+    "    assignment=[first_winding_list[0], second_winding_list[0], third_winding_list[0]],\n",
+    "    surface_deviation=None,\n",
+    "    normal_dev=\"30deg\",\n",
+    "    name=\"surface_approx\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8ac819f0",
+   "metadata": {},
+   "source": [
+    "### Create boundary conditions\n",
+    "\n",
+    "Create the boundaries. A region with openings is needed to run the analysis."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f7fe9ee9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "region = m3d.modeler.create_air_region(\n",
+    "    x_pos=100, y_pos=100, z_pos=100, x_neg=100, y_neg=100, z_neg=0\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fb856a1a",
+   "metadata": {},
+   "source": [
+    "### Create setup\n",
+    "\n",
+    "Create a setup with a sweep to run the simulation. Depending on your machine's\n",
+    "computing power, the simulation can take some time to run."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "21feffef",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup = m3d.create_setup(\"MySetup\")\n",
+    "print(setup.props)\n",
+    "setup.props[\"Frequency\"] = \"100kHz\"\n",
+    "setup.props[\"PercentRefinement\"] = 15\n",
+    "setup.props[\"MaximumPasses\"] = 10\n",
+    "setup.props[\"HasSweepSetup\"] = True\n",
+    "\n",
+    "sweep = setup.add_eddy_current_sweep(\n",
+    "    sweep_type=\"LinearCount\",\n",
+    "    start_frequency=100,\n",
+    "    stop_frequency=1000,\n",
+    "    step_size=12,\n",
+    "    units=\"kHz\",\n",
+    "    clear=True\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "423a0330",
+   "metadata": {},
+   "source": [
+    "### Save project"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d9394637",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m3d.save_project()\n",
+    "m3d.modeler.fit_all()\n",
+    "m3d.plot(\n",
+    "    show=False,\n",
+    "    output_file=os.path.join(temp_folder.name, \"Image.jpg\"),\n",
+    "    plot_air_objects=True,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "cbcc061e",
+   "metadata": {},
+   "source": [
+    "## Finish\n",
+    "### Save the project"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "69fb604b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m3d.save_project()\n",
+    "m3d.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "face0cd0",
+   "metadata": {},
+   "source": [
+    "### Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4bff4fbf",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

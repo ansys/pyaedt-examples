@@ -1,0 +1,1897 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "11100574",
+   "metadata": {},
+   "source": [
+    "# PM synchronous motor transient analysis\n",
+    "\n",
+    "This example shows how to use PyAEDT to create a Maxwell 2D transient analysis for\n",
+    "an interior permanent magnet (PM) electric motor.\n",
+    "\n",
+    "Keywords: **Maxwell 2D**, **transient**, **motor**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b0ac5b17",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5f87e878",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import csv\n",
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "from operator import attrgetter\n",
+    "\n",
+    "import ansys.aedt.core\n",
+    "import matplotlib.pyplot as plt\n",
+    "import numpy as np\n",
+    "from ansys.aedt.core.examples.downloads import download_leaf\n",
+    "from ansys.aedt.core.generic.constants import unit_converter\n",
+    "from ansys.aedt.core.generic.numbers_utils import Quantity\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "021706de",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c19b042e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9ae001b2",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory and download files\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6becbe42",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9cb668df",
+   "metadata": {},
+   "source": [
+    "## Initialize dictionaries\n",
+    "\n",
+    "Dictionaries contain all the definitions for the design variables and output variables."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c4e586d7",
+   "metadata": {},
+   "source": [
+    "## Initialize definitions for th stator, rotor, and shaft\n",
+    "\n",
+    "Initialize geometry parameter definitions for the stator, rotor, and shaft.\n",
+    "The naming refers to RMxprt primitives."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1a17263d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "geom_params = {\n",
+    "    \"DiaGap\": \"132mm\",\n",
+    "    \"DiaStatorYoke\": \"198mm\",\n",
+    "    \"DiaStatorInner\": \"132mm\",\n",
+    "    \"DiaRotorLam\": \"130mm\",\n",
+    "    \"DiaShaft\": \"44.45mm\",\n",
+    "    \"DiaOuter\": \"198mm\",\n",
+    "    \"Airgap\": \"1mm\",\n",
+    "    \"SlotNumber\": \"48\",\n",
+    "    \"SlotType\": \"3\",\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4f919715",
+   "metadata": {},
+   "source": [
+    "## Initialize definitions for stator windings\n",
+    "\n",
+    "Initialize geometry parameter definitions for the stator windings. The naming\n",
+    "refers to RMxprt primitives."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "955c70c5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "wind_params = {\n",
+    "    \"Layers\": \"1\",\n",
+    "    \"ParallelPaths\": \"2\",\n",
+    "    \"R_Phase\": \"7.5mOhm\",\n",
+    "    \"WdgExt_F\": \"5mm\",\n",
+    "    \"SpanExt\": \"30mm\",\n",
+    "    \"SegAngle\": \"0.25\",\n",
+    "    \"CoilPitch\": \"5\",  # coil pitch in slots\n",
+    "    \"Coil_SetBack\": \"3.605732823mm\",\n",
+    "    \"SlotWidth\": \"2.814mm\",  # RMxprt Bs0\n",
+    "    \"Coil_Edge_Short\": \"3.769235435mm\",\n",
+    "    \"Coil_Edge_Long\": \"15.37828521mm\",\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "86bad003",
+   "metadata": {},
+   "source": [
+    "## Initialize definitions for model setup\n",
+    "\n",
+    "Initialize geometry parameter definitions for the model setup."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0d6e2301",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mod_params = {\n",
+    "    \"NumPoles\": \"8\",\n",
+    "    \"Model_Length\": \"80mm\",\n",
+    "    \"SymmetryFactor\": \"8\",\n",
+    "    \"Magnetic_Axial_Length\": \"150mm\",\n",
+    "    \"Stator_Lam_Length\": \"0mm\",\n",
+    "    \"StatorSkewAngle\": \"0deg\",\n",
+    "    \"NumTorquePointsPerCycle\": \"30\",\n",
+    "    \"mapping_angle\": \"0.125*4deg\",\n",
+    "    \"num_m\": \"16\",\n",
+    "    \"Section_Angle\": \"360deg/SymmetryFactor\",\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "be5a85ba",
+   "metadata": {},
+   "source": [
+    "## Initialize definitions for operational machine\n",
+    "\n",
+    "Initialize geometry parameter definitions for the operational machine. This\n",
+    "identifies the operating point for the transient setup."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "cfc264e1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "oper_params = {\n",
+    "    \"InitialPositionMD\": \"180deg/4\",\n",
+    "    \"IPeak\": \"480A\",\n",
+    "    \"MachineRPM\": \"3000rpm\",\n",
+    "    \"ElectricFrequency\": \"MachineRPM/60rpm*NumPoles/2*1Hz\",\n",
+    "    \"ElectricPeriod\": \"1/ElectricFrequency\",\n",
+    "    \"BandTicksinModel\": \"360deg/NumPoles/mapping_angle\",\n",
+    "    \"TimeStep\": \"ElectricPeriod/(2*BandTicksinModel)\",\n",
+    "    \"StopTime\": \"ElectricPeriod\",\n",
+    "    \"Theta_i\": \"135deg\",\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2ba9ef16",
+   "metadata": {},
+   "source": [
+    "## Launch AEDT and Maxwell 2D\n",
+    "\n",
+    "Launch AEDT and Maxwell 2D after first setting up the project and design names,\n",
+    "the solver, and the version. The following code also creates an instance of the\n",
+    "``Maxwell2d`` class named ``m2d``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ac14d236",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_name = os.path.join(temp_folder.name, \"PM_Motor.aedt\")\n",
+    "m2d = ansys.aedt.core.Maxwell2d(\n",
+    "    project=project_name,\n",
+    "    version=AEDT_VERSION,\n",
+    "    design=\"Sinusoidal\",\n",
+    "    solution_type=\"TransientXY\",\n",
+    "    new_desktop=True,\n",
+    "    non_graphical=NG_MODE,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4095b1cc",
+   "metadata": {},
+   "source": [
+    "## Define modeler units"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "eb5aa566",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.modeler.model_units = \"mm\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3821d1d5",
+   "metadata": {},
+   "source": [
+    "## Define variables from dictionaries\n",
+    "\n",
+    "Define design variables from the created dictionaries."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "dc8349b2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "for k, v in geom_params.items():\n",
+    "    m2d[k] = v\n",
+    "for k, v in wind_params.items():\n",
+    "    m2d[k] = v\n",
+    "for k, v in mod_params.items():\n",
+    "    m2d[k] = v\n",
+    "for k, v in oper_params.items():\n",
+    "    m2d[k] = v"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9bb2dbfe",
+   "metadata": {},
+   "source": [
+    "## Define path for non-linear material properties\n",
+    "\n",
+    "Define the path for non-linear material properties.\n",
+    "Materials are stored in text files."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2dc054b0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "filename_lam, filename_PM = download_leaf(local_path=temp_folder.name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "be1dded0",
+   "metadata": {},
+   "source": [
+    "## Create first material\n",
+    "\n",
+    "Create the material ``\"Copper (Annealed)_65C\"``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "cf44cfb6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mat_coils = m2d.materials.add_material(\"Copper (Annealed)_65C\")\n",
+    "mat_coils.update()\n",
+    "mat_coils.conductivity = \"49288048.9198\"\n",
+    "mat_coils.permeability = \"1\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b4c66d93",
+   "metadata": {},
+   "source": [
+    "## Create materials with a non-linear permeability\n",
+    "\n",
+    "Below there are two examples of how to create materials with a non-linear permeability.\n",
+    "The first example imports the BH curve as a 1d dataset in the project.\n",
+    "The second example reads the BH curve from a tabbed CSV file."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e21e61af",
+   "metadata": {},
+   "source": [
+    "Create second material ``\"Arnold_Magnetics_N30UH_80C\"``.\n",
+    "The BH curve is imported as a 1d dataset in the project.\n",
+    "It means that the BH curve is available in ``Project > Datasets`` in AEDT.\n",
+    "Once the dataset is imported, it can be assigned to the permeability value."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b0d89155",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mat_PM = m2d.materials.add_material(name=\"Arnold_Magnetics_N30UH_80C_new\")\n",
+    "mat_PM.update()\n",
+    "mat_PM.conductivity = \"555555.5556\"\n",
+    "mat_PM.set_magnetic_coercivity(value=-800146.66287534, x=1, y=0, z=0)\n",
+    "mat_PM.mass_density = \"7500\"\n",
+    "BH_List_PM = m2d.import_dataset1d(filename_PM, name=\"Arnold_Magnetics_N30UH_80C\")\n",
+    "mat_PM.permeability.value = [[a, b] for a, b in zip(BH_List_PM.x, BH_List_PM.y)]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "49c8d92e",
+   "metadata": {},
+   "source": [
+    "Create the third material laminated ``30DH_20C_smooth``.\n",
+    "The BH curve is read from a tabbed CSV file. A list named ``BH_List_lam``\n",
+    "is created. This list is passed to the ``mat_lam.permeability.value`` variable."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8cc5ebd2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mat_lam = m2d.materials.add_material(\"30DH_20C_smooth\")\n",
+    "mat_lam.update()\n",
+    "mat_lam.conductivity = \"1694915.25424\"\n",
+    "kh = 71.7180985413\n",
+    "kc = 0.25092214579\n",
+    "ke = 12.1625774023\n",
+    "kdc = 0.001\n",
+    "eq_depth = 0.001\n",
+    "mat_lam.set_electrical_steel_coreloss(kh, kc, ke, kdc, eq_depth)\n",
+    "mat_lam.mass_density = \"7650\"\n",
+    "BH_List_lam = []\n",
+    "with open(filename_lam) as f:\n",
+    "    reader = csv.reader(f, delimiter=\"\\t\")\n",
+    "    next(reader)\n",
+    "    for row in reader:\n",
+    "        BH_List_lam.append([float(row[0]), float(row[1])])\n",
+    "mat_lam.permeability.value = BH_List_lam"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d3cd6b7b",
+   "metadata": {},
+   "source": [
+    "## Create geometry for stator\n",
+    "\n",
+    "Create the geometry for the stator. It is created via\n",
+    "the RMxprt user-defined primitive (UDP). A list of lists is\n",
+    "created with the proper UDP parameters."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "854ddc36",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "udp_par_list_stator = [\n",
+    "    [\"DiaGap\", \"DiaGap\"],\n",
+    "    [\"DiaYoke\", \"DiaStatorYoke\"],\n",
+    "    [\"Length\", \"Stator_Lam_Length\"],\n",
+    "    [\"Skew\", \"StatorSkewAngle\"],\n",
+    "    [\"Slots\", \"SlotNumber\"],\n",
+    "    [\"SlotType\", \"SlotType\"],\n",
+    "    [\"Hs0\", \"1.2mm\"],\n",
+    "    [\"Hs01\", \"0mm\"],\n",
+    "    [\"Hs1\", \"0.4834227384999mm\"],\n",
+    "    [\"Hs2\", \"17.287669825502mm\"],\n",
+    "    [\"Bs0\", \"2.814mm\"],\n",
+    "    [\"Bs1\", \"4.71154109036mm\"],\n",
+    "    [\"Bs2\", \"6.9777285790998mm\"],\n",
+    "    [\"Rs\", \"2mm\"],\n",
+    "    [\"FilletType\", \"1\"],\n",
+    "    [\"HalfSlot\", \"0\"],\n",
+    "    [\"VentHoles\", \"0\"],\n",
+    "    [\"HoleDiaIn\", \"0mm\"],\n",
+    "    [\"HoleDiaOut\", \"0mm\"],\n",
+    "    [\"HoleLocIn\", \"0mm\"],\n",
+    "    [\"HoleLocOut\", \"0mm\"],\n",
+    "    [\"VentDucts\", \"0\"],\n",
+    "    [\"DuctWidth\", \"0mm\"],\n",
+    "    [\"DuctPitch\", \"0mm\"],\n",
+    "    [\"SegAngle\", \"0deg\"],\n",
+    "    [\"LenRegion\", \"Model_Length\"],\n",
+    "    [\"InfoCore\", \"0\"],\n",
+    "]\n",
+    "\n",
+    "stator_id = m2d.modeler.create_udp(\n",
+    "    dll=\"RMxprt/VentSlotCore.dll\",\n",
+    "    parameters=udp_par_list_stator,\n",
+    "    library=\"syslib\",\n",
+    "    name=\"my_stator\",\n",
+    ")\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c27ff434",
+   "metadata": {},
+   "source": [
+    "## Assign properties to stator\n",
+    "\n",
+    "Assign properties to the stator. The following code assigns\n",
+    "the ``material``, ``name``, ``color``, and  ``solve_inside`` properties."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "82ec7e49",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.assign_material(assignment=stator_id, material=\"30DH_20C_smooth\")\n",
+    "stator_id.name = \"Stator\"\n",
+    "stator_id.color = (0, 0, 255)  # rgb"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e475ec3a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# to be reassigned: m2d.assign material puts False if not dielectric\n",
+    "stator_id.solve_inside = True"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e75bdbbc",
+   "metadata": {},
+   "source": [
+    "## Create outer and inner PMs\n",
+    "\n",
+    "Create the outer and inner PMs and assign color to them."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e4d3deb4",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "IM1_points = [\n",
+    "    [56.70957112, 3.104886585, 0],\n",
+    "    [40.25081875, 16.67243502, 0],\n",
+    "    [38.59701538, 14.66621111, 0],\n",
+    "    [55.05576774, 1.098662669, 0],\n",
+    "]\n",
+    "OM1_points = [\n",
+    "    [54.37758185, 22.52393189, 0],\n",
+    "    [59.69688156, 9.68200639, 0],\n",
+    "    [63.26490432, 11.15992981, 0],\n",
+    "    [57.94560461, 24.00185531, 0],\n",
+    "]\n",
+    "IPM1_id = m2d.modeler.create_polyline(\n",
+    "    points=IM1_points,\n",
+    "    cover_surface=True,\n",
+    "    name=\"PM_I1\",\n",
+    "    material=\"Arnold_Magnetics_N30UH_80C_new\",\n",
+    ")\n",
+    "IPM1_id.color = (0, 128, 64)\n",
+    "OPM1_id = m2d.modeler.create_polyline(\n",
+    "    points=OM1_points,\n",
+    "    cover_surface=True,\n",
+    "    name=\"PM_O1\",\n",
+    "    material=\"Arnold_Magnetics_N30UH_80C_new\",\n",
+    ")\n",
+    "OPM1_id.color = (0, 128, 64)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2f6ba30a",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "source": [
+    "## Create coordinate system for PMs\n",
+    "\n",
+    "Create the coordinate system for the PMs.\n",
+    "In Maxwell 2D, you assign magnetization via the coordinate system.\n",
+    "The inputs are the object name, coordinate system name, and inner or outer magnetization."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1707d2b0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def create_cs_magnets(pm_id, cs_name, point_direction):\n",
+    "    edges = sorted(pm_id.edges, key=attrgetter(\"length\"), reverse=True)\n",
+    "\n",
+    "    if point_direction == \"outer\":\n",
+    "        my_axis_pos = edges[0]\n",
+    "    elif point_direction == \"inner\":\n",
+    "        my_axis_pos = edges[1]\n",
+    "\n",
+    "    m2d.modeler.create_face_coordinate_system(\n",
+    "        face=pm_id.faces[0],\n",
+    "        origin=pm_id.faces[0],\n",
+    "        axis_position=my_axis_pos,\n",
+    "        axis=\"X\",\n",
+    "        name=cs_name,\n",
+    "    )\n",
+    "    pm_id.part_coordinate_system = cs_name\n",
+    "    m2d.modeler.set_working_coordinate_system(\"Global\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a8773bb1",
+   "metadata": {},
+   "source": [
+    "## Create coordinate system for PMs in face center\n",
+    "\n",
+    "Create the coordinate system for PMs in the face center."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9977426b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "create_cs_magnets(IPM1_id, \"CS_\" + IPM1_id.name, \"outer\")\n",
+    "create_cs_magnets(OPM1_id, \"CS_\" + OPM1_id.name, \"outer\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2fa0f52e",
+   "metadata": {},
+   "source": [
+    "## Duplicate and mirror PMs\n",
+    "\n",
+    "Duplicate and mirror the PMs along with the local coordinate system."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8b731efd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.modeler.duplicate_and_mirror(\n",
+    "    assignment=[IPM1_id, OPM1_id],\n",
+    "    origin=[0, 0, 0],\n",
+    "    vector=[\n",
+    "        \"cos((360deg/SymmetryFactor/2)+90deg)\",\n",
+    "        \"sin((360deg/SymmetryFactor/2)+90deg)\",\n",
+    "        0,\n",
+    "    ],\n",
+    ")\n",
+    "id_PMs = m2d.modeler.get_objects_w_string(string_name=\"PM\", case_sensitive=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "117e30ea",
+   "metadata": {},
+   "source": [
+    "## Create coils"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7a57b3a0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "coil_id = m2d.modeler.create_rectangle(\n",
+    "    origin=[\"DiaRotorLam/2+Airgap+Coil_SetBack\", \"-Coil_Edge_Short/2\", 0],\n",
+    "    sizes=[\"Coil_Edge_Long\", \"Coil_Edge_Short\", 0],\n",
+    "    name=\"Coil\",\n",
+    "    material=\"Copper (Annealed)_65C\",\n",
+    ")\n",
+    "coil_id.color = (255, 128, 0)\n",
+    "m2d.modeler.rotate(assignment=coil_id, axis=\"Z\", angle=\"360deg/SlotNumber/2\")\n",
+    "coil_id.duplicate_around_axis(\n",
+    "    axis=\"Z\", angle=\"360deg/SlotNumber\", clones=\"CoilPitch+1\", create_new_objects=True\n",
+    ")\n",
+    "id_coils = m2d.modeler.get_objects_w_string(string_name=\"Coil\", case_sensitive=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f06f8cf6",
+   "metadata": {},
+   "source": [
+    "## Create shaft and region"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7bcc980f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "region_id = m2d.modeler.create_circle(\n",
+    "    origin=[0, 0, 0],\n",
+    "    radius=\"DiaOuter/2\",\n",
+    "    num_sides=\"SegAngle\",\n",
+    "    is_covered=True,\n",
+    "    name=\"Region\",\n",
+    ")\n",
+    "shaft_id = m2d.modeler.create_circle(\n",
+    "    origin=[0, 0, 0],\n",
+    "    radius=\"DiaShaft/2\",\n",
+    "    num_sides=\"SegAngle\",\n",
+    "    is_covered=True,\n",
+    "    name=\"Shaft\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "82752b65",
+   "metadata": {},
+   "source": [
+    "## Create bands\n",
+    "\n",
+    "Create the inner band, band, and outer band."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b64082ee",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "bandIN_id = m2d.modeler.create_circle(\n",
+    "    origin=[0, 0, 0],\n",
+    "    radius=\"(DiaGap - (1.5 * Airgap))/2\",\n",
+    "    num_sides=\"mapping_angle\",\n",
+    "    is_covered=True,\n",
+    "    name=\"Inner_Band\",\n",
+    ")\n",
+    "bandMID_id = m2d.modeler.create_circle(\n",
+    "    origin=[0, 0, 0],\n",
+    "    radius=\"(DiaGap - (1.0 * Airgap))/2\",\n",
+    "    num_sides=\"mapping_angle\",\n",
+    "    is_covered=True,\n",
+    "    name=\"Band\",\n",
+    ")\n",
+    "bandOUT_id = m2d.modeler.create_circle(\n",
+    "    origin=[0, 0, 0],\n",
+    "    radius=\"(DiaGap - (0.5 * Airgap))/2\",\n",
+    "    num_sides=\"mapping_angle\",\n",
+    "    is_covered=True,\n",
+    "    name=\"Outer_Band\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c204e80c",
+   "metadata": {},
+   "source": [
+    "## Create list of vacuum objects\n",
+    "\n",
+    "Create a list of vacuum objects and assign color."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2e989e9d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "vacuum_obj_id = [\n",
+    "    shaft_id,\n",
+    "    region_id,\n",
+    "    bandIN_id,\n",
+    "    bandMID_id,\n",
+    "    bandOUT_id,\n",
+    "]  # put shaft first\n",
+    "for item in vacuum_obj_id:\n",
+    "    item.color = (128, 255, 255)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "729ccde1",
+   "metadata": {},
+   "source": [
+    "## Create rotor\n",
+    "\n",
+    "Create the rotor. Holes are specific to the lamination.\n",
+    "Allocated PMs are created."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f6aec547",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "rotor_id = m2d.modeler.create_circle(\n",
+    "    origin=[0, 0, 0],\n",
+    "    radius=\"DiaRotorLam/2\",\n",
+    "    num_sides=0,\n",
+    "    name=\"Rotor\",\n",
+    "    material=\"30DH_20C_smooth\",\n",
+    ")\n",
+    "\n",
+    "rotor_id.color = (0, 128, 255)\n",
+    "m2d.modeler.subtract(blank_list=rotor_id, tool_list=shaft_id, keep_originals=True)\n",
+    "void_small_1_id = m2d.modeler.create_circle(\n",
+    "    origin=[62, 0, 0], radius=\"2.55mm\", num_sides=0, name=\"void1\", material=\"vacuum\"\n",
+    ")\n",
+    "\n",
+    "m2d.modeler.duplicate_around_axis(\n",
+    "    assignment=void_small_1_id,\n",
+    "    axis=\"Z\",\n",
+    "    angle=\"360deg/SymmetryFactor\",\n",
+    "    clones=2,\n",
+    "    create_new_objects=False,\n",
+    ")\n",
+    "\n",
+    "void_big_1_id = m2d.modeler.create_circle(\n",
+    "    origin=[29.5643, 12.234389332712, 0],\n",
+    "    radius=\"9.88mm/2\",\n",
+    "    num_sides=0,\n",
+    "    name=\"void_big\",\n",
+    "    material=\"vacuum\",\n",
+    ")\n",
+    "m2d.modeler.subtract(\n",
+    "    blank_list=rotor_id,\n",
+    "    tool_list=[void_small_1_id, void_big_1_id],\n",
+    "    keep_originals=False,\n",
+    ")\n",
+    "\n",
+    "slot_IM1_points = [\n",
+    "    [37.5302872, 15.54555396, 0],\n",
+    "    [55.05576774, 1.098662669, 0],\n",
+    "    [57.33637589, 1.25, 0],\n",
+    "    [57.28982158, 2.626565019, 0],\n",
+    "    [40.25081875, 16.67243502, 0],\n",
+    "]\n",
+    "slot_OM1_points = [\n",
+    "    [54.37758185, 22.52393189, 0],\n",
+    "    [59.69688156, 9.68200639, 0],\n",
+    "    [63.53825619, 10.5, 0],\n",
+    "    [57.94560461, 24.00185531, 0],\n",
+    "]\n",
+    "slot_IM_id = m2d.modeler.create_polyline(\n",
+    "    points=slot_IM1_points, cover_surface=True, name=\"slot_IM1\", material=\"vacuum\"\n",
+    ")\n",
+    "slot_OM_id = m2d.modeler.create_polyline(\n",
+    "    points=slot_OM1_points, cover_surface=True, name=\"slot_OM1\", material=\"vacuum\"\n",
+    ")\n",
+    "\n",
+    "m2d.modeler.duplicate_and_mirror(\n",
+    "    assignment=[slot_IM_id, slot_OM_id],\n",
+    "    origin=[0, 0, 0],\n",
+    "    vector=[\n",
+    "        \"cos((360deg/SymmetryFactor/2)+90deg)\",\n",
+    "        \"sin((360deg/SymmetryFactor/2)+90deg)\",\n",
+    "        0,\n",
+    "    ],\n",
+    ")\n",
+    "\n",
+    "id_holes = m2d.modeler.get_objects_w_string(string_name=\"slot_\", case_sensitive=True)\n",
+    "m2d.modeler.subtract(rotor_id, id_holes, keep_originals=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "923b80f8",
+   "metadata": {},
+   "source": [
+    "## Create section of machine\n",
+    "\n",
+    "Create a section of the machine. This allows you to take\n",
+    "advantage of symmetries."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0da6ab7c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "object_list = [stator_id, rotor_id] + vacuum_obj_id\n",
+    "m2d.modeler.create_coordinate_system(\n",
+    "    origin=[0, 0, 0],\n",
+    "    reference_cs=\"Global\",\n",
+    "    name=\"Section\",\n",
+    "    mode=\"axis\",\n",
+    "    x_pointing=[\"cos(360deg/SymmetryFactor)\", \"sin(360deg/SymmetryFactor)\", 0],\n",
+    "    y_pointing=[\"-sin(360deg/SymmetryFactor)\", \"cos(360deg/SymmetryFactor)\", 0],\n",
+    ")\n",
+    "\n",
+    "m2d.modeler.set_working_coordinate_system(\"Section\")\n",
+    "m2d.modeler.split(assignment=object_list, plane=\"ZX\", sides=\"NegativeOnly\")\n",
+    "m2d.modeler.set_working_coordinate_system(\"Global\")\n",
+    "m2d.modeler.split(assignment=object_list, plane=\"ZX\", sides=\"PositiveOnly\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "aca0087f",
+   "metadata": {},
+   "source": [
+    "## Create boundary conditions\n",
+    "\n",
+    "Create independent and dependent boundary conditions.\n",
+    "Edges for assignment are picked by position.\n",
+    "The points for edge picking are in the airgap."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "92861b60",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pos_1 = \"((DiaGap - (1.0 * Airgap))/4)\"\n",
+    "id_bc_1 = m2d.modeler.get_edgeid_from_position(\n",
+    "    position=[pos_1, 0, 0], assignment=\"Region\"\n",
+    ")\n",
+    "id_bc_2 = m2d.modeler.get_edgeid_from_position(\n",
+    "    position=[\n",
+    "        pos_1 + \"*cos((360deg/SymmetryFactor))\",\n",
+    "        pos_1 + \"*sin((360deg/SymmetryFactor))\",\n",
+    "        0,\n",
+    "    ],\n",
+    "    assignment=\"Region\",\n",
+    ")\n",
+    "m2d.assign_master_slave(\n",
+    "    independent=id_bc_1,\n",
+    "    dependent=id_bc_2,\n",
+    "    reverse_master=False,\n",
+    "    reverse_slave=True,\n",
+    "    same_as_master=False,\n",
+    "    boundary=\"Matching\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "920dc226",
+   "metadata": {},
+   "source": [
+    "## Assign vector potential\n",
+    "\n",
+    "Assign a vector potential of ``0`` to the second position."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4d8e8cd3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pos_2 = \"(DiaOuter/2)\"\n",
+    "id_bc_az = m2d.modeler.get_edgeid_from_position(\n",
+    "    position=[\n",
+    "        pos_2 + \"*cos((360deg/SymmetryFactor/2))\",\n",
+    "        pos_2 + \"*sin((360deg/SymmetryFactor)/2)\",\n",
+    "        0,\n",
+    "    ],\n",
+    "    assignment=\"Region\",\n",
+    ")\n",
+    "m2d.assign_vector_potential(\n",
+    "    assignment=id_bc_az, vector_value=0, boundary=\"VectorPotentialZero\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "cdca08f2",
+   "metadata": {},
+   "source": [
+    "## Create excitations\n",
+    "\n",
+    "Create excitations, defining phase currents for the windings."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9776c662",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ph_a_current = \"IPeak * cos(2*pi*ElectricFrequency*time+Theta_i)\"\n",
+    "ph_b_current = \"IPeak * cos(2*pi * ElectricFrequency*time - 120deg+Theta_i)\"\n",
+    "ph_c_current = \"IPeak * cos(2*pi * ElectricFrequency*time - 240deg+Theta_i)\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d36a4caa",
+   "metadata": {},
+   "source": [
+    "## Define windings in phase A"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "aff0af1f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.assign_coil(\n",
+    "    assignment=[\"Coil\"],\n",
+    "    conductors_number=6,\n",
+    "    polarity=\"Positive\",\n",
+    "    name=\"CT_Ph1_P2_C1_Go\",\n",
+    ")\n",
+    "m2d.assign_coil(\n",
+    "    assignment=[\"Coil_5\"],\n",
+    "    conductors_number=6,\n",
+    "    polarity=\"Negative\",\n",
+    "    name=\"CT_Ph1_P2_C1_Ret\",\n",
+    ")\n",
+    "m2d.assign_winding(\n",
+    "    assignment=None,\n",
+    "    winding_type=\"Current\",\n",
+    "    is_solid=False,\n",
+    "    current=ph_a_current,\n",
+    "    parallel_branches=1,\n",
+    "    name=\"Phase_A\",\n",
+    ")\n",
+    "m2d.add_winding_coils(\n",
+    "    assignment=\"Phase_A\", coils=[\"CT_Ph1_P2_C1_Go\", \"CT_Ph1_P2_C1_Ret\"]\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5a8640d5",
+   "metadata": {},
+   "source": [
+    "## Define windings in phase B"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5adc97ed",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.assign_coil(\n",
+    "    assignment=\"Coil_3\",\n",
+    "    conductors_number=6,\n",
+    "    polarity=\"Positive\",\n",
+    "    name=\"CT_Ph3_P1_C2_Go\",\n",
+    ")\n",
+    "m2d.assign_coil(\n",
+    "    assignment=\"Coil_4\",\n",
+    "    conductors_number=6,\n",
+    "    polarity=\"Positive\",\n",
+    "    name=\"CT_Ph3_P1_C1_Go\",\n",
+    ")\n",
+    "m2d.assign_winding(\n",
+    "    assignment=None,\n",
+    "    winding_type=\"Current\",\n",
+    "    is_solid=False,\n",
+    "    current=ph_b_current,\n",
+    "    parallel_branches=1,\n",
+    "    name=\"Phase_B\",\n",
+    ")\n",
+    "m2d.add_winding_coils(\n",
+    "    assignment=\"Phase_B\", coils=[\"CT_Ph3_P1_C2_Go\", \"CT_Ph3_P1_C1_Go\"]\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ca40ae0a",
+   "metadata": {},
+   "source": [
+    "## Define windings in phase C"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f85cfd24",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.assign_coil(\n",
+    "    assignment=\"Coil_1\",\n",
+    "    conductors_number=6,\n",
+    "    polarity=\"Negative\",\n",
+    "    name=\"CT_Ph2_P2_C2_Ret\",\n",
+    ")\n",
+    "m2d.assign_coil(\n",
+    "    assignment=\"Coil_2\",\n",
+    "    conductors_number=6,\n",
+    "    polarity=\"Negative\",\n",
+    "    name=\"CT_Ph2_P2_C1_Ret\",\n",
+    ")\n",
+    "m2d.assign_winding(\n",
+    "    assignment=None,\n",
+    "    winding_type=\"Current\",\n",
+    "    is_solid=False,\n",
+    "    current=ph_c_current,\n",
+    "    parallel_branches=1,\n",
+    "    name=\"Phase_C\",\n",
+    ")\n",
+    "m2d.add_winding_coils(\n",
+    "    assignment=\"Phase_C\", coils=[\"CT_Ph2_P2_C2_Ret\", \"CT_Ph2_P2_C1_Ret\"]\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3ac021e7",
+   "metadata": {},
+   "source": [
+    "## Assign total current on PMs\n",
+    "\n",
+    "Assign a total current of ``0`` on the PMs."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "26f99bd7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "PM_list = id_PMs\n",
+    "for item in PM_list:\n",
+    "    m2d.assign_current(assignment=item, amplitude=0, solid=True, name=item + \"_I0\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9d1cf54f",
+   "metadata": {},
+   "source": [
+    "## Create mesh operations"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e4020570",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.mesh.assign_length_mesh(\n",
+    "    assignment=id_coils,\n",
+    "    inside_selection=True,\n",
+    "    maximum_length=3,\n",
+    "    maximum_elements=None,\n",
+    "    name=\"coils\",\n",
+    ")\n",
+    "m2d.mesh.assign_length_mesh(\n",
+    "    assignment=stator_id,\n",
+    "    inside_selection=True,\n",
+    "    maximum_length=3,\n",
+    "    maximum_elements=None,\n",
+    "    name=\"stator\",\n",
+    ")\n",
+    "m2d.mesh.assign_length_mesh(\n",
+    "    assignment=rotor_id,\n",
+    "    inside_selection=True,\n",
+    "    maximum_length=3,\n",
+    "    maximum_elements=None,\n",
+    "    name=\"rotor\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "36bd9924",
+   "metadata": {},
+   "source": [
+    "## Turn on core loss"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5f365911",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "core_loss_list = [\"Rotor\", \"Stator\"]\n",
+    "m2d.set_core_losses(core_loss_list, core_loss_on_field=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2414df14",
+   "metadata": {},
+   "source": [
+    "## Compute transient inductance"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "28864aad",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.change_inductance_computation(\n",
+    "    compute_transient_inductance=True, incremental_matrix=False\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6fcd408e",
+   "metadata": {},
+   "source": [
+    "## Set model depth"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4d85b852",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.model_depth = \"Magnetic_Axial_Length\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8ba7d71c",
+   "metadata": {},
+   "source": [
+    "## Set symmetry factor"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "cba8a0bb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.change_symmetry_multiplier(\"SymmetryFactor\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8843dcbc",
+   "metadata": {},
+   "source": [
+    "## Assign motion setup to object\n",
+    "\n",
+    "Assign a motion setup to a ``Band`` object named ``RotatingBand_mid``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "31344a36",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.assign_rotate_motion(\n",
+    "    assignment=\"Band\",\n",
+    "    coordinate_system=\"Global\",\n",
+    "    axis=\"Z\",\n",
+    "    positive_movement=True,\n",
+    "    start_position=\"InitialPositionMD\",\n",
+    "    angular_velocity=\"MachineRPM\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "58f52881",
+   "metadata": {},
+   "source": [
+    "## Create setup and validate"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0cc9fa5d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup_name = \"MySetupAuto\"\n",
+    "setup = m2d.create_setup(name=setup_name)\n",
+    "setup.props[\"StopTime\"] = \"StopTime\"\n",
+    "setup.props[\"TimeStep\"] = \"TimeStep\"\n",
+    "setup.props[\"SaveFieldsType\"] = \"None\"\n",
+    "setup.props[\"OutputPerObjectCoreLoss\"] = True\n",
+    "setup.props[\"OutputPerObjectSolidLoss\"] = True\n",
+    "setup.props[\"OutputError\"] = True\n",
+    "setup.update()\n",
+    "m2d.validate_simple()\n",
+    "\n",
+    "model = m2d.plot(show=False)\n",
+    "model.plot(os.path.join(temp_folder.name, \"Image.jpg\"))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ac47f3be",
+   "metadata": {},
+   "source": [
+    "## Initialize definitions for output variables\n",
+    "\n",
+    "Initialize the definitions for the output variables.\n",
+    "These are used later to generate reports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "707caf22",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "output_vars = {\n",
+    "    \"Current_A\": \"InputCurrent(Phase_A)\",\n",
+    "    \"Current_B\": \"InputCurrent(Phase_B)\",\n",
+    "    \"Current_C\": \"InputCurrent(Phase_C)\",\n",
+    "    \"Flux_A\": \"FluxLinkage(Phase_A)\",\n",
+    "    \"Flux_B\": \"FluxLinkage(Phase_B)\",\n",
+    "    \"Flux_C\": \"FluxLinkage(Phase_C)\",\n",
+    "    \"pos\": \"(Moving1.Position -InitialPositionMD) *NumPoles/2\",\n",
+    "    \"cos0\": \"cos(pos)\",\n",
+    "    \"cos1\": \"cos(pos-2*PI/3)\",\n",
+    "    \"cos2\": \"cos(pos-4*PI/3)\",\n",
+    "    \"sin0\": \"sin(pos)\",\n",
+    "    \"sin1\": \"sin(pos-2*PI/3)\",\n",
+    "    \"sin2\": \"sin(pos-4*PI/3)\",\n",
+    "    \"Flux_d\": \"2/3*(Flux_A*cos0+Flux_B*cos1+Flux_C*cos2)\",\n",
+    "    \"Flux_q\": \"-2/3*(Flux_A*sin0+Flux_B*sin1+Flux_C*sin2)\",\n",
+    "    \"I_d\": \"2/3*(Current_A*cos0 + Current_B*cos1 + Current_C*cos2)\",\n",
+    "    \"I_q\": \"-2/3*(Current_A*sin0 + Current_B*sin1 + Current_C*sin2)\",\n",
+    "    \"Irms\": \"sqrt(I_d^2+I_q^2)/sqrt(2)\",\n",
+    "    \"ArmatureOhmicLoss_DC\": \"Irms^2*R_phase\",\n",
+    "    \"Lad\": \"L(Phase_A,Phase_A)*cos0 + L(Phase_A,Phase_B)*cos1 + L(Phase_A,Phase_C)*cos2\",\n",
+    "    \"Laq\": \"L(Phase_A,Phase_A)*sin0 + L(Phase_A,Phase_B)*sin1 + L(Phase_A,Phase_C)*sin2\",\n",
+    "    \"Lbd\": \"L(Phase_B,Phase_A)*cos0 + L(Phase_B,Phase_B)*cos1 + L(Phase_B,Phase_C)*cos2\",\n",
+    "    \"Lbq\": \"L(Phase_B,Phase_A)*sin0 + L(Phase_B,Phase_B)*sin1 + L(Phase_B,Phase_C)*sin2\",\n",
+    "    \"Lcd\": \"L(Phase_C,Phase_A)*cos0 + L(Phase_C,Phase_B)*cos1 + L(Phase_C,Phase_C)*cos2\",\n",
+    "    \"Lcq\": \"L(Phase_C,Phase_A)*sin0 + L(Phase_C,Phase_B)*sin1 + L(Phase_C,Phase_C)*sin2\",\n",
+    "    \"L_d\": \"(Lad*cos0 + Lbd*cos1 + Lcd*cos2) * 2/3\",\n",
+    "    \"L_q\": \"(Laq*sin0 + Lbq*sin1 + Lcq*sin2) * 2/3\",\n",
+    "    \"OutputPower\": \"Moving1.Speed*Moving1.Torque\",\n",
+    "    \"Ui_A\": \"InducedVoltage(Phase_A)\",\n",
+    "    \"Ui_B\": \"InducedVoltage(Phase_B)\",\n",
+    "    \"Ui_C\": \"InducedVoltage(Phase_C)\",\n",
+    "    \"Ui_d\": \"2/3*(Ui_A*cos0 + Ui_B*cos1 + Ui_C*cos2)\",\n",
+    "    \"Ui_q\": \"-2/3*(Ui_A*sin0 + Ui_B*sin1 + Ui_C*sin2)\",\n",
+    "    \"U_A\": \"Ui_A+R_Phase*Current_A\",\n",
+    "    \"U_B\": \"Ui_B+R_Phase*Current_B\",\n",
+    "    \"U_C\": \"Ui_C+R_Phase*Current_C\",\n",
+    "    \"U_d\": \"2/3*(U_A*cos0 + U_B*cos1 + U_C*cos2)\",\n",
+    "    \"U_q\": \"-2/3*(U_A*sin0 + U_B*sin1 + U_C*sin2)\",\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8ccddab0",
+   "metadata": {},
+   "source": [
+    "## Create output variables for postprocessing"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "04545bc9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "for k, v in output_vars.items():\n",
+    "    m2d.create_output_variable(k, v)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "cac1dd4f",
+   "metadata": {},
+   "source": [
+    "## Initialize definition for postprocessing plots"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5a34da7c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "post_params = {\"Moving1.Torque\": \"TorquePlots\"}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "223e8364",
+   "metadata": {},
+   "source": [
+    "## Initialize definition for postprocessing multiplots"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7fe8f1d9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "post_params_multiplot = {  # reports\n",
+    "    (\"U_A\", \"U_B\", \"U_C\", \"Ui_A\", \"Ui_B\", \"Ui_C\"): \"PhaseVoltages\",\n",
+    "    (\"CoreLoss\", \"SolidLoss\", \"ArmatureOhmicLoss_DC\"): \"Losses\",\n",
+    "    (\n",
+    "        \"InputCurrent(Phase_A)\",\n",
+    "        \"InputCurrent(Phase_B)\",\n",
+    "        \"InputCurrent(Phase_C)\",\n",
+    "    ): \"PhaseCurrents\",\n",
+    "    (\n",
+    "        \"FluxLinkage(Phase_A)\",\n",
+    "        \"FluxLinkage(Phase_B)\",\n",
+    "        \"FluxLinkage(Phase_C)\",\n",
+    "    ): \"PhaseFluxes\",\n",
+    "    (\"I_d\", \"I_q\"): \"Currents_dq\",\n",
+    "    (\"Flux_d\", \"Flux_q\"): \"Fluxes_dq\",\n",
+    "    (\"Ui_d\", \"Ui_q\"): \"InducedVoltages_dq\",\n",
+    "    (\"U_d\", \"U_q\"): \"Voltages_dq\",\n",
+    "    (\n",
+    "        \"L(Phase_A,Phase_A)\",\n",
+    "        \"L(Phase_B,Phase_B)\",\n",
+    "        \"L(Phase_C,Phase_C)\",\n",
+    "        \"L(Phase_A,Phase_B)\",\n",
+    "        \"L(Phase_A,Phase_C)\",\n",
+    "        \"L(Phase_B,Phase_C)\",\n",
+    "    ): \"PhaseInductances\",\n",
+    "    (\"L_d\", \"L_q\"): \"Inductances_dq\",\n",
+    "    (\"CoreLoss\", \"CoreLoss(Stator)\", \"CoreLoss(Rotor)\"): \"CoreLosses\",\n",
+    "    (\n",
+    "        \"EddyCurrentLoss\",\n",
+    "        \"EddyCurrentLoss(Stator)\",\n",
+    "        \"EddyCurrentLoss(Rotor)\",\n",
+    "    ): \"EddyCurrentLosses (Core)\",\n",
+    "    (\"ExcessLoss\", \"ExcessLoss(Stator)\", \"ExcessLoss(Rotor)\"): \"ExcessLosses (Core)\",\n",
+    "    (\n",
+    "        \"HysteresisLoss\",\n",
+    "        \"HysteresisLoss(Stator)\",\n",
+    "        \"HysteresisLoss(Rotor)\",\n",
+    "    ): \"HysteresisLosses (Core)\",\n",
+    "    (\n",
+    "        \"SolidLoss\",\n",
+    "        \"SolidLoss(IPM1)\",\n",
+    "        \"SolidLoss(IPM1_1)\",\n",
+    "        \"SolidLoss(OPM1)\",\n",
+    "        \"SolidLoss(OPM1_1)\",\n",
+    "    ): \"SolidLoss\",\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ed39f3b5",
+   "metadata": {},
+   "source": [
+    "## Create report."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b5f25d50",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "for k, v in post_params.items():\n",
+    "    m2d.post.create_report(\n",
+    "        expressions=k,\n",
+    "        setup_sweep_name=\"\",\n",
+    "        domain=\"Sweep\",\n",
+    "        variations=None,\n",
+    "        primary_sweep_variable=\"Time\",\n",
+    "        secondary_sweep_variable=None,\n",
+    "        report_category=None,\n",
+    "        plot_type=\"Rectangular Plot\",\n",
+    "        context=None,\n",
+    "        subdesign_id=None,\n",
+    "        polyline_points=1001,\n",
+    "        plot_name=v,\n",
+    "    )"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "09d16dac",
+   "metadata": {},
+   "source": [
+    "## Create multiplot report"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "50708bfb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# for k, v in post_params_multiplot.items():\n",
+    "#     m2d.post.create_report(expressions=list(k), setup_sweep_name=\"\",\n",
+    "#                            domain=\"Sweep\", variations=None,\n",
+    "#                            primary_sweep_variable=\"Time\", secondary_sweep_variable=None,\n",
+    "#                            report_category=None, plot_type=\"Rectangular Plot\",\n",
+    "#                            context=None, subdesign_id=None,\n",
+    "#                            polyline_points=1001, plotname=v)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "08307db2",
+   "metadata": {},
+   "source": [
+    "## Analyze and save project"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2ea2a919",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.save_project()\n",
+    "m2d.analyze_setup(setup_name, use_auto_settings=False, cores=NUM_CORES)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "17fb3cca",
+   "metadata": {},
+   "source": [
+    "## Create flux lines plot on region\n",
+    "\n",
+    "Create a flux lines plot on a region. The ``object_list`` is\n",
+    "formerly created when the section is applied."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ce254b73",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "faces_reg = m2d.modeler.get_object_faces(object_list[1].name)  # Region\n",
+    "plot1 = m2d.post.create_fieldplot_surface(\n",
+    "    assignment=faces_reg,\n",
+    "    quantity=\"Flux_Lines\",\n",
+    "    intrinsics={\"Time\": m2d.variable_manager.variables[\"StopTime\"].evaluated_value},\n",
+    "    plot_name=\"Flux_Lines\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "30286fcb",
+   "metadata": {},
+   "source": [
+    "## Export a field plot to an image file\n",
+    "\n",
+    "Export the flux lines plot to an image file using Python PyVista."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "82aa8629",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.post.plot_field_from_fieldplot(plot1.name, show=False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1829e0e9",
+   "metadata": {},
+   "source": [
+    "## Get solution data\n",
+    "\n",
+    "Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.\n",
+    "Plot the desired expression by using the Matplotlib ``plot()`` function."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "051b4f4e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "solutions = m2d.post.get_solution_data(\n",
+    "    expressions=\"Moving1.Torque\",\n",
+    "    setup_sweep_name=m2d.nominal_sweep,\n",
+    "    primary_sweep_variable=\"Time\",\n",
+    "    domain=\"Sweep\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1a24afb8",
+   "metadata": {},
+   "source": [
+    "## Retrieve the data magnitude of an expression\n",
+    "\n",
+    "List of shaft torque points and compute average."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fd0562a3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mag = solutions.get_expression_data(formula=\"magnitude\")[1]\n",
+    "avg = sum(mag) / len(mag)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5c5e631b",
+   "metadata": {},
+   "source": [
+    "## Export a report to a file\n",
+    "\n",
+    "Export 2D plot data to a CSV file."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e1997ca5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.post.export_report_to_file(\n",
+    "    output_dir=temp_folder.name, plot_name=\"TorquePlots\", extension=\".csv\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f8449c82",
+   "metadata": {},
+   "source": [
+    "## Retrieve the data values of Torque within a time range\n",
+    "\n",
+    "Retrieve the data values of Torque within a specific time range of the electric period.\n",
+    "Since the example analyzes only one period, the time range is from ``ElectricPeriod/4`` to ``ElectricPeriod/2``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a4e2e394",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "time_interval = solutions.intrinsics[\"Time\"]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "11b86527",
+   "metadata": {},
+   "source": [
+    "Convert the start and stop time of the electric period range to nanoseconds"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "26ba17cf",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "start_time = Quantity(\n",
+    "    unit_converter(\n",
+    "        values=m2d.variable_manager.design_variables[\"ElectricPeriod\"].numeric_value\n",
+    "        / 4,\n",
+    "        unit_system=\"Time\",\n",
+    "        input_units=\"s\",\n",
+    "        output_units=\"ns\",\n",
+    "    ),\n",
+    "    \"ns\",\n",
+    ")\n",
+    "stop_time = Quantity(2 * start_time.value, \"ns\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "cd4591a1",
+   "metadata": {},
+   "source": [
+    "Find the indices corresponding to the start and stop times"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d61abf90",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Convert Quantity objects to numeric values (time_intrinsics are in ns)\n",
+    "numeric_start = start_time.value\n",
+    "numeric_stop = stop_time.value"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6cfe9a9d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Use numpy.searchsorted to find the indices in the numpy array\n",
+    "index_start_time = int(np.searchsorted(time_interval, numeric_start, side=\"left\"))\n",
+    "index_stop_time = int(np.searchsorted(time_interval, numeric_stop, side=\"right\"))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3e9da0a3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Clamp indices to valid range\n",
+    "index_start_time = max(0, min(index_start_time, len(time_interval) - 1))\n",
+    "index_stop_time = max(0, min(index_stop_time, len(time_interval)))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0297349f",
+   "metadata": {},
+   "source": [
+    "## Extract the torque values within the specified time range"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5ae2867b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Ensure torque values are a numpy array for slicing\n",
+    "torque_values = solutions.get_expression_data(formula=\"Real\")[1]\n",
+    "time_electric_period = time_interval[index_start_time:index_stop_time]\n",
+    "torque_electric_period = torque_values[index_start_time:index_stop_time]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "67a1582b",
+   "metadata": {},
+   "source": [
+    "Plot the torque values within the specified time range with matplotlib\n",
+    "\n",
+    "Plot the graph"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "701dc1c7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.plot(time_electric_period, torque_electric_period, marker=\"o\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8e0d290f",
+   "metadata": {},
+   "source": [
+    "Labels"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c4606dc9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.xlabel(\"Time (ns)\")\n",
+    "plt.ylabel(\"Torque (Nm)\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fcc88101",
+   "metadata": {},
+   "source": [
+    "Title"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d071deb0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.title(\"Torque vs Time for Half Electric Period\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "67b1301f",
+   "metadata": {},
+   "source": [
+    "Uncomment the following line to display the matplotlib plot"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "19fecfad",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4a3338bd",
+   "metadata": {},
+   "source": [
+    "## Release AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1d9a001e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.save_project()\n",
+    "m2d.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8fa40b25",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9ba339bb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

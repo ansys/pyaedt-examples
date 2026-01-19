@@ -1,0 +1,792 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "1d7f3f8c",
+   "metadata": {},
+   "source": [
+    "# EDB: Layout Components\n",
+    "\n",
+    "This example shows how you can use EDB to create a parametric component using\n",
+    "3D Layout and use it in HFSS 3D."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5a98cc11",
+   "metadata": {},
+   "source": [
+    "## Perform required imports\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0c4d9f0c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "\n",
+    "import ansys.aedt.core\n",
+    "import pyedb"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ae5016e6",
+   "metadata": {},
+   "source": [
+    "## Set non-graphical mode"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d9e772ad",
+   "metadata": {
+    "lines_to_next_cell": 1
+   },
+   "outputs": [],
+   "source": [
+    "non_graphical = False"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d6b33158",
+   "metadata": {},
+   "source": [
+    "## Create data classes\n",
+    "\n",
+    "Data classes are useful to do calculations and store variables.\n",
+    "There are three data classes: ``Patch``, ``Line``, and ``Array``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "244a87c2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "class Patch:\n",
+    "    def __init__(self, width=0.0, height=0.0, position=0.0):\n",
+    "        self.width = width\n",
+    "        self.height = height\n",
+    "        self.position = position\n",
+    "\n",
+    "    @property\n",
+    "    def points(self):\n",
+    "        return [\n",
+    "            [self.position, \"-{}/2\".format(self.height)],\n",
+    "            [\"{} + {}\".format(self.position, self.width), \"-{}/2\".format(self.height)],\n",
+    "            [\"{} + {}\".format(self.position, self.width), \"{}/2\".format(self.height)],\n",
+    "            [self.position, \"{}/2\".format(self.height)],\n",
+    "        ]\n",
+    "\n",
+    "\n",
+    "class Line:\n",
+    "    def __init__(self, length=0.0, width=0.0, position=0.0):\n",
+    "        self.length = length\n",
+    "        self.width = width\n",
+    "        self.position = position\n",
+    "\n",
+    "    @property\n",
+    "    def points(self):\n",
+    "        return [\n",
+    "            [self.position, \"-{}/2\".format(self.width)],\n",
+    "            [\"{} + {}\".format(self.position, self.length), \"-{}/2\".format(self.width)],\n",
+    "            [\"{} + {}\".format(self.position, self.length), \"{}/2\".format(self.width)],\n",
+    "            [self.position, \"{}/2\".format(self.width)],\n",
+    "        ]\n",
+    "\n",
+    "\n",
+    "class LinearArray:\n",
+    "    def __init__(self, nb_patch=1, array_length=10e-3, array_width=5e-3):\n",
+    "        self.nbpatch = nb_patch\n",
+    "        self.length = array_length\n",
+    "        self.width = array_width\n",
+    "\n",
+    "    @property\n",
+    "    def points(self):\n",
+    "        return [\n",
+    "            [-1e-3, \"-{}/2-1e-3\".format(self.width)],\n",
+    "            [\"{}+1e-3\".format(self.length), \"-{}/2-1e-3\".format(self.width)],\n",
+    "            [\"{}+1e-3\".format(self.length), \"{}/2+1e-3\".format(self.width)],\n",
+    "            [-1e-3, \"{}/2+1e-3\".format(self.width)],\n",
+    "        ]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a8430e84",
+   "metadata": {},
+   "source": [
+    "## Launch EDB\n",
+    "\n",
+    "PyEDB.Edb allows to open existing Edb project or create a new empty project."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b38afb44",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_dir = tempfile.TemporaryDirectory(suffix=\".ansys\")\n",
+    "aedb_path = os.path.join(temp_dir.name, \"linear_array.aedb\")\n",
+    "\n",
+    "# Select EDB version (change it manually if needed, e.g. \"2025.1\")\n",
+    "edb_version = \"2025.2\"\n",
+    "print(f\"EDB version: {edb_version}\")\n",
+    "\n",
+    "# Create an instance of the Edb class.\n",
+    "edb = pyedb.Edb(edbpath=aedb_path, version=edb_version)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "aae67a4e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Add stackup layers\n",
+    "layers = {\n",
+    "    \"materials\": {\"copper_high_cond\": {\"conductivity\": 60000000}},\n",
+    "    \"layers\": {\n",
+    "        \"TOP\": {\"type\": \"signal\", \"thicness\": \"35um\", \"material\": \"copper_high_cond\"},\n",
+    "        \"Substrat\": {\"type\": \"dielectric\", \"thicness\": \"0.5mm\", \"material\": \"Duroid (tm)\"},\n",
+    "        \"GND\": {\"type\": \"signal\", \"thicness\": \"35um\", \"material\": \"copper\"},\n",
+    "        \"Gap\": {\"type\": \"dielectric\", \"thicness\": \"0.05mm\", \"material\": \"Air\"},\n",
+    "        \"Virt_GND\": {\"type\": \"signal\", \"thicness\": \"35um\", \"material\": \"copper\"},\n",
+    "    },\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "be101265",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.stackup.load(layers)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "995152be",
+   "metadata": {},
+   "source": [
+    "Create the first patch and feed line using the ``Patch``, ``Line``classes defined above.\n",
+    "\n",
+    "Define parameters:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9619f961",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb[\"w1\"] = 1.4e-3\n",
+    "edb[\"h1\"] = 1.2e-3\n",
+    "edb[\"initial_position\"] = 0.0\n",
+    "edb[\"l1\"] = 2.4e-3\n",
+    "edb[\"trace_w\"] = 0.3e-3\n",
+    "\n",
+    "first_patch = Patch(width=\"w1\", height=\"h1\", position=\"initial_position\")\n",
+    "edb.modeler.create_polygon(first_patch.points, \"TOP\", net_name=\"Array_antenna\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c8cd75eb",
+   "metadata": {},
+   "source": [
+    "First line"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b819f524",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "first_line = Line(length=\"l1\", width=\"trace_w\", position=first_patch.width)\n",
+    "edb.modeler.create_polygon(first_line.points, \"TOP\", net_name=\"Array_antenna\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "44828518",
+   "metadata": {},
+   "source": [
+    "Now use the ``LinearArray`` class to create the array."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "76624702",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb[\"w2\"] = 2.29e-3\n",
+    "edb[\"h2\"] = 3.3e-3\n",
+    "edb[\"l2\"] = 1.9e-3\n",
+    "edb[\"trace_w2\"] = 0.2e-3\n",
+    "\n",
+    "patch = Patch(width=\"w2\", height=\"h2\")\n",
+    "line = Line(length=\"l2\", width=\"trace_w2\")\n",
+    "linear_array = LinearArray(nb_patch=8, array_width=patch.height)\n",
+    "\n",
+    "current_patch = 1\n",
+    "current_position = \"{} + {}\".format(first_line.position, first_line.length)\n",
+    "\n",
+    "while current_patch <= linear_array.nbpatch:\n",
+    "    patch.position = current_position\n",
+    "    edb.modeler.create_polygon(patch.points, \"TOP\", net_name=\"Array_antenna\")\n",
+    "    current_position = \"{} + {}\".format(current_position, patch.width)\n",
+    "    if current_patch < linear_array.nbpatch:\n",
+    "        line.position = current_position\n",
+    "        edb.modeler.create_polygon(line.points, \"TOP\", net_name=\"Array_antenna\")\n",
+    "        current_position = \"{} + {}\".format(current_position, line.length)\n",
+    "    current_patch += 1\n",
+    "\n",
+    "linear_array.length = current_position"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ef9b996c",
+   "metadata": {},
+   "source": [
+    "Add the ground conductor."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "710e344b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.modeler.create_polygon(linear_array.points, \"GND\", net_name=\"GND\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "41923a86",
+   "metadata": {},
+   "source": [
+    "Add the connector pin to use to assign the port."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d8fe9dc8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.padstacks.create(padstackname=\"Connector_pin\", holediam=\"100um\", paddiam=\"0\", antipaddiam=\"200um\")\n",
+    "con_pin = edb.padstacks.place(\n",
+    "    [\"{}/4.0\".format(first_patch.width), 0],\n",
+    "    \"Connector_pin\",\n",
+    "    net_name=\"Array_antenna\",\n",
+    "    fromlayer=\"TOP\",\n",
+    "    tolayer=\"GND\",\n",
+    "    via_name=\"coax\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5a0222dc",
+   "metadata": {},
+   "source": [
+    "Add a connector ground."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c2752227",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.modeler.create_polygon(first_patch.points, \"Virt_GND\", net_name=\"GND\")\n",
+    "edb.padstacks.create(\"gnd_via\", \"100um\", \"0\", \"0\")\n",
+    "edb[\"via_spacing\"] = 0.2e-3\n",
+    "con_ref1 = edb.padstacks.place(\n",
+    "    [\n",
+    "        \"{} + {}\".format(first_patch.points[0][0], \"via_spacing\"),\n",
+    "        \"{} + {}\".format(first_patch.points[0][1], \"via_spacing\"),\n",
+    "    ],\n",
+    "    \"gnd_via\",\n",
+    "    fromlayer=\"GND\",\n",
+    "    tolayer=\"Virt_GND\",\n",
+    "    net_name=\"GND\",\n",
+    ")\n",
+    "con_ref2 = edb.padstacks.place(\n",
+    "    [\n",
+    "        \"{} + {}\".format(first_patch.points[1][0], \"-via_spacing\"),\n",
+    "        \"{} + {}\".format(first_patch.points[1][1], \"via_spacing\"),\n",
+    "    ],\n",
+    "    \"gnd_via\",\n",
+    "    fromlayer=\"GND\",\n",
+    "    tolayer=\"Virt_GND\",\n",
+    "    net_name=\"GND\",\n",
+    ")\n",
+    "con_ref3 = edb.padstacks.place(\n",
+    "    [\n",
+    "        \"{} + {}\".format(first_patch.points[2][0], \"-via_spacing\"),\n",
+    "        \"{} + {}\".format(first_patch.points[2][1], \"-via_spacing\"),\n",
+    "    ],\n",
+    "    \"gnd_via\",\n",
+    "    fromlayer=\"GND\",\n",
+    "    tolayer=\"Virt_GND\",\n",
+    "    net_name=\"GND\",\n",
+    ")\n",
+    "con_ref4 = edb.padstacks.place(\n",
+    "    [\n",
+    "        \"{} + {}\".format(first_patch.points[3][0], \"via_spacing\"),\n",
+    "        \"{} + {}\".format(first_patch.points[3][1], \"-via_spacing\"),\n",
+    "    ],\n",
+    "    \"gnd_via\",\n",
+    "    fromlayer=\"GND\",\n",
+    "    tolayer=\"Virt_GND\",\n",
+    "    net_name=\"GND\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "45bd3c68",
+   "metadata": {},
+   "source": [
+    "Define the port."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c2ab2cae",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.padstacks.set_solderball(con_pin, \"Virt_GND\", isTopPlaced=False, ballDiam=0.1e-3)\n",
+    "port_name = edb.padstacks.create_coax_port(con_pin)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "29b1ead3",
+   "metadata": {},
+   "source": [
+    "Display the model using the ``Edb.nets.plot()`` method."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "83c6169c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.nets.plot()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "df29d195",
+   "metadata": {},
+   "source": [
+    "The EDB is complete. Now close the EDB and import it into HFSS as a \"Layout Component\"."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "28a2949e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.save_edb()\n",
+    "edb.close_edb()\n",
+    "print(\"EDB saved correctly to {}. You can import in AEDT.\".format(aedb_path))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fb3dab95",
+   "metadata": {},
+   "source": [
+    "## 3D component in HFSS\n",
+    "\n",
+    "First create an instance of the ``pyaedt.Hfss`` class. If you set\n",
+    "> ``non_graphical = False\n",
+    "\n",
+    "then AEDT user interface will be visible after the following cell is executed.\n",
+    "It is now possible to monitor the progress in the UI as each of the following cells is executed.\n",
+    "All commands can be run without the UI by changing the value of ``non_graphical``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b0c4ce93",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d = ansys.aedt.core.Hfss(\n",
+    "    project=\"Demo_3DComp\",\n",
+    "    design=\"Linear_Array\",\n",
+    "    version=\"2025.2\",\n",
+    "    new_desktop=True,\n",
+    "    non_graphical=non_graphical,\n",
+    "    close_on_exit=True,\n",
+    "    solution_type=\"Terminal\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "669e4d4b",
+   "metadata": {},
+   "source": [
+    "Set units to ``mm``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ea9a2cf8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d.modeler.model_units = \"mm\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ca9aa584",
+   "metadata": {},
+   "source": [
+    "## Import the EDB as a 3D component\n",
+    "\n",
+    "One or more layout components can be imported into HFSS.\n",
+    "The combination of layout data and 3D CAD data helps streamline model creation and setup."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d74793f4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "component = h3d.modeler.insert_layout_component(aedb_path, parameter_mapping=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "67e7a491",
+   "metadata": {},
+   "source": [
+    "## Expose the component parameters\n",
+    "\n",
+    "If a layout component is parametric, you can expose and change parameters in HFSS"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2436ff24",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "component.parameters\n",
+    "\n",
+    "w1_name = \"{}_{}\".format(\"w1\", h3d.modeler.user_defined_component_names[0])\n",
+    "h3d[w1_name] = 0.0015"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "797747db",
+   "metadata": {},
+   "source": [
+    "### Radiation Boundary Assignment\n",
+    "\n",
+    "The 3D domain includes the air volume surrounding the antenna.\n",
+    "This antenna will be simulted from 20 GHz - 50 GHz.\n",
+    "\n",
+    "A \"radiation boundary\" will be assigned to the outer boundaries of the domain.\n",
+    "This boundary should be roughly one quarter wavelength away from the radiating structure:\n",
+    "\n",
+    "$$ \\lambda/4 = \\frac{c_0}{4 f} \\approx 2.8mm $$"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "856442ac",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d.modeler.fit_all()\n",
+    "\n",
+    "h3d.modeler.create_air_region(2.8, 2.8, 2.8, 2.8, 2.8, 2.8, is_percentage=False)\n",
+    "h3d.assign_radiation_boundary_to_objects(\"Region\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "54b59bed",
+   "metadata": {},
+   "source": [
+    "### Set up analysis\n",
+    "\n",
+    "The finite element mesh is adapted iteratively.\n",
+    "The maximum number of adaptive passes is set using the ``MaximumPasses`` property.\n",
+    "This model converges such that the $S_{11}$ is independent of the mesh.\n",
+    "The default accuracy setting is:\n",
+    "$$ \\max(|\\Delta S|) < 0.02 $$"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "48a7c8f9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup = h3d.create_setup()\n",
+    "setup.props[\"Frequency\"] = \"20GHz\"\n",
+    "setup.props[\"MaximumPasses\"] = 10"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c7186937",
+   "metadata": {},
+   "source": [
+    "Specify properties of the frequency sweep:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "503dcf68",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "sweep1 = setup.add_sweep(name=\"20GHz_to_50GHz\")\n",
+    "sweep1.props[\"RangeStart\"] = \"20GHz\"\n",
+    "sweep1.props[\"RangeEnd\"] = \"50GHz\"\n",
+    "sweep1.update()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5005f8d9",
+   "metadata": {},
+   "source": [
+    "Solve the project"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f69f8af2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d.analyze()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "912b584e",
+   "metadata": {},
+   "source": [
+    "## Plot results outside AEDT\n",
+    "\n",
+    "Plot results using Matplotlib."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "515c0d41",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "trace = h3d.get_traces_for_plot()\n",
+    "solution = h3d.post.get_solution_data(trace[0])\n",
+    "solution.plot()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5565b96b",
+   "metadata": {},
+   "source": [
+    "## Plot far fields in AEDT\n",
+    "\n",
+    "Plot radiation patterns in AEDT."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6b7a9a76",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "variations = {}\n",
+    "variations[\"Freq\"] = [\"20GHz\"]\n",
+    "variations[\"Theta\"] = [\"All\"]\n",
+    "variations[\"Phi\"] = [\"All\"]\n",
+    "h3d.insert_infinite_sphere(name=\"3D\")\n",
+    "\n",
+    "new_report = h3d.post.reports_by_category.far_field(\"db(RealizedGainTotal)\", h3d.nominal_adaptive, \"3D\")\n",
+    "new_report.variations = variations\n",
+    "new_report.primary_sweep = \"Theta\"\n",
+    "new_report.create(\"Realized2D\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f647ac9d",
+   "metadata": {},
+   "source": [
+    "## Plot far fields in AEDT\n",
+    "\n",
+    "Plot radiation patterns in AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3695c738",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "new_report.report_type = \"3D Polar Plot\"\n",
+    "new_report.secondary_sweep = \"Phi\"\n",
+    "new_report.create(\"Realized3D\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "70394ca2",
+   "metadata": {},
+   "source": [
+    "## Plot far fields outside AEDT\n",
+    "\n",
+    "Plot radiation patterns outside AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f6555587",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "solutions_custom = new_report.get_solution_data()\n",
+    "solutions_custom.plot_3d()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "76166b45",
+   "metadata": {},
+   "source": [
+    "## Plot E Field on nets and layers\n",
+    "\n",
+    "Plot E Field on nets and layers in AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "03499cf4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d.post.create_fieldplot_layers_nets(\n",
+    "    [[\"TOP\", \"Array_antenna\"]],\n",
+    "    \"Mag_E\",\n",
+    "    intrinsics={\"Freq\": \"20GHz\", \"Phase\": \"0deg\"},\n",
+    "    plot_name=\"E_Layers\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f4bc70c5",
+   "metadata": {},
+   "source": [
+    "## Close AEDT\n",
+    "\n",
+    "After the simulation completes, the application can be released from the\n",
+    ":func:`ansys.aedt.core.Desktop.release_desktop` method.\n",
+    "All methods provide for saving the project before closing AEDT."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6566deeb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d.save_project(os.path.join(temp_dir.name, \"test_layout.aedt\"))\n",
+    "h3d.release_desktop()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "33f8d030",
+   "metadata": {},
+   "source": [
+    "### Clean up the temporary directory\n",
+    "\n",
+    "The following command removes the project and the temporary directory.\n",
+    "If you'd like to save this project, save it to a folder of your choice prior\n",
+    "to running the following cell."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7233ddd3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_dir.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

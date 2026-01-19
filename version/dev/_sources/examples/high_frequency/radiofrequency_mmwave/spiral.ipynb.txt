@@ -1,0 +1,545 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "ac6893d2",
+   "metadata": {},
+   "source": [
+    "# Spiral inductor\n",
+    "\n",
+    "This example shows how to use PyAEDT to create a spiral inductor, solve it, and plot results.\n",
+    "\n",
+    "Keywords: **HFSS**, **spiral**, **inductance**, **output variable**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "98e9ccad",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "66a013bb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core\n",
+    "from ansys.aedt.core.generic.constants import Plane, Axis"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "61237969",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a9433be4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3acfa06b",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ebfeb146",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "729b0b1f",
+   "metadata": {},
+   "source": [
+    "## Launch HFSS\n",
+    "\n",
+    "Create an HFSS design and change the units to microns."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b3aa08d6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_name = os.path.join(temp_folder.name, \"spiral.aedt\")\n",
+    "hfss = ansys.aedt.core.Hfss(\n",
+    "    project=project_name,\n",
+    "    version=AEDT_VERSION,\n",
+    "    non_graphical=NG_MODE,\n",
+    "    design=\"A1\",\n",
+    "    new_desktop=True,\n",
+    "    solution_type=\"Modal\",\n",
+    ")\n",
+    "hfss.modeler.model_units = \"um\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8e921c65",
+   "metadata": {},
+   "source": [
+    "## Define variables\n",
+    "\n",
+    "Define input variables. You can use the values that follow or edit\n",
+    "them."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "831cd352",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "rin = 10\n",
+    "width = 2\n",
+    "spacing = 1\n",
+    "thickness = 1\n",
+    "Np = 8\n",
+    "Nr = 10\n",
+    "gap = 3\n",
+    "hfss[\"Tsub\"] = \"6\" + hfss.modeler.model_units\n",
+    "hfss[\"thickness\"] = f\"{thickness} {hfss.modeler.model_units}\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b2c71fa9",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "source": [
+    "## Standardize polyline\n",
+    "\n",
+    "Define a function that creates a polyline using the ``create_line()`` method. This\n",
+    "function creates a polyline having a fixed width, thickness, and material."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b935bef4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def create_line(pts):\n",
+    "    hfss.modeler.create_polyline(\n",
+    "        pts,\n",
+    "        xsection_type=\"Rectangle\",\n",
+    "        xsection_width=width,\n",
+    "        xsection_height=thickness,\n",
+    "        material=\"copper\",\n",
+    "    )"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "11d47c5c",
+   "metadata": {},
+   "source": [
+    "## Create spiral inductor\n",
+    "\n",
+    "Create the spiral inductor. This spiral inductor is not\n",
+    "parametric, but you could parametrize it later."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b3569ba0",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "ind = hfss.modeler.create_spiral(\n",
+    "    internal_radius=rin,\n",
+    "    width=width,\n",
+    "    spacing=spacing,\n",
+    "    turns=Nr,\n",
+    "    faces=Np,\n",
+    "    thickness=thickness,\n",
+    "    material=\"copper\",\n",
+    "    name=\"Inductor1\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "30f0d75b",
+   "metadata": {},
+   "source": [
+    "## Center return path\n",
+    "\n",
+    "Center the return path."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "036c29a1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "x0, y0, z0 = ind.points[0]\n",
+    "x1, y1, z1 = ind.points[-1]\n",
+    "create_line([(x0 - width / 2, y0, -gap), (abs(x1) + 5, y0, -gap)])\n",
+    "hfss.modeler.create_box(\n",
+    "    [x0 - width / 2, y0 - width / 2, -gap - thickness / 2],\n",
+    "    [width, width, gap + thickness],\n",
+    "    material=\"copper\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9810a32a",
+   "metadata": {},
+   "source": [
+    "Create port 1."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "895e2840",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss.modeler.create_rectangle(\n",
+    "    orientation=Plane.YZ,\n",
+    "    origin=[abs(x1) + 5, y0 - width / 2, -gap - thickness / 2],\n",
+    "    sizes=[width, \"-Tsub+{}{}\".format(gap, hfss.modeler.model_units)],\n",
+    "    name=\"port1\",\n",
+    ")\n",
+    "hfss.lumped_port(assignment=\"port1\", integration_line=Axis.Z)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "64669763",
+   "metadata": {},
+   "source": [
+    "Create port 2."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a4c6734f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "create_line([(x1 + width / 2, y1, 0), (x1 - 5, y1, 0)])\n",
+    "hfss.modeler.create_rectangle(\n",
+    "    Plane.YZ,\n",
+    "    [x1 - 5, y1 - width / 2, -thickness / 2],\n",
+    "    [width, \"-Tsub\"],\n",
+    "    name=\"port2\",\n",
+    ")\n",
+    "hfss.lumped_port(assignment=\"port2\", integration_line=Axis.Z)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c6317550",
+   "metadata": {},
+   "source": [
+    "Create the silicon substrate and the ground plane."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "31e710ee",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss.modeler.create_box(\n",
+    "    [x1 - 20, x1 - 20, \"-Tsub-thickness/2\"],\n",
+    "    [-2 * x1 + 40, -2 * x1 + 40, \"Tsub\"],\n",
+    "    material=\"silicon\",\n",
+    ")\n",
+    "\n",
+    "hfss.modeler.create_box(\n",
+    "    [x1 - 20, x1 - 20, \"-Tsub-thickness/2\"],\n",
+    "    [-2 * x1 + 40, -2 * x1 + 40, -0.1],\n",
+    "    material=\"PEC\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "76f2ca1a",
+   "metadata": {},
+   "source": [
+    "## Set up model\n",
+    "\n",
+    "Create the air box and radiation boundary condition."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "cc583f8d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "box = hfss.modeler.create_box(\n",
+    "    [\n",
+    "        x1 - 20,\n",
+    "        x1 - 20,\n",
+    "        \"-Tsub-thickness/2 - 0.1{}\".format(hfss.modeler.model_units),\n",
+    "    ],\n",
+    "    [-2 * x1 + 40, -2 * x1 + 40, 100],\n",
+    "    name=\"airbox\",\n",
+    "    material=\"air\",\n",
+    ")\n",
+    "\n",
+    "hfss.assign_radiation_boundary_to_objects(\"airbox\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2e195a88",
+   "metadata": {},
+   "source": [
+    "Assign a material override that allows object intersections,\n",
+    "assigning conductors higher priority than insulators."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2c807062",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss.change_material_override()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "003f66eb",
+   "metadata": {},
+   "source": [
+    "View the model."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "87514160",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss.plot(\n",
+    "    show=False,\n",
+    "    output_file=os.path.join(hfss.working_directory, \"Image.jpg\"),\n",
+    "    plot_air_objects=False,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6df1716d",
+   "metadata": {},
+   "source": [
+    "## Generate the solution\n",
+    "\n",
+    "Create the setup, including a frequency sweep. Then, solve the project."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "233cc400",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup1 = hfss.create_setup(name=\"setup1\")\n",
+    "setup1.props[\"Frequency\"] = \"10GHz\"\n",
+    "hfss.create_linear_count_sweep(\n",
+    "    setup=\"setup1\",\n",
+    "    units=\"GHz\",\n",
+    "    start_frequency=1e-3,\n",
+    "    stop_frequency=50,\n",
+    "    num_of_freq_points=451,\n",
+    "    sweep_type=\"Interpolating\",\n",
+    ")\n",
+    "hfss.save_project()\n",
+    "hfss.analyze(cores=NUM_CORES)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "efd59860",
+   "metadata": {},
+   "source": [
+    "## Postprocess\n",
+    "\n",
+    "Get report data and use the following formulas to calculate\n",
+    "the inductance and quality factor."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "712dc71f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "L_formula = \"1e9*im(1/Y(1,1))/(2*pi*freq)\"\n",
+    "Q_formula = \"im(Y(1,1))/re(Y(1,1))\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "91c6cb4b",
+   "metadata": {},
+   "source": [
+    "Define the inductance as a postprocessing variable."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8422a31c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss.create_output_variable(\"L\", L_formula, solution=\"setup1 : LastAdaptive\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "32332b4f",
+   "metadata": {},
+   "source": [
+    "Plot the results using Matplotlib."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "94da8e94",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "data = hfss.post.get_solution_data([L_formula, Q_formula])\n",
+    "data.plot(\n",
+    "    curves=[L_formula, Q_formula], formula=\"re\", x_label=\"Freq\", y_label=\"L and Q\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0924814d",
+   "metadata": {},
+   "source": [
+    "Export results to a CSV file"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "458eac4e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "data.export_data_to_csv(os.path.join(hfss.toolkit_directory, \"output.csv\"))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2839c822",
+   "metadata": {},
+   "source": [
+    "## Save project and close AEDT\n",
+    "\n",
+    "Save the project and close AEDT."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9dbaee30",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss.save_project()\n",
+    "hfss.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3120b8c1",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell removes\n",
+    "all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "05f3fcd3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

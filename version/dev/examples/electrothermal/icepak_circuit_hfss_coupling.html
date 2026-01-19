@@ -1,0 +1,1176 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Circuit-HFSS-Icepak coupling workflow &#8212; PyAEDT Examples</title>
+
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css\ansys_sphinx_theme.css?v=d2ac875c" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=9233c59b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/highlight.css?v=500661c4" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+ 
+<link href="../../_static/css/breadcrumbs.css" rel="stylesheet" />
+
+    <script src="../../_static/documentation_options.js?v=e7fb764e"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=49e1bf35"></script>
+    <script src="../../_static/js\table.js?v=b64f5182"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/electrothermal/icepak_circuit_hfss_coupling';</script>
+    <link rel="icon" href="../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Report" href="../aedt_general/report/index.html" />
+    <link rel="prev" title="Electrothermal analysis" href="electrothermal.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <link rel="canonical" href="https://examples.aedt.docs.pyansys.com/version/stable/examples/electrothermal/icepak_circuit_hfss_coupling.html" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container"><!-- Debugging: html_theme_options =  -->
+
+  <!-- If there is no MeiliSearch enabled, use the PyData search -->
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+   
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="https://www.ansys.com/">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/ansys_logo_transparent_black.png" class="logo__image only-light" alt="PyAEDT Examples - Home"/>
+    <script>document.write(`<img src="../../_static/ansys_logo_transparent_white.png" class="logo__image only-dark" alt="PyAEDT Examples - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Examples
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+    
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Examples
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../aedt/index.html">Examples by AEDT application</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../high_frequency/index.html">High frequency</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../high_frequency/antenna/index.html">Antenna</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../high_frequency/radiofrequency_mmwave/index.html">Radio frequency and millimeter wave</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../high_frequency/layout/index.html">IC-Package-PCB</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../high_frequency/emc/index.html">EMC</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../high_frequency/multiphysics/index.html">Multiphysics</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../high_frequency/multiphysics/mri.html">HFSS-Mechanical MRI analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../high_frequency/multiphysics/hfss_mechanical.html">HFSS-Mechanical multiphysics analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ecad_import.html">Import of a PCB and its components via IDF and EDB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="coaxial_hfss_icepak.html">Coaxial</a></li>
+<li class="toctree-l3"><a class="reference internal" href="electrothermal.html">Electrothermal analysis</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">Circuit-HFSS-Icepak coupling workflow</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../aedt_general/report/index.html">Report</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../low_frequency/index.html">Low frequency</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Electrothermal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../aedt_general/index.html">Pre-processing and post-processing</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+       
+    <li class="breadcrumb-item">
+      <a href="https://aedt.docs.pyansys.com/" class="nav-link">PyAEDT</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="../../index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../index.html" class="nav-link">Examples</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../high_frequency/index.html" class="nav-link">High frequency</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../high_frequency/multiphysics/index.html" class="nav-link">Multiphysics</a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page">Circuit-HFSS-Icepak coupling workflow</li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="admonition-download-this-example admonition">
+<p class="admonition-title">Download this example</p>
+<p>Download this example as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/electrothermal/icepak_circuit_hfss_coupling.ipynb">Jupyter Notebook</a>
+or as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/electrothermal/icepak_circuit_hfss_coupling.py">Python script</a>.</p>
+</div>
+<hr class="docutils" />
+<section id="Circuit-HFSS-Icepak-coupling-workflow">
+<h1>Circuit-HFSS-Icepak coupling workflow<a class="headerlink" href="#Circuit-HFSS-Icepak-coupling-workflow" title="Link to this heading">#</a></h1>
+<p>This example shows how to create a two-way coupling between HFSS and Icepak.</p>
+<p>Consider a design where some components are simulated in HFSS with a full 3D model, while others are simulated in Circuit as lumped elements. The electrical simulation is done by placing the HFSS design into a Circuit design as a subcomponent and connecting the lumped components to its ports.</p>
+<p>The purpose of the workflow is to perform a thermal simulation of the Circuit-HFSS design, creating a two-way coupling with Icepak that allows running multiple iterations. The losses from both designs are accounted for.</p>
+<ul class="simple">
+<li><p>EM losses are evaluated by the HFSS solver and fed into Icepak via a direct link.</p></li>
+<li><p>Losses from the lumped components in the Circuit design are evaluated analytically and must be manually set into the Icepak boundary.</p></li>
+</ul>
+<p>On the back of the coupling, temperature information is handled differently for HFSS and Circuit.</p>
+<ul class="simple">
+<li><p>For HFSS, a temperature map is exported from the Icepak design and used to create a 3D dataset. Then, the material properties in the HFSS design are updated based on this dataset.</p></li>
+<li><p>For Circuit, the average temperature of the lumped components is extracted from the Icepak design and used to update the temperature-dependent characteristics of the lumped components in Circuit.</p></li>
+</ul>
+<p>The Circuit design in this example contains only a resistor component, with temperature-dependent resistance described by this formula: <code class="docutils literal notranslate"><span class="pre">0.162*(1+0.004*(TempE-TempE0))</span></code>, where TempE is the current temperature and TempE0 is the ambient temperature. The HFSS design includes only a cylinder with temperature-dependent material conductivity, defined by a 2D dataset. The resistor and the cylinder have matching resistances.</p>
+<p>Keywords: <strong>Multiphysics</strong>, <strong>HFSS</strong>, <strong>Icepak</strong>, <strong>Circuit</strong>.</p>
+<section id="Perform-imports-and-define-constants">
+<h2>Perform imports and define constants<a class="headerlink" href="#Perform-imports-and-define-constants" title="Link to this heading">#</a></h2>
+<p>Perform required imports.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">ansys.aedt.core</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">aedt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ansys.aedt.core.examples.downloads</span><span class="w"> </span><span class="kn">import</span> <span class="n">download_file</span>
+</pre></div>
+</div>
+</div>
+<p>Define constants.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">AEDT_VERSION</span> <span class="o">=</span> <span class="s2">&quot;2025.2&quot;</span>
+<span class="n">NUM_CORES</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">NG_MODE</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Open AEDT UI when it is launched.</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Create-temporary-directory">
+<h2>Create temporary directory<a class="headerlink" href="#Create-temporary-directory" title="Link to this heading">#</a></h2>
+<p>Create a temporary directory where downloaded data or dumped data can be stored. If you’d like to retrieve the project data for subsequent use, the temporary folder name is given by <code class="docutils literal notranslate"><span class="pre">temp_folder.name</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">temp_folder</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.ansys&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Download-and-open-project">
+<h2>Download and open project<a class="headerlink" href="#Download-and-open-project" title="Link to this heading">#</a></h2>
+<p>Download and open the project. Save it to the temporary folder.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">project_name</span> <span class="o">=</span> <span class="n">download_file</span><span class="p">(</span>
+    <span class="s2">&quot;circuit_hfss_icepak&quot;</span><span class="p">,</span> <span class="s2">&quot;Circuit-HFSS-Icepak-workflow.aedtz&quot;</span><span class="p">,</span> <span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Launch-AEDT-and-initialize-HFSS">
+<h2>Launch AEDT and initialize HFSS<a class="headerlink" href="#Launch-AEDT-and-initialize-HFSS" title="Link to this heading">#</a></h2>
+<p>Launch AEDT and initialize HFSS. If there is an active HFSS design, the <code class="docutils literal notranslate"><span class="pre">hfss</span></code> object is linked to it. Otherwise, a new design is created.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">circuit</span> <span class="o">=</span> <span class="n">aedt</span><span class="o">.</span><span class="n">Circuit</span><span class="p">(</span>
+    <span class="n">project</span><span class="o">=</span><span class="n">project_name</span><span class="p">,</span>
+    <span class="n">new_desktop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="n">AEDT_VERSION</span><span class="p">,</span>
+    <span class="n">non_graphical</span><span class="o">=</span><span class="n">NG_MODE</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Python version 3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)].
+PyAEDT INFO: PyAEDT version 0.25.dev0.
+PyAEDT INFO: Initializing new Desktop session.
+PyAEDT INFO: Log on console is enabled.
+PyAEDT INFO: Log on file C:\Users\ansys\AppData\Local\Temp\pyaedt_ansys_07b5449f-c654-4707-a8ff-2ddb8ae76423.log is enabled.
+PyAEDT INFO: Log on AEDT is disabled.
+PyAEDT INFO: Starting new AEDT gRPC session.
+PyAEDT INFO: AEDT installation Path C:\Program Files\ANSYS Inc\v252\AnsysEM
+PyAEDT INFO: Client application successfully started.
+PyAEDT INFO: New AEDT gRPC session session started on port 50051.
+PyAEDT INFO: 2025.2 version started with process ID 3180.
+PyAEDT WARNING: Service Pack is not detected. PyAEDT is currently connecting in Insecure Mode.
+PyAEDT WARNING: Please download and install latest Service Pack to use connect to AEDT in Secure Mode.
+PyAEDT INFO: Debug logger is disabled. PyAEDT methods will not be logged.
+PyAEDT INFO: Archive Circuit-HFSS-Icepak-workflow has been restored to project Circuit-HFSS-Icepak-workflow
+PyAEDT INFO: Active Design set to 22;Circuit_Sfreq_Temp
+PyAEDT INFO: Active Design set to 22;Circuit_Sfreq_Temp
+PyAEDT INFO: Aedt Objects correctly read
+</pre></div></div>
+</div>
+</section>
+<section id="Set-variable-names">
+<h2>Set variable names<a class="headerlink" href="#Set-variable-names" title="Link to this heading">#</a></h2>
+<p>Set the name of the resistor in Circuit.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">resistor_body_name</span> <span class="o">=</span> <span class="s2">&quot;Circuit_Component&quot;</span>
+</pre></div>
+</div>
+</div>
+<p>Set the name of the cylinder body in HFSS.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">device3D_body_name</span> <span class="o">=</span> <span class="s2">&quot;Device_3D&quot;</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Get-HFSS-design">
+<h2>Get HFSS design<a class="headerlink" href="#Get-HFSS-design" title="Link to this heading">#</a></h2>
+<p>Get the HFSS design and prepare the material for the thermal link.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">hfss</span> <span class="o">=</span> <span class="n">aedt</span><span class="o">.</span><span class="n">Hfss</span><span class="p">(</span><span class="n">project</span><span class="o">=</span><span class="n">circuit</span><span class="o">.</span><span class="n">project_name</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Python version 3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)].
+PyAEDT INFO: PyAEDT version 0.25.dev0.
+PyAEDT INFO: Returning found Desktop session with PID 3180!
+PyAEDT INFO: Project Circuit-HFSS-Icepak-workflow set to active.
+PyAEDT INFO: Active Design set to EM_M_II_HALF
+PyAEDT INFO: Active Design set to EM_M_II_HALF
+PyAEDT INFO: Aedt Objects correctly read
+</pre></div></div>
+</div>
+</section>
+<section id="Create-a-material">
+<h2>Create a material<a class="headerlink" href="#Create-a-material" title="Link to this heading">#</a></h2>
+<p>Create a material to be used to set the temperature map on it. The material is created by duplicating the material assigned to the cylinder.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">material_name</span> <span class="o">=</span> <span class="n">hfss</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">objects_by_name</span><span class="p">[</span><span class="n">device3D_body_name</span><span class="p">]</span><span class="o">.</span><span class="n">material_name</span>
+<span class="n">new_material_name</span> <span class="o">=</span> <span class="n">material_name</span> <span class="o">+</span> <span class="s2">&quot;_dataset&quot;</span>
+<span class="n">new_material</span> <span class="o">=</span> <span class="n">hfss</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">duplicate_material</span><span class="p">(</span>
+    <span class="n">material</span><span class="o">=</span><span class="n">material_name</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">new_material_name</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Modeler class has been initialized! Elapsed time: 0m 1sec
+PyAEDT INFO: Parsing design objects. This operation can take time
+PyAEDT INFO: Refreshing bodies from Object Info
+PyAEDT INFO: Bodies Info Refreshed Elapsed time: 0m 0sec
+PyAEDT INFO: 3D Modeler objects parsed. Elapsed time: 0m 0sec
+PyAEDT INFO: Materials class has been initialized! Elapsed time: 0m 0sec
+</pre></div></div>
+</div>
+</section>
+<section id="Modify-material-properties">
+<h2>Modify material properties<a class="headerlink" href="#Modify-material-properties" title="Link to this heading">#</a></h2>
+<p>Save the conductivity value. It is used later in the iterations.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">old_conductivity</span> <span class="o">=</span> <span class="n">new_material</span><span class="o">.</span><span class="n">conductivity</span><span class="o">.</span><span class="n">value</span>
+</pre></div>
+</div>
+</div>
+<p>Assign the new material to the cylinder object in HFSS.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">hfss</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">objects_by_name</span><span class="p">[</span><span class="n">device3D_body_name</span><span class="p">]</span><span class="o">.</span><span class="n">material_name</span> <span class="o">=</span> <span class="n">new_material_name</span>
+</pre></div>
+</div>
+</div>
+<p>Because this material has a high conductivity, HFSS automatically deactivates <code class="docutils literal notranslate"><span class="pre">solve_inside</span></code>. It must be turned back on to evaluate the losses inside the cylinder.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">hfss</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">objects_by_name</span><span class="p">[</span><span class="n">device3D_body_name</span><span class="p">]</span><span class="o">.</span><span class="n">solve_inside</span> <span class="o">=</span> <span class="kc">True</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Get-Icepak-design">
+<h2>Get Icepak design<a class="headerlink" href="#Get-Icepak-design" title="Link to this heading">#</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">icepak</span> <span class="o">=</span> <span class="n">aedt</span><span class="o">.</span><span class="n">Icepak</span><span class="p">(</span><span class="n">project</span><span class="o">=</span><span class="n">circuit</span><span class="o">.</span><span class="n">project_name</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Python version 3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)].
+PyAEDT INFO: PyAEDT version 0.25.dev0.
+PyAEDT INFO: Returning found Desktop session with PID 3180!
+PyAEDT INFO: Project Circuit-HFSS-Icepak-workflow set to active.
+PyAEDT INFO: Active Design set to Thermal_Half
+PyAEDT INFO: Active Design set to Thermal_Half
+PyAEDT INFO: Aedt Objects correctly read
+</pre></div></div>
+</div>
+</section>
+<section id="Set-parameters-for-iterations">
+<h2>Set parameters for iterations<a class="headerlink" href="#Set-parameters-for-iterations" title="Link to this heading">#</a></h2>
+<p>Set the initial temperature to a value closer to the final one, to speed up the convergence.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">circuit</span><span class="p">[</span><span class="s2">&quot;TempE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;300cel&quot;</span>
+</pre></div>
+</div>
+</div>
+<p>Set the maximum number of iterations.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">max_iter</span> <span class="o">=</span> <span class="mi">2</span>
+</pre></div>
+</div>
+</div>
+<p>Set the residual convergence criteria to stop the iterations.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">temp_residual_limit</span> <span class="o">=</span> <span class="mf">0.02</span>
+<span class="n">loss_residual_limit</span> <span class="o">=</span> <span class="mf">0.02</span>
+</pre></div>
+</div>
+</div>
+<p>This variable is to contain iteration statistics.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">stats</span> <span class="o">=</span> <span class="p">{}</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Start-iterations">
+<h2>Start iterations<a class="headerlink" href="#Start-iterations" title="Link to this heading">#</a></h2>
+<p>Each <code class="docutils literal notranslate"><span class="pre">for</span></code> loop is a complete two-way iteration. The code is thoroughly commented. For a full understanding, read the inline comments carefully.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">cp_iter</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_iter</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="n">stats</span><span class="p">[</span><span class="n">cp_iter</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># Step 1: Solve the HFSS design.</span>
+    <span class="c1">#</span>
+    <span class="c1"># Solve the HFSS design.</span>
+    <span class="n">hfss</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span><span class="n">cores</span><span class="o">=</span><span class="n">NUM_CORES</span><span class="p">)</span>
+
+    <span class="c1"># Step 2: Refresh the dynamic link and solve the Circuit design.</span>
+    <span class="c1">#</span>
+    <span class="c1"># Find the HFSS subcomponent in Circuit.</span>
+    <span class="c1"># This information is required by the ``refresh_dynamic_link()`` and ``push_excitations()`` methods.</span>
+    <span class="n">hfss_component_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">hfss_instance_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="n">circuit</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">schematic</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">component</span><span class="o">.</span><span class="n">model_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="n">hfss</span><span class="o">.</span><span class="n">design_name</span> <span class="ow">in</span> <span class="n">component</span><span class="o">.</span><span class="n">model_name</span>
+        <span class="p">):</span>
+            <span class="n">hfss_component_name</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">model_name</span>
+            <span class="n">hfss_instance_name</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">refdes</span>
+            <span class="k">break</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">hfss_component_name</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">hfss_instance_name</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="s2">&quot;Hfss component not found in Circuit design&quot;</span>
+
+    <span class="c1"># Refresh the dynamic link.</span>
+    <span class="n">circuit</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">schematic</span><span class="o">.</span><span class="n">refresh_dynamic_link</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">hfss_component_name</span><span class="p">)</span>
+
+    <span class="c1"># Solve the Circuit design.</span>
+    <span class="n">circuit</span><span class="o">.</span><span class="n">analyze</span><span class="p">()</span>
+
+    <span class="c1"># Step 3: Push the excitations. (HFSS design results are scaled automatically.)</span>
+    <span class="c1">#</span>
+    <span class="c1"># Push the excitations.</span>
+    <span class="n">circuit</span><span class="o">.</span><span class="n">push_excitations</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">hfss_instance_name</span><span class="p">)</span>
+
+    <span class="c1"># Step 4: Extract the resistor&#39;s power loss value from the Circuit design.</span>
+    <span class="c1">#</span>
+    <span class="c1"># Evaluate the power loss on the resistor.</span>
+    <span class="n">r_losses</span> <span class="o">=</span> <span class="n">circuit</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">get_solution_data</span><span class="p">(</span>
+        <span class="n">expressions</span><span class="o">=</span><span class="s2">&quot;0.5*mag(I(I1)*V(V1))&quot;</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">get_expression_data</span><span class="p">()[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># Save the losses in the stats.</span>
+    <span class="n">stats</span><span class="p">[</span><span class="n">cp_iter</span><span class="p">][</span><span class="s2">&quot;losses&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">r_losses</span>
+
+    <span class="c1"># Step 5: Set the resistor&#39;s power loss value in the Icepak design (block thermal condition)</span>
+    <span class="c1">#</span>
+    <span class="c1"># Find the solid block boundary in Icepak.</span>
+    <span class="n">boundaries</span> <span class="o">=</span> <span class="n">icepak</span><span class="o">.</span><span class="n">boundaries</span>
+    <span class="n">boundary</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">bb</span> <span class="ow">in</span> <span class="n">boundaries</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">bb</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;Block1&quot;</span><span class="p">:</span>
+            <span class="n">boundary</span> <span class="o">=</span> <span class="n">bb</span>
+            <span class="k">break</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">boundary</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="s2">&quot;Block boundary not defined in Icepak design.&quot;</span>
+
+    <span class="c1"># Set the resistor&#39;s power loss in the Block Boundary.</span>
+    <span class="n">boundary</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Total Power&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">r_losses</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;W&quot;</span>
+
+    <span class="c1"># Step 6: Solve the Icepak design.</span>
+    <span class="c1">#</span>
+    <span class="c1"># Clear linked data. Otherwise, Icepak continues to run the simulation with the initial losses.</span>
+    <span class="n">icepak</span><span class="o">.</span><span class="n">clear_linked_data</span><span class="p">()</span>
+
+    <span class="c1"># Solve the Icepak design.</span>
+    <span class="n">icepak</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span><span class="n">cores</span><span class="o">=</span><span class="n">NUM_CORES</span><span class="p">)</span>
+
+    <span class="c1"># Step 7: Export the temperature map from the Icepak design and create a new 3D dataset with it.</span>
+    <span class="c1">#</span>
+    <span class="c1"># Export the temperature map to a file.</span>
+    <span class="n">fld_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">icepak</span><span class="o">.</span><span class="n">working_directory</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;temperature_map_</span><span class="si">{</span><span class="n">cp_iter</span><span class="si">}</span><span class="s2">.fld&quot;</span>
+    <span class="p">)</span>
+    <span class="n">icepak</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">export_field_file</span><span class="p">(</span>
+        <span class="n">quantity</span><span class="o">=</span><span class="s2">&quot;Temp&quot;</span><span class="p">,</span>
+        <span class="n">output_file</span><span class="o">=</span><span class="n">fld_filename</span><span class="p">,</span>
+        <span class="n">assignment</span><span class="o">=</span><span class="s2">&quot;AllObjects&quot;</span><span class="p">,</span>
+        <span class="n">objects_type</span><span class="o">=</span><span class="s2">&quot;Vol&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Convert the FLD file into a dataset tab file compatible with the dataset import.</span>
+    <span class="c1"># The existing header lines must be removed and replaced with a single header line</span>
+    <span class="c1"># containing the value unit.</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fld_filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+
+    <span class="n">_</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">lines</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;&quot;X&quot;    &quot;Y&quot; &quot;Z&quot; &quot;cel&quot;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">basename</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">fld_filename</span><span class="p">)</span>
+    <span class="n">tab_filename</span> <span class="o">=</span> <span class="n">basename</span> <span class="o">+</span> <span class="s2">&quot;_dataset.tab&quot;</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tab_filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+
+    <span class="c1"># Import the 3D dataset.</span>
+    <span class="n">dataset_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;temp_map_step_</span><span class="si">{</span><span class="n">cp_iter</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">hfss</span><span class="o">.</span><span class="n">import_dataset3d</span><span class="p">(</span>
+        <span class="n">input_file</span><span class="o">=</span><span class="n">tab_filename</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">is_project_dataset</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Step 8: Update material properties in the HFSS design based on the new dataset.</span>
+    <span class="c1">#</span>
+    <span class="c1"># Set the new conductivity value.</span>
+    <span class="n">new_material</span><span class="o">.</span><span class="n">conductivity</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">old_conductivity</span><span class="si">}</span><span class="s2">*Pwl($TempDepCond,clp($</span><span class="si">{</span><span class="n">dataset_name</span><span class="si">}</span><span class="s2">,X,Y,Z))&quot;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Switch off the thermal modifier of the material, if any.</span>
+    <span class="n">new_material</span><span class="o">.</span><span class="n">conductivity</span><span class="o">.</span><span class="n">thermalmodifier</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># Step 9: Extract the average temperature of the resistor from the Icepak design.</span>
+    <span class="c1">#</span>
+    <span class="c1"># Get the mean temperature value on the high-resistivity object.</span>
+    <span class="n">mean_temp</span> <span class="o">=</span> <span class="n">icepak</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">get_scalar_field_value</span><span class="p">(</span>
+        <span class="n">quantity</span><span class="o">=</span><span class="s2">&quot;Temp&quot;</span><span class="p">,</span> <span class="n">scalar_function</span><span class="o">=</span><span class="s2">&quot;Mean&quot;</span><span class="p">,</span> <span class="n">object_name</span><span class="o">=</span><span class="n">resistor_body_name</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Save the temperature in the iteration statistics.</span>
+    <span class="n">stats</span><span class="p">[</span><span class="n">cp_iter</span><span class="p">][</span><span class="s2">&quot;temp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mean_temp</span>
+
+    <span class="c1"># Step 10: Update the resistance value in the Circuit design.</span>
+    <span class="c1">#</span>
+    <span class="c1"># Set this temperature in Circuit in the ``TempE`` variable.</span>
+    <span class="n">circuit</span><span class="p">[</span><span class="s2">&quot;TempE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">mean_temp</span><span class="si">}</span><span class="s2">cel&quot;</span>
+
+    <span class="c1"># Save the project</span>
+    <span class="n">circuit</span><span class="o">.</span><span class="n">save_project</span><span class="p">()</span>
+
+    <span class="c1"># Check the convergence of the iteration</span>
+    <span class="c1">#</span>
+    <span class="c1"># Evaluate the relative residuals on temperature and losses.</span>
+    <span class="c1"># If the residuals are smaller than the threshold, set the convergence flag to ``True```.</span>
+    <span class="c1"># Residuals are calculated starting from the second iteration.</span>
+    <span class="n">converged</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">stats</span><span class="p">[</span><span class="n">cp_iter</span><span class="p">][</span><span class="s2">&quot;converged&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">converged</span>
+    <span class="k">if</span> <span class="n">cp_iter</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">delta_temp</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">stats</span><span class="p">[</span><span class="n">cp_iter</span><span class="p">][</span><span class="s2">&quot;temp&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">stats</span><span class="p">[</span><span class="n">cp_iter</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="s2">&quot;temp&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="nb">abs</span><span class="p">(</span>
+            <span class="n">stats</span><span class="p">[</span><span class="n">cp_iter</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="s2">&quot;temp&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">delta_losses</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span>
+            <span class="n">stats</span><span class="p">[</span><span class="n">cp_iter</span><span class="p">][</span><span class="s2">&quot;losses&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">stats</span><span class="p">[</span><span class="n">cp_iter</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="s2">&quot;losses&quot;</span><span class="p">]</span>
+        <span class="p">)</span> <span class="o">/</span> <span class="nb">abs</span><span class="p">(</span><span class="n">stats</span><span class="p">[</span><span class="n">cp_iter</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="s2">&quot;losses&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">delta_temp</span> <span class="o">&lt;=</span> <span class="n">temp_residual_limit</span> <span class="ow">and</span> <span class="n">delta_losses</span> <span class="o">&lt;=</span> <span class="n">loss_residual_limit</span><span class="p">:</span>
+            <span class="n">converged</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">stats</span><span class="p">[</span><span class="n">cp_iter</span><span class="p">][</span><span class="s2">&quot;converged&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">converged</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">delta_temp</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">delta_losses</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># Save the relative residuals in the iteration stats.</span>
+    <span class="n">stats</span><span class="p">[</span><span class="n">cp_iter</span><span class="p">][</span><span class="s2">&quot;delta_temp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">delta_temp</span>
+    <span class="n">stats</span><span class="p">[</span><span class="n">cp_iter</span><span class="p">][</span><span class="s2">&quot;delta_losses&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">delta_losses</span>
+
+    <span class="c1"># Exit from the loop if the convergence is reached.</span>
+    <span class="k">if</span> <span class="n">converged</span><span class="p">:</span>
+        <span class="k">break</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Project Circuit-HFSS-Icepak-workflow Saved correctly
+PyAEDT INFO: Key Desktop/ActiveDSOConfigurations/HFSS correctly changed.
+PyAEDT INFO: Solving all design setups. Analysis started...
+PyAEDT INFO: Design setup None solved correctly in 0.0h 0.0m 53.0s
+PyAEDT INFO: Key Desktop/ActiveDSOConfigurations/HFSS correctly changed.
+PyAEDT INFO: ModelerCircuit class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: ModelerNexxim class has been initialized!
+PyAEDT INFO: Modeler class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Project Circuit-HFSS-Icepak-workflow Saved correctly
+PyAEDT INFO: Solving all design setups. Analysis started...
+PyAEDT INFO: Design setup None solved correctly in 0.0h 0.0m 8.0s
+PyAEDT INFO: Post class has been initialized! Elapsed time: 0m 1sec
+PyAEDT INFO: Parsing C:\Users\ansys\AppData\Local\Temp\tmpjbkj6_1h.ansys\circuit_hfss_icepak\Circuit-HFSS-Icepak-workflow.aedt.
+PyAEDT INFO: File C:\Users\ansys\AppData\Local\Temp\tmpjbkj6_1h.ansys\circuit_hfss_icepak\Circuit-HFSS-Icepak-workflow.aedt correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: aedt file load time 0.12672829627990723
+PyAEDT WARNING: No report category provided. Automatically identified Standard
+PyAEDT INFO: Solution Data Correctly Loaded.
+Time to initialize solution data:0.0035316944122314453
+Time to initialize solution data:0.0035316944122314453
+PyAEDT INFO: Modeler class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Project Circuit-HFSS-Icepak-workflow Saved correctly
+PyAEDT INFO: Key Desktop/ActiveDSOConfigurations/Icepak correctly changed.
+PyAEDT INFO: Solving all design setups. Analysis started...
+PyAEDT INFO: Design setup None solved correctly in 0.0h 1.0m 18.0s
+PyAEDT INFO: Key Desktop/ActiveDSOConfigurations/Icepak correctly changed.
+PyAEDT INFO: Parsing C:\Users\ansys\AppData\Local\Temp\tmpjbkj6_1h.ansys\circuit_hfss_icepak\Circuit-HFSS-Icepak-workflow.aedt.
+PyAEDT INFO: File C:\Users\ansys\AppData\Local\Temp\tmpjbkj6_1h.ansys\circuit_hfss_icepak\Circuit-HFSS-Icepak-workflow.aedt correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: aedt file load time 0.1103200912475586
+PyAEDT INFO: PostProcessor class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Post class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Exporting &#39;Temp&#39; field. Please be patient.
+PyAEDT INFO: Dataset temp_map_step_1 doesn&#39;t exist.
+PyAEDT INFO: Dataset $temp_map_step_1 created successfully.
+PyAEDT INFO: Exporting Temp field. Be patient
+PyAEDT INFO: Project Circuit-HFSS-Icepak-workflow Saved correctly
+PyAEDT INFO: Project Circuit-HFSS-Icepak-workflow Saved correctly
+PyAEDT INFO: Key Desktop/ActiveDSOConfigurations/HFSS correctly changed.
+PyAEDT INFO: Solving all design setups. Analysis started...
+PyAEDT INFO: Design setup None solved correctly in 0.0h 1.0m 21.0s
+PyAEDT INFO: Key Desktop/ActiveDSOConfigurations/HFSS correctly changed.
+PyAEDT INFO: Project Circuit-HFSS-Icepak-workflow Saved correctly
+PyAEDT INFO: Solving all design setups. Analysis started...
+PyAEDT INFO: Design setup None solved correctly in 0.0h 0.0m 7.0s
+PyAEDT WARNING: No report category provided. Automatically identified Standard
+PyAEDT INFO: Solution Data Correctly Loaded.
+Time to initialize solution data:0.010558843612670898
+Time to initialize solution data:0.010558843612670898
+PyAEDT INFO: Project Circuit-HFSS-Icepak-workflow Saved correctly
+PyAEDT INFO: Key Desktop/ActiveDSOConfigurations/Icepak correctly changed.
+PyAEDT INFO: Solving all design setups. Analysis started...
+PyAEDT INFO: Design setup None solved correctly in 0.0h 1.0m 54.0s
+PyAEDT INFO: Key Desktop/ActiveDSOConfigurations/Icepak correctly changed.
+PyAEDT INFO: Exporting &#39;Temp&#39; field. Please be patient.
+PyAEDT INFO: Dataset temp_map_step_2 doesn&#39;t exist.
+PyAEDT INFO: Dataset $temp_map_step_2 created successfully.
+PyAEDT INFO: Exporting Temp field. Be patient
+PyAEDT INFO: Project Circuit-HFSS-Icepak-workflow Saved correctly
+</pre></div></div>
+</div>
+</section>
+<section id="Print-overall-statistics">
+<h2>Print overall statistics<a class="headerlink" href="#Print-overall-statistics" title="Link to this heading">#</a></h2>
+<p>Print the overall statistics for the multiphysics loop.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">stats</span><span class="p">:</span>
+    <span class="n">txt</span> <span class="o">=</span> <span class="s2">&quot;yes&quot;</span> <span class="k">if</span> <span class="n">stats</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s2">&quot;converged&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="s2">&quot;no&quot;</span>
+    <span class="n">delta_temp</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;delta_temp&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">stats</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s2">&quot;delta_temp&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">else</span> <span class="s2">&quot;None&quot;</span>
+    <span class="p">)</span>
+    <span class="n">delta_losses</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;delta_losses&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">stats</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s2">&quot;delta_losses&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">else</span> <span class="s2">&quot;None&quot;</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Step </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">: temp=</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;temp&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, losses=</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;losses&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;delta_temp=</span><span class="si">{</span><span class="n">delta_temp</span><span class="si">}</span><span class="s2">, delta_losses=</span><span class="si">{</span><span class="n">delta_losses</span><span class="si">}</span><span class="s2">, &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;converged=</span><span class="si">{</span><span class="n">txt</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Step 1: temp=326.057, losses=0.209, delta_temp=None, delta_losses=None, converged=no
+Step 2: temp=349.019, losses=0.222, delta_temp=0.0704, delta_losses=0.0620, converged=no
+</pre></div></div>
+</div>
+</section>
+<section id="Release-AEDT">
+<h2>Release AEDT<a class="headerlink" href="#Release-AEDT" title="Link to this heading">#</a></h2>
+<p>Release AEDT and close the example.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">icepak</span><span class="o">.</span><span class="n">save_project</span><span class="p">()</span>
+<span class="n">icepak</span><span class="o">.</span><span class="n">release_desktop</span><span class="p">()</span>
+<span class="c1"># Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.</span>
+<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Project Circuit-HFSS-Icepak-workflow Saved correctly
+PyAEDT INFO: Desktop has been released and closed.
+</pre></div></div>
+</div>
+</section>
+<section id="Clean-up">
+<h2>Clean up<a class="headerlink" href="#Clean-up" title="Link to this heading">#</a></h2>
+<p>All project files are saved in the folder <code class="docutils literal notranslate"><span class="pre">temp_folder.name</span></code>. If you’ve run this example as a Jupyter notebook, you can retrieve those project files. The following cell removes all temporary files, including the project folder.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">temp_folder</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<div class="admonition-download-this-example admonition">
+<p class="admonition-title">Download this example</p>
+<p>Download this example as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/electrothermal/icepak_circuit_hfss_coupling.ipynb">Jupyter Notebook</a>
+or as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/electrothermal/icepak_circuit_hfss_coupling.py">Python script</a>.</p>
+</div>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Perform-imports-and-define-constants">Perform imports and define constants</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-temporary-directory">Create temporary directory</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Download-and-open-project">Download and open project</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Launch-AEDT-and-initialize-HFSS">Launch AEDT and initialize HFSS</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Set-variable-names">Set variable names</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Get-HFSS-design">Get HFSS design</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-a-material">Create a material</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Modify-material-properties">Modify material properties</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Get-Icepak-design">Get Icepak design</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Set-parameters-for-iterations">Set parameters for iterations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Start-iterations">Start iterations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Print-overall-statistics">Print overall statistics</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Release-AEDT">Release AEDT</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Clean-up">Clean up</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item"> 
+<div class="tocsection editthispage">
+  <a href="https://github.com/ansys/pyaedt-examples/edit/main/doc/source/examples/electrothermal/icepak_circuit_hfss_coupling.ipynb">
+    <i class="fa-solid fa-pencil"></i>
+       Edit
+    on GitHub  
+  </a>
+</div>
+
+</div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../../_sources/examples/electrothermal/icepak_circuit_hfss_coupling.ipynb.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright (c) 2021 - 2026 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the
+  <a href="https://sphinxdocs.ansys.com/version/stable/index.html"
+    >Ansys Sphinx Theme</a
+  >
+  1.0.11. <br />Last updated on
+  <span id="date"></span>
+</p>
+<script>
+  var options = { day: "numeric", month: "long", year: "numeric" };
+  var lastModifiedDate = new Date(document.lastModified);
+  var date = lastModifiedDate.toLocaleDateString("en-US", options);
+  document.getElementById("date").innerHTML = date;
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
