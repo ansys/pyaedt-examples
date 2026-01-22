@@ -15,6 +15,7 @@ import tempfile
 import time
 
 import ansys.aedt.core
+
 # -
 
 # Define constants.
@@ -62,8 +63,8 @@ coil_specifications = {
 simulation_specifications = {
     "Mesh_bands": "0.5mm",
     "Mesh_other_objects": "2mm",
-    "Stop_time": "10ms",
-    "Time_step": "0.5ms",
+    "Stop_time": "6ms",
+    "Time_step": "1ms",
     "Save_fields_interval": "1",
 }
 
@@ -105,7 +106,7 @@ m2d.variable_manager.set_variable(name="Simulation data")
 for k, v in simulation_specifications.items():
     m2d[k] = v
 
-# Definem materials.
+# Define materials.
 
 m2d.variable_manager.set_variable(name="Material data")
 m2d.logger.clear_messages()
@@ -154,12 +155,8 @@ magnet_s_id = m2d.modeler.create_rectangle(
     material="Materials[" + str(magnet_mat_index) + "]",
 )
 
-m2d.modeler.create_coordinate_system(
-    origin=[0, 0, 0], x_pointing=[0, 1, 0], y_pointing=[1, 0, 0], name="cs_x_positive"
-)
-m2d.modeler.create_coordinate_system(
-    origin=[0, 0, 0], x_pointing=[0, -1, 0], y_pointing=[1, 0, 0], name="cs_x_negative"
-)
+m2d.modeler.create_coordinate_system(origin=[0, 0, 0], x_pointing=[0, 1, 0], y_pointing=[1, 0, 0], name="cs_x_positive")
+m2d.modeler.create_coordinate_system(origin=[0, 0, 0], x_pointing=[0, -1, 0], y_pointing=[1, 0, 0], name="cs_x_negative")
 magnet_s_id.part_coordinate_system = "cs_x_positive"
 magnet_n_id.part_coordinate_system = "cs_x_negative"
 m2d.modeler.set_working_coordinate_system("Global")
@@ -202,9 +199,7 @@ m2d.assign_coil(
     polarity="Positive",
 )
 m2d.assign_winding(is_solid=False, current="Winding_current", name="Winding1")
-m2d.add_winding_coils(
-    assignment="Winding1", coils=["coil_terminal_in", "coil_terminal_out"]
-)
+m2d.add_winding_coils(assignment="Winding1", coils=["coil_terminal_in", "coil_terminal_out"])
 
 # ## Assign motion
 #

@@ -88,7 +88,7 @@ edb_version = "2025.2"
 print(f"EDB version: {edb_version}")
 
 # Create an instance of the Edb class.
-edb = pyedb.Edb(edbpath=aedb_path, edbversion=edb_version)
+edb = pyedb.Edb(edbpath=aedb_path, version=edb_version)
 # -
 
 # Add stackup layers
@@ -302,7 +302,7 @@ setup.props["MaximumPasses"] = 10
 
 # Specify properties of the frequency sweep:
 
-sweep1 = setup.add_sweep(sweepname="20GHz_to_50GHz")
+sweep1 = setup.add_sweep(name="20GHz_to_50GHz")
 sweep1.props["RangeStart"] = "20GHz"
 sweep1.props["RangeEnd"] = "50GHz"
 sweep1.update()
