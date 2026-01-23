@@ -5,31 +5,28 @@
 #
 # Keywords: **HFSS**, **flex cable**, **CPWG**.
 
-# ## Perform imports and define constants
+# ## Prerequisites
 #
-# Perform required imports.
+# ### Perform imports
 
 # +
 import os
 import tempfile
+import time
 from math import cos, radians, sin, sqrt
 
 import ansys.aedt.core
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 # -
 
-# Define constants.
+# ### Define constants
+# Constants help ensure consistency and avoid repetition throughout the example.
 
 AEDT_VERSION = "2025.2"
+NUM_CORES = 4
+NG_MODE = False  # Open AEDT UI when it is launched.
 
-# ## Set non-graphical mode
-#
-# Set non-graphical mode.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
-
-non_graphical = False
-
-# ## Create temporary directory
+# ### Create temporary directory
 #
 # Create a temporary directory where downloaded data or
 # dumped data can be stored.
@@ -38,7 +35,7 @@ non_graphical = False
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ## Launch AEDT
+# ### Launch HFSS
 #
 # Launch AEDT, create an HFSS design, and save the project.
 
@@ -46,7 +43,7 @@ hfss = ansys.aedt.core.Hfss(
     version=AEDT_VERSION,
     solution_type="DrivenTerminal",
     new_desktop=True,
-    non_graphical=non_graphical,
+    non_graphical=NG_MODE,
 )
 hfss.save_project(
     os.path.join(temp_folder.name, generate_unique_name("example") + ".aedt")
@@ -236,15 +233,20 @@ hfss.create_linear_count_sweep(
     sweep_type="Interpolating",
 )
 
-# ## Release AEDT
+# ## Finish
+#
+# ### Save the project
 
+hfss.save_project()
 hfss.release_desktop()
+# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
+time.sleep(3)
 
-# ## Clean up
+# ### Clean up
 #
 # All project files are saved in the folder ``temp_folder.name``.
 # If you've run this example as a Jupyter notebook, you
-# can retrieve those project files.
-# The following cell removes all temporary files, including the project folder.
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
 temp_folder.cleanup()

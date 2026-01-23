@@ -35,19 +35,22 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 # ### Create temporary directory
 #
 # Create a temporary working directory.
-# The name of the working folder is stored in ``working_dir.name``.
+# The name of the working folder is stored in ``temp_folder.name``.
+#
+# > **Note:** The final cell in the notebook cleans up the temporary folder. If you want to
+# > retrieve the AEDT project and data, do so before executing the final cell in the notebook.
 
-working_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ### Download the project
 # Download and open the project. Save it to the temporary working folder.
 
 
 parasolid_path = download_file(
-    source="oven", name="gingerbread.x_t", local_path=working_dir.name
+    source="oven", name="gingerbread.x_t", local_path=temp_folder.name
 )
 oven_path = download_file(
-    source="oven", name="microwave_oven.aedt", local_path=working_dir.name
+    source="oven", name="microwave_oven.aedt", local_path=temp_folder.name
 )
 
 # ### Launch HFSS
@@ -59,7 +62,7 @@ hfss = ansys.aedt.core.Hfss(version=AEDT_VERSION,
                             project=oven_path,
                             non_graphical=NG_MODE,
                             new_desktop=True)
-hfss.save_project(file_name=os.path.join(working_dir.name, 'lets_cook.aedt'))
+hfss.save_project(file_name=os.path.join(temp_folder.name, 'lets_cook.aedt'))
 
 # ## Model Preparation
 #
@@ -96,7 +99,7 @@ hfss.modeler["glassBowl"].transparency = 0.75
 #
 # We now save an image of the model as a PNG file to insert into the report later.
 
-hfss.post.export_model_picture(full_name=os.path.join(working_dir.name, 'ginger_bread_cookie.png'))
+hfss.post.export_model_picture(full_name=os.path.join(temp_folder.name, 'ginger_bread_cookie.png'))
 
 # ### Launch Icepak
 #
@@ -214,7 +217,7 @@ report.add_text("An accurate Microwave Oven design requires:")
 report.add_text("1- Ansys HFSS")
 report.add_text("2- PyAEDT")
 
-report.add_image(path=os.path.join(working_dir.name, 'ginger_bread_cookie.png'),
+report.add_image(path=os.path.join(temp_folder.name, 'ginger_bread_cookie.png'),
                  caption="HFSS Design of Ansys Microwave Oven")
 
 report.add_page_break()
@@ -259,7 +262,7 @@ def generate_streamline(stop):
                                               quantity=quantity_in,
                                               intrinsics={"Time": f"{field_time}s"})
         air_ux_case = ipk.post.export_field_plot(plot_name=f1.name,
-                                                 output_dir=working_dir.name,
+                                                 output_dir=temp_folder.name,
                                                  file_format="case")
         mesh_in = pyvista.read(air_ux_case)
         return mesh_in
@@ -310,8 +313,8 @@ def generate_streamline(stop):
     pl.camera.elevation += 20
     pl.enable_ssao(kernel_size=128, radius=15, bias=0.5)
     pl.enable_anti_aliasing("ssaa")
-    pl.screenshot(os.path.join(working_dir.name, "streamlines.png"))
-    return os.path.join(working_dir.name, "streamlines.png")
+    pl.screenshot(os.path.join(temp_folder.name, "streamlines.png"))
+    return os.path.join(temp_folder.name, "streamlines.png")
 
 
 # ### Method to generate temperature plot on gingerbread
@@ -336,7 +339,7 @@ def generate_temps(stop):
         pl.add_object(mw_obj[0], mw_obj[1], mw_obj[2])
     pl.camera_position = 'yz'
     pl.elevation_angle = 20
-    pl.plot(export_image_path=os.path.join(working_dir.name, f'{generate_unique_name("Temperature")}.jpg'),
+    pl.plot(export_image_path=os.path.join(temp_folder.name, f'{generate_unique_name("Temperature")}.jpg'),
             show=False)
     return pl
 
@@ -368,7 +371,7 @@ while not solved:
         if mean_temperature > 30:
             report.add_text(f"Gingerbread is almost ready. Don't worry we will notify you when ready.")
             output_file = generate_streamline(stop_time)
-            report.add_image(os.path.join(working_dir.name, "streamlines.png"),
+            report.add_image(os.path.join(temp_folder.name, "streamlines.png"),
                              f"GingerBread while cooking after {stop_time}s")
         else:
             report.add_text(f"Take a cup of tea and relax. It will take longer.")
@@ -377,11 +380,11 @@ while not solved:
 # ### Generate PDF
 
 report.add_toc()
-report.save_pdf(working_dir.name, "Gingerbread_ansys_recipe.pdf")
+report.save_pdf(temp_folder.name, "Gingerbread_ansys_recipe.pdf")
 
-# ## Release AEDT
+# ## Finish
 #
-# Release AEDT and close the example.
+# ### Save the project
 
 ipk.save_project()
 ipk.release_desktop()
@@ -390,7 +393,9 @@ time.sleep(3)
 
 # ### Clean up
 #
-# All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook, you
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_folder.name``.
+# If you've run this example as a Jupyter notebook, you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
-working_dir.cleanup()
+temp_folder.cleanup()

@@ -4,9 +4,9 @@
 #
 # Keywords: **HFSS**, **EMC**, **choke**, .
 
-# ## Perform imports and define constants
+# ## Prerequisites
 #
-# Perform required imports.
+# ### Perform imports
 
 # +
 import json
@@ -17,12 +17,14 @@ import time
 import ansys.aedt.core
 # -
 
-# Define constants.
+# ### Define constants
+# Constants help ensure consistency and avoid repetition throughout the example.
 
 AEDT_VERSION = "2025.2"
+NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
-# ## Create temporary directory
+# ### Create temporary directory
 #
 # Create a temporary directory where downloaded data or
 # dumped data can be stored.
@@ -31,7 +33,7 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ## Launch HFSS
+# ### Launch HFSS
 
 project_name = os.path.join(temp_folder.name, "choke.aedt")
 hfss = ansys.aedt.core.Hfss(
@@ -248,14 +250,16 @@ hfss.plot(
 )
 
 
-# ## Release AEDT
+# ## Finish
+#
+# ### Save the project
 
 hfss.save_project()
 hfss.release_desktop()
 # Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-# ## Clean up
+# ### Clean up
 #
 # All project files are saved in the folder ``temp_folder.name``.
 # If you've run this example as a Jupyter notebook, you

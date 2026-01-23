@@ -5,9 +5,9 @@
 #
 # Keywords: **Multiphysics**, **HFSS**, **Mechanical AEDT**, **Circuit**.
 
-# ## Perform imports and define constants
+# ## Prerequisites
 #
-# Perform required imports.
+# ### Perform imports
 
 # +
 import tempfile
@@ -17,13 +17,14 @@ import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_via_wizard
 # -
 
-# Define constants.
+# ### Define constants
+# Constants help ensure consistency and avoid repetition throughout the example.
 
 AEDT_VERSION = "2025.2"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
-# ## Create temporary directory
+# ### Create temporary directory
 #
 # Create a temporary directory where downloaded data or
 # dumped data can be stored.
@@ -40,7 +41,7 @@ project_name = download_via_wizard(
     local_path=temp_folder.name
 )
 
-# ## Start HFSS
+# ### Launch HFSS
 #
 # Initialize HFSS.
 
@@ -149,18 +150,20 @@ for name in mech.get_all_conductors_names():
     surfaces.extend(mech.modeler.get_object_faces(name))
 mech.post.create_fieldplot_surface(assignment=surfaces, quantity="Temperature")
 
-# ## Release AEDT
+# ## Finish
 #
-# Release AEDT and close the example.
+# ### Save the project
 
 mech.save_project()
 mech.release_desktop()
 # Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-# ## Clean up
+# ### Clean up
 #
-# All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook, you
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_folder.name``.
+# If you've run this example as a Jupyter notebook, you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
 temp_folder.cleanup()

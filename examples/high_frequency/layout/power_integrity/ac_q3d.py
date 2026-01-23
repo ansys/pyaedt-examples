@@ -5,9 +5,9 @@
 #
 # Keywords: **Q3D**, **PCB**.
 
-# ## Perform imports and define constants
+# ## Prerequisites
 #
-# Perform required imports.
+# ### Perform imports
 
 # +
 import os
@@ -19,13 +19,14 @@ from ansys.aedt.core.examples.downloads import download_file
 import pyedb
 # -
 
-# Define constants.
+# ### Define constants
+# Constants help ensure consistency and avoid repetition throughout the example.
 
 AEDT_VERSION = "2025.2"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
-# ## Create temporary directory
+# ### Create temporary directory
 #
 # Create a temporary directory where downloaded data or
 # dumped data can be stored.
@@ -171,14 +172,16 @@ traces_acr = q3d.post.available_report_quantities(quantities_category="ACR Matri
 solution2 = q3d.post.get_solution_data(traces_acr)
 solution2.plot()
 
-# ## Release AEDT
+# ## Finish
+#
+# ### Save the project
 
 q3d.save_project()
 q3d.release_desktop()
 # Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-# ## Clean up
+# ### Clean up
 #
 # All project files are saved in the folder ``temp_folder.name``.
 # If you've run this example as a Jupyter notebook, you

@@ -3,21 +3,25 @@
 # This example shows how you can use EDB to create a parametric component using
 # 3D Layout and use it in HFSS 3D.
 
-# ## Perform required imports
+# ## Prerequisites
 #
-# Perform required imports.
+# ### Perform imports
 
 # +
 import os
 import tempfile
+import time
 
 import ansys.aedt.core
 import pyedb
 # -
 
-# ## Set non-graphical mode
+# ### Define constants
+# Constants help ensure consistency and avoid repetition throughout the example.
 
-non_graphical = False
+AEDT_VERSION = "2025.2"
+NUM_CORES = 4
+NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create data classes
 #
@@ -75,23 +79,31 @@ class LinearArray:
 
 # -
 
-# ## Launch EDB
+# ### Create temporary directory
 #
-# PyEDB.Edb allows to open existing Edb project or create a new empty project.
+# Create a temporary working directory.
+# The name of the working folder is stored in ``temp_folder.name``.
+#
+# > **Note:** The final cell in the notebook cleans up the temporary folder. If you want to
+# > retrieve the AEDT project and data, do so before executing the final cell in the notebook.
+
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
+
+# ### Launch EDB
+#
+# The ``pyedb.Edb`` class can be used open an existing Edb instance or instantiate
+# a new EDB project.
 
 # +
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-aedb_path = os.path.join(temp_dir.name, "linear_array.aedb")
-
-# Select EDB version (change it manually if needed, e.g. "2025.1")
-edb_version = "2025.2"
-print(f"EDB version: {edb_version}")
+aedb_path = os.path.join(temp_folder.name, "linear_array.aedb")
 
 # Create an instance of the Edb class.
-edb = pyedb.Edb(edbpath=aedb_path, version=edb_version)
+edb = pyedb.Edb(edbpath=aedb_path, version=AEDT_VERSION)
 # -
 
-# Add stackup layers
+# Build the stackup
+
+# +
 layers = {
     "materials": {"copper_high_cond": {"conductivity": 60000000}},
     "layers": {
@@ -104,8 +116,9 @@ layers = {
 }
 
 edb.stackup.load(layers)
+# -
 
-# Create the first patch and feed line using the ``Patch``, ``Line``classes defined above.
+# Create a patch antenna and feed line using the ``Patch`` and ``Line``classes.
 #
 # Define parameters:
 
@@ -242,9 +255,9 @@ print("EDB saved correctly to {}. You can import in AEDT.".format(aedb_path))
 h3d = ansys.aedt.core.Hfss(
     project="Demo_3DComp",
     design="Linear_Array",
-    version="2025.2",
+    version=AEDT_VERSION,
     new_desktop=True,
-    non_graphical=non_graphical,
+    non_graphical=NG_MODE,
     close_on_exit=True,
     solution_type="Terminal",
 )
@@ -362,19 +375,20 @@ h3d.post.create_fieldplot_layers_nets(
     plot_name="E_Layers",
 )
 
-# ## Close AEDT
+# ## Finish
 #
-# After the simulation completes, the application can be released from the
-# :func:`ansys.aedt.core.Desktop.release_desktop` method.
-# All methods provide for saving the project before closing AEDT.
+# ### Save the project
 
-h3d.save_project(os.path.join(temp_dir.name, "test_layout.aedt"))
+h3d.save_project(os.path.join(temp_folder.name, "test_layout.aedt"))
 h3d.release_desktop()
+# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
+time.sleep(3)
 
-# ### Clean up the temporary directory
+# ### Clean up
 #
-# The following command removes the project and the temporary directory.
-# If you'd like to save this project, save it to a folder of your choice prior
-# to running the following cell.
+# All project files are saved in the folder ``temp_folder.name``.
+# If you've run this example as a Jupyter notebook, you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
-temp_dir.cleanup()
+temp_folder.cleanup()

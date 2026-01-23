@@ -5,9 +5,9 @@
 #
 # Keywords: **filter solutions**
 
-# ## Perform imports and define constants
+# ## Prerequisites
 #
-# Perform required imports.
+# ### Perform imports
 
 
 import ansys.aedt.core
@@ -19,9 +19,12 @@ from ansys.aedt.core.filtersolutions_core.ideal_response import (
     SParametersResponseColumn,
 )
 
-# Define constants.
+# ### Define constants
+# Constants help ensure consistency and avoid repetition throughout the example.
 
 AEDT_VERSION = "2025.2"
+NUM_CORES = 4
+NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Define function used for plotting
 #
