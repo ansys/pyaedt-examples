@@ -23,10 +23,25 @@ AEDT_VERSION = "2025.2"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
-# ## Create data classes
+# ### Create temporary directory
 #
-# Data classes are useful to do calculations and store variables.
-# There are three data classes: ``Patch``, ``Line``, and ``Array``.
+# Create a temporary working directory.
+# The name of the working folder is stored in ``temp_folder.name``.
+#
+# > **Note:** The final cell in the notebook cleans up the temporary folder. If you want to
+# > retrieve the AEDT project and data, do so before executing the final cell in the notebook.
+
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
+
+
+# ## Model Preparation
+#
+# ### Create primitive data classes to simplify geometry creation
+#
+# The ``Line``, ``Patch`` and ``Array`` classes wrap geometry
+# operations and properties into simple Python classes that help 
+# simplify the creation of the microstrip
+# array with the ``pyedb.Edb`` class. 
 
 # +
 class Patch:
@@ -79,16 +94,6 @@ class LinearArray:
 
 # -
 
-# ### Create temporary directory
-#
-# Create a temporary working directory.
-# The name of the working folder is stored in ``temp_folder.name``.
-#
-# > **Note:** The final cell in the notebook cleans up the temporary folder. If you want to
-# > retrieve the AEDT project and data, do so before executing the final cell in the notebook.
-
-temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
-
 # ### Launch EDB
 #
 # The ``pyedb.Edb`` class can be used open an existing Edb instance or instantiate
@@ -101,24 +106,29 @@ aedb_path = os.path.join(temp_folder.name, "linear_array.aedb")
 edb = pyedb.Edb(edbpath=aedb_path, version=AEDT_VERSION)
 # -
 
-# Build the stackup
+# ### Build the stackup
 
 # +
 layers = {
     "materials": {"copper_high_cond": {"conductivity": 60000000}},
     "layers": {
-        "TOP": {"type": "signal", "thicness": "35um", "material": "copper_high_cond"},
-        "Substrat": {"type": "dielectric", "thicness": "0.5mm", "material": "Duroid (tm)"},
-        "GND": {"type": "signal", "thicness": "35um", "material": "copper"},
-        "Gap": {"type": "dielectric", "thicness": "0.05mm", "material": "Air"},
-        "Virt_GND": {"type": "signal", "thicness": "35um", "material": "copper"},
+        "TOP": {"type": "signal", "thickness": "35um", "material": "copper_high_cond"},
+        "Substrat": {"type": "dielectric", "thickness": "0.5mm", "material": "Duroid (tm)"},
+        "GND": {"type": "signal", "thickness": "35um", "material": "copper"},
+        "Gap": {"type": "dielectric", "thickness": "0.05mm", "material": "Air"},
+        "Virt_GND": {"type": "signal", "thickness": "35um", "material": "copper"},
     },
 }
 
 edb.stackup.load(layers)
 # -
 
-# Create a patch antenna and feed line using the ``Patch`` and ``Line``classes.
+# ### Create a patch antenna and feed line
+#
+# Instances of the ``Patch`` and ``Line``classes are used to define the geometry. These 
+# classes provide for parameterization of the array layout.
+#
+# <img src="_static\5G_antenna_parametrics\array_params.svg" width="600">
 #
 # Define parameters:
 
@@ -131,12 +141,9 @@ edb["trace_w"] = 0.3e-3
 
 first_patch = Patch(width="w1", height="h1", position="initial_position")
 edb.modeler.create_polygon(first_patch.points, "TOP", net_name="Array_antenna")
-# -
-
-# First line
-
 first_line = Line(length="l1", width="trace_w", position=first_patch.width)
 edb.modeler.create_polygon(first_line.points, "TOP", net_name="Array_antenna")
+# -
 
 # Now use the ``LinearArray`` class to create the array.
 
@@ -243,7 +250,7 @@ edb.save_edb()
 edb.close_edb()
 print("EDB saved correctly to {}. You can import in AEDT.".format(aedb_path))
 
-# ## 3D component in HFSS
+# ## Open the component in Electronics Desktop
 #
 # First create an instance of the ``pyaedt.Hfss`` class. If you set
 # > ``non_graphical = False
@@ -268,8 +275,13 @@ h3d.modeler.model_units = "mm"
 
 # ## Import the EDB as a 3D component
 #
-# One or more layout components can be imported into HFSS.
-# The combination of layout data and 3D CAD data helps streamline model creation and setup.
+# The linear array can be imported into the 3D CAD interface of HFSS.
+# The ability to combine layout components with 3D components enables mesh
+# fusion and is very useful for building and simulating large assemblies.
+#
+# The following image shows the 3D layout component in the 3D CAD UI of HFSS.
+#
+# <img src="_static\5G_antenna_parametrics\layout_component_in_3d.svg" width="800">
 
 component = h3d.modeler.insert_layout_component(aedb_path, parameter_mapping=True)
 

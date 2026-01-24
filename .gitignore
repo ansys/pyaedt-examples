@@ -5,6 +5,9 @@ __pycache__/
 # C extensions
 *.so
 
+# Helper
+.claude/
+
 # Distribution / packaging
 bin/
 build/
@@ -114,3 +117,10 @@ venv.bak/
 
 # Generated example
 src/ansys/pyaedt/examples/simple_example.py
+
+# PowerPoint files
+*.ppt
+*.pptx
+*.pps
+*.ppsx
+
