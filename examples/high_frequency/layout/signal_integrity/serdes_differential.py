@@ -4,13 +4,14 @@
 # Database (EDB) interface to create a layout using the BOM and
 # a configuration file.
 
-# ## Perform imports and define constants
+# ## Prerequisites
 #
-# Perform required imports.
+# ### Perform imports
 
 # +
 import os
 import tempfile
+import time
 
 import ansys.aedt.core
 
@@ -18,22 +19,30 @@ import pyedb
 from pyedb.misc.downloads import download_file
 # -
 
-# Download the AEDB file and copy it to a temporary folder.
+# ### Define constants
+# Constants help ensure consistency and avoid repetition throughout the example.
 
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-target_aedb = download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
+AEDT_VERSION = "2025.2"
+NUM_CORES = 4
+NG_MODE = False  # Open AEDT UI when it is launched.
+
+# ### Create temporary directory
+#
+# Create a temporary working directory.
+# The name of the working folder is stored in ``temp_folder.name``.
+#
+# > **Note:** The final cell in the notebook cleans up the temporary folder. If you want to
+# > retrieve the AEDT project and data, do so before executing the final cell in the notebook.
+
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
+target_aedb = download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_folder.name)
 print("Project folder is", target_aedb)
 
-# ## Launch EDB
+# ### Launch EDB
 #
-# Launch the ``pyedb.Edb`` class using EDB 2023 R2. Length units are SI.
+# Launch the ``pyedb.Edb`` class. Length units are SI.
 
-# +
-# Select EDB version (change it manually if needed, e.g. "2025.1")
-edb_version = "2025.2"
-print(f"EDB version: {edb_version}")
-
-edbapp = pyedb.Edb(target_aedb, edbversion=edb_version)
+edbapp = pyedb.Edb(target_aedb, edbversion=AEDT_VERSION)
 # -
 
 # ## Import definitions
@@ -163,7 +172,7 @@ sim_setup.ac_settings.step_freq = "10MHz"
 #
 # The cutout and all other simulation settings are applied to the simulation model.
 
-sim_setup.export_json(os.path.join(temp_dir.name, "configuration.json"))
+sim_setup.export_json(os.path.join(temp_folder.name, "configuration.json"))
 edbapp.build_simulation_project(sim_setup)
 
 # ## Display the cutout
@@ -180,19 +189,17 @@ edbapp.nets.plot(None, None)
 edbapp.save_edb()
 edbapp.close_edb()
 
-# ## Open Electronics Desktop
+# ### Launch HFSS 3D Layout
 #
 # The EDB is opened in AEDT Hfss3DLayout.
 #
 # Set ``non_graphical=True`` to run the simulation in non-graphical mode.
 
-aedt_version = edb_version
-
 h3d = ansys.aedt.core.Hfss3dLayout(
-    version=aedt_version,
+    version=AEDT_VERSION,
     project=target_aedb,
-    non_graphical=False,
-    new_desktop=False,
+    non_graphical=NG_MODE,
+    new_desktop=True,
 )
 
 # ## Analyze
@@ -214,14 +221,20 @@ solutions = h3d.post.get_solution_data()
 
 solutions.plot(solutions.expressions, "db20")
 
-# ## Save and close AEDT
+# ## Finish
 #
-# HFSS 3D Layout is saved and closed.
+# ### Save the project
 
 h3d.save_project()
 h3d.release_desktop()
+# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
+time.sleep(3)
 
-# Clean up the temporary directory. All files and the temporary project
-# folder will be deleted in the next step.
+# ### Clean up
+#
+# All project files are saved in the folder ``temp_folder.name``.
+# If you've run this example as a Jupyter notebook, you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
-temp_dir.cleanup()
+temp_folder.cleanup()

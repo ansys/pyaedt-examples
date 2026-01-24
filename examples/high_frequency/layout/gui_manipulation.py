@@ -5,8 +5,9 @@
 #
 # Keywords: **HFSS 3D Layout**, **UI**, **user interface**.
 
-# ## Perform imports and define constants
-# Perform required imports.
+# ## Prerequisites
+#
+# ### Perform imports
 
 # +
 import sys
@@ -17,7 +18,8 @@ from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.examples.downloads import download_file
 # -
 
-# Define constants.
+# ### Define constants
+# Constants help ensure consistency and avoid repetition throughout the example.
 
 AEDT_VERSION = "2025.2"
 NUM_CORES = 4
@@ -29,13 +31,22 @@ if not NG_MODE:
     print("Warning: This example requires graphical mode enabled.")
     sys.exit()
 
-# Download example board.
+# ### Create temporary directory
+#
+# Create a temporary working directory.
+# The name of the working folder is stored in ``temp_folder.name``.
+#
+# > **Note:** The final cell in the notebook cleans up the temporary folder. If you want to
+# > retrieve the AEDT project and data, do so before executing the final cell in the notebook.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
+
+# Download example board.
+
 aedb = download_file(source="edb/ANSYS-HSD_V1.aedb", local_path=temp_folder.name)
 
 
-# ## Launch HFSS 3D Layout
+# ### Launch HFSS 3D Layout
 #
 # Initialize AEDT and launch HFSS 3D Layout.
 
@@ -78,14 +89,16 @@ bot.is_visible_component = False
 
 h3d.modeler.fit_all()
 
-# ## Release AEDT
+# ## Finish
+#
+# ### Save the project
 
 h3d.save_project()
 h3d.release_desktop()
 # Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-# ## Clean up
+# ### Clean up
 #
 # All project files are saved in the folder ``temp_folder.name``.
 # If you've run this example as a Jupyter notebook, you

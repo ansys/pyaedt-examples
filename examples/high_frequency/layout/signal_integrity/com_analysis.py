@@ -22,8 +22,9 @@
 #
 # Keywords: **COM**, **signal integrity**, **virtual compliance**.
 
-# ## Perform imports
-# Perform required imports.
+# ## Prerequisites
+#
+# ### Perform imports
 
 import os
 import tempfile
@@ -34,7 +35,14 @@ from ansys.aedt.core.visualization.post.spisim_com_configuration_files import (
 )
 from pyedb.misc.downloads import download_file
 
-# ## Create temporary directory and download example files
+# ### Define constants
+# Constants help ensure consistency and avoid repetition throughout the example.
+
+AEDT_VERSION = "2025.2"
+NUM_CORES = 4
+NG_MODE = False  # Open AEDT UI when it is launched.
+
+# ### Create temporary directory
 #
 # Create a temporary directory where downloaded data or
 # dumped data can be stored.

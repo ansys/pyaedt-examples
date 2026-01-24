@@ -7,10 +7,9 @@
 
 # <img src="_static/wgf.png" width="500">
 
-# ## Perform imports and define constants
+# ## Prerequisites
 #
-# Perform required imports.
-#
+# ### Perform imports
 
 # +
 import os
@@ -20,14 +19,13 @@ import time
 import ansys.aedt.core
 # -
 
-# Define constants.
+# ### Define constants
+# Constants help ensure consistency and avoid repetition throughout the example.
 
 AEDT_VERSION = "2025.2"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
-
-# ## Launch AEDT
 
 # ### Define parameters and values for waveguide iris filter
 #
@@ -55,16 +53,17 @@ wgparams = {
 }
 # -
 
-# ## Create temporary directory
+# ### Create temporary directory
 #
-# Create a temporary directory where downloaded data or
-# dumped data can be stored.
-# If you'd like to retrieve the project data for subsequent use,
-# the temporary folder name is given by ``temp_folder.name``.
+# Create a temporary working directory.
+# The name of the working folder is stored in ``temp_folder.name``.
+#
+# > **Note:** The final cell in the notebook cleans up the temporary folder. If you want to
+# > retrieve the AEDT project and data, do so before executing the final cell in the notebook.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ### Create HFSS design
+# ### Launch HFSS
 
 project_name = os.path.join(temp_folder.name, "waveguide.aedt")
 hfss = ansys.aedt.core.Hfss(
@@ -260,20 +259,20 @@ plot = hfss.post.plot_field(
     show=False,
 )
 
-# ## Release AEDT
+# ## Finish
 #
-#  The following command saves the project to a file and closes AEDT.
+# ### Save the project
 
 hfss.save_project()
 hfss.release_desktop()
 # Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-# ## Clean up
+# ### Clean up
 #
 # All project files are saved in the folder ``temp_folder.name``.
 # If you've run this example as a Jupyter notebook, you
-# can retrieve those project files. The following cell removes
-# all temporary files, including the project folder.
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
 temp_folder.cleanup()

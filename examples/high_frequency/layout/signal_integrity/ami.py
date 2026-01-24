@@ -4,9 +4,9 @@
 #
 # Keywords: **Circuit**, **AMI**.
 
-# ## Perform imports and define constants
+# ## Prerequisites
 #
-# Perform required imports.
+# ### Perform imports
 #
 # > **Note:** [Numpy](https://numpy.org/)
 # > and [Matplotlib](https://matplotlib.org/) are required to run this example.
@@ -22,12 +22,14 @@ import numpy as np
 from matplotlib import pyplot as plt
 # -
 
-# Define constants.
+# ### Define constants
+# Constants help ensure consistency and avoid repetition throughout the example.
 
 AEDT_VERSION = "2025.2"
+NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
-# ## Create temporary directory and download example files
+# ### Create temporary directory
 #
 # Create a temporary directory where downloaded data or
 # dumped data can be stored.
@@ -54,7 +56,7 @@ project_path = download_file(
 )
 
 
-# ## Launch AEDT with Circuit and enable Pandas as the output format
+# ### Launch Circuit
 #
 # All outputs obtained with the `get_solution_data()` method are in the
 # [Pandas](https://pandas.pydata.org/docs/user_guide/index.html) format.
@@ -334,18 +336,20 @@ ax2.set_xlabel("s")
 ax2.set_ylabel("V")
 plt.show()
 
-# ## Release AEDT
+# ## Finish
 #
-# Release AEDT and close the example.
+# ### Save the project
 
 circuit.save_project()
 circuit.release_desktop()
 # Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-# ## Clean up
+# ### Clean up
 #
-# All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook, you
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_folder.name``.
+# If you've run this example as a Jupyter notebook, you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
 temp_folder.cleanup()
