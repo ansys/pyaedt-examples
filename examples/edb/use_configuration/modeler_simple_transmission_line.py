@@ -9,7 +9,6 @@ import json
 import os
 import tempfile
 
-from ansys.aedt.core import Hfss3dLayout
 from pyedb import Edb
 # -
 

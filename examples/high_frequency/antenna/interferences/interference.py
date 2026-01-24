@@ -77,7 +77,8 @@ all_colors = []
 
 
 all_colors, power_matrix = rev.interference_type_classification(
-    domain, use_filter=False, filter_list=[]
+    domain, use_filter=False, filter_list=[],
+    interferer_type=InterfererType.TRANSMITTERS
 )
 
 # ## Release AEDT

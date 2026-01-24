@@ -16,6 +16,7 @@ import time
 
 import ansys.aedt.core
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
+from ansys.aedt.core.generic.constants import Plane, Gravity, SolutionsIcepak
 # -
 
 # Define constants.
@@ -66,7 +67,7 @@ hfss["inner"] = "3mm"  # Local "Design" scope.
 # Optionally, you can assign a material using the `assign_material()` method.
 
 o1 = hfss.modeler.create_cylinder(
-    orientation=hfss.PLANE.ZX,
+    orientation=Plane.ZX,
     origin=udp,
     radius="inner",
     height="$coax_dimension",
@@ -74,7 +75,7 @@ o1 = hfss.modeler.create_cylinder(
     name="inner",
 )
 o2 = hfss.modeler.create_cylinder(
-    orientation=hfss.PLANE.ZX,
+    orientation=Plane.ZX,
     origin=udp,
     radius=8,
     height="$coax_dimension",
@@ -82,7 +83,7 @@ o2 = hfss.modeler.create_cylinder(
     name="teflon_based",
 )
 o3 = hfss.modeler.create_cylinder(
-    orientation=hfss.PLANE.ZX,
+    orientation=Plane.ZX,
     origin=udp,
     radius=10,
     height="$coax_dimension",
@@ -214,7 +215,7 @@ ipk.assign_em_losses(
 # Set the direction of gravity for convection in Icepak. Gravity drives a temperature gradient
 # due to the dependence of gas density on temperature.
 
-ipk.edit_design_settings(hfss.GRAVITY.ZNeg)
+ipk.edit_design_settings(Gravity.ZNeg)
 
 # ## Set up Icepak Project
 #
@@ -255,7 +256,7 @@ ipk.assign_openings(airfaces)
 
 hfss.save_project()
 ipk = ansys.aedt.core.Icepak(version=AEDT_VERSION)
-ipk.solution_type = ipk.SOLUTIONS.Icepak.SteadyState
+ipk.solution_type = SolutionsIcepak.SteadyState
 ipk.modeler.fit_all()
 
 # ## Solve models
@@ -385,7 +386,7 @@ pdf_report.add_page_break()
 pdf_report.add_sub_chapter("S Parameters")
 pdf_report.add_chart(
     x_values=my_data.intrinsics["Freq"],
-    y_values=my_data.data_db20(),
+    y_values=my_data.get_expression_data(formula="db20")[1],
     x_caption="Freq",
     y_caption=trace_names[0],
     title="S-Parameters",
