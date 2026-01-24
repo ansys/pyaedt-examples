@@ -40,6 +40,12 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
+# ## Model Preparation
+#
+# Description of steps used to create and prepare the model for simulation.
+# Add as many sections as needed for preprocessing tasks. Use level 3 headers
+# for subsequent headers in this section.
+#
 # ### Launch application
 #
 # AEDT applications are accessed through Python classes.
@@ -67,12 +73,6 @@ m3d = ansys.aedt.core.Maxwell3d(
     non_graphical=NG_MODE,
     new_desktop=True,
 )
-
-# ## Model Preparation
-#
-# Description of steps used to create and prepare the model for simulation.
-# Add as many sections as needed for preprocessing tasks. Use level 3 headers
-# for subsequent headers in this section.
 
 # ### Create 3D model
 #
@@ -111,7 +111,7 @@ m3d.analyze_setup("Setup1")
 # ### Save the project
 
 m3d.save_project()
-m3d.release_desktop()
+m3d.desktop_class.release_desktop()
 # Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
