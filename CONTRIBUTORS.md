@@ -20,6 +20,7 @@
 * [Josh Salant](https://github.com/jsalant22)
 * [Kathy Pippert](https://github.com/PipKat)
 * [Lorenzo Vecchietti](https://github.com/lorenzovecchietti)
+* [Madeline Coleman](https://github.com/mcoleman-ansys)
 * [Massimo Capodiferro](https://github.com/maxcapodi78)
 * [Matthew Young](https://github.com/myoung301)
 * [Maxime Rey](https://github.com/MaxJPRey)
