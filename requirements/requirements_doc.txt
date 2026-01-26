@@ -40,4 +40,4 @@ sphinx_design==0.7.0 ; python_version > "3.10"
 sphinxcontrib-websupport==2.0.0
 jupytext==1.18.1
 nbconvert==7.16.6
-ipywidgets==8.1.7
+ipywidgets==8.1.8
