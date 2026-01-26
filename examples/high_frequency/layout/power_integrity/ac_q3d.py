@@ -54,7 +54,7 @@ output_q3d = os.path.join(project_dir, project_name + "_q3d.aedt")
 # Open the EDB project and create a cutout on the selected nets
 # before exporting to Q3D.
 
-edb = pyedb.Edb(aedb_project, edbversion=AEDT_VERSION)
+edb = pyedb.Edb(aedb_project, version=AEDT_VERSION)
 cutout_points = edb.cutout(
     ["CLOCK_I2C_SCL", "CLOCK_I2C_SDA"],
     ["GND"],
@@ -151,7 +151,7 @@ setup.dc_enabled = True
 setup.capacitance_enabled = False
 sweep = setup.add_sweep()
 sweep.add_subrange(
-    "LinearStep", 0, end=2, count=0.05, unit="GHz", save_single_fields=False, clear=True
+    "LinearStep", 0, end=2, count=0.05, unit="GHz", clear=True
 )
 setup.analyze(cores=NUM_CORES)
 

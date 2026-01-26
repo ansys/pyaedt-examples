@@ -15,6 +15,8 @@ import tempfile
 import time
 
 import ansys.aedt.core
+from ansys.aedt.core.generic.constants import MatrixOperationsQ2D
+
 # -
 
 # Define constants.
@@ -92,30 +94,20 @@ layer_3_uh = layer_3_lh + "+" + cond_h
 #
 # Create a positive signal.
 
-signal_p_1 = q2d.modeler.create_polyline(
-    points=[[0, layer_2_lh, 0], [sig_w, layer_2_lh, 0]], name="signal_p_1"
-)
+signal_p_1 = q2d.modeler.create_polyline(points=[[0, layer_2_lh, 0], [sig_w, layer_2_lh, 0]], name="signal_p_1")
 
-signal_p_2 = q2d.modeler.create_polyline(
-    points=[[0, layer_2_uh, 0], [sig_top_w, layer_2_uh, 0]], name="signal_p_2"
-)
+signal_p_2 = q2d.modeler.create_polyline(points=[[0, layer_2_uh, 0], [sig_top_w, layer_2_uh, 0]], name="signal_p_2")
 q2d.modeler.move([signal_p_2], [delta_w_half, 0, 0])
 q2d.modeler.connect([signal_p_1, signal_p_2])
-q2d.modeler.move(
-    assignment=[signal_p_1], vector=["{}+{}".format(co_gnd_w, clearance), 0, 0]
-)
+q2d.modeler.move(assignment=[signal_p_1], vector=["{}+{}".format(co_gnd_w, clearance), 0, 0])
 
 # ## Create negative signal
 #
 # Create a negative signal.
 
-signal_n_1 = q2d.modeler.create_polyline(
-    points=[[0, layer_2_lh, 0], [sig_w, layer_2_lh, 0]], name="signal_n_1"
-)
+signal_n_1 = q2d.modeler.create_polyline(points=[[0, layer_2_lh, 0], [sig_w, layer_2_lh, 0]], name="signal_n_1")
 
-signal_n_2 = q2d.modeler.create_polyline(
-    points=[[0, layer_2_uh, 0], [sig_top_w, layer_2_uh, 0]], name="signal_n_2"
-)
+signal_n_2 = q2d.modeler.create_polyline(points=[[0, layer_2_uh, 0], [sig_top_w, layer_2_uh, 0]], name="signal_n_2")
 
 q2d.modeler.move(assignment=[signal_n_2], vector=[delta_w_half, 0, 0])
 q2d.modeler.connect([signal_n_1, signal_n_2])
@@ -128,12 +120,8 @@ q2d.modeler.move(
 #
 # Create a reference ground plane.
 
-ref_gnd_u = q2d.modeler.create_rectangle(
-    origin=[0, layer_1_lh, 0], sizes=[model_w, cond_h], name="ref_gnd_u"
-)
-ref_gnd_l = q2d.modeler.create_rectangle(
-    origin=[0, layer_3_lh, 0], sizes=[model_w, cond_h], name="ref_gnd_l"
-)
+ref_gnd_u = q2d.modeler.create_rectangle(origin=[0, layer_1_lh, 0], sizes=[model_w, cond_h], name="ref_gnd_u")
+ref_gnd_l = q2d.modeler.create_rectangle(origin=[0, layer_3_lh, 0], sizes=[model_w, cond_h], name="ref_gnd_l")
 
 # ## Create dielectric
 #
@@ -197,13 +185,9 @@ q2d.assign_single_conductor(
 # Assign the Huray model on the signals.
 
 # +
-q2d.assign_huray_finitecond_to_edges(
-    signal_p_1.edges, radius="0.5um", ratio=3, name="b_" + signal_p_1.name
-)
+q2d.assign_huray_finitecond_to_edges(signal_p_1.edges, radius="0.5um", ratio=3, name="b_" + signal_p_1.name)
 
-q2d.assign_huray_finitecond_to_edges(
-    signal_n_1.edges, radius="0.5um", ratio=3, name="b_" + signal_n_1.name
-)
+q2d.assign_huray_finitecond_to_edges(signal_n_1.edges, radius="0.5um", ratio=3, name="b_" + signal_n_1.name)
 # -
 
 # ## Define differential pair
@@ -211,7 +195,7 @@ q2d.assign_huray_finitecond_to_edges(
 # Define the differential pair.
 
 matrix = q2d.insert_reduced_matrix(
-    operation_name=q2d.MATRIXOPERATIONS.DiffPair,
+    operation_name=MatrixOperationsQ2D.DiffPair,
     assignment=["signal_p_1", "signal_n_1"],
     reduced_matrix="diff_pair",
 )

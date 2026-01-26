@@ -14,6 +14,7 @@ import tempfile
 import time
 
 import ansys.aedt.core
+from ansys.aedt.core.generic.constants import Axis
 # -
 
 # Define constants.
@@ -58,7 +59,7 @@ hfss["w2"] = "100mm"
 # +
 wg1, p1, p2 = hfss.modeler.create_waveguide(
     [0, 0, 0],
-    hfss.AXIS.Y,
+    Axis.Y,
     "WG17",
     wg_thickness="w1",
     wg_length="w2",
@@ -75,8 +76,8 @@ model.plot(os.path.join(hfss.working_directory, "Image.jpg"))
 #
 # Create two wave ports on the sheets.
 
-hfss.wave_port(p1, integration_line=hfss.AxisDir.ZPos, name="1")
-hfss.wave_port(p2, integration_line=hfss.AxisDir.ZPos, name="2")
+hfss.wave_port(p1, integration_line=hfss.axis_directions.ZPos, name="1")
+hfss.wave_port(p2, integration_line=hfss.axis_directions.ZPos, name="2")
 
 # ## Create setup and frequency sweep
 #

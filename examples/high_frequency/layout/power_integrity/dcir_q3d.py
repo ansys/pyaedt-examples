@@ -16,6 +16,7 @@ import time
 
 import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_file
+from ansys.aedt.core.generic.constants import Axis, Plane
 import pyedb
 # -
 
@@ -57,7 +58,7 @@ output_q3d = os.path.join(temp_folder.name, project_name + "_q3d.aedt")
 # Open the EDB project and create a cutout on the selected nets
 # before exporting to Q3D.
 
-edb = pyedb.Edb(aedb_project, edbversion=AEDT_VERSION)
+edb = pyedb.Edb(aedb_project, version=AEDT_VERSION)
 signal_nets = ["1.2V_AVDLL_PLL", "1.2V_AVDDL", "1.2V_DVDDL", "NetR106_1"]
 ground_nets = ["GND"]
 cutout_points = edb.cutout(
@@ -153,13 +154,13 @@ q3d.delete_all_nets()
 # +
 q3d.modeler.create_coordinate_system(location_l2_1, name="L2")
 comp = q3d.modeler.insert_3d_component(coil, coordinate_system="L2")
-comp.rotate(q3d.AXIS.Z, -90)
+comp.rotate(Axis.Z, -90)
 comp.parameters["n_turns"] = "3"
 comp.parameters["d_wire"] = "100um"
 q3d.modeler.set_working_coordinate_system("Global")
 q3d.modeler.create_coordinate_system(location_l4_1, name="L4")
 comp2 = q3d.modeler.insert_3d_component(coil, coordinate_system="L4")
-comp2.rotate(q3d.AXIS.Z, -90)
+comp2.rotate(Axis.Z, -90)
 comp2.parameters["n_turns"] = "3"
 comp2.parameters["d_wire"] = "100um"
 q3d.modeler.set_working_coordinate_system("Global")
@@ -169,7 +170,7 @@ q3d.modeler.create_coordinate_system(location_r106_1, name="R106")
 comp3 = q3d.modeler.insert_3d_component(
     res, geometry_parameters={"$Resistance": 2000}, coordinate_system="R106"
 )
-comp3.rotate(q3d.AXIS.Z, -90)
+comp3.rotate(Axis.Z, -90)
 
 q3d.modeler.set_working_coordinate_system("Global")
 # -
@@ -201,15 +202,15 @@ q3d.plot(
 # assign sources and sinks on nets.
 
 # +
-sink_f = q3d.modeler.create_circle(q3d.PLANE.XY, location_u11_scl, 0.1)
-source_f1 = q3d.modeler.create_circle(q3d.PLANE.XY, location_u9_1_scl, 0.1)
-source_f2 = q3d.modeler.create_circle(q3d.PLANE.XY, location_u9_2_scl, 0.1)
-source_f3 = q3d.modeler.create_circle(q3d.PLANE.XY, location_u11_r106, 0.1)
+sink_f = q3d.modeler.create_circle(Plane.XY, location_u11_scl, 0.1)
+source_f1 = q3d.modeler.create_circle(Plane.XY, location_u9_1_scl, 0.1)
+source_f2 = q3d.modeler.create_circle(Plane.XY, location_u9_2_scl, 0.1)
+source_f3 = q3d.modeler.create_circle(Plane.XY, location_u11_r106, 0.1)
 sources_objs = [source_f1, source_f2, source_f3]
 
 q3d.auto_identify_nets()
 
-identified_net = q3d.nets[0]
+identified_net = q3d.net_names[0]
 
 q3d.sink(sink_f, net_name=identified_net)
 

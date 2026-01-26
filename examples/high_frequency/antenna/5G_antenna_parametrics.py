@@ -3,26 +3,44 @@
 # This example shows how you can use EDB to create a parametric component using
 # 3D Layout and use it in HFSS 3D.
 
-# ## Perform required imports
+# ## Prerequisites
 #
-# Perform required imports.
+# ### Perform imports
 
 # +
 import os
 import tempfile
+import time
 
 import ansys.aedt.core
 import pyedb
 # -
 
-# ## Set non-graphical mode
+# ### Define constants
+# Constants help ensure consistency and avoid repetition throughout the example.
 
-non_graphical = False
+AEDT_VERSION = "2025.2"
+NG_MODE = False  # Open AEDT UI when it is launched.
 
-# ## Create data classes
+# ### Create temporary directory
 #
-# Data classes are useful to do calculations and store variables.
-# There are three data classes: ``Patch``, ``Line``, and ``Array``.
+# Create a temporary working directory.
+# The name of the working folder is stored in ``temp_folder.name``.
+#
+# > **Note:** The final cell in the notebook cleans up the temporary folder. If you want to
+# > retrieve the AEDT project and data, do so before executing the final cell in the notebook.
+
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
+
+
+# ## Model Preparation
+#
+# ### Create primitive data classes to simplify geometry creation
+#
+# The ``Line``, ``Patch`` and ``Array`` classes wrap geometry
+# operations and properties into simple Python classes that help 
+# simplify the creation of the microstrip
+# array with the ``pyedb.Edb`` class. 
 
 # +
 class Patch:
@@ -75,37 +93,41 @@ class LinearArray:
 
 # -
 
-# ## Launch EDB
+# ### Launch EDB
 #
-# PyEDB.Edb allows to open existing Edb project or create a new empty project.
+# The ``pyedb.Edb`` class can be used open an existing Edb instance or instantiate
+# a new EDB project.
 
 # +
-temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-aedb_path = os.path.join(temp_dir.name, "linear_array.aedb")
-
-# Select EDB version (change it manually if needed, e.g. "2025.1")
-edb_version = "2025.2"
-print(f"EDB version: {edb_version}")
+aedb_path = os.path.join(temp_folder.name, "linear_array.aedb")
 
 # Create an instance of the Edb class.
-edb = pyedb.Edb(edbpath=aedb_path, edbversion=edb_version)
+edb = pyedb.Edb(edbpath=aedb_path, version=AEDT_VERSION)
 # -
 
-# Add stackup layers
+# ### Build the stackup
+
+# +
 layers = {
     "materials": {"copper_high_cond": {"conductivity": 60000000}},
     "layers": {
-        "TOP": {"type": "signal", "thicness": "35um", "material": "copper_high_cond"},
-        "Substrat": {"type": "dielectric", "thicness": "0.5mm", "material": "Duroid (tm)"},
-        "GND": {"type": "signal", "thicness": "35um", "material": "copper"},
-        "Gap": {"type": "dielectric", "thicness": "0.05mm", "material": "Air"},
-        "Virt_GND": {"type": "signal", "thicness": "35um", "material": "copper"},
+        "TOP": {"type": "signal", "thickness": "35um", "material": "copper_high_cond"},
+        "Substrat": {"type": "dielectric", "thickness": "0.5mm", "material": "Duroid (tm)"},
+        "GND": {"type": "signal", "thickness": "35um", "material": "copper"},
+        "Gap": {"type": "dielectric", "thickness": "0.05mm", "material": "Air"},
+        "Virt_GND": {"type": "signal", "thickness": "35um", "material": "copper"},
     },
 }
 
 edb.stackup.load(layers)
+# -
 
-# Create the first patch and feed line using the ``Patch``, ``Line``classes defined above.
+# ### Create a patch antenna and feed line
+#
+# Instances of the ``Patch`` and ``Line``classes are used to define the geometry. These 
+# classes provide for parameterization of the array layout.
+#
+# <img src="_static\5G_antenna_parametrics\array_params.svg" width="600">
 #
 # Define parameters:
 
@@ -118,12 +140,9 @@ edb["trace_w"] = 0.3e-3
 
 first_patch = Patch(width="w1", height="h1", position="initial_position")
 edb.modeler.create_polygon(first_patch.points, "TOP", net_name="Array_antenna")
-# -
-
-# First line
-
 first_line = Line(length="l1", width="trace_w", position=first_patch.width)
 edb.modeler.create_polygon(first_line.points, "TOP", net_name="Array_antenna")
+# -
 
 # Now use the ``LinearArray`` class to create the array.
 
@@ -230,7 +249,7 @@ edb.save_edb()
 edb.close_edb()
 print("EDB saved correctly to {}. You can import in AEDT.".format(aedb_path))
 
-# ## 3D component in HFSS
+# ## Open the component in Electronics Desktop
 #
 # First create an instance of the ``pyaedt.Hfss`` class. If you set
 # > ``non_graphical = False
@@ -240,11 +259,11 @@ print("EDB saved correctly to {}. You can import in AEDT.".format(aedb_path))
 # All commands can be run without the UI by changing the value of ``non_graphical``.
 
 h3d = ansys.aedt.core.Hfss(
-    projectname="Demo_3DComp",
-    designname="Linear_Array",
-    specified_version="2025.2",
-    new_desktop_session=True,
-    non_graphical=non_graphical,
+    project="Demo_3DComp",
+    design="Linear_Array",
+    version=AEDT_VERSION,
+    new_desktop=True,
+    non_graphical=NG_MODE,
     close_on_exit=True,
     solution_type="Terminal",
 )
@@ -255,8 +274,13 @@ h3d.modeler.model_units = "mm"
 
 # ## Import the EDB as a 3D component
 #
-# One or more layout components can be imported into HFSS.
-# The combination of layout data and 3D CAD data helps streamline model creation and setup.
+# The linear array can be imported into the 3D CAD interface of HFSS.
+# The ability to combine layout components with 3D components enables mesh
+# fusion and is very useful for building and simulating large assemblies.
+#
+# The following image shows the 3D layout component in the 3D CAD UI of HFSS.
+#
+# <img src="_static\5G_antenna_parametrics\layout_component_in_3d.svg" width="800">
 
 component = h3d.modeler.insert_layout_component(aedb_path, parameter_mapping=True)
 
@@ -302,7 +326,7 @@ setup.props["MaximumPasses"] = 10
 
 # Specify properties of the frequency sweep:
 
-sweep1 = setup.add_sweep(sweepname="20GHz_to_50GHz")
+sweep1 = setup.add_sweep(name="20GHz_to_50GHz")
 sweep1.props["RangeStart"] = "20GHz"
 sweep1.props["RangeEnd"] = "50GHz"
 sweep1.update()
@@ -362,19 +386,20 @@ h3d.post.create_fieldplot_layers_nets(
     plot_name="E_Layers",
 )
 
-# ## Close AEDT
+# ## Finish
 #
-# After the simulation completes, the application can be released from the
-# :func:`ansys.aedt.core.Desktop.release_desktop` method.
-# All methods provide for saving the project before closing AEDT.
+# ### Save the project
 
-h3d.save_project(os.path.join(temp_dir.name, "test_layout.aedt"))
+h3d.save_project(os.path.join(temp_folder.name, "test_layout.aedt"))
 h3d.release_desktop()
+# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
+time.sleep(3)
 
-# ### Clean up the temporary directory
+# ### Clean up
 #
-# The following command removes the project and the temporary directory.
-# If you'd like to save this project, save it to a folder of your choice prior
-# to running the following cell.
+# All project files are saved in the folder ``temp_folder.name``.
+# If you've run this example as a Jupyter notebook, you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
-temp_dir.cleanup()
+temp_folder.cleanup()

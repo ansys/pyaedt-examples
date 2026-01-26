@@ -16,6 +16,7 @@ import time
 
 import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_sbr
+
 # -
 
 # Define constants.
@@ -63,9 +64,7 @@ source = ansys.aedt.core.Hfss(
 #
 # Define a linked antenna. This is HFSS far field applied to HFSS SBR+.
 
-target.create_sbr_linked_antenna(
-    source, target_cs="feederPosition", field_type="farfield"
-)
+target.create_sbr_linked_antenna(source, target_cs="feederPosition", field_type="farfield")
 
 # ## Assign boundaries
 #
@@ -91,7 +90,7 @@ target.analyze(cores=NUM_CORES)
 #
 # Plot results in AEDT.
 
-variations = target.available_variations.nominal_w_values_dict
+variations = target.available_variations.get_independent_nominal_values()
 variations["Freq"] = ["10GHz"]
 variations["Theta"] = ["All"]
 variations["Phi"] = ["All"]
