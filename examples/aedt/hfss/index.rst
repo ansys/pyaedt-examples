@@ -229,10 +229,10 @@ These examples use PyAEDT to show HFSS capabilities
 
    .. grid-item-card:: HFSS-Icepak microwave oven analysis
       :padding: 2 2 2 2
-      :link: microwave_oven
+      :link: ../../high_frequency/multiphysics/microwave_oven
       :link-type: doc
 
-      .. image:: ../../hig_frequency/multiphysics/_static/oven.png
+      .. image:: ../../high_frequency/multiphysics/_static/oven.png
          :alt: Microwave Oven
          :width: 250px
          :height: 200px
@@ -261,3 +261,4 @@ These examples use PyAEDT to show HFSS capabilities
       ../../high_frequency/radiofrequency_mmwave/spiral
       ../../electrothermal/coaxial_hfss_icepak
       ../../electrothermal/icepak_circuit_hfss_coupling
+      ../../high_frequency/multiphysics/microwave_oven

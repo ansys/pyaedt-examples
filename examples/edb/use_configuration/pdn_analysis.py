@@ -11,6 +11,8 @@ import json
 import os
 import tempfile
 
+import matplotlib.pyplot as plt
+
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.examples.downloads import download_file
 from pyedb import Edb
@@ -169,7 +171,15 @@ h3d.analyze()
 # ## Plot impedance
 
 solutions = h3d.post.get_solution_data(expressions="Z(port1,port1)")
-solutions.plot()
+plot_data = solutions.get_expression_data(convert_to_SI=True, formula="mag")
+x, y = plot_data
+plt.plot(x, y)
+plt.title("PDN Impedance")
+plt.xlabel("Frequency [GHz]")
+plt.ylabel("Z(port1,port1)")
+plt.xscale("log")
+plt.yscale("log")
+plt.show()
 
 # ## Shut Down Electronics Desktop
 

@@ -51,16 +51,13 @@ m3d = Maxwell3d(
 #
 # Set up the Maxwell solution to DC.
 
-solutions = SolutionsMaxwell3D.versioned(AEDT_VERSION)
-m3d.solution_type = solutions.ElectroDCConduction
+m3d.solution_type = SolutionsMaxwell3D.ElectroDCConduction
 
 # ## Create conductor
 #
 # Create a conductor using copper, a predefined material in the Maxwell material library.
 
-conductor = m3d.modeler.create_box(
-    origin=[7, 4, 22], sizes=[10, 5, 30], name="Conductor", material="copper"
-)
+conductor = m3d.modeler.create_box(origin=[7, 4, 22], sizes=[10, 5, 30], name="Conductor", material="copper")
 
 # ## Create setup and assign voltage
 
