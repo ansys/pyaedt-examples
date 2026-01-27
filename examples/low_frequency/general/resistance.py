@@ -313,7 +313,7 @@ pdf_report.save_pdf(temp_folder.name, "AEDT_Results.pdf")
 # ## Release AEDT
 
 m2d.save_project()
-m2d.release_desktop(False, False)
+m2d.release_desktop()
 # Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
