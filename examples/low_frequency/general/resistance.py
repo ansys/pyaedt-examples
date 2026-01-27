@@ -18,7 +18,8 @@ import time
 import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_file
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
-import examples.extest
+from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.generic.numbers_utils import is_close
 # -
 
 # Define constants.
@@ -29,6 +30,7 @@ NUM_CORES = 4
 
 # The following variables serve only for the example testing purpose
 
+settings.enable_error_handler = False
 RESISTANCE_REF = 1.6724005905658806e-5 # reference resistance value (2025.1)
 CONV_ERROR = 0.01 # percentage error
 FILE = Path(__file__)
@@ -322,9 +324,10 @@ pdf_report.save_pdf(temp_folder.name, "AEDT_Results.pdf")
 
 # ## Check whether the example has run to completion
 #
-# The following function is only used to test if this PyAEDT example runs correctly.
+# Test if this example runs correctly.
 
-examples.extest.reference_check(resistance[0], RESISTANCE_REF, CONV_ERROR, FILE)
+if is_close(float(resistance[0]), RESISTANCE_REF, CONV_ERROR) is False:
+    raise ValueError(f"Error value mismatch in example file: {Path(FILE).name}")
 
 # ## Release AEDT
 
