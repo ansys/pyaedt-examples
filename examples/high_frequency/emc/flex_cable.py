@@ -5,56 +5,52 @@
 #
 # Keywords: **HFSS**, **flex cable**, **CPWG**.
 
-# ## Perform imports and define constants
+# ## Prerequisites
 #
-# Perform required imports.
+# ### Perform imports
 
 # +
-import os
 import tempfile
+import time
 from math import cos, radians, sin, sqrt
+from pathlib import Path
 
 import ansys.aedt.core
-from ansys.aedt.core.generic.file_utils import generate_unique_name
+
+from examples.low_frequency.motor.aedt_motor.rmxpert import project_name
+
 # -
 
-# Define constants.
+# ### Define constants
+# Constants help ensure consistency and avoid repetition throughout the example.
 
 AEDT_VERSION = "2025.2"
+NG_MODE = False  # Open AEDT UI when it is launched.
 
-# ## Set non-graphical mode
+# ### Create temporary directory
 #
-# Set non-graphical mode.
-# You can set ``non_graphical`` either to ``True`` or ``False``.
-
-non_graphical = False
-
-# ## Create temporary directory
+# Create a temporary working directory.
+# The name of the working folder is stored in ``temp_folder.name``.
 #
-# Create a temporary directory where downloaded data or
-# dumped data can be stored.
-# If you'd like to retrieve the project data for subsequent use,
-# the temporary folder name is given by ``temp_folder.name``.
+# > **Note:** The final cell in the notebook cleans up the temporary folder. If you want to
+# > retrieve the AEDT project and data, do so before executing the final cell in the notebook.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ## Launch AEDT
+# ### Launch HFSS
 #
 # Launch AEDT, create an HFSS design, and save the project.
 
 hfss = ansys.aedt.core.Hfss(
     version=AEDT_VERSION,
+    project_name=Path(temp_folder.name) / "flex_cable.aedt",
     solution_type="DrivenTerminal",
     new_desktop=True,
-    non_graphical=non_graphical,
+    non_graphical=NG_MODE,
 )
-hfss.save_project(
-    os.path.join(temp_folder.name, generate_unique_name("example") + ".aedt")
-)
+hfss.save_project()
 
-# ## Modify design settings
-#
-# Modify some design settings.
+# ### Update design settings
 
 hfss.change_material_override(True)
 hfss.change_automatically_use_causal_materials(True)
@@ -62,9 +58,9 @@ hfss.create_open_region("100GHz")
 hfss.modeler.model_units = "mil"
 hfss.mesh.assign_initial_mesh_from_slider(curvilinear=True)
 
-# ## Create variables
+# ### Create variables
 #
-# Create input variables for creating the flex cable CPWG.
+# Create input variables for creating the flex cable coplanar waveguide.
 
 # +
 total_length = 300
@@ -79,13 +75,13 @@ gnd_thickness = 2
 xt = (total_length - r * radians(theta)) / 2
 # -
 
-# ## Create bend
+# ### Define a function to bend the flex cable
 #
 # The ``create_bending()`` method creates a list of points for
-# the bend based on the curvature radius and extension.
+# the bend based on the radius of curvature and extension.
 
 
-def create_bending(radius, extension=0):
+def create_bend(radius, extension=0):
     points = [(-xt, 0, -radius), (0, 0, -radius)]
 
     for i in [radians(i) for i in range(theta)] + [radians(theta + 0.000000001)]:
@@ -100,12 +96,11 @@ def create_bending(radius, extension=0):
     points[-1] = (x, y, z)
     return points
 
-
-# ## Draw signal line
+### Build the model
 #
 # Draw a signal line to create a bent signal wire.
 
-points = create_bending(r, 1)
+points = create_bend(r, 1)
 line = hfss.modeler.create_polyline(
     points=points,
     xsection_type="Rectangle",
@@ -114,8 +109,6 @@ line = hfss.modeler.create_polyline(
     material="copper",
 )
 
-# ## Draw ground line
-#
 # Draw a ground line to create two bent ground wires.
 
 # +
@@ -135,12 +128,10 @@ for gnd in [gnd_r, gnd_l]:
     gnd_objs.append(x)
 # -
 
-# ## Draw dielectric
-#
 # Draw a dielectric to create a dielectric cable.
 
 # +
-points = create_bending(r + (height + gnd_thickness) / 2)
+points = create_bend(r + (height + gnd_thickness) / 2)
 
 fr4 = hfss.modeler.create_polyline(
     points=points,
@@ -151,12 +142,10 @@ fr4 = hfss.modeler.create_polyline(
 )
 # -
 
-# ## Create bottom metals
-#
-# Create the bottom metals.
+# Create the bottom metal.
 
 # +
-points = create_bending(r + height + gnd_thickness, 1)
+points = create_bend(r + height + gnd_thickness, 1)
 
 bot = hfss.modeler.create_polyline(
     points=points,
@@ -167,7 +156,7 @@ bot = hfss.modeler.create_polyline(
 )
 # -
 
-# ## Create port interfaces
+# ### Assign sources and boundary conditions
 #
 # Create port interfaces (PEC enclosures).
 
@@ -198,8 +187,6 @@ for face, blockname in zip([fr4.top_face_z, fr4.bottom_face_x], ["b1", "b2"]):
 
     print(port_faces)
 
-# ## Create boundary condition
-#
 # Creates a Perfect E boundary condition.
 
 boundary = []
@@ -208,8 +195,6 @@ for face in [fr4.top_face_y, fr4.bottom_face_y]:
     boundary.append(s)
     hfss.assign_perfecte_to_sheets(s)
 
-# ## Create ports
-#
 # Create ports.
 
 for s, port_name in zip(port_faces, ["1", "2"]):
@@ -217,9 +202,9 @@ for s, port_name in zip(port_faces, ["1", "2"]):
 
     hfss.wave_port(s.id, name=port_name, reference=reference)
 
-# ## Create setup and sweep
+# ### Specify the solution setup
 #
-# Create the setup and sweep.
+# Create the setup and frequency sweep.
 
 setup = hfss.create_setup("setup1")
 setup["Frequency"] = "2GHz"
@@ -236,9 +221,17 @@ hfss.create_linear_count_sweep(
     sweep_type="Interpolating",
 )
 
-# ## Release AEDT
+# The model is now ready to analyze.
+#
+# ## Finish
+#
+# ### Save the project
 
+hfss.save_project()
 hfss.release_desktop()
+# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
+time.sleep(3)
+
 
 # ## Clean up
 #
