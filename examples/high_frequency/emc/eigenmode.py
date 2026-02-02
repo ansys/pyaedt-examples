@@ -58,7 +58,7 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-## Model Preparation
+# # Model Preparation
 #
 # ### Download the model
 #
@@ -68,27 +68,22 @@ project_path = download_file(
     "eigenmode", "emi_PCB_house.aedt", temp_folder.name
 )
 
-# ### Launch AEDT
-
-d = ansys.aedt.core.launch_desktop(
-    AEDT_VERSION,
-    non_graphical=NG_MODE,
-    new_desktop=True,
-)
-
-# ### Insert an HFSS design
+# ### Launch Ansys Electronics Desktop (AEDT)
 #
 # Create an HFSS design.
 
 hfss = ansys.aedt.core.Hfss(
-    version=AEDT_VERSION, project=project_path, non_graphical=NG_MODE
+    project=project_path,
+    version=AEDT_VERSION,
+    non_graphical=NG_MODE,
+    new_desktop=True,
 )
 
-# ### Input parameters for Eigenmode solver
+# ### Define parameters for the eigenmode search
 #
 #  - ``num_modes``: Number of modes to be sought during each iteration. HFSS limits the
 #    maximum number of modes to 20. In practice, fewer than 10 modes should be used
-#    for the search to avoid potentially long simulation times during the search.
+#    for the search to improve simulation time during the search.
 #  - ``fmin``: The minimum frequency for the global search in GHz.
 #  - ``fmax``: The maximum frequency for the global search (GHz). When a mode is found having
 #    a frequency greater than or equal to this value, the iterations end.
@@ -101,11 +96,14 @@ fmax = 2
 limit = 10
 resonance = {}
 
-# ### Define resonance search function
+# ### Eigenmode search function
 #
-# The following function can be used to create and solve an Eigenmode setup.
-# After solving the model, information about each mode is returned and can
-# be saved for subsequent processing.
+# The function ``find_resonance()`` defines the setup to use for eigenmode
+# analysis, solves the design using the setup and returns the frequencies and quality
+# factor for a limited number of modes.
+# The function will be used later in this example inside a ``while``
+# loop to extract all physical resonant modes for a metal enclosure
+# over a wide bandwidth.
 
 
 def find_resonance():
@@ -140,26 +138,20 @@ def find_resonance():
             setup_sweep_name=f"{setup_name} : LastAdaptive",
             report_category="Eigenmode",
         )
-        data[i] = [eigen_q_value.data_real()[0], eigen_mode_value.data_real()[0]]
+        data[i] = [eigen_q_value.get_expression_data(formula="real")[0],
+                   eigen_mode_value.get_expression_data(formula="real")[0]]
 
     print(data)
     return data
 
-## Automate the search for eigenmodes
+# ### Automate the search for eigenmodes
 #
-# The ``find_resonance()`` function will be called in a ``while``
-# loop until the complete
-# frequency range has been covered.
-# The filtered, physical modes covering the entire
-# frequency range will then be reported.
-#
-# Initialization of the ``while`` loop:
+# Initialize varibles for the ``while`` loop:
 
-next_fmin = fmin
-setup_nr = 1
+next_fmin = fmin  # Lowest frequency for the eigenmode search
+setup_nr = 1      # Current iteration in the search loop.
 
-# Run the search for all physical modes in the
-# structure:
+# Run the search for all physical modes.
 
 # +
 while next_fmin < fmax:
@@ -181,7 +173,7 @@ print(str(resonance_frequencies))
 hfss.modeler.fit_all()
 hfss.plot(
     show=False,
-    output_file=os.path.join(hfss.working_directory, "Image.jpg"),
+    output_file=Path(hfss.working_directory) / "Image.jpg",
     plot_air_objects=False,
 )
 
@@ -190,7 +182,7 @@ hfss.plot(
 # ### Save the project
 
 hfss.save_project()
-d.release_desktop()
+hfss.release_desktop()
 # Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
