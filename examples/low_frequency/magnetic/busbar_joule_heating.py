@@ -20,6 +20,7 @@ import math
 import os
 import tempfile
 import time
+
 import ansys.aedt.core  # Interface to Ansys Electronics Desktop
 
 # -
@@ -82,26 +83,18 @@ m3d.modeler.model_units = "mm"
 #
 # Build the busbar geometry including main conductor and terminal tabs.
 # Main busbar
-busbar = m3d.modeler.create_box(
-    origin=[0, 0, 0], sizes=[BUSBAR_L, BUSBAR_W, BUSBAR_H], name="MainBusbar"
-)
+busbar = m3d.modeler.create_box(origin=[0, 0, 0], sizes=[BUSBAR_L, BUSBAR_W, BUSBAR_H], name="MainBusbar")
 m3d.assign_material(busbar, "copper")
 
 # Input tabs
-input_tab1 = m3d.modeler.create_box(
-    origin=[-TAB_L, 1.0, 0.0], sizes=[TAB_L, TAB_W, BUSBAR_H], name="InputTab1"
-)
+input_tab1 = m3d.modeler.create_box(origin=[-TAB_L, 1.0, 0.0], sizes=[TAB_L, TAB_W, BUSBAR_H], name="InputTab1")
 m3d.assign_material(input_tab1, "copper")
 
-input_tab2 = m3d.modeler.create_box(
-    origin=[-TAB_L, 6.0, 0.0], sizes=[TAB_L, TAB_W, BUSBAR_H], name="InputTab2"
-)
+input_tab2 = m3d.modeler.create_box(origin=[-TAB_L, 6.0, 0.0], sizes=[TAB_L, TAB_W, BUSBAR_H], name="InputTab2")
 m3d.assign_material(input_tab2, "copper")
 
 # Output tab
-output_tab = m3d.modeler.create_box(
-    origin=[BUSBAR_L, 3.0, 0.0], sizes=[TAB_L, 4.0, BUSBAR_H], name="OutputTab"
-)
+output_tab = m3d.modeler.create_box(origin=[BUSBAR_L, 3.0, 0.0], sizes=[TAB_L, 4.0, BUSBAR_H], name="OutputTab")
 m3d.assign_material(output_tab, "copper")
 
 # Unite all parts
@@ -128,22 +121,14 @@ input_face2 = left_faces[1].id if len(left_faces) > 1 else left_faces[0].id
 output_face = right_faces[0].id
 
 # Assign current excitations (following Kirchhoff's current law)
-current1 = m3d.assign_current(
-    assignment=input_face1, amplitude=I1, phase=0, name="InputCurrent1"
-)
+current1 = m3d.assign_current(assignment=input_face1, amplitude=I1, phase=0, name="InputCurrent1")
 
-current2 = m3d.assign_current(
-    assignment=input_face2, amplitude=I2, phase=0, name="InputCurrent2"
-)
+current2 = m3d.assign_current(assignment=input_face2, amplitude=I2, phase=0, name="InputCurrent2")
 
-current3 = m3d.assign_current(
-    assignment=output_face, amplitude=-(I1 + I2), phase=0, name="OutputCurrent"
-)
+current3 = m3d.assign_current(assignment=output_face, amplitude=-(I1 + I2), phase=0, name="OutputCurrent")
 
 # Create air region for boundary conditions
-air = m3d.modeler.create_air_region(
-    x_pos=0, y_pos=50, z_pos=100, x_neg=0, y_neg=50, z_neg=100
-)
+air = m3d.modeler.create_air_region(x_pos=0, y_pos=50, z_pos=100, x_neg=0, y_neg=50, z_neg=100)
 
 # ### Define solution setup
 #
@@ -199,13 +184,9 @@ else:
 # Create field plots to visualize current density, electric field, and power loss distributions.
 
 if RUN_SOLVER:
-    j_plot = m3d.post.create_fieldplot_surface(
-        assignment=conductor.name, quantity="Mag_J", plot_name="Current_Density_Magnitude"
-    )
+    j_plot = m3d.post.create_fieldplot_surface(assignment=conductor.name, quantity="Mag_J", plot_name="Current_Density_Magnitude")
 
-    e_plot = m3d.post.create_fieldplot_surface(
-        assignment=conductor.name, quantity="Mag_E", plot_name="Electric_Field_Magnitude"
-    )
+    e_plot = m3d.post.create_fieldplot_surface(assignment=conductor.name, quantity="Mag_E", plot_name="Electric_Field_Magnitude")
 
     joule_plot = m3d.post.create_fieldplot_volume(
         assignment=conductor.name,
@@ -232,7 +213,7 @@ loss_density = (total_loss / busbar_volume) if busbar_volume else 0.0
 print(f"Loss density: {loss_density:.8f} W/mm³")
 
 # Equivalent DC resistance
-resistance = (total_loss / (total_current ** 2)) if total_current else 0.0
+resistance = (total_loss / (total_current**2)) if total_current else 0.0
 resistance_micro = resistance * 1e6
 print(f"Equivalent DC resistance: {resistance_micro:.2f} µΩ")
 
@@ -247,19 +228,15 @@ print(f"Skin depth at {FREQ} Hz: {skin_depth_mm:.3f} mm")
 current_density = (total_current / (BUSBAR_W * BUSBAR_H)) if (BUSBAR_W * BUSBAR_H) else 0.0
 print(f"Average current density: {current_density:.2f} A/mm²")
 
-power_per_amp_squared = (total_loss / (total_current ** 2)) if total_current else 0.0
+power_per_amp_squared = (total_loss / (total_current**2)) if total_current else 0.0
 print(f"Power per A²: {power_per_amp_squared * 1e6:.2f} µW/A²")
 
 # Comparison with conductor thickness
 if BUSBAR_H < 2 * skin_depth_mm:
-    print(
-        f"Note: Busbar thickness ({BUSBAR_H}mm) < 2×skin depth ({2 * skin_depth_mm:.1f}mm)"
-    )
+    print(f"Note: Busbar thickness ({BUSBAR_H}mm) < 2×skin depth ({2 * skin_depth_mm:.1f}mm)")
     print(f"      Skin effect is significant - current distribution is non-uniform")
 else:
-    print(
-        f"Note: Busbar thickness ({BUSBAR_H}mm) > 2×skin depth ({2 * skin_depth_mm:.1f}mm)"
-    )
+    print(f"Note: Busbar thickness ({BUSBAR_H}mm) > 2×skin depth ({2 * skin_depth_mm:.1f}mm)")
     print(f"      Current flows mainly near surfaces due to skin effect")
 
 print("\n--- Field Plot Information ---")
