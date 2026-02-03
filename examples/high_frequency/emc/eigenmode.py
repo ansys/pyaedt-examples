@@ -76,7 +76,7 @@ hfss = ansys.aedt.core.Hfss(
     project=project_path,
     version=AEDT_VERSION,
     non_graphical=NG_MODE,
-    new_desktop=True,
+ #   new_desktop=True,
 )
 
 # ### Define parameters for the eigenmode search
@@ -138,8 +138,8 @@ def find_resonance():
             setup_sweep_name=f"{setup_name} : LastAdaptive",
             report_category="Eigenmode",
         )
-        data[i] = [eigen_q_value.get_expression_data(formula="real")[0],
-                   eigen_mode_value.get_expression_data(formula="real")[0]]
+        data[i] = [eigen_q_value.get_expression_data()[1][0],
+                   eigen_mode_value.get_expression_data()[1][0]]
 
     print(data)
     return data
