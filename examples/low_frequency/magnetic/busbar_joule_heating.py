@@ -244,6 +244,7 @@ print("Current density magnitude (|J|): Shows current distribution")
 print("Electric field magnitude (|E|): Shows electric field intensity")
 print("Joule heating distribution: Shows power loss density")
 
+
 # ## Finish
 #
 # ### Save the project
