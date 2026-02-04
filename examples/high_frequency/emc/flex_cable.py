@@ -16,9 +16,6 @@ from math import cos, radians, sin, sqrt
 from pathlib import Path
 
 import ansys.aedt.core
-
-from examples.low_frequency.motor.aedt_motor.rmxpert import project_name
-
 # -
 
 # ### Define constants
@@ -37,13 +34,16 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ### Launch HFSS
+# ## Model preparation
 #
-# Launch AEDT, create an HFSS design, and save the project.
+# HFSS will be launched and a rigid flex cable model 
+# will be created.
+#
+# ### Launch HFSS
 
 hfss = ansys.aedt.core.Hfss(
     version=AEDT_VERSION,
-    project_name=Path(temp_folder.name) / "flex_cable.aedt",
+    project=Path(temp_folder.name) / "flex_cable.aedt",
     solution_type="DrivenTerminal",
     new_desktop=True,
     non_graphical=NG_MODE,
@@ -96,7 +96,7 @@ def create_bend(radius, extension=0):
     points[-1] = (x, y, z)
     return points
 
-### Build the model
+# ## Build the model
 #
 # Draw a signal line to create a bent signal wire.
 
