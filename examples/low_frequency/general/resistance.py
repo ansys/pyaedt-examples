@@ -11,7 +11,6 @@
 
 # +
 import os.path
-from pathlib import Path
 import tempfile
 import time
 
@@ -33,7 +32,7 @@ NUM_CORES = 4
 settings.enable_error_handler = False
 RESISTANCE_REF = 1.6724005905658806e-5 # reference resistance value (2025.1)
 CONV_ERROR = 0.01 # percentage error
-FILE = Path(__file__)
+FILE = "resistance.py" # file name of the example
 
 # ## Create temporary directory
 #
@@ -327,7 +326,7 @@ pdf_report.save_pdf(temp_folder.name, "AEDT_Results.pdf")
 # Test if this example runs correctly.
 
 if is_close(float(resistance[0]), RESISTANCE_REF, CONV_ERROR) is False:
-    raise ValueError(f"Error value mismatch in example file: {Path(FILE).name}")
+    raise ValueError(f"Error value mismatch in example file: {FILE}")
 
 # ## Release AEDT
 
