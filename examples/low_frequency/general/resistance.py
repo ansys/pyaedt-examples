@@ -17,7 +17,6 @@ import time
 import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_file
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
-from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.generic.numbers_utils import is_close
 # -
 
@@ -29,7 +28,6 @@ NUM_CORES = 4
 
 # The following variables serve only for the example testing purpose
 
-settings.enable_error_handler = False
 RESISTANCE_REF = 1.6724005905658806e-5 # reference resistance value (2025.1)
 CONV_ERROR = 0.01 # percentage error
 FILE = "resistance.py" # file name of the example
