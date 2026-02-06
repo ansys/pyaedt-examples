@@ -1,31 +1,21 @@
 # # Eigenmode filter
 #
-# This example shows how to use PyAEDT to automate the Eigenmode solver in HFSS.
-# Eigenmode analysis can be applied to open radiating structures
-# using an absorbing boundary condition. This type of analysis is useful for
-# determining the resonant frequency of a geometry or an antenna, and it can be used to refine
-# the mesh at the resonance, even when the resonant frequency of the antenna is unknown.
+# This example illustrates and efficient approach to calculate eigenmode frequencies
+# over a wide bandwidth for open structures using HFSS.
 #
-# The challenge posed by this method is to identify and filter non-physical modes
-# that result from reflection at the boundaries of the finite element domain.
-# Non-physical modes can be identified and removed
-# based on the very low quality factor.
+# The model is comprised of a metal chassis and a simple PCB
+# inside the enclosure.
 #
-# The general approach to calculate eigenmodes in HFSS relies on
-# specification of a lower frequency bound for the search
-# range. If modes are to be determined over a wide bandwith,
-# the large number of modes being sought can increase compute time, becomming
-# inefficient as the total number of modes increases. A manual
-# iterative search may be
-# required to determine all modes over a wide bandwidth.
+# <img src="_static\eigenmode\eigenmode_chassis.png" width="600">
 #
-# The following example shows how to automate the efficient
-# calculation of physical modes over
-# a wide bandwidth for open structures.
+# HFSS relies on
+# specification of a lower frequency limit for the search5
+# range. The number of desired modes must also be specified. 
 #
-# This approach addresses two key challenges:
-#   1. The non-physical modes due to truncation of the FEM domain are removed.
-#   2. Modes are efficiently calculated over a wide bandwidth.
+# If performance is to be determined over a wide bandwith,
+# the large number of modes can increase compute time. An
+# iterative search that limits the number of modes being sought
+# for each iteration improves time and memory requirements.
 #
 # Keywords: **HFSS**, **Eigenmode**, **resonance**.
 
@@ -37,9 +27,11 @@
 from pathlib import Path
 import tempfile
 import time
+import numpy as np
 
 import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_file
+from ansys.aedt.core.generic.settings import settings
 # -
 
 # ### Define constants
@@ -62,7 +54,9 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 #
 # ### Download the model
 #
-# Download the 3D component that is needed to run the example.
+# The model used in this example will be downloaded from the
+# [example-data](https://github.com/ansys/example-data)
+# GitHub repository.
 
 project_path = download_file(
     "eigenmode", "emi_PCB_house.aedt", temp_folder.name
@@ -70,43 +64,43 @@ project_path = download_file(
 
 # ### Launch Ansys Electronics Desktop (AEDT)
 #
-# Create an HFSS design.
+#
 
 hfss = ansys.aedt.core.Hfss(
     project=project_path,
     version=AEDT_VERSION,
     non_graphical=NG_MODE,
- #   new_desktop=True,
+    new_desktop=False,
 )
-
-# ### Define parameters for the eigenmode search
-#
-#  - ``num_modes``: Number of modes to be sought during each iteration. HFSS limits the
-#    maximum number of modes to 20. In practice, fewer than 10 modes should be used
-#    for the search to improve simulation time during the search.
-#  - ``fmin``: The minimum frequency for the global search in GHz.
-#  - ``fmax``: The maximum frequency for the global search (GHz). When a mode is found having
-#    a frequency greater than or equal to this value, the iterations end.
-#  - ``limit``: The lower bound on quality factor. Modes having a lower quality factor
-#    are assumed to be non-physical and are filtered from the results.
-
-num_modes = 6
-fmin = 1
-fmax = 2
-limit = 10
-resonance = {}
+hfss.desktop_class.logger.log_on_stdout = False
 
 # ### Eigenmode search function
 #
-# The function ``find_resonance()`` defines the setup to use for eigenmode
-# analysis, solves the design using the setup and returns the frequencies and quality
-# factor for a limited number of modes.
-# The function will be used later in this example inside a ``while``
-# loop to extract all physical resonant modes for a metal enclosure
-# over a wide bandwidth.
+# The function ``find_resonance()`` creates a solution setup,
+# runs an analysis and returns the Q-factor and frequency values of
+# ``num_modes`` resonant modes.
+#
+# This function will then be called inside a ``while``
+# loop that filters all physical resonant modes over a wide
+# bandwidth to retain only those modes having a quality factor
+# greater than the user-defined ``limit``.
+#
+# The workflow used to retrieve solution data from
+# HFSS is comprised of the following steps
+# and corresponding method calls:
+# | Step | Description | Method |
+# |---|---|---|
+# | 1. | Retrieve a list of all available<br>solution "categories".| ``hfss.post.avilable_report_quantities()`` |
+# | 2. | Retrieve a ``SolutionData`` object <br> to provide an interface<br> to the solution data. | ``hfss.post.get_solution_data()`` |
+# | 3. | Retrieve the data | ``get_expression_data()``|
+#
+# These steps mirror the reporter UI in the Electronics Desktop:
+#
+# <img src="_static\eigenmode\post_proc_category.png" width="800">
+#
+#
 
-
-def find_resonance():
+def find_resonance(num_modes):
     # Setup creation
     next_min_freq = f"{next_fmin} GHz"
     setup_name = f"em_setup{setup_nr}"
@@ -121,51 +115,60 @@ def find_resonance():
     # Analyze the Eigenmode setup
     hfss.analyze_setup(setup_name, cores=NUM_CORES, use_auto_settings=True)
 
-    # Get the Q and real frequency of each mode
-    eigen_q_quantities = hfss.post.available_report_quantities(
+    # Get the quantity names for the quality factor values.
+    q_solution_names = hfss.post.available_report_quantities(
         quantities_category="Eigen Q"
     )
-    eigen_mode_quantities = hfss.post.available_report_quantities()
-    data = {}
-    for i, expression in enumerate(eigen_mode_quantities):
-        eigen_q_value = hfss.post.get_solution_data(
-            expressions=eigen_q_quantities[i],
-            setup_sweep_name=f"{setup_name} : LastAdaptive",
-            report_category="Eigenmode",
-        )
-        eigen_mode_value = hfss.post.get_solution_data(
-            expressions=expression,
-            setup_sweep_name=f"{setup_name} : LastAdaptive",
-            report_category="Eigenmode",
-        )
-        data[i] = [eigen_q_value.get_expression_data()[1][0],
-                   eigen_mode_value.get_expression_data()[1][0]]
 
-    print(data)
-    return data
+    # Get the quantity names for the frequency.
+    f_solution_names = hfss.post.available_report_quantities(
+        quantities_category="Eigen Modes"
+    )
+
+    # Store a list of [q_factor, frequency] pairs
+    data = []
+
+    get_solution = lambda quantity: hfss.post.get_solution_data(expressions=quantity, report_category="Eigenmode")
+    get_data = lambda solution: float(solution.get_expression_data()[1][0])
+   
+    for q_name, f_name in zip(q_solution_names, f_solution_names):
+        eigen_q_value = get_solution(q_name)
+        eigen_f_value = get_solution(f_name)
+        data.append([get_data(eigen_q_value), get_data(eigen_f_value)])
+
+    return np.array(data)
 
 # ### Automate the search for eigenmodes
+# #### Specify parameters for the eigenmode search
 #
-# Initialize varibles for the ``while`` loop:
-
-next_fmin = fmin  # Lowest frequency for the eigenmode search
-setup_nr = 1      # Current iteration in the search loop.
-
-# Run the search for all physical modes.
+#  - ``fmin``: The minimum frequency for the global search in GHz.
+#  - ``fmax``: The maximum frequency for the global search (GHz). When a mode is found having
+#    a frequency greater than or equal to this value, the iterations end.
+#  - ``limit``: The lower bound on quality factor. Modes having a lower quality factor
+#    are assumed to be non-physical and are removed from the results.
 
 # +
-while next_fmin < fmax:
-    output = find_resonance()
-    next_fmin = output[len(output) - 1][1] / 1e9
-    setup_nr += 1
-    cont_res = len(resonance)
-    for q in output:
-        if output[q][0] > limit:
-            resonance[cont_res] = output[q]
-            cont_res += 1
+fmin = 1          # Minimum frequency in search range (GHz)
+fmax = 2          # Maximum frequency in search range
+limit = 10        # Q-factor threshold (low Q modes will be ignored)
+next_fmin = fmin  # Current lowest frequency in the iterative search
+setup_nr = 1      # Current iteration in the search loop.
+valid_modes = None
 
-resonance_frequencies = [f"{resonance[i][1] / 1e9:.5} GHz" for i in resonance]
-print(str(resonance_frequencies))
+while next_fmin < fmax:
+    modes = find_resonance(6)  # Limit the search to 6 modes per iteration.
+    next_fmin = modes[-1][1] / 1E9
+    setup_nr += 1
+    cont_res = len(modes)
+    valid_modes = [q for q in modes if q[0] > limit]
+
+count = 1
+if valid_modes:
+    for mode in valid_modes:
+        print(f"Mode {count}: Q= {mode[0]}, f= {mode[1]/1e9:.3f} GHz")
+        count += 1
+else:
+    print("No valid modes found.")
 # -
 
 # Display the model.
