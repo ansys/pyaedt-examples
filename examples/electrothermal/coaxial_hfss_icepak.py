@@ -170,7 +170,7 @@ hfss.modeler.fit_all()
 hfss.set_active_design(hfss.design_name)
 setup = hfss.create_setup("MySetup")
 setup.props["Frequency"] = "1GHz"
-setup.props["BasisOrder"] = 2
+setup.props["BasisOrder"] = 1
 setup.props["MaximumPasses"] = 1
 
 # ## Create frequency sweep
