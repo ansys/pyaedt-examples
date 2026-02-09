@@ -202,6 +202,7 @@ ipk.copy_solid_bodies_from(hfss)
 
 surfaceobj = ["inner", "outer"]
 ipk.assign_em_losses(
+    assignment=surfaceobj,
     design=hfss.design_name,
     setup="MySetup",
     sweep="LastAdaptive",
@@ -317,6 +318,7 @@ animated = hfss.post.plot_animated_field(
     show=False,
     export_gif=False,
     log_scale=True,
+    file_format="aedtplt",
 )
 animated.gif_file = os.path.join(temp_folder.name, "animate.gif")
 
