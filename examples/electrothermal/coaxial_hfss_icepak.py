@@ -170,7 +170,7 @@ hfss.modeler.fit_all()
 hfss.set_active_design(hfss.design_name)
 setup = hfss.create_setup("MySetup")
 setup.props["Frequency"] = "1GHz"
-setup.props["BasisOrder"] = 2
+setup.props["BasisOrder"] = 1
 setup.props["MaximumPasses"] = 1
 
 # ## Create frequency sweep
@@ -202,6 +202,7 @@ ipk.copy_solid_bodies_from(hfss)
 
 surfaceobj = ["inner", "outer"]
 ipk.assign_em_losses(
+    assignment=surfaceobj,
     design=hfss.design_name,
     setup="MySetup",
     sweep="LastAdaptive",
