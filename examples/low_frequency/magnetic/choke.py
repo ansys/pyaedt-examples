@@ -15,6 +15,8 @@ import tempfile
 import time
 
 import ansys.aedt.core  # Interface to Ansys Electronics Desktop
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
+
 # -
 
 # ### Define constants.
@@ -140,9 +142,7 @@ with open(choke_fn, "w") as outfile:
 # - Checks if the JSON file is correctly written (as explained earlier)
 # - Checks equations on windings parameters to avoid having unintended intersections
 
-choke_descriptor_2 = m3d.modeler.check_choke_values(
-    input_dir=choke_fn, create_another_file=False
-)
+choke_descriptor_2 = m3d.modeler.check_choke_values(input_dir=choke_fn, create_another_file=False)
 print(choke_descriptor_2)
 
 # ## Create choke
@@ -159,15 +159,9 @@ third_winding_list = list_object[4]
 
 # ### Assign excitations
 
-first_winding_faces = m3d.modeler.get_object_faces(
-    assignment=first_winding_list[0].name
-)
-second_winding_faces = m3d.modeler.get_object_faces(
-    assignment=second_winding_list[0].name
-)
-third_winding_faces = m3d.modeler.get_object_faces(
-    assignment=third_winding_list[0].name
-)
+first_winding_faces = m3d.modeler.get_object_faces(assignment=first_winding_list[0].name)
+second_winding_faces = m3d.modeler.get_object_faces(assignment=second_winding_list[0].name)
+third_winding_faces = m3d.modeler.get_object_faces(assignment=third_winding_list[0].name)
 m3d.assign_current(
     assignment=[first_winding_faces[-1]],
     amplitude=1000,
@@ -213,9 +207,12 @@ m3d.assign_current(
 
 # ### Assign matrix
 
-m3d.assign_matrix(
-    assignment=["phase_1_in", "phase_2_in", "phase_3_in"], matrix_name="current_matrix"
-)
+sources = [MaxwellMatrix.SourceACMagnetic("phase_1_in"), MaxwellMatrix.SourceACMagnetic("phase_2_in"), MaxwellMatrix.SourceACMagnetic("phase_3_in")]
+
+
+matrix_args = MaxwellMatrix.MatrixACMagnetic(signal_sources=sources, matrix_name="current_matrix")
+
+matrix = m3d.assign_matrix(matrix_args)
 
 # ### Create mesh operation
 
@@ -237,9 +234,7 @@ mesh.assign_surface_mesh_manual(
 #
 # Create the boundaries. A region with openings is needed to run the analysis.
 
-region = m3d.modeler.create_air_region(
-    x_pos=100, y_pos=100, z_pos=100, x_neg=100, y_neg=100, z_neg=0
-)
+region = m3d.modeler.create_air_region(x_pos=100, y_pos=100, z_pos=100, x_neg=100, y_neg=100, z_neg=0)
 
 # ### Create setup
 #
@@ -254,14 +249,7 @@ setup.props["PercentRefinement"] = 15
 setup.props["MaximumPasses"] = 10
 setup.props["HasSweepSetup"] = True
 
-sweep = setup.add_eddy_current_sweep(
-    sweep_type="LinearCount",
-    start_frequency=100,
-    stop_frequency=1000,
-    step_size=12,
-    units="kHz",
-    clear=True
-)
+sweep = setup.add_eddy_current_sweep(sweep_type="LinearCount", start_frequency=100, stop_frequency=1000, step_size=12, units="kHz", clear=True)
 # -
 
 # ### Save project

@@ -21,6 +21,7 @@ import time
 
 import ansys.aedt.core  # Interface to Ansys Electronics Desktop
 from ansys.aedt.core.generic.constants import Axis
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
 
 # -
 
@@ -172,7 +173,11 @@ m3d.assign_current(assignment=coil_terminal2, amplitude=675.5, solid=False, name
 
 # ### Define solution setup
 
-m3d.assign_matrix(assignment=["Current_1", "Current_2"], matrix_name="Matrix1")
+signal_sources = [MaxwellMatrix.SourceMagnetostatic(name="Current_1"), MaxwellMatrix.SourceMagnetostatic(name="Current_2")]
+matrix_args = MaxwellMatrix.MatrixMagnetostatic(signal_sources=signal_sources, group_sources=[], matrix_name="Matrix1")
+m3d.assign_matrix(matrix_args)
+
+
 m3d.assign_torque(assignment=inner_arm.name, is_virtual=True, coordinate_system="Global", axis="Z", torque_name="Virtual_Torque")
 
 setup = m3d.create_setup("MySetup")

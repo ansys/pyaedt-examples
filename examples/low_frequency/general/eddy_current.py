@@ -15,6 +15,8 @@ import time
 
 import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_file
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
+
 # -
 
 # Define constants.
@@ -57,9 +59,11 @@ m2d = ansys.aedt.core.Maxwell2d(
 #
 # Assign a matrix given the list of sources to assign the matrix to and the return path.
 
-matrix = m2d.assign_matrix(
-    assignment=["pri", "sec", "terz"], matrix_name="Matrix1", return_path="infinite"
-)
+sources = [MaxwellMatrix.SourceACMagnetic("pri", return_path="infinite"), MaxwellMatrix.SourceACMagnetic("sec", return_path="infinite"), MaxwellMatrix.SourceACMagnetic("terz", return_path="infinite")]
+
+matrix_args = MaxwellMatrix.MatrixACMagnetic(signal_sources=sources, matrix_name="Matrix1")
+
+matrix = m2d.assign_matrix(matrix_args)
 
 # ## Assign reduced matrices
 #

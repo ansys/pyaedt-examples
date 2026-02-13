@@ -19,6 +19,8 @@ import time
 
 import ansys.aedt.core  # Interface to Ansys Electronics Desktop
 from ansys.aedt.core.generic.constants import Axis
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
+
 # -
 
 # ### Define constants
@@ -78,17 +80,11 @@ coil_xsection = [11, 110]  # [z-size, x-size]
 core_origin = [45, 0, -18]
 core_xsection = [7, 160]
 
-coil = m3d.modeler.create_rectangle(
-    orientation="XZ", origin=coil_origin, sizes=coil_xsection, name="Coil"
-)
+coil = m3d.modeler.create_rectangle(orientation="XZ", origin=coil_origin, sizes=coil_xsection, name="Coil")
 coil.sweep_around_axis(axis=Axis.Z)
-coil_terminal = m3d.modeler.create_rectangle(
-    orientation="XZ", origin=coil_origin, sizes=coil_xsection, name="Coil_terminal"
-)
+coil_terminal = m3d.modeler.create_rectangle(orientation="XZ", origin=coil_origin, sizes=coil_xsection, name="Coil_terminal")
 
-core = m3d.modeler.create_rectangle(
-    orientation="XZ", origin=core_origin, sizes=core_xsection, name="Core"
-)
+core = m3d.modeler.create_rectangle(orientation="XZ", origin=core_origin, sizes=core_xsection, name="Core")
 core.sweep_around_axis(axis=Axis.Z)
 
 # The air region should be sufficiently large to avoid interaction with the
@@ -159,12 +155,8 @@ m3d.add_winding_coils(assignment="Winding1", coils=["Coil_terminal"])
 #
 # Mesh "seeding" is used to accelerate the auto-adaptive mesh refinement.
 
-m3d.mesh.assign_length_mesh(
-    ["Core"], maximum_length=15, maximum_elements=None, name="Inside_Core"
-)
-m3d.mesh.assign_length_mesh(
-    ["Coil"], maximum_length=30, maximum_elements=None, name="Inside_Coil"
-)
+m3d.mesh.assign_length_mesh(["Core"], maximum_length=15, maximum_elements=None, name="Inside_Core")
+m3d.mesh.assign_length_mesh(["Coil"], maximum_length=30, maximum_elements=None, name="Inside_Coil")
 
 # ### Set object temperature and enable feedback
 #
@@ -173,9 +165,7 @@ m3d.mesh.assign_length_mesh(
 # In this example, conductivity increases by 0.393% per $\Delta^o$C. The temperature of the objects is set to the default value ($22^o$C).
 
 cu_resistivity_temp_coefficient = 0.00393
-cu_litz.conductivity.add_thermal_modifier_free_form(
-    "1.0/(1.0+{}*(Temp-20))".format(cu_resistivity_temp_coefficient)
-)
+cu_litz.conductivity.add_thermal_modifier_free_form("1.0/(1.0+{}*(Temp-20))".format(cu_resistivity_temp_coefficient))
 m3d.modeler.set_objects_temperature(["Coil"], ambient_temperature=22)
 
 # ### Assign the matrix calculation to the winding
@@ -183,11 +173,17 @@ m3d.modeler.set_objects_temperature(["Coil"], ambient_temperature=22)
 # The resistance and inductance calculations for the coil are enabled by
 # adding the matrix assignment to the winding.
 
-m3d.assign_matrix(["Winding1"], matrix_name="Matrix1")
+sources = [MaxwellMatrix.SourceACMagnetic("Winding1")]
+matrix_args = MaxwellMatrix.MatrixACMagnetic(signal_sources=sources, matrix_name="Matrix1")
+
+matrix = m3d.assign_matrix(matrix_args)
 
 # ### Create the simulation setup
 #
-# The simulation frequency is 150 kHz. You can query and modify the properties of the simulation setup using ``setup.props``. The "PercentError" establishes the minimum allowed change in energy due to the change in mesh size and ensure a small global solution error.
+# The simulation frequency is 150 kHz.
+# You can query and modify the properties of the simulation setup using ``setup.props``.
+# The "PercentError" establishes the minimum allowed change in energy due to the change
+# in mesh size and ensure a small global solution error.
 
 setup = m3d.create_setup(name="Setup1")
 setup.props["Frequency"] = "150kHz"
@@ -223,33 +219,22 @@ solution_loss = report_loss.get_solution_data()
 em_loss = solution_loss.get_expression_data(formula="magnitude")[0][0]
 # -
 
-# ### Analyitic calculation of DC resistance
+# ### Analytic calculation of DC resistance
 
 # +
 cu_cond = float(cu_litz.conductivity.value)
 
 # Average radius of a coil turn = 125 mm
-avg_coil_radius = (
-    coil_xsection[1] / 2 + coil_origin[0] / 2
-) * 0.001  # Convert to meters
+avg_coil_radius = (coil_xsection[1] / 2 + coil_origin[0] / 2) * 0.001  # Convert to meters
 l_conductor = turns * 2 * avg_coil_radius * 3.1415
 
 # R = resistivity * length / area / no_strand
-r_analytic_DC = (
-    (1.0 / cu_cond)
-    * l_conductor
-    / (3.1415 * (strand_diameter * 0.001 / 2) ** 2)
-    / no_strands
-)
+r_analytic_DC = (1.0 / cu_cond) * l_conductor / (3.1415 * (strand_diameter * 0.001 / 2) ** 2) / no_strands
 
 # Print results in AEDT Message Manager
 m3d.logger.info(f"*******Coil analytical DC resistance =  {r_analytic_DC:.2f}Ohm")
-m3d.logger.info(
-    f"*******Coil resistance at 150kHz BEFORE temperature feedback =  {resistance:.2f}Ohm"
-)
-m3d.logger.info(
-    f"*******Ohmic loss in coil BEFORE temperature feedback =  {em_loss / 1000:.2f}W"
-)
+m3d.logger.info(f"*******Coil resistance at 150kHz BEFORE temperature feedback =  {resistance:.2f}Ohm")
+m3d.logger.info(f"*******Ohmic loss in coil BEFORE temperature feedback =  {em_loss / 1000:.2f}W")
 # -
 
 # ## Create the thermal model
@@ -265,9 +250,7 @@ ipk.copy_solid_bodies_from(m3d, no_pec=False)
 ipk.modeler["Region"].delete()
 coil_dim = coil.bounding_dimension[0]
 ipk.modeler.create_region(0, False)
-ipk.modeler.edit_region_dimensions(
-    [coil_dim / 2, coil_dim / 2, coil_dim / 2, coil_dim / 2, coil_dim * 2, coil_dim]
-)
+ipk.modeler.edit_region_dimensions([coil_dim / 2, coil_dim / 2, coil_dim / 2, coil_dim / 2, coil_dim * 2, coil_dim])
 # -
 
 # ### Map coil losses
@@ -334,20 +317,14 @@ surface_list = []
 for name in ["Coil", "Core"]:
     surface_list.extend(ipk.modeler.get_object_faces(name))
 
-surf_temperature = ipk.post.create_fieldplot_surface(
-    surface_list, quantity="SurfTemperature", plot_name="Surface Temperature"
-)
+surf_temperature = ipk.post.create_fieldplot_surface(surface_list, quantity="SurfTemperature", plot_name="Surface Temperature")
 
-velocity_cutplane = ipk.post.create_fieldplot_cutplane(
-    assignment=["Global:XZ"], quantity="Velocity Vectors", plot_name="Velocity Vectors"
-)
+velocity_cutplane = ipk.post.create_fieldplot_cutplane(assignment=["Global:XZ"], quantity="Velocity Vectors", plot_name="Velocity Vectors")
 
 surf_temperature.export_image()
 velocity_cutplane.export_image(orientation="right")
 
-report_temp = ipk.post.create_report(
-    expressions="PointMonitor1.Temperature", primary_sweep_variable="X"
-)
+report_temp = ipk.post.create_report(expressions="PointMonitor1.Temperature", primary_sweep_variable="X")
 solution_temp = report_temp.get_solution_data()
 temp = solution_temp.get_expression_data(formula="magnitude")[1][0]
 m3d.logger.info("*******Coil temperature =  {:.2f}deg C".format(temp))
@@ -367,19 +344,9 @@ report_loss_new = m3d.post.create_report(expressions="StrandedLossAC")
 solution_loss_new = report_loss_new.get_solution_data()
 em_loss_new = solution_loss_new.get_expression_data(formula="magnitude")[1][0]
 
-m3d.logger.info(
-    "*******Coil resistance at 150kHz AFTER temperature feedback =  {:.2f}Ohm".format(
-        resistance_new
-    )
-)
-m3d.logger.info(
-    "*******Coil resistance increased by {:.2f}%".format(resistance_increase)
-)
-m3d.logger.info(
-    "*******Ohmic loss in coil AFTER temperature feedback =  {:.2f}W".format(
-        em_loss_new / 1000
-    )
-)
+m3d.logger.info("*******Coil resistance at 150kHz AFTER temperature feedback =  {:.2f}Ohm".format(resistance_new))
+m3d.logger.info("*******Coil resistance increased by {:.2f}%".format(resistance_increase))
+m3d.logger.info("*******Ohmic loss in coil AFTER temperature feedback =  {:.2f}W".format(em_loss_new / 1000))
 # -
 
 # ### Save the project
