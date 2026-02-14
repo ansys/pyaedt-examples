@@ -346,5 +346,3 @@ time.sleep(3)
 # removes all temporary files, including the project folder.
 
 temp_folder.cleanup()
-
-
