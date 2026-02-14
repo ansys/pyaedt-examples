@@ -15,6 +15,7 @@ import tempfile
 import time
 
 import ansys.aedt.core
+from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
 from ansys.aedt.core.examples.downloads import download_file
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
@@ -53,7 +54,7 @@ m2d = ansys.aedt.core.Maxwell2d(
     version=AEDT_VERSION,
     new_desktop=True,
     close_on_exit=True,
-    solution_type="DC Conduction",
+    solution_type=SolutionsMaxwell2D.DCConduction,
     project=project_name,
     design="Ansys_resistor",
     non_graphical=NG_MODE,
@@ -345,3 +346,5 @@ time.sleep(3)
 # removes all temporary files, including the project folder.
 
 temp_folder.cleanup()
+
+
