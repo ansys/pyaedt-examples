@@ -31,6 +31,10 @@ from sphinx.util import logging
 os.environ["PYAEDT_NON_GRAPHICAL"] = "1"
 os.environ["PYAEDT_DOC_GENERATION"] = "1"
 os.environ["PYANSYS_VISUALIZER_HTML_BACKEND"] = "true"
+os.environ.setdefault(
+    "PYAEDT_LOCAL_SETTINGS_PATH",
+    str(Path(__file__).resolve().parents[2] / "pyaedt_settings.yaml"),
+)
 
 LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml"]
 
