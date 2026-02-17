@@ -16,7 +16,7 @@ import time
 
 import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_file
-from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixElectric
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 
 # -
@@ -96,8 +96,15 @@ m2d.assign_voltage(assignment=["ANSYS_LOGO_2D_2"], amplitude=0, name="0V")
 #
 # ``1V`` is the source. ``0V`` is the ground.
 
-# m2d.assign_matrix(assignment=["1V"], group_sources=["0V"], matrix_name="Matrix1")
-matrix_args = MaxwellMatrix.MatrixElectric(signal_sources=["1V"], ground_sources=["0V"], matrix_name="Matrix1")
+# The matrix assignment requires the definition of the signal sources.
+# The sources must be defined using ``MatrixElectric``.
+
+matrix_args = MatrixElectric(signal_sources=["1V"], ground_sources=["0V"], matrix_name="Matrix1")
+
+# The matrix arguments are passed to the ``assign_matrix`` method, which assigns the matrix calculation to the winding
+# and makes the calculated parameters available as expressions in reports.
+
+
 m2d.assign_matrix(matrix_args)
 
 

@@ -21,7 +21,10 @@ import time
 
 import ansys.aedt.core  # Interface to Ansys Electronics Desktop
 from ansys.aedt.core.generic.constants import Axis
-from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
+from ansys.aedt.core.modules.boundary.maxwell_boundary import (
+    MatrixMagnetostatic,
+    SourceMagnetostatic,
+)
 
 # -
 
@@ -173,8 +176,16 @@ m3d.assign_current(assignment=coil_terminal2, amplitude=675.5, solid=False, name
 
 # ### Define solution setup
 
-signal_sources = [MaxwellMatrix.SourceMagnetostatic(name="Current_1"), MaxwellMatrix.SourceMagnetostatic(name="Current_2")]
-matrix_args = MaxwellMatrix.MatrixMagnetostatic(signal_sources=signal_sources, group_sources=[], matrix_name="Matrix1")
+# The matrix assignment requires the definition of the signal sources.
+# The sources must be defined using ``SourceMagnetostatic``.
+
+signal_sources = [SourceMagnetostatic(name="Current_1"), SourceMagnetostatic(name="Current_2")]
+matrix_args = MatrixMagnetostatic(signal_sources=signal_sources, group_sources=[], matrix_name="Matrix1")
+
+# The matrix arguments are passed to the ``assign_matrix`` method, which assigns the matrix calculation to the winding
+# and makes the calculated parameters available as expressions in reports.
+
+
 m3d.assign_matrix(matrix_args)
 
 

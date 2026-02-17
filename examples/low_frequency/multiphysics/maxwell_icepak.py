@@ -19,7 +19,10 @@ import time
 
 import ansys.aedt.core  # Interface to Ansys Electronics Desktop
 from ansys.aedt.core.generic.constants import Axis
-from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
+from ansys.aedt.core.modules.boundary.maxwell_boundary import (
+    MatrixACMagnetic,
+    SourceACMagnetic,
+)
 
 # -
 
@@ -173,8 +176,14 @@ m3d.modeler.set_objects_temperature(["Coil"], ambient_temperature=22)
 # The resistance and inductance calculations for the coil are enabled by
 # adding the matrix assignment to the winding.
 
-sources = [MaxwellMatrix.SourceACMagnetic("Winding1")]
-matrix_args = MaxwellMatrix.MatrixACMagnetic(signal_sources=sources, matrix_name="Matrix1")
+# The matrix assignment requires the definition of the signal sources.
+# The sources must be defined using ``SourceACMagnetic``.
+
+sources = [SourceACMagnetic(name="Winding1")]
+matrix_args = MatrixACMagnetic(signal_sources=sources, matrix_name="Matrix1")
+
+# The matrix arguments are passed to the ``assign_matrix`` method, which assigns the matrix calculation to the winding
+# and makes the calculated parameters available as expressions in reports.
 
 matrix = m3d.assign_matrix(matrix_args)
 
