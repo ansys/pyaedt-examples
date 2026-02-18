@@ -16,6 +16,8 @@ import time
 
 import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_file
+from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
+from ansys.aedt.core.generic.numbers_utils import is_close
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixElectric
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 
@@ -26,6 +28,12 @@ from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 AEDT_VERSION = "2025.2"
 NG_MODE = False
 NUM_CORES = 4
+
+# The following variables serve only for the example testing purpose
+
+RESISTANCE_REF = 1.6724005905658806e-5  # reference resistance value (2025.1)
+CONV_ERROR = 0.01  # percentage error
+FILE = "resistance.py"  # file name of the example
 
 # ## Create temporary directory
 #
@@ -47,7 +55,7 @@ m2d = ansys.aedt.core.Maxwell2d(
     version=AEDT_VERSION,
     new_desktop=True,
     close_on_exit=True,
-    solution_type="DCConduction",
+    solution_type=SolutionsMaxwell2D.DCConduction,
     project=project_name,
     design="Ansys_resistor",
     non_graphical=NG_MODE,
@@ -104,9 +112,7 @@ matrix_args = MatrixElectric(signal_sources=[vs.name], ground_sources=[gnd.name]
 # The matrix arguments are passed to the ``assign_matrix`` method, which assigns the matrix calculation to the winding
 # and makes the calculated parameters available as expressions in reports.
 
-
 m2d.assign_matrix(matrix_args)
-
 
 # ## Assign mesh operation
 #
@@ -125,8 +131,8 @@ m2d.mesh.assign_length_mesh(
 
 setup = m2d.create_setup(name="Setup1", MinimumPasses=4)
 setup.enable_expression_cache(
-    report_type="DCConduction",
-    expressions="1/Matrix1.G(1V,1V)/MaterialThickness",
+    report_type="DC Conduction",
+    expressions=["1/Matrix1.G(1V,1V)/MaterialThickness"],
     isconvergence=True,
     conv_criteria=1,
     use_cache_for_freq=False,
@@ -162,7 +168,7 @@ sweep.analyze(cores=NUM_CORES)
 # Define output variable.
 
 expression = "1/Matrix1.G(1V,1V)/MaterialThickness"
-m2d.ooutput_variable.CreateOutputVariable("out1", expression, m2d.nominal_sweep, "DCConduction", [])
+m2d.create_output_variable(variable="out1", expression=expression, solution=m2d.nominal_sweep)
 
 # ## Create report
 #
@@ -306,6 +312,13 @@ pdf_report.add_table(
 
 pdf_report.add_toc()
 pdf_report.save_pdf(temp_folder.name, "AEDT_Results.pdf")
+
+# ## Check whether the example has run to completion
+#
+# Test if this example runs correctly.
+
+if is_close(float(resistance[0]), RESISTANCE_REF, CONV_ERROR) is False:
+    raise ValueError(f"Error value mismatch in example file: {FILE}")
 
 # ## Release AEDT
 
