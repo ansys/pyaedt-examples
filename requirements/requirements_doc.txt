@@ -2,18 +2,18 @@
 pyaedt[graphics] @ git+https://github.com/ansys/pyaedt@main
 
 # Examples dependencies
-imageio==2.37.0
-matplotlib==3.10.1
-numpy==2.2.3
+imageio==2.37.2
+matplotlib==3.10.8
+numpy==2.4.2
 openpyxl==3.1.5
-osmnx==2.0.2
-pandas==2.2.3
+osmnx==2.0.7
+pandas==3.0.0
 pyvista==0.44.2 ; python_version <= "3.12"
-pyvista==0.45.0 ; python_version > "3.12"
-fast-simplification==0.1.10
-joblib==1.5.0
-plotly==6.0.1
-scikit-rf==1.6.2
+pyvista==0.47.0 ; python_version > "3.12"
+fast-simplification==0.1.13
+joblib==1.5.3
+plotly==6.5.2
+scikit-rf==1.10.0
 
 # Documentation dependencies
 ansys-sphinx-theme==1.6.4
