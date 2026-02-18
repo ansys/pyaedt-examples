@@ -189,7 +189,7 @@ matrix_args = MatrixMagnetostatic(signal_sources=signal_sources, group_sources=[
 m3d.assign_matrix(matrix_args)
 
 
-m3d.assign_torque(assignment=inner_arm.name, is_virtual=True, coordinate_system="Global", axis="Z", torque_name="Virtual_Torque")
+virtual_torque = m3d.assign_torque(assignment=inner_arm.name, is_virtual=True, coordinate_system="Global", axis="Z", torque_name="Virtual_Torque")
 
 setup = m3d.create_setup("MySetup")
 print(setup.props)
@@ -200,7 +200,7 @@ setup.props["MinimumPasses"] = 2
 setup.props["RelativeResidual"] = 1e-3
 
 parametric_sweep = m3d.parametrics.add(variable="angle", start_point="0", end_point="30", step="10", variation_type="LinearStep", name="ParametricSetup1")
-parametric_sweep.add_calculation(calculation="Virtual_Torque.Torque")
+parametric_sweep.add_calculation(calculation=f"{virtual_torque.name}.Torque")
 parametric_sweep.add_calculation(calculation=f"Matrix1.L({current_source1.name}, {current_source1.name})")
 parametric_sweep.add_calculation(calculation=f"Matrix1.L({current_source1.name}, {current_source2.name})")
 parametric_sweep.add_calculation(calculation=f"Matrix1.L({current_source2.name}, {current_source1.name})")
