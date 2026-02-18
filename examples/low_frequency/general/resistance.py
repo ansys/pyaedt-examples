@@ -16,7 +16,6 @@ import time
 
 import ansys.aedt.core
 from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
-from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
 from ansys.aedt.core.examples.downloads import download_file
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixElectric
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
@@ -112,9 +111,7 @@ matrix_args = MatrixElectric(signal_sources=[vs.name], ground_sources=[gnd.name]
 # The matrix arguments are passed to the ``assign_matrix`` method, which assigns the matrix calculation to the winding
 # and makes the calculated parameters available as expressions in reports.
 
-
 m2d.assign_matrix(matrix_args)
-
 
 # ## Assign mesh operation
 #
