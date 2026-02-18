@@ -66,6 +66,7 @@ m2d = ansys.aedt.core.Maxwell2d(
 # The sources must be defined using ``SourceACMagnetic``.
 
 sources = [SourceACMagnetic(name="pri", return_path="infinite"), SourceACMagnetic(name="sec", return_path="infinite"), SourceACMagnetic(name="terz", return_path="infinite")]
+
 matrix_args = MatrixACMagnetic(signal_sources=sources, matrix_name="Matrix1")
 
 # The matrix arguments are passed to the ``assign_matrix`` method, which assigns the matrix calculation to the winding
