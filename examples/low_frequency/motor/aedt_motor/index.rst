@@ -36,7 +36,7 @@ These examples use PyAEDT to show some motor applications in AEDT.
       :link: ipm_optimization
       :link-type: doc
 
-      .. image:: _static/ipm_optimization.png
+      .. image:: _static/ipm_optimization/ipm_full_model.svg
          :alt: IPM Motor
          :width: 250px
          :height: 200px
