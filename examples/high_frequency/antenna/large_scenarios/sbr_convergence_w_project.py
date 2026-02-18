@@ -27,8 +27,8 @@ from ansys.aedt.core.hfss import Hfss
 # Constants help ensure consistency and avoid repetition throughout the example.
 
 AEDT_VERSION = "2025.2"
-NG_MODE = False  # Open AEDT UI when it is launched.
-use_example_project = False  # Set to False to connect to your own open project
+NG_MODE = False
+use_example_project = False
 
 # ### Setup based on user selection
 #
@@ -38,7 +38,7 @@ use_example_project = False  # Set to False to connect to your own open project
 #
 # > **Note:** The final cell in this notebook cleans up the temporary folder. If you want to
 # > retrieve the AEDT project and data, do so before executing the final cell in the notebook.
-
+#
 # ### Download model
 #
 # The model used in this example will be downloaded from the
@@ -47,56 +47,53 @@ use_example_project = False  # Set to False to connect to your own open project
 
 
 if use_example_project:
-
     temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
     print(f"Temporary folder: {temp_folder.name}")
 
-    project_path = download_file("sbr_convergence", "missile_rcs.aedt", temp_folder.name)
+    project_path = download_file("sbr_convergence", "trihedral_rcs.aedt", temp_folder.name)
 
     hfss = Hfss(
         project=project_path,
         version=AEDT_VERSION,
         non_graphical=NG_MODE,
-        new_desktop=True,  # Open new AEDT session
+        new_desktop=True,
     )
-
 else:
     print("Connecting to existing AEDT session...")
 
     hfss = Hfss(
         version=AEDT_VERSION,
         non_graphical=NG_MODE,
-        new_desktop=False,  # Connect to existing AEDT session
+        new_desktop=False,
     )
 
     print(f"Connected to project: {hfss.project_name}")
     print(f"Active design: {hfss.design_name}")
 
-    # Verify it's an SBR+ design
     if hfss.solution_type != "SBR+":
         raise ValueError(f"Active design '{hfss.design_name}' is not an SBR+ design. " f"Current solution type: {hfss.solution_type}. " f"Please activate an SBR+ design before running this script.")
 
-    temp_folder = None  # No temp folder needed
+    temp_folder = None
 
 
 # ### User Parameters
 #
 # parameters for SBR+ setup
 
-Setup_Frequency = ["1GHz"]
-convergence_threshold = 0.1  # dB absolute error
+Setup_Frequency = ["10GHz"]
+convergence_threshold = 0.5  # dB absolute error
 enable_PTD = False
 enable_UTD = False
-convergence_method = "average"  # "average" or "point_to_point"
-convergence_order = "ray_density_first"  # "ray_density_first" or "bounces_first"
+convergence_method = "point_to_point"  # "average" or "point_to_point"
+convergence_order = "bounces_first"  # "ray_density_first" or "bounces_first"
 
 
 # ### Fixed starting values
 #
 # starting values for convergence test
 
-starting_ray_density = 3
-starting_bounce_number = 3
+starting_ray_density = 1
+starting_bounce_number = 2
 
 
 # ### PDT/UTD Settings
@@ -181,11 +178,10 @@ def run_convergence_sweep(hfss, sweep_param, fixed_param_name, fixed_param_value
     current_value = start_value
     previous_rcs_values = None
     converged = False
-    converged_value = max_value  # fallback if limit is reached
+    converged_value = max_value
 
     while not converged:
 
-        # Assign ray density and bounce number based on which is being swept
         if sweep_param == "ray_density":
             ray_density = current_value
             bounce_number = fixed_param_value
@@ -195,7 +191,6 @@ def run_convergence_sweep(hfss, sweep_param, fixed_param_name, fixed_param_value
             bounce_number = current_value
             print(f"\nTesting Bounce Number: {current_value} (Ray Density fixed at {fixed_param_value})")
 
-        # Create setup
         if "SBR" in hfss.setup_names:
             hfss.delete_setup("SBR")
 
@@ -242,15 +237,18 @@ def run_convergence_sweep(hfss, sweep_param, fixed_param_name, fixed_param_value
 
 
 # ### Run Convergence Study
-# starting the convergence test
 #
+# The study is run in two sequential steps based on the convergence order.
 
 print("=" * 70)
 print("SBR+ CONVERGENCE STUDY - Sequential Parameter Convergence")
 print("=" * 70)
 
+# ### starting Convergence Study
+#
+
+
 if convergence_order == "ray_density_first":
-    # STEP 1: Converge Ray Density
     print("\n" + "=" * 70)
     print(f"STEP 1: CONVERGING RAY DENSITY (Bounces fixed at {starting_bounce_number})")
     print("=" * 70)
@@ -266,8 +264,6 @@ if convergence_order == "ray_density_first":
         start_value=starting_ray_density,
         max_value=20,
     )
-
-    # STEP 2: Converge Bounce Number
     print("\n" + "=" * 70)
     print(f"STEP 2: CONVERGING BOUNCE NUMBER (Ray Density fixed at {converged_ray_density})")
     print("=" * 70)
@@ -283,9 +279,7 @@ if convergence_order == "ray_density_first":
         start_value=starting_bounce_number,
         max_value=10,
     )
-
 else:
-    # STEP 1: Converge Bounce Number
     print("\n" + "=" * 70)
     print(f"STEP 1: CONVERGING BOUNCE NUMBER (Ray Density fixed at {starting_ray_density})")
     print("=" * 70)
@@ -301,8 +295,6 @@ else:
         start_value=starting_bounce_number,
         max_value=10,
     )
-
-    # STEP 2: Converge Ray Density
     print("\n" + "=" * 70)
     print(f"STEP 2: CONVERGING RAY DENSITY (Bounces fixed at {converged_bounce_number})")
     print("=" * 70)
@@ -342,7 +334,6 @@ print("=" * 70)
 
 fig, axes = plt.subplots(2, 2, figsize=(16, 12))
 
-# Plot 1: Ray Density - All RCS curves
 colors1 = plt.cm.viridis(np.linspace(0, 1, len(ray_densities)))
 for i, (rd, rcs_curve, iwavephi) in enumerate(zip(ray_densities, all_rcs_ray, all_phi_ray)):
     axes[0, 0].plot(iwavephi, rcs_curve, color=colors1[i], linewidth=2, label=f"Ray Density = {rd}")
@@ -352,14 +343,14 @@ axes[0, 0].set_title(f"Ray Density Convergence - RCS Curves", fontsize=12)
 axes[0, 0].legend(loc="best", fontsize=9)
 axes[0, 0].grid(True, alpha=0.3)
 
-# Plot 2: Ray Density - Average RCS
+
 axes[0, 1].plot(ray_densities, avg_rcs_ray, "bo-", linewidth=2, markersize=8)
 axes[0, 1].set_xlabel("Ray Density Per Wavelength", fontsize=11)
 axes[0, 1].set_ylabel("Average RCS (dBsm)", fontsize=11)
 axes[0, 1].set_title("Ray Density - Average RCS Convergence", fontsize=12)
 axes[0, 1].grid(True, alpha=0.3)
 
-# Plot 3: Bounce Number - All RCS curves
+
 colors2 = plt.cm.plasma(np.linspace(0, 1, len(bounce_numbers)))
 for i, (bn, rcs_curve, iwavephi) in enumerate(zip(bounce_numbers, all_rcs_bounce, all_phi_bounce)):
     axes[1, 0].plot(iwavephi, rcs_curve, color=colors2[i], linewidth=2, label=f"Bounces = {bn}")
