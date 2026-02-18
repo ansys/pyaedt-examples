@@ -116,7 +116,6 @@ m2d.mesh.assign_length_mesh(
     assignment=["ANSYS_LOGO_2D_3"],
     name="conductor",
     maximum_length=3,
-    maximum_elements=None,
 )
 
 # ## Create simulation setup and enable expression cache
