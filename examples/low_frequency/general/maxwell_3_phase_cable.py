@@ -152,11 +152,11 @@ winding_s = m2d.assign_winding(assignment=shield.name, current=0, name="Shield")
 # The sources must be defined using ``SourceACMagnetic``.
 
 sources = [
-    SourceACMagnetic(name="PhaseA"),
-    SourceACMagnetic(name="PhaseB"),
-    SourceACMagnetic(name="PhaseC"),
-    SourceACMagnetic(name="PhaseN"),
-    SourceACMagnetic(name="Shield"),
+    SourceACMagnetic(name=winding_a.name),
+    SourceACMagnetic(name=winding_b.name),
+    SourceACMagnetic(name=winding_c.name),
+    SourceACMagnetic(name=winding_n.name),
+    SourceACMagnetic(name=winding_s.name),
 ]
 matrix_args = MatrixACMagnetic(signal_sources=sources, matrix_name="Matrix1")
 

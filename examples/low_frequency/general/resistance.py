@@ -89,8 +89,8 @@ m2d.modeler["ANSYS_LOGO_2D_3"].material_name = "ConductorMaterial[MaterialIndex]
 
 # ## Assign voltages
 
-m2d.assign_voltage(assignment=["ANSYS_LOGO_2D_1"], amplitude=1, name="1V")
-m2d.assign_voltage(assignment=["ANSYS_LOGO_2D_2"], amplitude=0, name="0V")
+vs = m2d.assign_voltage(assignment=["ANSYS_LOGO_2D_1"], amplitude=1, name="1V")
+gnd = m2d.assign_voltage(assignment=["ANSYS_LOGO_2D_2"], amplitude=0, name="0V")
 
 # ## Set up conductance calculation
 #
@@ -99,7 +99,7 @@ m2d.assign_voltage(assignment=["ANSYS_LOGO_2D_2"], amplitude=0, name="0V")
 # The matrix assignment requires the definition of the signal sources.
 # The sources must be defined using ``MatrixElectric``.
 
-matrix_args = MatrixElectric(signal_sources=["1V"], ground_sources=["0V"], matrix_name="Matrix1")
+matrix_args = MatrixElectric(signal_sources=[vs.name], ground_sources=[gnd.name], matrix_name="Matrix1")
 
 # The matrix arguments are passed to the ``assign_matrix`` method, which assigns the matrix calculation to the winding
 # and makes the calculated parameters available as expressions in reports.

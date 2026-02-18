@@ -165,42 +165,43 @@ third_winding_list = list_object[4]
 first_winding_faces = m3d.modeler.get_object_faces(assignment=first_winding_list[0].name)
 second_winding_faces = m3d.modeler.get_object_faces(assignment=second_winding_list[0].name)
 third_winding_faces = m3d.modeler.get_object_faces(assignment=third_winding_list[0].name)
-m3d.assign_current(
+
+cs1_in = m3d.assign_current(
     assignment=[first_winding_faces[-1]],
     amplitude=1000,
     phase="0deg",
     swap_direction=False,
     name="phase_1_in",
 )
-m3d.assign_current(
+cs1_out = m3d.assign_current(
     assignment=[first_winding_faces[-2]],
     amplitude=1000,
     phase="0deg",
     swap_direction=True,
     name="phase_1_out",
 )
-m3d.assign_current(
+cs2_in = m3d.assign_current(
     assignment=[second_winding_faces[-1]],
     amplitude=1000,
     phase="120deg",
     swap_direction=False,
     name="phase_2_in",
 )
-m3d.assign_current(
+cs2_out = m3d.assign_current(
     assignment=[second_winding_faces[-2]],
     amplitude=1000,
     phase="120deg",
     swap_direction=True,
     name="phase_2_out",
 )
-m3d.assign_current(
+cs3_in = m3d.assign_current(
     assignment=[third_winding_faces[-1]],
     amplitude=1000,
     phase="240deg",
     swap_direction=False,
     name="phase_3_in",
 )
-m3d.assign_current(
+cs3_out = m3d.assign_current(
     assignment=[third_winding_faces[-2]],
     amplitude=1000,
     phase="240deg",
@@ -213,7 +214,7 @@ m3d.assign_current(
 # The matrix assignment requires the definition of the signal sources.
 # The sources must be defined using ``SourceACMagnetic``.
 
-sources = [SourceACMagnetic(name="phase_1_in"), SourceACMagnetic(name="phase_2_in"), SourceACMagnetic(name="phase_3_in")]
+sources = [SourceACMagnetic(name=cs1_in.name), SourceACMagnetic(name=cs2_in.name), SourceACMagnetic(name=cs3_in.name)]
 matrix_args = MatrixACMagnetic(signal_sources=sources, matrix_name="current_matrix")
 
 # # The matrix arguments are passed to the ``assign_matrix`` method, which assigns the matrix calculation to the winding
