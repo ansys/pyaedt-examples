@@ -18,6 +18,7 @@ import ansys.aedt.core
 from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellMatrix
 from ansys.aedt.core.examples.downloads import download_file
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixElectric
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 from ansys.aedt.core.generic.numbers_utils import is_close
 # -
@@ -71,9 +72,7 @@ m2d = ansys.aedt.core.Maxwell2d(
 # dxf_layers = m2d.get_dxf_layers(dxf_path)
 # m2d.import_dxf(dxf_path, dxf_layers, scale=1E-05)
 
-parasolid_path = download_file(
-    source="x_t", name="Ansys_logo_2D.x_t", local_path=temp_folder.name
-)
+parasolid_path = download_file(source="x_t", name="Ansys_logo_2D.x_t", local_path=temp_folder.name)
 m2d.modeler.import_3d_cad(parasolid_path)
 # -
 
@@ -98,19 +97,24 @@ m2d.modeler["ANSYS_LOGO_2D_3"].material_name = "ConductorMaterial[MaterialIndex]
 
 # ## Assign voltages
 
-m2d.assign_voltage(assignment=["ANSYS_LOGO_2D_1"], amplitude=1, name="1V")
-m2d.assign_voltage(assignment=["ANSYS_LOGO_2D_2"], amplitude=0, name="0V")
+vs = m2d.assign_voltage(assignment=["ANSYS_LOGO_2D_1"], amplitude=1, name="1V")
+gnd = m2d.assign_voltage(assignment=["ANSYS_LOGO_2D_2"], amplitude=0, name="0V")
 
 # ## Set up conductance calculation
 #
 # ``1V`` is the source. ``0V`` is the ground.
 
-matrix_args = MaxwellMatrix.MatrixElectric(
-    signal_sources=["1V"],
-    ground_sources=["0V"],
-    matrix_name="Matrix1"
-)
+# The matrix assignment requires the definition of the signal sources.
+# The sources must be defined using ``MatrixElectric``.
+
+matrix_args = MatrixElectric(signal_sources=[vs.name], ground_sources=[gnd.name], matrix_name="Matrix1")
+
+# The matrix arguments are passed to the ``assign_matrix`` method, which assigns the matrix calculation to the winding
+# and makes the calculated parameters available as expressions in reports.
+
+
 m2d.assign_matrix(matrix_args)
+
 
 # ## Assign mesh operation
 #
@@ -120,7 +124,6 @@ m2d.mesh.assign_length_mesh(
     assignment=["ANSYS_LOGO_2D_3"],
     name="conductor",
     maximum_length=3,
-    maximum_elements=None,
 )
 
 # ## Create simulation setup and enable expression cache
@@ -167,7 +170,7 @@ sweep.analyze(cores=NUM_CORES)
 # Define output variable.
 
 expression = "1/Matrix1.G(1V,1V)/MaterialThickness"
-m2d.create_output_variable(variable="out1", expression=expression,solution=m2d.nominal_sweep)
+m2d.ooutput_variable.CreateOutputVariable("out1", expression, m2d.nominal_sweep, "DCConduction", [])
 
 # ## Create report
 #
@@ -203,9 +206,7 @@ data.plot(snapshot_path=os.path.join(temp_folder.name, "M2D_DCConduction.jpg"))
 material_index_vs_resistance = [["Material", "Resistance"]]
 colors = [[(255, 255, 255), (0, 255, 0)]]
 for i in range(len(data.primary_sweep_values)):
-    material_index_vs_resistance.append(
-        [str(data.primary_sweep_values[i]), str(resistance[i])]
-    )
+    material_index_vs_resistance.append([str(data.primary_sweep_values[i]), str(resistance[i])])
     colors.append([None, None])
 # -
 
@@ -214,20 +215,14 @@ for i in range(len(data.primary_sweep_values)):
 # Plot the electric field and current density on the conductor surface.
 
 conductor_surface = m2d.modeler["ANSYS_LOGO_2D_3"].faces
-plot1 = m2d.post.create_fieldplot_surface(
-    assignment=conductor_surface, quantity="Mag_E", plot_name="Electric Field"
-)
-plot2 = m2d.post.create_fieldplot_surface(
-    assignment=conductor_surface, quantity="Mag_J", plot_name="Current Density"
-)
+plot1 = m2d.post.create_fieldplot_surface(assignment=conductor_surface, quantity="Mag_E", plot_name="Electric Field")
+plot2 = m2d.post.create_fieldplot_surface(assignment=conductor_surface, quantity="Mag_J", plot_name="Current Density")
 
 # ## Overlay fields using PyVista
 #
 # Plot electric field using PyVista and save to an image file.
 
-py_vista_plot = m2d.post.plot_field(
-    quantity="Mag_E", assignment=conductor_surface, plot_cad_objs=False, show=False
-)
+py_vista_plot = m2d.post.plot_field(quantity="Mag_E", assignment=conductor_surface, plot_cad_objs=False, show=False)
 py_vista_plot.isometric_view = False
 py_vista_plot.camera_position = [0, 0, 7]
 py_vista_plot.focal_point = [0, 0, 0]
@@ -266,9 +261,7 @@ model_picture = m2d.post.export_model_picture()
 #
 # Generate a PDF report with the output of the simulation.
 
-pdf_report = AnsysReport(
-    project_name=m2d.project_name, design_name=m2d.design_name, version=AEDT_VERSION
-)
+pdf_report = AnsysReport(project_name=m2d.project_name, design_name=m2d.design_name, version=AEDT_VERSION)
 
 # Customize the text font.
 
@@ -294,9 +287,7 @@ pdf_report.add_image(path=model_picture, caption="Model Picture", width=80, heig
 pdf_report.add_chapter("Field overlay")
 pdf_report.add_sub_chapter("Plots")
 pdf_report.add_text("This section contains the fields overlay.")
-pdf_report.add_image(
-    os.path.join(temp_folder.name, "mag_E.jpg"), caption="Mag E", width=120, height=80
-)
+pdf_report.add_image(os.path.join(temp_folder.name, "mag_E.jpg"), caption="Mag E", width=120, height=80)
 pdf_report.add_page_break()
 
 # Add a new section to display results.

@@ -21,6 +21,10 @@ import time
 
 import ansys.aedt.core  # Interface to Ansys Electronics Desktop
 from ansys.aedt.core.generic.constants import Axis
+from ansys.aedt.core.modules.boundary.maxwell_boundary import (
+    MatrixMagnetostatic,
+    SourceMagnetostatic,
+)
 
 # -
 
@@ -167,13 +171,25 @@ m3d.modeler.fit_all()
 
 # ### Assign boundary conditions
 
-m3d.assign_current(assignment=coil_terminal1, amplitude=675.5, solid=False, name="Current_1")
-m3d.assign_current(assignment=coil_terminal2, amplitude=675.5, solid=False, name="Current_2")
+current_source1 = m3d.assign_current(assignment=coil_terminal1, amplitude=675.5, solid=False, name="Current_1")
+current_source2 = m3d.assign_current(assignment=coil_terminal2, amplitude=675.5, solid=False, name="Current_2")
 
 # ### Define solution setup
 
-m3d.assign_matrix(assignment=["Current_1", "Current_2"], matrix_name="Matrix1")
-m3d.assign_torque(assignment=inner_arm.name, is_virtual=True, coordinate_system="Global", axis="Z", torque_name="Virtual_Torque")
+# The matrix assignment requires the definition of the signal sources.
+# The sources must be defined using ``SourceMagnetostatic``.
+
+signal_sources = [SourceMagnetostatic(name=current_source1.name), SourceMagnetostatic(name=current_source2.name)]
+matrix_args = MatrixMagnetostatic(signal_sources=signal_sources, group_sources=[], matrix_name="Matrix1")
+
+# The matrix arguments are passed to the ``assign_matrix`` method, which assigns the matrix calculation to the winding
+# and makes the calculated parameters available as expressions in reports.
+
+
+m3d.assign_matrix(matrix_args)
+
+
+virtual_torque = m3d.assign_torque(assignment=inner_arm.name, is_virtual=True, coordinate_system="Global", axis="Z", torque_name="Virtual_Torque")
 
 setup = m3d.create_setup("MySetup")
 print(setup.props)
@@ -184,11 +200,11 @@ setup.props["MinimumPasses"] = 2
 setup.props["RelativeResidual"] = 1e-3
 
 parametric_sweep = m3d.parametrics.add(variable="angle", start_point="0", end_point="30", step="10", variation_type="LinearStep", name="ParametricSetup1")
-parametric_sweep.add_calculation(calculation="Virtual_Torque.Torque")
-parametric_sweep.add_calculation(calculation="Matrix1.L(Current_1, Current_1)")
-parametric_sweep.add_calculation(calculation="Matrix1.L(Current_1, Current_2)")
-parametric_sweep.add_calculation(calculation="Matrix1.L(Current_2, Current_1)")
-parametric_sweep.add_calculation(calculation="Matrix1.L(Current_2, Current_2)")
+parametric_sweep.add_calculation(calculation=f"{virtual_torque.name}.Torque")
+parametric_sweep.add_calculation(calculation=f"Matrix1.L({current_source1.name}, {current_source1.name})")
+parametric_sweep.add_calculation(calculation=f"Matrix1.L({current_source1.name}, {current_source2.name})")
+parametric_sweep.add_calculation(calculation=f"Matrix1.L({current_source2.name}, {current_source1.name})")
+parametric_sweep.add_calculation(calculation=f"Matrix1.L({current_source2.name}, {current_source2.name})")
 parametric_sweep.props["ProdOptiSetupDataV2"]["SaveFields"] = True
 
 # ### Run analysis

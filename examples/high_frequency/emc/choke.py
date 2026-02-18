@@ -15,6 +15,7 @@ import tempfile
 import time
 
 import ansys.aedt.core
+
 # -
 
 # Define constants.
@@ -127,9 +128,7 @@ with open(json_path, "w") as outfile:
 # - Checks if the JSON file is correctly written (as explained earlier).
 # - Checks equations on windings parameters to avoid having unintended intersections.
 
-dictionary_values = hfss.modeler.check_choke_values(
-    json_path, create_another_file=False
-)
+dictionary_values = hfss.modeler.check_choke_values(json_path, create_another_file=False)
 print(dictionary_values)
 
 # ## Create choke
@@ -147,9 +146,7 @@ second_winding_list = list_object[3]
 
 ground_radius = 1.2 * dictionary_values[1]["Outer Winding"]["Outer Radius"]
 ground_position = [0, 0, first_winding_list[1][0][2] - 2]
-ground = hfss.modeler.create_circle(
-    "XY", ground_position, ground_radius, name="GND", material="copper"
-)
+ground = hfss.modeler.create_circle("XY", ground_position, ground_radius, name="GND", material="copper")
 coat = hfss.assign_finite_conductivity(ground, is_infinite_ground=True)
 ground.transparency = 0.9
 
@@ -179,9 +176,7 @@ port_position_list = [
 ]
 port_dimension_list = [2, dictionary_values[1]["Outer Winding"]["Wire Diameter"]]
 for position in port_position_list:
-    sheet = hfss.modeler.create_rectangle(
-        "XZ", position, port_dimension_list, name="sheet_port"
-    )
+    sheet = hfss.modeler.create_rectangle("XZ", position, port_dimension_list, name="sheet_port")
     sheet.move([-dictionary_values[1]["Outer Winding"]["Wire Diameter"] / 2, 0, -1])
     hfss.lumped_port(
         assignment=sheet.name,
@@ -229,7 +224,7 @@ setup.props["Frequency"] = "50MHz"
 setup["MaximumPasses"] = 10
 hfss.create_linear_count_sweep(
     setup=setup.name,
-    units="MHz",
+    unit="MHz",
     start_frequency=0.1,
     stop_frequency=100,
     num_of_freq_points=100,
