@@ -15,11 +15,12 @@ import tempfile
 import time
 
 import ansys.aedt.core
-from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
 from ansys.aedt.core.examples.downloads import download_file
+from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
+from ansys.aedt.core.generic.numbers_utils import is_close
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixElectric
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
-from ansys.aedt.core.generic.numbers_utils import is_close
+
 # -
 
 # Define constants.
@@ -30,9 +31,9 @@ NUM_CORES = 4
 
 # The following variables serve only for the example testing purpose
 
-RESISTANCE_REF = 1.6724005905658806e-5 # reference resistance value (2025.1)
-CONV_ERROR = 0.01 # percentage error
-FILE = "resistance.py" # file name of the example
+RESISTANCE_REF = 1.6724005905658806e-5  # reference resistance value (2025.1)
+CONV_ERROR = 0.01  # percentage error
+FILE = "resistance.py"  # file name of the example
 
 # ## Create temporary directory
 #
@@ -167,7 +168,7 @@ sweep.analyze(cores=NUM_CORES)
 # Define output variable.
 
 expression = "1/Matrix1.G(1V,1V)/MaterialThickness"
-m2d.ooutput_variable.CreateOutputVariable("out1", expression, m2d.nominal_sweep, "DCConduction", [])
+m2d.create_output_variable(variable="out1", expression=expression, solution=m2d.nominal_sweep)
 
 # ## Create report
 #
