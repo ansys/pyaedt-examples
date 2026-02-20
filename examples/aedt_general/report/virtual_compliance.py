@@ -14,9 +14,14 @@ import os.path
 import tempfile
 import time
 
+from ansys.aedt.core.generic.settings import settings
+
+settings.release_on_exception = False
+
 import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_file
 from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
+
 # -
 
 # ## Define constants
@@ -37,9 +42,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Download example data
 
-download_folder = download_file(
-    source="pcie_compliance", local_path=temp_folder.name
-)
+download_folder = download_file(source="pcie_compliance", local_path=temp_folder.name)
 project_folder = os.path.join(download_folder, "project")
 project_path = os.path.join(project_folder, "PCIE_GEN5_only_layout.aedtz")
 
@@ -49,9 +52,7 @@ project_path = os.path.join(project_folder, "PCIE_GEN5_only_layout.aedtz")
 # Before solving, this code ensures that the model is solved from DC to 70GHz and that
 # causality and passivity are enforced.
 
-h3d = ansys.aedt.core.Hfss3dLayout(
-    project=project_path, version=AEDT_VERSION, non_graphical=NG_MODE
-)
+h3d = ansys.aedt.core.Hfss3dLayout(project=project_path, version=AEDT_VERSION, non_graphical=NG_MODE)
 h3d.remove_all_unused_definitions()
 h3d.edit_cosim_options(simulate_missing_solution=False)
 h3d.setups[0].sweeps[0].props["EnforcePassivity"] = True
