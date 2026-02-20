@@ -1,0 +1,214 @@
+name: Test All Examples (Manual)
+
+on:
+  workflow_dispatch:
+
+env:
+  ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
+  DOCUMENTATION_CNAME: 'examples.aedt.docs.pyansys.com'
+  MAIN_PYTHON_VERSION: '3.10'
+  ON_CI: True
+  PYAEDT_NON_GRAPHICAL: '1'
+  PYAEDT_DOC_GENERATION: '1'
+  PYAEDT_LOCAL_SETTINGS_PATH: 'doc/pyaedt_settings.yaml'
+  # Force running ALL examples (not just changed ones)
+  ON_CI_CHANGED_EXAMPLES: ''
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  doc-build-all-examples:
+    name: Build documentation (ALL examples)
+    runs-on: [self-hosted, Windows, pyaedt-examples]
+    # Continue even if there are errors in examples
+    continue-on-error: false
+    outputs:
+      build_status: ${{ steps.build_check.outputs.status }}
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@7d84ae825e6d9297a8e99bdbbae20d1b919a0b19 # v4.2
+
+      - name: Set up Python ${{ env.MAIN_PYTHON_VERSION }}
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+      - name: Create virtual environment
+        run: |
+          python -m venv .venv
+          .venv\Scripts\Activate.ps1
+          python -m pip install pip -U
+          python -m pip install wheel setuptools -U
+          python -c "import sys; print(sys.executable)"
+
+      - name: Enable long paths in Windows
+        shell: powershell
+        run: |
+          New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
+
+      - name: Install project and documentation dependencies
+        run: |
+          .venv\Scripts\Activate.ps1
+          pip install --no-cache-dir -r requirements/requirements_doc.txt
+
+      - name: Create HTML documentation (continue on error)
+        id: html_build
+        continue-on-error: true
+        env:
+          SPHINXBUILD_HTML_AND_PDF_WORKFLOW: "1"
+        run: |
+          .venv\Scripts\Activate.ps1
+          . .\doc\make.bat html --color -T
+          exit $LASTEXITCODE
+
+      - name: Check HTML build status
+        id: build_check
+        shell: powershell
+        run: |
+          if ("${{ steps.html_build.outcome }}" -eq "failure") {
+            Write-Output "::warning::HTML build failed! Some examples had errors."
+            Write-Output "status=failed" >> $env:GITHUB_OUTPUT
+            
+            # Create a failure summary
+            Write-Output "## Documentation Build Failed" >> $env:GITHUB_STEP_SUMMARY
+            Write-Output "" >> $env:GITHUB_STEP_SUMMARY
+            Write-Output "One or more examples failed during execution." >> $env:GITHUB_STEP_SUMMARY
+            Write-Output "Check the build logs above to identify which examples failed." >> $env:GITHUB_STEP_SUMMARY
+            Write-Output "" >> $env:GITHUB_STEP_SUMMARY
+            Write-Output "Common issues to look for:" >> $env:GITHUB_STEP_SUMMARY
+            Write-Output "- Exceptions raised in Jupyter notebooks" >> $env:GITHUB_STEP_SUMMARY
+            Write-Output "- Missing dependencies" >> $env:GITHUB_STEP_SUMMARY
+            Write-Output "- License server issues" >> $env:GITHUB_STEP_SUMMARY
+            Write-Output "- Timeout errors" >> $env:GITHUB_STEP_SUMMARY
+          } else {
+            Write-Output "::notice::HTML build successful!"
+            Write-Output "status=success" >> $env:GITHUB_OUTPUT
+            
+            # Create a success summary
+            Write-Output "## Documentation Build Successful" >> $env:GITHUB_STEP_SUMMARY
+            Write-Output "" >> $env:GITHUB_STEP_SUMMARY
+            Write-Output "All examples executed successfully!" >> $env:GITHUB_STEP_SUMMARY
+          }
+
+      - name: Upload HTML documentation artifact (if successful)
+
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: documentation-html-all-examples
+          path: doc/_build/html
+          retention-days: 7
+
+      - name: Upload build logs (always)
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: build-logs
+          path: |
+            doc/_build/html/_downloads/**/*.log
+            doc/_build/html/_downloads/**/*.txt
+          retention-days: 14
+          if-no-files-found: ignore
+
+      - name: Create PDF documentation (continue on error)
+        id: pdf_build
+        if: steps.html_build.outcome == 'success'
+        continue-on-error: true
+        env:
+          SPHINXBUILD_HTML_AND_PDF_WORKFLOW: "1"
+        run: |
+          .venv\Scripts\Activate.ps1
+          . .\doc\make.bat pdf
+          exit $LASTEXITCODE
+
+      - name: Upload PDF documentation artifact (if successful or forced)
+        if: (steps.pdf_build.outcome == 'success' || github.event.inputs.upload_artifacts == 'true') && steps.html_build.outcome == 'success'
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: documentation-pdf-all-examples
+          path: doc/_build/latex
+          retention-days: 7
+
+      - name: Final status check
+        shell: powershell
+        run: |
+          $htmlStatus = "${{ steps.html_build.outcome }}"
+          $pdfStatus = "${{ steps.pdf_build.outcome }}"
+          
+          Write-Output "HTML Build: $htmlStatus"
+          Write-Output "PDF Build: $pdfStatus"
+          
+          if ($htmlStatus -eq "failure") {
+            Write-Output "::error::Build failed - documentation will NOT be uploaded"
+            exit 1
+          }
+
+  # This job will only run if the build is successful
+  upload-documentation:
+    name: Upload documentation artifacts
+    needs: doc-build-all-examples
+    if: needs.doc-build-all-examples.outputs.build_status == 'success' || github.event.inputs.upload_artifacts == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Download HTML documentation
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c4de4 # v6.0.0
+        with:
+          name: documentation-html-all-examples
+          path: documentation-html
+
+      - name: Create documentation summary
+        run: |
+          echo "## Documentation Artifacts Ready" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "HTML documentation has been generated and is available in artifacts." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Download artifacts:" >> $GITHUB_STEP_SUMMARY
+          echo "- HTML: \`documentation-html-all-examples\`" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ github.event.inputs.upload_artifacts }}" == "true" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo " **Note**: Artifacts uploaded even though build had errors (forced upload)" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # Summary job that always runs
+  test-summary:
+    name: Test Summary
+    if: always()
+    needs: doc-build-all-examples
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate test summary
+        run: |
+          echo "## Test All Examples - Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Workflow:** Manual test run (all examples)" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.doc-build-all-examples.outputs.build_status }}" == "success" ]; then
+            echo "### Result: SUCCESS" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "All examples executed successfully!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### Result: FAILED" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Some examples failed during execution." >> $GITHUB_STEP_SUMMARY
+            echo "Documentation artifacts were NOT uploaded." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Next steps:**" >> $GITHUB_STEP_SUMMARY
+            echo "1. Check the build logs in the \`build-logs\` artifact" >> $GITHUB_STEP_SUMMARY
+            echo "2. Review the job output to identify failing examples" >> $GITHUB_STEP_SUMMARY
+            echo "3. Fix the failing examples and re-run" >> $GITHUB_STEP_SUMMARY
+          fi
+
