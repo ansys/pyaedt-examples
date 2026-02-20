@@ -19,6 +19,7 @@ env:
   PYAEDT_NON_GRAPHICAL: '1'
   # To keep as it impacts pyaedt behavior
   PYAEDT_DOC_GENERATION: '1'
+  PYAEDT_LOCAL_SETTINGS_PATH: 'doc/pyaedt_settings.yaml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
