@@ -2,6 +2,17 @@ name: Test All Examples (Manual)
 
 on:
   workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to test'
+        required: false
+        type: string
+        default: 'main'
+      pyaedt_branch:
+        description: 'PyAEDT branch to install'
+        required: false
+        type: string
+        default: 'main'
 
 env:
   ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
@@ -32,6 +43,7 @@ jobs:
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
+          ref: ${{ github.event.inputs.branch || github.ref }}
           fetch-depth: 0
           persist-credentials: false
 
@@ -60,6 +72,15 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           pip install --no-cache-dir -r requirements/requirements_doc.txt
+
+      - name: Install PyAEDT from specific branch
+        shell: powershell
+        run: |
+          .venv\Scripts\Activate.ps1
+          Write-Output "Installing PyAEDT from branch: ${{ github.event.inputs.pyaedt_branch }}"
+          pip uninstall -y pyaedt
+          pip install git+https://github.com/ansys/pyaedt.git@${{ github.event.inputs.pyaedt_branch }}
+          python -c "import ansys.aedt.core; print(f'PyAEDT version: {ansys.aedt.core.__version__}')"
 
       - name: Create HTML documentation (continue on error)
         id: html_build
@@ -98,6 +119,9 @@ jobs:
             Write-Output "## Documentation Build Successful" >> $env:GITHUB_STEP_SUMMARY
             Write-Output "" >> $env:GITHUB_STEP_SUMMARY
             Write-Output "All examples executed successfully!" >> $env:GITHUB_STEP_SUMMARY
+            Write-Output "" >> $env:GITHUB_STEP_SUMMARY
+            Write-Output "**Configuration:**" >> $env:GITHUB_STEP_SUMMARY
+            Write-Output "- PyAEDT Branch: ``${{ github.event.inputs.pyaedt_branch }}``" >> $env:GITHUB_STEP_SUMMARY
           }
 
       - name: Upload HTML documentation artifact (if successful)
@@ -130,55 +154,14 @@ jobs:
           . .\doc\make.bat pdf
           exit $LASTEXITCODE
 
-      - name: Upload PDF documentation artifact (if successful or forced)
-        if: (steps.pdf_build.outcome == 'success' || github.event.inputs.upload_artifacts == 'true') && steps.html_build.outcome == 'success'
+      - name: Upload PDF documentation artifact (if generated)
+        if: steps.pdf_build.outcome == 'success'
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: documentation-pdf-all-examples
           path: doc/_build/latex
           retention-days: 7
 
-      - name: Final status check
-        shell: powershell
-        run: |
-          $htmlStatus = "${{ steps.html_build.outcome }}"
-          $pdfStatus = "${{ steps.pdf_build.outcome }}"
-          
-          Write-Output "HTML Build: $htmlStatus"
-          Write-Output "PDF Build: $pdfStatus"
-          
-          if ($htmlStatus -eq "failure") {
-            Write-Output "::error::Build failed - documentation will NOT be uploaded"
-            exit 1
-          }
-
-  # This job will only run if the build is successful
-  upload-documentation:
-    name: Upload documentation artifacts
-    needs: doc-build-all-examples
-    if: needs.doc-build-all-examples.outputs.build_status == 'success' || github.event.inputs.upload_artifacts == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - name: Download HTML documentation
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c4de4 # v6.0.0
-        with:
-          name: documentation-html-all-examples
-          path: documentation-html
-
-      - name: Create documentation summary
-        run: |
-          echo "## Documentation Artifacts Ready" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "HTML documentation has been generated and is available in artifacts." >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Download artifacts:" >> $GITHUB_STEP_SUMMARY
-          echo "- HTML: \`documentation-html-all-examples\`" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ github.event.inputs.upload_artifacts }}" == "true" ]; then
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo " **Note**: Artifacts uploaded even though build had errors (forced upload)" >> $GITHUB_STEP_SUMMARY
-          fi
 
   # Summary job that always runs
   test-summary:
@@ -193,7 +176,8 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Workflow:** Manual test run (all examples)" >> $GITHUB_STEP_SUMMARY
           echo "**Triggered by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Examples Branch:** ${{ github.event.inputs.branch }}" >> $GITHUB_STEP_SUMMARY
+          echo "**PyAEDT Branch:** ${{ github.event.inputs.pyaedt_branch }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
           if [ "${{ needs.doc-build-all-examples.outputs.build_status }}" == "success" ]; then
@@ -204,11 +188,19 @@ jobs:
             echo "### Result: FAILED" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "Some examples failed during execution." >> $GITHUB_STEP_SUMMARY
-            echo "Documentation artifacts were NOT uploaded." >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**Next steps:**" >> $GITHUB_STEP_SUMMARY
             echo "1. Check the build logs in the \`build-logs\` artifact" >> $GITHUB_STEP_SUMMARY
             echo "2. Review the job output to identify failing examples" >> $GITHUB_STEP_SUMMARY
             echo "3. Fix the failing examples and re-run" >> $GITHUB_STEP_SUMMARY
           fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Artifacts Available for Download" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **documentation-html-all-examples**: Full HTML documentation (for review)" >> $GITHUB_STEP_SUMMARY
+          echo "- **build-logs**: Detailed build logs and error messages" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo " **Note**: This is a test workflow - documentation is NOT published automatically." >> $GITHUB_STEP_SUMMARY
 
