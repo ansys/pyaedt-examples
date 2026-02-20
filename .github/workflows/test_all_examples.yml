@@ -75,11 +75,13 @@ jobs:
 
       - name: Install PyAEDT from specific branch
         shell: powershell
+        env:
+          PYAEDT_BRANCH: ${{ github.event.inputs.pyaedt_branch }}
         run: |
           .venv\Scripts\Activate.ps1
-          Write-Output "Installing PyAEDT from branch: ${{ github.event.inputs.pyaedt_branch }}"
+          Write-Output "Installing PyAEDT from branch: $env:PYAEDT_BRANCH"
           pip uninstall -y pyaedt
-          pip install git+https://github.com/ansys/pyaedt.git@${{ github.event.inputs.pyaedt_branch }}
+          pip install "git+https://github.com/ansys/pyaedt.git@$env:PYAEDT_BRANCH"
           python -c "import ansys.aedt.core; print(f'PyAEDT version: {ansys.aedt.core.__version__}')"
 
       - name: Create HTML documentation (continue on error)
@@ -95,8 +97,11 @@ jobs:
       - name: Check HTML build status
         id: build_check
         shell: powershell
+        env:
+          BUILD_OUTCOME: ${{ steps.html_build.outcome }}
+          PYAEDT_BRANCH: ${{ github.event.inputs.pyaedt_branch }}
         run: |
-          if ("${{ steps.html_build.outcome }}" -eq "failure") {
+          if ($env:BUILD_OUTCOME -eq "failure") {
             Write-Output "::warning::HTML build failed! Some examples had errors."
             Write-Output "status=failed" >> $env:GITHUB_OUTPUT
             
@@ -121,7 +126,7 @@ jobs:
             Write-Output "All examples executed successfully!" >> $env:GITHUB_STEP_SUMMARY
             Write-Output "" >> $env:GITHUB_STEP_SUMMARY
             Write-Output "**Configuration:**" >> $env:GITHUB_STEP_SUMMARY
-            Write-Output "- PyAEDT Branch: ``${{ github.event.inputs.pyaedt_branch }}``" >> $env:GITHUB_STEP_SUMMARY
+            Write-Output "- PyAEDT Branch: ``$env:PYAEDT_BRANCH``" >> $env:GITHUB_STEP_SUMMARY
           }
 
       - name: Upload HTML documentation artifact (if successful)
@@ -171,16 +176,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Generate test summary
+        env:
+          TRIGGERED_BY: ${{ github.actor }}
+          EXAMPLES_BRANCH: ${{ github.event.inputs.branch }}
+          PYAEDT_BRANCH: ${{ github.event.inputs.pyaedt_branch }}
+          BUILD_STATUS: ${{ needs.doc-build-all-examples.outputs.build_status }}
         run: |
-          echo "## Test All Examples - Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## 🧪 Test All Examples - Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Workflow:** Manual test run (all examples)" >> $GITHUB_STEP_SUMMARY
-          echo "**Triggered by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Examples Branch:** ${{ github.event.inputs.branch }}" >> $GITHUB_STEP_SUMMARY
-          echo "**PyAEDT Branch:** ${{ github.event.inputs.pyaedt_branch }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by:** $TRIGGERED_BY" >> $GITHUB_STEP_SUMMARY
+          echo "**Examples Branch:** $EXAMPLES_BRANCH" >> $GITHUB_STEP_SUMMARY
+          echo "**PyAEDT Branch:** $PYAEDT_BRANCH" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          if [ "${{ needs.doc-build-all-examples.outputs.build_status }}" == "success" ]; then
+          if [ "$BUILD_STATUS" == "success" ]; then
             echo "### Result: SUCCESS" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "All examples executed successfully!" >> $GITHUB_STEP_SUMMARY
