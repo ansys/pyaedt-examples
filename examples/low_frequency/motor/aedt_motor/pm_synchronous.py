@@ -58,7 +58,7 @@ m2d = ansys.aedt.core.Maxwell2d(
     version=AEDT_VERSION,
     design="Sinusoidal",
     solution_type="TransientXY",
-    new_desktop=True,
+#    new_desktop=True,
     non_graphical=NG_MODE,
 )
 m2d.modeler.model_units = "mm"   # Specify model units
@@ -177,9 +177,10 @@ mat_coils.permeability = "1"
 #
 # Define material properties. 
 #
-# The nonlinear $B$-$H$ definitions
+# The nonlinear $B$-$H$ curves
 # were retrieved
-# from the [example-data](https://github.com/ansys/example-data/tree/main/pyaedt/nissan) repository.
+# from the [example-data](https://github.com/ansys/example-data/tree/main/pyaedt/nissan) repository
+# using the ``download_file()`` method.
 #
 # The method ``bh_list()`` helps simplify assignment of data from the text file to the
 # material permeability.
@@ -302,6 +303,7 @@ IPM1 = m2d.modeler.create_polyline(
     material="Arnold_Magnetics_N30UH_80C_new",
 )
 IPM1.color = (0, 128, 64)
+IPM1.solve_inside = True
 OPM1 = m2d.modeler.create_polyline(
     points=OM1_points,
     cover_surface=True,
@@ -309,6 +311,7 @@ OPM1 = m2d.modeler.create_polyline(
     material="Arnold_Magnetics_N30UH_80C_new",
 )
 OPM1.color = (0, 128, 64)
+OPM1.solve_inside = True
 
 
 # #### Define the orientation for PM magnetization
@@ -322,7 +325,7 @@ OPM1.color = (0, 128, 64)
 # create the 
 # coordinate system at the center of each magnet.
 
-def create_cs_magnets(pm, cs_name, point_direction):
+def create_magnet_cs(pm, cs_name, point_direction):
     """
     Parameters
     ----------
@@ -355,8 +358,8 @@ def create_cs_magnets(pm, cs_name, point_direction):
 
 # Create the coordinate system for PMs in the face center.
 
-create_cs_magnets(IPM1, "CS_" + IPM1.name, "outer")
-create_cs_magnets(OPM1, "CS_" + OPM1.name, "outer")
+create_magnet_cs(IPM1, "CS_" + IPM1.name, "outer")
+create_magnet_cs(OPM1, "CS_" + OPM1.name, "outer")
 
 # ### Duplicate and mirror PMs
 #
@@ -474,10 +477,12 @@ rotor = m2d.modeler.create_circle(
 )
 
 rotor.color = (0, 128, 255)
+rotor.solve_inside = True
 m2d.modeler.subtract(blank_list=rotor, tool_list=shaft, keep_originals=True)
 void_small_1 = m2d.modeler.create_circle(
     origin=[62, 0, 0], radius="2.55mm", num_sides=0, name="void1", material="vacuum"
 )
+void_small_1.solve_inside = True
 
 m2d.modeler.duplicate_around_axis(
     assignment=void_small_1,
@@ -494,6 +499,8 @@ void_big_1 = m2d.modeler.create_circle(
     name="void_big",
     material="vacuum",
 )
+void_big_1.solve_inside = True
+
 m2d.modeler.subtract(
     blank_list=rotor,
     tool_list=[void_small_1, void_big_1],
@@ -516,9 +523,11 @@ slot_OM1_points = [
 slot_IM = m2d.modeler.create_polyline(
     points=slot_IM1_points, cover_surface=True, name="slot_IM1", material="vacuum"
 )
+slot_IM.solve_inside = True
 slot_OM = m2d.modeler.create_polyline(
     points=slot_OM1_points, cover_surface=True, name="slot_OM1", material="vacuum"
 )
+slot_OM.solve_inside = True
 
 m2d.modeler.duplicate_and_mirror(
     assignment=[slot_IM, slot_OM],
