@@ -15,6 +15,10 @@ import tempfile
 import time
 
 import ansys.aedt.core  # Interface to Ansys Electronics Desktop
+from ansys.aedt.core.modules.boundary.maxwell_boundary import (
+    MatrixACMagnetic,
+    SourceACMagnetic,
+)
 
 # -
 
@@ -78,9 +82,7 @@ filler.transparency = 0
 # ### Create the cable inner conductors
 
 phase_a = m2d.modeler.create_circle(origin=[5, 0, 0], radius=2.0575, material="copper")
-cond = m2d.modeler.duplicate_around_axis(
-    assignment=phase_a.name, axis="Z", angle=120, clones=3
-)
+cond = m2d.modeler.duplicate_around_axis(assignment=phase_a.name, axis="Z", angle=120, clones=3)
 phase_b = m2d.modeler[cond[1][0]]
 phase_c = m2d.modeler[cond[1][1]]
 phase_a.name = "PhaseA"
@@ -97,9 +99,7 @@ phase_c.transparency = 0
 
 insul_a = m2d.modeler.create_circle(origin=[5, 0, 0], radius=2.25, material="XLPE")
 insul_a.transparency = 0
-insul = m2d.modeler.duplicate_around_axis(
-    assignment=insul_a.name, axis="Z", angle=120, clones=3
-)
+insul = m2d.modeler.duplicate_around_axis(assignment=insul_a.name, axis="Z", angle=120, clones=3)
 insul_b = m2d.modeler[insul[1][0]]
 insul_c = m2d.modeler[insul[1][1]]
 insul_a.name = "InsulA"
@@ -109,9 +109,7 @@ insul_c.name = "InsulC"
 # ### Create the cable neutral wire and its insulation
 
 # +
-neu_ins = m2d.modeler.duplicate_along_line(
-    assignment=[phase_a.name, insul_a.name], vector=[-5, 0, 0], clones=2
-)
+neu_ins = m2d.modeler.duplicate_along_line(assignment=[phase_a.name, insul_a.name], vector=[-5, 0, 0], clones=2)
 phase_n = m2d.modeler[neu_ins[1][0]]
 phase_n.name = "PhaseN"
 phase_n.color = [128, 64, 64]
@@ -141,12 +139,8 @@ m2d.modeler.fit_all()
 # Set electrical excitations for the conductive objects.
 
 winding_a = m2d.assign_winding(assignment=phase_a.name, current=200, name="PhaseA")
-winding_b = m2d.assign_winding(
-    assignment=phase_b.name, current=200, phase=-120, name="PhaseB"
-)
-winding_c = m2d.assign_winding(
-    assignment=phase_c.name, current=200, phase=-240, name="PhaseC"
-)
+winding_b = m2d.assign_winding(assignment=phase_b.name, current=200, phase=-120, name="PhaseB")
+winding_c = m2d.assign_winding(assignment=phase_c.name, current=200, phase=-240, name="PhaseC")
 winding_n = m2d.assign_winding(assignment=phase_n.name, current=0, name="PhaseN")
 winding_s = m2d.assign_winding(assignment=shield.name, current=0, name="Shield")
 
@@ -154,17 +148,28 @@ winding_s = m2d.assign_winding(assignment=shield.name, current=0, name="Shield")
 #
 # Set matrix for RL parameters calculation.
 
-m2d.assign_matrix(
-    assignment=["PhaseA", "PhaseB", "PhaseC", "PhaseN", "Shield"], matrix_name="Matrix1"
-)
+# The matrix assignment requires the definition of the signal sources.
+# The sources must be defined using ``SourceACMagnetic``.
+
+sources = [
+    SourceACMagnetic(name=winding_a.name),
+    SourceACMagnetic(name=winding_b.name),
+    SourceACMagnetic(name=winding_c.name),
+    SourceACMagnetic(name=winding_n.name),
+    SourceACMagnetic(name=winding_s.name),
+]
+matrix_args = MatrixACMagnetic(signal_sources=sources, matrix_name="Matrix1")
+
+# The matrix arguments are passed to the ``assign_matrix`` method, which assigns the matrix calculation to the winding
+# and makes the calculated parameters available as expressions in reports.
+
+matrix = m2d.assign_matrix(matrix_args)
 
 # ## Assign mesh operation
 #
 # Assign surface approximation mesh to all objects.
 
-m2d.mesh.assign_surface_mesh_manual(
-    assignment=m2d.modeler.object_list, normal_dev="10deg"
-)
+m2d.mesh.assign_surface_mesh_manual(assignment=m2d.modeler.object_list, normal_dev="10deg")
 
 # ## Analysis setup
 #
@@ -185,9 +190,7 @@ m2d.analyze_setup(name=setup.name)
 #
 # ### Plot the magnitude of magnetic flux density
 
-plot1 = m2d.post.create_fieldplot_surface(
-    assignment=m2d.modeler.object_list, quantity="Mag_B", plot_name="B"
-)
+plot1 = m2d.post.create_fieldplot_surface(assignment=m2d.modeler.object_list, quantity="Mag_B", plot_name="B")
 
 # ### Add the expression for the current density absolute value using the advanced field calculator
 
@@ -218,9 +221,7 @@ plot2 = m2d.post.create_fieldplot_surface(
     quantity="Jabs",
     plot_name="Jabs_cond_3Phase",
 )
-plot3 = m2d.post.create_fieldplot_surface(
-    assignment=[shield, phase_n], quantity="Jabs", plot_name="Jabs_shield_neutral"
-)
+plot3 = m2d.post.create_fieldplot_surface(assignment=[shield, phase_n], quantity="Jabs", plot_name="Jabs_shield_neutral")
 
 # ## Release AEDT
 
