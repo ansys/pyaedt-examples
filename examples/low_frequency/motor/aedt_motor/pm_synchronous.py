@@ -22,9 +22,9 @@ from pathlib import Path
 import ansys.aedt.core
 import matplotlib.pyplot as plt
 import numpy as np
+
+
 from ansys.aedt.core.examples.downloads import download_file
-from ansys.aedt.core.generic.constants import unit_converter
-from ansys.aedt.core.generic.numbers_utils import Quantity
 # -
 
 # ### Define constants
@@ -810,88 +810,41 @@ output_vars = {
 for k, v in output_vars.items():
     m2d.create_output_variable(k, v)
 
-# ### Initialize definition for postprocessing plots
+# ### Create reports
+#
+# Define common keyword arguments shared by all time-domain reports, then create each
+# report by specifying only its expressions and plot name. This avoids repeating the
+# same arguments for every ``create_report`` call.
 
-post_params = {"Moving1.Torque": "TorquePlots"}
+report_kwargs = dict(
+    setup_sweep_name=m2d.nominal_sweep,
+    domain="Sweep",
+    primary_sweep_variable="Time",
+    plot_type="Rectangular Plot",
+)
 
-# ### Initialize definition for postprocessing multiplots
+reports = [
+    ("Moving1.Torque",                                                                      "TorquePlots"),
+    (["U_A", "U_B", "U_C", "Ui_A", "Ui_B", "Ui_C"],                                       "PhaseVoltages"),
+    (["CoreLoss", "SolidLoss", "ArmatureOhmicLoss_DC"],                                     "Losses"),
+    (["InputCurrent(Phase_A)", "InputCurrent(Phase_B)", "InputCurrent(Phase_C)"],           "PhaseCurrents"),
+    (["FluxLinkage(Phase_A)", "FluxLinkage(Phase_B)", "FluxLinkage(Phase_C)"],              "PhaseFluxes"),
+    (["I_d", "I_q"],                                                                        "Currents_dq"),
+    (["Flux_d", "Flux_q"],                                                                  "Fluxes_dq"),
+    (["Ui_d", "Ui_q"],                                                                      "InducedVoltages_dq"),
+    (["U_d", "U_q"],                                                                        "Voltages_dq"),
+    (["L(Phase_A,Phase_A)", "L(Phase_B,Phase_B)", "L(Phase_C,Phase_C)",
+      "L(Phase_A,Phase_B)", "L(Phase_A,Phase_C)", "L(Phase_B,Phase_C)"],                   "PhaseInductances"),
+    (["L_d", "L_q"],                                                                        "Inductances_dq"),
+    (["CoreLoss", "CoreLoss(Stator)", "CoreLoss(Rotor)"],                                   "CoreLosses"),
+    (["EddyCurrentLoss", "EddyCurrentLoss(Stator)", "EddyCurrentLoss(Rotor)"],             "EddyCurrentLosses (Core)"),
+    (["ExcessLoss", "ExcessLoss(Stator)", "ExcessLoss(Rotor)"],                             "ExcessLosses (Core)"),
+    (["HysteresisLoss", "HysteresisLoss(Stator)", "HysteresisLoss(Rotor)"],                "HysteresisLosses (Core)"),
+    (["SolidLoss", "SolidLoss(IPM1)", "SolidLoss(IPM1_1)", "SolidLoss(OPM1)", "SolidLoss(OPM1_1)"], "SolidLoss"),
+]
 
-post_params_multiplot = {  # reports
-    ("U_A", "U_B", "U_C", "Ui_A", "Ui_B", "Ui_C"): "PhaseVoltages",
-    ("CoreLoss", "SolidLoss", "ArmatureOhmicLoss_DC"): "Losses",
-    (
-        "InputCurrent(Phase_A)",
-        "InputCurrent(Phase_B)",
-        "InputCurrent(Phase_C)",
-    ): "PhaseCurrents",
-    (
-        "FluxLinkage(Phase_A)",
-        "FluxLinkage(Phase_B)",
-        "FluxLinkage(Phase_C)",
-    ): "PhaseFluxes",
-    ("I_d", "I_q"): "Currents_dq",
-    ("Flux_d", "Flux_q"): "Fluxes_dq",
-    ("Ui_d", "Ui_q"): "InducedVoltages_dq",
-    ("U_d", "U_q"): "Voltages_dq",
-    (
-        "L(Phase_A,Phase_A)",
-        "L(Phase_B,Phase_B)",
-        "L(Phase_C,Phase_C)",
-        "L(Phase_A,Phase_B)",
-        "L(Phase_A,Phase_C)",
-        "L(Phase_B,Phase_C)",
-    ): "PhaseInductances",
-    ("L_d", "L_q"): "Inductances_dq",
-    ("CoreLoss", "CoreLoss(Stator)", "CoreLoss(Rotor)"): "CoreLosses",
-    (
-        "EddyCurrentLoss",
-        "EddyCurrentLoss(Stator)",
-        "EddyCurrentLoss(Rotor)",
-    ): "EddyCurrentLosses (Core)",
-    ("ExcessLoss", "ExcessLoss(Stator)", "ExcessLoss(Rotor)"): "ExcessLosses (Core)",
-    (
-        "HysteresisLoss",
-        "HysteresisLoss(Stator)",
-        "HysteresisLoss(Rotor)",
-    ): "HysteresisLosses (Core)",
-    (
-        "SolidLoss",
-        "SolidLoss(IPM1)",
-        "SolidLoss(IPM1_1)",
-        "SolidLoss(OPM1)",
-        "SolidLoss(OPM1_1)",
-    ): "SolidLoss",
-}
-
-# ### Create report.
-
-for k, v in post_params.items():
-    m2d.post.create_report(
-        expressions=k,
-        setup_sweep_name="",
-        domain="Sweep",
-        variations=None,
-        primary_sweep_variable="Time",
-        secondary_sweep_variable=None,
-        report_category=None,
-        plot_type="Rectangular Plot",
-        context=None,
-        subdesign_id=None,
-        polyline_points=1001,
-        plot_name=v,
-    )
-
-# ### Create multiplot report
-
-# ``` python
-# for k, v in post_params_multiplot.items():
-#     m2d.post.create_report(expressions=list(k), setup_sweep_name="",
-#                          domain="Sweep", variations=None,
-#                          primary_sweep_variable="Time", secondary_sweep_variable=None,
-#                          report_category=None, plot_type="Rectangular Plot",
-#                          context=None, subdesign_id=None,
-#                          polyline_points=1001, plotname=v)
-# ```
+for expressions, plot_name in reports:
+    m2d.post.create_report(expressions=expressions, plot_name=plot_name, **report_kwargs)
 
 # ### Analyze and save project
 
@@ -919,8 +872,8 @@ m2d.post.plot_field_from_fieldplot(plot1.name, show=False)
 
 # ### Get solution data
 #
-# Get a simulation result from a solved setup and cast it in a ``SolutionData`` object.
-# Plot the desired expression by using the Matplotlib ``plot()`` function.
+# Retrieve shaft torque as a function of time. ``get_expression_data`` returns
+# the time axis (in ns) and the torque values as numpy arrays in a single call.
 
 solutions = m2d.post.get_solution_data(
     expressions="Moving1.Torque",
@@ -929,12 +882,8 @@ solutions = m2d.post.get_solution_data(
     domain="Sweep",
 )
 
-# ### Retrieve the data magnitude of an expression
-#
-# List of shaft torque points and compute average.
-
-mag = solutions.get_expression_data(formula="magnitude")[1]
-avg = sum(mag) / len(mag)
+time_ns, torque = solutions.get_expression_data(formula="real")
+avg_torque = np.mean(torque)
 
 # ### Export a report to a file
 #
@@ -944,70 +893,23 @@ m2d.post.export_report_to_file(
     output_dir=temp_folder.name, plot_name="TorquePlots", extension=".csv"
 )
 
-# ### Retrieve the data values of torque within a time range
+# ### Plot torque over the second quarter of the electric period
 #
-# Retrieve the data values of Torque within a specific time range of the electric period.
-# Since the example analyzes only one period, the time range is from ``ElectricPeriod/4`` to ``ElectricPeriod/2``.
+# Extract and plot torque values from ``ElectricPeriod/4`` to ``ElectricPeriod/2``.
+# The electric period is retrieved from the design variables in seconds and
+# converted to nanoseconds to match the time axis units returned by ``get_expression_data``.
 
-time_interval = solutions.intrinsics["Time"]
+ep_ns = m2d.variable_manager.design_variables["ElectricPeriod"].numeric_value * 1e9
+mask = (time_ns >= ep_ns / 4) & (time_ns <= ep_ns / 2)
 
-# Convert the start and stop time of the electric period range to nanoseconds
+fig, ax = plt.subplots()
+ax.plot(time_ns[mask], torque[mask], marker="o")
+ax.set_xlabel("Time (ns)")
+ax.set_ylabel("Torque (N·m)")
+ax.set_title("Torque vs Time (Quarter to Half Period)")
 
-start_time = Quantity(
-    unit_converter(
-        values=m2d.variable_manager.design_variables["ElectricPeriod"].numeric_value
-        / 4,
-        unit_system="Time",
-        input_units="s",
-        output_units="ns",
-    ),
-    "ns",
-)
-stop_time = Quantity(2 * start_time.value, "ns")
-
-# Find the indices corresponding to the start and stop times
-
-# +
-# Convert Quantity objects to numeric values (time_intrinsics are in ns)
-numeric_start = start_time.value
-numeric_stop = stop_time.value
-
-# Use numpy.searchsorted to find the indices in the numpy array
-index_start_time = int(np.searchsorted(time_interval, numeric_start, side="left"))
-index_stop_time = int(np.searchsorted(time_interval, numeric_stop, side="right"))
-
-# Clamp indices to valid range
-index_start_time = max(0, min(index_start_time, len(time_interval) - 1))
-index_stop_time = max(0, min(index_stop_time, len(time_interval)))
-# -
-
-# ### Extract the torque values within the specified time range
-
-# Ensure torque values are a numpy array for slicing
-torque_values = solutions.get_expression_data(formula="Real")[1]
-time_electric_period = time_interval[index_start_time:index_stop_time]
-torque_electric_period = torque_values[index_start_time:index_stop_time]
-
-# Plot the torque values within the specified time range with matplotlib
-#
-# Plot the graph
-
-plt.plot(time_electric_period, torque_electric_period, marker="o")
-
-# Labels
-
-plt.xlabel("Time (ns)")
-plt.ylabel("Torque (Nm)")
-
-# Title
-
-plt.title("Torque vs Time for Half Electric Period")
-
-# Uncomment the following line to display the matplotlib plot
-
-# +
+# Uncomment the following line to display the matplotlib plot:
 # plt.show()
-# -
 
 # ## Finish
 #
