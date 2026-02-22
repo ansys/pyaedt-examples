@@ -19,7 +19,8 @@ import os
 import tempfile
 import time
 
-from ansys.aedt.core import Hfss
+from ansys.aedt.core import Hfss, settings
+settings.enable_logger = False
 # -
 
 # ### Define constants

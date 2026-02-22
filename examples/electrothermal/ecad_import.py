@@ -14,7 +14,8 @@ import tempfile
 import time
 
 from ansys.aedt.core.examples.downloads import download_file
-from ansys.aedt.core import Hfss3dLayout, Icepak
+from ansys.aedt.core import Hfss3dLayout, Icepak, settings
+settings.enable_logger = False
 # -
 
 # Define constants.

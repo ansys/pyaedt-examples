@@ -15,7 +15,8 @@ import os
 import tempfile
 import time
 
-from ansys.aedt.core import Maxwell2d
+from ansys.aedt.core import Maxwell2d, settings
+settings.enable_logger = False
 # -
 
 # Define constants,

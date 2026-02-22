@@ -17,7 +17,8 @@ import shutil
 import tempfile
 import time
 
-from ansys.aedt.core import TwinBuilder
+from ansys.aedt.core import TwinBuilder, settings
+settings.enable_logger = False
 from ansys.aedt.core.examples import downloads
 # -
 

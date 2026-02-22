@@ -11,6 +11,8 @@
 
 
 import ansys.aedt.core
+from ansys.aedt.core import settings
+settings.enable_logger = False
 import ansys.aedt.core.filtersolutions
 import matplotlib.pyplot as plt
 from ansys.aedt.core.filtersolutions_core.attributes import FilterClass, FilterType

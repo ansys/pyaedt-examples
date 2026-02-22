@@ -13,7 +13,8 @@
 import tempfile
 import time
 
-from ansys.aedt.core import Maxwell3d
+from ansys.aedt.core import Maxwell3d, settings
+settings.enable_logger = False
 from ansys.aedt.core.examples import downloads
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import read_csv_pandas

@@ -17,6 +17,8 @@
 import tempfile
 
 import ansys.aedt.core
+from ansys.aedt.core import settings
+settings.enable_logger = False
 import pyedb
 from pyedb.misc.downloads import download_file
 # -

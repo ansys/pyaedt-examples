@@ -14,7 +14,8 @@ import tempfile
 
 from ansys.aedt.core.examples.downloads import download_file
 import plotly.graph_objects as go
-from ansys.aedt.core import Emit
+from ansys.aedt.core import Emit, settings
+settings.enable_logger = False
 from ansys.aedt.core.emit_core.emit_constants import InterfererType
 # -
 

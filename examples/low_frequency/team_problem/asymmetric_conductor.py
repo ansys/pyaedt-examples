@@ -17,7 +17,8 @@ import tempfile
 import time
 
 import numpy as np
-from ansys.aedt.core import Maxwell3d
+from ansys.aedt.core import Maxwell3d, settings
+settings.enable_logger = False
 from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 from ansys.aedt.core.generic.file_utils import write_csv
 

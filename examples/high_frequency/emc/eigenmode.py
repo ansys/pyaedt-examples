@@ -30,8 +30,9 @@ import time
 import numpy as np
 
 import ansys.aedt.core
+from ansys.aedt.core import settings
+settings.enable_logger = False
 from ansys.aedt.core.examples.downloads import download_file
-from ansys.aedt.core.generic.settings import settings
 # -
 
 # ### Define constants
@@ -72,8 +73,6 @@ hfss = ansys.aedt.core.Hfss(
     non_graphical=NG_MODE,
     new_desktop=False,
 )
-hfss.desktop_class.logger.log_on_stdout = False
-
 # ### Eigenmode search function
 #
 # The function ``find_resonance()`` creates a solution setup,

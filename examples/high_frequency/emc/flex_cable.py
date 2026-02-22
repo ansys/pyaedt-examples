@@ -15,6 +15,8 @@ import tempfile
 from math import cos, radians, sin, sqrt
 
 import ansys.aedt.core
+from ansys.aedt.core import settings
+settings.enable_logger = False
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 
 # -

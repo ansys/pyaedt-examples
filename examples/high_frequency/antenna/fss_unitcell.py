@@ -15,6 +15,8 @@ import time
 from pathlib import Path
 
 import ansys.aedt.core
+from ansys.aedt.core import settings
+settings.enable_logger = False
 from ansys.aedt.core.examples.downloads import download_file
 
 # ### Define constants

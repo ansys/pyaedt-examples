@@ -13,6 +13,8 @@
 
 # +
 import ansys.aedt.core
+from ansys.aedt.core import settings
+settings.enable_logger = False
 import os
 import time
 import tempfile

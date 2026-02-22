@@ -13,7 +13,8 @@ import os
 import tempfile
 import time
 
-from ansys.aedt.core import Icepak
+from ansys.aedt.core import Icepak, settings
+settings.enable_logger = False
 from ansys.aedt.core.examples.downloads import download_icepak_3d_component
 
 # Define constants.

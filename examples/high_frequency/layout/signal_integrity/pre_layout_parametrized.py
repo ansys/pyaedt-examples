@@ -18,7 +18,8 @@ import os
 import tempfile
 import time
 
-from ansys.aedt.core import Hfss3dLayout
+from ansys.aedt.core import Hfss3dLayout, settings
+settings.enable_logger = False
 from pyedb import Edb
 
 # -

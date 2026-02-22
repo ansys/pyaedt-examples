@@ -26,7 +26,8 @@ import os.path
 import tempfile
 import time
 
-from ansys.aedt.core import Hfss, Icepak, Mechanical
+from ansys.aedt.core import Hfss, Icepak, Mechanical, settings
+settings.enable_logger = False
 from ansys.aedt.core.examples import downloads
 # -
 

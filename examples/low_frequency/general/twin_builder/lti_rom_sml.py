@@ -17,7 +17,8 @@ import tempfile
 import time
 
 import matplotlib.pyplot as plt
-from ansys.aedt.core import TwinBuilder
+from ansys.aedt.core import TwinBuilder, settings
+settings.enable_logger = False
 from ansys.aedt.core.examples import downloads
 from ansys.aedt.core.application.variables import CSVDataset
 # -

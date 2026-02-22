@@ -14,7 +14,8 @@ import os
 import tempfile
 import time
 
-from ansys.aedt.core import Maxwell3d
+from ansys.aedt.core import Maxwell3d, settings
+settings.enable_logger = False
 from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 
 # -

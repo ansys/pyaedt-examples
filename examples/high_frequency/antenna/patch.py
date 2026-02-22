@@ -23,6 +23,8 @@ import tempfile
 import time
 
 import ansys.aedt.core
+from ansys.aedt.core import settings
+settings.enable_logger = False
 from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
 # -
 

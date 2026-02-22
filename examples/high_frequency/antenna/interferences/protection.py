@@ -17,7 +17,8 @@ import tempfile
 import time
 
 import plotly.graph_objects as go
-from ansys.aedt.core import Emit
+from ansys.aedt.core import Emit, settings
+settings.enable_logger = False
 # -
 
 # from ansys.aedt.core.emit_core.emit_constants import \

@@ -17,6 +17,8 @@ import time
 from operator import attrgetter
 
 import ansys.aedt.core
+from ansys.aedt.core import settings
+settings.enable_logger = False
 import matplotlib.pyplot as plt
 import numpy as np
 from ansys.aedt.core.examples.downloads import download_leaf

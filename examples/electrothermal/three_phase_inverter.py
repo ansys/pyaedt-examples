@@ -14,6 +14,8 @@ import time
 from pathlib import Path
 
 import ansys.aedt.core
+from ansys.aedt.core import settings
+settings.enable_logger = False
 import pandas as pd
 from ansys.aedt.core import get_pyaedt_app
 from ansys.aedt.core.examples.downloads import download_file
