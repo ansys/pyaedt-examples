@@ -141,7 +141,7 @@ setup.props["RelativeResidual"] = 1e-6
 # Enable sweeps over coil net current and anchor displacement
 
 value_sweep = m2d.parametrics.add("Amp_1", 500, 1000, 500, name="ParametricSetup1", variation_type="LinearStep")
-value_sweep.add_variation("move", 0, 2, 1, variation_type="LinearStep")
+value_sweep.add_variation("move", 0, 1, 1, variation_type="LinearStep")
 #
 
 # ### Run analysis
