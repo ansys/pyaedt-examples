@@ -55,7 +55,7 @@ output_q3d = os.path.join(temp_folder.name, project_name + "_q3d.aedt")
 # Open the EDB project and create a cutout on the selected nets
 # before exporting to Q3D.
 
-edb = pyedb.Edb(aedb_project, version=AEDT_VERSION)
+edb = pyedb.Edb(edbpath=aedb_project, version=AEDT_VERSION)
 signal_nets = ["1.2V_AVDLL_PLL", "1.2V_AVDDL", "1.2V_DVDDL", "NetR106_1"]
 ground_nets = ["GND"]
 cutout_points = edb.cutout(
