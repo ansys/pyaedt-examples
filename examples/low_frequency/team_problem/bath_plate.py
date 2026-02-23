@@ -270,7 +270,7 @@ solutions.plot()
 # Uncomment to show plots.
 
 solutions.active_variation["Coil_Position"] = solutions.variations[1]["Coil_Position"]
-# solutions.plot()
+solutions.plot()
 
 # ### Plot induced current density on surface of ladder plate
 #
