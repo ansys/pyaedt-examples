@@ -15,8 +15,9 @@ import tempfile
 import time
 
 import ansys.aedt.core
+from ansys.aedt.core.generic.constants import Gravity, Plane, SolutionsIcepak
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
-from ansys.aedt.core.generic.constants import Plane, Gravity, SolutionsIcepak
+
 # -
 
 # Define constants.
@@ -126,9 +127,7 @@ hfss.modeler.subtract(o2, o1, True)
 
 hfss.mesh.assign_initial_mesh_from_slider(level=6)
 hfss.mesh.assign_model_resolution(assignment=[o1.name, o3.name], defeature_length=None)
-hfss.mesh.assign_length_mesh(
-    assignment=o2.faces, inside_selection=False, maximum_length=1, maximum_elements=2000
-)
+hfss.mesh.assign_length_mesh(assignment=o2.faces, inside_selection=False, maximum_length=1, maximum_elements=2000)
 
 # ## Create HFSS sources
 #
@@ -170,7 +169,7 @@ hfss.modeler.fit_all()
 hfss.set_active_design(hfss.design_name)
 setup = hfss.create_setup("MySetup")
 setup.props["Frequency"] = "1GHz"
-setup.props["BasisOrder"] = 2
+setup.props["BasisOrder"] = 1
 setup.props["MaximumPasses"] = 1
 
 # ## Create frequency sweep
@@ -180,7 +179,7 @@ setup.props["MaximumPasses"] = 1
 
 sweepname = hfss.create_linear_count_sweep(
     setup="MySetup",
-    units="GHz",
+    unit="GHz",
     start_frequency=0.8,
     stop_frequency=1.2,
     num_of_freq_points=401,
@@ -202,6 +201,7 @@ ipk.copy_solid_bodies_from(hfss)
 
 surfaceobj = ["inner", "outer"]
 ipk.assign_em_losses(
+    assignment=surfaceobj,
     design=hfss.design_name,
     setup="MySetup",
     sweep="LastAdaptive",
@@ -337,9 +337,7 @@ print("Total Time", end_time)
 # +
 setup_name = ipk.existing_analysis_sweeps[0]
 intrinsic = ""
-surface_list = ipk.modeler.get_object_faces("inner") + ipk.modeler.get_object_faces(
-    "outer"
-)
+surface_list = ipk.modeler.get_object_faces("inner") + ipk.modeler.get_object_faces("outer")
 plot5 = ipk.post.create_fieldplot_surface(surface_list, quantity="SurfTemperature")
 
 hfss.save_project()
@@ -362,9 +360,7 @@ my_data.plot(
 
 # Create a PDF report summarizig results.
 
-pdf_report = AnsysReport(
-    project_name=hfss.project_name, design_name=hfss.design_name, version=AEDT_VERSION
-)
+pdf_report = AnsysReport(project_name=hfss.project_name, design_name=hfss.design_name, version=AEDT_VERSION)
 
 # Create the report.
 
@@ -376,9 +372,7 @@ pdf_report.add_section()
 pdf_report.add_chapter("HFSS Results")
 pdf_report.add_sub_chapter("Field plot")
 pdf_report.add_text("This section contains field plots of HFSS Coaxial.")
-pdf_report.add_image(
-    os.path.join(temp_folder.name, plot1.name + ".jpg"), caption="Coaxial cable"
-)
+pdf_report.add_image(os.path.join(temp_folder.name, plot1.name + ".jpg"), caption="Coaxial cable")
 
 # Add a page break and a subchapter for S Parameter results.
 
