@@ -18,6 +18,7 @@ import time
 
 import ansys.aedt.core
 import matplotlib.pyplot as plt
+
 # -
 
 # Define constants.
@@ -60,37 +61,23 @@ G = 0.00254
 
 # Create an AC sinosoidal voltage source.
 
-source = tb.modeler.schematic.create_voltage_source(
-    "V_AC", "ESINE", 100, 50, location=[-1 * G, 0]
-)
+source = tb.modeler.schematic.create_voltage_source("V_AC", "ESINE", 100, 50, location=[-1 * G, 0])
 
 # Place the four diodes of the bridge rectifier. The named argument ``angle`` is the rotation angle
 # of the component in radians.
 
-diode1 = tb.modeler.schematic.create_diode(
-    name="D1", location=[10 * G, 6 * G], angle=270
-)
-diode2 = tb.modeler.schematic.create_diode(
-    name="D2", location=[20 * G, 6 * G], angle=270
-)
-diode3 = tb.modeler.schematic.create_diode(
-    name="D3", location=[10 * G, -4 * G], angle=270
-)
-diode4 = tb.modeler.schematic.create_diode(
-    name="D4", location=[20 * G, -4 * G], angle=270
-)
+diode1 = tb.modeler.schematic.create_diode(name="D1", location=[10 * G, 6 * G], angle=270)
+diode2 = tb.modeler.schematic.create_diode(name="D2", location=[20 * G, 6 * G], angle=270)
+diode3 = tb.modeler.schematic.create_diode(name="D3", location=[10 * G, -4 * G], angle=270)
+diode4 = tb.modeler.schematic.create_diode(name="D4", location=[20 * G, -4 * G], angle=270)
 
 # Place a capacitor filter.
 
-capacitor = tb.modeler.schematic.create_capacitor(
-    name="C_FILTER", value=1e-6, location=[29 * G, -10 * G]
-)
+capacitor = tb.modeler.schematic.create_capacitor(name="C_FILTER", value=1e-6, location=[29 * G, -10 * G])
 
 # Place a load resistor.
 
-resistor = tb.modeler.schematic.create_resistor(
-    name="RL", value=100000, location=[39 * G, -10 * G]
-)
+resistor = tb.modeler.schematic.create_resistor(name="RL", value=100000, location=[39 * G, -10 * G])
 
 # Place the ground component.
 
@@ -100,40 +87,24 @@ gnd = tb.modeler.components.create_gnd(location=[5 * G, -16 * G])
 #
 # Connect components with wires, and connect the diode pins to create the bridge.
 
-tb.modeler.schematic.create_wire(
-    points=[diode1.pins[0].location, diode3.pins[0].location]
-)
-tb.modeler.schematic.create_wire(
-    points=[diode2.pins[1].location, diode4.pins[1].location]
-)
-tb.modeler.schematic.create_wire(
-    points=[diode1.pins[1].location, diode2.pins[0].location]
-)
-tb.modeler.schematic.create_wire(
-    points=[diode3.pins[1].location, diode4.pins[0].location]
-)
+tb.modeler.schematic.create_wire(points=[diode1.pins[0].location, diode3.pins[0].location])
+tb.modeler.schematic.create_wire(points=[diode2.pins[1].location, diode4.pins[1].location])
+tb.modeler.schematic.create_wire(points=[diode1.pins[1].location, diode2.pins[0].location])
+tb.modeler.schematic.create_wire(points=[diode3.pins[1].location, diode4.pins[0].location])
 
 # Connect the voltage source to the bridge.
 
-tb.modeler.schematic.create_wire(
-    points=[source.pins[1].location, [0, 10 * G], [15 * G, 10 * G], [15 * G, 5 * G]]
-)
-tb.modeler.schematic.create_wire(
-    points=[source.pins[0].location, [0, -10 * G], [15 * G, -10 * G], [15 * G, -5 * G]]
-)
+tb.modeler.schematic.create_wire(points=[source.pins[1].location, [0, 10 * G], [15 * G, 10 * G], [15 * G, 5 * G]])
+tb.modeler.schematic.create_wire(points=[source.pins[0].location, [0, -10 * G], [15 * G, -10 * G], [15 * G, -5 * G]])
 
 # Connect the filter capacitor and load resistor.
 
-tb.modeler.schematic.create_wire(
-    points=[resistor.pins[0].location, [40 * G, 0], [22 * G, 0]]
-)
+tb.modeler.schematic.create_wire(points=[resistor.pins[0].location, [40 * G, 0], [22 * G, 0]])
 tb.modeler.schematic.create_wire(points=[capacitor.pins[0].location, [30 * G, 0]])
 
 # Add the ground connection.
 
-tb.modeler.schematic.create_wire(
-    points=[resistor.pins[1].location, [40 * G, -15 * G], gnd.pins[0].location]
-)
+tb.modeler.schematic.create_wire(points=[resistor.pins[1].location, [40 * G, -15 * G], gnd.pins[0].location])
 tb.modeler.schematic.create_wire(points=[capacitor.pins[1].location, [30 * G, -15 * G]])
 tb.modeler.schematic.create_wire(points=[gnd.pins[0].location, [5 * G, 0], [8 * G, 0]])
 
@@ -159,7 +130,7 @@ tb.analyze_setup("TR")
 
 src_name = source.InstanceName + ".V"
 x = tb.post.get_solution_data(src_name, "TR", "Time")
-plt.plot(x.intrinsics["Time"], x.data_real(src_name))
+plt.plot(x.intrinsics["Time"], x.get_expression_data(src_name)[1])
 plt.grid()
 plt.xlabel("Time")
 plt.ylabel("AC Voltage")
@@ -167,7 +138,7 @@ plt.show()
 
 r_voltage = resistor.InstanceName + ".V"
 x = tb.post.get_solution_data(r_voltage, "TR", "Time")
-plt.plot(x.intrinsics["Time"], x.data_real(r_voltage))
+plt.plot(x.intrinsics["Time"], x.get_expression_data(r_voltage)[1])
 plt.grid()
 plt.xlabel("Time")
 plt.ylabel("AC to DC Conversion using Rectifier")
