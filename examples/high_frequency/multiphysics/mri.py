@@ -221,7 +221,7 @@ setup = mech.create_setup()
 mech.modeler.set_working_coordinate_system("implant")
 mech.modeler.create_point(position=[0, 0, 0], name="Point1")
 setup.props["Stop Time"] = 30
-setup.props["Time Step"] = "10s"
+setup.props["Time Step"] = "15s"
 setup.props["SaveFieldsType"] = "Every N Steps"
 setup.props["N Steps"] = "2"
 # -
@@ -242,7 +242,7 @@ mech.post.create_fieldplot_cutplane(
     assignment=["implant:YZ"],
     quantity="Temperature",
     filter_objects=["implant_box"],
-    intrinsics={"Time": "10s"},
+    intrinsics={"Time": "15s"},
 )
 mech.save_project()
 
@@ -258,9 +258,9 @@ mech.post.plot_animated_field(
     quantity="Temperature",
     assignment="implant:YZ",
     plot_type="CutPlane",
-    intrinsics={"Time": "10s"},
+    intrinsics={"Time": "15s"},
     variation_variable="Time",
-    variations=["10s", "30s"],
+    variations=["15s", "30s"],
     filter_objects=["implant_box"],
     show=False,
 )
@@ -285,7 +285,10 @@ ipk.copy_solid_bodies_from(hfss)
 # Link sources to the EM losses.
 # Assign external convection.
 
+assignment = ipk.modeler.object_names
+
 ipk.assign_em_losses(
+    assignment=assignment,
     design=hfss.design_name,
     setup=hfss.setups[0].name,
     sweep="LastAdaptive",
@@ -303,7 +306,7 @@ setup = ipk.create_setup()
 
 setup.props["Stop Time"] = 30
 setup.props["N Steps"] = 2
-setup.props["Time Step"] = 5
+setup.props["Time Step"] = 15
 setup.props["Convergence Criteria - Energy"] = 1e-12
 # -
 
