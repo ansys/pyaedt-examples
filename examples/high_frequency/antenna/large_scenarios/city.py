@@ -63,6 +63,7 @@ ansys_home = [40.273726, -80.168269]
 #
 # Import the model and define the domain size. The radius that defines the domain is specified in meters.
 
+# Disabling default release on exception as importing data from openstreet map can raise an exception.
 settings.release_on_exception = False
 app.modeler.import_from_openstreet_map(
     ansys_home,
