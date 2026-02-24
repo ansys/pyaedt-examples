@@ -114,12 +114,12 @@ cfg["ports"] = [
 cfg["setups"] = [
     {
         "name": "siwave_syz",
-        "type": "siwave_syz",
+        "type": "siwave_ac",
         "pi_slider_position": 1,
         "freq_sweep": [
             {
                 "name": "Sweep1",
-                "type": "Interpolation",
+                "type": "interpolation",
                 "frequencies": [
                     {
                         "distribution": "log scale",
