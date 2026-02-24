@@ -72,6 +72,7 @@ app.modeler.import_from_openstreet_map(
     plot_before_importing=True,
     import_in_aedt=True,
 )
+# Reverting back to release on exception.
 settings.release_on_exception = True
 
 # ### Visualize the model
