@@ -15,6 +15,7 @@ import time
 from pathlib import Path
 
 import ansys.aedt.core
+from ansys.aedt.core.generic.settings import settings
 
 # -
 
@@ -62,6 +63,7 @@ ansys_home = [40.273726, -80.168269]
 #
 # Import the model and define the domain size. The radius that defines the domain is specified in meters.
 
+settings.release_on_exception = False
 app.modeler.import_from_openstreet_map(
     ansys_home,
     terrain_radius=250,
@@ -69,6 +71,7 @@ app.modeler.import_from_openstreet_map(
     plot_before_importing=True,
     import_in_aedt=True,
 )
+settings.release_on_exception = True
 
 # ### Visualize the model
 #
