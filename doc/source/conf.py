@@ -290,7 +290,6 @@ def convert_examples_into_notebooks(app):
         # GitHub CI/CD Pipeline fails to run distributed_filter.py but it runs locally.
         "distributed_filter.py",
         # TODO: Remove once EMIT examples are moved into extensions.
-        "interference_type.py",
         "interference.py",
         "hfss_emit.py",
         "protection.py",
