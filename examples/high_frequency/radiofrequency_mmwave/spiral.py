@@ -14,7 +14,8 @@ import tempfile
 import time
 
 import ansys.aedt.core
-from ansys.aedt.core.generic.constants import Plane, Axis
+from ansys.aedt.core.generic.constants import Axis, Plane
+
 # -
 
 # Define constants.
@@ -185,7 +186,7 @@ setup1 = hfss.create_setup(name="setup1")
 setup1.props["Frequency"] = "10GHz"
 hfss.create_linear_count_sweep(
     setup="setup1",
-    units="GHz",
+    unit="GHz",
     start_frequency=1e-3,
     stop_frequency=50,
     num_of_freq_points=451,
@@ -209,9 +210,7 @@ hfss.create_output_variable("L", L_formula, solution="setup1 : LastAdaptive")
 # Plot the results using Matplotlib.
 
 data = hfss.post.get_solution_data([L_formula, Q_formula])
-data.plot(
-    curves=[L_formula, Q_formula], formula="re", x_label="Freq", y_label="L and Q"
-)
+data.plot(curves=[L_formula, Q_formula], formula="re", x_label="Freq", y_label="L and Q")
 
 # Export results to a CSV file
 

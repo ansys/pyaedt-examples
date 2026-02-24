@@ -28,6 +28,7 @@ import time
 
 import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_file
+
 # -
 
 # Define constants.
@@ -176,7 +177,7 @@ with open(pi_json, "w") as f:
 
 # Load the configuration into EDB from the JSON file.
 
-edbapp = ansys.aedt.core.Edb(aedb, edbversion=AEDT_VERSION)
+edbapp = ansys.aedt.core.Edb(aedb, version=AEDT_VERSION)
 edbapp.configuration.load(config_file=pi_json)
 edbapp.configuration.run()
 edbapp.save()
@@ -190,9 +191,7 @@ print(temp_folder.name)
 
 # ### Load EDB into HFSS 3D Layout
 
-h3d = ansys.aedt.core.Hfss3dLayout(
-    aedb, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True
-)
+h3d = ansys.aedt.core.Hfss3dLayout(aedb, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True)
 
 # ### Analyze
 

@@ -66,7 +66,7 @@ sma_rf_connector = download_file(
 # ## Import example design
 
 aedb = os.path.join(temp_folder.name, "new_layout.aedb")
-edbapp = Edb(edbpath=aedb, edbversion=AEDT_VERSION)
+edbapp = Edb(edbpath=aedb, version=AEDT_VERSION)
 
 # Set antipad always on.
 edbapp.design_options.antipads_always_on = True
@@ -74,12 +74,8 @@ edbapp.design_options.antipads_always_on = True
 # ## Add material definitions
 
 edbapp.materials.add_conductor_material(name="copper", conductivity=58000000)
-edbapp.materials.add_dielectric_material(
-    name="FR4_epoxy", permittivity=4, dielectric_loss_tangent=0.02
-)
-edbapp.materials.add_dielectric_material(
-    name="solder_mask", permittivity=3.1, dielectric_loss_tangent=0.035
-)
+edbapp.materials.add_dielectric_material(name="FR4_epoxy", permittivity=4, dielectric_loss_tangent=0.02)
+edbapp.materials.add_dielectric_material(name="solder_mask", permittivity=3.1, dielectric_loss_tangent=0.035)
 
 # ## Create stackup
 
@@ -98,9 +94,7 @@ edbapp.stackup.create_symmetric_stackup(
 # Create signal via padstack definition.
 
 edbapp["$antipad"] = "0.7mm"
-edbapp.padstacks.create(
-    padstackname="svia", holediam="0.3mm", antipaddiam="$antipad", paddiam="0.5mm"
-)
+edbapp.padstacks.create(padstackname="svia", holediam="0.3mm", antipaddiam="$antipad", paddiam="0.5mm")
 
 # Create component pin padstack definition.
 
@@ -199,24 +193,14 @@ comp_u1.create_clearance_on_component(extra_soldermask_clearance=3.5e-3)
 
 # Place a signal via.
 
-edbapp.padstacks.place(
-    position=[0, 0], definition_name="svia", net_name="SIG", is_pin=False
-)
+edbapp.padstacks.place(position=[0, 0], definition_name="svia", net_name="SIG", is_pin=False)
 
 # Place ground stitching vias.
 
-edbapp.padstacks.place(
-    position=["-1mm", 0], definition_name="svia", net_name="GND", is_pin=False
-)
-edbapp.padstacks.place(
-    position=["1mm", 0], definition_name="svia", net_name="GND", is_pin=False
-)
-edbapp.padstacks.place(
-    position=[0, "-1mm"], definition_name="svia", net_name="GND", is_pin=False
-)
-edbapp.padstacks.place(
-    position=[0, "1mm"], definition_name="svia", net_name="GND", is_pin=False
-)
+edbapp.padstacks.place(position=["-1mm", 0], definition_name="svia", net_name="GND", is_pin=False)
+edbapp.padstacks.place(position=["1mm", 0], definition_name="svia", net_name="GND", is_pin=False)
+edbapp.padstacks.place(position=[0, "-1mm"], definition_name="svia", net_name="GND", is_pin=False)
+edbapp.padstacks.place(position=[0, "1mm"], definition_name="svia", net_name="GND", is_pin=False)
 
 # ## Create signal traces
 
@@ -241,7 +225,7 @@ sig_trace.add_point(x="-0.5mm", y="0.5mm", incremental=True)
 sig_trace.add_point(x=0, y="1mm", incremental=True)
 sig_path = sig_trace.get_center_line()
 
-# Create coplanar waveguide with ground with ground stitching vias.
+# Create coplanar waveguide with ground stitching vias.
 
 sig2_trace = edbapp.modeler.create_trace(
     path_list=[sig_path[-1]],
@@ -339,7 +323,7 @@ comp.angle = "90deg"
 
 # ## Run simulation
 
-h3d.analyze(num_cores=4)
+h3d.analyze(cores=4)
 
 # ## Visualize the return loss.
 
@@ -355,9 +339,7 @@ h3d.post.create_report("dB(S(port_1, port_1))")
 # solutions.plot()
 cp_name = h3d.modeler.clip_plane()
 
-plot = h3d.post.create_fieldplot_cutplane(
-    cp_name, "Mag_E", h3d.nominal_adaptive, intrinsics={"Freq": "5GHz", "Phase": "0deg"}
-)
+plot = h3d.post.create_fieldplot_cutplane(cp_name, "Mag_E", h3d.nominal_adaptive, intrinsics={"Freq": "5GHz", "Phase": "0deg"})
 
 # ## Release AEDT
 
