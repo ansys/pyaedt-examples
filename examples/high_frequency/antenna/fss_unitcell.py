@@ -13,6 +13,7 @@
 import tempfile
 import time
 from pathlib import Path
+
 import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_file
 
@@ -40,8 +41,8 @@ temp_path = Path(temp_folder.name)
 
 project_name = temp_path / "FSS.aedt"
 hfss = ansys.aedt.core.Hfss(
-    version=AEDT_VERSION, 
-    project=str(project_name), 
+    version=AEDT_VERSION,
+    project=str(project_name),
     design="SquarePatch",
     non_graphical=NG_MODE,
     solution_type="Modal",
@@ -63,8 +64,8 @@ hfss["patch_dim"] = "10mm"
 # ### Define the unit cell
 #
 # The FSS unit cell will be defined from a 3D component.
-# The 3D component is downloaded from the 
-# [example data repository](https://github.com/ansys/example-data/tree/main/pyaedt) 
+# The 3D component is downloaded from the
+# [example data repository](https://github.com/ansys/example-data/tree/main/pyaedt)
 # and inserted into the HFSS design.
 
 # 1. Download the component.
@@ -97,12 +98,12 @@ same = comp.name == component_names[0]
 if same and len(component_names) == 1:
     msg = f"The single 3D component in this HFSS design is named '{comp.name}'."
 else:
-    msg ="Something went wrong!"
+    msg = "Something went wrong!"
 print(msg)
 # -
 
 # ### Set component parameters
-# The 3D component is a parameteric model. 
+# The 3D component is a parametric model.
 #
 # <img src="_static/comp3d.svg" width="500">
 #
@@ -120,11 +121,11 @@ comp.parameters["a"] = "patch_dim"
 # ### Extend the solution domain
 #
 # Extend the solution domain in the $+z$ direction. If the
-# Floquet port is placed too close to the 3D structure, evanescent 
+# Floquet port is placed too close to the 3D structure, evanescent
 # fields on the Floquet port surface can
 # lead to erroneous results.
 #
-# The unit cell model is extended away from the 
+# The unit cell model is extended away from the
 # patch by ``z_extent``. The phase reference
 # will later be moved back to the surface of the FSS by deembedding the
 # port solution.
@@ -155,7 +156,7 @@ msg += str(boundaries)
 print(msg)
 # -
 
-# The Floquet port is asigned to the top surface of the solution domain
+# The Floquet port is assigned to the top surface of the solution domain
 # where the plane
 # wave is incident on the FSS. The following arguments
 # define the periodicity of the FSS.
@@ -166,20 +167,20 @@ print(msg)
 # The phase reference is deembedded to the surface of the FSS.
 
 floquet_boundary = hfss.create_floquet_port(
-                               assignment=region.top_face_z,
-                               lattice_origin=[0, 0, z_max],
-                               lattice_a_end=[0, y_max, z_max],
-                               lattice_b_end=[x_max, 0, z_max],
-                               name="port_z_max",
-                               deembed_distance=z_extent,
-                               )
+    assignment=region.top_face_z,
+    lattice_origin=[0, 0, z_max],
+    lattice_a_end=[0, y_max, z_max],
+    lattice_b_end=[x_max, 0, z_max],
+    name="port_z_max",
+    deembed_distance=z_extent,
+)
 
 # ### Define solution setup
 #
 # The solution setup specifies details used to run
 # the analysis in HFSS. In this example adaptive mesh
 # refinement runs at 10 GHz while default values are
-# used for all other settings. 
+# used for all other settings.
 #
 # The frequency sweep is used to specify the range over which scattering
 # parameters will be calculated.
@@ -189,7 +190,7 @@ setup.props["Frequency"] = "10GHz"
 setup.props["MaximumPasses"] = 10
 hfss.create_linear_count_sweep(
     setup=setup.name,
-    units="GHz",
+    unit="GHz",
     start_frequency=6,
     stop_frequency=15,
     num_of_freq_points=401,
@@ -210,9 +211,9 @@ hfss.analyze()
 #
 # The syntax used to plot network parameters (S-, Y-, Z-) can be complicated. The
 # method ``get_traces_for_plot()`` is helpful to retrieve the names of valid
-# traces to use for ploting.
+# traces to use for plotting.
 #
-# We'll plot imaginary impedance,  $ \Im (Z_{i,j}) $ 
+# We'll plot imaginary impedance,  $ \Im (Z_{i,j}) $
 # where $ i $, and $ j $ indices correspond to the two
 # linear polarization states.
 
@@ -231,8 +232,8 @@ report = hfss.post.create_report(plot_data[0:2])
 
 # ### Retrieve data for postprocessing in Matplotlib
 #
-# The method ``get_solution_data()`` retrieves data from the report in HFSS 
-# and makes it available for postprocessing with Matplotlib. 
+# The method ``get_solution_data()`` retrieves data from the report in HFSS
+# and makes it available for postprocessing with Matplotlib.
 
 solution = report.get_solution_data()
 plt = solution.plot(solution.expressions)
