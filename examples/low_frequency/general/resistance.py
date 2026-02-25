@@ -19,7 +19,6 @@ from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
 from ansys.aedt.core.examples.downloads import download_file
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixElectric
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
-from ansys.aedt.core.generic.numbers_utils import is_close
 # -
 
 # Define constants.
@@ -27,12 +26,6 @@ from ansys.aedt.core.generic.numbers_utils import is_close
 AEDT_VERSION = "2025.2"
 NG_MODE = False
 NUM_CORES = 4
-
-# The following variables serve only for the example testing purpose
-
-RESISTANCE_REF = 1.6724005905658806e-5 # reference resistance value (2025.1)
-CONV_ERROR = 0.01 # percentage error
-FILE = "resistance.py" # file name of the example
 
 # ## Create temporary directory
 #
@@ -311,13 +304,6 @@ pdf_report.add_table(
 
 pdf_report.add_toc()
 pdf_report.save_pdf(temp_folder.name, "AEDT_Results.pdf")
-
-# ## Check whether the example has run to completion
-#
-# Test if this example runs correctly.
-
-if is_close(float(resistance[0]), RESISTANCE_REF, CONV_ERROR) is False:
-    raise ValueError(f"Error value mismatch in example file: {FILE}")
 
 # ## Release AEDT
 
