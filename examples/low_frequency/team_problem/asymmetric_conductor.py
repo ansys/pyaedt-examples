@@ -15,8 +15,8 @@
 import os
 import tempfile
 import time
-
 from math import sqrt
+
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 from ansys.aedt.core.generic.file_utils import write_csv
@@ -270,44 +270,164 @@ test_data = {
     "A1_B1": {
         50: {
             0: [
-                4.90, -17.88, -22.13, -20.19, -15.67, 0.36, 43.64, 78.11, 71.55,
-                60.44, 53.91, 52.62, 53.81, 56.91, 59.24, 52.78, 27.61,
+                4.90,
+                -17.88,
+                -22.13,
+                -20.19,
+                -15.67,
+                0.36,
+                43.64,
+                78.11,
+                71.55,
+                60.44,
+                53.91,
+                52.62,
+                53.81,
+                56.91,
+                59.24,
+                52.78,
+                27.61,
             ],
             90: [
-                -1.16, 2.84, 4.15, 4.00, 3.07, 2.31, 1.89, 4.97, 12.61, 14.15,
-                13.04, 12.40, 12.05, 12.27, 12.66, 9.96, 2.36,
+                -1.16,
+                2.84,
+                4.15,
+                4.00,
+                3.07,
+                2.31,
+                1.89,
+                4.97,
+                12.61,
+                14.15,
+                13.04,
+                12.40,
+                12.05,
+                12.27,
+                12.66,
+                9.96,
+                2.36,
             ],
         },
         200: {
             0: [
-                -3.63, -18.46, -23.62, -21.59, -16.09, 0.23, 44.35, 75.53, 63.42,
-                53.20, 48.66, 47.31, 48.31, 51.26, 53.61, 46.11, 24.96,
+                -3.63,
+                -18.46,
+                -23.62,
+                -21.59,
+                -16.09,
+                0.23,
+                44.35,
+                75.53,
+                63.42,
+                53.20,
+                48.66,
+                47.31,
+                48.31,
+                51.26,
+                53.61,
+                46.11,
+                24.96,
             ],
             90: [
-                -1.38, 1.20, 2.15, 1.63, 1.10, 0.27, -2.28, -1.40, 4.17, 3.94,
-                4.86, 4.09, 3.69, 4.60, 3.48, 4.10, 0.98,
+                -1.38,
+                1.20,
+                2.15,
+                1.63,
+                1.10,
+                0.27,
+                -2.28,
+                -1.40,
+                4.17,
+                3.94,
+                4.86,
+                4.09,
+                3.69,
+                4.60,
+                3.48,
+                4.10,
+                0.98,
             ],
         },
     },
     "A2_B2": {
         50: {
             0: [
-                -1.83, -8.50, -13.60, -15.21, -14.48, -5.62, 28.77, 60.34, 61.84,
-                56.64, 53.40, 52.36, 53.93, 56.82, 59.48, 52.08, 26.56,
+                -1.83,
+                -8.50,
+                -13.60,
+                -15.21,
+                -14.48,
+                -5.62,
+                28.77,
+                60.34,
+                61.84,
+                56.64,
+                53.40,
+                52.36,
+                53.93,
+                56.82,
+                59.48,
+                52.08,
+                26.56,
             ],
             90: [
-                -1.63, -0.60, -0.43, 0.11, 1.26, 3.40, 6.53, 10.25, 11.83, 11.83,
-                11.01, 10.58, 10.80, 10.54, 10.62, 9.03, 1.79,
+                -1.63,
+                -0.60,
+                -0.43,
+                0.11,
+                1.26,
+                3.40,
+                6.53,
+                10.25,
+                11.83,
+                11.83,
+                11.01,
+                10.58,
+                10.80,
+                10.54,
+                10.62,
+                9.03,
+                1.79,
             ],
         },
         200: {
             0: [
-                -0.86, -7.00, -11.58, -13.36, -13.77, -6.74, 24.63, 53.19, 54.89,
-                50.72, 48.03, 47.13, 48.25, 51.35, 53.35, 45.37, 24.01,
+                -0.86,
+                -7.00,
+                -11.58,
+                -13.36,
+                -13.77,
+                -6.74,
+                24.63,
+                53.19,
+                54.89,
+                50.72,
+                48.03,
+                47.13,
+                48.25,
+                51.35,
+                53.35,
+                45.37,
+                24.01,
             ],
             90: [
-                -1.35, -0.71, -0.81, -0.67, 0.15, 1.39, 2.67, 3.00, 4.01, 3.80,
-                4.00, 3.02, 2.20, 2.78, 1.58, 1.37, 0.93,
+                -1.35,
+                -0.71,
+                -0.81,
+                -0.67,
+                0.15,
+                1.39,
+                2.67,
+                3.00,
+                4.01,
+                3.80,
+                4.00,
+                3.02,
+                2.20,
+                2.78,
+                1.58,
+                1.37,
+                0.93,
             ],
         },
     },
@@ -326,7 +446,7 @@ for line_name, freq_dict in test_data.items():
             ziplist = zip(test_line_with_header, values_with_header)
 
             file_label = "Bz " + str(line_name) + " " + str(freq_value) + " " + str(freq_angle)
-            file_path = os.path.join(project_dir, str(file_label)+".csv")
+            file_path = os.path.join(project_dir, str(file_label) + ".csv")
             write_csv(output_file=file_path, list_data=ziplist)
 
 # ### Create rectangular plots and import test data into report
@@ -336,25 +456,25 @@ for line_name, freq_dict in test_data.items():
 
 for line_name, freq_dict in test_data.items():
     for freq_value, phase_dict in freq_dict.items():
-        plot_name = "Bz Along line "+line_name+" at "+str(freq_value)+"Hz"
+        plot_name = "Bz Along line " + line_name + " at " + str(freq_value) + "Hz"
         variations = {
             "Distance": ["All"],
             "Freq": [str(freq_value) + "Hz"],
-            "Phase":[str(phase_deg) + "deg" for phase_deg in sorted(phase_dict.keys())],
+            "Phase": [str(phase_deg) + "deg" for phase_deg in sorted(phase_dict.keys())],
             "Coil_Excitation": ["All"],
         }
 
         report = m3d.post.create_report(
             plot_name=plot_name,
             report_category="Fields",
-            context="Line_"+str(line_name),
+            context="Line_" + str(line_name),
             primary_sweep_variable="Distance",
             variations=variations,
             expressions="Bz",
         )
         for freq_angle in sorted(phase_dict.keys()):
             file_label = "Bz " + str(line_name) + " " + str(freq_value) + " " + str(freq_angle)
-            file_path = os.path.join(project_dir, str(file_label)+".csv")
+            file_path = os.path.join(project_dir, str(file_label) + ".csv")
             report.import_traces(input_file=file_path, plot_name=plot_name)
 
 # Analyze project.
