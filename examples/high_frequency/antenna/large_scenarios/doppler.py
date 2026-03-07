@@ -15,9 +15,8 @@ import tempfile
 import time
 
 import ansys.aedt.core
-from ansys.aedt.core.examples.downloads import download_multiparts
-from ansys.aedt.core.examples.downloads import download_file
-from ansys.aedt.core.examples.downloads import unzip
+from ansys.aedt.core.examples.downloads import download_file, download_multiparts, unzip
+
 # -
 
 # Define constants.
@@ -38,15 +37,9 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # ## Download 3D component
 # Download the 3D component that is needed to run the example.
 
-library_path = download_multiparts(
-    local_path=temp_folder.name
-)
+library_path = download_multiparts(local_path=temp_folder.name)
 
-zip_file = download_file(
-    "frtm",
-    name="doppler_sbr.results.zip",
-    local_path=temp_folder.name
-)
+zip_file = download_file("frtm", name="doppler_sbr.results.zip", local_path=temp_folder.name)
 
 results = os.path.join(temp_folder.name, "doppler_sbr.results")
 
@@ -118,9 +111,7 @@ person2 = app.modeler.add_person(
     yaw=180,
     name="Devin",
 )
-car1 = app.modeler.add_vehicle(
-    input_dir=car_folder, speed=8.7, global_offset=[3, -2.5, 0], name="LuxuryCar"
-)
+car1 = app.modeler.add_vehicle(input_dir=car_folder, speed=8.7, global_offset=[3, -2.5, 0], name="LuxuryCar")
 bike1 = app.modeler.add_vehicle(
     input_dir=bike_folder,
     speed=2.1,
@@ -185,9 +176,11 @@ app.validate_simple()
 # PyAEDT offers sophisticated tools for FRTM post-processing
 # [FRTM](https://aedt.docs.pyansys.com/version/stable/API/visualization/advanced.html#frtm-processing/)
 
-from ansys.aedt.core.visualization.advanced.frtm_visualization import get_results_files
-from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMPlotter
-from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+from ansys.aedt.core.visualization.advanced.frtm_visualization import (
+    FRTMData,
+    FRTMPlotter,
+    get_results_files,
+)
 
 # ## Load FRTM files
 #

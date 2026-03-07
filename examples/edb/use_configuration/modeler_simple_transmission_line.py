@@ -10,6 +10,7 @@ import os
 import tempfile
 
 from pyedb import Edb
+
 # -
 
 # Define constants.

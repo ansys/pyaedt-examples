@@ -48,6 +48,7 @@ import time
 
 import ansys.aedt.core as aedt
 from ansys.aedt.core.examples.downloads import download_file
+
 # -
 
 # Define constants.
@@ -69,9 +70,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 #
 # Download and open the project. Save it to the temporary folder.
 
-project_name = download_file(
-    "circuit_hfss_icepak", "Circuit-HFSS-Icepak-workflow.aedtz", temp_folder.name
-)
+project_name = download_file("circuit_hfss_icepak", "Circuit-HFSS-Icepak-workflow.aedtz", temp_folder.name)
 
 # ## Launch AEDT and initialize HFSS
 #
@@ -108,9 +107,7 @@ hfss = aedt.Hfss(project=circuit.project_name)
 
 material_name = hfss.modeler.objects_by_name[device3D_body_name].material_name
 new_material_name = material_name + "_dataset"
-new_material = hfss.materials.duplicate_material(
-    material=material_name, name=new_material_name
-)
+new_material = hfss.materials.duplicate_material(material=material_name, name=new_material_name)
 
 # ## Modify material properties
 #
@@ -171,10 +168,7 @@ for cp_iter in range(1, max_iter + 1):
     hfss_component_name = ""
     hfss_instance_name = ""
     for component in circuit.modeler.schematic.components.values():
-        if (
-            component.model_name is not None
-            and hfss.design_name in component.model_name
-        ):
+        if component.model_name is not None and hfss.design_name in component.model_name:
             hfss_component_name = component.model_name
             hfss_instance_name = component.refdes
             break
@@ -195,9 +189,7 @@ for cp_iter in range(1, max_iter + 1):
     # Step 4: Extract the resistor's power loss value from the Circuit design.
     #
     # Evaluate the power loss on the resistor.
-    r_losses = circuit.post.get_solution_data(
-        expressions="0.5*mag(I(I1)*V(V1))"
-    ).get_expression_data()[1][0]
+    r_losses = circuit.post.get_solution_data(expressions="0.5*mag(I(I1)*V(V1))").get_expression_data()[1][0]
 
     # Save the losses in the stats.
     stats[cp_iter]["losses"] = r_losses
@@ -228,9 +220,7 @@ for cp_iter in range(1, max_iter + 1):
     # Step 7: Export the temperature map from the Icepak design and create a new 3D dataset with it.
     #
     # Export the temperature map to a file.
-    fld_filename = os.path.join(
-        icepak.working_directory, f"temperature_map_{cp_iter}.fld"
-    )
+    fld_filename = os.path.join(icepak.working_directory, f"temperature_map_{cp_iter}.fld")
     icepak.post.export_field_file(
         quantity="Temp",
         output_file=fld_filename,
@@ -256,16 +246,12 @@ for cp_iter in range(1, max_iter + 1):
 
     # Import the 3D dataset.
     dataset_name = f"temp_map_step_{cp_iter}"
-    hfss.import_dataset3d(
-        input_file=tab_filename, name=dataset_name, is_project_dataset=True
-    )
+    hfss.import_dataset3d(input_file=tab_filename, name=dataset_name, is_project_dataset=True)
 
     # Step 8: Update material properties in the HFSS design based on the new dataset.
     #
     # Set the new conductivity value.
-    new_material.conductivity.value = (
-        f"{old_conductivity}*Pwl($TempDepCond,clp(${dataset_name},X,Y,Z))"
-    )
+    new_material.conductivity.value = f"{old_conductivity}*Pwl($TempDepCond,clp(${dataset_name},X,Y,Z))"
 
     # Switch off the thermal modifier of the material, if any.
     new_material.conductivity.thermalmodifier = None
@@ -273,9 +259,7 @@ for cp_iter in range(1, max_iter + 1):
     # Step 9: Extract the average temperature of the resistor from the Icepak design.
     #
     # Get the mean temperature value on the high-resistivity object.
-    mean_temp = icepak.post.get_scalar_field_value(
-        quantity="Temp", scalar_function="Mean", object_name=resistor_body_name
-    )
+    mean_temp = icepak.post.get_scalar_field_value(quantity="Temp", scalar_function="Mean", object_name=resistor_body_name)
 
     # Save the temperature in the iteration statistics.
     stats[cp_iter]["temp"] = mean_temp
@@ -296,12 +280,8 @@ for cp_iter in range(1, max_iter + 1):
     converged = False
     stats[cp_iter]["converged"] = converged
     if cp_iter > 1:
-        delta_temp = abs(stats[cp_iter]["temp"] - stats[cp_iter - 1]["temp"]) / abs(
-            stats[cp_iter - 1]["temp"]
-        )
-        delta_losses = abs(
-            stats[cp_iter]["losses"] - stats[cp_iter - 1]["losses"]
-        ) / abs(stats[cp_iter - 1]["losses"])
+        delta_temp = abs(stats[cp_iter]["temp"] - stats[cp_iter - 1]["temp"]) / abs(stats[cp_iter - 1]["temp"])
+        delta_losses = abs(stats[cp_iter]["losses"] - stats[cp_iter - 1]["losses"]) / abs(stats[cp_iter - 1]["losses"])
         if delta_temp <= temp_residual_limit and delta_losses <= loss_residual_limit:
             converged = True
             stats[cp_iter]["converged"] = converged
@@ -323,21 +303,9 @@ for cp_iter in range(1, max_iter + 1):
 
 for i in stats:
     txt = "yes" if stats[i]["converged"] else "no"
-    delta_temp = (
-        f"{stats[i]['delta_temp']:.4f}"
-        if stats[i]["delta_temp"] is not None
-        else "None"
-    )
-    delta_losses = (
-        f"{stats[i]['delta_losses']:.4f}"
-        if stats[i]["delta_losses"] is not None
-        else "None"
-    )
-    print(
-        f"Step {i}: temp={stats[i]['temp']:.3f}, losses={stats[i]['losses']:.3f}, "
-        f"delta_temp={delta_temp}, delta_losses={delta_losses}, "
-        f"converged={txt}"
-    )
+    delta_temp = f"{stats[i]['delta_temp']:.4f}" if stats[i]["delta_temp"] is not None else "None"
+    delta_losses = f"{stats[i]['delta_losses']:.4f}" if stats[i]["delta_losses"] is not None else "None"
+    print(f"Step {i}: temp={stats[i]['temp']:.3f}, losses={stats[i]['losses']:.3f}, " f"delta_temp={delta_temp}, delta_losses={delta_losses}, " f"converged={txt}")
 
 # ## Release AEDT
 #

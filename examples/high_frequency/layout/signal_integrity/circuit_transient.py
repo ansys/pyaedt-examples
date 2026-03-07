@@ -15,9 +15,10 @@ import tempfile
 import time
 
 import ansys.aedt.core
-from ansys.aedt.core.generic.constants import LineStyle, TraceType, SymbolStyle
 import numpy as np
+from ansys.aedt.core.generic.constants import LineStyle, SymbolStyle, TraceType
 from matplotlib import pyplot as plt
+
 # -
 
 # Define constants.
@@ -50,18 +51,14 @@ circuit = ansys.aedt.core.Circuit(
 #
 # Read an IBIS file and place a buffer in the schematic editor.
 
-ibis = circuit.get_ibis_model_from_file(
-    os.path.join(circuit.desktop_install_dir, "buflib", "IBIS", "u26a_800.ibs")
-)
+ibis = circuit.get_ibis_model_from_file(os.path.join(circuit.desktop_install_dir, "buflib", "IBIS", "u26a_800.ibs"))
 ibs = ibis.buffers["DQ_FULL_800"].insert(0, 0)
 
 # ## Place ideal transmission line
 #
 # Place an ideal transmission line in the schematic and parametrize it.
 
-tr1 = circuit.modeler.schematic.components_catalog["Ideal Distributed:TRLK_NX"].place(
-    "tr1"
-)
+tr1 = circuit.modeler.schematic.components_catalog["Ideal Distributed:TRLK_NX"].place("tr1")
 tr1.parameters["P"] = "50mm"
 
 # ## Place components
@@ -129,9 +126,7 @@ if not NG_MODE:
         trace_type=TraceType.Continuous,
         color=(0, 0, 255),
     )
-    vout.set_symbol_properties(
-        style=SymbolStyle.Circle, fill=True, color=(255, 255, 0)
-    )
+    vout.set_symbol_properties(style=SymbolStyle.Circle, fill=True, color=(255, 255, 0))
     ll = new_report.limit_lines[0]
     ll.set_line_properties(
         style=LineStyle.Solid,

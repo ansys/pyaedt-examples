@@ -29,9 +29,7 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 # the temporary folder name is given by ``temp_folder.name``.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
-package_temp_name, qfp_temp_name = download_icepak_3d_component(
-    local_path=temp_folder.name
-)
+package_temp_name, qfp_temp_name = download_icepak_3d_component(local_path=temp_folder.name)
 
 # ## Create heatsink
 # Create an empty project in non-graphical mode.
@@ -51,9 +49,7 @@ ipk.modeler["Region"].delete()
 
 # Define the heatsink using multiple boxes.
 
-hs_base = ipk.modeler.create_box(
-    origin=[0, 0, 0], sizes=[37.5, 37.5, 2], name="HS_Base"
-)
+hs_base = ipk.modeler.create_box(origin=[0, 0, 0], sizes=[37.5, 37.5, 2], name="HS_Base")
 hs_base.material_name = "Al-Extruded"
 hs_fin = ipk.modeler.create_box(origin=[0, 0, 2], sizes=[37.5, 1, 18], name="HS_Fin1")
 hs_fin.material_name = "Al-Extruded"
@@ -64,9 +60,7 @@ ipk.plot(show=False, output_file=os.path.join(temp_folder.name, "Heatsink.jpg"))
 
 # Define a mesh region around the heatsink.
 
-mesh_region = ipk.mesh.assign_mesh_region(
-    assignment=[hs_base.name, hs_fin.name] + hs_fins
-)
+mesh_region = ipk.mesh.assign_mesh_region(assignment=[hs_base.name, hs_fin.name] + hs_fins)
 mesh_region.manual_settings = True
 mesh_region.settings["MaxElementSizeX"] = "5mm"
 mesh_region.settings["MaxElementSizeY"] = "5mm"
@@ -81,11 +75,7 @@ mesh_region.update()
 # Assign monitor objects.
 
 hs_middle_fin = ipk.modeler.get_object_from_name(assignment=hs_fins[n_fins // 2])
-point_monitor_position = [
-    0.5 * (hs_base.bounding_box[i] + hs_base.bounding_box[i + 3]) for i in range(2)
-] + [
-    hs_middle_fin.bounding_box[-1]
-]  # average x,y, top z
+point_monitor_position = [0.5 * (hs_base.bounding_box[i] + hs_base.bounding_box[i + 3]) for i in range(2)] + [hs_middle_fin.bounding_box[-1]]  # average x,y, top z
 ipk.monitor.assign_point_monitor(
     point_position=point_monitor_position,
     monitor_quantity=["Temperature", "HeatFlux"],
@@ -134,7 +124,7 @@ ipk.create_dataset(
 )
 
 # Assign a source power condition to the die.
-bc_ds=ipk.create_temp_dep_assignment("PowerDissipationDataset")
+bc_ds = ipk.create_temp_dep_assignment("PowerDissipationDataset")
 ipk.assign_source(
     assignment="DieSource",
     assignment_value=bc_ds,
@@ -154,12 +144,8 @@ ipk.assign_conducting_plate_with_thickness(
 
 # Assign monitor objects.
 
-ipk.monitor.assign_point_monitor_in_object(
-    name="QFP2_die", monitor_quantity="Temperature", monitor_name="DieCenter"
-)
-ipk.monitor.assign_surface_monitor(
-    surface_name="Die_Attach", monitor_quantity="Temperature", monitor_name="DieAttach"
-)
+ipk.monitor.assign_point_monitor_in_object(name="QFP2_die", monitor_quantity="Temperature", monitor_name="DieCenter")
+ipk.monitor.assign_surface_monitor(surface_name="Die_Attach", monitor_quantity="Temperature", monitor_name="DieAttach")
 
 # Export the QFP 3D component in the ``"componentLibrary"`` folder and close the project.
 # Here the auxiliary dictionary allows exporting not only the monitor objects but also the dataset

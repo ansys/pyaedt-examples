@@ -58,7 +58,7 @@ hfss = ansys.aedt.core.Hfss(
 )
 
 # ### Specify units
-# Length units can be applied to the modeler in HFSS. The default frequency units, howver, cannot be modified through the Python interface.
+# Length units can be applied to the modeler in HFSS. The default frequency units, however, cannot be modified through the Python interface.
 #
 # The variable ``freq_units`` can be used throughout this example to ensure that frequency assignments are consistent with the specified units.
 
@@ -73,18 +73,10 @@ hfss.modeler.model_units = length_units
 
 # +
 stackup = Stackup3D(hfss)
-ground = stackup.add_ground_layer(
-    "ground", material="copper", thickness=0.035, fill_material="air"
-)
-dielectric = stackup.add_dielectric_layer(
-    "dielectric", thickness="0.5" + length_units, material="Duroid (tm)"
-)
-signal = stackup.add_signal_layer(
-    "signal", material="copper", thickness=0.035, fill_material="air"
-)
-patch = signal.add_patch(
-    patch_length=9.57, patch_width=9.25, patch_name="Patch", frequency=1e10
-)
+ground = stackup.add_ground_layer("ground", material="copper", thickness=0.035, fill_material="air")
+dielectric = stackup.add_dielectric_layer("dielectric", thickness="0.5" + length_units, material="Duroid (tm)")
+signal = stackup.add_signal_layer("signal", material="copper", thickness=0.035, fill_material="air")
+patch = signal.add_patch(patch_length=9.57, patch_width=9.25, patch_name="Patch", frequency=1e10)
 
 stackup.resize_around_element(patch)
 pad_length = [3, 3, 3, 3, 3, 3]  # Air bounding box buffer in mm.
@@ -102,7 +94,7 @@ patch.create_probe_port(ground, rel_x_offset=0.485)
 # ### Define solution setup
 # The solution setup specifies details used to run
 # the finite element analysis in HFSS. The following specifies that adaptive refinement occur at 10 GHz while all other settings are set to
-# default values. 
+# default values.
 #
 # The frequency sweep is used to specify the range over which scattering
 # parameters will be calculated.
@@ -121,7 +113,7 @@ setup.create_frequency_sweep(
 hfss.save_project()  # Save the project.
 # -
 
-# The `hfss` instance allows you to query or modify nearly all 
+# The `hfss` instance allows you to query or modify nearly all
 # properties of the HFSS design. Here is a simple example demonstrating how to query
 # information from the ``hfss`` instance.
 

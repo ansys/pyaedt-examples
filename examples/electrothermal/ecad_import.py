@@ -13,8 +13,9 @@ import os
 import tempfile
 import time
 
-from ansys.aedt.core.examples.downloads import download_file
 from ansys.aedt.core import Hfss3dLayout, Icepak
+from ansys.aedt.core.examples.downloads import download_file
+
 # -
 
 # Define constants.
@@ -60,12 +61,8 @@ def_path = download_file(
     name="edb.def",
     local_path=temp_folder.name,
 )
-board_path = download_file(
-    source="icepak/Icepak_ECAD_Import/", name="A1.bdf", local_path=temp_folder.name
-)
-library_path = download_file(
-    source="icepak/Icepak_ECAD_Import/", name="A1.ldf", local_path=temp_folder.name
-)
+board_path = download_file(source="icepak/Icepak_ECAD_Import/", name="A1.bdf", local_path=temp_folder.name)
+library_path = download_file(source="icepak/Icepak_ECAD_Import/", name="A1.ldf", local_path=temp_folder.name)
 
 # Import IDF file.
 

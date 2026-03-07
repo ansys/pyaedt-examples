@@ -13,7 +13,6 @@ import os
 import tempfile
 
 import ansys.aedt.core
-
 import pyedb
 from pyedb.misc.downloads import download_file
 # -

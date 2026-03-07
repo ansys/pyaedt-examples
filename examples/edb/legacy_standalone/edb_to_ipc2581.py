@@ -11,6 +11,7 @@ import tempfile
 import pyedb
 from pyedb.generic.general_methods import generate_unique_name
 from pyedb.misc.downloads import download_file
+
 # -
 
 # ## Download the AEDB file and copy it in the temporary folder.

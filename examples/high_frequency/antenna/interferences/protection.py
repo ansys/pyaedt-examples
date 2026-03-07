@@ -18,6 +18,7 @@ import time
 
 import plotly.graph_objects as go
 from ansys.aedt.core import Emit
+
 # -
 
 # from ansys.aedt.core.emit_core.emit_constants import \
@@ -50,9 +51,7 @@ if AEDT_VERSION <= "2023.1":
 
 project_name = os.path.join(temp_folder.name, "emit.aedt")
 
-emitapp = Emit(
-    non_graphical=NG_MODE, new_desktop=True, project=project_name, version=AEDT_VERSION
-)
+emitapp = Emit(non_graphical=NG_MODE, new_desktop=True, project=project_name, version=AEDT_VERSION)
 
 # ## Specify protection levels
 #
@@ -84,13 +83,9 @@ protection_levels = [
 #
 # Set up the scenario with radios connected to antennas.
 
-bluetooth, blue_ant = emitapp.modeler.components.create_radio_antenna(
-    "Bluetooth Low Energy (LE)", "Bluetooth"
-)
+bluetooth, blue_ant = emitapp.modeler.components.create_radio_antenna("Bluetooth Low Energy (LE)", "Bluetooth")
 gps, gps_ant = emitapp.modeler.components.create_radio_antenna("GPS Receiver", "GPS")
-wifi, wifi_ant = emitapp.modeler.components.create_radio_antenna(
-    "WiFi - 802.11-2012", "WiFi"
-)
+wifi, wifi_ant = emitapp.modeler.components.create_radio_antenna("WiFi - 802.11-2012", "WiFi")
 
 # ## Configure the radios
 #
@@ -103,12 +98,12 @@ for band in bands:
     if "HR-DSSS" in band.node_name:
         if "Ch 1-13" in band.node_name:
             band.enabled = True
-            band.set_band_power_level(-20, 'dBm')
+            band.set_band_power_level(-20, "dBm")
 
 # Reduce the bluetooth transmit power
 bands = bluetooth.bands()
 for band in bands:
-    band.set_band_power_level(-20, 'dBm')
+    band.set_band_power_level(-20, "dBm")
 
 
 def get_radio_node(radio_name):

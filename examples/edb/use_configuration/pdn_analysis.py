@@ -12,10 +12,10 @@ import os
 import tempfile
 
 import matplotlib.pyplot as plt
-
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.examples.downloads import download_file
 from pyedb import Edb
+
 # -
 
 # Define constants.
