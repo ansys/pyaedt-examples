@@ -29,7 +29,6 @@ import tempfile
 import time
 
 import matplotlib.pyplot as plt
-
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.examples.downloads import download_file
 from pyedb import Edb
@@ -73,23 +72,17 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # settings.local_example_folder = r'/path/to/local/example-data'
 # ```
 
-# +
-from ansys.aedt.core import settings
-settings.use_local_example_data = True
-settings.local_example_folder = r'C:\ansysdev\github\ansys\example-data'
-
 file_edb = download_file(source="edb/ANSYS-HSD_V1.aedb", local_path=temp_folder.name)
 download_file(
     source="touchstone",
     name="GRM32_DC0V_25degC_series.s2p",
     local_path=os.path.dirname(file_edb),
 )
-# -
 
 # ## Explore the PCB Layout
 #
-# Open the PCB as an ``Edb`` instance 
-# and inspect the stackup, nets, and components. This is useful for 
+# Open the PCB as an ``Edb`` instance
+# and inspect the stackup, nets, and components. This is useful for
 # identifying the layer names, net names, and
 # component reference designators that will be referenced later in the configuration.
 
@@ -102,7 +95,7 @@ edbapp = Edb(file_edb, version=AEDT_VERSION)
 
 print("Stackup layers:")
 for name, layer in edbapp.stackup.layers.items():
-    print(f"  \'{name}\': type={layer.type}, thickness={layer.thickness*1E6:.1f} µm")
+    print(f"  '{name}': type={layer.type}, thickness={layer.thickness*1E6:.1f} µm")
     print("--------------------------------------------")
 
 # ### Inspect nets and components
@@ -110,34 +103,34 @@ for name, layer in edbapp.stackup.layers.items():
 print(f"\nTotal nets      : {len(edbapp.nets.netlist)}")
 print(f"Total components: {len(edbapp.components.instances)}")
 
-# Print the reference designator, 
-# part number and connected net names for components. 
-# Select only the first component instance for 
+# Print the reference designator,
+# part number and connected net names for components.
+# Select only the first component instance for
 # inductors "L", capacitors "C" and the BGA "U".
 
 # Count the types of components in the PCB.
 
-resistors = {k: v for k, v in edbapp.components.instances.items() if k.lower().startswith('r')}
-caps = {k: v for k, v in edbapp.components.instances.items() if k.lower().startswith('c')}
-ics = {k: v for k, v in edbapp.components.instances.items() if k.lower().startswith('u')}
+resistors = {k: v for k, v in edbapp.components.instances.items() if k.lower().startswith("r")}
+caps = {k: v for k, v in edbapp.components.instances.items() if k.lower().startswith("c")}
+ics = {k: v for k, v in edbapp.components.instances.items() if k.lower().startswith("u")}
 print(f"There are {len(resistors)} resistors, {len(caps)} capacitors and {len(ics)} IC's.")
 
 # Print the reference designator and number of pins for each IC.
 
 for refdes, comp in ics.items():
-    s = f"{refdes} has {comp.numpins} pins and is on layer \'{comp.placement_layer}\'."
+    s = f"{refdes} has {comp.numpins} pins and is on layer '{comp.placement_layer}'."
     print(s)
 
 # The BGA is component ``"U1"`` which is an instance of the
 # ``EDBComponent`` class.
 #
-# Print the bounding box $(x,y)$ coordintes for ``"U1"``. 
+# Print the bounding box $(x,y)$ coordinates for ``"U1"``.
 # > **Note:** Lateral
 # > dimensions are in mm.
 
 refdes = "U1"
 x1, y1, x2, y2 = ics[refdes].bounding_box
-print_str = f"\"{refdes}\" bounding box:\n"
+print_str = f'\"{refdes}\" bounding box:\n'
 print_str += f"      (x={x1*1000:.2f}mm, y={y1*1000:.2f}mm)  lower left\n"
 print_str += f"      (x={x2*1000:.2f}mm, y={y2*1000:.2f}mm)  upper right."
 print(print_str)
@@ -146,7 +139,7 @@ print(print_str)
 # through the ``pins`` property.
 
 ground_pins = [pin for pin, pin_instance in ics[refdes].pins.items() if pin_instance.net.name == "GND"]
-print(f"Component \"{refdes}\" has {len(ground_pins)} pins connected to the net \"GND\".")
+print(f'Component "{refdes}" has {len(ground_pins)} pins connected to the net "GND".')
 
 # ### Visualize the full board
 #
@@ -185,12 +178,12 @@ cfg_general = {
 # ### Update stackup materials
 #
 # Replace default material assignments with accurate, frequency-dependent values.
-# Panasonic [Megtron4](https://na.industrial.panasonic.com/products/electronic-materials/circuit-board-materials/lineup/megtron-series/series/127607) 
+# Panasonic [Megtron4](https://na.industrial.panasonic.com/products/electronic-materials/circuit-board-materials/lineup/megtron-series/series/127607)
 # is a common high-performance PCB laminate used in server and networking
 # boards.
 #
 # Surface roughness significantly affects insertion loss above ~5 GHz. The Huray
-# model describes copper roughness using a sphere-on-a-plane geometric 
+# model describes copper roughness using a sphere-on-a-plane geometric
 # approximation defined by
 # the nodule radius and the ratio of rough surface area to the ideal flat area.
 #
@@ -209,9 +202,9 @@ cfg_general = {
 
 cfg_stackup = {
     "materials": [
-        {"name": "copper",       "permittivity": 1.0,  "conductivity": 58000000.0},
-        {"name": "megtron4",     "permittivity": 3.77, "dielectric_loss_tangent": 0.005},
-        {"name": "solder_resist","permittivity": 3.0,  "dielectric_loss_tangent": 0.035},
+        {"name": "copper", "permittivity": 1.0, "conductivity": 58000000.0},
+        {"name": "megtron4", "permittivity": 3.77, "dielectric_loss_tangent": 0.005},
+        {"name": "solder_resist", "permittivity": 3.0, "dielectric_loss_tangent": 0.035},
     ],
     "layers": [
         {
@@ -221,25 +214,25 @@ cfg_stackup = {
             "fill_material": "solder_resist",
             "thickness": "0.035mm",
             "roughness": {
-                "top":    {"model": "huray", "nodule_radius": "0.5um", "surface_ratio": "5"},
+                "top": {"model": "huray", "nodule_radius": "0.5um", "surface_ratio": "5"},
                 "bottom": {"model": "huray", "nodule_radius": "0.5um", "surface_ratio": "5"},
-                "side":   {"model": "huray", "nodule_radius": "0.5um", "surface_ratio": "5"},
+                "side": {"model": "huray", "nodule_radius": "0.5um", "surface_ratio": "5"},
                 "enabled": True,
             },
         },
-        {"name": "DE1",         "type": "dielectric", "material": "megtron4",     "fill_material": "", "thickness": "0.1mm"},
-        {"name": "Inner1",      "type": "signal",     "material": "copper",       "fill_material": "megtron4",     "thickness": "0.017mm"},
-        {"name": "DE2",         "type": "dielectric", "material": "megtron4",     "fill_material": "", "thickness": "0.088mm"},
-        {"name": "Inner2",      "type": "signal",     "material": "copper",       "fill_material": "megtron4",     "thickness": "0.017mm"},
-        {"name": "DE3",         "type": "dielectric", "material": "megtron4",     "fill_material": "", "thickness": "0.1mm"},
-        {"name": "Inner3",      "type": "signal",     "material": "copper",       "fill_material": "megtron4",     "thickness": "0.017mm"},
-        {"name": "Megtron4-1mm","type": "dielectric", "material": "megtron4",     "fill_material": "", "thickness": "1mm"},
-        {"name": "Inner4",      "type": "signal",     "material": "copper",       "fill_material": "megtron4",     "thickness": "0.017mm"},
-        {"name": "DE5",         "type": "dielectric", "material": "megtron4",     "fill_material": "", "thickness": "0.1mm"},
-        {"name": "Inner5",      "type": "signal",     "material": "copper",       "fill_material": "megtron4",     "thickness": "0.017mm"},
-        {"name": "DE6",         "type": "dielectric", "material": "megtron4",     "fill_material": "", "thickness": "0.088mm"},
-        {"name": "Inner6",      "type": "signal",     "material": "copper",       "fill_material": "megtron4",     "thickness": "0.017mm"},
-        {"name": "DE7",         "type": "dielectric", "material": "megtron4",     "fill_material": "", "thickness": "0.1mm"},
+        {"name": "DE1", "type": "dielectric", "material": "megtron4", "fill_material": "", "thickness": "0.1mm"},
+        {"name": "Inner1", "type": "signal", "material": "copper", "fill_material": "megtron4", "thickness": "0.017mm"},
+        {"name": "DE2", "type": "dielectric", "material": "megtron4", "fill_material": "", "thickness": "0.088mm"},
+        {"name": "Inner2", "type": "signal", "material": "copper", "fill_material": "megtron4", "thickness": "0.017mm"},
+        {"name": "DE3", "type": "dielectric", "material": "megtron4", "fill_material": "", "thickness": "0.1mm"},
+        {"name": "Inner3", "type": "signal", "material": "copper", "fill_material": "megtron4", "thickness": "0.017mm"},
+        {"name": "Megtron4-1mm", "type": "dielectric", "material": "megtron4", "fill_material": "", "thickness": "1mm"},
+        {"name": "Inner4", "type": "signal", "material": "copper", "fill_material": "megtron4", "thickness": "0.017mm"},
+        {"name": "DE5", "type": "dielectric", "material": "megtron4", "fill_material": "", "thickness": "0.1mm"},
+        {"name": "Inner5", "type": "signal", "material": "copper", "fill_material": "megtron4", "thickness": "0.017mm"},
+        {"name": "DE6", "type": "dielectric", "material": "megtron4", "fill_material": "", "thickness": "0.088mm"},
+        {"name": "Inner6", "type": "signal", "material": "copper", "fill_material": "megtron4", "thickness": "0.017mm"},
+        {"name": "DE7", "type": "dielectric", "material": "megtron4", "fill_material": "", "thickness": "0.1mm"},
         {
             "name": "Bottom",
             "type": "signal",
@@ -285,7 +278,7 @@ cfg_components = [
 
 # ### Assign measured S-parameter models to decoupling capacitors
 #
-# Measured [Touchstone®](https://ibis.org/touchstone_ver2.1/touchstone_ver2_1.pdf) 
+# Measured [Touchstone®](https://ibis.org/touchstone_ver2.1/touchstone_ver2_1.pdf)
 # data captures real-world parasitic effects (ESL, ESR,
 # self-resonance) that ideal RLC models cannot represent. This is especially
 # important for decoupling capacitors in a PDN-aware S-parameter analysis.
