@@ -64,7 +64,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # > **Note:** For execution of this example on your local machine, you may
 # > download or clone the [example-data](https://github.com/ansys/example-data)
 # > repo and add the
-# > following lines to copy files for this example from that local
+# > following lines so that files for this example are copied from that local
 # > source.
 #
 # ``` python
@@ -73,20 +73,27 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # settings.local_example_folder = r'/path/to/local/example-data'
 # ```
 
+# +
+from ansys.aedt.core import settings
+settings.use_local_example_data = True
+settings.local_example_folder = r'C:\ansysdev\github\ansys\example-data'
+
 file_edb = download_file(source="edb/ANSYS-HSD_V1.aedb", local_path=temp_folder.name)
 download_file(
     source="touchstone",
     name="GRM32_DC0V_25degC_series.s2p",
     local_path=os.path.dirname(file_edb),
 )
+# -
 
 # ## Explore the PCB Layout
 #
-# Open the EDB and inspect its stackup, nets, and components before modifying
-# the design. This is useful for identifying the layer names, net names, and
+# Open the PCB as an ``Edb`` instance 
+# and inspect the stackup, nets, and components. This is useful for 
+# identifying the layer names, net names, and
 # component reference designators that will be referenced later in the configuration.
 
-edbapp = Edb(file_edb, edbversion=AEDT_VERSION)
+edbapp = Edb(file_edb, version=AEDT_VERSION)
 
 # ### Inspect the stackup
 #
@@ -115,25 +122,37 @@ caps = {k: v for k, v in edbapp.components.instances.items() if k.lower().starts
 ics = {k: v for k, v in edbapp.components.instances.items() if k.lower().startswith('u')}
 print(f"There are {len(resistors)} resistors, {len(caps)} capacitors and {len(ics)} IC's.")
 
-# Inspect all ICs. The BGA is the IC having the highest number of pins.
+# Print the reference designator and number of pins for each IC.
 
 for refdes, comp in ics.items():
     s = f"{refdes} has {comp.numpins} pins and is on layer \'{comp.placement_layer}\'."
-    s += f"Pin 1 is located at x={comp.first_pin[0]}, y={comp.first_pin[1]}."
     print(s)
 
-ics["U1"].numpins
+# The BGA is component ``"U1"`` which is an instance of the
+# ``EDBComponent`` class.
+#
+# Print the bounding box $(x,y)$ coordintes for ``"U1"``. 
+# > **Note:** Lateral
+# > dimensions are in mm.
 
-help(ics["U10"])
+refdes = "U1"
+x1, y1, x2, y2 = ics[refdes].bounding_box
+print_str = f"\"{refdes}\" bounding box:\n"
+print_str += f"      (x={x1*1000:.2f}mm, y={y1*1000:.2f}mm)  lower left\n"
+print_str += f"      (x={x2*1000:.2f}mm, y={y2*1000:.2f}mm)  upper right."
+print(print_str)
 
-for ref, comp in list(edbapp.components.instances.items())[:8]:
-    print(f"  {ref:6s}: {comp.partname}, nets={list(comp.nets)[:4]}")
+# Information about the device pin connections can be accessed
+# through the ``pins`` property.
+
+ground_pins = [pin for pin, pin_instance in ics[refdes].pins.items() if pin_instance.net.name == "GND"]
+print(f"Component \"{refdes}\" has {len(ground_pins)} pins connected to the net \"GND\".")
 
 # ### Visualize the full board
 #
-# Plot all nets color-coded by net name to get an overview of the copper coverage.
+# Plot all nets color-coded by net name to view the copper coverage.
 
-edbapp.nets.plot(None, color_by_net=True)
+edbapp.nets.plot(None, color_by_net=True, show_legend=False)
 
 # Plot the PCB stackup cross-section showing layer thicknesses and materials.
 
@@ -166,11 +185,13 @@ cfg_general = {
 # ### Update stackup materials
 #
 # Replace default material assignments with accurate, frequency-dependent values.
-# Megtron4 is a common high-performance PCB laminate used in server and networking
+# Panasonic [Megtron4](https://na.industrial.panasonic.com/products/electronic-materials/circuit-board-materials/lineup/megtron-series/series/127607) 
+# is a common high-performance PCB laminate used in server and networking
 # boards.
 #
 # Surface roughness significantly affects insertion loss above ~5 GHz. The Huray
-# model describes copper roughness using a sphere-on-a-plane geometry defined by
+# model describes copper roughness using a sphere-on-a-plane geometric 
+# approximation defined by
 # the nodule radius and the ratio of rough surface area to the ideal flat area.
 #
 # Keywords for layers:
@@ -264,7 +285,8 @@ cfg_components = [
 
 # ### Assign measured S-parameter models to decoupling capacitors
 #
-# Measured Touchstone data captures real-world parasitic effects (ESL, ESR,
+# Measured [Touchstone®](https://ibis.org/touchstone_ver2.1/touchstone_ver2_1.pdf) 
+# data captures real-world parasitic effects (ESL, ESR,
 # self-resonance) that ideal RLC models cannot represent. This is especially
 # important for decoupling capacitors in a PDN-aware S-parameter analysis.
 #
@@ -285,7 +307,7 @@ cfg_s_parameters = [
         "name": "cap_10nf",
         "component_definition": "CAPC1005X55X25LL05T10",
         "file_path": "GRM32_DC0V_25degC_series.s2p",
-        "apply_to_all": False,
+        "apply_to_all": True,
         "components": ["C375", "C376"],
         "reference_net": "GND",
     }
@@ -293,16 +315,17 @@ cfg_s_parameters = [
 
 # ### Define ports
 #
-# Create one coaxial port per differential net at the IC (U1) end, and one circuit
-# port per differential pair at the connector (X1) end. A 4-port model results:
-# two ports per side of the PCIe channel.
+# Create one coaxial port per differential net at the IC ("U1") end, and one circuit
+# port per differential pair at the connector ("X1") end. The resulting 4-port model
+# is comprised of
+# two ports at each end of the the PCIe channel.
 #
 # Keywords:
 #
 # - **type**: ``coax`` creates a cylindrical wave port around the solder ball.
 #   ``circuit`` creates a lumped port between two specified terminals.
-# - **positive_terminal.net**: For a coax port, the net selects which solder ball
-#   on the component receives the port.
+# - **positive_terminal.net**: For a coax port, the net specifies which solder ball
+#   on the component is assigned to the port.
 # - **positive_terminal.pin** / **negative_terminal.pin**: For a circuit port,
 #   specify the exact pin names (as printed on the component).
 
@@ -340,8 +363,8 @@ cfg_ports = [
 # ### Configure via backdrills
 #
 # Via stubs—the unused portion of a through-hole via below the last active
-# layer—act as quarter-wave resonators that cause sharp notches in insertion
-# loss. Backdrilling removes these stubs after PCB fabrication.
+# layer—can act as quarter-wave resonators and cause sharp cutouts in insertion
+# loss at high frequency. Backdrilling removes these stubs after PCB fabrication.
 #
 # Keywords for instances:
 #
@@ -432,8 +455,8 @@ cfg_setups = [
 # ### Define the design cutout
 #
 # Trim the board to the region containing the PCIe channel. The cutout removes
-# all copper and dielectric outside the specified polygon, dramatically reducing
-# the mesh size and simulation time while retaining the relevant transmission
+# all copper and dielectric outside the specified polygon, reducing
+# the required compute resources while retaining the relevant transmission
 # lines, vias, return-path planes, and decoupling capacitors.
 #
 # Keywords:
@@ -467,6 +490,7 @@ cfg_operations = {
 
 # ### Assemble configuration dictionary and write to a JSON file
 
+# +
 cfg = {
     "general": cfg_general,
     "stackup": cfg_stackup,
@@ -481,6 +505,7 @@ cfg = {
 file_json = os.path.join(temp_folder.name, "edb_configuration.json")
 with open(file_json, "w") as f:
     json.dump(cfg, f, indent=4, ensure_ascii=False)
+# -
 
 # ### Apply configuration to EDB
 #
@@ -524,11 +549,11 @@ h3d = Hfss3dLayout(
     new_desktop=True,
 )
 
-# ### Assign differential pairs
+# ### Defining differential pairs
 #
 # Map the four single-ended ports defined in the EDB to two mixed-mode ports.
 # HFSS 3D Layout and SIwave use these definitions to compute differential
-# (SDD) and common-mode (SCC) S-parameters automatically.
+# (SDD) and common-mode (SCC) S-parameters.
 #
 # - **differential_mode**: Name of the mixed-mode port (used in result expressions).
 # - **assignment**: The positive (P) single-ended port name.
