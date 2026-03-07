@@ -15,8 +15,9 @@ import tempfile
 import time
 
 import ansys.aedt.core
-from ansys.aedt.core.examples.downloads import download_file
 import pyedb
+from ansys.aedt.core.examples.downloads import download_file
+
 # -
 
 # ### Define constants
@@ -41,9 +42,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # +
 project_dir = os.path.join(temp_folder.name, "edb")
-aedb_project = download_file(
-    source="edb/ANSYS-HSD_V1.aedb", local_path=project_dir
-)
+aedb_project = download_file(source="edb/ANSYS-HSD_V1.aedb", local_path=project_dir)
 
 project_name = os.path.join(temp_folder.name, "HSD")
 output_edb = os.path.join(project_dir, project_name + ".aedb")
@@ -55,7 +54,7 @@ output_q3d = os.path.join(project_dir, project_name + "_q3d.aedt")
 # Open the EDB project and create a cutout on the selected nets
 # before exporting to Q3D.
 
-edb = pyedb.Edb(aedb_project, version=AEDT_VERSION)
+edb = pyedb.Edb(edbpath=aedb_project, version=AEDT_VERSION)
 cutout_points = edb.cutout(
     ["CLOCK_I2C_SCL", "CLOCK_I2C_SDA"],
     ["GND"],
@@ -69,18 +68,10 @@ cutout_points = edb.cutout(
 # Identify $(x,y)$ pin locations on the components to define where to assign sources
 # and sinks for Q3D.
 
-pin_u13_scl = [
-    i for i in edb.components["U13"].pins.values() if i.net_name == "CLOCK_I2C_SCL"
-]
-pin_u1_scl = [
-    i for i in edb.components["U1"].pins.values() if i.net_name == "CLOCK_I2C_SCL"
-]
-pin_u13_sda = [
-    i for i in edb.components["U13"].pins.values() if i.net_name == "CLOCK_I2C_SDA"
-]
-pin_u1_sda = [
-    i for i in edb.components["U1"].pins.values() if i.net_name == "CLOCK_I2C_SDA"
-]
+pin_u13_scl = [i for i in edb.components["U13"].pins.values() if i.net_name == "CLOCK_I2C_SCL"]
+pin_u1_scl = [i for i in edb.components["U1"].pins.values() if i.net_name == "CLOCK_I2C_SCL"]
+pin_u13_sda = [i for i in edb.components["U13"].pins.values() if i.net_name == "CLOCK_I2C_SDA"]
+pin_u1_sda = [i for i in edb.components["U1"].pins.values() if i.net_name == "CLOCK_I2C_SDA"]
 
 # ## Append Z elevation positions
 #
@@ -105,12 +96,10 @@ location_u1_sda.append(edb.components["U1"].upper_elevation * 1000)
 # Save and close EDB. Then, open the EDB project in HFSS 3D Layout to generate the 3D model.
 
 # +
-edb.save_edb()
-edb.close_edb()
+edb.save()
+edb.close()
 
-h3d = ansys.aedt.core.Hfss3dLayout(
-    output_edb, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True
-)
+h3d = ansys.aedt.core.Hfss3dLayout(output_edb, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True)
 # -
 
 # ## Set up the Q3D Project
@@ -151,9 +140,7 @@ setup = q3d.create_setup()
 setup.dc_enabled = True
 setup.capacitance_enabled = False
 sweep = setup.add_sweep()
-sweep.add_subrange(
-    "LinearStep", 0, end=2, count=0.05, unit="GHz", clear=True
-)
+sweep.add_subrange("LinearStep", 0, end=2, count=0.05, unit="GHz", clear=True)
 setup.analyze(cores=NUM_CORES)
 
 # ## Solve

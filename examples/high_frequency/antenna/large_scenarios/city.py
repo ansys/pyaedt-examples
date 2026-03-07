@@ -10,11 +10,13 @@
 # ### Perform imports
 
 # +
-import os
 import tempfile
 import time
+from pathlib import Path
 
 import ansys.aedt.core
+from ansys.aedt.core.generic.settings import settings
+
 # -
 
 # ### Define constants
@@ -36,12 +38,11 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ### Launch HFSS and open project
 #
-# Launch HFSS and open the project. The solution type
-# [SBR+](https://www.ansys.com/blog/new-hfss-sbr-technology-in-ansys-2021-r2) instantiates a design type that supports the SBR+ solver.
+# Launch HFSS and open the project.
 
-project_name = os.path.join(temp_folder.name, "city.aedt")
+project_name = Path(temp_folder.name) / "city.aedt"
 app = ansys.aedt.core.Hfss(
-    project=project_name,
+    project=str(project_name),
     design="Ansys",
     solution_type="SBR+",
     version=AEDT_VERSION,
@@ -53,8 +54,8 @@ app = ansys.aedt.core.Hfss(
 #
 # ### Define the global location
 #
-# Define the latitude and longitude of the 
-# [location](https://www.openstreetmap.org/#map=12/40.2740/-80.1680) 
+# Define the latitude and longitude of the
+# [location](https://www.openstreetmap.org/#map=12/40.2740/-80.1680)
 # to import from OpenStreetMap.
 
 ansys_home = [40.273726, -80.168269]
@@ -63,6 +64,8 @@ ansys_home = [40.273726, -80.168269]
 #
 # Import the model and define the domain size. The radius that defines the domain is specified in meters.
 
+# Disabling default release on exception as importing data from openstreet map can raise an exception.
+settings.release_on_exception = False
 app.modeler.import_from_openstreet_map(
     ansys_home,
     terrain_radius=250,
@@ -70,6 +73,8 @@ app.modeler.import_from_openstreet_map(
     plot_before_importing=True,
     import_in_aedt=True,
 )
+# Reverting back to release on exception.
+settings.release_on_exception = True
 
 # ### Visualize the model
 #
@@ -81,7 +86,7 @@ plot_obj.zoom = 1.5
 plot_obj.show_grid = False
 plot_obj.show_axes = False
 plot_obj.bounding_box = False
-plot_obj.plot(os.path.join(temp_folder.name, "Source.jpg"))
+plot_obj.plot(Path(temp_folder.name) / "Source.jpg")
 
 # ## Finish
 #

@@ -32,7 +32,7 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 aedb_path = os.path.join(temp_folder.name, "pcb.aedb")
-edb = Edb(edbpath=aedb_path, edbversion=AEDT_VERSION)
+edb = Edb(edbpath=aedb_path, version=AEDT_VERSION)
 
 # ## Create layout
 # ### Define the parameters.

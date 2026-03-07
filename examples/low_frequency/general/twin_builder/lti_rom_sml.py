@@ -18,8 +18,9 @@ import time
 
 import matplotlib.pyplot as plt
 from ansys.aedt.core import TwinBuilder
-from ansys.aedt.core.examples import downloads
 from ansys.aedt.core.application.variables import CSVDataset
+from ansys.aedt.core.examples import downloads
+
 # -
 
 # Define constants
@@ -34,9 +35,7 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 training_data_folder = "LTI_training_data.zip"
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
-input_dir = downloads.download_twin_builder_data(
-    training_data_folder, True, temp_folder.name
-)
+input_dir = downloads.download_twin_builder_data(training_data_folder, True, temp_folder.name)
 
 # Download data from example_data repository
 
@@ -74,25 +73,19 @@ pin_names = get_ports_info(os.path.join(data_folder, ports_names_file))
 # the default setup.
 
 project_name = os.path.join(temp_folder.name, "LTI_ROM.aedt")
-tb = TwinBuilder(
-    project=project_name, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True
-)
+tb = TwinBuilder(project=project_name, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True)
 
 # ## Build the LTI ROM with specified configuration file
 
 install_dir = tb.odesktop.GetRegistryString("Desktop/InstallationDirectory")
 fitting_exe = os.path.join(install_dir, "FittingTool.exe")
 path = '"' + fitting_exe + '"' + "  " + '"t"' + "  " + '"' + data_folder + '"'
-process = subprocess.Popen(
-    path, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-)
+process = subprocess.Popen(path, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 tb.logger.info("Fitting the LTI ROM training data")
 exec = True
 startTime = datetime.datetime.now()
 execTime = 0.0
-while (
-    exec and execTime < 60.0
-):  # limiting the fitting process execution time to 1 minute
+while exec and execTime < 60.0:  # limiting the fitting process execution time to 1 minute
     out, err = process.communicate()
     execTime = (datetime.datetime.now() - startTime).total_seconds()
     if "An LTI ROM has been generated" in str(out):
@@ -115,9 +108,7 @@ else:
 
 # ## Import the ROM component model
 
-is_created = tb.modeler.schematic.create_component_from_sml(
-    input_file=rom_file, model=model_name_sml, pins_names=pin_names
-)
+is_created = tb.modeler.schematic.create_component_from_sml(input_file=rom_file, model=model_name_sml, pins_names=pin_names)
 os.remove(rom_file)
 tb.logger.info("LTI ROM model successfully imported.")
 
@@ -131,9 +122,7 @@ grid_distance = 0.00254
 
 # Place the ROM component
 
-rom1 = tb.modeler.schematic.create_component(
-    "ROM1", "", model_name_sml, [36 * grid_distance, 28 * grid_distance]
-)
+rom1 = tb.modeler.schematic.create_component("ROM1", "", model_name_sml, [36 * grid_distance, 28 * grid_distance])
 
 # Place datapairs blocks for inputs definition
 
@@ -162,24 +151,16 @@ source2.parameters["CH_DATA"] = dataset2.name
 
 tb.modeler.schematic.update_quantity_value(source1.composed_name, "PERIO", "0")
 
-tb.modeler.schematic.update_quantity_value(
-    source1.composed_name, "TPERIO", "Tend+1", "s"
-)
+tb.modeler.schematic.update_quantity_value(source1.composed_name, "TPERIO", "Tend+1", "s")
 
 tb.modeler.schematic.update_quantity_value(source2.composed_name, "PERIO", "0")
 
-tb.modeler.schematic.update_quantity_value(
-    source2.composed_name, "TPERIO", "Tend+1", "s"
-)
+tb.modeler.schematic.update_quantity_value(source2.composed_name, "TPERIO", "Tend+1", "s")
 
 # Connect components with wires
 
-tb.modeler.schematic.create_wire(
-    points=[source1.pins[0].location, rom1.pins[0].location]
-)
-tb.modeler.schematic.create_wire(
-    points=[source2.pins[0].location, rom1.pins[1].location]
-)
+tb.modeler.schematic.create_wire(points=[source1.pins[0].location, rom1.pins[0].location])
+tb.modeler.schematic.create_wire(points=[source2.pins[0].location, rom1.pins[1].location])
 
 # Zoom to fit the schematic
 
@@ -215,9 +196,7 @@ fig.subplots_adjust(hspace=0.5)
 for i in range(0, 2):
     variable = "ROM1." + rom_pins[i]
     x = tb.post.get_solution_data(variable, "TR", "Time")
-    ax[0].plot(
-        [el for el in x.intrinsics["Time"]], x.data_real(variable), label=variable
-    )
+    ax[0].plot([el for el in x.intrinsics["Time"]], x.get_expression_data(variable)[1], label=variable)
 
 ax[0].set_title("ROM inputs")
 ax[0].legend(loc="upper left")
@@ -225,9 +204,7 @@ ax[0].legend(loc="upper left")
 for i in range(2, 4):
     variable = "ROM1." + rom_pins[i]
     x = tb.post.get_solution_data(variable, "TR", "Time")
-    ax[1].plot(
-        [el for el in x.intrinsics["Time"]], x.data_real(variable), label=variable
-    )
+    ax[1].plot([el for el in x.intrinsics["Time"]], x.get_expression_data(variable)[1], label=variable)
 
 ax[1].set_title("ROM outputs")
 ax[1].legend(loc="upper left")

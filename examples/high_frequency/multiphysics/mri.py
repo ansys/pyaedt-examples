@@ -29,6 +29,7 @@ import time
 
 from ansys.aedt.core import Hfss, Icepak, Mechanical
 from ansys.aedt.core.examples import downloads
+
 # -
 
 # ### Define constants
@@ -87,9 +88,7 @@ hfss.modeler.insert_3d_component(input_file=component_file)
 # This example limits the number of passes to two to reduce simulation time.
 
 # +
-im_traces = hfss.get_traces_for_plot(
-    get_mutual_terms=False, category="im(Z", first_element_filter="Coil1_p*"
-)
+im_traces = hfss.get_traces_for_plot(get_mutual_terms=False, category="im(Z", first_element_filter="Coil1_p*")
 
 hfss.setups[0].enable_expression_cache(
     report_type="Modal Solution Data",
@@ -132,9 +131,7 @@ hfss.sar_setup(
     tissue_mass=1,
     material_density=1,
 )
-hfss.post.create_fieldplot_cutplane(
-    assignment=["implant:YZ"], quantity="Average_SAR", filter_objects=["implant_box"]
-)
+hfss.post.create_fieldplot_cutplane(assignment=["implant:YZ"], quantity="Average_SAR", filter_objects=["implant_box"])
 
 hfss.modeler.set_working_coordinate_system("implant")
 hfss.modeler.create_point(position=[0, 0, 0], name="Point1")
@@ -155,7 +152,7 @@ plot = hfss.post.plot_field(
 # Adjust the MRI coil’s input power so that the average SAR at ``Point1`` is 1 W/kg.
 # Note that the SAR and input power are linearly related.
 #
-# To determine therequired input, calculate
+# To determine the required input, calculate
 # ``input_scale = 1/AverageSAR`` at ``Point1``.
 
 # +
@@ -165,9 +162,8 @@ sol_data = hfss.post.get_solution_data(
     context="Point1",
     report_category="Fields",
 )
-sol_data.data_real()
 
-hfss["input_scale"] = 1 / sol_data.data_real()[0]
+hfss["input_scale"] = 1 / sol_data.get_expression_data()[1][0]
 # -
 
 # ## Analyze phantom with implant
@@ -212,9 +208,7 @@ exc = mech.assign_em_losses(
     surface_objects=mech.get_all_conductors_names(),
 )
 
-mech.assign_uniform_convection(
-    assignment=mech.modeler["Region"].faces, convection_value=1
-)
+mech.assign_uniform_convection(assignment=mech.modeler["Region"].faces, convection_value=1)
 
 # ## Create setup
 #
@@ -229,7 +223,7 @@ setup = mech.create_setup()
 mech.modeler.set_working_coordinate_system("implant")
 mech.modeler.create_point(position=[0, 0, 0], name="Point1")
 setup.props["Stop Time"] = 30
-setup.props["Time Step"] = "10s"
+setup.props["Time Step"] = "15s"
 setup.props["SaveFieldsType"] = "Every N Steps"
 setup.props["N Steps"] = "2"
 # -
@@ -250,7 +244,7 @@ mech.post.create_fieldplot_cutplane(
     assignment=["implant:YZ"],
     quantity="Temperature",
     filter_objects=["implant_box"],
-    intrinsics={"Time": "10s"},
+    intrinsics={"Time": "15s"},
 )
 mech.save_project()
 
@@ -266,9 +260,9 @@ mech.post.plot_animated_field(
     quantity="Temperature",
     assignment="implant:YZ",
     plot_type="CutPlane",
-    intrinsics={"Time": "10s"},
+    intrinsics={"Time": "15s"},
     variation_variable="Time",
-    variations=["10s", "30s"],
+    variations=["15s", "30s"],
     filter_objects=["implant_box"],
     show=False,
 )
@@ -293,7 +287,10 @@ ipk.copy_solid_bodies_from(hfss)
 # Link sources to the EM losses.
 # Assign external convection.
 
+assignment = ipk.modeler.object_names
+
 ipk.assign_em_losses(
+    assignment=assignment,
     design=hfss.design_name,
     setup=hfss.setups[0].name,
     sweep="LastAdaptive",
@@ -311,7 +308,7 @@ setup = ipk.create_setup()
 
 setup.props["Stop Time"] = 30
 setup.props["N Steps"] = 2
-setup.props["Time Step"] = 5
+setup.props["Time Step"] = 15
 setup.props["Convergence Criteria - Energy"] = 1e-12
 # -
 
