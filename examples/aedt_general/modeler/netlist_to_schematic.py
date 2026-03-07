@@ -18,6 +18,7 @@ import time
 
 import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_netlist
+
 # -
 
 # ## Define constants.

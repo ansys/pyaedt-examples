@@ -36,9 +36,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 #
 # Download and open the project. Save it to the temporary folder.
 
-project_name = download_via_wizard(
-    local_path=temp_folder.name
-)
+project_name = download_via_wizard(local_path=temp_folder.name)
 
 # ## Start HFSS
 #

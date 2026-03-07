@@ -19,6 +19,7 @@ import time
 import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_file
 from IPython.display import Image
+
 # -
 
 # Define constants.
@@ -51,9 +52,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # to the extracted project is accessible from the ``cir.project_file`` property.
 
 # +
-project_path = download_file(
-    source="custom_reports/", local_path=temp_folder.name
-)
+project_path = download_file(source="custom_reports/", local_path=temp_folder.name)
 
 circuit = ansys.aedt.core.Circuit(
     project=os.path.join(project_path, "CISPR25_Radiated_Emissions_Example23R1.aedtz"),
@@ -70,12 +69,8 @@ circuit.analyze()  # Run the circuit analysis.
 # add notes to a report and modify the axes, grid, and legend. Custom reports
 # can be created in AEDT in non-graphical mode using version 2023 R2 and later.
 
-report1 = circuit.post.create_report_from_configuration(
-    os.path.join(project_path, "Spectrum_CISPR_Basic.json")
-)
-out = circuit.post.export_report_to_jpg(
-    project_path=circuit.working_directory, plot_name=report1.plot_name
-)
+report1 = circuit.post.create_report_from_configuration(os.path.join(project_path, "Spectrum_CISPR_Basic.json"))
+out = circuit.post.export_report_to_jpg(project_path=circuit.working_directory, plot_name=report1.plot_name)
 
 # Render the image.
 
@@ -84,12 +79,8 @@ Image(os.path.join(circuit.working_directory, report1.plot_name + ".jpg"))
 # You can customize every aspect of the report. The method ``crate_report_from_configuration()`` reads the
 # report configuration from a JSON file and generates the custom report.
 
-report1_full = circuit.post.create_report_from_configuration(
-    os.path.join(project_path, "Spectrum_CISPR_Custom.json")
-)
-out = circuit.post.export_report_to_jpg(
-    circuit.working_directory, report1_full.plot_name
-)
+report1_full = circuit.post.create_report_from_configuration(os.path.join(project_path, "Spectrum_CISPR_Custom.json"))
+out = circuit.post.export_report_to_jpg(circuit.working_directory, report1_full.plot_name)
 Image(os.path.join(circuit.working_directory, report1_full.plot_name + ".jpg"))
 
 # ## Create a transient report
@@ -98,13 +89,9 @@ Image(os.path.join(circuit.working_directory, report1_full.plot_name + ".jpg"))
 # The following code modifies the trace rendering prior to creating the report.
 
 # +
-props = ansys.aedt.core.generic.file_utils.read_json(
-    os.path.join(project_path, "Transient_CISPR_Custom.json")
-)
+props = ansys.aedt.core.generic.file_utils.read_json(os.path.join(project_path, "Transient_CISPR_Custom.json"))
 
-report2 = circuit.post.create_report_from_configuration(
-    report_settings=props, solution_name="NexximTransient"
-)
+report2 = circuit.post.create_report_from_configuration(report_settings=props, solution_name="NexximTransient")
 out = circuit.post.export_report_to_jpg(circuit.working_directory, report2.plot_name)
 Image(os.path.join(circuit.working_directory, report2.plot_name + ".jpg"))
 # -
@@ -114,9 +101,7 @@ Image(os.path.join(circuit.working_directory, report2.plot_name + ".jpg"))
 
 props["expressions"] = {"V(Battery)": {}, "V(U1_VDD)": {}}
 props["plot_name"] = "Battery Voltage"
-report3 = circuit.post.create_report_from_configuration(
-    report_settings=props, solution_name="NexximTransient"
-)
+report3 = circuit.post.create_report_from_configuration(report_settings=props, solution_name="NexximTransient")
 out = circuit.post.export_report_to_jpg(circuit.working_directory, report3.plot_name)
 Image(os.path.join(circuit.working_directory, report3.plot_name + ".jpg"))
 
@@ -124,20 +109,14 @@ Image(os.path.join(circuit.working_directory, report3.plot_name + ".jpg"))
 #
 # You can use the JSON file to create an eye diagram. The following code includes the eye.
 
-report4 = circuit.post.create_report_from_configuration(
-    os.path.join(project_path, "EyeDiagram_CISPR_Basic.json")
-)
+report4 = circuit.post.create_report_from_configuration(os.path.join(project_path, "EyeDiagram_CISPR_Basic.json"))
 out = circuit.post.export_report_to_jpg(circuit.working_directory, report4.plot_name)
 Image(os.path.join(circuit.working_directory, report4.plot_name + ".jpg"))
 
 # +
-report4_full = circuit.post.create_report_from_configuration(
-    os.path.join(project_path, "EyeDiagram_CISPR_Custom.json")
-)
+report4_full = circuit.post.create_report_from_configuration(os.path.join(project_path, "EyeDiagram_CISPR_Custom.json"))
 
-out = circuit.post.export_report_to_jpg(
-    circuit.working_directory, report4_full.plot_name
-)
+out = circuit.post.export_report_to_jpg(circuit.working_directory, report4_full.plot_name)
 Image(os.path.join(circuit.working_directory, report4_full.plot_name + ".jpg"))
 # -
 

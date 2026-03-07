@@ -27,6 +27,7 @@ import time
 
 from ansys.aedt.core.examples.downloads import download_file
 from pyedb import Edb, Siwave
+
 # -
 
 # Define constants.
@@ -199,9 +200,7 @@ siwave.run_dc_simulation()
 
 # ## Export Icepak project
 
-siwave.export_icepak_project(
-    os.path.join(temp_folder.name, "from_siwave.aedt"), "siwave_dc"
-)
+siwave.export_icepak_project(os.path.join(temp_folder.name, "from_siwave.aedt"), "siwave_dc")
 
 # ## Close SIWave project
 

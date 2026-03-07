@@ -50,9 +50,7 @@ core_xy_coord = math.ceil(3 * c_strand_radius + 2 * core_xlpe_ins_thickness)
 
 # Initialize radii of further structures incrementally adding thicknesses.
 
-filling_radius = 1.4142 * (
-    core_xy_coord + 3 * c_strand_radius + core_xlpe_ins_thickness + 0.5
-)
+filling_radius = 1.4142 * (core_xy_coord + 3 * c_strand_radius + core_xlpe_ins_thickness + 0.5)
 inner_sheath_radius = filling_radius + 0.75
 armour_thickness = 3
 armour_radius = inner_sheath_radius + armour_thickness
@@ -127,9 +125,7 @@ mat_pp.update()
 #
 # Create the geometry for core strands, fill, and XLPE insulation.
 
-q2d.modeler.create_coordinate_system(
-    origin=["c_strand_xy_coord", "c_strand_xy_coord", "0mm"], name="CS_c_strand_1"
-)
+q2d.modeler.create_coordinate_system(origin=["c_strand_xy_coord", "c_strand_xy_coord", "0mm"], name="CS_c_strand_1")
 q2d.modeler.set_working_coordinate_system("CS_c_strand_1")
 c1_id = q2d.modeler.create_circle(
     origin=["0mm", "0mm", "0mm"],
@@ -137,9 +133,7 @@ c1_id = q2d.modeler.create_circle(
     name="c_strand_1",
     material="copper",
 )
-c2_id = c1_id.duplicate_along_line(
-    vector=["0mm", "2.0*c_strand_radius", "0mm"], clones=2
-)
+c2_id = c1_id.duplicate_along_line(vector=["0mm", "2.0*c_strand_radius", "0mm"], clones=2)
 q2d.modeler.duplicate_around_axis(c2_id, axis="Z", angle=360 / core_n_strands, clones=6)
 c_unite_name = q2d.modeler.unite(q2d.get_all_conductors_names())
 
@@ -163,9 +157,7 @@ q2d.modeler.set_working_coordinate_system("Global")
 
 all_obj_names = q2d.get_all_conductors_names() + q2d.get_all_dielectrics_names()
 
-q2d.modeler.duplicate_around_axis(
-    all_obj_names, axis="Z", angle=360 / cable_n_cores, clones=4
-)
+q2d.modeler.duplicate_around_axis(all_obj_names, axis="Z", angle=360 / cable_n_cores, clones=4)
 cond_names = q2d.get_all_conductors_names()
 
 # Define the filling object.
@@ -217,9 +209,7 @@ arm_strand_1_id = q2d.modeler.create_circle(
     material="steel_stainless",
 )
 arm_strand_1_id.color = (128, 128, 64)
-arm_strand_1_id.duplicate_around_axis(
-    axis="Z", angle="360deg/n_arm_strands", clones="n_arm_strands"
-)
+arm_strand_1_id.duplicate_around_axis(axis="Z", angle="360deg/n_arm_strands", clones="n_arm_strands")
 arm_strand_names = q2d.modeler.get_objects_w_string("arm_strand")
 
 # Define the outer region that defines the solution domain.
@@ -230,16 +220,9 @@ region.material_name = "vacuum"
 # Assign conductors and reference ground.
 
 obj = [q2d.modeler.get_object_from_name(i) for i in cond_names]
-[
-    q2d.assign_single_conductor(
-        name="C1" + str(obj.index(i) + 1), assignment=i, conductor_type="SignalLine"
-    )
-    for i in obj
-]
+[q2d.assign_single_conductor(name="C1" + str(obj.index(i) + 1), assignment=i, conductor_type="SignalLine") for i in obj]
 obj = [q2d.modeler.get_object_from_name(i) for i in arm_strand_names]
-q2d.assign_single_conductor(
-    name="gnd", assignment=obj, conductor_type="ReferenceGround"
-)
+q2d.assign_single_conductor(name="gnd", assignment=obj, conductor_type="ReferenceGround")
 q2d.modeler.fit_all()
 
 # Specify the design settings.

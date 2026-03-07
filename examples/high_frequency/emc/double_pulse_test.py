@@ -139,9 +139,7 @@ voltm_g = circuit.modeler.schematic.components_catalog["Probes:VPROBE_DIFF"].pla
     assignment="voltage_g", location=[100, 2900], angle=270
 )
 voltm_g.parameters["Name"] = "voltage_g"
-voltm_ds = circuit.modeler.schematic.components_catalog["Probes:VPROBE_DIFF"].place(
-    assignment="voltage_ds", location=[2500, 3300], angle=0
-)
+voltm_ds = circuit.modeler.schematic.components_catalog["Probes:VPROBE_DIFF"].place(assignment="voltage_ds", location=[2500, 3300], angle=0)
 voltm_ds.parameters["Name"] = "voltage_ds"
 amm_top = circuit.modeler.schematic.components_catalog["Probes:IPROBE"].place(
     assignment="Itop", location=[1100, 5200], angle=0
@@ -171,11 +169,6 @@ nmos_l = circuit.modeler.schematic.components_catalog[
 
 # ## Create wiring to complete the schematic.
 
-circuit.modeler.schematic.connect_components_in_series(
-    assignment=[l_load, r_load], use_wire=True
-)
-circuit.modeler.schematic.connect_components_in_series(
-    assignment=[v_gate_top, r_g1], use_wire=True
 )
 circuit.modeler.schematic.connect_components_in_series(
     assignment=[v_pwl, r_g2], use_wire=True

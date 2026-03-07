@@ -11,15 +11,15 @@
 
 # +
 import json
-import toml
-from pathlib import Path
 import tempfile
+from pathlib import Path
 
-from IPython.display import display
-from ansys.aedt.core.examples.downloads import download_file
 import pandas as pd
-
+import toml
+from ansys.aedt.core.examples.downloads import download_file
+from IPython.display import display
 from pyedb import Edb
+
 # -
 
 # Define constants.
@@ -125,7 +125,7 @@ with open(cfg_file_path, "w") as f:
     json.dump(cfg, f, indent=4, ensure_ascii=False)
 
 
-# Equivalent toml file looks like below 
+# Equivalent toml file looks like below
 
 toml_string = toml.dumps(cfg)
 print(toml_string)

@@ -13,6 +13,7 @@ import tempfile
 import time
 
 import ansys.aedt.core
+
 # -
 
 # Define constants
@@ -87,14 +88,8 @@ print("primitive id = {}".format(line1.id))
 # Create an arc primitive. The ``position_list`` parameter must contain at
 # least three position values. The first three position values are used.
 
-line2 = modeler.create_polyline(
-    points=test_points[0:3], segment_type="Arc", name="PL02_arc"
-)
-print(
-    "Created object with id {} and name {}.".format(
-        line2.id, modeler.objects[line2.id].name
-    )
-)
+line2 = modeler.create_polyline(points=test_points[0:3], segment_type="Arc", name="PL02_arc")
+print("Created object with id {} and name {}.".format(line2.id, modeler.objects[line2.id].name))
 
 # ### Create spline primitive
 #
@@ -124,9 +119,7 @@ start_point = [100, 100, 0]
 center_point = [0, 0, 0]
 line4 = modeler.create_polyline(
     points=[start_point],
-    segment_type=modeler.polyline_segment(
-        "AngularArc", arc_center=center_point, arc_angle="30deg"
-    ),
+    segment_type=modeler.polyline_segment("AngularArc", arc_center=center_point, arc_angle="30deg"),
     name="PL04_center_point_arc",
 )
 
@@ -139,16 +132,12 @@ start_point = [100, 0, 0]
 center_point = [0, 0, 0]
 line4_xy = modeler.create_polyline(
     points=[start_point],
-    segment_type=modeler.polyline_segment(
-        "AngularArc", arc_center=center_point, arc_angle="30deg", arc_plane="XY"
-    ),
+    segment_type=modeler.polyline_segment("AngularArc", arc_center=center_point, arc_angle="30deg", arc_plane="XY"),
     name="PL04_center_point_arc_rot_XY",
 )
 line4_zx = modeler.create_polyline(
     points=[start_point],
-    segment_type=modeler.polyline_segment(
-        "AngularArc", arc_center=center_point, arc_angle="30deg", arc_plane="ZX"
-    ),
+    segment_type=modeler.polyline_segment("AngularArc", arc_center=center_point, arc_angle="30deg", arc_plane="ZX"),
     name="PL04_center_point_arc_rot_ZX",
 )
 
@@ -165,9 +154,7 @@ line6 = modeler.create_polyline(points=test_points, name="PL06_segmented_compoun
 # You can specify the segment type as an optional named argument to
 # define the segment type used to connect the points.
 
-line5 = modeler.create_polyline(
-    points=test_points, segment_type=["Line", "Arc"], name="PL05_compound_line_arc"
-)
+line5 = modeler.create_polyline(points=test_points, segment_type=["Line", "Arc"], name="PL05_compound_line_arc")
 
 # Setting the named argument ``close_surface=True`` ensures
 # that the polyline starting point and
@@ -175,16 +162,12 @@ line5 = modeler.create_polyline(
 # polyline by setting the last point equal
 # to the first point in the list of points.
 
-line7 = modeler.create_polyline(
-    points=test_points, close_surface=True, name="PL07_segmented_compound_line_closed"
-)
+line7 = modeler.create_polyline(points=test_points, close_surface=True, name="PL07_segmented_compound_line_closed")
 
 # Setting the named argument ``cover_surface=True`` also
 # covers the polyline and creates a sheet object.
 
-line_cover = modeler.create_polyline(
-    points=test_points, cover_surface=True, name="SPL01_segmented_compound_line"
-)
+line_cover = modeler.create_polyline(points=test_points, cover_surface=True, name="SPL01_segmented_compound_line")
 
 # ## Insert compound lines
 #
@@ -215,17 +198,13 @@ line8_segment.insert_segment(points=[insert_point, points_line8_segment])
 # that the segment is inserted after the first segment of the original polyline.
 
 # +
-line8_segment_arc = modeler.create_polyline(
-    points=test_points, close_surface=False, name="PL08_segmented_compound_insert_arc"
-)
+line8_segment_arc = modeler.create_polyline(points=test_points, close_surface=False, name="PL08_segmented_compound_insert_arc")
 
 start_point = line8_segment_arc.vertex_positions[1]
 insert_point1 = ["90mm", "20mm", "0mm"]
 insert_point2 = [40, 40, 0]
 
-line8_segment_arc.insert_segment(
-    points=[start_point, insert_point1, insert_point2], segment="Arc"
-)
+line8_segment_arc.insert_segment(points=[start_point, insert_point1, insert_point2], segment="Arc")
 # -
 
 # ### Insert compound line at end of a center-point arc
@@ -243,9 +222,7 @@ arc_angle_1 = "43.47deg"
 line_arc = modeler.create_polyline(
     name="First_Arc",
     points=[start_point],
-    segment_type=modeler.polyline_segment(
-        type="AngularArc", arc_angle=arc_angle_1, arc_center=arc_center_1
-    ),
+    segment_type=modeler.polyline_segment(type="AngularArc", arc_angle=arc_angle_1, arc_center=arc_center_1),
 )
 # -
 
@@ -261,9 +238,7 @@ arc_angle_2 = "39.716deg"
 arc_center_2 = [3400, 200, 3800]
 line_arc.insert_segment(
     points=[end_of_line_segment],
-    segment=modeler.polyline_segment(
-        type="AngularArc", arc_center=arc_center_2, arc_angle=arc_angle_2
-    ),
+    segment=modeler.polyline_segment(type="AngularArc", arc_center=arc_center_2, arc_angle=arc_angle_2),
 )
 
 # You can use the compound polyline definition to complete all three steps in
@@ -272,13 +247,9 @@ line_arc.insert_segment(
 modeler.create_polyline(
     points=[start_point, end_of_line_segment],
     segment_type=[
-        modeler.polyline_segment(
-            type="AngularArc", arc_angle="43.47deg", arc_center=arc_center_1
-        ),
+        modeler.polyline_segment(type="AngularArc", arc_angle="43.47deg", arc_center=arc_center_1),
         modeler.polyline_segment(type="Line"),
-        modeler.polyline_segment(
-            type="AngularArc", arc_angle=arc_angle_2, arc_center=arc_center_2
-        ),
+        modeler.polyline_segment(type="AngularArc", arc_angle=arc_angle_2, arc_center=arc_center_2),
     ],
     name="Compound_Polyline_One_Command",
 )
@@ -322,17 +293,13 @@ line_points = [
 
 
 line_segments = ["Line", "Arc", "Line", "Arc", "Line"]
-line_complex1 = modeler.create_polyline(
-    points=line_points, segment_type=line_segments, name="Polyline_example"
-)
+line_complex1 = modeler.create_polyline(points=line_points, segment_type=line_segments, name="Polyline_example")
 
 # Here is an example that provides more points than the segment list requires.
 # This is valid usage. The remaining points are ignored.
 
 line_segments = ["Line", "Arc", "Line", "Arc"]
-line_complex2 = modeler.create_polyline(
-    line_points, segment_type=line_segments, name="Polyline_example2"
-)
+line_complex2 = modeler.create_polyline(line_points, segment_type=line_segments, name="Polyline_example2")
 
 # ## Save project
 #

@@ -17,12 +17,13 @@
 
 # +
 import json
-import toml
-from pathlib import Path
 import tempfile
+from pathlib import Path
 
+import toml
 from ansys.aedt.core.examples.downloads import download_file
 from pyedb import Edb
+
 # -
 
 # Define constants.
@@ -157,7 +158,7 @@ file_json = Path(temp_folder.name) / "edb_configuration.json"
 with open(file_json, "w") as f:
     json.dump(cfg, f, indent=4, ensure_ascii=False)
 
-# Equivalent toml file looks like below 
+# Equivalent toml file looks like below
 
 toml_string = toml.dumps(cfg)
 print(toml_string)

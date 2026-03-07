@@ -18,10 +18,12 @@ import tempfile
 import time
 
 from ansys.aedt.core import Hfss
-from ansys.aedt.core.visualization.advanced.farfield_visualization import \
-    FfdSolutionData
 from ansys.aedt.core.examples.downloads import download_3dcomponent
 from ansys.aedt.core.generic import file_utils
+from ansys.aedt.core.visualization.advanced.farfield_visualization import (
+    FfdSolutionData,
+)
+
 # -
 
 # ### Define constants
@@ -70,9 +72,7 @@ print("Project name " + project_name)
 #
 # Read array definition from the JSON file.
 
-array_definition = file_utils.read_json(
-    os.path.join(path_to_3dcomp, "array_simple.json")
-)
+array_definition = file_utils.read_json(os.path.join(path_to_3dcomp, "array_simple.json"))
 
 # ### Add the 3D component definition
 #
@@ -170,7 +170,7 @@ time.sleep(3)
 #
 # An instance of the ``FfdSolutionData`` class
 # can be instantiated from the metadata file. Embedded element
-# patters are linked through the metadata file.
+# patterns are linked through the metadata file.
 
 ffdata = FfdSolutionData(input_file=metadata_file)
 
@@ -179,9 +179,7 @@ ffdata = FfdSolutionData(input_file=metadata_file)
 # Generate a contour plot. You can define the Theta scan
 # and Phi scan.
 
-ffdata.plot_contour(
-    quantity="RealizedGain", title=f"Contour at {ffdata.frequency * 1e-9:.1f} GHz"
-)
+ffdata.plot_contour(quantity="RealizedGain", title=f"Contour at {ffdata.frequency * 1e-9:.1f} GHz")
 
 # ### Generate 2D cutout plots
 #

@@ -16,6 +16,7 @@
 
 import os
 import tempfile
+
 import pyedb
 
 # ### Define constants
@@ -39,7 +40,7 @@ edb = pyedb.Edb(edbpath=aedb_path, edbversion=AEDT_VERSION)
 #
 # ### Add stackup layers
 #
-# A stackup can be created layer by layer or imported from a 
+# A stackup can be created layer by layer or imported from a
 # [configuration file](https://examples.aedt.docs.pyansys.com/version/dev/examples/edb/use_configuration/import_stackup.html).
 
 edb.stackup.add_layer("GND")

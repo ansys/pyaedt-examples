@@ -16,6 +16,7 @@ import time
 
 from ansys.aedt.core import Hfss
 from ansys.aedt.core.examples.downloads import download_sbr_time
+
 # -
 
 # Define constants.

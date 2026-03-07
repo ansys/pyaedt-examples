@@ -14,6 +14,7 @@ import tempfile
 from ansys.aedt.core import Hfss3dLayout, Icepak
 from ansys.aedt.core.examples.downloads import download_file
 from pyedb import Edb
+
 # -
 
 # Define constants.
@@ -144,9 +145,7 @@ cfg["setups"] = [
 
 # ## Define Cutout
 
-cfg["operations"] = {
-    "cutout": {"signal_list": ["1V0"], "reference_list": ["GND"], "extent_type": "ConvexHull", "expansion_size": 0.02}
-}
+cfg["operations"] = {"cutout": {"signal_list": ["1V0"], "reference_list": ["GND"], "extent_type": "ConvexHull", "expansion_size": 0.02}}
 
 # ## Define package for thermal analysis (optional)
 

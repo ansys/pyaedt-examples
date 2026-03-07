@@ -15,8 +15,8 @@
 
 # +
 from ansys.aedt.core.examples.downloads import download_touchstone
-from ansys.aedt.core.visualization.advanced.touchstone_parser import \
-    read_touchstone
+from ansys.aedt.core.visualization.advanced.touchstone_parser import read_touchstone
+
 # -
 
 # ### Download example data
