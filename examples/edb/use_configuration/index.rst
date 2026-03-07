@@ -23,17 +23,6 @@ PyAEDT offers a GUI which utilizes config file. Please refer to `Configure Layou
          :height: 200px
          :align: center
 
-   .. grid-item-card:: Serdes Signal Integrity Setup
-      :padding: 2 2 2 2
-      :link: serdes
-      :link-type: doc
-
-      .. image:: _static/serdes.png
-         :alt: Configurator
-         :width: 250px
-         :height: 200px
-         :align: center
-
    .. grid-item-card:: PCB Power Integrity DCIR analysis
       :padding: 2 2 2 2
       :link: pcb_dc_ir
@@ -84,7 +73,6 @@ PyAEDT offers a GUI which utilizes config file. Please refer to `Configure Layou
    :hidden:
 
    pdn_analysis
-   serdes
    pcb_dc_ir
    dcir
    post_layout_parametrize
@@ -93,8 +81,6 @@ PyAEDT offers a GUI which utilizes config file. Please refer to `Configure Layou
 
 Guideline
 ---------
-
-:doc:`Stackup management <import_stackup>`
 
 :doc:`Material management <import_material>`
 
@@ -113,7 +99,6 @@ Guideline
 .. toctree::
    :hidden:
 
-   import_stackup
    import_material
    import_ports
    import_setup_ac
