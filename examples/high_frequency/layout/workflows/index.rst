@@ -31,19 +31,6 @@ These examples create end-to-end workflows with PyAEDT and PyEDB.
 
       This example shows how you can use PyAEDT to export an IPC2581 file.
 
-   .. grid-item-card:: Plot Layout
-      :padding: 2 2 2 2
-      :link: ../../../edb/legacy_standalone/plot_nets
-      :link-type: doc
-
-      .. image:: ../../../edb/legacy_standalone/_static/plot_nets.png
-         :alt: PyEDB2
-         :width: 250px
-         :height: 200px
-         :align: center
-
-      This example shows how to use the ``Edb`` class to view nets, layers and via geometry directly in Python.
-
    .. grid-item-card:: IC Workflow using GDS
       :padding: 2 2 2 2
       :link: ../../../edb/legacy_standalone/gds_workflow
@@ -75,6 +62,5 @@ These examples create end-to-end workflows with PyAEDT and PyEDB.
 
       ../../../edb/use_configuration/index
       ../../../edb/legacy_standalone/edb_to_ipc2581
-      ../../../edb/legacy_standalone/plot_nets
       ../../../edb/legacy_standalone/gds_workflow
       ../gui_manipulation
