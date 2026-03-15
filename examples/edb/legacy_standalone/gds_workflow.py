@@ -16,14 +16,15 @@
 
 import os
 import tempfile
+
+from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
 from pyedb import Edb
 from pyedb.misc.downloads import download_file
-from ansys.aedt.core.hfss3dlayout import  Hfss3dLayout
 
 # ### Define constant
 # Constants help ensure consistency and avoid repetition throughout the example.
 
-AEDT_VERSION= "2025.2"
+AEDT_VERSION = "2025.2"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ### Create temporary directory
@@ -38,8 +39,8 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ### Import a GDS file.
 #
-# Download the test case folder and copy it to the working directory. The 
-# method ``download_file()`` retrieves example data from the 
+# Download the test case folder and copy it to the working directory. The
+# method ``download_file()`` retrieves example data from the
 # [Ansys GitHub "example_data" repository](https://github.com/ansys/example-data/tree/main/pyaedt).
 #
 # The following files are used in this example:
@@ -54,7 +55,7 @@ control_fn = "Model.xml"
 gds_fn = "Model.gds"
 layer_map = "Model.map"
 
-local_path = download_file("gds", destination=temp_folder.name)
+local_path = download_file("pyaedt/gds", destination=temp_folder.name)
 control_file = os.path.join(local_path, control_fn)
 map_file = os.path.join(local_path, layer_map)
 gds_in = os.path.join(local_path, gds_fn)
@@ -64,12 +65,13 @@ gds_in = os.path.join(local_path, gds_fn)
 #
 # Each GDS file requires a control file (XML) or a technology file (IRCX, VLC.TECH, or ITF)
 # that maps the GDS geometry to a physical layer in the stackup.
-# The MAP file is also regularly used to map the stackup layers, and finally in some cases a layer filter (XML) is deployed, when
+# The MAP file is also regularly used to map the stackup layers,
+# and finally in some cases a layer filter (XML) is deployed, when
 # only a part of the stackup is needed.
 #
 # Open the EDB by creating an instance of the ``Edb`` class.
 
-edb = Edb(gds_in, control_file=control_file, map_file=map_file, version=AEDT_VERSION)
+edb = Edb(edbpath=gds_in, control_file=control_file, map_file=map_file, version=AEDT_VERSION)
 
 # ### View the layer stackup
 
@@ -78,9 +80,9 @@ edb.stackup.plot()
 # ### Save and close the EDB
 #
 # The GDS file has been converted to an EDB and is ready for subsequent processing either in the
-# 3D Layout UI of Electronics Desktop or using 
-# PyEDB. 
-# The following commands save and close the EDB. 
+# 3D Layout UI of Electronics Desktop or using
+# PyEDB.
+# The following commands save and close the EDB.
 
 edb_path = os.path.join(temp_folder.name, "gds_design.aedb")
 edb.save_as(edb_path)
@@ -95,7 +97,7 @@ edb.close()
 
 h3d = Hfss3dLayout(project=edb_path, version=AEDT_VERSION, new_desktop=NG_MODE)
 
-# ### Close the HFSS 3D Layout 
+# ### Close the HFSS 3D Layout
 # The following command releases Ansys Electronics Desktop and closes the project.
 
 h3d.release_desktop()
