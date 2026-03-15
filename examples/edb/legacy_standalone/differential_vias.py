@@ -16,6 +16,7 @@
 
 import os
 import tempfile
+
 import pyedb
 
 # ### Define constants
@@ -32,14 +33,14 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 aedb_path = os.path.join(temp_folder.name, "diff_via.aedb")
 print(f"AEDB file path: {aedb_path}")
 
-edb = pyedb.Edb(edbpath=aedb_path, edbversion=AEDT_VERSION)
+edb = pyedb.Edb(edbpath=aedb_path, version=AEDT_VERSION)
 # -
 
 # ## Model Creation
 #
 # ### Add stackup layers
 #
-# A stackup can be created layer by layer or imported from a 
+# A stackup can be created layer by layer or imported from a
 # [configuration file](https://examples.aedt.docs.pyansys.com/version/dev/examples/edb/use_configuration/import_stackup.html).
 
 edb.stackup.add_layer("GND")
