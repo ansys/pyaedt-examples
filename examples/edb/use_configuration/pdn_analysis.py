@@ -22,6 +22,7 @@ from pyedb import Edb
 # Define constants.
 
 AEDT_VERSION = "2025.2"
+NUM_CORES = 4
 NG_MODE = False
 
 # Download the example PCB data.
@@ -167,7 +168,7 @@ h3d = Hfss3dLayout(edbapp.edbpath, version=AEDT_VERSION, non_graphical=NG_MODE, 
 
 # ## Analyze
 
-h3d.analyze()
+h3d.analyze(cores=NUM_CORES)
 
 # ## Plot impedance
 

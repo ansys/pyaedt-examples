@@ -15,24 +15,25 @@
 
 # +
 import tempfile
+import time
 
 import ansys.aedt.core
 import pyedb
 from pyedb.misc.downloads import download_file
+
 # -
 
 # ## Create an instance of a pyedb.Edb object.
 
 # +
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-target_aedb = download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
+target_aedb = download_file("pyaedt/edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
 print("Project is located in ", target_aedb)
 
-# Select EDB version (change it manually if needed, e.g. "2025.1")
 edb_version = "2025.2"
 print(f"EDB version: {edb_version}")
 
-edb = pyedb.Edb(edbpath=target_aedb, edbversion=edb_version)
+edb = pyedb.Edb(edbpath=target_aedb, version=edb_version)
 print("AEDB file is located in {}".format(target_aedb))
 # -
 
@@ -113,4 +114,15 @@ else:
 # after script execution, call the following method with both arguments set to ``False``.
 
 hfss.release_desktop(close_projects=True, close_desktop=True)
-temp_dir.cleanup()  # Remove the temporary folder and files. All data will be removd!
+
+# Wait 3 seconds before cleaning the temporary directory.
+time.sleep(3)
+
+# ### Clean up
+#
+# All project files are saved in the folder ``temp_folder.name``.
+# If you've run this example as a Jupyter notebook, you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
+
+temp_dir.cleanup()
