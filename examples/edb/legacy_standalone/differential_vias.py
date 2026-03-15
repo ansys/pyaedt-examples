@@ -16,6 +16,7 @@
 
 import os
 import tempfile
+import time
 
 import pyedb
 
@@ -85,9 +86,12 @@ edb.stackup.plot(plot_definitions="MyVia")
 # Save and close EDB.
 
 if edb:
-    edb.save_edb()
-    edb.close_edb()
+    edb.save()
+    edb.close()
 print("EDB saved correctly to {}. You can import in AEDT.".format(aedb_path))
+
+# Wait 3 seconds before cleaning the temporary directory.
+time.sleep(3)
 
 # ### Clean up
 #
@@ -95,5 +99,6 @@ print("EDB saved correctly to {}. You can import in AEDT.".format(aedb_path))
 # If you've run this example as a Jupyter notebook, you
 # can retrieve those project files. The following cell
 # removes all temporary files, including the project folder.
+
 
 temp_folder.cleanup()

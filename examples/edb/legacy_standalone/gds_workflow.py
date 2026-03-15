@@ -16,6 +16,7 @@
 
 import os
 import tempfile
+import time
 
 from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
 from pyedb import Edb
@@ -91,13 +92,26 @@ edb.close()
 # ## View the layout
 # ### Open the EDB in Electronics Desktop
 #
-# The following command opens the EDB in Electronics Desktop. If you're running this example locally, you should see something like this:
+# The following command opens the EDB in Electronics Desktop.
+# If you're running this example locally, you should see something like this:
 #
 # <img src="_static/layout.png" width="800">
 
 h3d = Hfss3dLayout(project=edb_path, version=AEDT_VERSION, new_desktop=NG_MODE)
 
-# ### Close the HFSS 3D Layout
+# ### Release AEDT
 # The following command releases Ansys Electronics Desktop and closes the project.
 
-h3d.release_desktop()
+h3d.close_desktop()
+
+# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
+time.sleep(3)
+
+# ## Clean up
+#
+# All project files are saved in the folder ``temp_folder.name``.
+# If you've run this example as a Jupyter notebook, you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
+
+temp_folder.cleanup()

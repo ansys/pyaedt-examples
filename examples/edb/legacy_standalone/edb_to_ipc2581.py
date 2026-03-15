@@ -7,6 +7,7 @@
 # +
 import os
 import tempfile
+import time
 
 import pyedb
 from pyedb.generic.general_methods import generate_unique_name
@@ -65,8 +66,16 @@ print("IPC2581 File has been saved to {}".format(ipc2581_file_name))
 
 # ## Close EDB
 
-edb.close_edb()
+edb.close()
 
-# ## Clean up the temporary directory
+# Wait 3 seconds before cleaning the temporary directory.
+time.sleep(3)
+
+# ### Clean up
+#
+# All project files are saved in the folder ``temp_folder.name``.
+# If you've run this example as a Jupyter notebook, you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
 temp_dir.cleanup()
