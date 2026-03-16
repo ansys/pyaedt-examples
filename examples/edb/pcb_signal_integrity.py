@@ -30,7 +30,7 @@ import time
 
 import matplotlib.pyplot as plt
 from ansys.aedt.core import Hfss3dLayout
-from ansys.aedt.core.examples.downloads import download_file
+from ansys.aedt.core.examples.downloads import download_aedb, download_file
 from pyedb import Edb
 
 # -
@@ -73,7 +73,8 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # settings.local_example_folder = r'/path/to/local/example-data'
 # ```
 
-file_edb = download_file(source="pyaedt/edb/ANSYS-HSD_V1.aedb", local_path=temp_folder.name)
+file_edb = download_aedb(local_path=temp_folder.name)
+
 download_file(
     source="touchstone",
     name="GRM32_DC0V_25degC_series.s2p",

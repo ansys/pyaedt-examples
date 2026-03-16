@@ -85,6 +85,18 @@ This repository contains end-to-end embedding examples that demonstrate how to u
 
       Provides examples of some general PyAEDT pre-processing and post-processing capabilities.
 
+   .. grid-item-card:: PyEDB workflows examples
+      :padding: 2 2 2 2
+      :link: edb/index
+      :link-type: doc
+
+      .. image:: edb/_static/pyedb2.png
+         :alt: PyEDB2
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      PyEDB related examples to workflows and file management.
 
 .. toctree::
    :hidden:
@@ -95,3 +107,4 @@ This repository contains end-to-end embedding examples that demonstrate how to u
    low_frequency/index
    electrothermal/index
    aedt_general/index
+   edb/index
