@@ -69,8 +69,8 @@ edb.build_simulation_project(simulation_configuration)
 # parametrically.
 
 edb.auto_parametrize_design(layers=True, materials=True, via_holes=True, pads=True, antipads=True, traces=True)
-edb.save_edb()
-edb.close_edb()
+edb.save()
+edb.close()
 
 # ## Open project in AEDT
 #
