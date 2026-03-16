@@ -81,8 +81,7 @@ edb.stackup.plot()
 # ### Save and close the EDB
 #
 # The GDS file has been converted to an EDB and is ready for subsequent processing either in the
-# 3D Layout UI of Electronics Desktop or using
-# PyEDB.
+# 3D Layout UI of Electronics Desktop or using PyEDB.
 # The following commands save and close the EDB.
 
 edb_path = os.path.join(temp_folder.name, "gds_design.aedb")
