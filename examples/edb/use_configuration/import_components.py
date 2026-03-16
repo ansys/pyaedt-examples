@@ -11,14 +11,14 @@
 
 # +
 import json
-import toml
-from pathlib import Path
 import tempfile
+import time
+from pathlib import Path
 
-from IPython.display import display
+import toml
 from ansys.aedt.core.examples.downloads import download_file
-import pandas as pd
 from pyedb import Edb
+
 # -
 
 # Define constants.
@@ -27,12 +27,12 @@ AEDT_VERSION = "2025.2"
 
 # Download the example PCB data.
 
-temp_folder = tempfile.TemporaryDirectory(suffix=".ansys").name
-file_edb = download_file(source="edb/ANSYS-HSD_V1.aedb", local_path=temp_folder)
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
+file_edb = download_file(source="pyaedt/edb/ANSYS-HSD_V1.aedb", local_path=temp_folder.name)
 
 # ## Load example layout.
 
-edbapp = Edb(file_edb, edbversion=AEDT_VERSION)
+edbapp = Edb(edbpath=file_edb, version=AEDT_VERSION)
 
 # ## Create a config file with component information
 
@@ -102,11 +102,11 @@ cfg["components"] = [
     },
 ]
 
-cfg_file_path = Path(temp_folder) / "cfg.json"
+cfg_file_path = Path(temp_folder.name) / "cfg.json"
 with open(cfg_file_path, "w") as f:
     json.dump(cfg, f, indent=4, ensure_ascii=False)
 
-# Equivalent toml file looks like below 
+# Equivalent toml file looks like below
 
 toml_string = toml.dumps(cfg)
 print(toml_string)
@@ -122,3 +122,15 @@ edbapp.configuration.load(cfg_file_path, apply_file=True)
 
 edbapp.save()
 edbapp.close()
+
+# Wait 3 seconds before cleaning the temporary directory.
+time.sleep(3)
+
+# ### Clean up
+#
+# All project files are saved in the folder ``temp_folder.name``.
+# If you've run this example as a Jupyter notebook, you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
+
+temp_folder.cleanup()

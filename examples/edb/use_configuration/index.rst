@@ -7,7 +7,7 @@ Workflow
 The following examples illustrate the use of configuration files in PyEDB.
 PyAEDT offers a GUI which utilizes config file. Please refer to `Configure Layout extension`_ for details.
 
-.. _Configure Layout extension : https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/project/configure_edb.html
+.. _Configure Layout extension : https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/project/configure_layout.html
 
 
 .. grid:: 2
@@ -56,26 +56,12 @@ PyAEDT offers a GUI which utilizes config file. Please refer to `Configure Layou
          :height: 200px
          :align: center
 
-   .. grid-item-card:: Create Parametric Design
-      :padding: 2 2 2 2
-      :link: post_layout_parametrize
-      :link-type: doc
-
-      .. image:: _static/parametrized_design.png
-         :alt: Connector
-         :width: 250px
-         :height: 200px
-         :align: center
-
-      Create automatically parametrized design.
-
 .. toctree::
    :hidden:
 
    pdn_analysis
    pcb_dc_ir
    dcir
-   post_layout_parametrize
    modeler_simple_transmission_line
 
 

@@ -32,6 +32,7 @@ import matplotlib.pyplot as plt
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.examples.downloads import download_file
 from pyedb import Edb
+
 # -
 
 # ### Define constants
@@ -72,7 +73,8 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # settings.local_example_folder = r'/path/to/local/example-data'
 # ```
 
-file_edb = download_file(source="edb/ANSYS-HSD_V1.aedb", local_path=temp_folder.name)
+file_edb = download_file(source="pyaedt/edb/ANSYS-HSD_V1.aedb", local_path=temp_folder.name)
+
 download_file(
     source="touchstone",
     name="GRM32_DC0V_25degC_series.s2p",
@@ -86,7 +88,7 @@ download_file(
 # identifying the layer names, net names, and
 # component reference designators that will be referenced later in the configuration.
 
-edbapp = Edb(file_edb, version=AEDT_VERSION)
+edbapp = Edb(edbpath=file_edb, version=AEDT_VERSION)
 
 # ### Inspect the stackup
 #
@@ -130,7 +132,7 @@ for refdes, comp in ics.items():
 
 refdes = "U1"
 x1, y1, x2, y2 = ics[refdes].bounding_box
-print_str = f'\"{refdes}\" bounding box:\n'
+print_str = f'"{refdes}" bounding box:\n'
 print_str += f"      (x={x1*1000:.2f}mm, y={y1*1000:.2f}mm)  lower left\n"
 print_str += f"      (x={x2*1000:.2f}mm, y={y2*1000:.2f}mm)  upper right."
 print(print_str)

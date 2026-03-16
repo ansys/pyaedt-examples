@@ -8,10 +8,12 @@
 import json
 import os
 import tempfile
+import time
 
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.examples.downloads import download_file
 from pyedb import Edb
+
 # -
 
 # Define constants.
@@ -23,15 +25,15 @@ NG_MODE = False
 # Download the example BGA Package design.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
-file_edb = download_file(source=r"edb/BGA_Package.aedb", local_path=temp_folder.name)
+file_edb = download_file(source=r"pyaedt/edb/BGA_Package.aedb", local_path=temp_folder.name)
 
 # ## Load example layout
 
-edbapp = Edb(file_edb, edbversion=AEDT_VERSION)
+edbapp = Edb(edbpath=file_edb, version=AEDT_VERSION)
 
 # ## Create config file
 
-# Define Component with solderballs.
+# Define Component with solder balls.
 
 cfg_components = [
     {
@@ -151,9 +153,18 @@ h3d.analyze(setup="siwave_dc")
 
 h3d.post.create_fieldplot_layers_nets(layers_nets=[["VDD_C1", "VDD"]], quantity="Voltage", setup="siwave_dc")
 
-# Shut Down Electronics Desktop
+# ## Release AEDT
 
 h3d.close_desktop()
 
-# All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notebook you
-# can retrieve those project files.
+# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
+time.sleep(3)
+
+# ## Clean up
+#
+# All project files are saved in the folder ``temp_folder.name``.
+# If you've run this example as a Jupyter notebook, you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
+
+temp_folder.cleanup()

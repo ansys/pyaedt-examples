@@ -16,6 +16,8 @@
 
 import os
 import tempfile
+import time
+
 import pyedb
 
 # ### Define constants
@@ -32,14 +34,14 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 aedb_path = os.path.join(temp_folder.name, "diff_via.aedb")
 print(f"AEDB file path: {aedb_path}")
 
-edb = pyedb.Edb(edbpath=aedb_path, edbversion=AEDT_VERSION)
+edb = pyedb.Edb(edbpath=aedb_path, version=AEDT_VERSION)
 # -
 
 # ## Model Creation
 #
 # ### Add stackup layers
 #
-# A stackup can be created layer by layer or imported from a 
+# A stackup can be created layer by layer or imported from a
 # [configuration file](https://examples.aedt.docs.pyansys.com/version/dev/examples/edb/use_configuration/import_stackup.html).
 
 edb.stackup.add_layer("GND")
@@ -84,9 +86,12 @@ edb.stackup.plot(plot_definitions="MyVia")
 # Save and close EDB.
 
 if edb:
-    edb.save_edb()
-    edb.close_edb()
+    edb.save()
+    edb.close()
 print("EDB saved correctly to {}. You can import in AEDT.".format(aedb_path))
+
+# Wait 3 seconds before cleaning the temporary directory.
+time.sleep(3)
 
 # ### Clean up
 #
@@ -94,5 +99,6 @@ print("EDB saved correctly to {}. You can import in AEDT.".format(aedb_path))
 # If you've run this example as a Jupyter notebook, you
 # can retrieve those project files. The following cell
 # removes all temporary files, including the project folder.
+
 
 temp_folder.cleanup()
