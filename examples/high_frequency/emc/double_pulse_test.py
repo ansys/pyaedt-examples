@@ -10,9 +10,9 @@
 #
 # Keywords: **Power Electronics**, **Double Pulse Testing**
 
-# ## Perform imports and define constants
+# ## Prerequisites
 #
-# Perform required imports.
+# ### Perform imports
 
 # +
 import os
@@ -23,13 +23,14 @@ import ansys.aedt.core
 from ansys.aedt.core.generic.constants import Setups
 # -
 
-# Define constants.
+# ### Define constants
+# Constants help ensure consistency and avoid repetition throughout the example.
 
 AEDT_VERSION = "2025.2"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
-# ## Create temporary directory
+# ### Create temporary directory
 #
 # Create a temporary directory where downloaded data or
 # dumped data can be stored.
@@ -38,7 +39,7 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ## Launch AEDT and Circuit
+# ### Launch Circuit
 
 project_name = os.path.join(temp_folder.name, "my_project.aedt")
 circuit = ansys.aedt.core.Circuit(
@@ -369,14 +370,16 @@ new_report = circuit.post.create_report(
     context={"time_stop": "15us"}
 )
 
-# ## Release AEDT
+# ## Finish
+#
+# ### Save the project
 
 circuit.save_project()
 circuit.release_desktop()
 # Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-# ## Clean up
+# ### Clean up
 #
 # All project files are saved in the folder ``temp_folder.name``.
 # If you've run this example as a Jupyter notebook, you

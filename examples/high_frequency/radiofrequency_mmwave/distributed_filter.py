@@ -9,7 +9,6 @@
 #
 # ### Perform imports
 
-# +
 import os
 import tempfile
 import time
@@ -23,7 +22,6 @@ from ansys.aedt.core.filtersolutions_core.ideal_response import (
 )
 from ansys.aedt.core.filtersolutions_core.distributed_topology import TopologyType
 from ansys.aedt.core.filtersolutions_core.distributed_substrate import SubstrateType, SubstrateEr, SubstrateResistivity
-# -
 
 # ### Define constants.
 # Constants help ensure consistency and avoid repetition throughout the example.
@@ -140,7 +138,7 @@ hfss3dl = distributed_design.export_to_aedt.export_design(export_format=ExportFo
 # To update the plot with the simulated data, the HFSS 3D Layout design is analyzed using the analyze method.
 # The S-parameters S11 and S21 in dB are extracted from the simulation results and plotted against frequency.
 # The simulated S-parameters are overlaid on the synthesized frequency response for comparison.
-  
+
 hfss3dl.analyze()
 solutions = hfss3dl.post.get_solution_data(
     expressions=hfss3dl.get_traces_for_plot(category="S"),

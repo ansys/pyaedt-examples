@@ -8,10 +8,6 @@
 # laminate structures such as the patch antenna.
 #
 # Keywords: **HFSS**, **terminal**, **antenna**., **patch**.
-#
-# ## Perform imports and define constants
-#
-# Perform required imports.
 
 # ## Prerequisites
 #

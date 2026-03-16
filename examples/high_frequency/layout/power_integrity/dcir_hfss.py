@@ -19,8 +19,9 @@
 #
 # Keywords: **HFSS 3D Layout**, **DC IR**.
 
-# ## Perform imports and define constants
-# Perform required imports.
+# ## Prerequisites
+#
+# ### Perform imports
 
 import json
 import os
@@ -31,17 +32,28 @@ import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_file
 from pyedb import Edb
 
-# Define constants.
+# ### Define constants
+# Constants help ensure consistency and avoid repetition throughout the example.
 
 AEDT_VERSION = "2025.2"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
-# Download example board.
+# ### Create temporary directory
+#
+# Create a temporary working directory.
+# The name of the working folder is stored in ``temp_folder.name``.
+#
+# > **Note:** The final cell in the notebook cleans up the temporary folder. If you want to
+# > retrieve the AEDT project and data, do so before executing the final cell in the notebook.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
+
+# Download example board.
 aedb = download_file(source="edb/ANSYS-HSD_V1.aedb", local_path=temp_folder.name)
-_ = download_file(source="spice", name="ferrite_bead_BLM15BX750SZ1.mod", local_path=temp_folder.name)
+_ = download_file(
+    source="spice", name="ferrite_bead_BLM15BX750SZ1.mod", local_path=temp_folder.name
+)
 
 # ## Create configuration file
 # This example uses a configuration file to set up the layout for analysis.
@@ -96,7 +108,9 @@ cfg["sources"].append(
         "type": "current",
         "magnitude": 0.5,
         "positive_terminal": {"net": "SFPA_VCCR"},
-        "negative_terminal": {"pin_group": "J5_GND"},  # Defined in "pin_groups" section.
+        "negative_terminal": {
+            "pin_group": "J5_GND"  # Defined in "pin_groups" section.
+        },
     }
 )
 cfg["sources"].append(
@@ -175,9 +189,11 @@ print(temp_folder.name)
 # The HFSS 3D Layout interface to SIwave is used to open the EDB and run the DCIR analysis
 # using SIwave
 
-# ### Load EDB into HFSS 3D Layout.
+# ### Launch HFSS 3D Layout
 
-siw = ansys.aedt.core.Hfss3dLayout(aedb, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True)
+siw = ansys.aedt.core.Hfss3dLayout(
+    aedb, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True
+)
 
 # ### Analyze
 
@@ -187,14 +203,16 @@ siw.analyze(cores=NUM_CORES)
 
 siw.get_dcir_element_data_current_source("siwave_dc")
 
-# ## Release AEDT
+# ## Finish
+#
+# ### Save the project
 
 siw.save_project()
 siw.release_desktop()
 # Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-# ## Clean up
+# ### Clean up
 #
 # All project files are saved in the folder ``temp_folder.name``.
 # If you've run this example as a Jupyter notebook, you

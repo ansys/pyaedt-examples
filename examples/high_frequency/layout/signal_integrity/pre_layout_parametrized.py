@@ -20,7 +20,6 @@ import time
 
 from ansys.aedt.core import Hfss3dLayout
 from pyedb import Edb
-
 # -
 
 # ## Define constants
@@ -237,8 +236,16 @@ points_n = [
 trace_p = []
 trace_n = []
 for n in range(len(points_p)):
-    trace_p.append(edb.modeler.create_trace(points_p[n], route_layer[n], width[n], net_p, "Flat", "Flat"))
-    trace_n.append(edb.modeler.create_trace(points_n[n], route_layer[n], width[n], net_n, "Flat", "Flat"))
+    trace_p.append(
+        edb.modeler.create_trace(
+            points_p[n], route_layer[n], width[n], net_p, "Flat", "Flat"
+        )
+    )
+    trace_n.append(
+        edb.modeler.create_trace(
+            points_n[n], route_layer[n], width[n], net_n, "Flat", "Flat"
+        )
+    )
 
 # Create the wave ports
 
@@ -332,7 +339,9 @@ for layer in layers[:-1:2]:
     # add void if the layer is the signal routing layer.
     void = [void_shape] if layer["name"] == route_layer[1] else []
 
-    edb.modeler.create_polygon(main_shape=gnd_shape, layer_name=layer["name"], voids=void, net_name="gnd")
+    edb.modeler.create_polygon(
+        main_shape=gnd_shape, layer_name=layer["name"], voids=void, net_name="gnd"
+    )
 
 # Plot the layout.
 
@@ -343,7 +352,7 @@ edb.nets.plot(None)
 edb.save_edb()
 edb.close_edb()
 
-# ## Open the project in HFSS 3D Layout.
+# ### Launch HFSS 3D Layout
 
 h3d = Hfss3dLayout(
     project=aedb_path,
@@ -356,14 +365,16 @@ h3d = Hfss3dLayout(
 
 # +
 setup = h3d.create_setup()
-setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = 3
+setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"][
+    "MaxPasses"
+] = 3
 
 h3d.create_linear_count_sweep(
     setup=setup.name,
     unit="GHz",
     start_frequency=0,
     stop_frequency=10,
-    num_of_freq_points=101,
+    num_of_freq_points=1001,
     name="sweep1",
     sweep_type="Interpolating",
     interpolation_tol_percent=1,
@@ -375,8 +386,12 @@ h3d.create_linear_count_sweep(
 
 # ### Define the differential pairs to used to calculate differential and common mode  s-parameters
 
-h3d.set_differential_pair(differential_mode="In", assignment="wave_port_1:T1", reference="wave_port_1:T2")
-h3d.set_differential_pair(differential_mode="Out", assignment="wave_port_2:T1", reference="wave_port_2:T2")
+h3d.set_differential_pair(
+    differential_mode="In", assignment="wave_port_1:T1", reference="wave_port_1:T2"
+)
+h3d.set_differential_pair(
+    differential_mode="Out", assignment="wave_port_2:T1", reference="wave_port_2:T2"
+)
 
 # Solve the project.
 
@@ -384,21 +399,30 @@ h3d.analyze(cores=NUM_CORES)
 
 # Plot the results and shut down AEDT.
 
-solutions = h3d.post.get_solution_data(expressions=["dB(S(In,In))", "dB(S(In,Out))"], context="Differential Pairs")
+solutions = h3d.post.get_solution_data(
+    expressions=["dB(S(In,In))", "dB(S(In,Out))"], context="Differential Pairs"
+)
 solutions.plot()
 
-# ## Release AEDT
+# ## Finish
+#
+# ### Save the project
 
 h3d.save_project()
 h3d.release_desktop()
 # Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
+# ### Clean up
+#
 # Note that the ground nets are only connected to each other due
 # to the wave ports. The problem with poor grounding can be seen in the
 # S-parameters. This example can be downloaded as a Jupyter Notebook, so
 # you can modify it. Try changing parameters or adding ground vias to improve performance.
 #
-# The final cell cleans up the temporary directory, removing all files.
+# All project files are saved in the folder ``temp_folder.name``.
+# If you've run this example as a Jupyter notebook, you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
 temp_folder.cleanup()

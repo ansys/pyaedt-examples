@@ -237,21 +237,20 @@ ff_el_data = elevation_ffd_plot.get_solution_data()
 ff_el_data.plot(x_label="Theta", y_label="Gain", is_polar=True)
 
 
-# ## Release AEDT
+# ## Finish
+#
+# ### Save the project
 
-# +
 hfss.save_project()
 hfss.release_desktop()
-
 # Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
-# -
 
-# ## Clean up
+# ### Clean up
 #
 # All project files are saved in the folder ``temp_folder.name``.
 # If you've run this example as a Jupyter notebook, you
-# can retrieve those project files.
-# The following cell removes all temporary files, including the project folder.
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
 temp_folder.cleanup()

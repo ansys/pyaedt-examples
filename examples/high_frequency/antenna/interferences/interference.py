@@ -6,7 +6,9 @@
 #
 # Keywords: **EMIT**, **interference**.
 
-# ## Perform imports and define constants
+# ## Prerequisites
+#
+# ### Perform imports
 
 # +
 import sys
@@ -18,12 +20,14 @@ from ansys.aedt.core import Emit
 from ansys.aedt.core.emit_core.emit_constants import InterfererType
 # -
 
-# Define constants.
+# ### Define constants
+# Constants help ensure consistency and avoid repetition throughout the example.
 
 AEDT_VERSION = "2025.2"
+NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
-# ## Create temporary directory
+# ### Create temporary directory
 #
 # Create a temporary directory where downloaded data or
 # dumped data can be stored.
@@ -44,7 +48,7 @@ project_name = download_file(
     "emit", "interference.aedtz", local_path=temp_folder.name
 )
 
-# ## Launch EMIT and open project
+# ### Launch EMIT and open project
 
 emitapp = Emit(
     non_graphical=NG_MODE, new_desktop=True, project=project_name, version=AEDT_VERSION
@@ -217,7 +221,9 @@ create_scenario_view(power_matrix, all_colors, tx_radios, rx_radios)
 # Create a legend for the interference types
 create_legend_table()
 
-# ## Clean up
+# ## Finish
+#
+# ### Clean up
 #
 # All project files are saved in the folder ``temp_folder.name``.
 # If you've run this example as a Jupyter notebook, you

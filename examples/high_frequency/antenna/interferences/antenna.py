@@ -7,9 +7,9 @@
 #
 # Keywords: **EMIT**, **Antenna**.
 
-# ## Perform imports and define constants
+# ## Prerequisites
 #
-# Perform required imports.
+# ### Perform imports
 
 # +
 import tempfile
@@ -21,12 +21,14 @@ from ansys.aedt.core.emit_core.emit_constants import ResultType, TxRxMode
 from ansys.aedt.core.emit_core.nodes.generated import AntennaNode, RadioNode
 # -
 
-# Define constants.
+# ### Define constants
+# Constants help ensure consistency and avoid repetition throughout the example.
 
 AEDT_VERSION = "2025.2"
+NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
-# ## Create temporary directory
+# ### Create temporary directory
 #
 # Create a temporary directory where downloaded data or
 # dumped data can be stored.
@@ -35,7 +37,7 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ## Launch AEDT with EMIT
+# ### Launch EMIT
 #
 # Launch AEDT with EMIT. The ``launch_desktop()`` method initializes AEDT
 # using the specified version. The second argument can be set to ``True`` to
@@ -92,18 +94,20 @@ if AEDT_VERSION > "2023.1":
         emi = worst.get_value(ResultType.EMI)
         print("Worst case interference is: {} dB".format(emi))
 
-# ## Release AEDT
+# ## Finish
 #
-# Release AEDT and close the example.
+# ### Save the project
 
 aedtapp.save_project()
 aedtapp.release_desktop()
 # Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-# ## Clean up
+# ### Clean up
 #
-# All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook, you
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_folder.name``.
+# If you've run this example as a Jupyter notebook, you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
 temp_folder.cleanup()
