@@ -69,6 +69,13 @@ These examples are groped by AEDT applications.
 
       Twin Builder examples
 
+   .. grid-item-card:: EDB
+      :padding: 2 2 2 2
+      :link: ../edb/index
+      :link-type: doc
+
+      EDB examples
+
    .. grid-item-card:: Miscellaneous
       :padding: 2 2 2 2
       :link: misc/index

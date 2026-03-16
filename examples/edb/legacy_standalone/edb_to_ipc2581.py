@@ -7,16 +7,18 @@
 # +
 import os
 import tempfile
+import time
 
 import pyedb
 from pyedb.generic.general_methods import generate_unique_name
 from pyedb.misc.downloads import download_file
+
 # -
 
 # ## Download the AEDB file and copy it in the temporary folder.
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
-targetfile = download_file("edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
+targetfile = download_file("pyaedt/edb/ANSYS-HSD_V1.aedb", destination=temp_dir.name)
 ipc2581_file_name = os.path.join(temp_dir.name, "Ansys_Hsd.xml")
 print(targetfile)
 
@@ -30,7 +32,7 @@ print(targetfile)
 edb_version = "2025.2"
 print(f"EDB version: {edb_version}")
 
-edb = pyedb.Edb(edbpath=targetfile, edbversion=edb_version)
+edb = pyedb.Edb(edbpath=targetfile, version=edb_version)
 # -
 
 # ## Parametrize the width of a trace.
@@ -45,8 +47,8 @@ for net in edb.nets.netlist:
         signal_list.append(net)
 power_list = ["GND"]
 edb.cutout(
-    signal_list=signal_list,
-    reference_list=power_list,
+    signal_nets=signal_list,
+    reference_nets=power_list,
     extent_type="ConvexHull",
     expansion_size=0.002,
     use_round_corner=False,
@@ -64,8 +66,16 @@ print("IPC2581 File has been saved to {}".format(ipc2581_file_name))
 
 # ## Close EDB
 
-edb.close_edb()
+edb.close()
 
-# ## Clean up the temporary directory
+# Wait 3 seconds before cleaning the temporary directory.
+time.sleep(3)
+
+# ### Clean up
+#
+# All project files are saved in the folder ``temp_folder.name``.
+# If you've run this example as a Jupyter notebook, you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
 temp_dir.cleanup()

@@ -32,20 +32,6 @@ These examples use PyAEDT to show power integrity examples.
 
       This example shows how you can use EDB to create a layout.
 
-   .. grid-item-card::  SIwave DC-IR Analysis
-      :padding: 2 2 2 2
-      :link: ../../../edb/legacy_standalone/siwave_dcir
-      :link-type: doc
-
-      .. image:: ../../../edb/legacy_standalone/_static/siwave_dcir.png
-         :alt: SIwave DCIR
-         :width: 250px
-         :height: 200px
-         :align: center
-
-      This example demonstrates the use of EDB to interact with a PCB layout and run DC-IR analysis in SIwave.
-
-
    .. grid-item-card:: SIwave DC IR analysis (HFSS 3D Layout)
       :padding: 2 2 2 2
       :link: dcir_hfss
@@ -139,4 +125,3 @@ These examples use PyAEDT to show power integrity examples.
       ../../../aedt_general/modeler/netlist_to_schematic
       ../../../aedt_general/report/touchstone_file
       ../../../edb/legacy_standalone/differential_vias
-      ../../../edb/legacy_standalone/siwave_dcir
