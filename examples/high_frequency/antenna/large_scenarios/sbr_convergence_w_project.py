@@ -117,6 +117,9 @@ convergence_order = "bounces_first"  # "ray_density_first" or "bounces_first"
 
 starting_ray_density = 1
 starting_bounce_number = 2
+max_ray_density = 5
+max_bounce_number = 5
+
 
 # ### Configure PDF/UTD settings
 #
@@ -239,10 +242,13 @@ def run_convergence_sweep(hfss, sweep_param, fixed_param_value, Setup_Frequency,
         hfss.analyze_setup("SBR", cores=NUM_CORES)
 
         sweep_names = hfss.existing_analysis_sweeps
-        solution_data = hfss.post.get_solution_data(expressions="dB(MonostaticRCSTotal)", setup_sweep_name=sweep_names[0], primary_sweep_variable="IWavePhi")
+
+        data = hfss.get_rcs_data(setup=sweep_names[0], expression="MonostaticRCSTotal")
+        solution_data = data.get_monostatic_rcs()
+        solution_data.primary_sweep = "IWavePhi"
 
         iwavephi_values = solution_data.primary_sweep_values
-        rcs_values = solution_data.data_real()
+        rcs_values = solution_data.get_expression_data(formula="dB10")[1]
         average_rcs = np.mean(rcs_values)
 
         param_values.append(current_value)
@@ -296,7 +302,7 @@ if convergence_order == "ray_density_first":
         convergence_threshold=convergence_threshold,
         convergence_method=convergence_method,
         start_value=starting_ray_density,
-        max_value=20,
+        max_value=max_ray_density,
     )
     print("\n" + "=" * 70)
     print(f"STEP 2: CONVERGING BOUNCE NUMBER (Ray Density fixed at {converged_ray_density})")
@@ -310,7 +316,7 @@ if convergence_order == "ray_density_first":
         convergence_threshold=convergence_threshold,
         convergence_method=convergence_method,
         start_value=starting_bounce_number,
-        max_value=10,
+        max_value=max_bounce_number,
     )
 else:
     print("\n" + "=" * 70)
@@ -325,7 +331,7 @@ else:
         convergence_threshold=convergence_threshold,
         convergence_method=convergence_method,
         start_value=starting_bounce_number,
-        max_value=10,
+        max_value=max_bounce_number,
     )
     print("\n" + "=" * 70)
     print(f"STEP 2: CONVERGING RAY DENSITY (Bounces fixed at {converged_bounce_number})")
@@ -339,7 +345,7 @@ else:
         convergence_threshold=convergence_threshold,
         convergence_method=convergence_method,
         start_value=starting_ray_density,
-        max_value=20,
+        max_value=max_ray_density,
     )
 
 # ## Final Summary
@@ -432,21 +438,19 @@ plt.show()
 #
 # ```python
 # # Export RCS data using PyAEDT's get_rcs_data method
-# rcs_exporter = hfss.get_rcs_data(
-#     setup_name="SBR",
-#     frequencies=["10GHz"],
-# )
+# rcs_exporter = hfss.get_rcs_data()
 #
 # # Import the radar explorer toolkit
-# from ansys.aedt.toolkits.radar_explorer.core import MonostaticRCSData, MonostaticRCSPlotter
+# from ansys.aedt.toolkits.radar_explorer.rcs_visualization import MonostaticRCSData, MonostaticRCSPlotter
 #
 # # Load the RCS data
-# rcs_data = MonostaticRCSData(rcs_exporter)
+# rcs_data = MonostaticRCSData(rcs_exporter.metadata_file)
 #
 # # Create a plotter instance
 # plotter = MonostaticRCSPlotter(rcs_data)
 #
-# plotter.plot_3d()
+# plotter.plot_rcs()
+# plotter = plot_rcs_3d()
 # ```
 #
 # For more examples and detailed documentation, visit:
