@@ -1,17 +1,27 @@
-# # SBR Convergence
+# # SBR+ convergence analysis
 #
-# This example runs a convergence test on SBR+ setup parameters mainly
-# ray density and number of bounces. The goal is to assure final results
-# are not affected by analysis settings. In this example total RCS is demonstrated
-# but other results can be used as well.
+# This example demonstrates how to perform a convergence study on SBR+ (Shooting and Bouncing Rays)
+# setup parameters to ensure accurate and reliable radar cross-section (RCS) results.
 #
-# Keywords: **SBR+**, **Ray density**, **number of bounces**, **convergence**.
+# The Shooting and Bouncing Rays (SBR+) method is a high-frequency asymptotic technique used in HFSS
+# for electrically large problems such as antenna placement and radar cross-section (RCS) analysis.
+# Two key parameters affect solution accuracy:
+#
+# - **Ray Density Per Wavelength**: Controls how many rays are launched per wavelength. Higher values
+#   provide more accurate results but increase computation time.
+# - **Maximum Number of Bounces**: Defines how many times rays can reflect off surfaces before terminating.
+#   More bounces capture multi-reflection effects but increase solve time.
+#
+# This example systematically varies these parameters to identify converged settings where further
+# increases do not significantly change the RCS results. The workflow demonstrates best practices
+# for ensuring your SBR+ analysis is properly converged.
+#
+# Keywords: **HFSS**, **SBR+**, **Radar cross-section**, **Convergence study**, **Ray tracing**.
 
-# ## Perform imports and define constants
+# ## Prerequisites
 #
-# Perform required imports.
+# ### Perform imports
 
-# +
 import tempfile
 import time
 
@@ -20,35 +30,40 @@ import numpy as np
 from ansys.aedt.core.examples.downloads import download_file
 from ansys.aedt.core.hfss import Hfss
 
+# +
+
+
 # -
 
-# Define constants.
+# ### Define constants
+# Constants help ensure consistency and avoid repetition throughout the example.
 
 AEDT_VERSION = "2025.2"
-NG_MODE = False
-use_example_project = False
+NG_MODE = False  # Open AEDT UI when it is launched.
 
-# ## Create temporary directory
+# ### Create temporary directory
 #
-# Create a temporary working directory.
-# The name of the working folder is stored in ``temp_folder.name``.
-#
-# > **Note:** The final cell in the notebook cleans up the temporary folder. If you want to
-# > retrieve the AEDT project and data, do so before executing the final cell in the notebook.
+# Create a temporary directory where downloaded data or
+# dumped data can be stored.
+# If you'd like to retrieve the project data for subsequent use,
+# the temporary folder name is given by ``temp_folder.name``.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ## Download model
+# ## Model preparation
+#
+# ### Download the model
 #
 # The model used in this example will be downloaded from the
 # [example-data](https://github.com/ansys/example-data)
-# GitHub repository.
+# GitHub repository. The model is a trihedral corner reflector,
+# a common radar calibration target with well-known RCS characteristics.
 
 project_path = download_file("sbr_convergence", "trihedral_rcs.aedt", temp_folder.name)
 
-# ## Launch HFSS and open project
+# ### Launch HFSS and open project
 #
-# Launch HFSS and open the project.
+# Launch HFSS and open the project containing the trihedral reflector geometry.
 
 hfss = Hfss(
     project=project_path,
@@ -57,26 +72,54 @@ hfss = Hfss(
     new_desktop=True,
 )
 
-# ## User Parameters
+# ## Convergence study parameters
 #
-# Parameters for SBR+ setup.
+# ### Setup parameters
+#
+# Define the analysis frequency and convergence criteria.
+# The convergence threshold determines when two successive results
+# are considered "close enough" that further refinement is unnecessary.
 
-setup_frequency = ["10GHz"]
-convergence_threshold = 0.5  # dB absolute error
+setup_frequency = ["10GHz"]  # Analysis frequency
+convergence_threshold = 0.5  # Maximum allowed change in dB (convergence criterion)
+# ### Advanced SBR+ options
+#
+# Configure advanced ray tracing options:
+#
+# - **PDF (Physical Theory of Diffraction)**: Improves accuracy for diffraction effects at edges.
+# - **UTD (Uniform Theory of Diffraction)**: Adds rays to capture diffraction phenomena.
+#
+# These options can improve accuracy but increase computation time.
+
 enable_ptd = False
 enable_utd = False
+
+# ### Convergence methodology
+#
+# Define how convergence is assessed:
+#
+# - **Convergence Method**:
+#   - ``"average"``: Checks if the average RCS across all angles has converged.
+#   - ``"point_to_point"``: Checks if the maximum change at any single angle is below threshold (more stringent).
+#
+# - **Convergence Order**:
+#   - ``"ray_density_first"``: First converge ray density, then bounce number.
+#   - ``"bounces_first"``: First converge bounce number, then ray density.
+
 convergence_method = "point_to_point"  # "average" or "point_to_point"
 convergence_order = "bounces_first"  # "ray_density_first" or "bounces_first"
 
-# ## Fixed starting values
+# ### Starting values
 #
-# Starting values for convergence test.
+# Define initial values for the convergence sweep.
+# The algorithm will increment these values until convergence is achieved.
 
 starting_ray_density = 1
 starting_bounce_number = 2
 
-
-# ## PDT/UTD settings
+# ### Configure PDF/UTD settings
+#
+# Map the boolean flags to the appropriate HFSS setup string.
 
 if enable_ptd and enable_utd:
     ptd_utd_setting = "PDF Correction + UTD Rays"
@@ -91,10 +134,16 @@ print(f"PDF: {enable_ptd}, UTD: {enable_utd} → Setting: '{ptd_utd_setting}'")
 print(f"Convergence Method: {convergence_method}")
 print(f"Convergence Order:  {convergence_order}")
 
-
-# ## Converge check method
+# ## Convergence analysis functions
 #
-# Method to check if the solution has converged.
+# ### Define convergence check function
+#
+# This function compares RCS results from successive iterations
+# to determine if the solution has converged.
+#
+# Two methods are available:
+# - **Average**: Compares the average RCS across all angles.
+# - **Point-to-point**: Compares RCS at each angle individually (more conservative).
 
 
 def check_convergence(rcs_values, previous_rcs_values, iwavephi_values, threshold, method):
@@ -117,36 +166,41 @@ def check_convergence(rcs_values, previous_rcs_values, iwavephi_values, threshol
         return max_change < threshold, max_change, mean_change, max_change_index
 
 
-# ## Convergence Sweep Function
+# ### Define convergence sweep function
 #
-# Run a convergence sweep for either ray_density or bounce_number.
+# This function runs a convergence sweep for either ray density or bounce number.
 #
-# #### Parameters
+# The workflow used to retrieve solution data from
+# HFSS is comprised of the following steps:
 #
-# sweep_param      : "ray_density" or "bounce_number" - which parameter to sweep
+# | Step | Description | Method |
+# |---|---|---|
+# | 1. | Create an SBR+ setup with<br>specified parameters | ``hfss.create_setup()`` |
+# | 2. | Run the analysis | ``hfss.analyze_setup()`` |
+# | 3. | Retrieve solution data | ``hfss.post.get_solution_data()`` |
+# | 4. | Check convergence criteria | ``check_convergence()`` |
 #
-# fixed_param_name : name of the fixed parameter for printing
+# **Parameters:**
 #
-# fixed_param_value: value of the fixed parameter
+# - ``sweep_param``: Parameter to sweep (``"ray_density"`` or ``"bounce_number"``)
+# - ``fixed_param_value``: Value of the fixed parameter
+# - ``Setup_Frequency``: Analysis frequency list
+# - ``ptd_utd_setting``: PDF/UTD configuration string
+# - ``convergence_threshold``: Maximum allowed change in dB
+# - ``convergence_method``: Method for checking convergence
+# - ``start_value``: Starting value for the sweep
+# - ``max_value``: Maximum value before stopping
 #
-# start_value      : starting value for the sweep
+# **Returns:**
 #
-# max_value        : maximum value before stopping
-#
-# #### Returns
-#
-# converged_value  : the value at which convergence was reached
-#
-# param_values     : list of all tested values
-#
-# average_rcs_list : list of average RCS for each iteration
-#
-# all_rcs_curves   : list of all RCS curves
-#
-# all_iwavephi     : list of all IWavePhi arrays
+# - ``converged_value``: The value at which convergence was reached
+# - ``param_values``: List of all tested values
+# - ``average_rcs_list``: List of average RCS for each iteration
+# - ``all_rcs_curves``: List of all RCS curves
+# - ``all_iwavephi``: List of all IWavePhi arrays
 
 
-def run_convergence_sweep(hfss, sweep_param, fixed_param_name, fixed_param_value, Setup_Frequency, ptd_utd_setting, convergence_threshold, convergence_method, start_value, max_value):
+def run_convergence_sweep(hfss, sweep_param, fixed_param_value, Setup_Frequency, ptd_utd_setting, convergence_threshold, convergence_method, start_value, max_value):
 
     param_values = []
     average_rcs_list = []
@@ -214,15 +268,19 @@ def run_convergence_sweep(hfss, sweep_param, fixed_param_name, fixed_param_value
     return converged_value, param_values, average_rcs_list, all_rcs_curves, all_iwavephi
 
 
-# ## Run Convergence Study
+# ## Run convergence study
 #
-# The study is run in two sequential steps based on the convergence order.
+# The convergence study is performed in two sequential steps based on the convergence order.
+# First, one parameter is converged while the other is held fixed. Then the second parameter
+# is converged using the converged value of the first parameter.
 
 print("=" * 70)
 print("SBR+ CONVERGENCE STUDY - Sequential Parameter Convergence")
 print("=" * 70)
 
-# ## Starting convergence study
+# ### Execute convergence iterations
+#
+# Run the convergence sweeps in the order specified by ``convergence_order``.
 
 if convergence_order == "ray_density_first":
     print("\n" + "=" * 70)
@@ -231,9 +289,8 @@ if convergence_order == "ray_density_first":
     converged_ray_density, ray_densities, avg_rcs_ray, all_rcs_ray, all_phi_ray = run_convergence_sweep(
         hfss=hfss,
         sweep_param="ray_density",
-        fixed_param_name="bounce_number",
         fixed_param_value=starting_bounce_number,
-        Setup_Frequency=Setup_Frequency,
+        Setup_Frequency=setup_frequency,
         ptd_utd_setting=ptd_utd_setting,
         convergence_threshold=convergence_threshold,
         convergence_method=convergence_method,
@@ -246,9 +303,8 @@ if convergence_order == "ray_density_first":
     converged_bounce_number, bounce_numbers, avg_rcs_bounce, all_rcs_bounce, all_phi_bounce = run_convergence_sweep(
         hfss=hfss,
         sweep_param="bounce_number",
-        fixed_param_name="ray_density",
         fixed_param_value=converged_ray_density,
-        Setup_Frequency=Setup_Frequency,
+        Setup_Frequency=setup_frequency,
         ptd_utd_setting=ptd_utd_setting,
         convergence_threshold=convergence_threshold,
         convergence_method=convergence_method,
@@ -262,9 +318,8 @@ else:
     converged_bounce_number, bounce_numbers, avg_rcs_bounce, all_rcs_bounce, all_phi_bounce = run_convergence_sweep(
         hfss=hfss,
         sweep_param="bounce_number",
-        fixed_param_name="ray_density",
         fixed_param_value=starting_ray_density,
-        Setup_Frequency=Setup_Frequency,
+        Setup_Frequency=setup_frequency,
         ptd_utd_setting=ptd_utd_setting,
         convergence_threshold=convergence_threshold,
         convergence_method=convergence_method,
@@ -277,9 +332,8 @@ else:
     converged_ray_density, ray_densities, avg_rcs_ray, all_rcs_ray, all_phi_ray = run_convergence_sweep(
         hfss=hfss,
         sweep_param="ray_density",
-        fixed_param_name="bounce_number",
         fixed_param_value=converged_bounce_number,
-        Setup_Frequency=Setup_Frequency,
+        Setup_Frequency=setup_frequency,
         ptd_utd_setting=ptd_utd_setting,
         convergence_threshold=convergence_threshold,
         convergence_method=convergence_method,
@@ -304,10 +358,12 @@ print(f"  - Bounce number sweep:{len(bounce_numbers)} simulations")
 print("=" * 70)
 
 # ## Plotting
+#
 # Plotting the results outside of AEDT.
 
 fig, axes = plt.subplots(2, 2, figsize=(16, 12))
 
+# Plot 1: Ray Density - RCS Curves
 colors1 = plt.cm.viridis(np.linspace(0, 1, len(ray_densities)))
 for i, (rd, rcs_curve, iwavephi) in enumerate(zip(ray_densities, all_rcs_ray, all_phi_ray)):
     axes[0, 0].plot(iwavephi, rcs_curve, color=colors1[i], linewidth=2, label=f"Ray Density = {rd}")
@@ -317,14 +373,14 @@ axes[0, 0].set_title(f"Ray Density Convergence - RCS Curves", fontsize=12)
 axes[0, 0].legend(loc="best", fontsize=9)
 axes[0, 0].grid(True, alpha=0.3)
 
-
+# Plot 2: Ray Density - Average RCS
 axes[0, 1].plot(ray_densities, avg_rcs_ray, "bo-", linewidth=2, markersize=8)
 axes[0, 1].set_xlabel("Ray Density Per Wavelength", fontsize=11)
 axes[0, 1].set_ylabel("Average RCS (dBsm)", fontsize=11)
 axes[0, 1].set_title("Ray Density - Average RCS Convergence", fontsize=12)
 axes[0, 1].grid(True, alpha=0.3)
 
-
+# Plot 3: Bounce Number - RCS Curves
 colors2 = plt.cm.plasma(np.linspace(0, 1, len(bounce_numbers)))
 for i, (bn, rcs_curve, iwavephi) in enumerate(zip(bounce_numbers, all_rcs_bounce, all_phi_bounce)):
     axes[1, 0].plot(iwavephi, rcs_curve, color=colors2[i], linewidth=2, label=f"Bounces = {bn}")
@@ -343,6 +399,50 @@ axes[1, 1].grid(True, alpha=0.3)
 
 plt.tight_layout()
 plt.show()
+
+# ## Advanced post-processing
+#
+# For more advanced RCS analysis and visualization, you can use PyAEDT's ``get_rcs_data()`` method.
+# This method exports RCS simulation data into a standardized metadata format and returns
+# a ``MonostaticRCSExporter`` object for further processing.
+#
+# ### Using the radar explorer toolkit
+#
+# For advanced RCS analysis and visualization capabilities, install the radar explorer toolkit:
+#
+# ```bash
+# pip install ansys-aedt-toolkits-radar-explorer
+# ```
+#
+# Once installed, you can use ``MonostaticRCSData`` and ``MonostaticRCSPlotter`` from the toolkit
+# to access powerful features including:
+#
+# - Interactive 3D RCS pattern visualization
+# - Polar and Cartesian plot formats
+# - Multi-frequency RCS comparison
+# - Export capabilities for various formats
+# - Advanced filtering and data manipulation
+#
+# Example usage:
+#
+# ```python
+# # Export RCS data using PyAEDT
+# rcs_exporter = hfss.get_rcs_data(
+#     setup_name="SBR",
+#     frequencies=["10GHz"]
+# )
+#
+# # Use radar explorer toolkit for advanced visualization
+# from ansys.aedt.toolkits.radar_explorer import MonostaticRCSData, MonostaticRCSPlotter
+#
+# rcs_data = MonostaticRCSData(rcs_exporter)
+# plotter = MonostaticRCSPlotter(rcs_data)
+# plotter.plot_3d()
+# ```
+
+# ## Finish
+#
+# ### Save the project
 
 hfss.save_project()
 hfss.release_desktop(close_desktop=False, close_projects=False)
