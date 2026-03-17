@@ -67,6 +67,7 @@ hfss = Hfss(
     non_graphical=NG_MODE,
     new_desktop=True,
 )
+print(hfss.design_name)
 
 # ## Convergence study parameters
 #
@@ -171,7 +172,7 @@ def check_convergence(rcs_values, previous_rcs_values, iwavephi_values, threshol
 # This function runs a convergence sweep for either ray density or bounce number.
 #
 # The workflow used to retrieve solution data from
-# HFSS is comprised of the following steps:
+# HFSS has the following steps:
 #
 # | Step | Description | Method |
 # |---|---|---|
@@ -226,6 +227,7 @@ def run_convergence_sweep(hfss, sweep_param, fixed_param_value, Setup_Frequency,
         if "SBR" in hfss.setup_names:
             hfss.delete_setup("SBR")
 
+        hfss.save_project()
         setup1 = hfss.create_setup(name="SBR")
         setup1.props["RayDensityPerWavelength"] = ray_density
         setup1.props["MaxNumberOfBounces"] = bounce_number
