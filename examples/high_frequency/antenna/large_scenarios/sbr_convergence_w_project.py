@@ -7,14 +7,11 @@
 #
 # Keywords: **SBR+**, **Ray density**, **number of bounces**, **convergence**.
 
-# ## Prerequisites
-# This examples can either download an example project or connect to
-# an already open SBR+ design.
-# ### Perform imports
+# ## Perform imports and define constants
 #
-# Import the packages required to run this example.
+# Perform required imports.
 
-
+# +
 import tempfile
 import time
 
@@ -23,103 +20,84 @@ import numpy as np
 from ansys.aedt.core.examples.downloads import download_file
 from ansys.aedt.core.hfss import Hfss
 
-# ### Define constants
-# Constants help ensure consistency and avoid repetition throughout the example.
+# -
+
+# Define constants.
 
 AEDT_VERSION = "2025.2"
 NG_MODE = False
 use_example_project = False
 
-# ### Setup based on user selection
+# ## Create temporary directory
 #
-# Using the example project - create new desktop session
 # Create a temporary working directory.
 # The name of the working folder is stored in ``temp_folder.name``.
 #
-# > **Note:** The final cell in this notebook cleans up the temporary folder. If you want to
+# > **Note:** The final cell in the notebook cleans up the temporary folder. If you want to
 # > retrieve the AEDT project and data, do so before executing the final cell in the notebook.
-#
-# ### Download model
+
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
+
+# ## Download model
 #
 # The model used in this example will be downloaded from the
 # [example-data](https://github.com/ansys/example-data)
 # GitHub repository.
 
+project_path = download_file("sbr_convergence", "trihedral_rcs.aedt", temp_folder.name)
 
-if use_example_project:
-    temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
-    print(f"Temporary folder: {temp_folder.name}")
-
-    project_path = download_file("sbr_convergence", "trihedral_rcs.aedt", temp_folder.name)
-
-    hfss = Hfss(
-        project=project_path,
-        version=AEDT_VERSION,
-        non_graphical=NG_MODE,
-        new_desktop=True,
-    )
-else:
-    print("Connecting to existing AEDT session...")
-
-    hfss = Hfss(
-        version=AEDT_VERSION,
-        non_graphical=NG_MODE,
-        new_desktop=False,
-    )
-
-    print(f"Connected to project: {hfss.project_name}")
-    print(f"Active design: {hfss.design_name}")
-
-    if hfss.solution_type != "SBR+":
-        raise ValueError(f"Active design '{hfss.design_name}' is not an SBR+ design. " f"Current solution type: {hfss.solution_type}. " f"Please activate an SBR+ design before running this script.")
-
-    temp_folder = None
-
-
-# ### User Parameters
+# ## Launch HFSS and open project
 #
-# parameters for SBR+ setup
+# Launch HFSS and open the project.
 
-Setup_Frequency = ["10GHz"]
+hfss = Hfss(
+    project=project_path,
+    version=AEDT_VERSION,
+    non_graphical=NG_MODE,
+    new_desktop=True,
+)
+
+# ## User Parameters
+#
+# Parameters for SBR+ setup.
+
+setup_frequency = ["10GHz"]
 convergence_threshold = 0.5  # dB absolute error
-enable_PTD = False
-enable_UTD = False
+enable_ptd = False
+enable_utd = False
 convergence_method = "point_to_point"  # "average" or "point_to_point"
 convergence_order = "bounces_first"  # "ray_density_first" or "bounces_first"
 
-
-# ### Fixed starting values
+# ## Fixed starting values
 #
-# starting values for convergence test
+# Starting values for convergence test.
 
 starting_ray_density = 1
 starting_bounce_number = 2
 
 
-# ### PDT/UTD Settings
+# ## PDT/UTD settings
 
-if enable_PTD and enable_UTD:
+if enable_ptd and enable_utd:
     ptd_utd_setting = "PDF Correction + UTD Rays"
-elif enable_PTD and not enable_UTD:
+elif enable_ptd and not enable_utd:
     ptd_utd_setting = "PDF Correction"
-elif not enable_PTD and enable_UTD:
+elif not enable_ptd and enable_utd:
     ptd_utd_setting = "UTD Rays"
 else:
     ptd_utd_setting = "None"
 
-print(f"PDF: {enable_PTD}, UTD: {enable_UTD} → Setting: '{ptd_utd_setting}'")
+print(f"PDF: {enable_ptd}, UTD: {enable_utd} → Setting: '{ptd_utd_setting}'")
 print(f"Convergence Method: {convergence_method}")
 print(f"Convergence Order:  {convergence_order}")
 
 
-# ### CONVERGENCE CHECK FUNCTION
+# ## Converge check method
+#
+# Method to check if the solution has converged.
 
 
 def check_convergence(rcs_values, previous_rcs_values, iwavephi_values, threshold, method):
-    """
-    Check convergence based on selected method.
-    Returns: (converged, max_change, mean_change, max_change_index)
-    """
     if method == "average":
         current_avg = np.mean(rcs_values)
         previous_avg = np.mean(previous_rcs_values)
@@ -129,7 +107,7 @@ def check_convergence(rcs_values, previous_rcs_values, iwavephi_values, threshol
         print(f"  Average change: {change:.4f} dB")
         return change < threshold, change, change, 0
 
-    elif method == "point_to_point":
+    else:
         absolute_changes = np.abs(rcs_values - previous_rcs_values)
         max_change = np.max(absolute_changes)
         max_change_index = np.argmax(absolute_changes)
@@ -139,7 +117,7 @@ def check_convergence(rcs_values, previous_rcs_values, iwavephi_values, threshol
         return max_change < threshold, max_change, mean_change, max_change_index
 
 
-# ### Convergence Sweep Function
+# ## Convergence Sweep Function
 #
 # Run a convergence sweep for either ray_density or bounce_number.
 #
@@ -236,7 +214,7 @@ def run_convergence_sweep(hfss, sweep_param, fixed_param_name, fixed_param_value
     return converged_value, param_values, average_rcs_list, all_rcs_curves, all_iwavephi
 
 
-# ### Run Convergence Study
+# ## Run Convergence Study
 #
 # The study is run in two sequential steps based on the convergence order.
 
@@ -244,9 +222,7 @@ print("=" * 70)
 print("SBR+ CONVERGENCE STUDY - Sequential Parameter Convergence")
 print("=" * 70)
 
-# ### starting Convergence Study
-#
-
+# ## Starting convergence study
 
 if convergence_order == "ray_density_first":
     print("\n" + "=" * 70)
@@ -311,9 +287,7 @@ else:
         max_value=20,
     )
 
-# ### Final Summary
-# printing results of convergence
-#
+# ## Final Summary
 
 print("\n" + "=" * 70)
 print("CONVERGENCE STUDY COMPLETE")
@@ -329,8 +303,8 @@ print(f"  - Ray density sweep:  {len(ray_densities)} simulations")
 print(f"  - Bounce number sweep:{len(bounce_numbers)} simulations")
 print("=" * 70)
 
-# ### Plotting
-# plotting the results outside of AEDT
+# ## Plotting
+# Plotting the results outside of AEDT.
 
 fig, axes = plt.subplots(2, 2, figsize=(16, 12))
 
@@ -378,10 +352,7 @@ time.sleep(3)
 
 # ## Clean up
 #
-# All project files are saved in the folder ``temp_folder.name``.
-# If you've run this example as a Jupyter notebook, you
-# can retrieve those project files. The following cell removes
-# all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook, you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
 
-if use_example_project and temp_folder is not None:
-    temp_folder.cleanup()
+temp_folder.cleanup()
