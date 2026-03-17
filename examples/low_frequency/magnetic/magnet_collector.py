@@ -127,9 +127,7 @@ cylinder2 = m3d.modeler.create_cylinder(
     name="cyl2",
 )
 
-m3d.modeler.subtract(
-    blank_list=[collector], tool_list=[cylinder2], keep_originals=False
-)
+m3d.modeler.subtract(blank_list=[collector], tool_list=[cylinder2], keep_originals=False)
 
 cylinder3 = m3d.modeler.create_cylinder(
     orientation=ansys.aedt.core.constants.Axis.Z,
@@ -148,9 +146,7 @@ cylinder4 = m3d.modeler.create_cylinder(
     name="cyl4",
 )
 
-m3d.modeler.subtract(
-    blank_list=[cylinder3], tool_list=[cylinder4], keep_originals=False
-)
+m3d.modeler.subtract(blank_list=[cylinder3], tool_list=[cylinder4], keep_originals=False)
 m3d.modeler.unite(assignment=[collector, cylinder3], keep_originals=False)
 
 collector.material_name = "Fer"
@@ -179,15 +175,11 @@ line = m3d.modeler.create_polyline(points=[[12, 13, 0], [12, 13, "32mm"]], name=
 
 # ## Create a vacuum region to enclose all objects
 
-region = m3d.modeler.create_region(
-    pad_value=50, pad_type="Percentage Offset", name="Region"
-)
+region = m3d.modeler.create_region(pad_value=50, pad_type="Percentage Offset", name="Region")
 
 # ## Create the collector cross-section on the XZ plane
 
-collector_relative_cs = m3d.modeler.create_coordinate_system(
-    origin=[12, 13, 28], name="collector_cs"
-)
+collector_relative_cs = m3d.modeler.create_coordinate_system(origin=[12, 13, 28], name="collector_cs")
 section = m3d.modeler.create_rectangle(
     orientation="XZ",
     origin=[-25, 0, -35],
@@ -237,9 +229,7 @@ m3d.post.fields_calculator.add_expression(mu_r, None)
 #
 # Assign mesh operations to the dummy cylinder and the collector.
 
-poly_mesh = m3d.mesh.assign_length_mesh(
-    assignment=[dummy_cylinder], maximum_length="1mm", name="polyline"
-)
+poly_mesh = m3d.mesh.assign_length_mesh(assignment=[dummy_cylinder], maximum_length="1mm", name="polyline")
 collector_mesh = m3d.mesh.assign_length_mesh(
     assignment=[collector],
     inside_selection=False,
@@ -267,7 +257,7 @@ param_sweep = m3d.parametrics.add(
     variable="magnet_z_pos",
     start_point=m3d["magnet_z_pos"],
     end_point="25mm",
-    step=5,
+    step=2,
     variation_type="LinearCount",
 )
 
@@ -311,21 +301,15 @@ rectangular_plot = m3d.post.create_report(
 # the vector B field, the magnetic field strength (H) and the permeability
 # of the ferromagnetic material (μ) change.
 
-mag_b = m3d.post.create_fieldplot_surface(
-    assignment=[section.name], quantity="Mag_B", plot_name="Mag_B", field_type="Fields"
-)
+mag_b = m3d.post.create_fieldplot_surface(assignment=[section.name], quantity="Mag_B", plot_name="Mag_B", field_type="Fields")
 vector_b = m3d.post.create_fieldplot_volume(
     assignment=[collector.name],
     quantity="B_Vector",
     plot_name="B_Vector",
     field_type="Fields",
 )
-mag_h = m3d.post.create_fieldplot_surface(
-    assignment=[section.name], quantity="Mag_H", plot_name="Mag_H", field_type="Fields"
-)
-mu_r = m3d.post.create_fieldplot_surface(
-    assignment=[collector.name], quantity="mu_r", plot_name="mu_r", field_type="Fields"
-)
+mag_h = m3d.post.create_fieldplot_surface(assignment=[section.name], quantity="Mag_H", plot_name="Mag_H", field_type="Fields")
+mu_r = m3d.post.create_fieldplot_surface(assignment=[collector.name], quantity="mu_r", plot_name="mu_r", field_type="Fields")
 
 # ## Export field
 #
@@ -347,13 +331,9 @@ m3d.post.export_field_file(
 
 m3d["magnet_z_pos"] = "18.75mm"
 
-py_vista_plot = m3d.post.plot_field(
-    quantity="mu_r", assignment=collector.name, plot_cad_objs=True, show=False
-)
+py_vista_plot = m3d.post.plot_field(quantity="mu_r", assignment=collector.name, plot_cad_objs=True, show=False)
 py_vista_plot.isometric_view = True
-py_vista_plot.plot(
-    export_image_path=os.path.join(temp_folder.name, "mu_r.jpg"), show=True
-)
+py_vista_plot.plot(export_image_path=os.path.join(temp_folder.name, "mu_r.jpg"), show=True)
 
 # ## BH curve of the ferromagnetic material
 #

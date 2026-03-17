@@ -10,25 +10,28 @@
 import json
 import os
 import tempfile
+import time
 
 from ansys.aedt.core import Hfss3dLayout, Icepak
 from ansys.aedt.core.examples.downloads import download_file
 from pyedb import Edb
+
 # -
 
 # Define constants.
 
 AEDT_VERSION = "2025.2"
+NUM_CORES = 4
 NG_MODE = False
 
 # Download the example PCB data.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
-file_edb = download_file(source="edb/ANSYS-HSD_V1.aedb", local_path=temp_folder.name)
+file_edb = download_file(source="pyaedt/edb/ANSYS-HSD_V1.aedb", local_path=temp_folder.name)
 
 # ## Load example layout
 
-edbapp = Edb(file_edb, edbversion=AEDT_VERSION)
+edbapp = Edb(edbpath=file_edb, version=AEDT_VERSION)
 
 # ## Create an empty dictionary to host all configurations
 
@@ -144,9 +147,7 @@ cfg["setups"] = [
 
 # ## Define Cutout
 
-cfg["operations"] = {
-    "cutout": {"signal_list": ["1V0"], "reference_list": ["GND"], "extent_type": "ConvexHull", "expansion_size": 0.02}
-}
+cfg["operations"] = {"cutout": {"signal_list": ["1V0"], "reference_list": ["GND"], "extent_type": "ConvexHull", "expansion_size": 0.02}}
 
 # ## Define package for thermal analysis (optional)
 
@@ -197,7 +198,7 @@ h3d.modeler.set_temperature_dependence(include_temperature_dependence=True, enab
 
 # ## Analyze
 
-h3d.analyze()
+h3d.analyze(cores=NUM_CORES)
 
 # ## Plot DC voltage
 
@@ -319,7 +320,19 @@ ipk.save_project()
 
 # ## Shut Down Electronics Desktop
 
-ipk.release_desktop()
+ipk.close_desktop()
 
 # All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notebook you
 # can retrieve those project files.
+
+# Wait 3 seconds before cleaning the temporary directory.
+time.sleep(3)
+
+# ### Clean up
+#
+# All project files are saved in the folder ``temp_folder.name``.
+# If you've run this example as a Jupyter notebook, you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
+
+temp_folder.cleanup()
