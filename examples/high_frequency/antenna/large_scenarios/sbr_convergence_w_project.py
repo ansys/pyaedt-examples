@@ -39,6 +39,7 @@ from ansys.aedt.core.hfss import Hfss
 # Constants help ensure consistency and avoid repetition throughout the example.
 
 AEDT_VERSION = "2025.2"
+NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ### Create temporary directory
@@ -235,7 +236,7 @@ def run_convergence_sweep(hfss, sweep_param, fixed_param_value, Setup_Frequency,
         setup1.props["PTDUTDSimulationSettings"] = ptd_utd_setting
         setup1.update()
 
-        hfss.analyze_setup("SBR")
+        hfss.analyze_setup("SBR", cores=NUM_CORES)
 
         sweep_names = hfss.existing_analysis_sweeps
         solution_data = hfss.post.get_solution_data(expressions="dB(MonostaticRCSTotal)", setup_sweep_name=sweep_names[0], primary_sweep_variable="IWavePhi")
@@ -414,31 +415,42 @@ plt.show()
 # pip install ansys-aedt-toolkits-radar-explorer
 # ```
 #
-# Once installed, you can use ``MonostaticRCSData`` and ``MonostaticRCSPlotter`` from the toolkit
-# to access powerful features including:
+# The radar explorer toolkit provides powerful features for RCS data analysis:
 #
-# - Interactive 3D RCS pattern visualization
-# - Polar and Cartesian plot formats
-# - Multi-frequency RCS comparison
-# - Export capabilities for various formats
-# - Advanced filtering and data manipulation
+# - **Interactive 3D RCS pattern visualization** with customizable viewing angles
+# - **Polar and Cartesian plot formats** for different analysis perspectives
+# - **Multi-frequency RCS comparison** to analyze frequency-dependent behavior
+# - **Export capabilities** for various formats (CSV, JSON, images)
+# - **Advanced filtering and data manipulation** tools
+# - **Statistical analysis** of RCS patterns
 #
-# Example usage:
+# ### Example: Visualizing RCS data with the toolkit
+#
+# Here's a complete example showing how to export RCS data from HFSS and visualize it
+# using the radar explorer toolkit. For more examples, visit the
+# [radar explorer toolkit documentation](https://aedt.radar.explorer.toolkit.docs.pyansys.com/version/stable/examples/index.html).
 #
 # ```python
-# # Export RCS data using PyAEDT
+# # Export RCS data using PyAEDT's get_rcs_data method
 # rcs_exporter = hfss.get_rcs_data(
 #     setup_name="SBR",
-#     frequencies=["10GHz"]
+#     frequencies=["10GHz"],
 # )
 #
-# # Use radar explorer toolkit for advanced visualization
-# from ansys.aedt.toolkits.radar_explorer import MonostaticRCSData, MonostaticRCSPlotter
+# # Import the radar explorer toolkit
+# from ansys.aedt.toolkits.radar_explorer.core import MonostaticRCSData, MonostaticRCSPlotter
 #
+# # Load the RCS data
 # rcs_data = MonostaticRCSData(rcs_exporter)
+#
+# # Create a plotter instance
 # plotter = MonostaticRCSPlotter(rcs_data)
+#
 # plotter.plot_3d()
 # ```
+#
+# For more examples and detailed documentation, visit:
+# https://aedt.radar.explorer.toolkit.docs.pyansys.com/version/stable/examples/index.html
 
 # ## Finish
 #
