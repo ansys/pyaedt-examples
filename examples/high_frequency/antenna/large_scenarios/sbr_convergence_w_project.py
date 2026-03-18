@@ -116,7 +116,7 @@ convergence_method = "point_to_point"  # "average" or "point_to_point"
 starting_ray_density = 1
 starting_bounce_number = 2
 max_ray_density = 2
-max_bounce_number = 8
+max_bounce_number = 5
 
 
 # ### Configure PDF/UTD settings
@@ -392,43 +392,49 @@ print("=" * 70)
 #
 # Plotting the results outside of AEDT.
 
-fig, axes = plt.subplots(2, 2, figsize=(16, 12))
+# ### Plot 1: Ray Density - RCS Curves
 
-# Plot 1: Ray Density - RCS Curves
-colors1 = plt.cm.viridis(np.linspace(0, 1, len(ray_densities)))
+fig, ax = plt.subplots()
 for i, (rd, rcs_curve, iwavephi) in enumerate(zip(ray_densities, all_rcs_ray, all_phi_ray)):
-    axes[0, 0].plot(iwavephi, rcs_curve, color=colors1[i], linewidth=2, label=f"Ray Density = {rd}")
-axes[0, 0].set_xlabel("IWavePhi Angle (degrees)", fontsize=11)
-axes[0, 0].set_ylabel("RCS (dBsm)", fontsize=11)
-axes[0, 0].set_title(f"Ray Density Convergence - RCS Curves", fontsize=12)
-axes[0, 0].legend(loc="best", fontsize=9)
-axes[0, 0].grid(True, alpha=0.3)
+    ax.plot(iwavephi, rcs_curve, linewidth=2, label=f"Ray Density = {rd}")
+ax.set_xlabel("IWavePhi Angle (degrees)", fontsize=11)
+ax.set_ylabel("RCS (dBsm)", fontsize=11)
+ax.set_title(f"Ray Density Convergence - RCS Curves", fontsize=12)
+ax.legend(loc="best", fontsize=9)
+ax.grid(True, alpha=0.3)
+plt.show()
 
-# Plot 2: Ray Density - Average RCS
-axes[0, 1].plot(ray_densities, avg_rcs_ray, "bo-", linewidth=2, markersize=8)
-axes[0, 1].set_xlabel("Ray Density Per Wavelength", fontsize=11)
-axes[0, 1].set_ylabel("Average RCS (dBsm)", fontsize=11)
-axes[0, 1].set_title("Ray Density - Average RCS Convergence", fontsize=12)
-axes[0, 1].grid(True, alpha=0.3)
+# ### Plot 2: Ray Density - Average RCS
 
-# Plot 3: Bounce Number - RCS Curves
+fig, ax = plt.subplots()
+ax.plot(ray_densities, avg_rcs_ray, "bo-", linewidth=2, markersize=8)
+ax.set_xlabel("Ray Density Per Wavelength", fontsize=11)
+ax.set_ylabel("Average RCS (dBsm)", fontsize=11)
+ax.set_title("Ray Density - Average RCS Convergence", fontsize=12)
+ax.grid(True, alpha=0.3)
+plt.show()
+
+# ### Plot 3: Bounce Number - RCS Curves
+
+fig, ax = plt.subplots()
 colors2 = plt.cm.plasma(np.linspace(0, 1, len(bounce_numbers)))
 for i, (bn, rcs_curve, iwavephi) in enumerate(zip(bounce_numbers, all_rcs_bounce, all_phi_bounce)):
-    axes[1, 0].plot(iwavephi, rcs_curve, color=colors2[i], linewidth=2, label=f"Bounces = {bn}")
-axes[1, 0].set_xlabel("IWavePhi Angle (degrees)", fontsize=11)
-axes[1, 0].set_ylabel("RCS (dBsm)", fontsize=11)
-axes[1, 0].set_title(f"Bounce Number Convergence - RCS Curves", fontsize=12)
-axes[1, 0].legend(loc="best", fontsize=9)
-axes[1, 0].grid(True, alpha=0.3)
+    ax.plot(iwavephi, rcs_curve, color=colors2[i], linewidth=2, label=f"Bounces = {bn}")
+ax.set_xlabel("IWavePhi Angle (degrees)", fontsize=11)
+ax.set_ylabel("RCS (dBsm)", fontsize=11)
+ax.set_title(f"Bounce Number Convergence - RCS Curves", fontsize=12)
+ax.legend(loc="best", fontsize=9)
+ax.grid(True, alpha=0.3)
+plt.show()
 
-# Plot 4: Bounce Number - Average RCS
-axes[1, 1].plot(bounce_numbers, avg_rcs_bounce, "ro-", linewidth=2, markersize=8)
-axes[1, 1].set_xlabel("Number of Bounces", fontsize=11)
-axes[1, 1].set_ylabel("Average RCS (dBsm)", fontsize=11)
-axes[1, 1].set_title("Bounce Number - Average RCS Convergence", fontsize=12)
-axes[1, 1].grid(True, alpha=0.3)
+# ### Plot 3: Bounce Number - Average RCS
 
-plt.tight_layout()
+fig, ax = plt.subplots()
+ax.plot(bounce_numbers, avg_rcs_bounce, "ro-", linewidth=2, markersize=8)
+ax.set_xlabel("Number of Bounces", fontsize=11)
+ax.set_ylabel("Average RCS (dBsm)", fontsize=11)
+ax.set_title("Bounce Number - Average RCS Convergence", fontsize=12)
+ax.grid(True, alpha=0.3)
 plt.show()
 
 # ## Advanced post-processing
