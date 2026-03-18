@@ -22,6 +22,7 @@
 #
 # ### Perform imports
 
+# +
 import tempfile
 import time
 
@@ -29,6 +30,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from ansys.aedt.core.examples.downloads import download_file
 from ansys.aedt.core.hfss import Hfss
+
+# -
 
 # ### Define constants
 # Constants help ensure consistency and avoid repetition throughout the example.
