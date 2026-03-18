@@ -100,12 +100,11 @@ enable_utd = False
 #   - ``"average"``: Checks if the average RCS across all angles has converged.
 #   - ``"point_to_point"``: Checks if the maximum change at any single angle is below threshold (more stringent).
 #
-# - **Convergence Order**:
-#   - ``"ray_density_first"``: First converge ray density, then bounce number.
-#   - ``"bounces_first"``: First converge bounce number, then ray density.
+# The workflow follows a natural progression:
+# 1. First, converge the bounce number (how many reflections to track)
+# 2. Then, converge the ray density (how many rays to launch)
 
 convergence_method = "point_to_point"  # "average" or "point_to_point"
-convergence_order = "bounces_first"  # "ray_density_first" or "bounces_first"
 
 # ### Starting values
 #
@@ -114,8 +113,8 @@ convergence_order = "bounces_first"  # "ray_density_first" or "bounces_first"
 
 starting_ray_density = 1
 starting_bounce_number = 2
-max_ray_density = 5
-max_bounce_number = 5
+max_ray_density = 2
+max_bounce_number = 4
 
 
 # ### Configure PDF/UTD settings
@@ -133,233 +132,258 @@ else:
 
 print(f"PDF: {enable_ptd}, UTD: {enable_utd} → Setting: '{ptd_utd_setting}'")
 print(f"Convergence Method: {convergence_method}")
-print(f"Convergence Order:  {convergence_order}")
 
-# ## Convergence analysis functions
+# ## The convergence story: A step-by-step workflow
 #
-# ### Define convergence check function
+# In this section, we'll perform a convergence study by following a clear, sequential workflow.
+# The story unfolds in phases:
 #
-# This function compares RCS results from successive iterations
-# to determine if the solution has converged.
+# 1. **Phase 1**: We start by testing different bounce numbers while keeping ray density fixed
+# 2. **Phase 2**: Once we find a good bounce number, we test different ray densities
+# 3. **Conclusion**: We identify the optimal settings that give us reliable RCS results
 #
-# Two methods are available:
-# - **Average**: Compares the average RCS across all angles.
-# - **Point-to-point**: Compares RCS at each angle individually (more conservative).
-
-
-def check_convergence(rcs_values, previous_rcs_values, iwavephi_values, threshold, method):
-    if method == "average":
-        current_avg = np.mean(rcs_values)
-        previous_avg = np.mean(previous_rcs_values)
-        change = np.abs(current_avg - previous_avg)
-        print(f"  Previous Average RCS: {previous_avg:.4f} dBsm")
-        print(f"  Current  Average RCS: {current_avg:.4f} dBsm")
-        print(f"  Average change: {change:.4f} dB")
-        return change < threshold, change, change, 0
-
-    else:
-        absolute_changes = np.abs(rcs_values - previous_rcs_values)
-        max_change = np.max(absolute_changes)
-        max_change_index = np.argmax(absolute_changes)
-        mean_change = np.mean(absolute_changes)
-        print(f"  Max point change:  {max_change:.4f} dB at IWavePhi = {iwavephi_values[max_change_index]:.1f}°")
-        print(f"  Mean point change: {mean_change:.4f} dB")
-        return max_change < threshold, max_change, mean_change, max_change_index
-
-
-# ### Define convergence sweep function
-#
-# This function runs a convergence sweep for either ray density or bounce number.
-#
-# The workflow used to retrieve solution data from
-# HFSS has the following steps:
-#
-# | Step | Description | Method |
-# |---|---|---|
-# | 1. | Create an SBR+ setup with<br>specified parameters | ``hfss.create_setup()`` |
-# | 2. | Run the analysis | ``hfss.analyze_setup()`` |
-# | 3. | Retrieve solution data | ``hfss.post.get_solution_data()`` |
-# | 4. | Check convergence criteria | ``check_convergence()`` |
-#
-# **Parameters:**
-#
-# - ``sweep_param``: Parameter to sweep (``"ray_density"`` or ``"bounce_number"``)
-# - ``fixed_param_value``: Value of the fixed parameter
-# - ``Setup_Frequency``: Analysis frequency list
-# - ``ptd_utd_setting``: PDF/UTD configuration string
-# - ``convergence_threshold``: Maximum allowed change in dB
-# - ``convergence_method``: Method for checking convergence
-# - ``start_value``: Starting value for the sweep
-# - ``max_value``: Maximum value before stopping
-#
-# **Returns:**
-#
-# - ``converged_value``: The value at which convergence was reached
-# - ``param_values``: List of all tested values
-# - ``average_rcs_list``: List of average RCS for each iteration
-# - ``all_rcs_curves``: List of all RCS curves
-# - ``all_iwavephi``: List of all IWavePhi arrays
-
-
-def run_convergence_sweep(hfss, sweep_param, fixed_param_value, Setup_Frequency, ptd_utd_setting, convergence_threshold, convergence_method, start_value, max_value):
-
-    param_values = []
-    average_rcs_list = []
-    all_rcs_curves = []
-    all_iwavephi = []
-
-    current_value = start_value
-    previous_rcs_values = None
-    converged = False
-    converged_value = max_value
-
-    while not converged:
-
-        if sweep_param == "ray_density":
-            ray_density = current_value
-            bounce_number = fixed_param_value
-            print(f"\nTesting Ray Density: {current_value} (Bounces fixed at {fixed_param_value})")
-        else:
-            ray_density = fixed_param_value
-            bounce_number = current_value
-            print(f"\nTesting Bounce Number: {current_value} (Ray Density fixed at {fixed_param_value})")
-
-        if "SBR" in hfss.setup_names:
-            hfss.delete_setup("SBR")
-
-        hfss.save_project()
-        setup1 = hfss.create_setup(name="SBR")
-        setup1.props["RayDensityPerWavelength"] = ray_density
-        setup1.props["MaxNumberOfBounces"] = bounce_number
-        setup1["RangeType"] = "SinglePoints"
-        setup1["RangeStart"] = Setup_Frequency[0]
-        setup1.props["ComputeFarFields"] = True
-        setup1.props["PTDUTDSimulationSettings"] = ptd_utd_setting
-        setup1.update()
-
-        hfss.analyze_setup("SBR", cores=NUM_CORES)
-
-        sweep_names = hfss.existing_analysis_sweeps
-
-        data = hfss.get_rcs_data(setup=sweep_names[0], expression="MonostaticRCSTotal")
-        solution_data = data.get_monostatic_rcs()
-        solution_data.primary_sweep = "IWavePhi"
-
-        iwavephi_values = solution_data.primary_sweep_values
-        rcs_values = solution_data.get_expression_data(formula="dB10")[1]
-        average_rcs = np.mean(rcs_values)
-
-        param_values.append(current_value)
-        average_rcs_list.append(average_rcs)
-        all_rcs_curves.append(rcs_values.copy())
-        all_iwavephi.append(iwavephi_values.copy())
-
-        print(f"  Average RCS: {average_rcs:.4f} dBsm")
-
-        if previous_rcs_values is not None:
-            converged, max_change, mean_change, max_idx = check_convergence(rcs_values, previous_rcs_values, iwavephi_values, convergence_threshold, convergence_method)
-            if converged:
-                print(f"\n*** {sweep_param.upper().replace('_', ' ')} CONVERGED at {current_value} ***")
-                converged_value = current_value
-
-        previous_rcs_values = rcs_values.copy()
-        current_value += 1
-
-        if current_value > max_value:
-            print(f"\nReached maximum limit ({max_value})")
-            converged_value = current_value - 1
-            break
-
-    return converged_value, param_values, average_rcs_list, all_rcs_curves, all_iwavephi
-
-
-# ## Run convergence study
-#
-# The convergence study is performed in two sequential steps based on the convergence order.
-# First, one parameter is converged while the other is held fixed. Then the second parameter
-# is converged using the converged value of the first parameter.
+# This approach mimics how an engineer would manually tune the parameters to achieve convergence.
 
 print("=" * 70)
-print("SBR+ CONVERGENCE STUDY - Sequential Parameter Convergence")
+print("SBR+ CONVERGENCE STUDY - A Sequential Workflow Story")
+print("=" * 70)
+print(f"\nOur goal: Find SBR+ settings that give us accurate RCS results")
+print(f"Convergence threshold: Changes must be < {convergence_threshold} dB")
+print(f"PDF/UTD Setting: {ptd_utd_setting}")
+print(f"Analysis frequency: {setup_frequency[0]}")
+
+# ### Initialize data storage
+#
+# We'll store all our results as we progress through the convergence study.
+
+# Storage for bounce number convergence (Phase 1)
+bounce_numbers = []
+avg_rcs_bounce = []
+all_rcs_bounce = []
+all_phi_bounce = []
+
+# Storage for ray density convergence (Phase 2)
+ray_densities = []
+avg_rcs_ray = []
+all_rcs_ray = []
+all_phi_ray = []
+
+# ## Phase 1: Finding the right number of bounces
+#
+# We begin by determining how many ray bounces are needed for accurate results.
+# We'll keep the ray density fixed at a reasonable starting value and gradually
+# increase the number of bounces until the RCS results stabilize.
+
+print("\n" + "=" * 70)
+print(f"PHASE 1: CONVERGING BOUNCE NUMBER")
+print(f"(Ray Density fixed at {starting_ray_density})")
 print("=" * 70)
 
-# ### Execute convergence iterations
-#
-# Run the convergence sweeps in the order specified by ``convergence_order``.
+current_bounce = starting_bounce_number
+previous_rcs_bounce = None
+bounce_converged = False
+converged_bounce_number = max_bounce_number  # Initialize with max value
 
-if convergence_order == "ray_density_first":
-    print("\n" + "=" * 70)
-    print(f"STEP 1: CONVERGING RAY DENSITY (Bounces fixed at {starting_bounce_number})")
-    print("=" * 70)
-    converged_ray_density, ray_densities, avg_rcs_ray, all_rcs_ray, all_phi_ray = run_convergence_sweep(
-        hfss=hfss,
-        sweep_param="ray_density",
-        fixed_param_value=starting_bounce_number,
-        Setup_Frequency=setup_frequency,
-        ptd_utd_setting=ptd_utd_setting,
-        convergence_threshold=convergence_threshold,
-        convergence_method=convergence_method,
-        start_value=starting_ray_density,
-        max_value=max_ray_density,
-    )
-    print("\n" + "=" * 70)
-    print(f"STEP 2: CONVERGING BOUNCE NUMBER (Ray Density fixed at {converged_ray_density})")
-    print("=" * 70)
-    converged_bounce_number, bounce_numbers, avg_rcs_bounce, all_rcs_bounce, all_phi_bounce = run_convergence_sweep(
-        hfss=hfss,
-        sweep_param="bounce_number",
-        fixed_param_value=converged_ray_density,
-        Setup_Frequency=setup_frequency,
-        ptd_utd_setting=ptd_utd_setting,
-        convergence_threshold=convergence_threshold,
-        convergence_method=convergence_method,
-        start_value=starting_bounce_number,
-        max_value=max_bounce_number,
-    )
-else:
-    print("\n" + "=" * 70)
-    print(f"STEP 1: CONVERGING BOUNCE NUMBER (Ray Density fixed at {starting_ray_density})")
-    print("=" * 70)
-    converged_bounce_number, bounce_numbers, avg_rcs_bounce, all_rcs_bounce, all_phi_bounce = run_convergence_sweep(
-        hfss=hfss,
-        sweep_param="bounce_number",
-        fixed_param_value=starting_ray_density,
-        Setup_Frequency=setup_frequency,
-        ptd_utd_setting=ptd_utd_setting,
-        convergence_threshold=convergence_threshold,
-        convergence_method=convergence_method,
-        start_value=starting_bounce_number,
-        max_value=max_bounce_number,
-    )
-    print("\n" + "=" * 70)
-    print(f"STEP 2: CONVERGING RAY DENSITY (Bounces fixed at {converged_bounce_number})")
-    print("=" * 70)
-    converged_ray_density, ray_densities, avg_rcs_ray, all_rcs_ray, all_phi_ray = run_convergence_sweep(
-        hfss=hfss,
-        sweep_param="ray_density",
-        fixed_param_value=converged_bounce_number,
-        Setup_Frequency=setup_frequency,
-        ptd_utd_setting=ptd_utd_setting,
-        convergence_threshold=convergence_threshold,
-        convergence_method=convergence_method,
-        start_value=starting_ray_density,
-        max_value=max_ray_density,
-    )
+while not bounce_converged and current_bounce <= max_bounce_number:
+
+    print(f"\n--- Testing Bounce Number: {current_bounce} ---")
+
+    # Delete any existing SBR setup to start fresh
+    if "SBR" in hfss.setup_names:
+        hfss.delete_setup("SBR")
+
+    hfss.save_project()
+
+    # Create a new SBR+ setup with current parameters
+    setup1 = hfss.create_setup(name="SBR")
+    setup1.props["RayDensityPerWavelength"] = starting_ray_density
+    setup1.props["MaxNumberOfBounces"] = current_bounce
+    setup1["RangeType"] = "SinglePoints"
+    setup1["RangeStart"] = setup_frequency[0]
+    setup1.props["ComputeFarFields"] = True
+    setup1.props["PTDUTDSimulationSettings"] = ptd_utd_setting
+    setup1.update()
+
+    print(f"Setup created: Ray Density = {starting_ray_density}, Bounces = {current_bounce}")
+
+    # Run the simulation
+    hfss.analyze_setup("SBR", cores=NUM_CORES)
+    print("Simulation complete. Retrieving RCS data...")
+
+    # Extract RCS results
+    sweep_names = hfss.existing_analysis_sweeps
+    data = hfss.get_rcs_data(setup=sweep_names[0], expression="MonostaticRCSTotal")
+    solution_data = data.get_monostatic_rcs()
+    solution_data.primary_sweep = "IWavePhi"
+
+    iwavephi_values = solution_data.primary_sweep_values
+    rcs_values = solution_data.get_expression_data(formula="dB10")[1]
+    average_rcs = np.mean(rcs_values)
+
+    # Store the results
+    bounce_numbers.append(current_bounce)
+    avg_rcs_bounce.append(average_rcs)
+    all_rcs_bounce.append(rcs_values.copy())
+    all_phi_bounce.append(iwavephi_values.copy())
+
+    print(f"Average RCS: {average_rcs:.4f} dBsm")
+
+    # Check if we've converged (compare with previous iteration)
+    if previous_rcs_bounce is not None:
+        if convergence_method == "average":
+            previous_avg = np.mean(previous_rcs_bounce)
+            change = np.abs(average_rcs - previous_avg)
+            print(f"Change from previous: {change:.4f} dB")
+
+            if change < convergence_threshold:
+                print(f"\n*** BOUNCE NUMBER CONVERGED at {current_bounce} bounces! ***")
+                print(f"The RCS results are now stable (change < {convergence_threshold} dB)")
+                bounce_converged = True
+                converged_bounce_number = current_bounce
+        else:  # point_to_point
+            absolute_changes = np.abs(rcs_values - previous_rcs_bounce)
+            max_change = np.max(absolute_changes)
+            max_change_index = np.argmax(absolute_changes)
+            mean_change = np.mean(absolute_changes)
+            print(f"Max point change: {max_change:.4f} dB at IWavePhi = {iwavephi_values[max_change_index]:.1f}°")
+            print(f"Mean point change: {mean_change:.4f} dB")
+
+            if max_change < convergence_threshold:
+                print(f"\n*** BOUNCE NUMBER CONVERGED at {current_bounce} bounces! ***")
+                print(f"All RCS points are stable (max change < {convergence_threshold} dB)")
+                bounce_converged = True
+                converged_bounce_number = current_bounce
+
+    # Save previous results for next comparison
+    previous_rcs_bounce = rcs_values.copy()
+
+    # Move to next bounce number
+    if not bounce_converged:
+        current_bounce += 1
+
+# Handle case where we didn't converge
+if not bounce_converged:
+    print(f"\nReached maximum bounce limit ({max_bounce_number})")
+    print("Using the highest tested value as our working bounce number")
+    converged_bounce_number = max_bounce_number
+
+print(f"\nPhase 1 complete! We'll use {converged_bounce_number} bounces for the next phase.")
+
+# ## Phase 2: Finding the right ray density
+#
+# Now that we know how many bounces to use, we'll determine the optimal ray density.
+# We keep the bounce number fixed at the converged value from Phase 1 and gradually
+# increase the ray density until we achieve stable results.
+
+print("\n" + "=" * 70)
+print(f"PHASE 2: CONVERGING RAY DENSITY")
+print(f"(Bounces fixed at {converged_bounce_number})")
+print("=" * 70)
+
+current_ray_density = starting_ray_density
+previous_rcs_ray = None
+ray_converged = False
+converged_ray_density = max_ray_density  # Initialize with max value
+
+while not ray_converged and current_ray_density <= max_ray_density:
+
+    print(f"\n--- Testing Ray Density: {current_ray_density} ---")
+
+    # Delete any existing SBR setup to start fresh
+    if "SBR" in hfss.setup_names:
+        hfss.delete_setup("SBR")
+
+    hfss.save_project()
+
+    # Create a new SBR+ setup with current parameters
+    setup1 = hfss.create_setup(name="SBR")
+    setup1.props["RayDensityPerWavelength"] = current_ray_density
+    setup1.props["MaxNumberOfBounces"] = converged_bounce_number
+    setup1["RangeType"] = "SinglePoints"
+    setup1["RangeStart"] = setup_frequency[0]
+    setup1.props["ComputeFarFields"] = True
+    setup1.props["PTDUTDSimulationSettings"] = ptd_utd_setting
+    setup1.update()
+
+    print(f"Setup created: Ray Density = {current_ray_density}, Bounces = {converged_bounce_number}")
+
+    # Run the simulation
+    hfss.analyze_setup("SBR", cores=NUM_CORES)
+    print("Simulation complete. Retrieving RCS data...")
+
+    # Extract RCS results
+    sweep_names = hfss.existing_analysis_sweeps
+    data = hfss.get_rcs_data(setup=sweep_names[0], expression="MonostaticRCSTotal")
+    solution_data = data.get_monostatic_rcs()
+    solution_data.primary_sweep = "IWavePhi"
+
+    iwavephi_values = solution_data.primary_sweep_values
+    rcs_values = solution_data.get_expression_data(formula="dB10")[1]
+    average_rcs = np.mean(rcs_values)
+
+    # Store the results
+    ray_densities.append(current_ray_density)
+    avg_rcs_ray.append(average_rcs)
+    all_rcs_ray.append(rcs_values.copy())
+    all_phi_ray.append(iwavephi_values.copy())
+
+    print(f"Average RCS: {average_rcs:.4f} dBsm")
+
+    # Check if we've converged (compare with previous iteration)
+    if previous_rcs_ray is not None:
+        if convergence_method == "average":
+            previous_avg = np.mean(previous_rcs_ray)
+            change = np.abs(average_rcs - previous_avg)
+            print(f"Change from previous: {change:.4f} dB")
+
+            if change < convergence_threshold:
+                print(f"\n*** RAY DENSITY CONVERGED at {current_ray_density}! ***")
+                print(f"The RCS results are now stable (change < {convergence_threshold} dB)")
+                ray_converged = True
+                converged_ray_density = current_ray_density
+        else:  # point_to_point
+            absolute_changes = np.abs(rcs_values - previous_rcs_ray)
+            max_change = np.max(absolute_changes)
+            max_change_index = np.argmax(absolute_changes)
+            mean_change = np.mean(absolute_changes)
+            print(f"Max point change: {max_change:.4f} dB at IWavePhi = {iwavephi_values[max_change_index]:.1f}°")
+            print(f"Mean point change: {mean_change:.4f} dB")
+
+            if max_change < convergence_threshold:
+                print(f"\n*** RAY DENSITY CONVERGED at {current_ray_density}! ***")
+                print(f"All RCS points are stable (max change < {convergence_threshold} dB)")
+                ray_converged = True
+                converged_ray_density = current_ray_density
+
+    # Save previous results for next comparison
+    previous_rcs_ray = rcs_values.copy()
+
+    # Move to next ray density
+    if not ray_converged:
+        current_ray_density += 1
+
+# Handle case where we didn't converge
+if not ray_converged:
+    print(f"\nReached maximum ray density limit ({max_ray_density})")
+    print("Using the highest tested value as our final ray density")
+    converged_ray_density = max_ray_density
+
+print(f"\nPhase 2 complete! Optimal ray density is {converged_ray_density}.")
+
 
 # ## Final Summary
 
 print("\n" + "=" * 70)
 print("CONVERGENCE STUDY COMPLETE")
 print("=" * 70)
-print(f"Convergence Order:      {convergence_order}")
 print(f"Convergence Method:     {convergence_method}")
 print(f"Convergence Threshold:  {convergence_threshold} dB")
 print(f"PDF/UTD Setting:        {ptd_utd_setting}")
 print(f"Converged Ray Density:  {converged_ray_density}")
 print(f"Converged Bounce Number:{converged_bounce_number}")
 print(f"Total simulations run:  {len(ray_densities) + len(bounce_numbers)}")
-print(f"  - Ray density sweep:  {len(ray_densities)} simulations")
 print(f"  - Bounce number sweep:{len(bounce_numbers)} simulations")
+print(f"  - Ray density sweep:  {len(ray_densities)} simulations")
 print("=" * 70)
 
 # ## Plotting
