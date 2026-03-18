@@ -22,6 +22,7 @@
 #
 # ### Perform imports
 
+# +
 import tempfile
 import time
 
@@ -29,9 +30,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from ansys.aedt.core.examples.downloads import download_file
 from ansys.aedt.core.hfss import Hfss
-
-# +
-
 
 # -
 
@@ -83,6 +81,7 @@ hfss = Hfss(
 
 setup_frequency = ["10GHz"]  # Analysis frequency
 convergence_threshold = 0.5  # Maximum allowed change in dB (convergence criterion)
+
 # ### Advanced SBR+ options
 #
 # Configure advanced ray tracing options:
@@ -486,7 +485,7 @@ plt.show()
 # ### Save the project
 
 hfss.save_project()
-hfss.release_desktop(close_desktop=False, close_projects=False)
+hfss.release_desktop()
 
 # Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
