@@ -72,7 +72,6 @@ hfss = Hfss(
     non_graphical=NG_MODE,
     new_desktop=True,
 )
-print(hfss.design_name)
 
 # ## Convergence study parameters
 #
@@ -118,7 +117,7 @@ convergence_method = "point_to_point"  # "average" or "point_to_point"
 starting_ray_density = 1
 starting_bounce_number = 2
 max_ray_density = 2
-max_bounce_number = 4
+max_bounce_number = 8
 
 
 # ### Configure PDF/UTD settings
