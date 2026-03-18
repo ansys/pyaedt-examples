@@ -427,7 +427,7 @@ ax.legend(loc="best", fontsize=9)
 ax.grid(True, alpha=0.3)
 plt.show()
 
-# ### Plot 3: Bounce Number - Average RCS
+# ### Plot 4: Bounce Number - Average RCS
 
 fig, ax = plt.subplots()
 ax.plot(bounce_numbers, avg_rcs_bounce, "ro-", linewidth=2, markersize=8)
