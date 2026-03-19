@@ -14,6 +14,7 @@ fast-simplification==0.1.10
 joblib==1.5.0
 plotly==6.0.1
 scikit-rf==1.6.2
+tables==3.10.1; python_version >= "3.10"
 
 # Documentation dependencies
 ansys-sphinx-theme==1.7.2

@@ -9,10 +9,10 @@
 # <img src="_static\eigenmode\eigenmode_chassis.png" width="600">
 #
 # HFSS relies on
-# specification of a lower frequency limit for the search5
-# range. The number of desired modes must also be specified. 
+# specification of a lower frequency limit for the search
+# range. The number of desired modes must also be specified.
 #
-# If performance is to be determined over a wide bandwith,
+# If performance is to be determined over a wide bandwidth,
 # the large number of modes can increase compute time. An
 # iterative search that limits the number of modes being sought
 # for each iteration improves time and memory requirements.
@@ -23,15 +23,16 @@
 #
 # ### Perform imports
 
-# +
-from pathlib import Path
 import tempfile
 import time
-import numpy as np
+
+# +
+from pathlib import Path
 
 import ansys.aedt.core
+import numpy as np
 from ansys.aedt.core.examples.downloads import download_file
-from ansys.aedt.core.generic.settings import settings
+
 # -
 
 # ### Define constants
@@ -58,9 +59,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # [example-data](https://github.com/ansys/example-data)
 # GitHub repository.
 
-project_path = download_file(
-    "eigenmode", "emi_PCB_house.aedt", temp_folder.name
-)
+project_path = download_file("eigenmode", "emi_PCB_house.aedt", temp_folder.name)
 
 # ### Launch Ansys Electronics Desktop (AEDT)
 #
@@ -100,6 +99,7 @@ hfss.desktop_class.logger.log_on_stdout = False
 #
 #
 
+
 def find_resonance(num_modes):
     # Setup creation
     next_min_freq = f"{next_fmin} GHz"
@@ -116,27 +116,24 @@ def find_resonance(num_modes):
     hfss.analyze_setup(setup_name, cores=NUM_CORES, use_auto_settings=True)
 
     # Get the quantity names for the quality factor values.
-    q_solution_names = hfss.post.available_report_quantities(
-        quantities_category="Eigen Q"
-    )
+    q_solution_names = hfss.post.available_report_quantities(quantities_category="Eigen Q")
 
     # Get the quantity names for the frequency.
-    f_solution_names = hfss.post.available_report_quantities(
-        quantities_category="Eigen Modes"
-    )
+    f_solution_names = hfss.post.available_report_quantities(quantities_category="Eigen Modes")
 
     # Store a list of [q_factor, frequency] pairs
     data = []
 
     get_solution = lambda quantity: hfss.post.get_solution_data(expressions=quantity, report_category="Eigenmode")
     get_data = lambda solution: float(solution.get_expression_data()[1][0])
-   
+
     for q_name, f_name in zip(q_solution_names, f_solution_names):
         eigen_q_value = get_solution(q_name)
         eigen_f_value = get_solution(f_name)
         data.append([get_data(eigen_q_value), get_data(eigen_f_value)])
 
     return np.array(data)
+
 
 # ### Automate the search for eigenmodes
 # #### Specify parameters for the eigenmode search
@@ -148,16 +145,16 @@ def find_resonance(num_modes):
 #    are assumed to be non-physical and are removed from the results.
 
 # +
-fmin = 1          # Minimum frequency in search range (GHz)
-fmax = 2          # Maximum frequency in search range
-limit = 10        # Q-factor threshold (low Q modes will be ignored)
+fmin = 1  # Minimum frequency in search range (GHz)
+fmax = 2  # Maximum frequency in search range
+limit = 10  # Q-factor threshold (low Q modes will be ignored)
 next_fmin = fmin  # Current lowest frequency in the iterative search
-setup_nr = 1      # Current iteration in the search loop.
+setup_nr = 1  # Current iteration in the search loop.
 valid_modes = None
 
 while next_fmin < fmax:
     modes = find_resonance(6)  # Limit the search to 6 modes per iteration.
-    next_fmin = modes[-1][1] / 1E9
+    next_fmin = modes[-1][1] / 1e9
     setup_nr += 1
     cont_res = len(modes)
     valid_modes = [q for q in modes if q[0] > limit]
