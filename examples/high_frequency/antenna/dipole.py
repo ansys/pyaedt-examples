@@ -111,7 +111,7 @@ hfss.create_open_region(frequency=center_freq)
 #   mesh refinement. Selection of two frequencies, one above and one below the
 #   expected resonance frequency help improve mesh quality at the resonant frequency.
 #
-# > **Note:** The parameter names used here are passed directly to the native AEDT API and therfore
+# > **Note:** The parameter names used here are passed directly to the native AEDT API and therefore
 # > do not adhere to [PEP-8](https://peps.python.org/pep-0008/).
 #
 # Both a discrete frequency sweep and an interpolating sweep are added to the solution setup.
