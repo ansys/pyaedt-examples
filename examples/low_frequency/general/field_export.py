@@ -18,6 +18,7 @@ import time
 import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_file
 from ansys.aedt.core.generic.constants import unit_converter
+
 # -
 
 # Define constants.
@@ -49,9 +50,7 @@ project_path = download_file(
 #
 # Initialize and launch Maxwell 3D, providing the version and the path of the project.
 
-m3d = ansys.aedt.core.Maxwell3d(
-    project=project_path, version=AEDT_VERSION, non_graphical=NG_MODE
-)
+m3d = ansys.aedt.core.Maxwell3d(project=project_path, version=AEDT_VERSION, non_graphical=NG_MODE)
 
 # ## Create setup and validate
 #
@@ -157,9 +156,7 @@ for time_step in converted:
         file_format="aedtplt",
     )
     m3d.post.create_fieldplot_surface(
-        assignment=[
-            o for o in m3d.modeler.solid_objects if o.material_name == "copper"
-        ],
+        assignment=[o for o in m3d.modeler.solid_objects if o.material_name == "copper"],
         quantity="Mag_J",
         plot_name="Mag_J_Coils_{}_ms".format(time_step),
         intrinsics={"Time": "ms"},

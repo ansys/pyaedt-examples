@@ -19,6 +19,7 @@ import time
 
 from ansys.aedt.core import TwinBuilder
 from ansys.aedt.core.examples import downloads
+
 # -
 
 # Define constants.
@@ -58,18 +59,14 @@ downloads.download_twin_builder_data(
 )
 
 downloads.download_twin_builder_data(source_build_conf_file, True, temp_folder.name)
-downloads.download_twin_builder_data(
-    source_props_conf_file, True, temp_folder.name
-)
+downloads.download_twin_builder_data(source_props_conf_file, True, temp_folder.name)
 
 # Target folder to extract project files.
 twin_builder_data_folder = os.path.join(temp_folder.name, "twin_builder")
 data_folder = os.path.join(twin_builder_data_folder, "Ex04")
 
 # Unzip training data and config file
-downloads.unzip(
-    os.path.join(twin_builder_data_folder, source_snapshot_data_zipfilename), data_folder
-)
+downloads.unzip(os.path.join(twin_builder_data_folder, source_snapshot_data_zipfilename), data_folder)
 shutil.copyfile(
     os.path.join(twin_builder_data_folder, source_build_conf_file),
     os.path.join(data_folder, source_build_conf_file),

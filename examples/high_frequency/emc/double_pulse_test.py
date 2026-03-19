@@ -21,6 +21,7 @@ import time
 
 import ansys.aedt.core
 from ansys.aedt.core.generic.constants import Setups
+
 # -
 
 # Define constants.
@@ -169,10 +170,9 @@ nmos_l = circuit.modeler.schematic.components_catalog[
 
 # ## Create wiring to complete the schematic.
 
-)
-circuit.modeler.schematic.connect_components_in_series(
-    assignment=[v_pwl, r_g2], use_wire=True
-)
+circuit.modeler.schematic.connect_components_in_series(assignment=[l_load, r_load], use_wire=True)
+circuit.modeler.schematic.connect_components_in_series(assignment=[v_gate_top, r_g1], use_wire=True)
+circuit.modeler.schematic.connect_components_in_series(assignment=[v_pwl, r_g2], use_wire=True)
 circuit.modeler.schematic.create_wire(
     [
         [v_dc_bus.pins[1].location[0], v_dc_bus.pins[1].location[1]],
@@ -327,18 +327,14 @@ circuit.modeler.schematic.create_wire(
         [voltm_ds.pins[1].location[0], y_lower_pin],
     ]
 )
-gnd = circuit.modeler.schematic.create_gnd(
-    location=[voltm_ds.pins[1].location[0], y_lower_pin - 100]
-)
+gnd = circuit.modeler.schematic.create_gnd(location=[voltm_ds.pins[1].location[0], y_lower_pin - 100])
 r_g1.pins[1].connect_to_component(assignment=nmos_h.pins[1], use_wire=True)
 r_g2.pins[1].connect_to_component(assignment=nmos_l.pins[1], use_wire=True)
 
 # ## Create a transient setup
 
 setup_name = "MyTransient"
-setup1 = circuit.create_setup(
-    name=setup_name, setup_type=Setups.NexximTransient
-)
+setup1 = circuit.create_setup(name=setup_name, setup_type=Setups.NexximTransient)
 setup1.props["TransientData"] = ["0.05ns", "15us"]
 circuit.modeler.zoom_to_fit()
 
@@ -359,7 +355,7 @@ new_report = circuit.post.create_report(
     ],
     domain="Time",
     plot_name="Plot V,I",
-    context={"time_stop": "15us"}
+    context={"time_stop": "15us"},
 )
 
 # ## Release AEDT

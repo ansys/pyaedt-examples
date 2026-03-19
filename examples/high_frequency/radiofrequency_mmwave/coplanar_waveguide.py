@@ -15,6 +15,7 @@ import tempfile
 import time
 
 import ansys.aedt.core
+
 # -
 
 # ### Define constants
@@ -37,8 +38,8 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ### Launch AEDT
 #
-# Launch an instance of the Ansys Electronics Desktop (AEDT) in graphical mode. 
-# The ``Q2d`` class inserts a 2-D Extractor design in AEDT. 
+# Launch an instance of the Ansys Electronics Desktop (AEDT) in graphical mode.
+# The ``Q2d`` class inserts a 2-D Extractor design in AEDT.
 
 q2d = ansys.aedt.core.Q2d(
     version=AEDT_VERSION,
@@ -73,7 +74,7 @@ cpw_params = {
 #
 # Expressions are passed to the methods that we'll use to
 # create the geometric cross-section of the
-# coplanar waveguide. These expressions depend on the 
+# coplanar waveguide. These expressions depend on the
 # independent parameters defined in the previous cell, ``cpw_params``.
 
 delta_w_half = "cond_h/e_factor"
@@ -93,7 +94,7 @@ layer_2_uh = layer_2_lh + " + cond_h"
 for name, value in cpw_params.items():
     q2d[name] = value
 
-# Create the signal conductor by drawing two lines and connecting them to 
+# Create the signal conductor by drawing two lines and connecting them to
 # create a 2D sheet.
 
 # +
@@ -108,9 +109,7 @@ top_line_obj = q2d.modeler.create_polyline(
 q2d.modeler.move(assignment=[top_line_obj], vector=[delta_w_half, 0, 0])
 
 q2d.modeler.connect([base_line_obj, top_line_obj])
-q2d.modeler.move(
-    assignment=[base_line_obj], vector=["gnd_w+clearance", 0, 0]
-)
+q2d.modeler.move(assignment=[base_line_obj], vector=["gnd_w+clearance", 0, 0])
 # -
 
 # Create adjacent ground layers.
@@ -175,19 +174,13 @@ for obj_name in ["signal", "co_gnd_left", "co_gnd_right"]:
         e_obj_list.append(e_obj)
     e_obj_1 = e_obj_list[0]
     q2d.modeler.unite(e_obj_list)
-    _ = q2d.modeler.sweep_along_vector(
-        assignment=e_obj_1.id, sweep_vector=[0, "sm_h", 0]
-    )
+    _ = q2d.modeler.sweep_along_vector(assignment=e_obj_1.id, sweep_vector=[0, "sm_h", 0])
     sm_obj_list.append(e_obj_1)
 
-new_obj = q2d.modeler.create_rectangle(
-    origin=["gnd_w", layer_2_lh, 0], sizes=["clearance", "sm_h"]
-)
+new_obj = q2d.modeler.create_rectangle(origin=["gnd_w", layer_2_lh, 0], sizes=["clearance", "sm_h"])
 sm_obj_list.append(new_obj)
 
-new_obj2 = q2d.modeler.create_rectangle(
-    origin=["gnd_w", layer_2_lh, 0], sizes=["clearance", "sm_h"]
-)
+new_obj2 = q2d.modeler.create_rectangle(origin=["gnd_w", layer_2_lh, 0], sizes=["clearance", "sm_h"])
 q2d.modeler.move(assignment=[new_obj2], vector=["sig_bot_w+clearance", 0, 0])
 sm_obj_list.append(new_obj2)
 
@@ -237,7 +230,7 @@ q2d.assign_single_conductor(
 
 # ### Define solution setup
 #
-# The solution steup specifies the frequency range for the solution and other 
+# The solution steup specifies the frequency range for the solution and other
 # solution settings
 
 # +

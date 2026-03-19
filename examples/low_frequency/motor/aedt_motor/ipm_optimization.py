@@ -7,7 +7,7 @@
 # The model applies electrical symmetry
 # and neglects end-winding 3D effects, thereby allowing analysis of one
 # quarter of a
-# 2D cross-section. This common approach greatly 
+# 2D cross-section. This common approach greatly
 # accelerates the analysis relative to a full 3D analysis. The
 # model cross-section is shown below.
 #
@@ -27,6 +27,7 @@ import time
 
 import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_file
+
 # -
 
 # ### Define constants
@@ -51,7 +52,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # ### Download the example project file
 #
 # Many PyAEDT examples use project files or data from the
-# [Ansys example data repository](https://www.github.com/ansys/example-data) 
+# [Ansys example data repository](https://www.github.com/ansys/example-data)
 # in GitHub.
 #
 # > *Note:* You can update ``settings`` as shown below
@@ -105,13 +106,12 @@ m2d["mat_index"] = 0
 # ### Assign the material definition to the permanent magnets
 #
 # Retrieve all permanent magnet objects using the string "Mag" for
-# the object name and assign the material definition 
+# the object name and assign the material definition
 # ``"mat_sweep[mat_index]"``. This allows the material assignment to
 # be modified by changing the value of ``mat_index`` in Maxwell 2D.
 
 # +
-magnets = [o for name, o in m2d.modeler.objects_by_name.items() 
-           if "Mag" in name]
+magnets = [o for name, o in m2d.modeler.objects_by_name.items() if "Mag" in name]
 
 for mag in magnets:
     mag.material_name = "mat_sweep[mat_index]"
@@ -128,12 +128,12 @@ for mag in magnets:
 # scope of the parametric investigation. This approach provides a powerful
 # interface for advanced design of experiments and optimization.
 
-param_sweep = m2d.parametrics.add(    # Define parametric analysis.
-    variable="bridge",                # Single value for "bridge"
+param_sweep = m2d.parametrics.add(  # Define parametric analysis.
+    variable="bridge",  # Single value for "bridge"
     start_point="0.5mm",
     variation_type="SingleValue",
 )
-param_sweep.add_variation(            # Sweep "din".
+param_sweep.add_variation(  # Sweep "din".
     sweep_variable="din",
     start_point=78,
     end_point=80,
@@ -141,7 +141,7 @@ param_sweep.add_variation(            # Sweep "din".
     units="mm",
     variation_type="LinearStep",
 )
-param_sweep.add_variation(            # Single value for "phase_advance".
+param_sweep.add_variation(  # Single value for "phase_advance".
     sweep_variable="phase_advance",
     start_point=45,
     units="deg",
@@ -179,7 +179,7 @@ param_sweep.add_variation(            # Sweep PM material assignment.
 # ```
 # Table of parametric variations:
 #
-# | Simulation<br>ID</br> | mat_index | bridge | Ipeak | phase_adv | din | 
+# | Simulation<br>ID</br> | mat_index | bridge | Ipeak | phase_adv | din |
 # | :---: | :----: | :----: | :----: | :----: | :----: |
 # | 1 | 0 | 0.5mm   | 200 A | 45 &deg  | 78 mm |
 # | 2 | 1 | 0.5mm   | 200 A | 45 &deg  | 78 mm |
@@ -227,7 +227,7 @@ report_torque_constant_din = m2d.post.create_report(
 # Plot torque vs ``"din"`` with the PM material
 # set to NdFeB (``"XG196/96_2DSF1.000_X"``).
 
-report_torque_constant_mat= m2d.post.create_report(
+report_torque_constant_mat = m2d.post.create_report(
     expressions="Moving1.Torque",
     domain="Sweep",
     variations={
@@ -242,7 +242,7 @@ report_torque_constant_mat= m2d.post.create_report(
     plot_name="torque_constant_mat",
 )
 
-# The same approach is applied to visualize the loss in all solids and 
+# The same approach is applied to visualize the loss in all solids and
 # the core. Quantities ``"SolidLoss"`` and ``"CoreLoss"`` are calculated
 # from the field solution and were pre-defined in the project.
 
@@ -383,9 +383,7 @@ for var in core_loss_data.variations:
         }
     )
 
-    with open(
-        os.path.join(temp_folder.name, "motor_optimization.csv"), "w", newline=""
-    ) as csvfile:
+    with open(os.path.join(temp_folder.name, "motor_optimization.csv"), "w", newline="") as csvfile:
         fields = [
             "active_variation",
             "average_torque",

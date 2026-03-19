@@ -15,6 +15,7 @@ import time
 
 import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_file
+
 # -
 
 # Define constants.
@@ -78,9 +79,7 @@ sheets_1 = m3d.modeler.objects_segmentation(
 segments_number = 2
 object_name = "PM_I1_1"
 magnet_id = [obj.id for obj in m3d.modeler.object_list if obj.name == object_name][0]
-sheets_2 = m3d.modeler.objects_segmentation(
-    magnet_id, segments=segments_number, apply_mesh_sheets=True
-)
+sheets_2 = m3d.modeler.objects_segmentation(magnet_id, segments=segments_number, apply_mesh_sheets=True)
 
 # ## Segment third magnet by specifying segmentation thickness
 #

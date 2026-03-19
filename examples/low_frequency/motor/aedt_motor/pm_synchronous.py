@@ -22,9 +22,8 @@ from pathlib import Path
 import ansys.aedt.core
 import matplotlib.pyplot as plt
 import numpy as np
-
-
 from ansys.aedt.core.examples.downloads import download_file
+
 # -
 
 # ### Define constants
@@ -58,17 +57,17 @@ m2d = ansys.aedt.core.Maxwell2d(
     version=AEDT_VERSION,
     design="Sinusoidal",
     solution_type="TransientXY",
-#    new_desktop=True,
+    #    new_desktop=True,
     non_graphical=NG_MODE,
 )
-m2d.modeler.model_units = "mm"   # Specify model units
+m2d.modeler.model_units = "mm"  # Specify model units
 
 # ### Define parameters
 #
 # Initialize parameters to define the stator, rotor, and shaft
 # geometric properties.
 # The parameter names are consistent with those
-# used in 
+# used in
 # [RMxprt](https://ansyshelp.ansys.com/public/account/secured?returnurl=/Views/Secured/Electronics/v252/en/Subsystems/Maxwell/Maxwell.htm%23Maxwell/GettingStartedwithRMxprt.htm?TocPath=Maxwell%2520Help%257CGetting%2520Started%2520with%2520RMxprt%257C_____0).
 #
 # Rotor geometric parameters:
@@ -110,7 +109,7 @@ mod_params = {
     "Magnetic_Axial_Length": "150mm",
     "Stator_Lam_Length": "0mm",
     "StatorSkewAngle": "0deg",
-    "NumTorquePointsPerCycle": "30",          # Number of points to sample torque during simulation.
+    "NumTorquePointsPerCycle": "30",  # Number of points to sample torque during simulation.
     "mapping_angle": "0.125*4deg",
     "num_m": "16",
     "Section_Angle": "360deg/SymmetryFactor",  # Used to apply symmetry boundaries.
@@ -130,7 +129,7 @@ mod_params = {
 # - $I_x\rightarrow$ ``"IPeak"`` Amplitude of the current source for each winding.
 # - $f \rightarrow$ ``"ElectricFrequency"`` Frequency of the current source.
 # - $\theta_i$ ``"Theta_i"`` Initial rotor angle at $t=0$.
-# - $\phi_x$ is the phase angle. $x=A\rightarrow 0^\circ, x=B\rightarrow120^\circ, 
+# - $\phi_x$ is the phase angle. $x=A\rightarrow 0^\circ, x=B\rightarrow120^\circ,
 #   x=C\rightarrow 240^\circ$.
 
 oper_params = {
@@ -163,7 +162,7 @@ for name, value in oper_params.items():
 # First, download the $B$-$H$ curves for the nonlinear magnetic materials from the [example-data](https://github.com/ansys/example-data/tree/main/pyaedt) repository.
 # <img src="_static/PM_motor/bh_curves.svg" width="600">
 
-data_folder = Path(download_file(r'pyaedt/nissan', local_path=temp_folder.name))
+data_folder = Path(download_file(r"pyaedt/nissan", local_path=temp_folder.name))
 
 # #### Annealed copper at 65<sup>o</sup> C
 
@@ -175,7 +174,7 @@ mat_coils.permeability = "1"
 
 # #### Nonlinear magnetic materials
 #
-# Define material properties. 
+# Define material properties.
 #
 # The nonlinear $B$-$H$ curves
 # were retrieved
@@ -185,11 +184,13 @@ mat_coils.permeability = "1"
 # The method ``bh_list()`` helps simplify assignment of data from the text file to the
 # material permeability.
 
+
 def bh_list(filepath):
     with open(filepath) as f:
-        reader = csv.reader(f, delimiter="\t")                     # Ignore header
+        reader = csv.reader(f, delimiter="\t")  # Ignore header
         next(reader)
         return [[float(row[0]), float(row[1])] for row in reader]  # Return a list of B,H values
+
 
 # #### Define the magnetic material properties.
 #
@@ -199,14 +200,14 @@ def bh_list(filepath):
 #
 # <img src="_static/PM_motor/bh_dataset.png" width="600">
 #
-# Define the material ``"Arnold_Magnetics_N30UH_80C"``. 
+# Define the material ``"Arnold_Magnetics_N30UH_80C"``.
 
 mat_PM = m2d.materials.add_material(name="Arnold_Magnetics_N30UH_80C_new")
 mat_PM.update()
 mat_PM.conductivity = "555555.5556"
 mat_PM.set_magnetic_coercivity(value=-800146.66287534, x=1, y=0, z=0)
 mat_PM.mass_density = "7500"
-mat_PM.permeability = bh_list(data_folder / 'BH_Arnold_Magnetics_N30UH_80C.tab')
+mat_PM.permeability = bh_list(data_folder / "BH_Arnold_Magnetics_N30UH_80C.tab")
 
 # Define the laminate material, ``"30DH_20C_smooth"``.
 
@@ -220,7 +221,7 @@ kdc = 0.001
 eq_depth = 0.001
 mat_lam.set_electrical_steel_coreloss(kh, kc, ke, kdc, eq_depth)
 mat_lam.mass_density = "7650"
-mat_lam.permeability = bh_list(data_folder / '30DH_20C_smooth.tab')
+mat_lam.permeability = bh_list(data_folder / "30DH_20C_smooth.tab")
 
 # ## Create the stator
 #
@@ -322,8 +323,9 @@ OPM1.solve_inside = True
 # magnet.
 #
 # The method ``create_cs_magnets()`` will be used to
-# create the 
+# create the
 # coordinate system at the center of each magnet.
+
 
 def create_magnet_cs(pm, cs_name, point_direction):
     """
@@ -437,7 +439,7 @@ bandMID = m2d.modeler.create_circle(
     is_covered=True,
     name="Band",
 )
-bandOUT= m2d.modeler.create_circle(
+bandOUT = m2d.modeler.create_circle(
     origin=[0, 0, 0],
     radius="(DiaGap - (0.5 * Airgap))/2",
     num_sides="mapping_angle",
@@ -448,7 +450,7 @@ bandOUT= m2d.modeler.create_circle(
 # ### Assign "vacuum" material
 #
 # The band objects, region and shaft will all be assigned the
-# material "vacuum". 
+# material "vacuum".
 
 vacuum_obj = [
     shaft,
@@ -464,7 +466,7 @@ for item in vacuum_obj:
 #
 # <img src="_static/PM_motor/rotor.svg" width="250">
 #
-# Create the rotor with holes and pockets for the 
+# Create the rotor with holes and pockets for the
 # permanent magnets.
 
 # +
@@ -570,13 +572,11 @@ m2d.modeler.split(assignment=object_list, plane="ZX", sides="PositiveOnly")
 # Create linked boundary conditions to apply
 # electrical symmetry.
 # Edges of the region object are selected based on their position.
-# The edge selection point on the region object lies in the 
+# The edge selection point on the region object lies in the
 # air-gap.
 
 pos_1 = "((DiaGap - (1.0 * Airgap))/4)"
-id_bc_1 = m2d.modeler.get_edgeid_from_position(
-    position=[pos_1, 0, 0], assignment="Region"
-)
+id_bc_1 = m2d.modeler.get_edgeid_from_position(position=[pos_1, 0, 0], assignment="Region")
 id_bc_2 = m2d.modeler.get_edgeid_from_position(
     position=[
         pos_1 + "*cos((360deg/SymmetryFactor))",
@@ -596,8 +596,8 @@ m2d.assign_master_slave(
 
 # ### Assign outer boundary condition
 #
-# Assign the boundary condition for the magnetic 
-# vector potnetial, $A_z=0$ on the 
+# Assign the boundary condition for the magnetic
+# vector potnetial, $A_z=0$ on the
 # outer perimeter of the motor.
 
 pos_2 = "(DiaOuter/2)"
@@ -609,9 +609,7 @@ id_bc_az = m2d.modeler.get_edgeid_from_position(
     ],
     assignment="Region",
 )
-m2d.assign_vector_potential(
-    assignment=id_bc_az, vector_value=0, boundary="VectorPotentialZero"
-)
+m2d.assign_vector_potential(assignment=id_bc_az, vector_value=0, boundary="VectorPotentialZero")
 
 
 # ### Define stator winding current sources
@@ -621,6 +619,7 @@ m2d.assign_vector_potential(
 # The stator windings will be driven with a 3-phase sinusoidal current whose amplitude and frequency
 # were defined earlier parameters that were defined earlier in this example. The windigs have 6 conductors each.
 # The following function can be used define the windings and assign excitations:
+
 
 def assign_winding(name="A", phase="", obj_p=None, obj_n=None, nconductors=6):
     """
@@ -636,7 +635,7 @@ def assign_winding(name="A", phase="", obj_p=None, obj_n=None, nconductors=6):
         Number of strands per winding.
     name : str
         String to use for naming sources and windings.
-    
+
     """
     phase_str = f"+ Theta_i - {phase}"
     ph_current = f"IPeak * cos(2*pi*ElectricFrequency*time {phase_str})"
@@ -648,13 +647,13 @@ def assign_winding(name="A", phase="", obj_p=None, obj_n=None, nconductors=6):
         conductors_number=nconductors,
         polarity="Positive",
         name=pos_coil_name,
-        )
+    )
     m2d.assign_coil(
         assignment=[obj_n],
         conductors_number=nconductors,
         polarity="Negative",
         name=neg_coil_name,
-        )
+    )
     m2d.assign_winding(
         assignment=None,
         winding_type="Current",
@@ -662,10 +661,8 @@ def assign_winding(name="A", phase="", obj_p=None, obj_n=None, nconductors=6):
         current=ph_current,
         parallel_branches=1,
         name=phase_name,
-        )
-    m2d.add_winding_coils(
-        assignment=phase_name, coils=[pos_coil_name, neg_coil_name]
-)
+    )
+    m2d.add_winding_coils(assignment=phase_name, coils=[pos_coil_name, neg_coil_name])
 
 
 assign_winding("A", "0deg", "Coil", "Coil_5")
@@ -684,21 +681,21 @@ for item in PM_list:
 # mesh so the simulation runs quickly. Accuracy can be improved
 # by increasing mesh density (reducing ``maximum_length``).
 
-m2d.mesh.assign_length_mesh(     # Coils
+m2d.mesh.assign_length_mesh(  # Coils
     assignment=id_coils,
     inside_selection=True,
     maximum_length=3,
     maximum_elements=None,
     name="coils",
 )
-m2d.mesh.assign_length_mesh(      # Stator
+m2d.mesh.assign_length_mesh(  # Stator
     assignment=stator,
     inside_selection=True,
     maximum_length=3,
     maximum_elements=None,
     name="stator",
 )
-m2d.mesh.assign_length_mesh(      # Rotor
+m2d.mesh.assign_length_mesh(  # Rotor
     assignment=rotor,
     inside_selection=True,
     maximum_length=3,
@@ -711,11 +708,9 @@ m2d.mesh.assign_length_mesh(      # Rotor
 core_loss_list = ["Rotor", "Stator"]
 m2d.set_core_losses(core_loss_list, core_loss_on_field=True)
 
-# Enable calcuation of the time-dependent inductance
+# Enable calculation of the time-dependent inductance
 
-m2d.change_inductance_computation(
-    compute_transient_inductance=True, incremental_matrix=False
-)
+m2d.change_inductance_computation(compute_transient_inductance=True, incremental_matrix=False)
 
 # Specify the length of the motor.
 #
@@ -889,9 +884,7 @@ avg_torque = np.mean(torque)
 #
 # Export 2D plot data to a CSV file.
 
-m2d.post.export_report_to_file(
-    output_dir=temp_folder.name, plot_name="TorquePlots", extension=".csv"
-)
+m2d.post.export_report_to_file(output_dir=temp_folder.name, plot_name="TorquePlots", extension=".csv")
 
 # ### Plot torque over the second quarter of the electric period
 #

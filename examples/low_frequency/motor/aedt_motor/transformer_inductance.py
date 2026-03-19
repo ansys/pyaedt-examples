@@ -16,6 +16,7 @@ import tempfile
 import time
 
 from ansys.aedt.core import Maxwell2d
+
 # -
 
 # Define constants,

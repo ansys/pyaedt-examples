@@ -23,6 +23,7 @@ import time
 
 import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_file
+
 # -
 
 # Define constants.
@@ -126,9 +127,7 @@ m2d["xl"] = "10mm"
 #
 # Create a parametrized polyline, specifying its ends.
 
-poly = m2d.modeler.create_polyline(
-    points=[["xl", -10, 0], ["xl", 10, 0]], name="polyline_sweep"
-)
+poly = m2d.modeler.create_polyline(points=[["xl", -10, 0], ["xl", 10, 0]], name="polyline_sweep")
 
 # ## Add parametric sweep
 #

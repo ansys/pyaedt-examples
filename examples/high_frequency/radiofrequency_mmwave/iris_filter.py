@@ -18,6 +18,7 @@ import tempfile
 import time
 
 import ansys.aedt.core
+
 # -
 
 # Define constants.
@@ -92,9 +93,7 @@ for key in wgparams:
         for v in wgparams[key]:
             this_key = key + str(count)
             hfss[this_key] = str(v) + wgparams["units"]
-            var_mapping[
-                this_key
-            ] = v  # Used to parse expressions and generate numerical values.
+            var_mapping[this_key] = v  # Used to parse expressions and generate numerical values.
             count += 1
 
 if len(wgparams["l"]) % 2 == 0:

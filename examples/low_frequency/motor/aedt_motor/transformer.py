@@ -17,6 +17,7 @@ from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.examples import downloads
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import read_csv_pandas
+
 # -
 
 # Define constants.
@@ -96,21 +97,11 @@ m3d = Maxwell3d(
 # and finally set the Power-Ferrite core loss model.
 
 mat = m3d.materials.add_material("newmat")
-freq_25kHz = unit_converter(
-    values=25, unit_system="Freq", input_units="kHz", output_units="Hz"
-)
-freq_100kHz = unit_converter(
-    values=100, unit_system="Freq", input_units="kHz", output_units="Hz"
-)
-freq_200kHz = unit_converter(
-    values=200, unit_system="Freq", input_units="kHz", output_units="Hz"
-)
-freq_400kHz = unit_converter(
-    values=400, unit_system="Freq", input_units="kHz", output_units="Hz"
-)
-freq_700kHz = unit_converter(
-    values=700, unit_system="Freq", input_units="kHz", output_units="Hz"
-)
+freq_25kHz = unit_converter(values=25, unit_system="Freq", input_units="kHz", output_units="Hz")
+freq_100kHz = unit_converter(values=100, unit_system="Freq", input_units="kHz", output_units="Hz")
+freq_200kHz = unit_converter(values=200, unit_system="Freq", input_units="kHz", output_units="Hz")
+freq_400kHz = unit_converter(values=400, unit_system="Freq", input_units="kHz", output_units="Hz")
+freq_700kHz = unit_converter(values=700, unit_system="Freq", input_units="kHz", output_units="Hz")
 pv = {
     freq_25kHz: curves_csv_25kHz,
     freq_100kHz: curves_csv_100kHz,

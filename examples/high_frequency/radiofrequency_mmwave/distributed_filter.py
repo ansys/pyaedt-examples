@@ -1,6 +1,6 @@
 # # Distributed filter design
 #
-# This example demonstrates using PyAEDT and the ``FilterSolutions`` module to design a low-pass Chebyshev-I filter, 
+# This example demonstrates using PyAEDT and the ``FilterSolutions`` module to design a low-pass Chebyshev-I filter,
 # visualize its frequency response, and export the distributed model to HFSS.
 #
 # Keywords: **filter solutions**
@@ -13,16 +13,22 @@
 import os
 import tempfile
 import time
+
 import ansys.aedt.core
 import ansys.aedt.core.filtersolutions
 import matplotlib.pyplot as plt
 from ansys.aedt.core.filtersolutions_core.attributes import FilterClass, FilterType
+from ansys.aedt.core.filtersolutions_core.distributed_substrate import (
+    SubstrateEr,
+    SubstrateResistivity,
+    SubstrateType,
+)
+from ansys.aedt.core.filtersolutions_core.distributed_topology import TopologyType
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import ExportFormat
 from ansys.aedt.core.filtersolutions_core.ideal_response import (
     SParametersResponseColumn,
 )
-from ansys.aedt.core.filtersolutions_core.distributed_topology import TopologyType
-from ansys.aedt.core.filtersolutions_core.distributed_substrate import SubstrateType, SubstrateEr, SubstrateResistivity
+
 # -
 
 # ### Define constants.
@@ -47,6 +53,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # on the same graph, using a logarithmic scale for the x-axis (frequency) and a linear scale
 # for the y-axis (magnitude in dB).
 
+
 def plot(data_list):
     for freq, data, label in data_list:
         plt.plot(freq, data, linewidth=2.0, label=label)
@@ -58,15 +65,18 @@ def plot(data_list):
     plt.grid()
     plt.show()
 
+
 # ### Create distributed filter design
 #
 # Create a distributed filter design using DistributedDesign function form FilterSolutions
 # module and assign the class, type, frequency, and order.
-# This example creates a low-pass Chebyshev-I filter with a center 
+# This example creates a low-pass Chebyshev-I filter with a center
 # frequency of 2 GHz and a filter order of 7. The default values for other parameters are used.
-# These design is created in the specified AEDT version. The parmeters define the filter's characteristics.
+# These design is created in the specified AEDT version. The parameters define the filter's characteristics.
 
-distributed_design = ansys.aedt.core.filtersolutions.DistributedDesign(version=AEDT_VERSION,)
+distributed_design = ansys.aedt.core.filtersolutions.DistributedDesign(
+    version=AEDT_VERSION,
+)
 distributed_design.attributes.filter_class = FilterClass.LOW_PASS
 distributed_design.attributes.filter_type = FilterType.CHEBYSHEV_I
 distributed_design.attributes.pass_band_center_frequency = "2 GHz"
@@ -114,7 +124,7 @@ plot(plot_data)
 
 # ### Export distributed model of the filter to HFSS 3D Layout and simulate
 #
-# The designed filter is exported as a distributed model to Ansys HFSS 3D Layout 
+# The designed filter is exported as a distributed model to Ansys HFSS 3D Layout
 # and simulated using the specified export parameters.
 # During export, the target schematic name is set, along with any required reports.
 # In this workflow:
@@ -127,7 +137,7 @@ project_name = os.path.join(temp_folder.name, "DistributedFilter")
 distributed_design.export_to_aedt.schematic_name = project_name
 distributed_design.export_to_aedt.simulate_after_export_enabled = True
 distributed_design.export_to_aedt.optimitrics_enabled = False
-distributed_design.export_to_aedt.include_forward_transfer_s21_enabled  = True
+distributed_design.export_to_aedt.include_forward_transfer_s21_enabled = True
 distributed_design.export_to_aedt.include_return_loss_s11_enabled = True
 distributed_design.export_to_aedt.insert_hfss_3dl_design = True
 hfss3dl = distributed_design.export_to_aedt.export_design(export_format=ExportFormat.DIRECT_TO_AEDT)
@@ -140,7 +150,7 @@ hfss3dl = distributed_design.export_to_aedt.export_design(export_format=ExportFo
 # To update the plot with the simulated data, the HFSS 3D Layout design is analyzed using the analyze method.
 # The S-parameters S11 and S21 in dB are extracted from the simulation results and plotted against frequency.
 # The simulated S-parameters are overlaid on the synthesized frequency response for comparison.
-  
+
 hfss3dl.analyze()
 solutions = hfss3dl.post.get_solution_data(
     expressions=hfss3dl.get_traces_for_plot(category="S"),
@@ -150,12 +160,7 @@ sim_freq = solutions.primary_sweep_values
 sim_freq_ghz = [i * 1e9 for i in sim_freq]
 sim_s11_db = solutions.get_expression_data("S(Port1,Port1)", "dB20")[1]
 sim_s21_db = solutions.get_expression_data("S(Port2,Port1)", "dB20")[1]
-plot_data = [
-    (freq, s11_db, "Synthesized S11"),
-    (freq, s21_db, "Synthesized S21"),
-    (sim_freq_ghz, sim_s11_db, "Simulated S11"),
-    (sim_freq_ghz, sim_s21_db, "Simulated S21")
-]
+plot_data = [(freq, s11_db, "Synthesized S11"), (freq, s21_db, "Synthesized S21"), (sim_freq_ghz, sim_s11_db, "Simulated S11"), (sim_freq_ghz, sim_s21_db, "Simulated S21")]
 plot(plot_data)
 
 # <img src="_static/simulated_distributed_filter.png" width="400">

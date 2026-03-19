@@ -15,10 +15,11 @@ import tempfile
 import time
 
 import ansys.aedt.core
-from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
 from ansys.aedt.core.examples.downloads import download_file
+from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixElectric
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
+
 # -
 
 # Define constants.

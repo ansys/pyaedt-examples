@@ -15,6 +15,7 @@ import tempfile
 import time
 
 import ansys.aedt.core
+
 # -
 
 # Define constants.
@@ -180,12 +181,8 @@ q3d.save_project()
 #
 # Capacitances - Original Matrix.
 
-original_matrix_self = q3d.matrices[0].get_sources_for_plot(
-    get_self_terms=True, get_mutual_terms=False
-)
-original_matrix_mutual = q3d.matrices[0].get_sources_for_plot(
-    get_self_terms=False, get_mutual_terms=True
-)
+original_matrix_self = q3d.matrices[0].get_sources_for_plot(get_self_terms=True, get_mutual_terms=False)
+original_matrix_mutual = q3d.matrices[0].get_sources_for_plot(get_self_terms=False, get_mutual_terms=True)
 
 # ACL - Reduced Matrix MR_1_Series
 

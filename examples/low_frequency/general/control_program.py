@@ -17,6 +17,7 @@ import time
 
 from ansys.aedt.core import Maxwell2d
 from ansys.aedt.core.examples.downloads import download_file
+
 # -
 
 # Define constants.
@@ -43,9 +44,7 @@ aedt_file = download_file(
     name="ControlProgramDemo.aedt",
     local_path=temp_folder.name,
 )
-ctrl_prg_file = download_file(
-    source="maxwell_ctrl_prg", name="timestep_only.py", local_path=temp_folder.name
-)
+ctrl_prg_file = download_file(source="maxwell_ctrl_prg", name="timestep_only.py", local_path=temp_folder.name)
 
 # ## Launch Maxwell 2D
 #
