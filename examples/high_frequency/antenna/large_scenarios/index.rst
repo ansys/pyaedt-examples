@@ -56,6 +56,19 @@ These examples use PyAEDT to show some general capabilities of HFSS SBR+ for lar
 
       This example shows how to use PyAEDT to create an SBR+ time animation and save it to a GIF file.
 
+   .. grid-item-card:: SBR+ convergence analysis
+      :padding: 2 2 2 2
+      :link: sbr_convergence
+      :link-type: doc
+
+      .. image:: _static/sbr_convergence.png
+         :alt: SBR Convergence
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      This example shows how to perform a convergence study on SBR+ setup parameters to ensure accurate RCS results.
+
 
    .. toctree::
       :hidden:
@@ -64,3 +77,4 @@ These examples use PyAEDT to show some general capabilities of HFSS SBR+ for lar
       doppler
       reflector
       time_domain
+      sbr_convergence
