@@ -62,7 +62,7 @@ These examples use PyAEDT to show some magnetics applications.
 
    .. grid-item-card:: 2D Axi-symmetric Actuator
       :padding: 2 2 2 2
-      :link: 2d-axi_magnetostatic_actuator
+      :link: 2d_axi_magnetostatic_actuator
       :link-type: doc
 
       .. image:: _static/2d-axi_magnetostatic_actuator.png
@@ -107,6 +107,6 @@ These examples use PyAEDT to show some magnetics applications.
       choke
       magneto_motive_line
       lorentz_actuator
-      2d-axi_magnetostatic_actuator
+      2d_axi_magnetostatic_actuator
       3d_magsta_rotational_actuator
       magnet_collector

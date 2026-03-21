@@ -19,8 +19,9 @@ import tempfile
 import time
 
 import ansys.aedt.core
-from ansys.aedt.core.examples import downloads
 import matplotlib.pyplot as plt
+from ansys.aedt.core.examples import downloads
+
 # -
 
 # Define constants.
@@ -53,18 +54,14 @@ downloads.download_twin_builder_data(
     force_download=True,
     local_path=temp_folder.name,
 )
-downloads.download_twin_builder_data(
-    source_build_conf_file, True, temp_folder.name
-)
+downloads.download_twin_builder_data(source_build_conf_file, True, temp_folder.name)
 
 # Toggle these for local testing.
 
 data_folder = os.path.join(twin_builder_data_folder, "Ex03")
 
 # Unzip training data and config file
-ansys.aedt.core.examples.downloads.unzip(
-    os.path.join(twin_builder_data_folder, source_snapshot_data_zipfilename), data_folder
-)
+ansys.aedt.core.examples.downloads.unzip(os.path.join(twin_builder_data_folder, source_snapshot_data_zipfilename), data_folder)
 shutil.copyfile(
     os.path.join(twin_builder_data_folder, source_build_conf_file),
     os.path.join(data_folder, source_build_conf_file),
@@ -111,13 +108,9 @@ dynamic_rom_builder.Build(conf_file_path.replace("\\", "/"))
 # Test if the ROM was created successfully
 dynamic_rom_path = os.path.join(data_folder, "DynamicRom.dyn")
 if os.path.exists(dynamic_rom_path):
-    tb._odesign.AddMessage(
-        "Info", "path exists: {}".format(dynamic_rom_path.replace("\\", "/")), ""
-    )
+    tb._odesign.AddMessage("Info", "path exists: {}".format(dynamic_rom_path.replace("\\", "/")), "")
 else:
-    tb._odesign.AddMessage(
-        "Info", "path does not exist: {}".format(dynamic_rom_path), ""
-    )
+    tb._odesign.AddMessage("Info", "path does not exist: {}".format(dynamic_rom_path), "")
 
 # Create the ROM component definition in Twin Builder.
 rom_manager.CreateROMComponent(dynamic_rom_path.replace("\\", "/"), "dynarom")
@@ -137,19 +130,13 @@ rom1 = tb.modeler.schematic.create_component("ROM1", "", "dynarom", [36 * G, 28 
 
 # Place two excitation sources.
 
-source1 = tb.modeler.schematic.create_periodic_waveform_source(
-    None, "PULSE", 190, 0.002, "300deg", 210, 0, [20 * G, 29 * G]
-)
-source2 = tb.modeler.schematic.create_periodic_waveform_source(
-    None, "PULSE", 190, 0.002, "300deg", 210, 0, [20 * G, 25 * G]
-)
+source1 = tb.modeler.schematic.create_periodic_waveform_source(None, "PULSE", 190, 0.002, "300deg", 210, 0, [20 * G, 29 * G])
+source2 = tb.modeler.schematic.create_periodic_waveform_source(None, "PULSE", 190, 0.002, "300deg", 210, 0, [20 * G, 25 * G])
 
 # Connect components with wires.
 
 tb.modeler.schematic.create_wire([[22 * G, 29 * G], [33 * G, 29 * G]])
-tb.modeler.schematic.create_wire(
-    [[22 * G, 25 * G], [30 * G, 25 * G], [30 * G, 28 * G], [33 * G, 28 * G]]
-)
+tb.modeler.schematic.create_wire([[22 * G, 25 * G], [30 * G, 25 * G], [30 * G, 28 * G], [33 * G, 28 * G]])
 
 # Zoom to fit the schematic.
 tb.modeler.zoom_to_fit()
@@ -175,11 +162,11 @@ tb.analyze_setup("TR", cores=NUM_CORES)
 
 input_excitation = "PULSE1.VAL"
 x = tb.post.get_solution_data(input_excitation, "TR", "Time")
-plt.plot(x.intrinsics["Time"], x.data_real(input_excitation))
+plt.plot(x.intrinsics["Time"], x.get_expression_data(input_excitation)[1])
 
 output_temperature = "ROM1.Temperature_history"
 x = tb.post.get_solution_data(output_temperature, "TR", "Time")
-plt.plot(x.intrinsics["Time"], x.data_real(output_temperature))
+plt.plot(x.intrinsics["Time"], x.get_expression_data(output_temperature)[1])
 
 plt.grid()
 plt.xlabel("Time")
