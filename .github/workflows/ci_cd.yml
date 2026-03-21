@@ -19,6 +19,7 @@ env:
   PYAEDT_NON_GRAPHICAL: '1'
   # To keep as it impacts pyaedt behavior
   PYAEDT_DOC_GENERATION: '1'
+  PYAEDT_LOCAL_SETTINGS_PATH: 'doc/pyaedt_settings.yaml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -34,7 +35,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: ansys/actions/check-actions-security@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
+      - uses: ansys/actions/check-actions-security@571fb2b8c7d6ad8c8b18e50bd20fb00f125dcfb6 # v10.2.6
         with:
           generate-summary: true
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -46,7 +47,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: ansys/actions/doc-style@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
+      - uses: ansys/actions/doc-style@571fb2b8c7d6ad8c8b18e50bd20fb00f125dcfb6 # v10.2.6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -80,7 +81,7 @@ jobs:
           Add-Content -Path $env:GITHUB_ENV -Value "ON_CI_CHANGED_EXAMPLES=$changed_formatted"
 
       - name: Set up Python ${{ env.MAIN_PYTHON_VERSION }}
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
@@ -121,7 +122,7 @@ jobs:
           }
 
       - name: Upload HTML documentation artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: documentation-html
           path: doc/_build/html
@@ -138,7 +139,7 @@ jobs:
           . .\doc\make.bat pdf
 
       - name: Upload PDF documentation artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: documentation-pdf
           path: doc/_build/latex
@@ -153,7 +154,7 @@ jobs:
       contents: write # Needed to update files on the gh-pages branch
     steps:
       - name: Deploy the documentation
-        uses: ansys/actions/doc-deploy-dev@41f86da4c9ead510db9135e428e33df9cc6f92e1 # v10.2.3
+        uses: ansys/actions/doc-deploy-dev@571fb2b8c7d6ad8c8b18e50bd20fb00f125dcfb6 # v10.2.6
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}

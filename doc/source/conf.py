@@ -284,12 +284,14 @@ def convert_examples_into_notebooks(app):
         "template.py",
         "gui_manipulation.py",
         "electrothermal.py",
+        "dcir_hfss.py",
         # GitHub CI/CD Pipeline fails to run lumped_element.py but it runs locally.
         "lumped_element.py",
         # GitHub CI/CD Pipeline fails to run distributed_filter.py but it runs locally.
         "distributed_filter.py",
+        # GitHub CI/CD Pipeline randomly fails to run field_export.py but it runs locally.
+        "field_export.py",
         # TODO: Remove once EMIT examples are moved into extensions.
-        "interference_type.py",
         "interference.py",
         "hfss_emit.py",
         "protection.py",

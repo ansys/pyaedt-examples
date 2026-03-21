@@ -14,12 +14,13 @@ fast-simplification==0.1.10
 joblib==1.5.0
 plotly==6.0.1
 scikit-rf==1.6.2
+tables==3.10.1; python_version >= "3.10"
 
 # Documentation dependencies
-ansys-sphinx-theme==1.6.4
+ansys-sphinx-theme==1.7.2
 ipython==8.26.0 ; python_version <= "3.10"
-ipython==9.8.0  ; python_version > "3.10"
-jupyterlab==4.5.1
+ipython==9.11.0  ; python_version > "3.10"
+jupyterlab==4.5.5
 nbsphinx==0.9.8
 numpydoc==1.10.0
 pypandoc==1.16.2
@@ -31,13 +32,13 @@ sphinx-autobuild==2024.10.3 ; python_version <= "3.10"
 sphinx-autobuild==2025.8.25 ; python_version > "3.10"
 sphinx-autodoc-typehints==3.0.1 ; python_version <= "3.10"
 sphinx-autodoc-typehints==3.6.1 ; python_version == "3.11"
-sphinx-autodoc-typehints==3.6.2 ; python_version > "3.11"
+sphinx-autodoc-typehints==3.9.8 ; python_version > "3.11"
 sphinx-copybutton==0.5.2
 sphinx-gallery==0.20.0
 sphinx-notfound-page==1.1.0
 sphinx_design==0.6.1 ; python_version <= "3.10"
 sphinx_design==0.7.0 ; python_version > "3.10"
 sphinxcontrib-websupport==2.0.0
-jupytext==1.18.1
-nbconvert==7.16.6
+jupytext==1.19.1
+nbconvert==7.17.0
 ipywidgets==8.1.8
