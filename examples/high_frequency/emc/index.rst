@@ -23,7 +23,7 @@ These examples use PyAEDT to show some EMC applications.
       :link: eigenmode
       :link-type: doc
 
-      .. image:: _static/eigenmode.png
+      .. image:: _static/eigenmode/eigenmode_chassis.png
          :alt: Eigenmode
          :width: 250px
          :height: 200px
