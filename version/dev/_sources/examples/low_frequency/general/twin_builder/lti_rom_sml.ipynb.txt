@@ -1,0 +1,675 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "13cbc776",
+   "metadata": {},
+   "source": [
+    "# LTI ROM creation and simulation"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "169541e7",
+   "metadata": {},
+   "source": [
+    "This example shows how you can use PyAEDT to create a Linear Time Invariant (LTI) ROM in Twin Builder\n",
+    "and run a Twin Builder time-domain simulation. Inputs data are defined using Datapairs blocks with CSV files.\n",
+    "\n",
+    "Keywords: **Twin Builder**, **LTI**, **ROM**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b83db28d",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "80a12d41",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import datetime\n",
+    "import os\n",
+    "import subprocess\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import matplotlib.pyplot as plt\n",
+    "from ansys.aedt.core import TwinBuilder\n",
+    "from ansys.aedt.core.application.variables import CSVDataset\n",
+    "from ansys.aedt.core.examples import downloads\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d00e1a1c",
+   "metadata": {},
+   "source": [
+    "Define constants"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6052de3b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d07736a5",
+   "metadata": {},
+   "source": [
+    "## Set paths and define input files and variables\n",
+    "\n",
+    "Set paths."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a82aa94f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "training_data_folder = \"LTI_training_data.zip\"\n",
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")\n",
+    "input_dir = downloads.download_twin_builder_data(training_data_folder, True, temp_folder.name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4f3ac75d",
+   "metadata": {},
+   "source": [
+    "Download data from example_data repository"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9209eb4d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "twin_builder_data_folder = os.path.join(temp_folder.name, \"twin_builder\")\n",
+    "data_folder = os.path.join(twin_builder_data_folder, \"LTI_training\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "92078162",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "# Unzip training data and parse ports names\n",
+    "downloads.unzip(os.path.join(input_dir), data_folder)\n",
+    "ports_names_file = \"Input_PortNames.txt\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ba5b478e",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "source": [
+    "## Get ports information from file"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1438312d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def get_ports_info(ports_file):\n",
+    "    with open(ports_file, \"r\") as PortNameFile:\n",
+    "        res = []\n",
+    "        line = PortNameFile.readline()\n",
+    "        line_list = list(line.split())\n",
+    "        for i in range(len(line_list)):\n",
+    "            res.append(\"Input\" + str(i + 1) + \"_\" + line_list[i])\n",
+    "\n",
+    "        line = PortNameFile.readline()\n",
+    "        line_list = list(line.split())\n",
+    "        for i in range(len(line_list)):\n",
+    "            res.append(\"Output\" + str(i + 1) + \"_\" + line_list[i])\n",
+    "    return res"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1ea82c9b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pin_names = get_ports_info(os.path.join(data_folder, ports_names_file))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b16d77b1",
+   "metadata": {},
+   "source": [
+    "## Launch Twin Builder\n",
+    "\n",
+    "Launch Twin Builder using an implicit declaration and add a new design with\n",
+    "the default setup."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c76f0e18",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_name = os.path.join(temp_folder.name, \"LTI_ROM.aedt\")\n",
+    "tb = TwinBuilder(project=project_name, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "281de6f4",
+   "metadata": {},
+   "source": [
+    "## Build the LTI ROM with specified configuration file"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0d783bc3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "install_dir = tb.odesktop.GetRegistryString(\"Desktop/InstallationDirectory\")\n",
+    "fitting_exe = os.path.join(install_dir, \"FittingTool.exe\")\n",
+    "path = '\"' + fitting_exe + '\"' + \"  \" + '\"t\"' + \"  \" + '\"' + data_folder + '\"'\n",
+    "process = subprocess.Popen(path, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)\n",
+    "tb.logger.info(\"Fitting the LTI ROM training data\")\n",
+    "exec = True\n",
+    "startTime = datetime.datetime.now()\n",
+    "execTime = 0.0\n",
+    "while exec and execTime < 60.0:  # limiting the fitting process execution time to 1 minute\n",
+    "    out, err = process.communicate()\n",
+    "    execTime = (datetime.datetime.now() - startTime).total_seconds()\n",
+    "    if \"An LTI ROM has been generated\" in str(out):\n",
+    "        process.terminate()\n",
+    "        exec = False"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9ba4213c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "rom_file = \"\"\n",
+    "model_name_sml = \"\""
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8c14ff4c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "for i in os.listdir(data_folder):\n",
+    "    if i.endswith(\".sml\"):\n",
+    "        model_name_sml = i.split(\".\")[0]\n",
+    "        rom_file = os.path.join(data_folder, i)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5bfb3615",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "if os.path.exists(rom_file):\n",
+    "    tb.logger.info(\"Built intermediate ROM file successfully at: %s\", rom_file)\n",
+    "else:\n",
+    "    tb.logger.info(\"ROM file does not exist at the expected location : %s\", rom_file)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "195c47d6",
+   "metadata": {},
+   "source": [
+    "## Import the ROM component model"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "503d4e73",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "is_created = tb.modeler.schematic.create_component_from_sml(input_file=rom_file, model=model_name_sml, pins_names=pin_names)\n",
+    "os.remove(rom_file)\n",
+    "tb.logger.info(\"LTI ROM model successfully imported.\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4930dc44",
+   "metadata": {},
+   "source": [
+    "## Import the ROM component model in Twin Builder\n",
+    "\n",
+    "Place components to create a schematic."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "07934a9b",
+   "metadata": {},
+   "source": [
+    "Define the grid distance for ease in calculations"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f15d04b3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "grid_distance = 0.00254"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "225bcbbf",
+   "metadata": {},
+   "source": [
+    "Place the ROM component"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a352c0fe",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "rom1 = tb.modeler.schematic.create_component(\"ROM1\", \"\", model_name_sml, [36 * grid_distance, 28 * grid_distance])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "acb4bbc1",
+   "metadata": {},
+   "source": [
+    "Place datapairs blocks for inputs definition"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f9ed21ed",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "source1 = tb.modeler.schematic.create_component(\n",
+    "    \"source1\",\n",
+    "    \"\",\n",
+    "    \"Simplorer Elements\\\\Basic Elements\\\\Tools\\\\Time Functions:DATAPAIRS\",\n",
+    "    [20 * grid_distance, 29 * grid_distance],\n",
+    ")\n",
+    "source2 = tb.modeler.schematic.create_component(\n",
+    "    \"source2\",\n",
+    "    \"\",\n",
+    "    \"Simplorer Elements\\\\Basic Elements\\\\Tools\\\\Time Functions:DATAPAIRS\",\n",
+    "    [20 * grid_distance, 25 * grid_distance],\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b862aa69",
+   "metadata": {},
+   "source": [
+    "Import Datasets"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "729a9a15",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "data1 = CSVDataset(os.path.join(data_folder, \"data1.csv\"))\n",
+    "data2 = CSVDataset(os.path.join(data_folder, \"data2.csv\"))\n",
+    "dataset1 = tb.create_dataset(\"data1\", data1.data[\"time\"], data1.data[\"input1\"])\n",
+    "dataset2 = tb.create_dataset(\"data2\", data2.data[\"time\"], data2.data[\"input2\"])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "35b95e2c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "source1.parameters[\"CH_DATA\"] = dataset1.name\n",
+    "source2.parameters[\"CH_DATA\"] = dataset2.name"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a5a5ba07",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tb.modeler.schematic.update_quantity_value(source1.composed_name, \"PERIO\", \"0\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4f47efb2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tb.modeler.schematic.update_quantity_value(source1.composed_name, \"TPERIO\", \"Tend+1\", \"s\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "547aed97",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tb.modeler.schematic.update_quantity_value(source2.composed_name, \"PERIO\", \"0\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d32a9daf",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tb.modeler.schematic.update_quantity_value(source2.composed_name, \"TPERIO\", \"Tend+1\", \"s\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "16af9f96",
+   "metadata": {},
+   "source": [
+    "Connect components with wires"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0a2a1f98",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tb.modeler.schematic.create_wire(points=[source1.pins[0].location, rom1.pins[0].location])\n",
+    "tb.modeler.schematic.create_wire(points=[source2.pins[0].location, rom1.pins[1].location])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c0a27926",
+   "metadata": {},
+   "source": [
+    "Zoom to fit the schematic"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e527733c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tb.modeler.zoom_to_fit()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6d2b09b6",
+   "metadata": {},
+   "source": [
+    "## Parametrize transient setup\n",
+    "\n",
+    "Parametrize the default transient setup by setting the end time and minimum/maximum time steps."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2a9d7580",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tb.set_end_time(\"700s\")\n",
+    "tb.set_hmin(\"0.001s\")\n",
+    "tb.set_hmax(\"1s\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6c103b29",
+   "metadata": {},
+   "source": [
+    "## Solve transient setup\n",
+    "\n",
+    "Solve the transient setup."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "cd5e1d88",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tb.analyze_setup(\"TR\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "75d81d9a",
+   "metadata": {},
+   "source": [
+    "## Get report data and plot using Matplotlib\n",
+    "\n",
+    "Get report data and plot it using Matplotlib. The following code gets and plots\n",
+    "the values for the inputs and outputs of the LTI ROM."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a225d3a1",
+   "metadata": {},
+   "source": [
+    "Units used are based on AEDT default units."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "07a43910",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "variables_postprocessing = []\n",
+    "pin_names_str = \",\".join(pin_names)\n",
+    "rom_pins = pin_names_str.lower().split(\",\")\n",
+    "fig, ax = plt.subplots(ncols=1, nrows=2, figsize=(18, 7))\n",
+    "fig.subplots_adjust(hspace=0.5)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e26addbd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "for i in range(0, 2):\n",
+    "    variable = \"ROM1.\" + rom_pins[i]\n",
+    "    x = tb.post.get_solution_data(variable, \"TR\", \"Time\")\n",
+    "    ax[0].plot([el for el in x.intrinsics[\"Time\"]], x.get_expression_data(variable)[1], label=variable)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4ea5dcce",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ax[0].set_title(\"ROM inputs\")\n",
+    "ax[0].legend(loc=\"upper left\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c560e38a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "for i in range(2, 4):\n",
+    "    variable = \"ROM1.\" + rom_pins[i]\n",
+    "    x = tb.post.get_solution_data(variable, \"TR\", \"Time\")\n",
+    "    ax[1].plot([el for el in x.intrinsics[\"Time\"]], x.get_expression_data(variable)[1], label=variable)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f9b5fb58",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ax[1].set_title(\"ROM outputs\")\n",
+    "ax[1].legend(loc=\"upper left\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2350060d",
+   "metadata": {},
+   "source": [
+    "Show plot"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "72760c17",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "976b210c",
+   "metadata": {},
+   "source": [
+    "## Release AEDT\n",
+    "\n",
+    "Release AEDT and close the example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "39d0a6f7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tb.save_project()\n",
+    "tb.release_desktop()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1d638056",
+   "metadata": {},
+   "source": [
+    "Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "42062bd9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a179026d",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "cc6dd78a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

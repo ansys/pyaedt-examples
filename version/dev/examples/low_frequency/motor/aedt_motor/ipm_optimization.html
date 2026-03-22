@@ -1,0 +1,1263 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Internal permanent magnet e-machine &#8212; PyAEDT Examples</title>
+  
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/ansys-sphinx-theme.css?v=a23b20f3" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles\ansys-sphinx-theme.css?v=a23b20f3" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css?v=9233c59b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/highlight.css?v=500661c4" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+
+  <!-- Include desired assets -->
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  
+
+  
+    <link href="../../../../_static/css/breadcrumbs.css" rel="stylesheet" />
+  
+    <script src="../../../../_static/documentation_options.js?v=e7fb764e"></script>
+    <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=49e1bf35"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/low_frequency/motor/aedt_motor/ipm_optimization';</script>
+    <link rel="icon" href="../../../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1.dev0" />
+  <link rel="canonical" href="https://examples.aedt.docs.pyansys.com/version/stable/examples/low_frequency/motor/aedt_motor/ipm_optimization.html" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="https://www.ansys.com/">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../_static/ansys_logo_transparent_black.png" class="logo__image only-light" alt="PyAEDT Examples - Home"/>
+    <img src="../../../../_static/ansys_logo_transparent_white.png" class="logo__image only-dark pst-js-only" alt="PyAEDT Examples - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../index.html" title="PyAEDT Examples home">Home</a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Examples
+  </a>
+</li>
+
+  </ul>
+</nav>
+</div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+      
+        <div class="navbar-item">
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+  
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+  
+
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../index.html" title="PyAEDT Examples home">Home</a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Examples
+  </a>
+</li>
+
+  </ul>
+</nav>
+</div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+  
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+       
+    <li class="breadcrumb-item">
+      <a href="https://aedt.docs.pyansys.com/" class="nav-link">PyAEDT</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="../../../../index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Internal permanent magnet e-machine</span></li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="admonition-download-this-example admonition">
+<p class="admonition-title">Download this example</p>
+<p>Download this example as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/low_frequency/motor/aedt_motor/ipm_optimization.ipynb">Jupyter Notebook</a>
+or as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/low_frequency/motor/aedt_motor/ipm_optimization.py">Python script</a>.</p>
+</div>
+<hr class="docutils" />
+<section id="Internal-permanent-magnet-e-machine">
+<h1>Internal permanent magnet e-machine<a class="headerlink" href="#Internal-permanent-magnet-e-machine" title="Link to this heading">#</a></h1>
+<p>This example shows how to run a parametric analysis of an electric machine and report torque and loss over the range of swept parameters.</p>
+<p>The model applies electrical symmetry and neglects end-winding 3D effects, thereby allowing analysis of one quarter of a 2D cross-section. This common approach greatly accelerates the analysis relative to a full 3D analysis. The model cross-section is shown below.</p>
+<p><img alt="" class="no-scaled-link" src="../../../../_images/full_model_w_symmetry.svg" style="width: 400px;" /></p>
+<p>Keywords: <strong>Maxwell 2D</strong>, <strong>transient</strong>, <strong>motor</strong></p>
+<section id="Prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#Prerequisites" title="Link to this heading">#</a></h2>
+<section id="Perform-imports">
+<h3>Perform imports<a class="headerlink" href="#Perform-imports" title="Link to this heading">#</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">ansys.aedt.core</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ansys.aedt.core.examples.downloads</span><span class="w"> </span><span class="kn">import</span> <span class="n">download_file</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Define-constants">
+<h3>Define constants<a class="headerlink" href="#Define-constants" title="Link to this heading">#</a></h3>
+<p>Constants help ensure consistency and avoid repetition throughout the example.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">AEDT_VERSION</span> <span class="o">=</span> <span class="s2">&quot;2025.2&quot;</span>
+<span class="n">NUM_CORES</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">NG_MODE</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Open AEDT UI when it is launched.</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Create-temporary-directory">
+<h3>Create temporary directory<a class="headerlink" href="#Create-temporary-directory" title="Link to this heading">#</a></h3>
+<p>Create a temporary working directory. The name of the working folder is stored in <code class="docutils literal notranslate"><span class="pre">temp_folder.name</span></code>.</p>
+<blockquote>
+<div><p><strong>Note:</strong> The final cell in the notebook cleans up the temporary folder. If you want to retrieve the AEDT project and data, do so before executing the final cell in the notebook.</p>
+</div></blockquote>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">temp_folder</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.ansys&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="Model-preparation">
+<h2>Model preparation<a class="headerlink" href="#Model-preparation" title="Link to this heading">#</a></h2>
+<section id="Download-the-example-project-file">
+<h3>Download the example project file<a class="headerlink" href="#Download-the-example-project-file" title="Link to this heading">#</a></h3>
+<p>Many PyAEDT examples use project files or data from the <a class="reference external" href="https://www.github.com/ansys/example-data">Ansys example data repository</a> in GitHub.</p>
+<blockquote>
+<div><p><em>Note:</em> You can update <code class="docutils literal notranslate"><span class="pre">settings</span></code> as shown below to work with a local copy of the <a class="reference external" href="https://github.com/ansys/example-data">example-data</a> repository. Replace <code class="docutils literal notranslate"><span class="pre">'/home/user/repo/example-data'</span></code> with the path to the cloned <code class="docutils literal notranslate"><span class="pre">&quot;example-data&quot;</span></code> repository.</p>
+</div></blockquote>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">ansys.aedt.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">settings</span>
+<span class="n">settings</span><span class="o">.</span><span class="n">use_example_data</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">settings</span><span class="o">.</span><span class="n">local_example_folder</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;/home/user/repo/example-data&#39;</span>
+</pre></div>
+</div>
+<p>Retrieve the example model and place it in the project folder.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">aedt_file</span> <span class="o">=</span> <span class="n">download_file</span><span class="p">(</span>
+    <span class="n">source</span><span class="o">=</span><span class="s2">&quot;maxwell_motor_optimization&quot;</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;IPM_optimization.aedt&quot;</span><span class="p">,</span>
+    <span class="n">local_path</span><span class="o">=</span><span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Launch-Maxwell-2D">
+<h3>Launch Maxwell 2D<a class="headerlink" href="#Launch-Maxwell-2D" title="Link to this heading">#</a></h3>
+<p>Launch AEDT and Maxwell 2D after first setting up the project, the version and the graphical mode.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m2d</span> <span class="o">=</span> <span class="n">ansys</span><span class="o">.</span><span class="n">aedt</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Maxwell2d</span><span class="p">(</span>
+    <span class="n">project</span><span class="o">=</span><span class="n">aedt_file</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="n">AEDT_VERSION</span><span class="p">,</span>
+    <span class="n">new_desktop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">non_graphical</span><span class="o">=</span><span class="n">NG_MODE</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Parsing C:\Users\ansys\AppData\Local\Temp\tmpr8ud_p_g.ansys\pyaedt\maxwell_motor_optimization\IPM_optimization.aedt.
+PyAEDT INFO: Python version 3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)].
+PyAEDT INFO: PyAEDT version 0.26.dev0.
+PyAEDT INFO: Initializing new Desktop session.
+PyAEDT INFO: AEDT version 2025.2.
+PyAEDT INFO: File C:\Users\ansys\AppData\Local\Temp\tmpr8ud_p_g.ansys\pyaedt\maxwell_motor_optimization\IPM_optimization.aedt correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: New AEDT session is starting on gRPC port 60468.
+PyAEDT INFO: Starting new AEDT gRPC session on port 60468.
+PyAEDT INFO: Launching AEDT server with gRPC transport mode: wnua
+PyAEDT INFO: Electronics Desktop started on gRPC port 60468 after 10.3 seconds.
+PyAEDT INFO: AEDT installation Path C:\Program Files\ANSYS Inc\v252\AnsysEM
+PyAEDT INFO: Connected to AEDT gRPC session on port 60468.
+PyAEDT WARNING: Service Pack is not detected. PyAEDT is currently connecting in Insecure Mode.
+PyAEDT WARNING: Please download and install latest Service Pack to use connect to AEDT in Secure Mode.
+PyAEDT INFO: Project IPM_optimization has been opened.
+PyAEDT INFO: Active Design set to M2D_Transient
+PyAEDT INFO: AEDT objects correctly read
+</pre></div></div>
+</div>
+</section>
+<section id="Define-parameters">
+<h3>Define parameters<a class="headerlink" href="#Define-parameters" title="Link to this heading">#</a></h3>
+<p>Permanent magnet material may be used as a degree of freedom for the optimization. The material is modified in maxwell using the parameter <code class="docutils literal notranslate"><span class="pre">&quot;mat_index&quot;</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>mat_index</p></th>
+<th class="head"><p>Material</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0</p></td>
+<td><p>NdFeB (“XG196/96_2DSF1.000_X”)</p></td>
+</tr>
+<tr class="row-odd"><td><p>1</p></td>
+<td><p>NdFe30</p></td>
+</tr>
+<tr class="row-even"><td><p>2</p></td>
+<td><p>NdFe35</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m2d</span><span class="p">[</span><span class="s2">&quot;mat_sweep&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;[&quot;XG196/96_2DSF1.000_X&quot;, &quot;NdFe30&quot;, &quot;NdFe35&quot;]&#39;</span>
+<span class="n">m2d</span><span class="p">[</span><span class="s2">&quot;mat_index&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Assign-the-material-definition-to-the-permanent-magnets">
+<h3>Assign the material definition to the permanent magnets<a class="headerlink" href="#Assign-the-material-definition-to-the-permanent-magnets" title="Link to this heading">#</a></h3>
+<p>Retrieve all permanent magnet objects using the string “Mag” for the object name and assign the material definition <code class="docutils literal notranslate"><span class="pre">&quot;mat_sweep[mat_index]&quot;</span></code>. This allows the material assignment to be modified by changing the value of <code class="docutils literal notranslate"><span class="pre">mat_index</span></code> in Maxwell 2D.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">magnets</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">m2d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">objects_by_name</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+           <span class="k">if</span> <span class="s2">&quot;Mag&quot;</span> <span class="ow">in</span> <span class="n">name</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">mag</span> <span class="ow">in</span> <span class="n">magnets</span><span class="p">:</span>
+    <span class="n">mag</span><span class="o">.</span><span class="n">material_name</span> <span class="o">=</span> <span class="s2">&quot;mat_sweep[mat_index]&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Modeler2D class has been initialized!
+PyAEDT INFO: Modeler class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Parsing design objects. This operation can take time
+PyAEDT INFO: Refreshing bodies from Object Info
+PyAEDT INFO: Bodies Info Refreshed Elapsed time: 0m 0sec
+PyAEDT INFO: 3D Modeler objects parsed. Elapsed time: 0m 0sec
+PyAEDT INFO: Materials class has been initialized! Elapsed time: 0m 0sec
+</pre></div></div>
+</div>
+</section>
+<section id="Specify-parametric-analysis">
+<h3>Specify parametric analysis<a class="headerlink" href="#Specify-parametric-analysis" title="Link to this heading">#</a></h3>
+<p>The following code demonstrates how to set up a parametric study that varies:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;din&quot;</span></code>: Stator inner diameter.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;mat_index&quot;</span></code>: Material of the permanent magnet.</p></li>
+</ul>
+<p>Variations can be added using the <code class="docutils literal notranslate"><span class="pre">add_variation()</span></code> method to extend the scope of the parametric investigation. This approach provides a powerful interface for advanced design of experiments and optimization.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">param_sweep</span> <span class="o">=</span> <span class="n">m2d</span><span class="o">.</span><span class="n">parametrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>    <span class="c1"># Define parametric analysis.</span>
+    <span class="n">variable</span><span class="o">=</span><span class="s2">&quot;bridge&quot;</span><span class="p">,</span>                <span class="c1"># Single value for &quot;bridge&quot;</span>
+    <span class="n">start_point</span><span class="o">=</span><span class="s2">&quot;0.5mm&quot;</span><span class="p">,</span>
+    <span class="n">variation_type</span><span class="o">=</span><span class="s2">&quot;SingleValue&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">param_sweep</span><span class="o">.</span><span class="n">add_variation</span><span class="p">(</span>            <span class="c1"># Sweep &quot;din&quot;.</span>
+    <span class="n">sweep_variable</span><span class="o">=</span><span class="s2">&quot;din&quot;</span><span class="p">,</span>
+    <span class="n">start_point</span><span class="o">=</span><span class="mi">78</span><span class="p">,</span>
+    <span class="n">end_point</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span>
+    <span class="n">step</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">units</span><span class="o">=</span><span class="s2">&quot;mm&quot;</span><span class="p">,</span>
+    <span class="n">variation_type</span><span class="o">=</span><span class="s2">&quot;LinearStep&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">param_sweep</span><span class="o">.</span><span class="n">add_variation</span><span class="p">(</span>            <span class="c1"># Single value for &quot;phase_advance&quot;.</span>
+    <span class="n">sweep_variable</span><span class="o">=</span><span class="s2">&quot;phase_advance&quot;</span><span class="p">,</span>
+    <span class="n">start_point</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span>
+    <span class="n">units</span><span class="o">=</span><span class="s2">&quot;deg&quot;</span><span class="p">,</span>
+    <span class="n">variation_type</span><span class="o">=</span><span class="s2">&quot;SingleValue&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">param_sweep</span><span class="o">.</span><span class="n">add_variation</span><span class="p">(</span>            <span class="c1"># Single value for &quot;Ipeak&quot;.</span>
+    <span class="n">sweep_variable</span><span class="o">=</span><span class="s2">&quot;Ipeak&quot;</span><span class="p">,</span>
+    <span class="n">start_point</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+    <span class="n">units</span><span class="o">=</span><span class="s2">&quot;A&quot;</span><span class="p">,</span>
+    <span class="n">variation_type</span><span class="o">=</span><span class="s2">&quot;SingleValue&quot;</span>
+<span class="p">)</span>
+<span class="n">param_sweep</span><span class="o">.</span><span class="n">add_variation</span><span class="p">(</span>            <span class="c1"># Sweep PM material assignment.</span>
+    <span class="n">sweep_variable</span><span class="o">=</span><span class="s2">&quot;mat_index&quot;</span><span class="p">,</span>
+    <span class="n">start_point</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">end_point</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">variation_type</span><span class="o">=</span><span class="s2">&quot;LinearStep&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+<section id="CSV-file-import-for-parametric-analysis">
+<h4>CSV file import for parametric analysis<a class="headerlink" href="#CSV-file-import-for-parametric-analysis" title="Link to this heading">#</a></h4>
+<p>The parametric analysis created above could also be defined from a table of comma-separated values. The header of the CSV file contains the parameter names as shown below.</p>
+<p><em>CSV file content:</em></p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>*, mat_index, bridge, Ipeak, phase_adv, din
+1, 0, 0.5mm, 200A, 45deg, 78mm
+2, 1, 0.5mm, 200A, 45deg, 78mm
+3, 2, 0.5mm, 200A, 45deg, 78mm
+4, 0, 0.5mm, 200A, 45deg, 80mm
+5, 1, 0.5mm, 200A, 45deg, 80mm
+6, 2, 0.5mm, 200A, 45deg, 80mm
+</pre></div>
+</div>
+<p>Table of parametric variations:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>SimulationID</p></th>
+<th class="head"><p>mat_index</p></th>
+<th class="head"><p>bridge</p></th>
+<th class="head"><p>Ipeak</p></th>
+<th class="head"><p>phase_adv</p></th>
+<th class="head"><p>din</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>0.5mm</p></td>
+<td><p>200 A</p></td>
+<td><p>45 &amp;deg</p></td>
+<td><p>78 mm</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>0.5mm</p></td>
+<td><p>200 A</p></td>
+<td><p>45 &amp;deg</p></td>
+<td><p>78 mm</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p>2</p></td>
+<td><p>0.5mm</p></td>
+<td><p>200 A</p></td>
+<td><p>45 &amp;deg</p></td>
+<td><p>78 mm</p></td>
+</tr>
+<tr class="row-odd"><td><p>4</p></td>
+<td><p>0</p></td>
+<td><p>0.5mm</p></td>
+<td><p>200 A</p></td>
+<td><p>45 &amp;deg</p></td>
+<td><p>80 mm</p></td>
+</tr>
+<tr class="row-even"><td><p>5</p></td>
+<td><p>1</p></td>
+<td><p>0.5mm</p></td>
+<td><p>200 A</p></td>
+<td><p>45 &amp;deg</p></td>
+<td><p>80 mm</p></td>
+</tr>
+<tr class="row-odd"><td><p>6</p></td>
+<td><p>2</p></td>
+<td><p>0.5mm</p></td>
+<td><p>200 A</p></td>
+<td><p>45 &amp;deg</p></td>
+<td><p>80 mm</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The parametric analysis can be imported using the following method:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">m2d</span><span class="o">.</span><span class="n">parametrics</span><span class="o">.</span><span class="n">add_from_file</span><span class="p">(</span><span class="s2">&quot;/path/to/file.csv&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="Run-parametric-analysis">
+<h3>Run parametric analysis<a class="headerlink" href="#Run-parametric-analysis" title="Link to this heading">#</a></h3>
+<p>To speed up the analysis, the time step is increased in the transient setup. This can be done by modifying the <code class="docutils literal notranslate"><span class="pre">TimeStep</span></code> property of the transient setup. Note: In a real case scenario, the time step should be: <code class="docutils literal notranslate"><span class="pre">1/freq_e/360</span></code>. To simulate a real case scenario, please comment out the following line.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m2d</span><span class="o">.</span><span class="n">setups</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;TimeStep&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1/freq_e/45&quot;</span>
+<span class="n">param_sweep</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span><span class="n">cores</span><span class="o">=</span><span class="n">NUM_CORES</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Project IPM_optimization Saved correctly
+PyAEDT INFO: Key Desktop/ActiveDSOConfigurations/Maxwell 2D correctly changed.
+PyAEDT INFO: Solving Optimetrics
+PyAEDT INFO: Design setup Parametric_2HD438 solved correctly in 0.0h 2.0m 12.0s
+PyAEDT INFO: Key Desktop/ActiveDSOConfigurations/Maxwell 2D correctly changed.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="Postprocess">
+<h2>Postprocess<a class="headerlink" href="#Postprocess" title="Link to this heading">#</a></h2>
+<p>Create reports to view torque and loss.</p>
+<p>Plot torque for all PM materials with <code class="docutils literal notranslate"><span class="pre">din</span></code> set to 78mm.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">report_torque_constant_din</span> <span class="o">=</span> <span class="n">m2d</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">create_report</span><span class="p">(</span>
+    <span class="n">expressions</span><span class="o">=</span><span class="s2">&quot;Moving1.Torque&quot;</span><span class="p">,</span>
+    <span class="n">domain</span><span class="o">=</span><span class="s2">&quot;Sweep&quot;</span><span class="p">,</span>
+    <span class="n">variations</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;bridge&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;din&quot;</span><span class="p">:</span> <span class="s2">&quot;78mm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Ipeak&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;phase_advance&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;mat_index&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">primary_sweep_variable</span><span class="o">=</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span>
+    <span class="n">plot_type</span><span class="o">=</span><span class="s2">&quot;Rectangular Plot&quot;</span><span class="p">,</span>
+    <span class="n">plot_name</span><span class="o">=</span><span class="s2">&quot;torque_constant_din&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Parsing C:\Users\ansys\AppData\Local\Temp\tmpr8ud_p_g.ansys\pyaedt\maxwell_motor_optimization\IPM_optimization.aedt.
+PyAEDT INFO: File C:\Users\ansys\AppData\Local\Temp\tmpr8ud_p_g.ansys\pyaedt\maxwell_motor_optimization\IPM_optimization.aedt correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: aedt file load time 0.19015121459960938
+PyAEDT INFO: PostProcessor class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: PostProcessor class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Post class has been initialized! Elapsed time: 0m 0sec
+PyAEDT WARNING: No report category provided. Automatically identified Transient
+</pre></div></div>
+</div>
+<p>Plot torque vs <code class="docutils literal notranslate"><span class="pre">&quot;din&quot;</span></code> with the PM material set to NdFeB (<code class="docutils literal notranslate"><span class="pre">&quot;XG196/96_2DSF1.000_X&quot;</span></code>).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">report_torque_constant_mat</span><span class="o">=</span> <span class="n">m2d</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">create_report</span><span class="p">(</span>
+    <span class="n">expressions</span><span class="o">=</span><span class="s2">&quot;Moving1.Torque&quot;</span><span class="p">,</span>
+    <span class="n">domain</span><span class="o">=</span><span class="s2">&quot;Sweep&quot;</span><span class="p">,</span>
+    <span class="n">variations</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;bridge&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;din&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Ipeak&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;phase_advance&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;mat_index&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">primary_sweep_variable</span><span class="o">=</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span>
+    <span class="n">plot_type</span><span class="o">=</span><span class="s2">&quot;Rectangular Plot&quot;</span><span class="p">,</span>
+    <span class="n">plot_name</span><span class="o">=</span><span class="s2">&quot;torque_constant_mat&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT WARNING: No report category provided. Automatically identified Transient
+</pre></div></div>
+</div>
+<p>The same approach is applied to visualize the loss in all solids and the core. Quantities <code class="docutils literal notranslate"><span class="pre">&quot;SolidLoss&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;CoreLoss&quot;</span></code> are calculated from the field solution and were pre-defined in the project.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">report_solid_loss_constant_din</span> <span class="o">=</span> <span class="n">m2d</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">create_report</span><span class="p">(</span>
+    <span class="n">expressions</span><span class="o">=</span><span class="s2">&quot;SolidLoss&quot;</span><span class="p">,</span>
+    <span class="n">domain</span><span class="o">=</span><span class="s2">&quot;Sweep&quot;</span><span class="p">,</span>
+    <span class="n">variations</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;bridge&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;din&quot;</span><span class="p">:</span> <span class="s2">&quot;78mm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Ipeak&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;phase_advance&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;mat_index&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">primary_sweep_variable</span><span class="o">=</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span>
+    <span class="n">plot_type</span><span class="o">=</span><span class="s2">&quot;Rectangular Plot&quot;</span><span class="p">,</span>
+    <span class="n">plot_name</span><span class="o">=</span><span class="s2">&quot;solid_loss_constant_din&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">report_solid_loss_constant_mat</span> <span class="o">=</span> <span class="n">m2d</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">create_report</span><span class="p">(</span>
+    <span class="n">expressions</span><span class="o">=</span><span class="s2">&quot;SolidLoss&quot;</span><span class="p">,</span>
+    <span class="n">domain</span><span class="o">=</span><span class="s2">&quot;Sweep&quot;</span><span class="p">,</span>
+    <span class="n">variations</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;bridge&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;din&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Ipeak&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;phase_advance&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;mat_index&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">primary_sweep_variable</span><span class="o">=</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span>
+    <span class="n">plot_type</span><span class="o">=</span><span class="s2">&quot;Rectangular Plot&quot;</span><span class="p">,</span>
+    <span class="n">plot_name</span><span class="o">=</span><span class="s2">&quot;solid_loss_constant_mat&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">report_core_loss_constant_din</span> <span class="o">=</span> <span class="n">m2d</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">create_report</span><span class="p">(</span>
+    <span class="n">expressions</span><span class="o">=</span><span class="s2">&quot;CoreLoss&quot;</span><span class="p">,</span>
+    <span class="n">domain</span><span class="o">=</span><span class="s2">&quot;Sweep&quot;</span><span class="p">,</span>
+    <span class="n">variations</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;bridge&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;din&quot;</span><span class="p">:</span> <span class="s2">&quot;78mm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Ipeak&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;phase_advance&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;mat_index&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">primary_sweep_variable</span><span class="o">=</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span>
+    <span class="n">plot_type</span><span class="o">=</span><span class="s2">&quot;Rectangular Plot&quot;</span><span class="p">,</span>
+    <span class="n">plot_name</span><span class="o">=</span><span class="s2">&quot;core_loss_constant_din&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">report_core_loss_constant_mat</span> <span class="o">=</span> <span class="n">m2d</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">create_report</span><span class="p">(</span>
+    <span class="n">expressions</span><span class="o">=</span><span class="s2">&quot;CoreLoss&quot;</span><span class="p">,</span>
+    <span class="n">domain</span><span class="o">=</span><span class="s2">&quot;Sweep&quot;</span><span class="p">,</span>
+    <span class="n">variations</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;bridge&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;din&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Ipeak&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;phase_advance&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;mat_index&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">primary_sweep_variable</span><span class="o">=</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span>
+    <span class="n">plot_type</span><span class="o">=</span><span class="s2">&quot;Rectangular Plot&quot;</span><span class="p">,</span>
+    <span class="n">plot_name</span><span class="o">=</span><span class="s2">&quot;core_loss_constant_mat&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT WARNING: No report category provided. Automatically identified Transient
+PyAEDT WARNING: No report category provided. Automatically identified Transient
+PyAEDT WARNING: No report category provided. Automatically identified Transient
+PyAEDT WARNING: No report category provided. Automatically identified Transient
+</pre></div></div>
+</div>
+<p>Report the torque and loss for all variations.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">torque_data</span> <span class="o">=</span> <span class="n">m2d</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">get_solution_data</span><span class="p">(</span>
+    <span class="n">expressions</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Moving1.Torque&quot;</span><span class="p">],</span>
+    <span class="n">setup_sweep_name</span><span class="o">=</span><span class="n">m2d</span><span class="o">.</span><span class="n">nominal_sweep</span><span class="p">,</span>
+    <span class="n">domain</span><span class="o">=</span><span class="s2">&quot;Sweep&quot;</span><span class="p">,</span>
+    <span class="n">variations</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;bridge&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;din&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Ipeak&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;phase_advance&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;mat_index&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">primary_sweep_variable</span><span class="o">=</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span>
+    <span class="n">report_category</span><span class="o">=</span><span class="s2">&quot;Standard&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">solid_loss_data</span> <span class="o">=</span> <span class="n">m2d</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">get_solution_data</span><span class="p">(</span>
+    <span class="n">expressions</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;SolidLoss&quot;</span><span class="p">],</span>
+    <span class="n">setup_sweep_name</span><span class="o">=</span><span class="n">m2d</span><span class="o">.</span><span class="n">nominal_sweep</span><span class="p">,</span>
+    <span class="n">domain</span><span class="o">=</span><span class="s2">&quot;Sweep&quot;</span><span class="p">,</span>
+    <span class="n">variations</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;bridge&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;din&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Ipeak&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;phase_advance&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;mat_index&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">primary_sweep_variable</span><span class="o">=</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span>
+    <span class="n">report_category</span><span class="o">=</span><span class="s2">&quot;Standard&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">core_loss_data</span> <span class="o">=</span> <span class="n">m2d</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">get_solution_data</span><span class="p">(</span>
+    <span class="n">expressions</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;CoreLoss&quot;</span><span class="p">],</span>
+    <span class="n">setup_sweep_name</span><span class="o">=</span><span class="n">m2d</span><span class="o">.</span><span class="n">nominal_sweep</span><span class="p">,</span>
+    <span class="n">domain</span><span class="o">=</span><span class="s2">&quot;Sweep&quot;</span><span class="p">,</span>
+    <span class="n">variations</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;bridge&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;din&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Ipeak&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;phase_advance&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;mat_index&quot;</span><span class="p">:</span> <span class="s2">&quot;All&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">primary_sweep_variable</span><span class="o">=</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span>
+    <span class="n">report_category</span><span class="o">=</span><span class="s2">&quot;Standard&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Solution Correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: Solution Correctly parsed. Elapsed time: 0m 0sec
+PyAEDT INFO: Solution Correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: Solution Correctly parsed. Elapsed time: 0m 0sec
+PyAEDT INFO: Solution Correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: Solution Correctly parsed. Elapsed time: 0m 0sec
+</pre></div></div>
+</div>
+<p>Calculate the time-averaged torque and loss for each variation and export the data to a .csv file.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">csv_data</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">core_loss_data</span><span class="o">.</span><span class="n">variations</span><span class="p">:</span>
+    <span class="n">torque_data</span><span class="o">.</span><span class="n">active_variation</span> <span class="o">=</span> <span class="n">var</span>
+    <span class="n">core_loss_data</span><span class="o">.</span><span class="n">active_variation</span> <span class="o">=</span> <span class="n">var</span>
+    <span class="n">solid_loss_data</span><span class="o">.</span><span class="n">active_variation</span> <span class="o">=</span> <span class="n">var</span>
+
+    <span class="n">torque_values</span> <span class="o">=</span> <span class="n">torque_data</span><span class="o">.</span><span class="n">get_expression_data</span><span class="p">(</span><span class="n">formula</span><span class="o">=</span><span class="s2">&quot;magnitude&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">core_loss_values</span> <span class="o">=</span> <span class="n">core_loss_data</span><span class="o">.</span><span class="n">get_expression_data</span><span class="p">(</span><span class="n">formula</span><span class="o">=</span><span class="s2">&quot;magnitude&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">solid_loss_values</span> <span class="o">=</span> <span class="n">solid_loss_data</span><span class="o">.</span><span class="n">get_expression_data</span><span class="p">(</span><span class="n">formula</span><span class="o">=</span><span class="s2">&quot;magnitude&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">torque_data_average</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">torque_values</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">torque_values</span><span class="p">)</span>
+    <span class="n">core_loss_average</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">core_loss_values</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">core_loss_values</span><span class="p">)</span>
+    <span class="n">solid_loss_average</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">solid_loss_values</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">solid_loss_values</span><span class="p">)</span>
+
+    <span class="n">csv_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;active_variation&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">torque_data</span><span class="o">.</span><span class="n">active_variation</span><span class="p">),</span>
+            <span class="s2">&quot;average_torque&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">torque_data_average</span><span class="p">),</span>
+            <span class="s2">&quot;average_core_loss&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">core_loss_average</span><span class="p">),</span>
+            <span class="s2">&quot;average_solid_loss&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">solid_loss_average</span><span class="p">),</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;motor_optimization.csv&quot;</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+    <span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;active_variation&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;average_torque&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;average_core_loss&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;average_solid_loss&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictWriter</span><span class="p">(</span><span class="n">csvfile</span><span class="p">,</span> <span class="n">fieldnames</span><span class="o">=</span><span class="n">fields</span><span class="p">)</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">writeheader</span><span class="p">()</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">writerows</span><span class="p">(</span><span class="n">csv_data</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Finish">
+<h2>Finish<a class="headerlink" href="#Finish" title="Link to this heading">#</a></h2>
+<section id="Save-the-project">
+<h3>Save the project<a class="headerlink" href="#Save-the-project" title="Link to this heading">#</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m2d</span><span class="o">.</span><span class="n">save_project</span><span class="p">()</span>
+<span class="n">m2d</span><span class="o">.</span><span class="n">release_desktop</span><span class="p">()</span>
+<span class="c1"># Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.</span>
+<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Project IPM_optimization Saved correctly
+PyAEDT INFO: Desktop has been released and closed.
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="Clean-up">
+<h2>Clean up<a class="headerlink" href="#Clean-up" title="Link to this heading">#</a></h2>
+<p>All project files are saved in the folder <code class="docutils literal notranslate"><span class="pre">temp_folder.name</span></code>. If you’ve run this example as a Jupyter notebook, you can retrieve those project files. The following cell removes all temporary files, including the project folder.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">temp_folder</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<div class="admonition-download-this-example admonition">
+<p class="admonition-title">Download this example</p>
+<p>Download this example as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/low_frequency/motor/aedt_motor/ipm_optimization.ipynb">Jupyter Notebook</a>
+or as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/low_frequency/motor/aedt_motor/ipm_optimization.py">Python script</a>.</p>
+</div>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Prerequisites">Prerequisites</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Perform-imports">Perform imports</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Define-constants">Define constants</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-temporary-directory">Create temporary directory</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Model-preparation">Model preparation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Download-the-example-project-file">Download the example project file</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Launch-Maxwell-2D">Launch Maxwell 2D</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Define-parameters">Define parameters</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Assign-the-material-definition-to-the-permanent-magnets">Assign the material definition to the permanent magnets</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Specify-parametric-analysis">Specify parametric analysis</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#CSV-file-import-for-parametric-analysis">CSV file import for parametric analysis</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Run-parametric-analysis">Run parametric analysis</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Postprocess">Postprocess</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Finish">Finish</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Save-the-project">Save the project</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Clean-up">Clean up</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+
+  
+  <nav class="tocsection editthispage" aria-label="Edit this page">
+    <a href="https://github.com/ansys/pyaedt-examples/edit/main/doc/source/examples/low_frequency/motor/aedt_motor/ipm_optimization.ipynb" rel="noopener noreferrer">
+      <i class="fa-solid fa-pencil" aria-hidden="true"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </nav>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <ul class="this-page-menu">
+      <li><a href="../../../../_sources/examples/low_frequency/motor/aedt_motor/ipm_optimization.ipynb.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+
+  <!-- Include desired assets -->
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.7/require.min.js"></script>
+
+<script>
+// Passing the search options to the search.js file
+const SEARCH_OPTIONS = JSON.parse('{"keys": ["title", "text", "objectID"], "limit": 10, "threshold": 0.2}');
+const SEARCH_FILE = "../../../../_static/search.json";
+const ADVANCE_SEARCH_PATH = "../../../../search.html";
+const EXTRA_SOURCES = JSON.parse('""');
+</script>
+
+
+<script src="../../../../_static/js/search.js"></script>
+
+  
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright (c) 2021 - 2026 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<!--
+  Theme Version Footer
+  Displays the Sphinx theme version and the last updated date.
+  Accessibility and semantic improvements included.
+-->
+<footer class="theme-version" aria-label="Theme version and last update">
+  <span>
+    
+      Built with the
+      <a href="https://sphinxdocs.ansys.com/version/stable/index.html" target="_blank" rel="noopener noreferrer">
+        Ansys Sphinx Theme
+      </a>
+      1.7.2.
+    
+  </span>
+  <br />
+  <span>Last updated on <time id="ast_build_date"></time></span>
+</footer>
+<script>
+  // Set the last updated date in a readable format
+  (function() {
+    var options = { day: "numeric", month: "long", year: "numeric" };
+    var ast_lastModifiedDate = new Date(document.lastModified);
+    var ast_build_date = ast_lastModifiedDate.toLocaleDateString("en-US", options);
+    var dateElem = document.getElementById("ast_build_date");
+    if (dateElem) {
+      dateElem.textContent = ast_build_date;
+    }
+  })();
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

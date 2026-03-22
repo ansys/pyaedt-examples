@@ -1,0 +1,917 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "0f1fa88a",
+   "metadata": {},
+   "source": [
+    "# SBR+ convergence analysis\n",
+    "\n",
+    "This example demonstrates how to perform a convergence study on SBR+ (Shooting and Bouncing Rays)\n",
+    "setup parameters to ensure accurate and reliable radar cross-section (RCS) results.\n",
+    "\n",
+    "The Shooting and Bouncing Rays (SBR+) method is a high-frequency asymptotic technique used in HFSS\n",
+    "for electrically large problems such as antenna placement and radar cross-section (RCS) analysis.\n",
+    "Two key parameters affect solution accuracy:\n",
+    "\n",
+    "- **Ray Density Per Wavelength**: Controls how many rays are launched per wavelength. Higher values\n",
+    "  provide more accurate results but increase computation time.\n",
+    "- **Maximum Number of Bounces**: Defines how many times rays can reflect off surfaces before terminating.\n",
+    "  More bounces capture multi-reflection effects but increase solve time.\n",
+    "\n",
+    "This example systematically varies these parameters to identify converged settings where further\n",
+    "increases do not significantly change the RCS results. The workflow demonstrates best practices\n",
+    "for ensuring your SBR+ analysis is properly converged.\n",
+    "\n",
+    "Keywords: **HFSS**, **SBR+**, **Radar cross-section**, **Convergence study**, **Ray tracing**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f591a003",
+   "metadata": {},
+   "source": [
+    "## Prerequisites\n",
+    "\n",
+    "### Perform imports"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2dc8d2b3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import matplotlib.pyplot as plt\n",
+    "import numpy as np\n",
+    "from ansys.aedt.core.examples.downloads import download_file\n",
+    "from ansys.aedt.core.hfss import Hfss\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5eda5d20",
+   "metadata": {},
+   "source": [
+    "### Define constants\n",
+    "Constants help ensure consistency and avoid repetition throughout the example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8c4849ad",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9d3ca6e7",
+   "metadata": {},
+   "source": [
+    "### Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c4d23f81",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6bdace92",
+   "metadata": {},
+   "source": [
+    "## Model preparation\n",
+    "\n",
+    "### Download the model\n",
+    "\n",
+    "The model used in this example will be downloaded from the\n",
+    "[example-data](https://github.com/ansys/example-data)\n",
+    "GitHub repository. The model is a trihedral corner reflector,\n",
+    "a common radar calibration target with well-known RCS characteristics."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1c7581ca",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_path = download_file(\"sbr_convergence\", \"trihedral_rcs.aedt\", temp_folder.name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0832c932",
+   "metadata": {},
+   "source": [
+    "### Launch HFSS and open project\n",
+    "\n",
+    "Launch HFSS and open the project containing the trihedral reflector geometry."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b9358390",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss = Hfss(\n",
+    "    project=project_path,\n",
+    "    version=AEDT_VERSION,\n",
+    "    non_graphical=NG_MODE,\n",
+    "    new_desktop=True,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6a03a9bb",
+   "metadata": {},
+   "source": [
+    "## Convergence study parameters\n",
+    "\n",
+    "### Setup parameters\n",
+    "\n",
+    "Define the analysis frequency and convergence criteria.\n",
+    "The convergence threshold determines when two successive results\n",
+    "are considered \"close enough\" that further refinement is unnecessary."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7f56b6e9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup_frequency = [\"10GHz\"]  # Analysis frequency\n",
+    "convergence_threshold = 0.5  # Maximum allowed change in dB (convergence criterion)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "50fe24bc",
+   "metadata": {},
+   "source": [
+    "### Advanced SBR+ options\n",
+    "\n",
+    "Configure advanced ray tracing options:\n",
+    "\n",
+    "- **PDF (Physical Theory of Diffraction)**: Improves accuracy for diffraction effects at edges.\n",
+    "- **UTD (Uniform Theory of Diffraction)**: Adds rays to capture diffraction phenomena.\n",
+    "\n",
+    "These options can improve accuracy but increase computation time."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "08d4fea3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "enable_ptd = False\n",
+    "enable_utd = False"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a956d7fd",
+   "metadata": {},
+   "source": [
+    "### Convergence methodology\n",
+    "\n",
+    "Define how convergence is assessed:\n",
+    "\n",
+    "- **Convergence Method**:\n",
+    "  - ``\"average\"``: Checks if the average RCS across all angles has converged.\n",
+    "  - ``\"point_to_point\"``: Checks if the maximum change at any single angle is below threshold (more stringent).\n",
+    "\n",
+    "The workflow follows a natural progression:\n",
+    "1. First, converge the bounce number (how many reflections to track)\n",
+    "2. Then, converge the ray density (how many rays to launch)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3a9deed6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "convergence_method = \"point_to_point\"  # \"average\" or \"point_to_point\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4d229e5b",
+   "metadata": {},
+   "source": [
+    "### Starting values\n",
+    "\n",
+    "Define initial values for the convergence sweep.\n",
+    "The algorithm will increment these values until convergence is achieved."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6b9cca55",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "starting_ray_density = 1\n",
+    "starting_bounce_number = 2\n",
+    "max_ray_density = 2\n",
+    "max_bounce_number = 5"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "aeeb984e",
+   "metadata": {},
+   "source": [
+    "### Configure PDF/UTD settings\n",
+    "\n",
+    "Map the boolean flags to the appropriate HFSS setup string."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b9cdb12f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "if enable_ptd and enable_utd:\n",
+    "    ptd_utd_setting = \"PDF Correction + UTD Rays\"\n",
+    "elif enable_ptd and not enable_utd:\n",
+    "    ptd_utd_setting = \"PDF Correction\"\n",
+    "elif not enable_ptd and enable_utd:\n",
+    "    ptd_utd_setting = \"UTD Rays\"\n",
+    "else:\n",
+    "    ptd_utd_setting = \"None\""
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3a7e4f16",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print(f\"PDF: {enable_ptd}, UTD: {enable_utd} → Setting: '{ptd_utd_setting}'\")\n",
+    "print(f\"Convergence Method: {convergence_method}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2eca330e",
+   "metadata": {},
+   "source": [
+    "## The convergence story: A step-by-step workflow\n",
+    "\n",
+    "In this section, we'll perform a convergence study by following a clear, sequential workflow.\n",
+    "The story unfolds in phases:\n",
+    "\n",
+    "1. **Phase 1**: We start by testing different bounce numbers while keeping ray density fixed\n",
+    "2. **Phase 2**: Once we find a good bounce number, we test different ray densities\n",
+    "3. **Conclusion**: We identify the optimal settings that give us reliable RCS results\n",
+    "\n",
+    "This approach mimics how an engineer would manually tune the parameters to achieve convergence."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5ca3294d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print(\"=\" * 70)\n",
+    "print(\"SBR+ CONVERGENCE STUDY - A Sequential Workflow Story\")\n",
+    "print(\"=\" * 70)\n",
+    "print(f\"\\nOur goal: Find SBR+ settings that give us accurate RCS results\")\n",
+    "print(f\"Convergence threshold: Changes must be < {convergence_threshold} dB\")\n",
+    "print(f\"PDF/UTD Setting: {ptd_utd_setting}\")\n",
+    "print(f\"Analysis frequency: {setup_frequency[0]}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "78280a94",
+   "metadata": {},
+   "source": [
+    "### Initialize data storage\n",
+    "\n",
+    "We'll store all our results as we progress through the convergence study."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ab85ca3c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Storage for bounce number convergence (Phase 1)\n",
+    "bounce_numbers = []\n",
+    "avg_rcs_bounce = []\n",
+    "all_rcs_bounce = []\n",
+    "all_phi_bounce = []"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8e056efb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Storage for ray density convergence (Phase 2)\n",
+    "ray_densities = []\n",
+    "avg_rcs_ray = []\n",
+    "all_rcs_ray = []\n",
+    "all_phi_ray = []"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e9be7862",
+   "metadata": {},
+   "source": [
+    "## Phase 1: Finding the right number of bounces\n",
+    "\n",
+    "We begin by determining how many ray bounces are needed for accurate results.\n",
+    "We'll keep the ray density fixed at a reasonable starting value and gradually\n",
+    "increase the number of bounces until the RCS results stabilize."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e2ab5e69",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print(\"\\n\" + \"=\" * 70)\n",
+    "print(f\"PHASE 1: CONVERGING BOUNCE NUMBER\")\n",
+    "print(f\"(Ray Density fixed at {starting_ray_density})\")\n",
+    "print(\"=\" * 70)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "deb2d320",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "current_bounce = starting_bounce_number\n",
+    "previous_rcs_bounce = None\n",
+    "bounce_converged = False\n",
+    "converged_bounce_number = max_bounce_number  # Initialize with max value"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "bc1d21b6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "while not bounce_converged and current_bounce <= max_bounce_number:\n",
+    "\n",
+    "    print(f\"\\n--- Testing Bounce Number: {current_bounce} ---\")\n",
+    "\n",
+    "    # Delete any existing SBR setup to start fresh\n",
+    "    if \"SBR\" in hfss.setup_names:\n",
+    "        hfss.delete_setup(\"SBR\")\n",
+    "\n",
+    "    hfss.save_project()\n",
+    "\n",
+    "    # Create a new SBR+ setup with current parameters\n",
+    "    setup1 = hfss.create_setup(name=\"SBR\")\n",
+    "    setup1.props[\"RayDensityPerWavelength\"] = starting_ray_density\n",
+    "    setup1.props[\"MaxNumberOfBounces\"] = current_bounce\n",
+    "    setup1[\"RangeType\"] = \"SinglePoints\"\n",
+    "    setup1[\"RangeStart\"] = setup_frequency[0]\n",
+    "    setup1.props[\"ComputeFarFields\"] = True\n",
+    "    setup1.props[\"PTDUTDSimulationSettings\"] = ptd_utd_setting\n",
+    "    setup1.update()\n",
+    "\n",
+    "    print(f\"Setup created: Ray Density = {starting_ray_density}, Bounces = {current_bounce}\")\n",
+    "\n",
+    "    # Run the simulation\n",
+    "    hfss.analyze_setup(\"SBR\", cores=NUM_CORES)\n",
+    "    print(\"Simulation complete. Retrieving RCS data...\")\n",
+    "\n",
+    "    # Extract RCS results\n",
+    "    sweep_names = hfss.existing_analysis_sweeps\n",
+    "    data = hfss.get_rcs_data(setup=sweep_names[0], expression=\"MonostaticRCSTotal\")\n",
+    "    solution_data = data.get_monostatic_rcs()\n",
+    "    solution_data.primary_sweep = \"IWavePhi\"\n",
+    "\n",
+    "    iwavephi_values = solution_data.primary_sweep_values\n",
+    "    rcs_values = solution_data.get_expression_data(formula=\"dB10\")[1]\n",
+    "    average_rcs = np.mean(rcs_values)\n",
+    "\n",
+    "    # Store the results\n",
+    "    bounce_numbers.append(current_bounce)\n",
+    "    avg_rcs_bounce.append(average_rcs)\n",
+    "    all_rcs_bounce.append(rcs_values.copy())\n",
+    "    all_phi_bounce.append(iwavephi_values.copy())\n",
+    "\n",
+    "    print(f\"Average RCS: {average_rcs:.4f} dBsm\")\n",
+    "\n",
+    "    # Check if we've converged (compare with previous iteration)\n",
+    "    if previous_rcs_bounce is not None:\n",
+    "        if convergence_method == \"average\":\n",
+    "            previous_avg = np.mean(previous_rcs_bounce)\n",
+    "            change = np.abs(average_rcs - previous_avg)\n",
+    "            print(f\"Change from previous: {change:.4f} dB\")\n",
+    "\n",
+    "            if change < convergence_threshold:\n",
+    "                print(f\"\\n*** BOUNCE NUMBER CONVERGED at {current_bounce} bounces! ***\")\n",
+    "                print(f\"The RCS results are now stable (change < {convergence_threshold} dB)\")\n",
+    "                bounce_converged = True\n",
+    "                converged_bounce_number = current_bounce\n",
+    "        else:  # point_to_point\n",
+    "            absolute_changes = np.abs(rcs_values - previous_rcs_bounce)\n",
+    "            max_change = np.max(absolute_changes)\n",
+    "            max_change_index = np.argmax(absolute_changes)\n",
+    "            mean_change = np.mean(absolute_changes)\n",
+    "            print(f\"Max point change: {max_change:.4f} dB at IWavePhi = {iwavephi_values[max_change_index]:.1f}°\")\n",
+    "            print(f\"Mean point change: {mean_change:.4f} dB\")\n",
+    "\n",
+    "            if max_change < convergence_threshold:\n",
+    "                print(f\"\\n*** BOUNCE NUMBER CONVERGED at {current_bounce} bounces! ***\")\n",
+    "                print(f\"All RCS points are stable (max change < {convergence_threshold} dB)\")\n",
+    "                bounce_converged = True\n",
+    "                converged_bounce_number = current_bounce\n",
+    "\n",
+    "    # Save previous results for next comparison\n",
+    "    previous_rcs_bounce = rcs_values.copy()\n",
+    "\n",
+    "    # Move to next bounce number\n",
+    "    if not bounce_converged:\n",
+    "        current_bounce += 1"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "bfaee2f2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Handle case where we didn't converge\n",
+    "if not bounce_converged:\n",
+    "    print(f\"\\nReached maximum bounce limit ({max_bounce_number})\")\n",
+    "    print(\"Using the highest tested value as our working bounce number\")\n",
+    "    converged_bounce_number = max_bounce_number"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d7553acd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print(f\"\\nPhase 1 complete! We'll use {converged_bounce_number} bounces for the next phase.\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "73b1f432",
+   "metadata": {},
+   "source": [
+    "## Phase 2: Finding the right ray density\n",
+    "\n",
+    "Now that we know how many bounces to use, we'll determine the optimal ray density.\n",
+    "We keep the bounce number fixed at the converged value from Phase 1 and gradually\n",
+    "increase the ray density until we achieve stable results."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b131dc50",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print(\"\\n\" + \"=\" * 70)\n",
+    "print(f\"PHASE 2: CONVERGING RAY DENSITY\")\n",
+    "print(f\"(Bounces fixed at {converged_bounce_number})\")\n",
+    "print(\"=\" * 70)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "abaff414",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "current_ray_density = starting_ray_density\n",
+    "previous_rcs_ray = None\n",
+    "ray_converged = False\n",
+    "converged_ray_density = max_ray_density  # Initialize with max value"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "023e6bc7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "while not ray_converged and current_ray_density <= max_ray_density:\n",
+    "\n",
+    "    print(f\"\\n--- Testing Ray Density: {current_ray_density} ---\")\n",
+    "\n",
+    "    # Delete any existing SBR setup to start fresh\n",
+    "    if \"SBR\" in hfss.setup_names:\n",
+    "        hfss.delete_setup(\"SBR\")\n",
+    "\n",
+    "    hfss.save_project()\n",
+    "\n",
+    "    # Create a new SBR+ setup with current parameters\n",
+    "    setup1 = hfss.create_setup(name=\"SBR\")\n",
+    "    setup1.props[\"RayDensityPerWavelength\"] = current_ray_density\n",
+    "    setup1.props[\"MaxNumberOfBounces\"] = converged_bounce_number\n",
+    "    setup1[\"RangeType\"] = \"SinglePoints\"\n",
+    "    setup1[\"RangeStart\"] = setup_frequency[0]\n",
+    "    setup1.props[\"ComputeFarFields\"] = True\n",
+    "    setup1.props[\"PTDUTDSimulationSettings\"] = ptd_utd_setting\n",
+    "    setup1.update()\n",
+    "\n",
+    "    print(f\"Setup created: Ray Density = {current_ray_density}, Bounces = {converged_bounce_number}\")\n",
+    "\n",
+    "    # Run the simulation\n",
+    "    hfss.analyze_setup(\"SBR\", cores=NUM_CORES)\n",
+    "    print(\"Simulation complete. Retrieving RCS data...\")\n",
+    "\n",
+    "    # Extract RCS results\n",
+    "    sweep_names = hfss.existing_analysis_sweeps\n",
+    "    data = hfss.get_rcs_data(setup=sweep_names[0], expression=\"MonostaticRCSTotal\")\n",
+    "    solution_data = data.get_monostatic_rcs()\n",
+    "    solution_data.primary_sweep = \"IWavePhi\"\n",
+    "\n",
+    "    iwavephi_values = solution_data.primary_sweep_values\n",
+    "    rcs_values = solution_data.get_expression_data(formula=\"dB10\")[1]\n",
+    "    average_rcs = np.mean(rcs_values)\n",
+    "\n",
+    "    # Store the results\n",
+    "    ray_densities.append(current_ray_density)\n",
+    "    avg_rcs_ray.append(average_rcs)\n",
+    "    all_rcs_ray.append(rcs_values.copy())\n",
+    "    all_phi_ray.append(iwavephi_values.copy())\n",
+    "\n",
+    "    print(f\"Average RCS: {average_rcs:.4f} dBsm\")\n",
+    "\n",
+    "    # Check if we've converged (compare with previous iteration)\n",
+    "    if previous_rcs_ray is not None:\n",
+    "        if convergence_method == \"average\":\n",
+    "            previous_avg = np.mean(previous_rcs_ray)\n",
+    "            change = np.abs(average_rcs - previous_avg)\n",
+    "            print(f\"Change from previous: {change:.4f} dB\")\n",
+    "\n",
+    "            if change < convergence_threshold:\n",
+    "                print(f\"\\n*** RAY DENSITY CONVERGED at {current_ray_density}! ***\")\n",
+    "                print(f\"The RCS results are now stable (change < {convergence_threshold} dB)\")\n",
+    "                ray_converged = True\n",
+    "                converged_ray_density = current_ray_density\n",
+    "        else:  # point_to_point\n",
+    "            absolute_changes = np.abs(rcs_values - previous_rcs_ray)\n",
+    "            max_change = np.max(absolute_changes)\n",
+    "            max_change_index = np.argmax(absolute_changes)\n",
+    "            mean_change = np.mean(absolute_changes)\n",
+    "            print(f\"Max point change: {max_change:.4f} dB at IWavePhi = {iwavephi_values[max_change_index]:.1f}°\")\n",
+    "            print(f\"Mean point change: {mean_change:.4f} dB\")\n",
+    "\n",
+    "            if max_change < convergence_threshold:\n",
+    "                print(f\"\\n*** RAY DENSITY CONVERGED at {current_ray_density}! ***\")\n",
+    "                print(f\"All RCS points are stable (max change < {convergence_threshold} dB)\")\n",
+    "                ray_converged = True\n",
+    "                converged_ray_density = current_ray_density\n",
+    "\n",
+    "    # Save previous results for next comparison\n",
+    "    previous_rcs_ray = rcs_values.copy()\n",
+    "\n",
+    "    # Move to next ray density\n",
+    "    if not ray_converged:\n",
+    "        current_ray_density += 1"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3a9163f6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Handle case where we didn't converge\n",
+    "if not ray_converged:\n",
+    "    print(f\"\\nReached maximum ray density limit ({max_ray_density})\")\n",
+    "    print(\"Using the highest tested value as our final ray density\")\n",
+    "    converged_ray_density = max_ray_density"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7dc8624f",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "print(f\"\\nPhase 2 complete! Optimal ray density is {converged_ray_density}.\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "36a666b9",
+   "metadata": {},
+   "source": [
+    "## Final Summary"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a4da8652",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print(\"\\n\" + \"=\" * 70)\n",
+    "print(\"CONVERGENCE STUDY COMPLETE\")\n",
+    "print(\"=\" * 70)\n",
+    "print(f\"Convergence Method:     {convergence_method}\")\n",
+    "print(f\"Convergence Threshold:  {convergence_threshold} dB\")\n",
+    "print(f\"PDF/UTD Setting:        {ptd_utd_setting}\")\n",
+    "print(f\"Converged Ray Density:  {converged_ray_density}\")\n",
+    "print(f\"Converged Bounce Number:{converged_bounce_number}\")\n",
+    "print(f\"Total simulations run:  {len(ray_densities) + len(bounce_numbers)}\")\n",
+    "print(f\"  - Bounce number sweep:{len(bounce_numbers)} simulations\")\n",
+    "print(f\"  - Ray density sweep:  {len(ray_densities)} simulations\")\n",
+    "print(\"=\" * 70)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c43ee887",
+   "metadata": {},
+   "source": [
+    "## Plotting\n",
+    "\n",
+    "Plotting the results outside of AEDT."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9b849daa",
+   "metadata": {},
+   "source": [
+    "### Plot 1: Ray Density - RCS Curves"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "be64ec3a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fig, ax = plt.subplots()\n",
+    "for i, (rd, rcs_curve, iwavephi) in enumerate(zip(ray_densities, all_rcs_ray, all_phi_ray)):\n",
+    "    ax.plot(iwavephi, rcs_curve, linewidth=2, label=f\"Ray Density = {rd}\")\n",
+    "ax.set_xlabel(\"IWavePhi Angle (degrees)\", fontsize=11)\n",
+    "ax.set_ylabel(\"RCS (dBsm)\", fontsize=11)\n",
+    "ax.set_title(f\"Ray Density Convergence - RCS Curves\", fontsize=12)\n",
+    "ax.legend(loc=\"best\", fontsize=9)\n",
+    "ax.grid(True, alpha=0.3)\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "79a889c7",
+   "metadata": {},
+   "source": [
+    "### Plot 2: Ray Density - Average RCS"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2be95ad1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fig, ax = plt.subplots()\n",
+    "ax.plot(ray_densities, avg_rcs_ray, \"bo-\", linewidth=2, markersize=8)\n",
+    "ax.set_xlabel(\"Ray Density Per Wavelength\", fontsize=11)\n",
+    "ax.set_ylabel(\"Average RCS (dBsm)\", fontsize=11)\n",
+    "ax.set_title(\"Ray Density - Average RCS Convergence\", fontsize=12)\n",
+    "ax.grid(True, alpha=0.3)\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6d0bb774",
+   "metadata": {},
+   "source": [
+    "### Plot 3: Bounce Number - RCS Curves"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3cd54a16",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fig, ax = plt.subplots()\n",
+    "colors2 = plt.cm.plasma(np.linspace(0, 1, len(bounce_numbers)))\n",
+    "for i, (bn, rcs_curve, iwavephi) in enumerate(zip(bounce_numbers, all_rcs_bounce, all_phi_bounce)):\n",
+    "    ax.plot(iwavephi, rcs_curve, color=colors2[i], linewidth=2, label=f\"Bounces = {bn}\")\n",
+    "ax.set_xlabel(\"IWavePhi Angle (degrees)\", fontsize=11)\n",
+    "ax.set_ylabel(\"RCS (dBsm)\", fontsize=11)\n",
+    "ax.set_title(f\"Bounce Number Convergence - RCS Curves\", fontsize=12)\n",
+    "ax.legend(loc=\"best\", fontsize=9)\n",
+    "ax.grid(True, alpha=0.3)\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "56d9e7aa",
+   "metadata": {},
+   "source": [
+    "### Plot 4: Bounce Number - Average RCS"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "232b3453",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fig, ax = plt.subplots()\n",
+    "ax.plot(bounce_numbers, avg_rcs_bounce, \"ro-\", linewidth=2, markersize=8)\n",
+    "ax.set_xlabel(\"Number of Bounces\", fontsize=11)\n",
+    "ax.set_ylabel(\"Average RCS (dBsm)\", fontsize=11)\n",
+    "ax.set_title(\"Bounce Number - Average RCS Convergence\", fontsize=12)\n",
+    "ax.grid(True, alpha=0.3)\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "14e96930",
+   "metadata": {},
+   "source": [
+    "## Advanced post-processing\n",
+    "\n",
+    "For more advanced RCS analysis and visualization, you can use PyAEDT's ``get_rcs_data()`` method.\n",
+    "This method exports RCS simulation data into a standardized metadata format and returns\n",
+    "a ``MonostaticRCSExporter`` object for further processing.\n",
+    "\n",
+    "### Using the radar explorer toolkit\n",
+    "\n",
+    "For advanced RCS analysis and visualization capabilities, install the radar explorer toolkit:\n",
+    "\n",
+    "```bash\n",
+    "pip install ansys-aedt-toolkits-radar-explorer\n",
+    "```\n",
+    "\n",
+    "The radar explorer toolkit provides powerful features for RCS data analysis:\n",
+    "\n",
+    "- **Interactive 3D RCS pattern visualization** with customizable viewing angles\n",
+    "- **Polar and Cartesian plot formats** for different analysis perspectives\n",
+    "- **Multi-frequency RCS comparison** to analyze frequency-dependent behavior\n",
+    "- **Export capabilities** for various formats (CSV, JSON, images)\n",
+    "- **Advanced filtering and data manipulation** tools\n",
+    "- **Statistical analysis** of RCS patterns\n",
+    "\n",
+    "### Example: Visualizing RCS data with the toolkit\n",
+    "\n",
+    "Here's a complete example showing how to export RCS data from HFSS and visualize it\n",
+    "using the radar explorer toolkit. For more examples, visit the\n",
+    "[radar explorer toolkit documentation](https://aedt.radar.explorer.toolkit.docs.pyansys.com/version/stable/examples/index.html).\n",
+    "\n",
+    "```python\n",
+    "# Export RCS data using PyAEDT's get_rcs_data method\n",
+    "rcs_exporter = hfss.get_rcs_data()\n",
+    "\n",
+    "# Import the radar explorer toolkit\n",
+    "from ansys.aedt.toolkits.radar_explorer.rcs_visualization import MonostaticRCSData, MonostaticRCSPlotter\n",
+    "\n",
+    "# Load the RCS data\n",
+    "rcs_data = MonostaticRCSData(rcs_exporter.metadata_file)\n",
+    "\n",
+    "# Create a plotter instance\n",
+    "plotter = MonostaticRCSPlotter(rcs_data)\n",
+    "\n",
+    "plotter.plot_rcs()\n",
+    "plotter = plot_rcs_3d()\n",
+    "```\n",
+    "\n",
+    "For more examples and detailed documentation, visit:\n",
+    "https://aedt.radar.explorer.toolkit.docs.pyansys.com/version/stable/examples/index.html"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "788b0201",
+   "metadata": {},
+   "source": [
+    "## Finish\n",
+    "\n",
+    "### Save the project"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3ae0ffb7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss.save_project()\n",
+    "hfss.release_desktop()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "284588cc",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "537f0c55",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b224a4f4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
