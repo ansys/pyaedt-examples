@@ -8,6 +8,7 @@
 
 * [Abdun Nur](https://github.com/anur7)
 * [Alberto Di Maria](https://github.com/Alberto-DM)
+* [Bahram Sanadgol](https://github.com/58Bahram)
 * [DaveTwyman](https://github.com/DaveTwyman)
 * [Devin](https://github.com/Devin-Crawford)
 * [Edouard Coussoux](https://github.com/ecoussoux-ansys)
@@ -25,6 +26,7 @@
 * [Matthew Young](https://github.com/myoung301)
 * [Maxime Rey](https://github.com/MaxJPRey)
 * [mocchialone](https://github.com/marcoglasses)
+* [Niko Savola](https://github.com/nikosavola)
 * [Ramin Aghajafari](https://github.com/ramin4667)
 * [Simon Vandenbrouck](https://github.com/svandenb-dev)
 * [SMoraisDev](https://github.com/SMoraisDev)
