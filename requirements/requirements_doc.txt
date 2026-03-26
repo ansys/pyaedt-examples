@@ -1,6 +1,6 @@
 # PyAEDT with associated graphics and examples dependencies
 pyaedt[graphics, examples] @ git+https://github.com/ansys/pyaedt@main
-pyvista==0.44.2
+pyvista==0.44.2  # NOTE: Pin pyvista to a version < 0.46.0 until https://github.com/ansys/pyaedt/issues/7451 is fixed
 
 # Documentation dependencies
 ansys-sphinx-theme==1.7.2
