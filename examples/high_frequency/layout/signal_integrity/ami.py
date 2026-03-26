@@ -17,14 +17,15 @@ import tempfile
 import time
 
 import ansys.aedt.core
-from ansys.aedt.core.examples.downloads import download_file
 import numpy as np
+from ansys.aedt.core.examples.downloads import download_file
 from matplotlib import pyplot as plt
+
 # -
 
 # Define constants.
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION = "2026.1"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory and download example files
@@ -49,9 +50,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 #
 # Files are placed in the destination folder.
 
-project_path = download_file(
-    "ami", name="ami_usb.aedtz", local_path=temp_folder.name
-)
+project_path = download_file("ami", name="ami_usb.aedtz", local_path=temp_folder.name)
 
 
 # ## Launch AEDT with Circuit and enable Pandas as the output format
@@ -159,21 +158,15 @@ stop_index_waveform = int(np.searchsorted(sample_index_array, tstop, side="left"
 if stop_index_waveform >= sample_index_array.size:
     stop_index_waveform = sample_index_array.size - 1
 
-original_data_zoom = original_data_value[plot_name][
-    start_index_original_data:stop_index_original_data
-]
-sampled_data_zoom = (
-    sample_waveform[0].values[start_index_waveform:stop_index_waveform] * scale_data
-)
-sampled_time_zoom = (
-    sample_waveform[0].index[start_index_waveform:stop_index_waveform] * scale_time
-)
+original_data_zoom = original_data_value[plot_name][start_index_original_data:stop_index_original_data]
+sampled_data_zoom = sample_waveform[0].values[start_index_waveform:stop_index_waveform] * scale_data
+sampled_time_zoom = sample_waveform[0].index[start_index_waveform:stop_index_waveform] * scale_time
 
 fig, ax = plt.subplots()
 ax.plot(sampled_time_zoom, sampled_data_zoom, "r*")
 ax.plot(
-    np.array(list(original_data_zoom[:,0])),
-    original_data_zoom[:,1],
+    np.array(list(original_data_zoom[:, 0])),
+    original_data_zoom[:, 1],
     color="blue",
 )
 ax.set_title("WaveAfterProbe")
@@ -208,14 +201,8 @@ plt.show()
 
 plot_name = "V(b_input_43.int_ami_rx.eye_probe.out)"
 circuit.solution_type = "NexximTransient"
-context = {"time_start": "0ps","time_stop": "100ns"}
-original_data = circuit.post.get_solution_data(
-    expressions=plot_name,
-    setup_sweep_name="NexximTransient",
-    domain="Time",
-    variations=circuit.available_variations.nominal,
-    context=context
-)
+context = {"time_start": "0ps", "time_stop": "100ns"}
+original_data = circuit.post.get_solution_data(expressions=plot_name, setup_sweep_name="NexximTransient", domain="Time", variations=circuit.available_variations.nominal, context=context)
 
 # ## Extract sample waveform
 #
@@ -248,12 +235,8 @@ sample_waveform = circuit.post.sample_waveform(
 # +
 tstop = 40.0e-9
 tstart = 25.0e-9
-scale_time = ansys.aedt.core.constants.unit_converter(
-    1, unit_system="Time", input_units="s", output_units=waveform_sweep_unit
-)
-scale_data = ansys.aedt.core.constants.unit_converter(
-    1, unit_system="Voltage", input_units="V", output_units=waveform_unit
-)
+scale_time = ansys.aedt.core.constants.unit_converter(1, unit_system="Time", input_units="s", output_units=waveform_sweep_unit)
+scale_data = ansys.aedt.core.constants.unit_converter(1, unit_system="Voltage", input_units="V", output_units=waveform_unit)
 
 tstop_ns = scale_time * tstop
 tstart_ns = scale_time * tstart
@@ -278,15 +261,9 @@ for frame in sample_waveform[start_index_waveform:]:
         break
     cont += 1
 
-original_data_zoom = original_data_value[
-    start_index_original_data:stop_index_original_data
-]
-original_sweep_zoom = original_data_sweep[
-    start_index_original_data:stop_index_original_data
-]
-original_data_zoom_array = np.array(
-    list(map(list, zip(original_sweep_zoom, original_data_zoom)))
-)
+original_data_zoom = original_data_value[start_index_original_data:stop_index_original_data]
+original_sweep_zoom = original_data_sweep[start_index_original_data:stop_index_original_data]
+original_data_zoom_array = np.array(list(map(list, zip(original_sweep_zoom, original_data_zoom))))
 original_data_zoom_array[:, 0] *= 1
 sampled_slice = sample_waveform[start_index_waveform:stop_index_waveform]
 # Build a homogeneous Nx2 array [time, value] from the sliced frames, with a guard for empty slices.
@@ -320,11 +297,8 @@ plt.show()
 # Create the plot from a start time to stop time in seconds.
 
 sample_waveform_array = np.array(
-        [
-            [float(frame[0]), float(np.asarray(frame[1]).ravel()[0])]
-            for frame in sample_waveform
-        ],
-        dtype=float,
+    [[float(frame[0]), float(np.asarray(frame[1]).ravel()[0])] for frame in sample_waveform],
+    dtype=float,
 )
 
 fig, ax2 = plt.subplots()

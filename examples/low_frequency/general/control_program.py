@@ -17,11 +17,12 @@ import time
 
 from ansys.aedt.core import Maxwell2d
 from ansys.aedt.core.examples.downloads import download_file
+
 # -
 
 # Define constants.
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION = "2026.1"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
@@ -43,9 +44,7 @@ aedt_file = download_file(
     name="ControlProgramDemo.aedt",
     local_path=temp_folder.name,
 )
-ctrl_prg_file = download_file(
-    source="maxwell_ctrl_prg", name="timestep_only.py", local_path=temp_folder.name
-)
+ctrl_prg_file = download_file(source="maxwell_ctrl_prg", name="timestep_only.py", local_path=temp_folder.name)
 
 # ## Launch Maxwell 2D
 #
@@ -85,12 +84,7 @@ m2d.analyze(setup=setup.name, cores=NUM_CORES, use_auto_settings=False)
 #
 # Display the simulation results.
 
-sols = m2d.post.get_solution_data(
-    expressions="FluxLinkage(Winding1)",
-    variations={"Time": ["All"]},
-    primary_sweep_variable="Time",
-    domain="Sweep"
-)
+sols = m2d.post.get_solution_data(expressions="FluxLinkage(Winding1)", variations={"Time": ["All"]}, primary_sweep_variable="Time", domain="Sweep")
 sols.plot()
 
 # ## Release AEDT

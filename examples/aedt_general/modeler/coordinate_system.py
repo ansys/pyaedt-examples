@@ -18,7 +18,7 @@ import ansys.aedt.core
 
 # Define constants.
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION = "2026.1"
 NG_MODE = False  # Open the AEDT UI when it is launched.
 
 # ## Create temporary directory
