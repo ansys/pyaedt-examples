@@ -16,11 +16,12 @@ import tempfile
 import time
 
 from ansys.aedt.core import Maxwell2d
+
 # -
 
 # Define constants,
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION = "2026.1"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
@@ -258,16 +259,8 @@ m2d.post.create_report(
 # ## Print leakage inductance and reactance values in AEDT Message Manager
 
 m2d.logger.clear_messages()
-m2d.logger.info(
-    "Leakage_inductance =  {:.4f}H".format(
-        m2d.post.get_scalar_field_value(quantity="Leakage_inductance")
-    )
-)
-m2d.logger.info(
-    "Leakage_reactance =  {:.2f}Ohm".format(
-        m2d.post.get_scalar_field_value(quantity="Leakage_reactance")
-    )
-)
+m2d.logger.info("Leakage_inductance =  {:.4f}H".format(m2d.post.get_scalar_field_value(quantity="Leakage_inductance")))
+m2d.logger.info("Leakage_reactance =  {:.2f}Ohm".format(m2d.post.get_scalar_field_value(quantity="Leakage_reactance")))
 
 # ## Plot energy in the simulation domain
 #

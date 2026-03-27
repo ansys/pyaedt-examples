@@ -35,11 +35,12 @@ import time
 
 import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_icepak
+
 # -
 
 # Define constants.
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION = "2026.1"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
@@ -54,9 +55,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 #
 # Download the Icepack project.
 
-project_full_name = download_icepak(
-    local_path=temp_folder.name
-)
+project_full_name = download_icepak(local_path=temp_folder.name)
 
 # ## Open project
 #
@@ -117,9 +116,7 @@ ipk.export_3d_model(
 # Export the configuration files. You can optionally disable the export and
 # import sections. Supported formats are JSON and TOML files.
 
-conf_file = ipk.configurations.export_config(
-    os.path.join(ipk.working_directory, "config.toml")
-)
+conf_file = ipk.configurations.export_config(os.path.join(ipk.working_directory, "config.toml"))
 ipk.close_project()
 
 # ## Create project
