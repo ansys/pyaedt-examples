@@ -10,9 +10,7 @@
 # Perform required imports.
 
 # +
-import os
-import tempfile
-import time
+
 import ansys.aedt.core
 import ansys.aedt.core.filtersolutions
 import matplotlib.pyplot as plt
