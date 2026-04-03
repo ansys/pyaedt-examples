@@ -9,6 +9,7 @@
 #
 # Perform required imports.
 
+# +
 
 import ansys.aedt.core
 import ansys.aedt.core.filtersolutions
@@ -18,8 +19,10 @@ from ansys.aedt.core.filtersolutions_core.export_to_aedt import ExportFormat
 from ansys.aedt.core.filtersolutions_core.ideal_response import (
     SParametersResponseColumn,
 )
+# -
 
-# Define constants.
+# ### Define constants
+# Constants help ensure consistency and avoid repetition throughout the example.
 
 AEDT_VERSION = "2025.2"
 
@@ -28,18 +31,34 @@ AEDT_VERSION = "2025.2"
 # Define formal plot function.
 
 
-def format_plot():
+# ### Define function used for plotting
+#
+# This function takes a list of datasets, where each dataset contains frequency values,
+# corresponding data values, and a label. It plots the frequency response for each dataset
+# on the same graph, using a logarithmic scale for the x-axis (frequency) and a linear scale
+# for the y-axis (magnitude in dB).
+
+def plot(data_list):
+    for freq, data, label in data_list:
+        plt.plot(freq, data, linewidth=2.0, label=label)
     plt.xlabel("Frequency (Hz)")
     plt.ylabel("Magnitude S21 (dB)")
     plt.title("Frequency Response")
     plt.xscale("log")
     plt.legend()
     plt.grid()
+    plt.show()
+
 
 
 # ## Create lumped filter design
 #
-# Create a lumped element filter design and assign the class, type, frequency, and order.
+# Create a lumped element filter design using LumpedDesign function from FilterSolutions 
+# module and assign the class, type, frequency, and order.
+# This example creates a band-pass Butterworth filter with a pass band center frequency 
+# of 1 GHz, a pass band width of 500 MHz, and a filter order of 5. 
+# The default values for the filter design parameters are used for the other parameters. 
+# The design is created using the specified AEDT version. The parameters define the filter's characteristics.
 
 lumped_design = ansys.aedt.core.filtersolutions.LumpedDesign(version=AEDT_VERSION)
 lumped_design.attributes.filter_class = FilterClass.BAND_PASS
@@ -48,14 +67,18 @@ lumped_design.attributes.pass_band_center_frequency = "1G"
 lumped_design.attributes.pass_band_width_frequency = "500M"
 lumped_design.attributes.filter_order = 5
 
-# ## Plot frequency response of filter
+# ### Plot frequency response of the filter
 #
-# Plot the frequency response of the filter without any transmission zeros.
+# Plot the synthesized frequency response to visualize the transmission 
+# characteristics of filter over the defined frequency range.
+# The frequency response is obtained from the ideal response of the lumped design.
+# The S-parameters S21 in dB are plotted against frequency.
 
 freq, s21_db = lumped_design.ideal_response.s_parameters(SParametersResponseColumn.S21_DB)
-plt.plot(freq, s21_db, linewidth=2.0, label="Without Tx Zero")
-format_plot()
-plt.show()
+plot_data = [
+    (freq, s21_db, "Synthesized S21"),
+]
+plot(plot_data)
 
 # <img src="_static/ideal_filter_response.png" width="400">
 
@@ -63,14 +86,16 @@ plt.show()
 # ## Add a transmission zero to filter design
 #
 # Add a transmission zero that yields nulls separated by two times the pass band width (1 GHz).
-# Plot the frequency response of the filter with the transmission zero.
+# Plot the synthesized frequency response of the filter with the transmission zero.
 
 lumped_design.transmission_zeros_ratio.append_row("2.0")
 freq_with_zero, s21_db_with_zero = lumped_design.ideal_response.s_parameters(SParametersResponseColumn.S21_DB)
-plt.plot(freq, s21_db, linewidth=2.0, label="Without Tx Zero")
-plt.plot(freq_with_zero, s21_db_with_zero, linewidth=2.0, label="With Tx Zero")
-format_plot()
-plt.show()
+plot_data = [
+    (freq, s21_db, "Synthesized S21"),
+    (freq_with_zero, s21_db_with_zero, "Synthesized S21 with Tx Zero"),
+]
+plot(plot_data)
+
 
 # <img src="_static/filter_response_added_zeros.png" width="400">
 
@@ -118,9 +143,14 @@ print("Netlist: \n", netlist)
 
 # ## Export lumped element model of the filter to AEDT Circuit
 #
-# Export the designed filter with the added transmission zero to
-# AEDT Circuit with the defined export parameters.
-
+# The designed filter is exported as a lumped element model to Ansys Circuit 
+# and simulated using the specified export parameters.
+# During export, the target schematic name is set, along with any required reports.
+# In this workflow:
+# Automatic simulation in Circuit is enabled after export.
+# S-parameter reports are included by enabling the corresponding export options.
+# Table data is enabled to allow for easy access to the simulated S-parameter values in tabular form.
+# The Circuit environment is selected as the destination for generating and simulating the lumped model.
 lumped_design.export_to_aedt.schematic_name = "LumpedElementFilter"
 lumped_design.export_to_aedt.simulate_after_export_enabled = True
 lumped_design.export_to_aedt.smith_plot_enabled = True
@@ -132,6 +162,8 @@ circuit = lumped_design.export_to_aedt.export_design(export_format=ExportFormat.
 # ## Plot the simulated circuit
 #
 # Get the scattering parameter data from the AEDT Circuit simulation and create a plot.
+# The S-parameter S21 in dB is extracted from the simulation results and plotted against frequency.
+# The simulated S-parameter is overlaid on the synthesized frequency response for comparison.
 
 solutions = circuit.post.get_solution_data(
     expressions=circuit.get_traces_for_plot(category="S"),
@@ -139,10 +171,18 @@ solutions = circuit.post.get_solution_data(
 sim_freq = solutions.primary_sweep_values
 sim_freq_ghz = [i * 1e9 for i in sim_freq]
 sim_s21_db = solutions.data_db20(expression="S(Port2,Port1)")
-plt.plot(freq, s21_db, linewidth=2.0, label="Without Tx Zero")
-plt.plot(freq_with_zero, s21_db_with_zero, linewidth=2.0, label="With Tx Zero")
-plt.plot(sim_freq_ghz, sim_s21_db, linewidth=2.0, linestyle="--", label="Simulated")
-format_plot()
-plt.show()
+plot_data = [
+    (freq, s21_db, "Synthesized S21"),
+    (freq_with_zero, s21_db_with_zero, "Synthesized S21 with Tx Zero"),
+    (sim_freq_ghz, sim_s21_db, "Simulated S21 with Tx Zero"),
+]
+plot(plot_data)
 
 # <img src="_static/simulated_filter_response.png" width="400">
+
+
+# ## Finish
+#
+# ### Release AEDT desktop and clean up
+
+circuit.release_desktop()
