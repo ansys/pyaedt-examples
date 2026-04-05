@@ -14,12 +14,13 @@ import time
 
 import ansys.aedt.core
 import pyedb
+
 # -
 
 # ### Define constants
 # Constants help ensure consistency and avoid repetition throughout the example.
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION = "2026.1"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ### Create temporary directory
@@ -38,9 +39,9 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # ### Create primitive data classes to simplify geometry creation
 #
 # The ``Line``, ``Patch`` and ``Array`` classes wrap geometry
-# operations and properties into simple Python classes that help 
+# operations and properties into simple Python classes that help
 # simplify the creation of the microstrip
-# array with the ``pyedb.Edb`` class. 
+# array with the ``pyedb.Edb`` class.
 
 # +
 class Patch:
@@ -124,7 +125,7 @@ edb.stackup.load(layers)
 
 # ### Create a patch antenna and feed line
 #
-# Instances of the ``Patch`` and ``Line``classes are used to define the geometry. These 
+# Instances of the ``Patch`` and ``Line``classes are used to define the geometry. These
 # classes provide for parameterization of the array layout.
 #
 # <img src="_static\5G_antenna_parametrics\array_params.svg" width="600">

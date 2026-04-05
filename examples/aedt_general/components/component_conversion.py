@@ -6,9 +6,9 @@
 # 3D components from older versions of AEDT
 # that relied on the ACIS modeling kernel, to the new
 # versions of AEDT that employ
-# the Parasolid kernel. Specifically, if your 
+# the Parasolid kernel. Specifically, if your
 # encrypted 3D
-# components were created with version 22R2 or 
+# components were created with version 22R2 or
 # earlier, you'll need to convert them
 # to a version ≥ 23R1 that supports the Parasolid modeler.
 #
@@ -27,12 +27,13 @@ import time
 
 from ansys.aedt.core import Desktop, Hfss, settings
 from ansys.aedt.core.examples.downloads import download_file
+
 # -
 
 # ### Define constants
 # Constants help ensure consistency and avoid repetition throughout the example.
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION = "2026.1"
 OLD_AEDT_VERSION = "2024.1"
 NG_MODE = False  # Open AEDT UI when AEDT is launched.
 
@@ -46,14 +47,14 @@ NG_MODE = False  # Open AEDT UI when AEDT is launched.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ## Covert the encrypted component
+# ## Convert the encrypted component
 #
 # ### Retrieve the component that will be converted
 #
 # The ``download_file()`` method provides access to a library
-# of examples and models from the Ansys GitHub organization: 
+# of examples and models from the Ansys GitHub organization:
 # [example-data repository](https://github.com/ansys/example-data/tree/master/pyaedt). Download the "old"
-# encrypted 3D component and define a name to use for the new, coverted component.
+# encrypted 3D component and define a name to use for the new, converted component.
 
 # +
 a3dcomp = download_file(
@@ -100,7 +101,7 @@ app_comp = cmp.edit_definition(password="ansys")
 # Launch another instance of AEDT to enable conversion of the
 # 3D component.
 #
-# After the new version of AEDT is started, the process ID 
+# After the new version of AEDT is started, the process ID
 # is retrieved via the property ``aedt.aedt_process_id`` and is passed
 # as an argument to `Hfss()`. This ensures that the newly created
 # `hfss2` object

@@ -15,15 +15,16 @@ import tempfile
 import time
 
 import ansys.aedt.core
-from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
 from ansys.aedt.core.examples.downloads import download_file
+from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MatrixElectric
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
+
 # -
 
 # Define constants.
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION = "2026.1"
 NG_MODE = False
 NUM_CORES = 4
 

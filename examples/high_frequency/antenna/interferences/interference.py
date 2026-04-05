@@ -12,15 +12,16 @@
 import sys
 import tempfile
 
-from ansys.aedt.core.examples.downloads import download_file
 import plotly.graph_objects as go
 from ansys.aedt.core import Emit
 from ansys.aedt.core.emit_core.emit_constants import InterfererType
+from ansys.aedt.core.examples.downloads import download_file
+
 # -
 
 # Define constants.
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION = "2026.1"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
@@ -40,15 +41,11 @@ if AEDT_VERSION <= "2023.1":
 
 # Download project
 
-project_name = download_file(
-    "emit", "interference.aedtz", local_path=temp_folder.name
-)
+project_name = download_file("emit", "interference.aedtz", local_path=temp_folder.name)
 
 # ## Launch EMIT and open project
 
-emitapp = Emit(
-    non_graphical=NG_MODE, new_desktop=True, project=project_name, version=AEDT_VERSION
-)
+emitapp = Emit(non_graphical=NG_MODE, new_desktop=True, project=project_name, version=AEDT_VERSION)
 
 # ## Get lists of transmitters and receivers
 #
@@ -76,10 +73,7 @@ power_matrix = []
 all_colors = []
 
 
-all_colors, power_matrix = rev.interference_type_classification(
-    domain, use_filter=False, filter_list=[],
-    interferer_type=InterfererType.TRANSMITTERS
-)
+all_colors, power_matrix = rev.interference_type_classification(domain, use_filter=False, filter_list=[], interferer_type=InterfererType.TRANSMITTERS)
 
 # ## Release AEDT
 #

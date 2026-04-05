@@ -15,18 +15,19 @@ import time
 from pathlib import Path
 
 import ansys.aedt.core
-from ansys.aedt.core.examples.downloads import download_file
 import matplotlib as mpl
 import numpy as np
 import pyvista as pv
+from ansys.aedt.core.examples.downloads import download_file
 from IPython.display import Image
 from matplotlib import cm
 from matplotlib import pyplot as plt
+
 # -
 
 # Define constants.
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION = "2026.1"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Download and open project
@@ -55,9 +56,7 @@ board = ipk.modeler.create_box(
 #
 # Components are represented as simple cubes with dimensions and properties specified in a CSV file.
 
-filename = download_file(
-    "icepak", "blocks-list.csv", local_path=temp_folder.name
-)
+filename = download_file("icepak", "blocks-list.csv", local_path=temp_folder.name)
 
 # The CSV file lists block properties:
 #
@@ -109,9 +108,7 @@ with open(filename, "r") as csv_file:
             material_name = "copper"
 
         # Creates the block with the given name, coordinates, material, and type
-        block = ipk.modeler.create_box(
-            origin=origin, sizes=dimensions, name=block_name, material=material_name
-        )
+        block = ipk.modeler.create_box(origin=origin, sizes=dimensions, name=block_name, material=material_name)
 
         # Assign boundary conditions
         if row["block_type"] == "solid":
@@ -157,17 +154,13 @@ power_budget, total_power = ipk.post.power_budget(units="W")
 # Set the colormap to use. You can use the previously computed power budget to set the minimum and maximum values.
 
 cmap = plt.get_cmap("plasma")
-norm = mpl.colors.Normalize(
-    vmin=min(power_budget.values()), vmax=max(power_budget.values())
-)
+norm = mpl.colors.Normalize(vmin=min(power_budget.values()), vmax=max(power_budget.values()))
 scalarMap = cm.ScalarMappable(norm=norm, cmap=cmap)
 
 # Color the objects depending
 for obj in ipk.modeler.objects.values():
     if obj.name in power_budget:
-        obj.color = [
-            int(i * 255) for i in scalarMap.to_rgba(power_budget[obj.name])[0:3]
-        ]
+        obj.color = [int(i * 255) for i in scalarMap.to_rgba(power_budget[obj.name])[0:3]]
         obj.transparency = 0
     else:
         obj.color = [0, 0, 0]
@@ -180,9 +173,7 @@ for obj in ipk.modeler.objects.values():
 obj_list_noregion = list(ipk.modeler.object_names)
 obj_list_noregion.remove("Region")
 export_file = os.path.join(temp_folder.name, "object_power_AEDTExport.jpg")
-ipk.post.export_model_picture(
-    export_file, selections=obj_list_noregion, width=1920, height=1080
-)
+ipk.post.export_model_picture(export_file, selections=obj_list_noregion, width=1920, height=1080)
 Image(export_file)
 
 # ### Plot model using PyAEDT
@@ -192,9 +183,7 @@ plotter = pv.Plotter(off_screen=True, window_size=[2048, 1536])
 
 # Export all models objects to OBJ files.
 
-f = ipk.post.export_model_obj(
-    export_path=temp_folder.name, export_as_multiple_objects=True, air_objects=False
-)
+f = ipk.post.export_model_obj(export_path=temp_folder.name, export_as_multiple_objects=True, air_objects=False)
 
 # Add objects to the PyVista plotter. These objects are either set to a black color or assigned scalar values,
 # allowing them to be visualized with a colormap.
@@ -204,9 +193,7 @@ for file, color, opacity in f:
         plotter.add_mesh(mesh=pv.read(file), color="black", opacity=opacity)
     else:
         mesh = pv.read(filename=file)
-        mesh["Power"] = np.full(
-            shape=mesh.n_points, fill_value=power_budget[Path(file).stem]
-        )
+        mesh["Power"] = np.full(shape=mesh.n_points, fill_value=power_budget[Path(file).stem])
         plotter.add_mesh(mesh=mesh, scalars="Power", cmap="viridis", opacity=opacity)
 
 # Add a label to the object with the maximum temperature.
@@ -230,9 +217,7 @@ Image(export_file)
 
 ipk.save_project()
 ipk.release_desktop()
-time.sleep(
-    3
-)  # Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
+time.sleep(3)  # Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 
 # ## Clean up
 #

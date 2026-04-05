@@ -1,10 +1,10 @@
-# # Short, Descriptive Title 
+# # Short, Descriptive Title
 #
 # (do not specify the solver type in the title, i.e.: Maxwell2D, Maxwell3D etc)
 #
 # Most examples can be described as a series of steps that comprise a workflow.
 # 1. Import packages and instantiate the application.
-# 2. Do something useful and interesting like creating the model, assing materials and boundary conditions, etc.
+# 2. Do something useful and interesting like creating the model, assign materials and boundary conditions, etc.
 # 3. Run one or more analyses.
 # 4. View the results.
 #
@@ -14,18 +14,21 @@
 #
 # ### Perform imports
 
-# +
-from pathlib import Path
 import tempfile
 import time
 
 import ansys.aedt.core  # Interface to Ansys Electronics Desktop
+
+# +
+# from pathlib import Path
+
+
 # -
 
 # ### Define constants
 # Constants help ensure consistency and avoid repetition throughout the example.
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION = "2026.1"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
@@ -97,13 +100,13 @@ m3d.analyze_setup("Setup1")
 # After generating results demonstrate how to visualize and evaluate results
 # in this section.
 # Level 3 headers can be used to identify various post-processing
-# steps. 
+# steps.
 #
 # ### Evaluate loss
 # > For example, in this section you may use code to demonstrate how to evaluate loss.
 #
 # ### Visualize fields
-# > PyAEDT provides access to field solution data via the 
+# > PyAEDT provides access to field solution data via the
 
 
 # ## Finish
