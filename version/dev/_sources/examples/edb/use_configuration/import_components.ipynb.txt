@@ -1,0 +1,301 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "5cddc645",
+   "metadata": {},
+   "source": [
+    "# Import Component Definitions\n",
+    "This example shows how to import component definitions. It includes\n",
+    "\n",
+    "- Download an example board\n",
+    "- Create a config file with component RLC and solder ball information\n",
+    "- Apply the config file to the example board"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6bfab079",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "05629b1b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import json\n",
+    "import tempfile\n",
+    "import time\n",
+    "from pathlib import Path\n",
+    "\n",
+    "import toml\n",
+    "from ansys.aedt.core.examples.downloads import download_file\n",
+    "from pyedb import Edb\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "55202fb7",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "638da40f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2025.2\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5920f647",
+   "metadata": {},
+   "source": [
+    "Download the example PCB data."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "94149fdc",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")\n",
+    "file_edb = download_file(source=\"pyaedt/edb/ANSYS-HSD_V1.aedb\", local_path=temp_folder.name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8ea9efc8",
+   "metadata": {},
+   "source": [
+    "## Load example layout."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f643775f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp = Edb(edbpath=file_edb, version=AEDT_VERSION)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0c86bf01",
+   "metadata": {},
+   "source": [
+    "## Create a config file with component information"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "041ba57d",
+   "metadata": {},
+   "source": [
+    "Keywords\n",
+    "\n",
+    "- **reference_designator**. Reference designator of the component.\n",
+    "- **part_type**. Part type of the component. Supported types are 'resistor', 'inductor', 'capacitor', 'ic', 'io',\n",
+    "'other'.\n",
+    "- **enabled**. Only available for RLC components.\n",
+    "- **solder_ball_properties**.\n",
+    "  - **shape**. Supported types are 'cylinder', 'spheroid', 'none'.\n",
+    "  - **diameter**.\n",
+    "  - **mid_diameter**.\n",
+    "  - **height**.\n",
+    "  - **material**.\n",
+    "- **port_properties**.\n",
+    "  - **reference_offset**.\n",
+    "  - **reference_size_auto**.\n",
+    "  - **reference_size_x**.\n",
+    "  - **reference_size_y**.\n",
+    "- **pin_pair_model**. RLC network. Multiple pin pairs are supported.\n",
+    "  - **first_pin**. First pin of the pin pair.\n",
+    "  - **second_pin**. Second pin of the pin pair.\n",
+    "  - **is_parallel**.\n",
+    "  - **resistance**.\n",
+    "  - **resistance_enabled**.\n",
+    "  - **inductance**.\n",
+    "  - **inductance_enabled**.\n",
+    "  - **capacitance**.\n",
+    "  - **capacitance_enabled**."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ecc3b118",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg = dict()\n",
+    "cfg[\"components\"] = [\n",
+    "    {\n",
+    "        \"reference_designator\": \"U1\",\n",
+    "        \"part_type\": \"io\",\n",
+    "        \"solder_ball_properties\": {\n",
+    "            \"shape\": \"spheroid\",\n",
+    "            \"diameter\": \"244um\",\n",
+    "            \"mid_diameter\": \"400um\",\n",
+    "            \"height\": \"300um\",\n",
+    "            \"material\": \"air\",\n",
+    "        },\n",
+    "        \"port_properties\": {\n",
+    "            \"reference_offset\": \"0.1mm\",\n",
+    "            \"reference_size_auto\": True,\n",
+    "            \"reference_size_x\": 0,\n",
+    "            \"reference_size_y\": 0,\n",
+    "        },\n",
+    "    },\n",
+    "    {\n",
+    "        \"reference_designator\": \"C375\",\n",
+    "        \"enabled\": False,\n",
+    "        \"pin_pair_model\": [\n",
+    "            {\n",
+    "                \"first_pin\": \"1\",\n",
+    "                \"second_pin\": \"2\",\n",
+    "                \"is_parallel\": False,\n",
+    "                \"resistance\": \"10ohm\",\n",
+    "                \"resistance_enabled\": True,\n",
+    "                \"inductance\": \"1nH\",\n",
+    "                \"inductance_enabled\": False,\n",
+    "                \"capacitance\": \"10nF\",\n",
+    "                \"capacitance_enabled\": True,\n",
+    "            }\n",
+    "        ],\n",
+    "    },\n",
+    "]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "486e9dcc",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg_file_path = Path(temp_folder.name) / \"cfg.json\"\n",
+    "with open(cfg_file_path, \"w\") as f:\n",
+    "    json.dump(cfg, f, indent=4, ensure_ascii=False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3a8806c7",
+   "metadata": {},
+   "source": [
+    "Equivalent toml file looks like below"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "36f6d9ca",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "toml_string = toml.dumps(cfg)\n",
+    "print(toml_string)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ac23105f",
+   "metadata": {},
+   "source": [
+    "## Apply config file"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "76985fcb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.configuration.load(cfg_file_path, apply_file=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "388cd383",
+   "metadata": {},
+   "source": [
+    "Save and close Edb\n",
+    "\n",
+    "The temporary folder will be deleted once the execution of this script is finished. Replace **edbapp.save()** with\n",
+    "**edbapp.save_as(\"C:/example.aedb\")** to keep the example project."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4619b812",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.save()\n",
+    "edbapp.close()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6e71d63a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Wait 3 seconds before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b66eed35",
+   "metadata": {},
+   "source": [
+    "### Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "af4b8798",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
