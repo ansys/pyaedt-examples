@@ -74,8 +74,8 @@ ipk.autosave_disable()
 #
 # Create a source block on the CPU and memories.
 
-ipk.create_source_block(object_name="CPU", input_power="25W")
-ipk.create_source_block(object_name=["MEMORY1", "MEMORY1_1"], input_power="5W")
+ipk.assign_solid_block(object_name="CPU", power_assignment="25W")
+ipk.assign_solid_block(object_name=["MEMORY1", "MEMORY1_1"], power_assignment="5W")
 
 # ## Assign boundaries
 #

@@ -12,12 +12,14 @@
 
 # +
 import json
-import toml
-from pathlib import Path
 import tempfile
+import time
+from pathlib import Path
 
+import toml
 from ansys.aedt.core.examples.downloads import download_file
 from pyedb import Edb
+
 # -
 
 # Define constants.
@@ -28,11 +30,11 @@ NG_MODE = False
 # Download the example PCB data.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
-file_edb = download_file(source="edb/ANSYS-HSD_V1.aedb", local_path=temp_folder.name)
+file_edb = download_file(source="pyaedt/edb/ANSYS-HSD_V1.aedb", local_path=temp_folder.name)
 
 # ## Load example layout.
 
-edbapp = Edb(file_edb, edbversion=AEDT_VERSION)
+edbapp = Edb(edbpath=file_edb, version=AEDT_VERSION)
 
 # ## Create an empty dictionary to host all configurations.
 
@@ -129,7 +131,7 @@ with open(file_json, "w") as f:
     json.dump(cfg, f, indent=4, ensure_ascii=False)
 
 
-# Equivalent toml file looks like below 
+# Equivalent toml file looks like below
 
 toml_string = toml.dumps(cfg)
 print(toml_string)
@@ -149,3 +151,15 @@ edbapp.setups
 
 edbapp.save()
 edbapp.close()
+
+# Wait 3 seconds before cleaning the temporary directory.
+time.sleep(3)
+
+# ### Clean up
+#
+# All project files are saved in the folder ``temp_folder.name``.
+# If you've run this example as a Jupyter notebook, you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
+
+temp_folder.cleanup()

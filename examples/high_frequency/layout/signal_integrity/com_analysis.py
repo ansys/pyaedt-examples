@@ -17,9 +17,8 @@
 # - COM is a figure of merit for an S-parameter representing a high-speed SerDes channel.
 # - COM is the ratio between eye height and noise.
 
-# ```math
 # COM = 20 * log10 (A_signal / A_noise)
-# ```
+
 #
 # Keywords: **COM**, **signal integrity**, **virtual compliance**.
 
@@ -30,8 +29,9 @@ import os
 import tempfile
 
 from ansys.aedt.core.visualization.post.spisim import SpiSim
-from ansys.aedt.core.visualization.post.spisim_com_configuration_files import \
-    com_parameters
+from ansys.aedt.core.visualization.post.spisim_com_configuration_files import (
+    com_parameters,
+)
 from pyedb.misc.downloads import download_file
 
 # ## Create temporary directory and download example files
@@ -45,22 +45,22 @@ from pyedb.misc.downloads import download_file
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 thru = download_file(
-    directory="com_analysis",
+    directory="pyaedt/com_analysis",
     filename="SerDes_Demo_02_Thru.s4p",
     destination=temp_folder.name,
 )
 fext_2_9 = download_file(
-    directory="com_analysis",
+    directory="pyaedt/com_analysis",
     filename="FCI_CC_Long_Link_Pair_2_to_Pair_9_FEXT.s4p",
     destination=temp_folder.name,
 )
 fext_5_9 = download_file(
-    directory="com_analysis",
+    directory="pyaedt/com_analysis",
     filename="FCI_CC_Long_Link_Pair_5_to_Pair_9_FEXT.s4p",
     destination=temp_folder.name,
 )
 next_11_9 = download_file(
-    directory="com_analysis",
+    directory="pyaedt/com_analysis",
     filename="FCI_CC_Long_Link_Pair_11_to_Pair_9_NEXT.s4p",
     destination=temp_folder.name,
 )
@@ -137,7 +137,5 @@ com_param.export_spisim_cfg(custom_cfg)
 
 # PyAEDT also supports the SPISim configuration file.
 
-com_results = spi_sim.compute_com(
-    standard=0, config_file=custom_cfg, port_order="EvenOdd"
-)  # Custom
+com_results = spi_sim.compute_com(standard=0, config_file=custom_cfg, port_order="EvenOdd")  # Custom
 print(*com_results)

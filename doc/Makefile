@@ -17,14 +17,7 @@ help:
 .PHONY: help Makefile
 
 .install-deps:
-	@pip freeze | grep -q "vtk-osmesa" && is_vtk_osmesa_installed="yes" || is_vtk_osmesa_installed="no"
 	@pip freeze | grep -q "pypandoc_binary" && is_pypandoc_binary_installed="yes" || is_pypandoc_binary_installed="no"
-	@if [ "${ON_CI}" = "True" ] && [ "$$is_vtk_osmesa_installed" != "yes" ]; then \
-		@echo "Removing vtk to avoid conflicts with vtk-osmesa needed for CI/CD"; \
-		pip uninstall --yes vtk; \
-		@echo "Installing vtk-osmesa"; \
-		pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.3.1; \
-	fi
 	@if [ "${ON_CI}" = "True" ] && [ "$$is_pypandoc_binary_installed" != "yes" ]; then \
 		@echo "Removing pypandoc to avoid conflicts with pypandoc-binary needed for CI/CD"; \
 		pip uninstall --yes pypandoc; \

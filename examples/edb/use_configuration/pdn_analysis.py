@@ -10,26 +10,30 @@
 import json
 import os
 import tempfile
+import time
 
+import matplotlib.pyplot as plt
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.examples.downloads import download_file
 from pyedb import Edb
+
 # -
 
 # Define constants.
 
 AEDT_VERSION = "2025.2"
+NUM_CORES = 4
 NG_MODE = False
 
 # Download the example PCB data.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 download_file(source="touchstone", name="GRM32_DC0V_25degC_series.s2p", local_path=temp_folder.name)
-file_edb = download_file(source="edb/ANSYS-HSD_V1.aedb", local_path=temp_folder.name)
+file_edb = download_file(source="pyaedt/edb/ANSYS-HSD_V1.aedb", local_path=temp_folder.name)
 
 # ## Load example layout
 
-edbapp = Edb(file_edb, edbversion=AEDT_VERSION)
+edbapp = Edb(edbpath=file_edb, version=AEDT_VERSION)
 
 # ## Create an empty dictionary to host all configurations
 
@@ -164,16 +168,33 @@ h3d = Hfss3dLayout(edbapp.edbpath, version=AEDT_VERSION, non_graphical=NG_MODE, 
 
 # ## Analyze
 
-h3d.analyze()
+h3d.analyze(cores=NUM_CORES)
 
 # ## Plot impedance
 
 solutions = h3d.post.get_solution_data(expressions="Z(port1,port1)")
-solutions.plot()
+plot_data = solutions.get_expression_data(convert_to_SI=True, formula="mag")
+x, y = plot_data
+plt.plot(x, y)
+plt.title("PDN Impedance")
+plt.xlabel("Frequency [GHz]")
+plt.ylabel("Z(port1,port1)")
+plt.xscale("log")
+plt.yscale("log")
+plt.show()
 
 # ## Shut Down Electronics Desktop
 
 h3d.close_desktop()
 
-# All project files are saved in the folder ``temp_file.dir``. If you've run this example as a Jupyter notebook you
-# can retrieve those project files.
+# Wait 3 seconds before cleaning the temporary directory.
+time.sleep(3)
+
+# ### Clean up
+#
+# All project files are saved in the folder ``temp_folder.name``.
+# If you've run this example as a Jupyter notebook, you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
+
+temp_folder.cleanup()

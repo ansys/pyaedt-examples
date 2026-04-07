@@ -2,9 +2,14 @@ version: 2
 updates:
   - package-ecosystem: "pip" # See documentation for possible values
     directory: "/requirements" # Location of package manifests
-    insecure-external-code-execution: allow
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 7
+      include:
+        - "*"  # Include all dependencies in cooldown
+      exclude:
+        - "ansys-sphinx-theme"
     labels:
       - "maintenance"
       - "dependencies"
@@ -39,6 +44,8 @@ updates:
           - "scikit-rf"
 
   - package-ecosystem: "github-actions"
+    cooldown:
+      default-days: 10 # Fallback cooldown if no specific rule applies
     directory: "/"
     schedule:
       interval: "weekly"

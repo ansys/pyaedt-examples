@@ -32,20 +32,6 @@ These examples use PyAEDT to show signal integrity examples.
       This example shows how to create a parameterized layout design and load the layout into HFSS 3D Layout
       for analysis and postprocessing.
 
-   .. grid-item-card:: Siwave differential pairs in Hfss 3D Layout
-      :padding: 2 2 2 2
-      :link: serdes_differential
-      :link-type: doc
-
-      .. image:: _static/parametrized_edb.png
-         :alt: Parametrized differential pairs
-         :width: 250px
-         :height: 200px
-         :align: center
-
-      This example shows how to use PyAEDT to set up SYZ analysis on a
-      serdes channel.
-
    .. grid-item-card:: Pre-layout Parameterized PCB
       :padding: 2 2 2 2
       :link: pre_layout_parametrized
@@ -71,19 +57,6 @@ These examples use PyAEDT to show signal integrity examples.
          :align: center
 
       This example demonstrates advanced postprocessing of AMI simulations.
-
-   .. grid-item-card:: Multi-zone simulation with SIwave
-      :padding: 2 2 2 2
-      :link: multizone
-      :link-type: doc
-
-      .. image:: _static/multizone.png
-         :alt: Multizone
-         :width: 250px
-         :height: 200px
-         :align: center
-
-      This example shows how to simulate multiple zones with SIwave.
 
    .. grid-item-card:: Circuit transient analysis and eye diagram
       :padding: 2 2 2 2
@@ -171,8 +144,6 @@ These examples use PyAEDT to show signal integrity examples.
       pre_layout
       pre_layout_parametrized
       ami
-      multizone
-      serdes_differential
       circuit_transient
 
       ../../../aedt_general/modeler/circuit_schematic

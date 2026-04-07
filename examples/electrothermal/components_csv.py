@@ -193,7 +193,7 @@ plotter = pv.Plotter(off_screen=True, window_size=[2048, 1536])
 # Export all models objects to OBJ files.
 
 f = ipk.post.export_model_obj(
-    export_path=temp_folder.name, export_as_single_objects=True, air_objects=False
+    export_path=temp_folder.name, export_as_multiple_objects=True, air_objects=False
 )
 
 # Add objects to the PyVista plotter. These objects are either set to a black color or assigned scalar values,

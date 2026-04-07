@@ -134,11 +134,12 @@ ipk.create_dataset(
 )
 
 # Assign a source power condition to the die.
-
-ipk.create_source_power(
-    face_id="DieSource",
-    thermal_dependent_dataset="PowerDissipationDataset",
-    source_name="DieSource",
+bc_ds=ipk.create_temp_dep_assignment("PowerDissipationDataset")
+ipk.assign_source(
+    assignment="DieSource",
+    assignment_value=bc_ds,
+    thermal_condition="Total Power",
+    boundary_name="DieSource",
 )
 
 # Assign thickness to the die attach surface.

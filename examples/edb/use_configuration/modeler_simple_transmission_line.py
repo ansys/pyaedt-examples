@@ -8,9 +8,10 @@
 import json
 import os
 import tempfile
+import time
 
-from ansys.aedt.core import Hfss3dLayout
 from pyedb import Edb
+
 # -
 
 # Define constants.
@@ -22,7 +23,7 @@ NG_MODE = False
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 edb_path = os.path.join(temp_folder.name, "simple_transmission_line.aedb")
-edbapp = Edb(edb_path, edbversion=AEDT_VERSION)
+edbapp = Edb(edbpath=edb_path, version=AEDT_VERSION)
 
 # Create a default 2-layer stackup
 edbapp.stackup.create_symmetric_stackup(layer_count=2, soldermask=False)
@@ -204,7 +205,10 @@ edbapp.close()
 
 # h3d = Hfss3dLayout(edbapp.edbpath, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True)
 
-# ## Clean up
+# Wait 3 seconds before cleaning the temporary directory.
+time.sleep(3)
+
+# ### Clean up
 #
 # All project files are saved in the folder ``temp_folder.name``.
 # If you've run this example as a Jupyter notebook, you

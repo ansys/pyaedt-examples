@@ -15,6 +15,11 @@ import time
 
 import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_file
+from ansys.aedt.core.modules.boundary.maxwell_boundary import (
+    MatrixACMagnetic,
+    SourceACMagnetic,
+)
+
 # -
 
 # Define constants.
@@ -57,9 +62,17 @@ m2d = ansys.aedt.core.Maxwell2d(
 #
 # Assign a matrix given the list of sources to assign the matrix to and the return path.
 
-matrix = m2d.assign_matrix(
-    assignment=["pri", "sec", "terz"], matrix_name="Matrix1", return_path="infinite"
-)
+# The matrix assignment requires the definition of the signal sources.
+# The sources must be defined using ``SourceACMagnetic``.
+
+sources = [SourceACMagnetic(name="pri", return_path="infinite"), SourceACMagnetic(name="sec", return_path="infinite"), SourceACMagnetic(name="terz", return_path="infinite")]
+
+matrix_args = MatrixACMagnetic(signal_sources=sources, matrix_name="Matrix1")
+
+# The matrix arguments are passed to the ``assign_matrix`` method, which assigns the matrix calculation to the winding
+# and makes the calculated parameters available as expressions in reports.
+
+matrix = m2d.assign_matrix(matrix_args)
 
 # ## Assign reduced matrices
 #
@@ -112,7 +125,7 @@ data = m2d.post.get_solution_data(
 # Get inductance results for the join connections in ``nH``.
 
 ind = ansys.aedt.core.generic.constants.unit_converter(
-    data.data_magnitude()[0],
+    data.get_expression_data(formula="magnitude")[1][0],
     unit_system="Inductance",
     input_units=data.units_data[expressions[0]],
     output_units="uH",

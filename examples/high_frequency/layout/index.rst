@@ -34,16 +34,29 @@ These examples use PyAEDT to show some layout applications.
 
    .. grid-item-card:: PyEDB workflows examples
       :padding: 2 2 2 2
-      :link: workflows/index
+      :link: ../../edb/index
       :link-type: doc
 
-      .. image:: _static/pyedb2.png
+      .. image:: ../../edb/_static/pyedb2.png
          :alt: PyEDB2
          :width: 250px
          :height: 200px
          :align: center
 
-      PyEDB related examples to worklows and file management.
+      PyEDB related examples to workflows and file management.
+
+   .. grid-item-card:: HFSS 3D Layout GUI modification
+      :padding: 2 2 2 2
+      :link: gui_manipulation
+      :link-type: doc
+
+      .. image:: _static/user_interface.png
+         :alt: UI 3D Layout
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      Provides HFSS 3D Layout GUI modification examples.
 
 
    .. toctree::
@@ -51,4 +64,5 @@ These examples use PyAEDT to show some layout applications.
 
       power_integrity/index
       signal_integrity/index
-      workflows/index
+      ../../edb/index
+      gui_manipulation

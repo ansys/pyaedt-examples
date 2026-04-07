@@ -143,26 +143,23 @@ scale_data = ansys.aedt.core.constants.unit_converter(
 tstop_ns = scale_time * tstop
 tstart_ns = scale_time * tstart
 
-for time_value in original_data_value[plot_name].index:
-    if tstart_ns <= time_value[0]:
-        start_index_original_data = time_value[0]
-        break
-for time_value in original_data_value[plot_name][start_index_original_data:].index:
-    if time_value[0] >= tstop_ns:
-        stop_index_original_data = time_value[0]
-        break
-for time_value in sample_waveform[0].index:
-    if tstart <= time_value:
-        sample_index = sample_waveform[0].index == time_value
-        start_index_waveform = sample_index.tolist().index(True)
-        break
-for time_value in sample_waveform[0].index:
-    if time_value >= tstop:
-        sample_index = sample_waveform[0].index == time_value
-        stop_index_waveform = sample_index.tolist().index(True)
-        break
+orig_times = np.array([row[0] for row in original_data_value[plot_name]])
+start_index_original_data = int(np.searchsorted(orig_times, tstart_ns, side="left"))
+if start_index_original_data >= orig_times.size:
+    start_index_original_data = orig_times.size - 1
+stop_index_original_data = int(np.searchsorted(orig_times, tstop_ns, side="left"))
+if stop_index_original_data >= orig_times.size:
+    stop_index_original_data = orig_times.size - 1
 
-original_data_zoom = original_data_value[
+sample_index_array = np.array(sample_waveform[0].index)
+start_index_waveform = int(np.searchsorted(sample_index_array, tstart, side="left"))
+if start_index_waveform >= sample_index_array.size:
+    start_index_waveform = sample_index_array.size - 1
+stop_index_waveform = int(np.searchsorted(sample_index_array, tstop, side="left"))
+if stop_index_waveform >= sample_index_array.size:
+    stop_index_waveform = sample_index_array.size - 1
+
+original_data_zoom = original_data_value[plot_name][
     start_index_original_data:stop_index_original_data
 ]
 sampled_data_zoom = (
@@ -175,8 +172,8 @@ sampled_time_zoom = (
 fig, ax = plt.subplots()
 ax.plot(sampled_time_zoom, sampled_data_zoom, "r*")
 ax.plot(
-    np.array(list(original_data_zoom.index.values)),
-    original_data_zoom.values,
+    np.array(list(original_data_zoom[:,0])),
+    original_data_zoom[:,1],
     color="blue",
 )
 ax.set_title("WaveAfterProbe")
@@ -190,7 +187,7 @@ plt.show()
 # Create the plot from a start time to stop time in seconds.
 
 fig, ax2 = plt.subplots()
-ax2.plot(sample_waveform[0].index, sample_waveform[0].values, "r*")
+ax2.plot(sample_waveform[0].index, np.concatenate(sample_waveform[0].values), "r*")
 ax2.set_title("Slicer Scatter: WaveAfterProbe")
 ax2.set_xlabel("s")
 ax2.set_ylabel("V")
@@ -202,7 +199,7 @@ plt.show()
 
 fig, ax4 = plt.subplots()
 ax4.set_title("Slicer Histogram: WaveAfterProbe")
-ax4.hist(sample_waveform[0].values, orientation="horizontal")
+ax4.hist(np.concatenate(sample_waveform[0].values), orientation="horizontal")
 ax4.set_ylabel("V")
 ax4.grid()
 plt.show()
@@ -226,9 +223,10 @@ original_data = circuit.post.get_solution_data(
 
 # +
 original_data.enable_pandas_output = False
-original_data_value = original_data.data_real()
+original_data_value = original_data.get_expression_data(formula="real")[1]
 original_data_sweep = original_data.primary_sweep_values
 waveform_unit = original_data.units_data[plot_name]
+
 waveform_sweep_unit = original_data.units_sweeps["Time"]
 tics = np.arange(20e-9, 100e-9, 1e-10, dtype=float)
 
@@ -260,14 +258,14 @@ scale_data = ansys.aedt.core.constants.unit_converter(
 tstop_ns = scale_time * tstop
 tstart_ns = scale_time * tstart
 
-for time_value in original_data_sweep:
-    if tstart_ns <= time_value:
-        start_index_original_data = original_data_sweep.index(time_value.value)
-        break
-for time_value in original_data_sweep[start_index_original_data:]:
-    if time_value >= tstop_ns:
-        stop_index_original_data = original_data_sweep.index(time_value.value)
-        break
+start_index_original_data = int(np.searchsorted(original_data_sweep, tstart_ns, side="left"))
+if start_index_original_data >= original_data_sweep.size:
+    start_index_original_data = original_data_sweep.size - 1
+
+stop_index_original_data = int(np.searchsorted(original_data_sweep, tstop_ns, side="left"))
+if stop_index_original_data >= original_data_sweep.size:
+    stop_index_original_data = original_data_sweep.size - 1
+
 cont = 0
 for frame in sample_waveform:
     if tstart <= frame[0]:
@@ -290,11 +288,23 @@ original_data_zoom_array = np.array(
     list(map(list, zip(original_sweep_zoom, original_data_zoom)))
 )
 original_data_zoom_array[:, 0] *= 1
-sampled_data_zoom_array = np.array(
-    sample_waveform[start_index_waveform:stop_index_waveform]
-)
-sampled_data_zoom_array[:, 0] *= scale_time
-sampled_data_zoom_array[:, 1] *= scale_data
+sampled_slice = sample_waveform[start_index_waveform:stop_index_waveform]
+# Build a homogeneous Nx2 array [time, value] from the sliced frames, with a guard for empty slices.
+if len(sampled_slice):
+    sampled_data_zoom_array = np.array(
+        [
+            [
+                float(np.asarray(frame[0]).ravel()[0]),
+                float(np.asarray(frame[1]).ravel()[0]),
+            ]
+            for frame in sampled_slice
+        ],
+        dtype=float,
+    )
+    sampled_data_zoom_array[:, 0] *= scale_time
+    sampled_data_zoom_array[:, 1] *= scale_data
+else:
+    sampled_data_zoom_array = np.empty((0, 2))
 
 fig, ax = plt.subplots()
 ax.plot(sampled_data_zoom_array[:, 0], sampled_data_zoom_array[:, 1], "r*")
@@ -309,7 +319,14 @@ plt.show()
 #
 # Create the plot from a start time to stop time in seconds.
 
-sample_waveform_array = np.array(sample_waveform)
+sample_waveform_array = np.array(
+        [
+            [float(frame[0]), float(np.asarray(frame[1]).ravel()[0])]
+            for frame in sample_waveform
+        ],
+        dtype=float,
+)
+
 fig, ax2 = plt.subplots()
 ax2.plot(sample_waveform_array[:, 0], sample_waveform_array[:, 1], "r*")
 ax2.set_title("Slicer Scatter: " + plot_name)

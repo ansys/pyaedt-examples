@@ -57,20 +57,6 @@ These examples use PyAEDT to show some general capabilities of EMIT for RF inter
       This example shows how to open an AEDT project with an EMIT design and analyze the results to determine if
       the received power at the input to each receiver exceeds the specified protection levels.
 
-   .. grid-item-card:: Interference type classification using a GUI
-      :padding: 2 2 2 2
-      :link: interference_type
-      :link-type: doc
-
-      .. image:: _static/interference_type.png
-         :alt: EMIT protection
-         :width: 250px
-         :height: 200px
-         :align: center
-
-      This example uses a GUI to open an AEDT project with an EMIT design and analyze the results to classify
-      the worst-case interference.
-
    .. toctree::
       :hidden:
 
@@ -78,4 +64,3 @@ These examples use PyAEDT to show some general capabilities of EMIT for RF inter
       hfss_emit
       interference
       protection
-      interference_type

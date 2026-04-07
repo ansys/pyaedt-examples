@@ -15,8 +15,10 @@ import tempfile
 import time
 
 import ansys.aedt.core
-from ansys.aedt.core.examples.downloads import download_file
 import pyedb
+from ansys.aedt.core.examples.downloads import download_file
+from ansys.aedt.core.generic.constants import Axis, Plane
+
 # -
 
 # Define constants.
@@ -37,17 +39,13 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 #
 # Download needed project file and set up temporary project directory.
 
-aedb_project = download_file(
-    "edb/ANSYS-HSD_V1.aedb", local_path=temp_folder.name
-)
+aedb_project = download_file("edb/ANSYS-HSD_V1.aedb", local_path=temp_folder.name)
 coil = download_file(
     source="inductance_3d_component",
     name="air_coil.a3dcomp",
     local_path=temp_folder.name,
 )
-res = download_file(
-    source="resistors", name="Res_0402.a3dcomp", local_path=temp_folder.name
-)
+res = download_file(source="resistors", name="Res_0402.a3dcomp", local_path=temp_folder.name)
 project_name = "HSD"
 output_edb = os.path.join(temp_folder.name, project_name + ".aedb")
 output_q3d = os.path.join(temp_folder.name, project_name + "_q3d.aedt")
@@ -57,7 +55,7 @@ output_q3d = os.path.join(temp_folder.name, project_name + "_q3d.aedt")
 # Open the EDB project and create a cutout on the selected nets
 # before exporting to Q3D.
 
-edb = pyedb.Edb(aedb_project, edbversion=AEDT_VERSION)
+edb = pyedb.Edb(edbpath=aedb_project, version=AEDT_VERSION)
 signal_nets = ["1.2V_AVDLL_PLL", "1.2V_AVDDL", "1.2V_DVDDL", "NetR106_1"]
 ground_nets = ["GND"]
 cutout_points = edb.cutout(
@@ -71,14 +69,10 @@ cutout_points = edb.cutout(
 # Identify [x,y] pin locations on the components to define where to assign sources
 # and sinks for Q3D.
 
-pin_u11_scl = [
-    i for i in edb.components["U11"].pins.values() if i.net_name == "1.2V_AVDLL_PLL"
-]
+pin_u11_scl = [i for i in edb.components["U11"].pins.values() if i.net_name == "1.2V_AVDLL_PLL"]
 pin_u9_1 = [i for i in edb.components["U9"].pins.values() if i.net_name == "1.2V_AVDDL"]
 pin_u9_2 = [i for i in edb.components["U9"].pins.values() if i.net_name == "1.2V_DVDDL"]
-pin_u11_r106 = [
-    i for i in edb.components["U11"].pins.values() if i.net_name == "NetR106_1"
-]
+pin_u11_r106 = [i for i in edb.components["U11"].pins.values() if i.net_name == "NetR106_1"]
 
 # ## Append Z Positions
 #
@@ -122,9 +116,7 @@ edb.save_edb()
 edb.close_edb()
 time.sleep(3)
 
-h3d = ansys.aedt.core.Hfss3dLayout(
-    output_edb, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True
-)
+h3d = ansys.aedt.core.Hfss3dLayout(output_edb, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True)
 # -
 
 # ## Export to Q3D
@@ -153,23 +145,21 @@ q3d.delete_all_nets()
 # +
 q3d.modeler.create_coordinate_system(location_l2_1, name="L2")
 comp = q3d.modeler.insert_3d_component(coil, coordinate_system="L2")
-comp.rotate(q3d.AXIS.Z, -90)
+comp.rotate(Axis.Z, -90)
 comp.parameters["n_turns"] = "3"
 comp.parameters["d_wire"] = "100um"
 q3d.modeler.set_working_coordinate_system("Global")
 q3d.modeler.create_coordinate_system(location_l4_1, name="L4")
 comp2 = q3d.modeler.insert_3d_component(coil, coordinate_system="L4")
-comp2.rotate(q3d.AXIS.Z, -90)
+comp2.rotate(Axis.Z, -90)
 comp2.parameters["n_turns"] = "3"
 comp2.parameters["d_wire"] = "100um"
 q3d.modeler.set_working_coordinate_system("Global")
 
 q3d.modeler.set_working_coordinate_system("Global")
 q3d.modeler.create_coordinate_system(location_r106_1, name="R106")
-comp3 = q3d.modeler.insert_3d_component(
-    res, geometry_parameters={"$Resistance": 2000}, coordinate_system="R106"
-)
-comp3.rotate(q3d.AXIS.Z, -90)
+comp3 = q3d.modeler.insert_3d_component(res, geometry_parameters={"$Resistance": 2000}, coordinate_system="R106")
+comp3.rotate(Axis.Z, -90)
 
 q3d.modeler.set_working_coordinate_system("Global")
 # -
@@ -201,15 +191,15 @@ q3d.plot(
 # assign sources and sinks on nets.
 
 # +
-sink_f = q3d.modeler.create_circle(q3d.PLANE.XY, location_u11_scl, 0.1)
-source_f1 = q3d.modeler.create_circle(q3d.PLANE.XY, location_u9_1_scl, 0.1)
-source_f2 = q3d.modeler.create_circle(q3d.PLANE.XY, location_u9_2_scl, 0.1)
-source_f3 = q3d.modeler.create_circle(q3d.PLANE.XY, location_u11_r106, 0.1)
+sink_f = q3d.modeler.create_circle(Plane.XY, location_u11_scl, 0.1)
+source_f1 = q3d.modeler.create_circle(Plane.XY, location_u9_1_scl, 0.1)
+source_f2 = q3d.modeler.create_circle(Plane.XY, location_u9_2_scl, 0.1)
+source_f3 = q3d.modeler.create_circle(Plane.XY, location_u11_r106, 0.1)
 sources_objs = [source_f1, source_f2, source_f3]
 
 q3d.auto_identify_nets()
 
-identified_net = q3d.nets[0]
+identified_net = q3d.net_names[0]
 
 q3d.sink(sink_f, net_name=identified_net)
 
@@ -313,7 +303,7 @@ voltage_drop = q3d.post.fields_calculator.add_expression("voltage_drop", None)
 #         report_category="DC R/L Fields",
 #     )
 #     if data:
-#         print(data.data_real("V{}".format(source_bound.name)))
+#         print(data.get_expression_data("V{}".format(source_bound.name))[1])
 # -
 
 # ## Release AEDT
