@@ -30,7 +30,6 @@ print(targetfile)
 # +
 # Select EDB version (change it manually if needed, e.g. "2025.1")
 AEDT_VERSION = "2026.1"
-print(f"EDB version: {edb_version}")
 
 edb = pyedb.Edb(edbpath=targetfile, version=edb_version)
 # -
