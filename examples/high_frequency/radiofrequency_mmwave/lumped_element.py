@@ -24,7 +24,7 @@ from ansys.aedt.core.filtersolutions_core.ideal_response import (
 # ### Define constants
 # Constants help ensure consistency and avoid repetition throughout the example.
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION = "2026.1"
 
 # ## Define function used for plotting
 #
