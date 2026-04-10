@@ -104,9 +104,6 @@ plot_data = [
 ]
 plot(plot_data)
 
-# <img src="_static/ideal_filter_response.png" width="400">
-
-
 # ## Add a transmission zero to filter design
 #
 # Add a transmission zero that yields nulls separated by two times the pass band width (1 GHz).
@@ -120,8 +117,6 @@ plot_data = [
 ]
 plot(plot_data)
 
-
-# <img src="_static/filter_response_added_zeros.png" width="400">
 
 # ## Generate netlist for designed filter
 #
@@ -175,6 +170,7 @@ print("Netlist: \n", netlist)
 # S-parameter reports are included by enabling the corresponding export options.
 # Table data is enabled to allow for easy access to the simulated S-parameter values in tabular form.
 # The Circuit environment is selected as the destination for generating and simulating the lumped model.
+
 lumped_design.export_to_aedt.schematic_name = "LumpedElementFilter"
 lumped_design.export_to_aedt.simulate_after_export_enabled = True
 lumped_design.export_to_aedt.smith_plot_enabled = True
@@ -201,9 +197,6 @@ plot_data = [
     (sim_s21_db[0] * 1e9, sim_s21_db[1], "Simulated S21 with Tx Zero"),
 ]
 plot(plot_data)
-
-# <img src="_static/simulated_filter_response.png" width="400">
-
 
 # ## Finish
 #
