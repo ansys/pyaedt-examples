@@ -15,6 +15,7 @@ import time
 
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.examples.downloads import download_file
+
 # -
 
 # Define constants.
@@ -32,7 +33,7 @@ if not NG_MODE:
 # Download example board.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
-aedb = download_file(source="edb/ANSYS-HSD_V1.aedb", local_path=temp_folder.name)
+aedb = download_file(source="pyaedt/edb/ANSYS-HSD_V1.aedb", local_path=temp_folder.name)
 
 
 # ## Launch HFSS 3D Layout
