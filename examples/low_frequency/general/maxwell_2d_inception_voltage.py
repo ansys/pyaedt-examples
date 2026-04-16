@@ -31,12 +31,13 @@ NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ### Define dictionaries
+
 # Dictionaries contain the parameter definitions, enabling a parametric design
+
 mat_params_dielectrics = {
     "ins_epsilon_r": "3.77",
     "dielectric_base_epsilon_r": "2.5",
 }
-
 design_params_geom = {
     "dia_wire": "1.8mm",
     "ins_thickness": "43um",
@@ -52,6 +53,8 @@ design_params_geom = {
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 results_script_folder = Path(temp_folder.name)
 
+# Launch an AEDT instance and insert a Maxwell 2D project.
+
 project_name = os.path.join(temp_folder.name, "TP_Webinar_automated.aedt")
 m2d = ansys.aedt.core.Maxwell2d(
     project=project_name,
@@ -62,30 +65,37 @@ m2d = ansys.aedt.core.Maxwell2d(
     new_desktop=True,
 )
 
+
 # ## Model Preparation
 #
 # Description of steps used to create and prepare the model for simulation.
 # Define Project Parameters
+
 for k, v in mat_params_dielectrics.items():
     m2d["$" + k] = v
+
 # Define Design Parameters
+
 for k, v in design_params_geom.items():
     m2d[k] = v
 
 # Define wire insulation material
+
 mat_wire_insulation = m2d.materials.add_material("wire_ins")
 mat_wire_insulation.update()
 mat_wire_insulation.conductivity = "0"
 mat_wire_insulation.permittivity = "$" + "ins_epsilon_r"
+
 # Define dielectric base insulation material
+
 mat_dielectric_base = m2d.materials.add_material("dielectric_base")
 mat_dielectric_base.update()
 mat_dielectric_base.conductivity = "0"
 mat_dielectric_base.permittivity = "$" + "dielectric_base_epsilon_r"
 
-
 # ### Create 2D model
 #
+
 dielectric_base_rect = m2d.modeler.create_rectangle(
     origin=["-20mm", "-(ins_thickness +dia_wire/2)", "0mm"], orientation="XY", sizes=["40mm", "-5mm"], name="dielectric_base", material="dielectric_base"
 )
@@ -117,35 +127,44 @@ m2d.modeler.subtract(air_mesh_rect, [tp_wire_1, ins_tp_wire_1, tp_wire_1_mirr, i
 m2d.modeler.subtract(air_mesh_rect_2, [tp_wire_1, ins_tp_wire_1, tp_wire_1_mirr, ins_tp_wire_1_mirr], keep_originals=True)
 region = m2d.modeler.create_region(["5", "100", "5", "0"])
 region.material_name = "vacuum"
+
 #
 # ### Assign Voltage Excitations
 #
+
 m2d.assign_voltage(assignment=tp_wire_1.id, amplitude="V_input", name="Vinput")
 m2d.assign_voltage(assignment=tp_wire_1_mirr.id, amplitude=0, name="GND")
+
 #
 # ### Assign mesh operations
 #
+
 m2d.mesh.assign_initial_mesh(surface_deviation=0.0001, normal_deviation=0.5)
 m2d.mesh.assign_length_mesh(air_mesh_rect_2, inside_selection=True, maximum_length=0.005, name="mesh_air_mesh")
 m2d.mesh.assign_length_mesh([ins_tp_wire_1, ins_tp_wire_1.name + "_2"], inside_selection=True, maximum_length=0.01, name="mesh_wire_ins")
+
 #
 # ### Define solution setup
 #
+
 setup_name = "MySetupAuto"
 setup = m2d.create_setup(name=setup_name)
 setup.props["PercentError"] = 0.1
 setup.update()
 
 #
-# ### Run analysis
+# ## Run analysis
 #
+
 m2d.validate_simple()
 m2d.analyze_setup(name=setup_name, use_auto_settings=False, cores=NUM_CORES)
 
 #
 # ## Postprocess
 #
+
 # Generate field line traces
+
 selected_object = m2d.modeler.get_object_from_name(ins_tp_wire_1.name)
 plot = m2d.post.create_fieldplot_line_traces(
     seeding_faces=[ins_tp_wire_1.name], surface_tracing_objs=[dielectric_base_rect.name], in_volume_tracing_objs=[air_mesh_rect_2.name], plot_name="LineTracesTest"
@@ -156,20 +175,34 @@ plot.LineWidth = 1
 plot.FractionOfMaximum = 0.01
 plot.update()
 
-# Perform inception voltage evaluation for a predefined or user defined gas
-# Please uncomment the approach that applies
+#
+# ## Perform inception voltage evaluation for a predefined or user defined gas
+#
+# Four possible scenarios are showcased. Please uncomment the approach that applies.
 
-# Example 1: dry air at 1.5 bar pressure
+#
+# ### Example 1: dry air at 1.5 bar pressure.
+#
 # m2d.post.modify_inception_parameters(plot.name, gas_type=0, gas_pressure=1.5,use_inception=True)
 
-# Example 2: SF6 gas at 1.9 bar pressure
+#
+# ### Example 2: SF6 gas at 1.9 bar pressure.
+#
 # m2d.post.modify_inception_parameters(plot.name, gas_type=1, gas_pressure=1.9,use_inception=True)
 
-# Example 3: define a proper ionization equation - here f(x) = x for demo purposes used
+#
+# ### Example 3: define a proper ionization equation
+#
+# Here f(x) = x for demo purposes used.
+
 my_ionization_equation = "x"
 m2d.post.modify_inception_parameters(plot.name, gas_type=2, use_inception=True, streamer_constant=6.09, ionization_check=True, ionization_equation=my_ionization_equation)
 
-# Example 4: user define gas  with ionization equation defined via dataset - here fictitious dataset for demo purposes used
+#
+# ### Example 4: user define gas  with ionization equation defined via dataset
+#
+# Here fictitious dataset for demo purposes used
+#
 # m2d.post.modify_inception_parameters(
 #             plot.name,
 #             gas_type=2,
@@ -178,38 +211,53 @@ m2d.post.modify_inception_parameters(plot.name, gas_type=2, use_inception=True, 
 #             ionization_check=False,
 #             ionization_dataset=[2, 0, 0.15, 0.2, 0.4])
 
-# Evaluate inception voltage for the given gas on all field line traces
+#
+# ### Evaluate inception voltage for the given gas on all field line traces
+#
+# For the remainder of the analysis results as per Example 3 are used.
+#
+
 m2d.post.evaluate_inception_voltage(plot.name)
+
 # Export inception voltage evaluation results to a TXT file
+
 IV_FILENAME = "IV_" + "nominal" + ".txt"
 file_inc_voltage_path = results_script_folder / IV_FILENAME
 m2d.post.export_inception_voltage(plot.name, str(file_inc_voltage_path))
 
-# ### Define Optimetrics setups from files
 #
+# ## Define Optimetrics setups from files
+#
+
 sweep_name_wire = "ParametricSweep_wire"
+
 # Download the csv file containing the variable names and values from the [example-data]
 # (https://github.com/ansys/example-data/tree/main/pyaedt) repository.
+
 data_folder = Path(download_file(r"pyaedt/maxwell_2d_twisted_pair", local_path=temp_folder.name))
 OPT_FILENAME = "ParametricSweep_wire_table_3par.csv"
 param_path = data_folder / OPT_FILENAME
-
 param_sweep = m2d.parametrics.add_from_file(str(param_path), name=sweep_name_wire)
 param_sweep["SaveFields"] = True
 param_sweep["CopyMesh"] = False
 
 # Define Streamer constant corresponding to each Optimetrics sweep point (cannot be defined parametrically)
+
 param_streamer_constant = [5.50, 5.03, 4.97, 5.74]
 
 # Solve parametric sweep
+
 param_sweep.analyze(cores=NUM_CORES)
 
 # ## Optimetrics Postprocess
 #
+
 # Retrieve names and values of project and design variables
+
 mxwl_variables = m2d.available_variations.nominal_values
 
 # Retrieve the list of all the optimetrics variations from the setup
+
 swept_variables = param_sweep.props["Sweeps"]["SweepDefinition"]
 swept_table_var_names = []
 swept_table_var_values = []
@@ -222,6 +270,7 @@ opt_variations_dict = dict(zip(swept_table_var_names, opt_variations_transposed)
 keys_to_update = opt_variations_dict.keys()
 
 # Update Inception Voltage Parameters and perform the evaluation for all Optimetrics sweep points
+
 for index_opt in range(len(opt_variations)):
     # Generate field line traces
     selected_object = m2d.modeler.get_object_from_name(ins_tp_wire_1.name)
@@ -250,9 +299,13 @@ for index_opt in range(len(opt_variations)):
 #
 # ## Finish
 #
+
 # ### Save the project
+
 m2d.save_project()
+
 # Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
+
 time.sleep(3)
 
 # ### Clean up
