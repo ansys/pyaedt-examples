@@ -16,10 +16,11 @@ ROOT_DIR = Path(__file__).parents[1]
 EXAMPLES_DIR = ROOT_DIR / "examples"
 VENV_PYTHON = ROOT_DIR / ".venv" / "Scripts" / "python.exe"
 LOG_DIR = Path(__file__).parent / "logs"
-LOG_DIR.mkdir(exist_ok=True)
 LOG_FILE = LOG_DIR / f"failed_scripts_{AEDT_VERSION.replace('.','R')}.log"
 SUMMARY_FILE = LOG_DIR / f"test_summary_{AEDT_VERSION.replace('.','R')}.log"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
+SKIP_FILES = {"template.py", "__init__.py", "index.rst"}
+TEST_DIR = Path(__file__).parent / "ref"
 
 # Select Python executable
 python_exe = str(VENV_PYTHON) if VENV_PYTHON.exists() else sys.executable
@@ -29,9 +30,6 @@ print(f"Using Python: {python_exe}")
 for f in [LOG_FILE, SUMMARY_FILE]:
     if f.exists():
         f.unlink()
-
-SKIP_FILES = {"template.py", "__init__.py", "index.rst"}
-TEST_DIR = Path(__file__).parent / "tests"
 
 
 def inject_test_code(script_content, script_name):
