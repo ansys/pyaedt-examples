@@ -10,6 +10,7 @@ from datetime import timedelta
 # --- Configuration ---
 AEDT_VERSION="2026.1"
 RUN_ONLY = {"resistance.py"}
+SKIP_FILES = {"template.py", "__init__.py", "index.rst"}
 
 # ----------- Do not edit under this line -------------
 ROOT_DIR = Path(__file__).parents[1]
@@ -19,7 +20,6 @@ LOG_DIR = Path(__file__).parent / "logs"
 LOG_FILE = LOG_DIR / f"failed_scripts_{AEDT_VERSION.replace('.','R')}.log"
 SUMMARY_FILE = LOG_DIR / f"test_summary_{AEDT_VERSION.replace('.','R')}.log"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
-SKIP_FILES = {"template.py", "__init__.py", "index.rst"}
 TEST_DIR = Path(__file__).parent / "ref"
 
 # Select Python executable
