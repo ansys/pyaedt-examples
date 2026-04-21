@@ -1,3 +1,25 @@
+# Copyright (C) 2024 - 2026 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 # # Q3D Dynamic link to Twin Builder for the DC-Link bus bars of a drive inverter
 #
 # The example based in the DC-Link bus bars of a three-phase inverter covers the electro-thermal workflow
@@ -190,6 +212,7 @@ new_report.time_start = "20ms"
 new_report.time_stop = "30ms"
 new_report.variations = {"Spectrum": "All"}
 new_report.create("Q3D_sources")
+new_report.edit_x_axis_scaling(units="Hz")
 
 # Export report in a CSV file
 
@@ -202,15 +225,21 @@ report_path = tb.post.export_report_to_csv(temp_folder.name, "Q3D_sources")
 q3d_sources_unfiltered = pd.read_csv(report_path, sep=",")
 threshold = 0.01
 
-# Identify rows below threshold
-# If at least one between real and imaginary are below threshold, mark for deletion the entire row
+# Delete a row only if BOTH re and im are below threshold for ALL sources at that frequency.
+# Build per-source masks where True means that source has both parts below threshold at the row.
 
+df = q3d_sources_unfiltered.copy()
+src_masks = []
 for source in sources:
-    mask = (q3d_sources_unfiltered[f"re({source}.I) [A]"].abs() < threshold) | (q3d_sources_unfiltered[f"im({source}.I) [A]"].abs() < threshold)
+    col_re = f"re({source}.I) [A]"
+    col_im = f"im({source}.I) [A]"
+    re_vals = pd.to_numeric(df[col_re], errors="coerce").abs()
+    im_vals = pd.to_numeric(df[col_im], errors="coerce").abs()
+    src_masks.append((re_vals < threshold) & (im_vals < threshold))
 
-# Drop those rows
-
-q3d_sources_filtered = q3d_sources_unfiltered[~mask]
+# A row is removed only if every source mask is True for that row
+rows_all_small = pd.concat(src_masks, axis=1).all(axis=1) if src_masks else pd.Series(False, index=df.index)
+q3d_sources_filtered = df[~rows_all_small]
 
 # Save filtered data back to a new CSV file
 
