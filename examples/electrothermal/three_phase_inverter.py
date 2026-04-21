@@ -204,7 +204,7 @@ q3d_sources_unfiltered = pd.read_csv(report_path, sep=",")
 threshold = 0.01
 
 # Delete a row if and only if both re and im are below the threshold value for all sources at that frequency.
-# Build per-source masks where True means that source has both parts below threshold at the row.
+# Build per-source masks where True indicates that both parts of the source are below the threshold for that row.
 
 df = q3d_sources_unfiltered.copy()
 src_masks = []
