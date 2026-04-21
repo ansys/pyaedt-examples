@@ -203,7 +203,7 @@ report_path = tb.post.export_report_to_csv(temp_folder.name, "Q3D_sources")
 q3d_sources_unfiltered = pd.read_csv(report_path, sep=",")
 threshold = 0.01
 
-# Delete a row only if BOTH re and im are below threshold for ALL sources at that frequency.
+# Delete a row if and only if both re and im are below the threshold value for all sources at that frequency.
 # Build per-source masks where True means that source has both parts below threshold at the row.
 
 df = q3d_sources_unfiltered.copy()
