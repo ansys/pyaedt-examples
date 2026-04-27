@@ -111,9 +111,20 @@ edb = pyedb.Edb(edbpath=aedb_path, version=AEDT_VERSION)
 edb.materials.add_conductor_material(name="copper_high_cond", conductivity=60000000)
 edb.materials.add_dielectric_material(name="Duroid (tm)", permittivity=2.2, dielectric_loss_tangent=0.0009)
 
-edb.stackup.add_layer_top(name="TOP", layer_type="signal", thickness="35um", material="copper_high_cond")
-edb.stackup.add_layer_below(name="Substrat", base_layer_name="TOP", layer_type="dielectric", thickness="0.5mm", material="Duroid (tm)")
-edb.stackup.add_layer_below(name="GND", base_layer_name="Substrat", layer_type="signal", thickness="35um", material="copper")
+edb.stackup.add_layer_top(name="TOP",
+                          layer_type="signal",
+                          thickness="35um",
+                          material="copper_high_cond")
+edb.stackup.add_layer_below(name="Substrat",
+                            base_layer_name="TOP",
+                            layer_type="dielectric",
+                            thickness="0.5mm",
+                            material="Duroid (tm)")
+edb.stackup.add_layer_below(name="GND",
+                            base_layer_name="Substrat",
+                            layer_type="signal",
+                            thickness="35um",
+                            material="copper")
 
 # ### Create the first patch and feed line
 #
