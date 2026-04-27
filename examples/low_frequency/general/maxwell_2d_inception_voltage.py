@@ -282,9 +282,11 @@ for index_opt in range(len(opt_variations)):
     plot_opt.LineWidth = 1
     plot_opt.FractionOfMaximum = 0.01
     plot_opt.update()
+
     # Apply solved variation
     mxwl_variables.update({k: opt_variations_dict[k][index_opt] for k in keys_to_update})
     m2d.apply_solved_variation(mxwl_variables)
+
     # Modify the inception voltage parameters - update the streamer constant
     m2d.post.modify_inception_parameters(
         plot_opt.name, gas_type=2, use_inception=True, streamer_constant=param_streamer_constant[index_opt], ionization_check=True, ionization_equation=my_ionization_equation
@@ -300,9 +302,10 @@ for index_opt in range(len(opt_variations)):
 # ## Finish
 #
 
-# ### Save the project
+# ### Save the project and release AEDT
 
 m2d.save_project()
+m2d.release_desktop()
 
 # Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 
