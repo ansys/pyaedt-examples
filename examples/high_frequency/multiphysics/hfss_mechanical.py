@@ -2,6 +2,7 @@
 #
 # This example shows how to use PyAEDT to create a multiphysics workflow that
 # includes Circuit, HFSS, and Mechanical.
+# This example does not work in AEDT 2026R1.
 #
 # Keywords: **Multiphysics**, **HFSS**, **Mechanical AEDT**, **Circuit**.
 
@@ -20,7 +21,7 @@ from ansys.aedt.core.examples.downloads import download_via_wizard
 
 # Define constants.
 
-AEDT_VERSION = "2026.1"
+AEDT_VERSION = "2025.2"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
