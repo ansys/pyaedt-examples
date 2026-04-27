@@ -20,7 +20,7 @@ import pyedb
 # ### Define constants
 # Constants help ensure consistency and avoid repetition throughout the example.
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION = "2026.1"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ### Create temporary directory
@@ -45,7 +45,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # +
 class Patch:
-    def __init__(self, width=0.0, height=0.0, position=0.0):
+    def __init__(self, width:float =0.0, height:float=0.0, position:float=0.0):
         self.width = width
         self.height = height
         self.position = position
@@ -53,10 +53,10 @@ class Patch:
     @property
     def points(self):
         return [
-            [self.position, "-{}/2".format(self.height)],
-            ["{} + {}".format(self.position, self.width), "-{}/2".format(self.height)],
-            ["{} + {}".format(self.position, self.width), "{}/2".format(self.height)],
-            [self.position, "{}/2".format(self.height)],
+            [self.position, -self.height/2],
+            [self.position + self.width, -self.height / 2],
+            [self.position + self.width, self.height / 2],
+            [self.position, self.height / 2],
         ]
 
 
@@ -69,10 +69,10 @@ class Line:
     @property
     def points(self):
         return [
-            [self.position, "-{}/2".format(self.width)],
-            ["{} + {}".format(self.position, self.length), "-{}/2".format(self.width)],
-            ["{} + {}".format(self.position, self.length), "{}/2".format(self.width)],
-            [self.position, "{}/2".format(self.width)],
+            [self.position, -self.width / 2],
+            [self.position + self.length, -self.width / 2],
+            [self.position + self.length, self.width / 2],
+            [self.position, self.width / 2],
         ]
 
 
@@ -85,10 +85,10 @@ class LinearArray:
     @property
     def points(self):
         return [
-            [-1e-3, "-{}/2-1e-3".format(self.width)],
-            ["{}+1e-3".format(self.length), "-{}/2-1e-3".format(self.width)],
-            ["{}+1e-3".format(self.length), "{}/2+1e-3".format(self.width)],
-            [-1e-3, "{}/2+1e-3".format(self.width)],
+            [-1e-3, - self.width / 2 - 1e-3],
+            [self.length + 1e-3, -self.width / 2- 1e-3],
+            [self.length + 1e-3, self.width /2 + 1e-3],
+            [-1e-3, self.width / 2 + 1e-3],
         ]
 
 
@@ -116,7 +116,6 @@ layers = {
         "Substrat": {"type": "dielectric", "thickness": "0.5mm", "material": "Duroid (tm)"},
         "GND": {"type": "signal", "thickness": "35um", "material": "copper"},
         "Gap": {"type": "dielectric", "thickness": "0.05mm", "material": "Air"},
-        "Virt_GND": {"type": "signal", "thickness": "35um", "material": "copper"},
     },
 }
 
@@ -133,112 +132,64 @@ edb.stackup.load(layers)
 # Define parameters:
 
 # +
-edb["w1"] = 1.4e-3
-edb["h1"] = 1.2e-3
-edb["initial_position"] = 0.0
-edb["l1"] = 2.4e-3
-edb["trace_w"] = 0.3e-3
+w1 = 1.4e-3
+h1 = 1.2e-3
+initial_position = 0.0
+l1 = 2.4e-3
+trace_w = 0.3e-3
 
-first_patch = Patch(width="w1", height="h1", position="initial_position")
-edb.modeler.create_polygon(first_patch.points, "TOP", net_name="Array_antenna")
-first_line = Line(length="l1", width="trace_w", position=first_patch.width)
-edb.modeler.create_polygon(first_line.points, "TOP", net_name="Array_antenna")
+first_patch = Patch(width=w1, height=h1, position=initial_position)
+edb.modeler.create_polygon(first_patch.points, layer_name="TOP", net_name="Array_antenna")
+first_line = Line(length=l1, width=trace_w, position=first_patch.width)
+edb.modeler.create_polygon(first_line.points, layer_name="TOP", net_name="Array_antenna")
 # -
 
 # Now use the ``LinearArray`` class to create the array.
 
 # +
-edb["w2"] = 2.29e-3
-edb["h2"] = 3.3e-3
-edb["l2"] = 1.9e-3
-edb["trace_w2"] = 0.2e-3
+w2 = 2.29e-3
+h2 = 3.3e-3
+l2 = 1.9e-3
+trace_w2 = 0.2e-3
+rf_pin_location = [first_patch.width/4.0, 0]
 
-patch = Patch(width="w2", height="h2")
-line = Line(length="l2", width="trace_w2")
+patch = Patch(width=w2, height=h2)
+line = Line(length=l2, width=trace_w2)
 linear_array = LinearArray(nb_patch=8, array_width=patch.height)
 
 current_patch = 1
-current_position = "{} + {}".format(first_line.position, first_line.length)
+current_position = first_line.position + first_line.length
 
 while current_patch <= linear_array.nbpatch:
     patch.position = current_position
-    edb.modeler.create_polygon(patch.points, "TOP", net_name="Array_antenna")
-    current_position = "{} + {}".format(current_position, patch.width)
+    edb.modeler.create_polygon(patch.points, layer_name="TOP", net_name="Array_antenna")
+    current_position = current_position + patch.width
     if current_patch < linear_array.nbpatch:
         line.position = current_position
-        edb.modeler.create_polygon(line.points, "TOP", net_name="Array_antenna")
-        current_position = "{} + {}".format(current_position, line.length)
+        edb.modeler.create_polygon(line.points, layer_name="TOP", net_name="Array_antenna")
+        current_position = current_position + line.length
     current_patch += 1
 
 linear_array.length = current_position
 # -
 
 # Add the ground conductor.
-
-edb.modeler.create_polygon(linear_array.points, "GND", net_name="GND")
+edb.modeler.create_polygon(linear_array.points, layer_name="GND", net_name="GND")
 
 # Add the connector pin to use to assign the port.
 
-edb.padstacks.create(padstackname="Connector_pin", holediam="100um", paddiam="0", antipaddiam="200um")
-con_pin = edb.padstacks.place(
-    ["{}/4.0".format(first_patch.width), 0],
-    "Connector_pin",
-    net_name="Array_antenna",
-    fromlayer="TOP",
-    tolayer="GND",
-    via_name="coax",
-)
 
-# Add a connector ground.
 
-edb.modeler.create_polygon(first_patch.points, "Virt_GND", net_name="GND")
-edb.padstacks.create("gnd_via", "100um", "0", "0")
-edb["via_spacing"] = 0.2e-3
-con_ref1 = edb.padstacks.place(
-    [
-        "{} + {}".format(first_patch.points[0][0], "via_spacing"),
-        "{} + {}".format(first_patch.points[0][1], "via_spacing"),
-    ],
-    "gnd_via",
-    fromlayer="GND",
-    tolayer="Virt_GND",
-    net_name="GND",
-)
-con_ref2 = edb.padstacks.place(
-    [
-        "{} + {}".format(first_patch.points[1][0], "-via_spacing"),
-        "{} + {}".format(first_patch.points[1][1], "via_spacing"),
-    ],
-    "gnd_via",
-    fromlayer="GND",
-    tolayer="Virt_GND",
-    net_name="GND",
-)
-con_ref3 = edb.padstacks.place(
-    [
-        "{} + {}".format(first_patch.points[2][0], "-via_spacing"),
-        "{} + {}".format(first_patch.points[2][1], "-via_spacing"),
-    ],
-    "gnd_via",
-    fromlayer="GND",
-    tolayer="Virt_GND",
-    net_name="GND",
-)
-con_ref4 = edb.padstacks.place(
-    [
-        "{} + {}".format(first_patch.points[3][0], "via_spacing"),
-        "{} + {}".format(first_patch.points[3][1], "-via_spacing"),
-    ],
-    "gnd_via",
-    fromlayer="GND",
-    tolayer="Virt_GND",
-    net_name="GND",
-)
+pos_term = edb.excitation_manager.create_point_terminal(x=rf_pin_location[0],
+                                                        y=rf_pin_location[1],
+                                                        layer="TOP",
+                                                        net="Array_antenna")
+ref_term = edb.excitation_manager.create_point_terminal(x=rf_pin_location[0],
+                                                        y=rf_pin_location[1],
+                                                        layer="GND",
+                                                        net="GND")
+pos_term.reference_terminal = ref_term
 
-# Define the port.
-
-edb.padstacks.set_solderball(con_pin, "Virt_GND", isTopPlaced=False, ballDiam=0.1e-3)
-port_name = edb.padstacks.create_coax_port(con_pin)
 
 # Display the model using the ``Edb.nets.plot()`` method.
 
@@ -246,8 +197,8 @@ edb.nets.plot()
 
 # The EDB is complete. Now close the EDB and import it into HFSS as a "Layout Component".
 
-edb.save_edb()
-edb.close_edb()
+edb.save()
+edb.close()
 print("EDB saved correctly to {}. You can import in AEDT.".format(aedb_path))
 
 # ## Open the component in Electronics Desktop
@@ -290,9 +241,9 @@ component = h3d.modeler.insert_layout_component(aedb_path, parameter_mapping=Tru
 # If a layout component is parametric, you can expose and change parameters in HFSS
 
 # +
-component.parameters
 
-w1_name = "{}_{}".format("w1", h3d.modeler.user_defined_component_names[0])
+
+w1_name = f"w1_{h3d.modeler.user_defined_component_names[0]}"
 h3d[w1_name] = 0.0015
 # -
 
