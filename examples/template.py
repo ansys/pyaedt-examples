@@ -14,15 +14,11 @@
 #
 # ### Perform imports
 
+# +
 import tempfile
 import time
 
 import ansys.aedt.core  # Interface to Ansys Electronics Desktop
-
-# +
-# from pathlib import Path
-
-
 # -
 
 # ### Define constants
