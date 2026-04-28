@@ -9,18 +9,15 @@ from datetime import timedelta
 
 # --- Configuration ---
 AEDT_VERSION="2026.1"
+ROOT_DIR = Path(r"C:\Users\jvelasco\Documents\pyaedt-examples\examples")
+VENV_PYTHON = Path(r"C:\Users\jvelasco\Documents\pyaedt-examples\.venv\Scripts\python.exe")
+LOG_DIR = Path(r"C:\Users\jvelasco\AppData\Roaming\JetBrains\PyCharm2025.3\scratches\examples\logs")
 RUN_ONLY = {"resistance.py"}
-SKIP_FILES = {"template.py", "__init__.py", "index.rst"}
 
 # ----------- Do not edit under this line -------------
-ROOT_DIR = Path(__file__).parents[1]
-EXAMPLES_DIR = ROOT_DIR / "examples"
-VENV_PYTHON = ROOT_DIR / ".venv" / "Scripts" / "python.exe"
-LOG_DIR = Path(__file__).parent / "logs"
 LOG_FILE = LOG_DIR / f"failed_scripts_{AEDT_VERSION.replace('.','R')}.log"
 SUMMARY_FILE = LOG_DIR / f"test_summary_{AEDT_VERSION.replace('.','R')}.log"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
-TEST_DIR = Path(__file__).parent / "ref"
 
 # Select Python executable
 python_exe = str(VENV_PYTHON) if VENV_PYTHON.exists() else sys.executable
@@ -30,6 +27,9 @@ print(f"Using Python: {python_exe}")
 for f in [LOG_FILE, SUMMARY_FILE]:
     if f.exists():
         f.unlink()
+
+SKIP_FILES = {"template.py", "__init__.py", "index.rst"}
+TEST_DIR = Path(__file__).parent / "tests"
 
 
 def inject_test_code(script_content, script_name):
@@ -79,29 +79,34 @@ def patch_script_for_non_gui(script_content):
     # select EDB version
     patched = re.sub(r'edb_version\s*=\s*["\']?[\d.]+["\']?', f'edb_version="{AEDT_VERSION}"', patched)
 
-    # Avoid commenting out .plot(filepath) calls that save to files and anything that requires live plotting
-    patched = re.sub(r'^(\s*)((?!#).*\.(plot|show)\(\))', r'\1# \2  # (disabled for non-GUI)', patched, flags=re.MULTILINE)
-    patched = re.sub(r'^(\s*)((?!#).*\.animate\(\))', r'\1# \2  # (disabled for non-GUI)', patched, flags=re.MULTILINE)
+    # Comment out .plot() and .show() calls that have no arguments (GUI-only calls)
+    # Avoid commenting out .plot(filepath) calls that save to files
+    # patched = re.sub(r'^(\s*)((?!#).*\.(plot|show)\(\))', r'\1# \2  # (disabled for non-GUI)', patched, flags=re.MULTILINE)
 
     # Handles OLD_AEDT_VERSION = "2024.1" from component conversion example - Not instaleld in my machine
     patched = re.sub(r'OLD_AEDT_VERSION\s*=\s*"2024\.1"', 'OLD_AEDT_VERSION = "2024.2"', patched)
 
+    # Comment out pyvista animations
+    patched = re.sub(r'^(\s*)((?!#).*\.animate\(\))', r'\1# \2  # (disabled for non-GUI)', patched, flags=re.MULTILINE)
 
-    # Disable SSL verification to bypass corporate proxy/firewall issues
-    ssl_patch = (
-        "import ssl\n"
-        "ssl._create_default_https_context = ssl._create_unverified_context\n"
-        "import urllib3; urllib3.disable_warnings()\n"
-        "import os; os.environ['CURL_CA_BUNDLE']=''; os.environ['REQUESTS_CA_BUNDLE']='false'\n"
-        "os.environ['PYVISTA_OFF_SCREEN']='true'\n"
+    # Disable SSL verification in case of proxy/firewall issues
+    requests_patch = (
         "import requests\n"
         "requests.packages.urllib3.disable_warnings()\n"
         "_orig_request = requests.Session.request\n"
         "def _patched_request(self, *args, **kwargs): kwargs.setdefault('verify', False); return _orig_request(self, *args, **kwargs)\n"
         "requests.Session.request = _patched_request\n"
-        "import matplotlib; matplotlib.use('Agg')\n"
     )
-    patched = ssl_patch + patched
+
+    # Disable runtime plotting using matplotlib or pyvista
+    visualization_patch = (
+        "import matplotlib\n"
+        "matplotlib.use('Agg')\n"
+        "import os\n"
+        "os.environ['PYVISTA_OFF_SCREEN']='true'\n"
+    )
+
+    patched = visualization_patch + requests_patch + patched
 
     return patched
 
@@ -112,7 +117,7 @@ results = []
 overall_start = time.time()
 
 # Gather all .py files excluding skips
-scripts = [p for p in sorted(EXAMPLES_DIR.rglob("*.py")) if p.name not in SKIP_FILES]
+scripts = [p for p in sorted(ROOT_DIR.rglob("*.py")) if p.name not in SKIP_FILES]
 
 # Filter to run only specific scripts (comment out to run all)
 if RUN_ONLY:
