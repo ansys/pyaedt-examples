@@ -1,0 +1,9 @@
+# PyAEDT settings configuration for test environment
+# This file configures PyAEDT settings for all tests
+
+log:
+  enable_local_log_file: false
+  enable_global_log_file: false
+  enable_desktop_logs: false
+  enable_file_logs: false
+  enable_screen_logs: false

@@ -4,6 +4,10 @@
 # These owners will be the default owners for everything in
 # the repo. Unless a later match takes precedence,
 # Owners will be requested for review when someone opens a PR.
-* @SMoraisAnsys @maxcapodi78 @Samuelopez-ansys @gmalinve @Devin-Crawford
+* @SMoraisAnsys @maxcapodi78 @Samuelopez-ansys @gmalinve @Devin-Crawford @eblanco-ansys
 
-/examples/low_frequency/ @jvela018 @nunesanderson
+# Owners for low frequency examples
+/examples/low_frequency/ @jvela018 @nunesanderson @gmalinve
+
+# Owners for EMIT examples
+/examples/high_frequency/antenna/interferences/ @jsalant22 @myoung301 @mcoleman-ansys

@@ -153,10 +153,6 @@ setup1.props["Include Gravity"] = True
 setup1.props["Secondary Gradient"] = True
 setup1.props["Convergence Criteria - Max Iterations"] = 100
 
-# Check for intersections using validation and fix them by
-# assigning priorities.
-
-ipk.assign_priority_on_intersections()
 
 # ## Release AEDT
 

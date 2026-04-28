@@ -111,7 +111,7 @@ array_definition["Circ_Patch_5GHz1"] = os.path.join(path_to_3dcomp, "Circ_Patch_
 # into the dictionary from the path that you specify. The following
 # code edits the dictionary to point to the location of the ``A3DCOMP`` file.
 
-array = hfss.add_3d_component_array_from_json(array_definition, name="circ_patch_array")
+array = hfss.create_3d_component_array(array_definition, name="circ_patch_array")
 
 # ### Modify cells
 #

@@ -28,6 +28,7 @@ import tempfile
 import time
 
 import ansys.aedt.core
+
 # -
 
 # Define constants.
@@ -59,9 +60,7 @@ m2d = ansys.aedt.core.Maxwell2d(
 
 # ## Create rectangle and duplicate it
 
-rect1 = m2d.modeler.create_rectangle(
-    origin=[0, 0, 0], sizes=[10, 20], name="winding", material="copper"
-)
+rect1 = m2d.modeler.create_rectangle(origin=[0, 0, 0], sizes=[10, 20], name="winding", material="copper")
 duplicate = rect1.duplicate_along_line(vector=[14, 0, 0])
 rect2 = m2d.modeler[duplicate[0]]
 
@@ -75,9 +74,7 @@ region = m2d.modeler.create_region([100, 100, 100, 100])
 #
 # Assigns windings to the sheets and a balloon to the air region.
 
-m2d.assign_winding(
-    assignment=[rect1.name, rect2.name], current="1*sin(2*pi*50*Time)", name="PHA"
-)
+m2d.assign_winding(assignment=[rect1.name, rect2.name], current="1*sin(2*pi*50*Time)", name="PHA")
 m2d.assign_balloon(assignment=region.edges)
 
 # ## Create transient setup
@@ -131,16 +128,14 @@ gif.azimuth_angle = 0
 
 # Set off_screen to False to visualize the animation.
 # gif.off_screen = False
-gif.animate()
+gif.animate(show=False)
 # -
 
 # ## Generate plot outside of AEDT
 #
 # Generate the same plot outside AEDT.
 
-solutions = m2d.post.get_solution_data(
-    expressions="InputCurrent(PHA)", primary_sweep_variable="Time", domain="Sweep"
-)
+solutions = m2d.post.get_solution_data(expressions="InputCurrent(PHA)", primary_sweep_variable="Time", domain="Sweep")
 solutions.plot()
 
 # ## Release AEDT

@@ -16,7 +16,9 @@ import tempfile
 import time
 
 import ansys.aedt.core
+
 from ansys.aedt.core.emit_core.emit_constants import ResultType, TxRxMode
+from ansys.aedt.core.emit_core.nodes.generated import AntennaNode, RadioNode
 # -
 
 # Define constants.
@@ -39,9 +41,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # using the specified version. The second argument can be set to ``True`` to
 # run AEDT in non-graphical mode.
 
-project_name = ansys.aedt.core.generate_unique_project_name(
-    root_name=temp_folder.name, project_name="antenna_cosite"
-)
+project_name = ansys.aedt.core.generate_unique_project_name(root_name=temp_folder.name, project_name="antenna_cosite")
 d = ansys.aedt.core.launch_desktop(AEDT_VERSION, NG_MODE, new_desktop=True)
 aedtapp = ansys.aedt.core.Emit(project_name, version=AEDT_VERSION)
 
@@ -49,10 +49,10 @@ aedtapp = ansys.aedt.core.Emit(project_name, version=AEDT_VERSION)
 #
 # Create three radios and connect an antenna to each one.
 
-rad1 = aedtapp.modeler.components.create_component("New Radio")
-ant1 = aedtapp.modeler.components.create_component("Antenna")
+rad1: RadioNode = aedtapp.schematic.create_component("New Radio")
+ant1: AntennaNode = aedtapp.schematic.create_component("Antenna")
 if rad1 and ant1:
-    ant1.move_and_connect_to(rad1)
+    aedtapp.schematic.connect_components(rad1.name, ant1.name)
 
 # ## Place radio/antenna pair
 #
@@ -60,10 +60,8 @@ if rad1 and ant1:
 # argument is the type of radio. The second argument is the name to
 # assign to the radio.
 
-rad2, ant2 = aedtapp.modeler.components.create_radio_antenna("GPS Receiver")
-rad3, ant3 = aedtapp.modeler.components.create_radio_antenna(
-    "Bluetooth Low Energy (LE)", "Bluetooth"
-)
+rad2, ant2 = aedtapp.schematic.create_radio_antenna("GPS Receiver")
+rad3, ant3 = aedtapp.schematic.create_radio_antenna("Bluetooth Low Energy (LE)", "Bluetooth")
 
 # ## Define the RF environment
 #
@@ -83,8 +81,8 @@ rad3, ant3 = aedtapp.modeler.components.create_radio_antenna(
 #
 if AEDT_VERSION > "2023.1":
     rev = aedtapp.results.analyze()
-    rx_bands = rev.get_band_names(rad2.name, TxRxMode.RX)
-    tx_bands = rev.get_band_names(rad3.name, TxRxMode.TX)
+    rx_bands = rev.get_band_names(radio_name=rad2.name, tx_rx_mode=TxRxMode.RX)
+    tx_bands = rev.get_band_names(radio_name=rad3.name, tx_rx_mode=TxRxMode.TX)
     domain = aedtapp.results.interaction_domain()
     domain.set_receiver(rad2.name, rx_bands[0], -1)
     domain.set_interferer(rad3.name, tx_bands[0])

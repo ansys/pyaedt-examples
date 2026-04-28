@@ -70,7 +70,7 @@ This repository contains end-to-end embedding examples that demonstrate how to u
       :link-type: doc
 
       .. image:: examples/electrothermal/_static/icepak_logo.png
-         :alt: Icepak
+         :alt: icepak
          :width: 250px
          :height: 200px
          :align: center
@@ -89,6 +89,19 @@ This repository contains end-to-end embedding examples that demonstrate how to u
          :align: center
 
       Provides examples of some general AEDT pre-processing and post-processing capabilities.
+
+   .. grid-item-card:: PyEDB workflows examples
+      :padding: 2 2 2 2
+      :link: examples/edb/index
+      :link-type: doc
+
+      .. image:: examples/edb/_static/pyedb2.png
+         :alt: PyEDB2
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      PyEDB related examples to workflows and file management.
 
    .. toctree::
       :hidden:

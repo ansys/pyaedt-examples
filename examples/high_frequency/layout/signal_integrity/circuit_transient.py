@@ -15,6 +15,7 @@ import tempfile
 import time
 
 import ansys.aedt.core
+from ansys.aedt.core.generic.constants import LineStyle, TraceType, SymbolStyle
 import numpy as np
 from matplotlib import pyplot as plt
 # -
@@ -58,7 +59,7 @@ ibs = ibis.buffers["DQ_FULL_800"].insert(0, 0)
 #
 # Place an ideal transmission line in the schematic and parametrize it.
 
-tr1 = circuit.modeler.components.components_catalog["Ideal Distributed:TRLK_NX"].place(
+tr1 = circuit.modeler.schematic.components_catalog["Ideal Distributed:TRLK_NX"].place(
     "tr1"
 )
 tr1.parameters["P"] = "50mm"
@@ -67,8 +68,8 @@ tr1.parameters["P"] = "50mm"
 #
 # Create a resistor and ground in the schematic.
 
-res = circuit.modeler.components.create_resistor(name="R1", value="1Meg")
-gnd1 = circuit.modeler.components.create_gnd()
+res = circuit.modeler.schematic.create_resistor(name="R1", value="1Meg")
+gnd1 = circuit.modeler.schematic.create_gnd()
 
 # ## Connect componennts
 #
@@ -82,10 +83,10 @@ res.pins[1].connect_to_component(gnd1.pins[0])
 #
 # Place a voltage probe and rename it to ``Vout``.
 
-pr1 = circuit.modeler.components.components_catalog["Probes:VPROBE"].place("vout")
+pr1 = circuit.modeler.schematic.components_catalog["Probes:VPROBE"].place("vout")
 pr1.parameters["Name"] = "Vout"
 pr1.pins[0].connect_to_component(res.pins[0])
-pr2 = circuit.modeler.components.components_catalog["Probes:VPROBE"].place("Vin")
+pr2 = circuit.modeler.schematic.components_catalog["Probes:VPROBE"].place("Vin")
 pr2.parameters["Name"] = "Vin"
 pr2.pins[0].connect_to_component(ibs.pins[0])
 
@@ -123,17 +124,17 @@ if not NG_MODE:
     new_report.add_limit_line_from_points([60, 80], [1, 1], "ns", "V")
     vout = new_report.traces[0]
     vout.set_trace_properties(
-        style=vout.LINESTYLE.Dot,
+        style=LineStyle.Dot,
         width=2,
-        trace_type=vout.TRACETYPE.Continuous,
+        trace_type=TraceType.Continuous,
         color=(0, 0, 255),
     )
     vout.set_symbol_properties(
-        style=vout.SYMBOLSTYLE.Circle, fill=True, color=(255, 255, 0)
+        style=SymbolStyle.Circle, fill=True, color=(255, 255, 0)
     )
     ll = new_report.limit_lines[0]
     ll.set_line_properties(
-        style=ll.LINESTYLE.Solid,
+        style=LineStyle.Solid,
         width=4,
         hatch_above=True,
         violation_emphasis=True,
@@ -178,7 +179,7 @@ t = [
 ys = [
     [
         i / 1000
-        for i, j in zip(solutions.data_real(), solutions.intrinsics["Time"])
+        for i, j in zip(solutions.get_expression_data()[1], solutions.intrinsics["Time"])
         if k - 2 * unit_interval < j <= k
     ]
     for k in t_steps

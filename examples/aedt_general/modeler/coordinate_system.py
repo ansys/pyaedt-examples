@@ -13,6 +13,7 @@ import tempfile
 import time
 
 import ansys.aedt.core
+
 # -
 
 # Define constants.
@@ -31,9 +32,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ## Launch AEDT
 
-d = ansys.aedt.core.launch_desktop(
-    version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True
-)
+d = ansys.aedt.core.launch_desktop(version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True)
 
 # ## Insert HFSS design
 #
@@ -112,9 +111,7 @@ cs2 = hfss.modeler.create_coordinate_system(
 
 # A new coordinate system can also be created based on the Euler angle convention.
 
-cs3 = hfss.modeler.create_coordinate_system(
-    name="CS3", origin=[2, 2, 2], mode="zyz", phi=10, theta=20, psi=30
-)
+cs3 = hfss.modeler.create_coordinate_system(name="CS3", origin=[2, 2, 2], mode="zyz", phi=10, theta=20, psi=30)
 
 # Create a coordinate system that is defined by standard views in the modeler. The options are:
 #
@@ -125,9 +122,7 @@ cs3 = hfss.modeler.create_coordinate_system(
 #
 # Here ``"iso"`` is specified. The axes are set automatically.
 
-cs4 = hfss.modeler.create_coordinate_system(
-    name="CS4", origin=[1, 0, 0], reference_cs="CS3", mode="view", view="iso"
-)
+cs4 = hfss.modeler.create_coordinate_system(name="CS4", origin=[1, 0, 0], reference_cs="CS3", mode="view", view="iso")
 
 # ## Create coordinate system by defining axis and angle rotation
 #
@@ -135,9 +130,7 @@ cs4 = hfss.modeler.create_coordinate_system(
 # specify the axis and angle rotation, this data is automatically translated
 # to Euler angles.
 
-cs5 = hfss.modeler.create_coordinate_system(
-    name="CS5", mode="axisrotation", u=[1, 0, 0], theta=123
-)
+cs5 = hfss.modeler.create_coordinate_system(name="CS5", mode="axisrotation", u=[1, 0, 0], theta=123)
 
 # Face coordinate systems are bound to an object face.
 # First create a box and then define the face coordinate system on one of its
@@ -146,23 +139,17 @@ cs5 = hfss.modeler.create_coordinate_system(
 
 box = hfss.modeler.create_box([0, 0, 0], [2, 2, 2])
 face = box.faces[0]
-fcs1 = hfss.modeler.create_face_coordinate_system(
-    face=face, origin=face.edges[0], axis_position=face.edges[1], name="FCS1"
-)
+fcs1 = hfss.modeler.create_face_coordinate_system(face=face, origin=face.edges[0], axis_position=face.edges[1], name="FCS1")
 
 # Create a face coordinate system centered on the face with the X axis pointing
 # to the edge vertex.
 
-fcs2 = hfss.modeler.create_face_coordinate_system(
-    face=face, origin=face, axis_position=face.edges[0].vertices[0], name="FCS2"
-)
+fcs2 = hfss.modeler.create_face_coordinate_system(face=face, origin=face, axis_position=face.edges[0].vertices[0], name="FCS2")
 
 # Swap the X axis and Y axis of the face coordinate system. The X axis is the
 # pointing ``axis_position`` by default. You can optionally select the Y axis.
 
-fcs3 = hfss.modeler.create_face_coordinate_system(
-    face=face, origin=face, axis_position=face.edges[0], axis="Y"
-)
+fcs3 = hfss.modeler.create_face_coordinate_system(face=face, origin=face, axis_position=face.edges[0], axis="Y")
 
 # The face coordinate system can also be rotated by changing the
 # reference axis.
@@ -176,9 +163,7 @@ fcs3.props["WhichAxis"] = "X"
 # is always orthogonal to the face. A rotation can be applied at definition.
 # Rotation is expressed in degrees.
 
-fcs4 = hfss.modeler.create_face_coordinate_system(
-    face=face, origin=face, axis_position=face.edges[1], rotation=10.3
-)
+fcs4 = hfss.modeler.create_face_coordinate_system(face=face, origin=face, axis_position=face.edges[1], rotation=10.3)
 
 # Rotation can also be changed after coordinate system creation.
 
@@ -189,9 +174,7 @@ fcs4.props["ZRotationAngle"] = "3deg"
 # Apply an offset to the X axis and Y axis of a face coordinate system.
 # The offset is in respect to the face coordinate system itself.
 
-fcs5 = hfss.modeler.create_face_coordinate_system(
-    face=face, origin=face, axis_position=face.edges[2], offset=[0.5, 0.3]
-)
+fcs5 = hfss.modeler.create_face_coordinate_system(face=face, origin=face, axis_position=face.edges[2], offset=[0.5, 0.3])
 
 # The offset can be changed after the coordinate system has been created.
 
@@ -204,12 +187,8 @@ fcs5.props["YOffset"] = "0.1mm"
 # cell shows how to create a coordinate system whose reference is the face coordinate system.
 
 face = box.faces[1]
-fcs6 = hfss.modeler.create_face_coordinate_system(
-    face=face, origin=face, axis_position=face.edges[0]
-)
-cs_fcs = hfss.modeler.create_coordinate_system(
-    name="CS_FCS", origin=[0, 0, 0], reference_cs=fcs6.name, mode="view", view="iso"
-)
+fcs6 = hfss.modeler.create_face_coordinate_system(face=face, origin=face, axis_position=face.edges[0])
+cs_fcs = hfss.modeler.create_coordinate_system(name="CS_FCS", origin=[0, 0, 0], reference_cs=fcs6.name, mode="view", view="iso")
 
 # ### Create object coordinate systems
 #
@@ -252,7 +231,7 @@ obj_cs_2.delete()
 # Create an object coordinate system with an origin on the vertex.
 
 obj_cs_3 = hfss.modeler.create_object_coordinate_system(
-    obj=box.name,
+    assignment=box.name,
     origin=box.vertices[1],
     x_axis=box.faces[2],
     y_axis=box.faces[4],
