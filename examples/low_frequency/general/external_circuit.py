@@ -12,11 +12,12 @@ import tempfile
 import time
 
 import ansys.aedt.core
+
 # -
 
 # Define constants.
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION = "2026.1"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
@@ -74,21 +75,13 @@ for k, v in transient_parameters.items():
 #
 # Create copper coils and a vacuum region. Assign mesh operations, and then assign a balloon boundary to the region edges.
 
-coil1_id = m2d.modeler.create_circle(
-    orientation="Z", origin=[0, 0, 0], radius=10, name="coil1", material="copper"
-)
-coil2_id = m2d.modeler.create_circle(
-    orientation="Z", origin=[25, 0, 0], radius=10, name="coil2", material="copper"
-)
-coil3_id = m2d.modeler.create_circle(
-    orientation="Z", origin=[50, 0, 0], radius=10, name="coil3", material="copper"
-)
+coil1_id = m2d.modeler.create_circle(orientation="Z", origin=[0, 0, 0], radius=10, name="coil1", material="copper")
+coil2_id = m2d.modeler.create_circle(orientation="Z", origin=[25, 0, 0], radius=10, name="coil2", material="copper")
+coil3_id = m2d.modeler.create_circle(orientation="Z", origin=[50, 0, 0], radius=10, name="coil3", material="copper")
 
 region = m2d.modeler.create_region(pad_value=[200, 400, 200, 400])
 
-m2d.mesh.assign_length_mesh(
-    assignment=[coil1_id, coil2_id, coil3_id, region], maximum_length=5
-)
+m2d.mesh.assign_length_mesh(assignment=[coil1_id, coil2_id, coil3_id, region], maximum_length=5)
 
 m2d.assign_vector_potential(assignment=region.edges, vector_value=0)
 
@@ -139,11 +132,7 @@ circuit = m2d.create_external_circuit(circuit_design=circuit_name)
 for k, v in circuit_parameters.items():
     circuit[k] = v
 
-windings = [
-    circuit.modeler.schematic.components[k]
-    for k in list(circuit.modeler.schematic.components.keys())
-    if circuit.modeler.schematic.components[k].parameters["Info"] == "Winding"
-]
+windings = [circuit.modeler.schematic.components[k] for k in list(circuit.modeler.schematic.components.keys()) if circuit.modeler.schematic.components[k].parameters["Info"] == "Winding"]
 
 # ## Finalize external circuit
 #
@@ -156,9 +145,7 @@ v_sources = []
 ground = []
 
 for i in range(len(windings)):
-    r = circuit.modeler.schematic.create_resistor(
-        name="R" + str(i + 1), value="resistance_value", location=[1000, i * 1000]
-    )
+    r = circuit.modeler.schematic.create_resistor(name="R" + str(i + 1), value="resistance_value", location=[1000, i * 1000])
     resistors.append(r)
 
     v = circuit.modeler.schematic.create_component(
@@ -223,9 +210,7 @@ circuit.modeler.schematic.create_wire(
 netlist_file = os.path.join(temp_folder.name, "_netlist.sph")
 circuit.export_netlist_from_schematic(netlist_file)
 
-m2d.edit_external_circuit(
-    netlist_file_path=netlist_file, schematic_design_name=circuit_name
-)
+m2d.edit_external_circuit(netlist_file_path=netlist_file, schematic_design_name=circuit_name)
 
 # ## Analyze setup
 #

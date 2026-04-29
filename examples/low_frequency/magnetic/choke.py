@@ -25,7 +25,7 @@ from ansys.aedt.core.modules.boundary.maxwell_boundary import (
 # ### Define constants.
 # Constants help ensure consistency and avoid repetition throughout the example.
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION = "2026.1"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 

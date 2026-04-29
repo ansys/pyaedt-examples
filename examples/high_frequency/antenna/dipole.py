@@ -17,12 +17,13 @@ import tempfile
 import time
 
 from ansys.aedt.core import Hfss
+
 # -
 
 # ### Define constants
 # Constants help ensure consistency and avoid repetition throughout the example.
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION = "2026.1"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
@@ -45,12 +46,13 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # create and simulate the dipole antenna.
 
 project_name = os.path.join(temp_folder.name, "dipole.aedt")
-hfss = Hfss(version=AEDT_VERSION,
-            non_graphical=NG_MODE,
-            project=project_name,
-            new_desktop=True,
-            solution_type="Modal",
-            )
+hfss = Hfss(
+    version=AEDT_VERSION,
+    non_graphical=NG_MODE,
+    project=project_name,
+    new_desktop=True,
+    solution_type="Modal",
+)
 
 # ## Model Preparation
 #
@@ -66,8 +68,8 @@ hfss = Hfss(version=AEDT_VERSION,
 
 hfss["l_dipole"] = "10.2cm"
 component_name = "Dipole_Antenna_DM"
-freq_range = ["1GHz", "2GHz"]      # Frequency range for analysis and post-processing.
-center_freq = "1.5GHz"             # Center frequency
+freq_range = ["1GHz", "2GHz"]  # Frequency range for analysis and post-processing.
+center_freq = "1.5GHz"  # Center frequency
 freq_step = "0.5GHz"
 
 
@@ -88,9 +90,9 @@ freq_step = "0.5GHz"
 #     dipole length, ``"l_dipole"`` to the 3D Component
 #     parameter ``dipole_length`` and leave other parameters unchanged.
 
-component_fn = hfss.components3d[component_name]          # Full file name.
+component_fn = hfss.components3d[component_name]  # Full file name.
 comp_params = hfss.get_component_variables(component_name)  # Retrieve dipole parameters.
-comp_params["dipole_length"] = "l_dipole"                 # Update the dipole length.
+comp_params["dipole_length"] = "l_dipole"  # Update the dipole length.
 hfss.modeler.insert_3d_component(component_fn, geometry_parameters=comp_params)
 
 # ### Create the 3D domain region
@@ -125,13 +127,9 @@ hfss.create_open_region(frequency=center_freq)
 # +
 setup = hfss.create_setup(name="MySetup", MultipleAdaptiveFreqsSetup=freq_range, MaximumPasses=2)
 
-disc_sweep = setup.add_sweep(name="DiscreteSweep", sweep_type="Discrete",
-                             RangeStart=freq_range[0], RangeEnd=freq_range[1], RangeStep=freq_step,
-                             SaveFields=True)
+disc_sweep = setup.add_sweep(name="DiscreteSweep", sweep_type="Discrete", RangeStart=freq_range[0], RangeEnd=freq_range[1], RangeStep=freq_step, SaveFields=True)
 
-interp_sweep = setup.add_sweep(name="InterpolatingSweep", sweep_type="Interpolating",
-                               RangeStart=freq_range[0], RangeEnd=freq_range[1],
-                               SaveFields=False)
+interp_sweep = setup.add_sweep(name="InterpolatingSweep", sweep_type="Interpolating", RangeStart=freq_range[0], RangeEnd=freq_range[1], SaveFields=False)
 # -
 
 # ### Run simulation
@@ -165,15 +163,16 @@ variations = hfss.available_variations.nominal_values
 variations["Freq"] = [center_freq]
 variations["Theta"] = ["All"]
 variations["Phi"] = ["All"]
-elevation_ffd_plot = hfss.post.create_report(expressions="db(GainTheta)",
-                                             setup_sweep_name=disc_sweep.name,
-                                             variations=variations,
-                                             primary_sweep_variable="Theta",
-                                             context="Elevation",           # Far-field setup is pre-defined.
-                                             report_category="Far Fields",
-                                             plot_type="Radiation Pattern",
-                                             plot_name="Elevation Gain (dB)"
-                                            )
+elevation_ffd_plot = hfss.post.create_report(
+    expressions="db(GainTheta)",
+    setup_sweep_name=disc_sweep.name,
+    variations=variations,
+    primary_sweep_variable="Theta",
+    context="Elevation",  # Far-field setup is pre-defined.
+    report_category="Far Fields",
+    plot_type="Radiation Pattern",
+    plot_name="Elevation Gain (dB)",
+)
 elevation_ffd_plot.children["Legend"].properties["Show Trace Name"] = False
 elevation_ffd_plot.children["Legend"].properties["Show Solution Name"] = False
 
@@ -192,10 +191,12 @@ elevation_ffd_plot.children["Legend"].properties["Show Solution Name"] = False
 # <img src="_static/sphere_3d.png" width="550">
 
 # +
-report_3d = hfss.post.reports_by_category.far_field("db(RealizedGainTheta)",
-                                                      disc_sweep.name,
-                                                      sphere_name="3D",
-                                                      Freq= [center_freq],)
+report_3d = hfss.post.reports_by_category.far_field(
+    "db(RealizedGainTheta)",
+    disc_sweep.name,
+    sphere_name="3D",
+    Freq=[center_freq],
+)
 
 report_3d.report_type = "3D Polar Plot"
 report_3d.create(name="Realized Gain (dB)")
@@ -203,7 +204,7 @@ report_3d.create(name="Realized Gain (dB)")
 
 # ### Retrieve solution data for post-processing in Python
 #
-# An instance of the ``SolutionData`` class can be created from the report by calling ``get_solution_data()``. 
+# An instance of the ``SolutionData`` class can be created from the report by calling ``get_solution_data()``.
 # This class provides access to data for further post-processing using
 # [Matplotlib](https://matplotlib.org/).
 
@@ -218,11 +219,13 @@ new_plot = report_3d_data.plot_3d()
 
 # +
 xpol_expressions = ["db(RealizedGainTheta)", "db(RealizedGainPhi)"]
-xpol = hfss.post.reports_by_category.far_field(["db(RealizedGainTheta)", "db(RealizedGainPhi)"],
-                                                disc_sweep.name,
-                                                name="Cross Polarization",
-                                                sphere_name="Azimuth",
-                                                Freq= [center_freq],)
+xpol = hfss.post.reports_by_category.far_field(
+    ["db(RealizedGainTheta)", "db(RealizedGainPhi)"],
+    disc_sweep.name,
+    name="Cross Polarization",
+    sphere_name="Azimuth",
+    Freq=[center_freq],
+)
 
 xpol.report_type = "Radiation Pattern"
 xpol.create(name="xpol")

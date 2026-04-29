@@ -5,20 +5,6 @@ These examples use PyAEDT to show power integrity examples.
 
 .. grid:: 2
 
-   .. grid-item-card:: Power integrity analysis
-      :padding: 2 2 2 2
-      :link: power_integrity
-      :link-type: doc
-
-      .. image:: _static/power_integrity.png
-         :alt: Power integrity
-         :width: 250px
-         :height: 200px
-         :align: center
-
-      This example shows how to use the Ansys Electronics Database (EDB) for power integrity analysis.
-
-
    .. grid-item-card:: Via Array
       :padding: 2 2 2 2
       :link: ../../../edb/legacy_standalone/differential_vias
@@ -31,20 +17,6 @@ These examples use PyAEDT to show power integrity examples.
          :align: center
 
       This example shows how you can use EDB to create a layout.
-
-   .. grid-item-card:: SIwave DC IR analysis (HFSS 3D Layout)
-      :padding: 2 2 2 2
-      :link: dcir_hfss
-      :link-type: doc
-
-      .. image:: _static/dcir_hfss.png
-         :alt: DCIR
-         :width: 250px
-         :height: 200px
-         :align: center
-
-      This example shows how to configure EDB for DC IR analysis and load EDB into the HFSS 3D Layout UI for analysis
-      and postprocessing.
 
    .. grid-item-card:: Q3D DCIR analysis
       :padding: 2 2 2 2

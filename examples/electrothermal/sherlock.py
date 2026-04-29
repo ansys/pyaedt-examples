@@ -16,11 +16,12 @@ import time
 
 import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_sherlock
+
 # -
 
 # Define constants
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION = "2026.1"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
@@ -53,9 +54,7 @@ project_name = os.path.join(temp_folder.name, component_step[:-3] + "aedt")
 
 # ## Create Icepak model
 
-ipk = ansys.aedt.core.Icepak(
-    project=project_name, version=AEDT_VERSION, non_graphical=NG_MODE
-)
+ipk = ansys.aedt.core.Icepak(project=project_name, version=AEDT_VERSION, non_graphical=NG_MODE)
 
 # Disable autosave to speed up the import.
 
@@ -64,9 +63,7 @@ ipk.autosave_disable()
 # Import a PCB from an AEDB file.
 
 odb_path = os.path.join(input_dir, aedt_odb_project)
-ipk.create_pcb_from_3dlayout(
-    component_name="Board", project_name=odb_path, design_name=aedt_odb_design_name
-)
+ipk.create_pcb_from_3dlayout(component_name="Board", project_name=odb_path, design_name=aedt_odb_design_name)
 
 # Create an offset coordinate system to match ODB++ with the Sherlock STEP file.
 # The thickness is computed from the ``"Board"`` component. (``"Board1"`` is the
@@ -74,9 +71,7 @@ ipk.create_pcb_from_3dlayout(
 
 bb = ipk.modeler.user_defined_components["Board1"].bounding_box
 stackup_thickness = bb[-1] - bb[2]
-ipk.modeler.create_coordinate_system(
-    origin=[0, 0, stackup_thickness / 2], mode="view", view="XY"
-)
+ipk.modeler.create_coordinate_system(origin=[0, 0, stackup_thickness / 2], mode="view", view="XY")
 
 # Import the board components from an MCAD file and remove the PCB object as it is already
 # imported with the ECAD.
@@ -92,9 +87,7 @@ ipk.mesh.global_mesh_region.global_region.padding_values = [20, 20, 20, 20, 300,
 #
 # Use the Sherlock file to assign materials.
 
-ipk.assignmaterial_from_sherlock_files(
-    component_file=component_list, material_file=material_list
-)
+ipk.assignmaterial_from_sherlock_files(component_file=component_list, material_file=material_list)
 
 # Delete objects with no material assignments.
 
@@ -128,9 +121,7 @@ ipk.globalMeshSettings(
 # ### Add postprocessing object
 # Create the point monitor.
 
-point1 = ipk.monitor.assign_point_monitor(
-    point_position=ipk.modeler["COMP_U10"].top_face_z.center, monitor_name="Point1"
-)
+point1 = ipk.monitor.assign_point_monitor(point_position=ipk.modeler["COMP_U10"].top_face_z.center, monitor_name="Point1")
 
 # Create a line for reporting after the simulation.
 

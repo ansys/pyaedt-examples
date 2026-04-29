@@ -18,33 +18,6 @@ These examples use PyAEDT to show signal integrity examples.
 
       This example shows how to use PyAEDT for COM analysis.
 
-   .. grid-item-card:: Pre-layout signal integrity
-      :padding: 2 2 2 2
-      :link: pre_layout
-      :link-type: doc
-
-      .. image:: _static/pre_layout_sma_connector_on_pcb.png
-         :alt: Pre layout connector
-         :width: 250px
-         :height: 200px
-         :align: center
-
-      This example shows how to create a parameterized layout design and load the layout into HFSS 3D Layout
-      for analysis and postprocessing.
-
-   .. grid-item-card:: Pre-layout Parameterized PCB
-      :padding: 2 2 2 2
-      :link: pre_layout_parametrized
-      :link-type: doc
-
-      .. image:: _static/pre_layout_parameterized_pcb.png
-         :alt: Pre layout parametrized
-         :width: 250px
-         :height: 200px
-         :align: center
-
-      This example shows how to use the EDB interface along with HFSS 3D Layout to create and solve a parameterized layout.
-
    .. grid-item-card:: AMI Postprocessing
       :padding: 2 2 2 2
       :link: ami

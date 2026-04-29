@@ -23,7 +23,7 @@ from ansys.aedt.core.generic.constants import Axis, Plane
 
 # Define constants.
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION = "2026.1"
 NUM_CORES = 4
 NG_MODE = False
 
@@ -58,11 +58,7 @@ output_q3d = os.path.join(temp_folder.name, project_name + "_q3d.aedt")
 edb = pyedb.Edb(edbpath=aedb_project, version=AEDT_VERSION)
 signal_nets = ["1.2V_AVDLL_PLL", "1.2V_AVDDL", "1.2V_DVDDL", "NetR106_1"]
 ground_nets = ["GND"]
-cutout_points = edb.cutout(
-    signal_list=signal_nets,
-    reference_list=ground_nets,
-    output_aedb_path=output_edb,
-)
+cutout_points = edb.cutout(signal_nets=signal_nets, reference_nets=ground_nets, output_aedb_path=output_edb)
 
 # ## Identify pin positions
 #
@@ -112,8 +108,8 @@ location_r106_1.append(edb.components["R106"].upper_elevation * 1000)
 # Save and close EDB. Then, open EDT in HFSS 3D Layout to generate the 3D model.
 
 # +
-edb.save_edb()
-edb.close_edb()
+edb.save()
+edb.close()
 time.sleep(3)
 
 h3d = ansys.aedt.core.Hfss3dLayout(output_edb, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True)
@@ -239,72 +235,6 @@ q3d.save_project()
 # Use PyAEDT advanced fields calculator to add from the expressions catalog the voltage drop.
 
 voltage_drop = q3d.post.fields_calculator.add_expression("voltage_drop", None)
-
-# ## Following post-processing workflow is not supported in 2025R1
-
-# ## Create Phi plot
-#
-# Compute ACL solutions and plot them. This report does not work in 2025R1.
-
-# ## Analyze project
-
-# setup.analyze(cores=NUM_CORES)
-
-# +
-# plot1 = q3d.post.create_fieldplot_surface(
-#     q3d.modeler.get_objects_by_material("copper"),
-#     quantity=voltage_drop,
-#     intrinsics={"Freq": "1GHz"},
-# )
-#
-# q3d.post.plot_field_from_fieldplot(
-#     plot1.name,
-#     project_path=temp_folder.name,
-#     mesh_plot=False,
-#     image_format="jpg",
-#     view="isometric",
-#     show=False,
-#     plot_cad_objs=False,
-#     log_scale=False,
-# )
-# # -
-
-
-# ## Compute voltage on source circles
-#
-# Use PyAEDT advanced field calculator to compute the voltage on source circles and get the value
-# using the ``get_solution_data()`` method.
-
-# +
-# v_surface = {
-#     "name": "",
-#     "description": "Maximum value of voltage on a surface",
-#     "design_type": ["Q3D Extractor"],
-#     "fields_type": ["DC R/L Fields"],
-#     "primary_sweep": "Freq",
-#     "assignment": "",
-#     "assignment_type": ["Face", "Sheet"],
-#     "operations": [
-#         f"NameOfExpression({voltage_drop})",
-#         "EnterSurface('assignment')",
-#         "Operation('SurfaceValue')",
-#         "Operation('Maximum')",
-#     ],
-#     "report": ["Field_3D"],
-# }
-# for source_circle, source_bound in zip(sources_objs, sources_bounds):
-#     v_surface["name"] = "V{}".format(source_bound.name)
-#     q3d.post.fields_calculator.add_expression(v_surface, source_circle.name)
-#
-#     data = q3d.post.get_solution_data(
-#         "V{}".format(source_bound.name),
-#         q3d.nominal_adaptive,
-#         variations={"Freq": "1GHz"},
-#         report_category="DC R/L Fields",
-#     )
-#     if data:
-#         print(data.get_expression_data("V{}".format(source_bound.name))[1])
-# -
 
 # ## Release AEDT
 
