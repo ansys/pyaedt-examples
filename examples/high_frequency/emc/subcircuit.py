@@ -16,11 +16,12 @@ import tempfile
 import time
 
 import ansys.aedt.core
+
 # -
 
 # Define constants.
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION = "2026.1"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
@@ -69,9 +70,7 @@ r1 = circuit.modeler.schematic.create_resistor(value="R_val")
 l1 = circuit.modeler.schematic.create_inductor(value="L_val")
 c1 = circuit.modeler.schematic.create_capacitor(value="C_val")
 p2 = circuit.modeler.schematic.create_interface_port(name="Out")
-circuit.modeler.schematic.connect_components_in_series(
-    assignment=[p1, r1, l1, c1, p2], use_wire=True
-)
+circuit.modeler.schematic.connect_components_in_series(assignment=[p1, r1, l1, c1, p2], use_wire=True)
 circuit.pop_up()
 
 # ## Release AEDT

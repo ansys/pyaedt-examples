@@ -25,7 +25,7 @@ from pyedb import Edb
 
 # Define constants.
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION = "2026.1"
 
 # Download the example PCB data.
 

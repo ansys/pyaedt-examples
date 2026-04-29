@@ -1,7 +1,7 @@
-# # EDB: Layout Components
+# # Create a 5G Antenna Layout Component
 #
-# This example shows how you can use EDB to create a parametric component using
-# 3D Layout and use it in HFSS 3D.
+# This example uses PyEDB to create a microstrip antenna array in EDB and then
+# imports it into HFSS as a 3D layout component.
 
 # ## Prerequisites
 #
@@ -14,37 +14,36 @@ import time
 
 import ansys.aedt.core
 import pyedb
+
 # -
 
 # ### Define constants
-# Constants help ensure consistency and avoid repetition throughout the example.
+# These constants keep the example configuration in one place.
 
-AEDT_VERSION = "2025.2"
-NG_MODE = False  # Open AEDT UI when it is launched.
+AEDT_VERSION = "2026.1"
+NG_MODE = False  # Set to ``True`` to run AEDT without the user interface.
 
-# ### Create temporary directory
+# ### Create a temporary directory
 #
-# Create a temporary working directory.
-# The name of the working folder is stored in ``temp_folder.name``.
+# Create a temporary working directory. The generated project files are stored in
+# ``temp_folder.name``.
 #
-# > **Note:** The final cell in the notebook cleans up the temporary folder. If you want to
-# > retrieve the AEDT project and data, do so before executing the final cell in the notebook.
+# > **Note:** The final section removes the temporary folder. If you want to keep
+# > the AEDT project or intermediate data, copy them before running the cleanup step.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 
-# ## Model Preparation
+# ## Build the EDB model
 #
-# ### Create primitive data classes to simplify geometry creation
+# ### Create helper classes for the geometry
 #
-# The ``Line``, ``Patch`` and ``Array`` classes wrap geometry
-# operations and properties into simple Python classes that help 
-# simplify the creation of the microstrip
-# array with the ``pyedb.Edb`` class. 
+# The ``Patch``, ``Line``, and ``LinearArray`` classes make it easier to define
+# the array geometry before passing the polygon points to ``pyedb.Edb``.
 
 # +
 class Patch:
-    def __init__(self, width=0.0, height=0.0, position=0.0):
+    def __init__(self, width: float = 0.0, height: float = 0.0, position: float = 0.0):
         self.width = width
         self.height = height
         self.position = position
@@ -52,10 +51,10 @@ class Patch:
     @property
     def points(self):
         return [
-            [self.position, "-{}/2".format(self.height)],
-            ["{} + {}".format(self.position, self.width), "-{}/2".format(self.height)],
-            ["{} + {}".format(self.position, self.width), "{}/2".format(self.height)],
-            [self.position, "{}/2".format(self.height)],
+            [self.position, -self.height / 2],
+            [self.position + self.width, -self.height / 2],
+            [self.position + self.width, self.height / 2],
+            [self.position, self.height / 2],
         ]
 
 
@@ -68,10 +67,10 @@ class Line:
     @property
     def points(self):
         return [
-            [self.position, "-{}/2".format(self.width)],
-            ["{} + {}".format(self.position, self.length), "-{}/2".format(self.width)],
-            ["{} + {}".format(self.position, self.length), "{}/2".format(self.width)],
-            [self.position, "{}/2".format(self.width)],
+            [self.position, -self.width / 2],
+            [self.position + self.length, -self.width / 2],
+            [self.position + self.length, self.width / 2],
+            [self.position, self.width / 2],
         ]
 
 
@@ -84,10 +83,10 @@ class LinearArray:
     @property
     def points(self):
         return [
-            [-1e-3, "-{}/2-1e-3".format(self.width)],
-            ["{}+1e-3".format(self.length), "-{}/2-1e-3".format(self.width)],
-            ["{}+1e-3".format(self.length), "{}/2+1e-3".format(self.width)],
-            [-1e-3, "{}/2+1e-3".format(self.width)],
+            [-1e-3, -self.width / 2 - 1e-3],
+            [self.length + 1e-3, -self.width / 2 - 1e-3],
+            [self.length + 1e-3, self.width / 2 + 1e-3],
+            [-1e-3, self.width / 2 + 1e-3],
         ]
 
 
@@ -95,168 +94,121 @@ class LinearArray:
 
 # ### Launch EDB
 #
-# The ``pyedb.Edb`` class can be used open an existing Edb instance or instantiate
-# a new EDB project.
+# Use ``pyedb.Edb`` to create a new EDB project.
 
 # +
 aedb_path = os.path.join(temp_folder.name, "linear_array.aedb")
 
-# Create an instance of the Edb class.
+# Create the EDB database.
 edb = pyedb.Edb(edbpath=aedb_path, version=AEDT_VERSION)
 # -
 
-# ### Build the stackup
+# ### Define the stackup
+#
+# Add a custom high-conductivity copper material and then build the layer stack
+# from top to bottom using the ``pyedb.Edb.stackup`` API.
+
+edb.materials.add_conductor_material(name="copper_high_cond", conductivity=60000000)
+edb.materials.add_dielectric_material(name="Duroid (tm)", permittivity=2.2, dielectric_loss_tangent=0.0009)
+
+edb.stackup.add_layer_top(name="TOP",
+                          layer_type="signal",
+                          thickness="35um",
+                          material="copper_high_cond")
+edb.stackup.add_layer_below(name="Substrat",
+                            base_layer_name="TOP",
+                            layer_type="dielectric",
+                            thickness="0.5mm",
+                            material="Duroid (tm)")
+edb.stackup.add_layer_below(name="GND",
+                            base_layer_name="Substrat",
+                            layer_type="signal",
+                            thickness="35um",
+                            material="copper")
+
+# ### Create the first patch and feed line
+#
+# Use the ``Patch`` and ``Line`` helpers to define the first radiating element and
+# its feed line.
+#
+# <img src="_static/5G_antenna_parametrics/array_params.svg" width="600">
+#
+# Define the geometry dimensions:
 
 # +
-layers = {
-    "materials": {"copper_high_cond": {"conductivity": 60000000}},
-    "layers": {
-        "TOP": {"type": "signal", "thickness": "35um", "material": "copper_high_cond"},
-        "Substrat": {"type": "dielectric", "thickness": "0.5mm", "material": "Duroid (tm)"},
-        "GND": {"type": "signal", "thickness": "35um", "material": "copper"},
-        "Gap": {"type": "dielectric", "thickness": "0.05mm", "material": "Air"},
-        "Virt_GND": {"type": "signal", "thickness": "35um", "material": "copper"},
-    },
-}
+w1 = 1.4e-3
+h1 = 1.2e-3
+initial_position = 0.0
+l1 = 2.4e-3
+trace_w = 0.3e-3
 
-edb.stackup.load(layers)
+first_patch = Patch(width=w1, height=h1, position=initial_position)
+edb.modeler.create_polygon(first_patch.points, layer_name="TOP", net_name="Array_antenna")
+first_line = Line(length=l1, width=trace_w, position=first_patch.width)
+edb.modeler.create_polygon(first_line.points, layer_name="TOP", net_name="Array_antenna")
 # -
 
-# ### Create a patch antenna and feed line
-#
-# Instances of the ``Patch`` and ``Line``classes are used to define the geometry. These 
-# classes provide for parameterization of the array layout.
-#
-# <img src="_static\5G_antenna_parametrics\array_params.svg" width="600">
-#
-# Define parameters:
+# Use the ``LinearArray`` helper to generate the remaining antenna elements.
 
 # +
-edb["w1"] = 1.4e-3
-edb["h1"] = 1.2e-3
-edb["initial_position"] = 0.0
-edb["l1"] = 2.4e-3
-edb["trace_w"] = 0.3e-3
+w2 = 2.29e-3
+h2 = 3.3e-3
+l2 = 1.9e-3
+trace_w2 = 0.2e-3
+rf_pin_location = [first_patch.width / 4.0, 0]
 
-first_patch = Patch(width="w1", height="h1", position="initial_position")
-edb.modeler.create_polygon(first_patch.points, "TOP", net_name="Array_antenna")
-first_line = Line(length="l1", width="trace_w", position=first_patch.width)
-edb.modeler.create_polygon(first_line.points, "TOP", net_name="Array_antenna")
-# -
-
-# Now use the ``LinearArray`` class to create the array.
-
-# +
-edb["w2"] = 2.29e-3
-edb["h2"] = 3.3e-3
-edb["l2"] = 1.9e-3
-edb["trace_w2"] = 0.2e-3
-
-patch = Patch(width="w2", height="h2")
-line = Line(length="l2", width="trace_w2")
+patch = Patch(width=w2, height=h2)
+line = Line(length=l2, width=trace_w2)
 linear_array = LinearArray(nb_patch=8, array_width=patch.height)
 
 current_patch = 1
-current_position = "{} + {}".format(first_line.position, first_line.length)
+current_position = first_line.position + first_line.length
 
 while current_patch <= linear_array.nbpatch:
     patch.position = current_position
-    edb.modeler.create_polygon(patch.points, "TOP", net_name="Array_antenna")
-    current_position = "{} + {}".format(current_position, patch.width)
+    edb.modeler.create_polygon(patch.points, layer_name="TOP", net_name="Array_antenna")
+    current_position = current_position + patch.width
     if current_patch < linear_array.nbpatch:
         line.position = current_position
-        edb.modeler.create_polygon(line.points, "TOP", net_name="Array_antenna")
-        current_position = "{} + {}".format(current_position, line.length)
+        edb.modeler.create_polygon(line.points, layer_name="TOP", net_name="Array_antenna")
+        current_position = current_position + line.length
     current_patch += 1
 
 linear_array.length = current_position
 # -
 
-# Add the ground conductor.
+# Add the ground reference conductor.
+edb.modeler.create_polygon(linear_array.points, layer_name="GND", net_name="GND")
 
-edb.modeler.create_polygon(linear_array.points, "GND", net_name="GND")
-
-# Add the connector pin to use to assign the port.
-
-edb.padstacks.create(padstackname="Connector_pin", holediam="100um", paddiam="0", antipaddiam="200um")
-con_pin = edb.padstacks.place(
-    ["{}/4.0".format(first_patch.width), 0],
-    "Connector_pin",
-    net_name="Array_antenna",
-    fromlayer="TOP",
-    tolayer="GND",
-    via_name="coax",
+# Add point terminals that define the feed and its reference.
+pos_term = edb.excitation_manager.create_point_terminal(
+    x=rf_pin_location[0],
+    y=rf_pin_location[1],
+    layer="TOP",
+    net="Array_antenna",
 )
-
-# Add a connector ground.
-
-edb.modeler.create_polygon(first_patch.points, "Virt_GND", net_name="GND")
-edb.padstacks.create("gnd_via", "100um", "0", "0")
-edb["via_spacing"] = 0.2e-3
-con_ref1 = edb.padstacks.place(
-    [
-        "{} + {}".format(first_patch.points[0][0], "via_spacing"),
-        "{} + {}".format(first_patch.points[0][1], "via_spacing"),
-    ],
-    "gnd_via",
-    fromlayer="GND",
-    tolayer="Virt_GND",
-    net_name="GND",
+ref_term = edb.excitation_manager.create_point_terminal(
+    x=rf_pin_location[0],
+    y=rf_pin_location[1],
+    layer="GND",
+    net="GND",
 )
-con_ref2 = edb.padstacks.place(
-    [
-        "{} + {}".format(first_patch.points[1][0], "-via_spacing"),
-        "{} + {}".format(first_patch.points[1][1], "via_spacing"),
-    ],
-    "gnd_via",
-    fromlayer="GND",
-    tolayer="Virt_GND",
-    net_name="GND",
-)
-con_ref3 = edb.padstacks.place(
-    [
-        "{} + {}".format(first_patch.points[2][0], "-via_spacing"),
-        "{} + {}".format(first_patch.points[2][1], "-via_spacing"),
-    ],
-    "gnd_via",
-    fromlayer="GND",
-    tolayer="Virt_GND",
-    net_name="GND",
-)
-con_ref4 = edb.padstacks.place(
-    [
-        "{} + {}".format(first_patch.points[3][0], "via_spacing"),
-        "{} + {}".format(first_patch.points[3][1], "-via_spacing"),
-    ],
-    "gnd_via",
-    fromlayer="GND",
-    tolayer="Virt_GND",
-    net_name="GND",
-)
+pos_term.reference_terminal = ref_term
 
-# Define the port.
-
-edb.padstacks.set_solderball(con_pin, "Virt_GND", isTopPlaced=False, ballDiam=0.1e-3)
-port_name = edb.padstacks.create_coax_port(con_pin)
-
-# Display the model using the ``Edb.nets.plot()`` method.
+# Display the layout.
 
 edb.nets.plot()
 
-# The EDB is complete. Now close the EDB and import it into HFSS as a "Layout Component".
+# Save and close the EDB project before importing it into HFSS as a layout component.
 
-edb.save_edb()
-edb.close_edb()
-print("EDB saved correctly to {}. You can import in AEDT.".format(aedb_path))
+edb.save()
+edb.close()
+print(f"EDB saved to {aedb_path}. It is ready to be imported into AEDT.")
 
-# ## Open the component in Electronics Desktop
+# ## Open the layout component in HFSS
 #
-# First create an instance of the ``pyaedt.Hfss`` class. If you set
-# > ``non_graphical = False
-#
-# then AEDT user interface will be visible after the following cell is executed.
-# It is now possible to monitor the progress in the UI as each of the following cells is executed.
-# All commands can be run without the UI by changing the value of ``non_graphical``.
+# Create an ``ansys.aedt.core.Hfss`` instance. When ``non_graphical=False``, the
+# AEDT user interface opens so you can monitor each step interactively.
 
 h3d = ansys.aedt.core.Hfss(
     project="Demo_3DComp",
@@ -268,42 +220,31 @@ h3d = ansys.aedt.core.Hfss(
     solution_type="Terminal",
 )
 
-# Set units to ``mm``.
+# Set the model units to ``mm``.
 
 h3d.modeler.model_units = "mm"
 
-# ## Import the EDB as a 3D component
+# ## Import the EDB as a 3D layout component
 #
-# The linear array can be imported into the 3D CAD interface of HFSS.
-# The ability to combine layout components with 3D components enables mesh
-# fusion and is very useful for building and simulating large assemblies.
+# The linear array can be inserted into the HFSS 3D Modeler. Combining layout
+# components with 3D geometry is useful for mesh fusion and for simulating larger
+# assemblies.
 #
-# The following image shows the 3D layout component in the 3D CAD UI of HFSS.
+# The following image shows the imported layout component in the HFSS 3D user interface.
 #
-# <img src="_static\5G_antenna_parametrics\layout_component_in_3d.svg" width="800">
+# <img src="_static/5G_antenna_parametrics/layout_component_in_3d.svg" width="800">
 
-component = h3d.modeler.insert_layout_component(aedb_path, parameter_mapping=True)
+component = h3d.modeler.insert_layout_component(aedb_path)
 
-# ## Expose the component parameters
+# ### Assign a radiation boundary
 #
-# If a layout component is parametric, you can expose and change parameters in HFSS
-
-# +
-component.parameters
-
-w1_name = "{}_{}".format("w1", h3d.modeler.user_defined_component_names[0])
-h3d[w1_name] = 0.0015
-# -
-
-# ### Radiation Boundary Assignment
+# The 3D domain includes the air volume surrounding the antenna. This antenna is
+# simulated from 20 GHz to 50 GHz.
 #
-# The 3D domain includes the air volume surrounding the antenna.
-# This antenna will be simulted from 20 GHz - 50 GHz.
+# Assign a radiation boundary to the outer faces of the air region. A common rule
+# of thumb is to place this boundary about one quarter wavelength from the radiator:
 #
-# A "radiation boundary" will be assigned to the outer boundaries of the domain.
-# This boundary should be roughly one quarter wavelength away from the radiating structure:
-#
-# $$ \lambda/4 = \frac{c_0}{4 f} \approx 2.8mm $$
+# $$ \lambda / 4 = \frac{c_0}{4f} \approx 2.8\,\text{mm} $$
 
 # +
 h3d.modeler.fit_all()
@@ -312,40 +253,39 @@ h3d.modeler.create_air_region(2.8, 2.8, 2.8, 2.8, 2.8, 2.8, is_percentage=False)
 h3d.assign_radiation_boundary_to_objects("Region")
 # -
 
-# ### Set up analysis
+# ### Set up the analysis
 #
-# The finite element mesh is adapted iteratively.
-# The maximum number of adaptive passes is set using the ``MaximumPasses`` property.
-# This model converges such that the $S_{11}$ is independent of the mesh.
-# The default accuracy setting is:
+# HFSS adapts the finite element mesh iteratively. Use ``MaximumPasses`` to limit
+# the number of adaptive refinements. The default convergence target is:
+#
 # $$ \max(|\Delta S|) < 0.02 $$
 
 setup = h3d.create_setup()
 setup.props["Frequency"] = "20GHz"
 setup.props["MaximumPasses"] = 10
 
-# Specify properties of the frequency sweep:
+# Define the frequency sweep.
 
 sweep1 = setup.add_sweep(name="20GHz_to_50GHz")
 sweep1.props["RangeStart"] = "20GHz"
 sweep1.props["RangeEnd"] = "50GHz"
 sweep1.update()
 
-# Solve the project
+# Solve the project.
 
 h3d.analyze()
 
-# ## Plot results outside AEDT
+# ## Plot S-parameter results outside AEDT
 #
-# Plot results using Matplotlib.
+# Plot the first available trace with Matplotlib.
 
 trace = h3d.get_traces_for_plot()
 solution = h3d.post.get_solution_data(trace[0])
 solution.plot()
 
-# ## Plot far fields in AEDT
+# ## Create a 2D far-field report in AEDT
 #
-# Plot radiation patterns in AEDT.
+# Create a far-field report for the realized gain.
 
 # +
 variations = {}
@@ -360,24 +300,24 @@ new_report.primary_sweep = "Theta"
 new_report.create("Realized2D")
 # -
 
-# ## Plot far fields in AEDT
+# ## Create a 3D far-field report in AEDT
 #
-# Plot radiation patterns in AEDT
+# Reuse the same report object and switch it to a 3D polar plot.
 
 new_report.report_type = "3D Polar Plot"
 new_report.secondary_sweep = "Phi"
 new_report.create("Realized3D")
 
-# ## Plot far fields outside AEDT
+# ## Plot far-field data outside AEDT
 #
-# Plot radiation patterns outside AEDT
+# Retrieve the far-field data and plot it outside AEDT.
 
 solutions_custom = new_report.get_solution_data()
 solutions_custom.plot_3d()
 
-# ## Plot E Field on nets and layers
+# ## Plot the electric field on selected nets and layers
 #
-# Plot E Field on nets and layers in AEDT
+# Create a field plot for the electric-field magnitude in AEDT.
 
 h3d.post.create_fieldplot_layers_nets(
     [["TOP", "Array_antenna"]],
@@ -386,7 +326,7 @@ h3d.post.create_fieldplot_layers_nets(
     plot_name="E_Layers",
 )
 
-# ## Finish
+# ## Save and clean up
 #
 # ### Save the project
 
@@ -397,9 +337,8 @@ time.sleep(3)
 
 # ### Clean up
 #
-# All project files are saved in the folder ``temp_folder.name``.
-# If you've run this example as a Jupyter notebook, you
-# can retrieve those project files. The following cell
-# removes all temporary files, including the project folder.
+# All generated project files are stored in ``temp_folder.name``. If you are
+# running this example as a notebook and want to keep those files, copy them
+# before executing the cleanup step below.
 
 temp_folder.cleanup()

@@ -21,11 +21,12 @@ import time
 
 import ansys.aedt.core
 from ansys.aedt.core.generic.constants import Setups
+
 # -
 
 # Define constants.
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION = "2026.1"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
@@ -111,49 +112,23 @@ v_pwl = circuit.modeler.schematic.create_voltage_pwl(
     voltage_list=volt_list_pwl,
     location=[600, 2800],
 )
-v_gate_top = circuit.modeler.schematic.create_voltage_dc(
-    name="Vgate_top", value="Vgate_top", location=[600, 4500]
-)
-v_dc_bus = circuit.modeler.schematic.create_voltage_dc(
-    name="v_dc_bus", value="VoltageDCbus", location=[-1800, 3800]
-)
-c_dc_link = circuit.modeler.schematic.create_capacitor(
-    name="c_dc_link", value="c_dc_link", location=[-1300, 3800], angle=90
-)
-r_dc_link = circuit.modeler.schematic.create_resistor(
-    name="r_dc_link", value="r_dc_link", location=[-700, 3800], angle=90
-)
-l_load = circuit.modeler.schematic.create_inductor(
-    name="l_load", value="l_load", location=[3000, 4800], angle=-90
-)
-r_load = circuit.modeler.schematic.create_resistor(
-    name="r_load", value="r_load", location=[3000, 4300], angle=90
-)
-r_g1 = circuit.modeler.schematic.create_resistor(
-    name="r_g1", value="r_g1", location=[1400, 4700], angle=180
-)
-r_g2 = circuit.modeler.schematic.create_resistor(
-    name="r_g2", value="r_g2", location=[1400, 3100], angle=180
-)
-voltm_g = circuit.modeler.schematic.components_catalog["Probes:VPROBE_DIFF"].place(
-    assignment="voltage_g", location=[100, 2900], angle=270
-)
+v_gate_top = circuit.modeler.schematic.create_voltage_dc(name="Vgate_top", value="Vgate_top", location=[600, 4500])
+v_dc_bus = circuit.modeler.schematic.create_voltage_dc(name="v_dc_bus", value="VoltageDCbus", location=[-1800, 3800])
+c_dc_link = circuit.modeler.schematic.create_capacitor(name="c_dc_link", value="c_dc_link", location=[-1300, 3800], angle=90)
+r_dc_link = circuit.modeler.schematic.create_resistor(name="r_dc_link", value="r_dc_link", location=[-700, 3800], angle=90)
+l_load = circuit.modeler.schematic.create_inductor(name="l_load", value="l_load", location=[3000, 4800], angle=-90)
+r_load = circuit.modeler.schematic.create_resistor(name="r_load", value="r_load", location=[3000, 4300], angle=90)
+r_g1 = circuit.modeler.schematic.create_resistor(name="r_g1", value="r_g1", location=[1400, 4700], angle=180)
+r_g2 = circuit.modeler.schematic.create_resistor(name="r_g2", value="r_g2", location=[1400, 3100], angle=180)
+voltm_g = circuit.modeler.schematic.components_catalog["Probes:VPROBE_DIFF"].place(assignment="voltage_g", location=[100, 2900], angle=270)
 voltm_g.parameters["Name"] = "voltage_g"
-voltm_ds = circuit.modeler.schematic.components_catalog["Probes:VPROBE_DIFF"].place(
-    assignment="voltage_ds", location=[2500, 3300], angle=0
-)
+voltm_ds = circuit.modeler.schematic.components_catalog["Probes:VPROBE_DIFF"].place(assignment="voltage_ds", location=[2500, 3300], angle=0)
 voltm_ds.parameters["Name"] = "voltage_ds"
-amm_top = circuit.modeler.schematic.components_catalog["Probes:IPROBE"].place(
-    assignment="Itop", location=[1100, 5200], angle=0
-)
+amm_top = circuit.modeler.schematic.components_catalog["Probes:IPROBE"].place(assignment="Itop", location=[1100, 5200], angle=0)
 amm_top.parameters["Name"] = "Itop"
-amm_ind = circuit.modeler.schematic.components_catalog["Probes:IPROBE"].place(
-    assignment="Iinductor", location=[2500, 4000], angle=0
-)
+amm_ind = circuit.modeler.schematic.components_catalog["Probes:IPROBE"].place(assignment="Iinductor", location=[2500, 4000], angle=0)
 amm_ind.parameters["Name"] = "Iinductor"
-amm_bot = circuit.modeler.schematic.components_catalog["Probes:IPROBE"].place(
-    assignment="Ibottom", location=[2000, 3600], angle=270
-)
+amm_bot = circuit.modeler.schematic.components_catalog["Probes:IPROBE"].place(assignment="Ibottom", location=[2000, 3600], angle=270)
 amm_bot.parameters["Name"] = "Ibottom"
 
 # ## Add nMOS components from Component Library.
@@ -162,24 +137,16 @@ amm_bot.parameters["Name"] = "Ibottom"
 # If you need to insert a component from a spice model,
 # please use the method: circuit.modeler.components.create_component_from_spicemodel
 
-nmos_h = circuit.modeler.schematic.components_catalog[
-    "Power Electronics Tools\\Power Semiconductors\\MOSFET\\STMicroelectronics:SCT040H65G3AG_V2"
-].place(assignment="NMOS_HS", location=[1500, 4700], angle=0)
-nmos_l = circuit.modeler.schematic.components_catalog[
-    "Power Electronics Tools\\Power Semiconductors\\MOSFET\\STMicroelectronics:SCT040H65G3AG_V2"
-].place("NMOS_LS", location=[1500, 3100], angle=0)
+nmos_h = circuit.modeler.schematic.components_catalog["Power Electronics Tools\\Power Semiconductors\\MOSFET\\STMicroelectronics:SCT040H65G3AG_V2"].place(
+    assignment="NMOS_HS", location=[1500, 4700], angle=0
+)
+nmos_l = circuit.modeler.schematic.components_catalog["Power Electronics Tools\\Power Semiconductors\\MOSFET\\STMicroelectronics:SCT040H65G3AG_V2"].place("NMOS_LS", location=[1500, 3100], angle=0)
 
 # ## Create wiring to complete the schematic.
 
-circuit.modeler.schematic.connect_components_in_series(
-    assignment=[l_load, r_load], use_wire=True
-)
-circuit.modeler.schematic.connect_components_in_series(
-    assignment=[v_gate_top, r_g1], use_wire=True
-)
-circuit.modeler.schematic.connect_components_in_series(
-    assignment=[v_pwl, r_g2], use_wire=True
-)
+circuit.modeler.schematic.connect_components_in_series(assignment=[l_load, r_load], use_wire=True)
+circuit.modeler.schematic.connect_components_in_series(assignment=[v_gate_top, r_g1], use_wire=True)
+circuit.modeler.schematic.connect_components_in_series(assignment=[v_pwl, r_g2], use_wire=True)
 circuit.modeler.schematic.create_wire(
     [
         [v_dc_bus.pins[1].location[0], v_dc_bus.pins[1].location[1]],
@@ -334,18 +301,14 @@ circuit.modeler.schematic.create_wire(
         [voltm_ds.pins[1].location[0], y_lower_pin],
     ]
 )
-gnd = circuit.modeler.schematic.create_gnd(
-    location=[voltm_ds.pins[1].location[0], y_lower_pin - 100]
-)
+gnd = circuit.modeler.schematic.create_gnd(location=[voltm_ds.pins[1].location[0], y_lower_pin - 100])
 r_g1.pins[1].connect_to_component(assignment=nmos_h.pins[1], use_wire=True)
 r_g2.pins[1].connect_to_component(assignment=nmos_l.pins[1], use_wire=True)
 
 # ## Create a transient setup
 
 setup_name = "MyTransient"
-setup1 = circuit.create_setup(
-    name=setup_name, setup_type=Setups.NexximTransient
-)
+setup1 = circuit.create_setup(name=setup_name, setup_type=Setups.NexximTransient)
 setup1.props["TransientData"] = ["0.05ns", "15us"]
 circuit.modeler.zoom_to_fit()
 
@@ -366,7 +329,7 @@ new_report = circuit.post.create_report(
     ],
     domain="Time",
     plot_name="Plot V,I",
-    context={"time_stop": "15us"}
+    context={"time_stop": "15us"},
 )
 
 # ## Release AEDT

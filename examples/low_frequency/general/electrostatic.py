@@ -18,11 +18,12 @@ import time
 
 import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_file
+
 # -
 
 # Define constants.
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION = "2026.1"
 NUM_CORES = 4
 NG_MODE = False
 
@@ -39,9 +40,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 #
 # Set the local temporary folder to export the Excel (XLSX) file to.
 
-file_name_xlsx = download_file(
-    source="field_line_traces", name="my_copper.xlsx", local_path=temp_folder.name
-)
+file_name_xlsx = download_file(source="field_line_traces", name="my_copper.xlsx", local_path=temp_folder.name)
 
 # ## Initialize dictionaries
 #
@@ -131,9 +130,7 @@ circle.solve_inside = False
 
 poly1_points = [[-9, 2, 0], [-4, 2, 0], [2, -2, 0], [8, 2, 0]]
 poly2_points = [[-9, 0, 0], [9, 0, 0]]
-poly1_id = m2d.modeler.create_polyline(
-    points=poly1_points, segment_type="Spline", name="Poly1"
-)
+poly1_id = m2d.modeler.create_polyline(points=poly1_points, segment_type="Spline", name="Poly1")
 poly2_id = m2d.modeler.create_polyline(points=poly2_points, name="Poly2")
 m2d.modeler.split(assignment=[poly1_id, poly2_id], plane="YZ", sides="NegativeOnly")
 m2d.modeler.create_region(pad_value=[20, 100, 20, 100])
@@ -166,15 +163,9 @@ m2d.analyze_setup(name=setup_name, use_auto_settings=False, cores=NUM_CORES)
 # Evaluate the E Field tangential component along the given polylines.
 # Add these operations to the **Named Expression** list in the field calculator.
 
-e_line = m2d.post.fields_calculator.add_expression(
-    calculation="e_line", assignment=None
-)
-m2d.post.fields_calculator.expression_plot(
-    calculation="e_line", assignment="Poly1", names=[e_line]
-)
-m2d.post.fields_calculator.expression_plot(
-    calculation="e_line", assignment="Poly12", names=[e_line]
-)
+e_line = m2d.post.fields_calculator.add_expression(calculation="e_line", assignment=None)
+m2d.post.fields_calculator.expression_plot(calculation="e_line", assignment="Poly1", names=[e_line])
+m2d.post.fields_calculator.expression_plot(calculation="e_line", assignment="Poly12", names=[e_line])
 
 # ## Create field line traces plot
 #
@@ -203,9 +194,7 @@ plot.update()
 # Export the field line traces plot.
 # For the field lint traces plot, the export file format is ``.fldplt``.
 
-m2d.post.export_field_plot(
-    plot_name="LineTracesTest", output_dir=temp_folder.name, file_format="fldplt"
-)
+m2d.post.export_field_plot(plot_name="LineTracesTest", output_dir=temp_folder.name, file_format="fldplt")
 
 # ## Export mesh field plot
 #
