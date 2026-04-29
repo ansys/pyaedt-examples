@@ -15,12 +15,13 @@ import tempfile
 import time
 
 import ansys.aedt.core
+
 # -
 
 # ### Define constants
 # Constants help ensure consistency and avoid repetition throughout the example.
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION = "2026.1"
 NUM_CORES = 4
 NG_MODE = False  # Run the example without opening the UI.
 
@@ -37,8 +38,8 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 # ### Launch AEDT
 #
-# Launch an instance of the Ansys Electronics Desktop (AEDT) in graphical mode. 
-# The ``Q2d`` class inserts a 2-D Extractor design in AEDT. 
+# Launch an instance of the Ansys Electronics Desktop (AEDT) in graphical mode.
+# The ``Q2d`` class inserts a 2-D Extractor design in AEDT.
 
 q2d = ansys.aedt.core.Q2d(
     version=AEDT_VERSION,
@@ -60,26 +61,26 @@ q2d = ansys.aedt.core.Q2d(
 # the model.
 
 cpw_params = {
-    "sig_bot_w": "150um",   # Signal conductor width - bottom.
-    "e_factor": "2",        # Etch factor for trapezoidal cross-section.
-    "gnd_w": "500um",       # Width of the ground conductor.
+    "sig_bot_w": "150um",  # Signal conductor width - bottom.
+    "e_factor": "2",  # Etch factor for trapezoidal cross-section.
+    "gnd_w": "500um",  # Width of the ground conductor.
     "clearance": "150um",
-    "cond_h": "50um",       # Conductor height
+    "cond_h": "50um",  # Conductor height
     "d_h": "150um",
-    "sm_h": "20um",         # Solder mask height
-    }
+    "sm_h": "20um",  # Solder mask height
+}
 
 # ### Create expressions
 #
 # Expressions are passed to the methods that we'll use to
 # create the geometric cross-section of the
-# coplanar waveguide. These expressions depend on the 
+# coplanar waveguide. These expressions depend on the
 # independent parameters defined in the previous cell, ``cpw_params``.
 
 delta_w_half = "cond_h/e_factor"
-sig_top_w = f"(sig_bot_w - 2 * {delta_w_half})"   # Signal top conductor width
-co_gnd_top_w = f"(gnd_w - 2 * {delta_w_half})"    # Width of top ground conductor
-model_w = "2 * gnd_w + 2 * clearance + sig_bot_w" # Total width of the model.
+sig_top_w = f"(sig_bot_w - 2 * {delta_w_half})"  # Signal top conductor width
+co_gnd_top_w = f"(gnd_w - 2 * {delta_w_half})"  # Width of top ground conductor
+model_w = "2 * gnd_w + 2 * clearance + sig_bot_w"  # Total width of the model.
 
 # The following expressions define layer thicknesses parameterization.
 
@@ -93,47 +94,33 @@ layer_2_uh = layer_2_lh + " + cond_h"
 for name, value in cpw_params.items():
     q2d[name] = value
 
-# Create the signal conductor by drawing two lines and connecting them to 
+# Create the signal conductor by drawing two lines and connecting them to
 # create a 2D sheet.
 
 # +
-base_line_obj = q2d.modeler.create_polyline(
-    points=[[0, layer_2_lh, 0], ["sig_bot_w", layer_2_lh, 0]], name="signal"
-)
+base_line_obj = q2d.modeler.create_polyline(points=[[0, layer_2_lh, 0], ["sig_bot_w", layer_2_lh, 0]], name="signal")
 
-top_line_obj = q2d.modeler.create_polyline(
-    points=[[0, layer_2_uh, 0], [sig_top_w, layer_2_uh, 0]]
-)
+top_line_obj = q2d.modeler.create_polyline(points=[[0, layer_2_uh, 0], [sig_top_w, layer_2_uh, 0]])
 
 q2d.modeler.move(assignment=[top_line_obj], vector=[delta_w_half, 0, 0])
 
 q2d.modeler.connect([base_line_obj, top_line_obj])
-q2d.modeler.move(
-    assignment=[base_line_obj], vector=["gnd_w+clearance", 0, 0]
-)
+q2d.modeler.move(assignment=[base_line_obj], vector=["gnd_w+clearance", 0, 0])
 # -
 
 # Create adjacent ground layers.
 
 # +
-base_line_obj = q2d.modeler.create_polyline(
-    points=[[0, layer_2_lh, 0], ["gnd_w", layer_2_lh, 0]], name="co_gnd_left"
-)
+base_line_obj = q2d.modeler.create_polyline(points=[[0, layer_2_lh, 0], ["gnd_w", layer_2_lh, 0]], name="co_gnd_left")
 
-top_line_obj = q2d.modeler.create_polyline(
-    points=[[0, layer_2_uh, 0], [co_gnd_top_w, layer_2_uh, 0]]
-)
+top_line_obj = q2d.modeler.create_polyline(points=[[0, layer_2_uh, 0], [co_gnd_top_w, layer_2_uh, 0]])
 
 q2d.modeler.move(assignment=[top_line_obj], vector=[delta_w_half, 0, 0])
 q2d.modeler.connect([base_line_obj, top_line_obj])
 
-base_line_obj = q2d.modeler.create_polyline(
-    points=[[0, layer_2_lh, 0], ["gnd_w", layer_2_lh, 0]], name="co_gnd_right"
-)
+base_line_obj = q2d.modeler.create_polyline(points=[[0, layer_2_lh, 0], ["gnd_w", layer_2_lh, 0]], name="co_gnd_right")
 
-top_line_obj = q2d.modeler.create_polyline(
-    points=[[0, layer_2_uh, 0], [co_gnd_top_w, layer_2_uh, 0]]
-)
+top_line_obj = q2d.modeler.create_polyline(points=[[0, layer_2_uh, 0], [co_gnd_top_w, layer_2_uh, 0]])
 
 q2d.modeler.move(assignment=[top_line_obj], vector=[delta_w_half, 0, 0])
 q2d.modeler.connect([base_line_obj, top_line_obj])
@@ -145,9 +132,7 @@ q2d.modeler.move(
 
 # Create a reference ground plane.
 
-q2d.modeler.create_rectangle(
-    origin=[0, layer_1_lh, 0], sizes=[model_w, "cond_h"], name="ref_gnd"
-)
+q2d.modeler.create_rectangle(origin=[0, layer_1_lh, 0], sizes=[model_w, "cond_h"], name="ref_gnd")
 
 # Define the substrate.
 
@@ -175,19 +160,13 @@ for obj_name in ["signal", "co_gnd_left", "co_gnd_right"]:
         e_obj_list.append(e_obj)
     e_obj_1 = e_obj_list[0]
     q2d.modeler.unite(e_obj_list)
-    _ = q2d.modeler.sweep_along_vector(
-        assignment=e_obj_1.id, sweep_vector=[0, "sm_h", 0]
-    )
+    _ = q2d.modeler.sweep_along_vector(assignment=e_obj_1.id, sweep_vector=[0, "sm_h", 0])
     sm_obj_list.append(e_obj_1)
 
-new_obj = q2d.modeler.create_rectangle(
-    origin=["gnd_w", layer_2_lh, 0], sizes=["clearance", "sm_h"]
-)
+new_obj = q2d.modeler.create_rectangle(origin=["gnd_w", layer_2_lh, 0], sizes=["clearance", "sm_h"])
 sm_obj_list.append(new_obj)
 
-new_obj2 = q2d.modeler.create_rectangle(
-    origin=["gnd_w", layer_2_lh, 0], sizes=["clearance", "sm_h"]
-)
+new_obj2 = q2d.modeler.create_rectangle(origin=["gnd_w", layer_2_lh, 0], sizes=["clearance", "sm_h"])
 q2d.modeler.move(assignment=[new_obj2], vector=["sig_bot_w+clearance", 0, 0])
 sm_obj_list.append(new_obj2)
 
@@ -213,18 +192,12 @@ q2d.assign_single_conductor(
 
 # Assign the Huray model for conductive losses on the signal trace.
 
-q2d.assign_huray_finitecond_to_edges(signal_conductor.edges, 
-                                     radius="0.5um", 
-                                     ratio=3, 
-                                     name="b_" + signal_conductor.name
-                                     )
+q2d.assign_huray_finitecond_to_edges(signal_conductor.edges, radius="0.5um", ratio=3, name="b_" + signal_conductor.name)
 
 # Define the return path.
 
 # +
-reference_conductors = [q2d.modeler.get_object_from_name(i)
-                     for i in ["co_gnd_left", "co_gnd_right", "ref_gnd"]
-                    ]
+reference_conductors = [q2d.modeler.get_object_from_name(i) for i in ["co_gnd_left", "co_gnd_right", "ref_gnd"]]
 
 q2d.assign_single_conductor(
     name="gnd",
@@ -237,7 +210,7 @@ q2d.assign_single_conductor(
 
 # ### Define solution setup
 #
-# The solution steup specifies the frequency range for the solution and other 
+# The solution steup specifies the frequency range for the solution and other
 # solution settings
 
 # +

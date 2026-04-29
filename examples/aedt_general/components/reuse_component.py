@@ -20,12 +20,13 @@ import tempfile
 import time
 
 from ansys.aedt.core import Hfss
+
 # -
 
 # ### Define constants
 # Constants help ensure consistency and avoid repetition throughout the example.
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION = "2026.1"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ### Create temporary directory
@@ -36,15 +37,16 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 # > **Note:** The final cell in the notebook cleans up the temporary folder. If you want to
 # > retrieve the AEDT project and data, do so before executing the final cell in the notebook.
 #
-# This example creates two projects defined in `project_names. 
+# This example creates two projects defined in `project_names.
 # The first will be used to
 # create the patch antenna model and the 2nd project
 # will be used to demonstrate the use 3D components.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
-project_names = [os.path.join(temp_folder.name, "start_project.aedt"),
-                 os.path.join(temp_folder.name, "final_project.aedt"),
-                ]
+project_names = [
+    os.path.join(temp_folder.name, "start_project.aedt"),
+    os.path.join(temp_folder.name, "final_project.aedt"),
+]
 
 # ### Launch HFSS
 # AEDT is started when an instance of the ``Hfss()`` class is
@@ -65,9 +67,9 @@ hfss.save_project(project_names[0])
 #
 # ### Define parameters
 #
-# Parameters can be defined in the HFSS design and subsequently 
+# Parameters can be defined in the HFSS design and subsequently
 # used to optimiuze
-# performance, run parametric studies or 
+# performance, run parametric studies or
 # explore the impact of tolerance on performance.
 
 hfss["thickness"] = "0.1mm"
@@ -75,10 +77,10 @@ hfss["width"] = "1mm"
 
 # ###  Build the antenna model
 #
-# The compact, 
-# [pythonic syntax](https://docs.python-guide.org/writing/style/#code-style) 
+# The compact,
+# [pythonic syntax](https://docs.python-guide.org/writing/style/#code-style)
 # allows you to create the model from simple
-# primitives. This patch antenna is comprised of the FR-4 substrate, a rectangle, 
+# primitives. This patch antenna is comprised of the FR-4 substrate, a rectangle,
 # and the coaxial
 # probe feed. Each primitive is of type ``Object3D``.
 #
@@ -95,9 +97,7 @@ substrate = hfss.modeler.create_box(
 
 feed_length = "0.1mm"  # This parameter is defined only in Python and is not varied
 
-patch = hfss.modeler.create_rectangle(
-    "XY", ["-width/2", "-width/2", "0mm"], ["width", "width"], name="patch"
-)
+patch = hfss.modeler.create_rectangle("XY", ["-width/2", "-width/2", "0mm"], ["width", "width"], name="patch")
 
 inner_conductor = hfss.modeler.create_cylinder(
     2,
@@ -127,14 +127,12 @@ hfss.assign_perfecte_to_sheets(patch, name="patch_bc")
 
 # ### Assign boundaries to the via
 #
-# The following statement selects the outer surface of the cylinder 
+# The following statement selects the outer surface of the cylinder
 # ``via_outer``, excluding the upper and lower faces, and assigns
 # the "perfect conductor" boundary condition.
 
 # +
-side_face = [i for i in via_outer.faces if i.id not in 
-             [via_outer.top_face_z.id, via_outer.bottom_face_z.id]
-            ]
+side_face = [i for i in via_outer.faces if i.id not in [via_outer.top_face_z.id, via_outer.bottom_face_z.id]]
 
 hfss.assign_perfecte_to_sheets(side_face, name="feed_gnd")
 hfss.assign_perfecte_to_sheets(substrate.bottom_face_z, name="ground_plane")
@@ -144,14 +142,10 @@ hfss.change_material_override(material_override=True)  # Allow the probe feed to
 
 # ### Create wave port
 #
-# A wave port is assigned to the bottom face of the via. Note that the property `via_outer.bottom_face_z` 
+# A wave port is assigned to the bottom face of the via. Note that the property `via_outer.bottom_face_z`
 # is a ``FacePrimitive`` object.
 
-p1 = hfss.wave_port(
-    via_outer.bottom_face_z,
-    name="P1",
-    create_pec_cap=True
-)
+p1 = hfss.wave_port(via_outer.bottom_face_z, name="P1", create_pec_cap=True)
 
 # ### Query the object properties
 #
@@ -187,7 +181,7 @@ hfss2.change_material_override(material_override=True)
 
 # ### Insert 3D components
 #
-# Place 4 antennas to make a small array. 
+# Place 4 antennas to make a small array.
 # - The substrate thickness is modified by creating the parameter "p_thick" and
 #   assigning it to the "thickness" parameter of the components.
 # - The first antenna is placed at the origin.
@@ -216,11 +210,8 @@ elements[0].parameters["width"] = "w"
 count = 1
 for p in positions:
     cs.append(hfss2.modeler.create_coordinate_system(origin=p, name="cs_" + str(count)))  # Create the patch coordinate system.
-    elements.append(hfss2.modeler.insert_3d_component(component_path,  # Place the patch element.
-                                                      coordinate_system=cs[-1].name,
-                                                      name="patch_" + str(count))
-                    )
-    count +=1
+    elements.append(hfss2.modeler.insert_3d_component(component_path, coordinate_system=cs[-1].name, name="patch_" + str(count)))  # Place the patch element.
+    count += 1
 
     elements[-1].parameters["thickness"] = "p_thick"
     elements[-1].parameters["width"] = "w"
@@ -234,7 +225,7 @@ for e in elements:
 
 # ### Move 3D components
 #
-# The position of each 3D component can be changed by modifying the ``origin`` 
+# The position of each 3D component can be changed by modifying the ``origin``
 # of the corresponding coordinate system.
 
 hfss2.modeler.coordinate_systems[0].origin = [0, "2*w", 0]
@@ -243,10 +234,10 @@ hfss2.modeler.coordinate_systems[0].origin = [0, "2*w", 0]
 #
 # The volume of the solution domain is defined
 # by an air region object. The following cell creates the
-# region object and assigns the radiation boundary to the outer surfaces of 
+# region object and assigns the radiation boundary to the outer surfaces of
 # the region.
 
-hfss2.modeler.create_air_region( x_pos=2, y_pos=2, z_pos=2.5, x_neg=2, y_neg=2, z_neg=2, is_percentage=False)
+hfss2.modeler.create_air_region(x_pos=2, y_pos=2, z_pos=2.5, x_neg=2, y_neg=2, z_neg=2, is_percentage=False)
 hfss2.assign_radiation_boundary_to_faces(hfss2.modeler["Region"].faces)
 
 # ### Create solution setup and optimetrics analysis
@@ -255,11 +246,7 @@ hfss2.assign_radiation_boundary_to_faces(hfss2.modeler["Region"].faces)
 
 # +
 setup1 = hfss2.create_setup(RangeStart="60GHz", RangeEnd="80GHz")
-optim = hfss2.parametrics.add("w", start_point="0.8mm",
-                              end_point="1.2mm",
-                              step="0.05mm",
-                              variation_type="LinearStep",
-                              name="Sweep Patch Width")
+optim = hfss2.parametrics.add("w", start_point="0.8mm", end_point="1.2mm", step="0.05mm", variation_type="LinearStep", name="Sweep Patch Width")
 
 if hfss.valid_design:
     print(f"The HFSS design '{hfss.design_name}' is ready to solve.")

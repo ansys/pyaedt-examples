@@ -23,11 +23,12 @@ import time
 
 import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_file
+
 # -
 
 # Define constants.
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION = "2026.1"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
@@ -107,12 +108,7 @@ for p in polys:
     my_expression["name"] = quantity
     my_expression["assignment"] = quantity
     m2d.post.fields_calculator.add_expression(my_expression, p)
-    report = m2d.post.create_report(
-        expressions=quantity,
-        report_category="Fields",
-        plot_type="Data Table",
-        plot_name=quantity
-    )
+    report = m2d.post.create_report(expressions=quantity, report_category="Fields", plot_type="Data Table", plot_name=quantity)
 
 # # Second option
 
@@ -126,9 +122,7 @@ m2d["xl"] = "10mm"
 #
 # Create a parametrized polyline, specifying its ends.
 
-poly = m2d.modeler.create_polyline(
-    points=[["xl", -10, 0], ["xl", 10, 0]], name="polyline_sweep"
-)
+poly = m2d.modeler.create_polyline(points=[["xl", -10, 0], ["xl", 10, 0]], name="polyline_sweep")
 
 # ## Add parametric sweep
 #

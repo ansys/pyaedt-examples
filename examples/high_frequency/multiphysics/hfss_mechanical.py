@@ -2,6 +2,7 @@
 #
 # This example shows how to use PyAEDT to create a multiphysics workflow that
 # includes Circuit, HFSS, and Mechanical.
+# This example does not work in AEDT 2026R1.
 #
 # Keywords: **Multiphysics**, **HFSS**, **Mechanical AEDT**, **Circuit**.
 
@@ -15,6 +16,7 @@ import time
 
 import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_via_wizard
+
 # -
 
 # Define constants.
@@ -36,9 +38,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 #
 # Download and open the project. Save it to the temporary folder.
 
-project_name = download_via_wizard(
-    local_path=temp_folder.name
-)
+project_name = download_via_wizard(local_path=temp_folder.name)
 
 # ## Start HFSS
 #
@@ -67,9 +67,7 @@ hfss_comp = circuit.modeler.schematic.add_subcircuit_dynamic_link(pyaedt_app=hfs
 circuit.modeler.schematic.refresh_dynamic_link(name=hfss_comp.composed_name)
 circuit.modeler.schematic.set_sim_option_on_hfss_subcircuit(component=hfss_comp)
 hfss_setup_name = hfss.setups[0].name + " : " + hfss.setups[0].sweeps[0].name
-circuit.modeler.schematic.set_sim_solution_on_hfss_subcircuit(
-    component=hfss_comp.composed_name, solution_name=hfss_setup_name
-)
+circuit.modeler.schematic.set_sim_solution_on_hfss_subcircuit(component=hfss_comp.composed_name, solution_name=hfss_setup_name)
 
 # ## Create ports and excitations
 #

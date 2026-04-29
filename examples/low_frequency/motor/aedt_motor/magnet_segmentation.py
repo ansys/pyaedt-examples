@@ -15,11 +15,12 @@ import time
 
 import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_file
+
 # -
 
 # Define constants.
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION = "2026.1"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
@@ -78,9 +79,7 @@ sheets_1 = m3d.modeler.objects_segmentation(
 segments_number = 2
 object_name = "PM_I1_1"
 magnet_id = [obj.id for obj in m3d.modeler.object_list if obj.name == object_name][0]
-sheets_2 = m3d.modeler.objects_segmentation(
-    magnet_id, segments=segments_number, apply_mesh_sheets=True
-)
+sheets_2 = m3d.modeler.objects_segmentation(magnet_id, segments=segments_number, apply_mesh_sheets=True)
 
 # ## Segment third magnet by specifying segmentation thickness
 #
@@ -91,9 +90,7 @@ sheets_2 = m3d.modeler.objects_segmentation(
 segmentation_thickness = 1
 object_name = "PM_O1"
 magnet = [obj for obj in m3d.modeler.object_list if obj.name == object_name][0]
-sheets_3 = m3d.modeler.objects_segmentation(
-    magnet, segmentation_thickness=segmentation_thickness, apply_mesh_sheets=True
-)
+sheets_3 = m3d.modeler.objects_segmentation(magnet, segmentation_thickness=segmentation_thickness, apply_mesh_sheets=True)
 
 # ## Segment fourth magnet by specifying number of segments
 #

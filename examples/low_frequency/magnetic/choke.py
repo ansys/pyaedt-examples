@@ -25,7 +25,7 @@ from ansys.aedt.core.modules.boundary.maxwell_boundary import (
 # ### Define constants.
 # Constants help ensure consistency and avoid repetition throughout the example.
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION = "2026.1"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 
@@ -167,42 +167,42 @@ second_winding_faces = m3d.modeler.get_object_faces(assignment=second_winding_li
 third_winding_faces = m3d.modeler.get_object_faces(assignment=third_winding_list[0].name)
 
 cs1_in = m3d.assign_current(
-    assignment=[first_winding_faces[-1]],
+    assignment=[first_winding_faces[1]],
     amplitude=1000,
     phase="0deg",
     swap_direction=False,
     name="phase_1_in",
 )
 cs1_out = m3d.assign_current(
-    assignment=[first_winding_faces[-2]],
+    assignment=[first_winding_faces[0]],
     amplitude=1000,
     phase="0deg",
     swap_direction=True,
     name="phase_1_out",
 )
 cs2_in = m3d.assign_current(
-    assignment=[second_winding_faces[-1]],
+    assignment=[second_winding_faces[1]],
     amplitude=1000,
     phase="120deg",
     swap_direction=False,
     name="phase_2_in",
 )
 cs2_out = m3d.assign_current(
-    assignment=[second_winding_faces[-2]],
+    assignment=[second_winding_faces[0]],
     amplitude=1000,
     phase="120deg",
     swap_direction=True,
     name="phase_2_out",
 )
 cs3_in = m3d.assign_current(
-    assignment=[third_winding_faces[-1]],
+    assignment=[third_winding_faces[1]],
     amplitude=1000,
     phase="240deg",
     swap_direction=False,
     name="phase_3_in",
 )
 cs3_out = m3d.assign_current(
-    assignment=[third_winding_faces[-2]],
+    assignment=[third_winding_faces[0]],
     amplitude=1000,
     phase="240deg",
     swap_direction=True,
