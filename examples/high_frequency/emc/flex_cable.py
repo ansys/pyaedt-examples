@@ -21,7 +21,7 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 
 # Define constants.
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION = "2026.1"
 
 # ## Set non-graphical mode
 #

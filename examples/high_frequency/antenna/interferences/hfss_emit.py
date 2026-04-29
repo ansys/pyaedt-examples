@@ -22,14 +22,15 @@ import tempfile
 import time
 
 import ansys.aedt.core
-
 from ansys.aedt.core.emit_core.emit_constants import ResultType, TxRxMode
-from ansys.aedt.core.emit_core.nodes.generated import AntennaNode, RadioNode
+
+# from ansys.aedt.core.emit_core.nodes.generated import AntennaNode, RadioNode
+
 # -
 
 # Define constants.
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION = "2026.1"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
@@ -92,8 +93,8 @@ aedtapp = ansys.aedt.core.Emit(project_name, version=AEDT_VERSION)
 
 rad1, ant1 = aedtapp.schematic.create_radio_antenna("Bluetooth Low Energy (LE)")
 rad2, ant2 = aedtapp.schematic.create_radio_antenna("Bluetooth Low Energy (LE)")
-#rad1, ant1 = aedtapp.modeler.components.create_radio_antenna("Bluetooth Low Energy (LE)")
-#rad2, ant2 = aedtapp.modeler.components.create_radio_antenna("Bluetooth Low Energy (LE)")
+# rad1, ant1 = aedtapp.modeler.components.create_radio_antenna("Bluetooth Low Energy (LE)")
+# rad2, ant2 = aedtapp.modeler.components.create_radio_antenna("Bluetooth Low Energy (LE)")
 
 # ## Define coupling among RF systems
 #

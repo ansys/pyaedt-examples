@@ -18,11 +18,12 @@ import time
 
 import ansys.aedt.core
 from ansys.aedt.core.generic.constants import Setups
+
 # -
 
 # Define constants.
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION = "2026.1"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ## Create temporary directory
@@ -65,15 +66,9 @@ setup1.props["SweepDefinition"]["Data"] = "LINC 0GHz 4GHz 10001"
 # Place components such as an inductor, resistor, and capacitor. The ``location`` argument
 # provides the ``[x, y]`` coordinates to place the component.
 
-inductor = circuit.modeler.schematic.create_inductor(
-    name="L1", value=1e-9, location=[0, 0]
-)
-resistor = circuit.modeler.schematic.create_resistor(
-    name="R1", value=50, location=[500, 0]
-)
-capacitor = circuit.modeler.schematic.create_capacitor(
-    name="C1", value=1e-12, location=[1000, 0]
-)
+inductor = circuit.modeler.schematic.create_inductor(name="L1", value=1e-9, location=[0, 0])
+resistor = circuit.modeler.schematic.create_resistor(name="R1", value=50, location=[500, 0])
+capacitor = circuit.modeler.schematic.create_capacitor(name="C1", value=1e-12, location=[1000, 0])
 
 # ## Get all pins
 #
@@ -88,9 +83,7 @@ capacitor = circuit.modeler.schematic.create_capacitor(
 #
 # Place a port and a ground in the schematic.
 
-port = circuit.modeler.schematic.create_interface_port(
-    name="myport", location=[-300, 50]
-)
+port = circuit.modeler.schematic.create_interface_port(name="myport", location=[-300, 50])
 gnd = circuit.modeler.schematic.create_gnd(location=[1200, -100])
 
 # ## Connect components
@@ -107,9 +100,7 @@ capacitor.pins[1].connect_to_component(assignment=gnd.pins[0], use_wire=True)
 #
 # Create a transient setup.
 
-setup2 = circuit.create_setup(
-    name="MyTransient", setup_type=Setups.NexximTransient
-)
+setup2 = circuit.create_setup(name="MyTransient", setup_type=Setups.NexximTransient)
 setup2.props["TransientData"] = ["0.01ns", "200ns"]
 setup3 = circuit.create_setup(name="MyDC", setup_type=Setups.NexximDC)
 

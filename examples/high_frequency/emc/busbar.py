@@ -15,11 +15,12 @@ import tempfile
 import time
 
 import ansys.aedt.core
+
 # -
 
 # Define constants.
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION = "2026.1"
 NUM_CORES = 4
 NG_MODE = False
 
@@ -180,30 +181,20 @@ q3d.save_project()
 #
 # Capacitances - Original Matrix.
 
-original_matrix_self = q3d.matrices[0].get_sources_for_plot(
-    get_self_terms=True, get_mutual_terms=False
-)
-original_matrix_mutual = q3d.matrices[0].get_sources_for_plot(
-    get_self_terms=False, get_mutual_terms=True
-)
+original_matrix_self = q3d.matrices[0].get_sources_for_plot(get_self_terms=True, get_mutual_terms=False)
+original_matrix_mutual = q3d.matrices[0].get_sources_for_plot(get_self_terms=False, get_mutual_terms=True)
 
 # ACL - Reduced Matrix MR_1_Series
 
-reduced_matrix_1_self = mr_series.get_sources_for_plot(
-    get_self_terms=True, get_mutual_terms=False, category="ACL"
-)
+reduced_matrix_1_self = mr_series.get_sources_for_plot(get_self_terms=True, get_mutual_terms=False, category="ACL")
 
 # ACL - Reduced Matrix MR_2_Series
 
-reduced_matrix_2_self = mr_series2.get_sources_for_plot(
-    get_self_terms=True, get_mutual_terms=False, category="ACL"
-)
+reduced_matrix_2_self = mr_series2.get_sources_for_plot(get_self_terms=True, get_mutual_terms=False, category="ACL")
 
 # Define plots and a data table in AEDT for visualizing results.
 
-original_matrix_self_report = q3d.post.create_report(
-    expressions=original_matrix_self, plot_name="Original, Self Capacitances"
-)
+original_matrix_self_report = q3d.post.create_report(expressions=original_matrix_self, plot_name="Original, Self Capacitances")
 original_matrix_mutual_report = q3d.post.create_report(
     expressions=original_matrix_mutual,
     context="Original",
