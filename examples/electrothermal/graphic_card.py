@@ -17,14 +17,15 @@ import tempfile
 import time
 
 import ansys.aedt.core
-from ansys.aedt.core.examples.downloads import download_icepak
 import pandas as pd
+from ansys.aedt.core.examples.downloads import download_icepak
 from IPython.display import Image
+
 # -
 
 # Define constants.
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION = "2026.1"
 NUM_CORES = 4
 NG_MODE = False  # Do not show the graphical user interface.
 
@@ -36,9 +37,7 @@ NG_MODE = False  # Do not show the graphical user interface.
 # the temporary folder name is given by ``temp_folder.name``.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
-project_temp_name = download_icepak(
-    local_path=temp_folder.name
-)
+project_temp_name = download_icepak(local_path=temp_folder.name)
 
 # ## Open project
 #
@@ -83,9 +82,7 @@ ipk.assign_solid_block(object_name=["MEMORY1", "MEMORY1_1"], power_assignment="5
 # (fixed pressure condition) at x_max and x_min.
 
 region = ipk.modeler["Region"]
-ipk.assign_pressure_free_opening(
-    assignment=region.top_face_x.id, boundary_name="Outlet"
-)
+ipk.assign_pressure_free_opening(assignment=region.top_face_x.id, boundary_name="Outlet")
 ipk.assign_velocity_free_opening(
     assignment=region.bottom_face_x.id,
     boundary_name="Inlet",
@@ -144,9 +141,7 @@ m1 = ipk.monitor.assign_face_monitor(
 
 speed_monitors = []
 for x_pos in range(0, 10, 2):
-    m = ipk.monitor.assign_point_monitor(
-        point_position=[f"{x_pos}mm", "40mm", "15mm"], monitor_quantity="Speed"
-    )
+    m = ipk.monitor.assign_point_monitor(point_position=[f"{x_pos}mm", "40mm", "15mm"], monitor_quantity="Speed")
     speed_monitors.append(m)
 
 # ## Solve project
@@ -167,18 +162,14 @@ ipk.analyze(setup=setup1.name, cores=NUM_CORES, tasks=NUM_CORES)
 
 # Get the point monitor data. A dictionary is returned with ``'Min'``, ``'Max'``, and ``'Mean'`` keys.
 
-temperature_data = ipk.post.evaluate_monitor_quantity(
-    monitor=m1, quantity="Temperature"
-)
+temperature_data = ipk.post.evaluate_monitor_quantity(monitor=m1, quantity="Temperature")
 temperature_data
 
 # It is also possible to get the data as a Pandas dataframe for advanced postprocessing.
 
 speed_fs = ipk.post.create_field_summary()
 for m_name in speed_monitors:
-    speed_fs.add_calculation(
-        entity="Monitor", geometry="Volume", geometry_name=m_name, quantity="Speed"
-    )
+    speed_fs.add_calculation(entity="Monitor", geometry="Volume", geometry_name=m_name, quantity="Speed")
 speed_data = speed_fs.get_field_summary_data(pandas_output=True)
 
 # All the data is now in a dataframe, making it easy to visualize and manipulate.
@@ -190,9 +181,7 @@ speed_data.head()
 
 for i in range(3):
     direction = ["X", "Y", "Z"][i]
-    speed_data["Position" + direction] = [
-        ipk.monitor.all_monitors[entity].location[i] for entity in speed_data["Entity"]
-    ]
+    speed_data["Position" + direction] = [ipk.monitor.all_monitors[entity].location[i] for entity in speed_data["Entity"]]
 
 # Plot the velocity profile at different X positions
 
@@ -222,9 +211,7 @@ temperature_fs.head()
 # The two dataframes can be merged using the `pd.merge()` function. With the merge, suffixes are
 # added to the column names to differentiate between the columns from each original dataframe.
 
-merged_df = pd.merge(
-    temperature_fs, speed_data, on="Entity", suffixes=("_temperature", "_speed")
-)
+merged_df = pd.merge(temperature_fs, speed_data, on="Entity", suffixes=("_temperature", "_speed"))
 merged_df.head()
 
 # The column names are renamed based on the ``Quantity`` column of the original dataframes.
@@ -268,9 +255,7 @@ ax.set_title(f"Correlation between Temperature and Velocity: {correlation:.2f}")
 surflist = [i.id for i in ipk.modeler["CPU"].faces]
 surflist += [i.id for i in ipk.modeler["MEMORY1"].faces]
 surflist += [i.id for i in ipk.modeler["MEMORY1_1"].faces]
-plot3 = ipk.post.create_fieldplot_surface(
-    assignment=surflist, quantity="SurfTemperature"
-)
+plot3 = ipk.post.create_fieldplot_surface(assignment=surflist, quantity="SurfTemperature")
 path = plot3.export_image(
     full_path=os.path.join(temp_folder.name, "temperature.png"),
     orientation="top",

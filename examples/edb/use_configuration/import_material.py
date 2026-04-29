@@ -18,13 +18,13 @@ from pyedb import Edb
 
 # Define constants
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION = "2026.1"
 
 # ## Preparation
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 file_edb = Path(temp_folder.name) / "test.aedb"
-edbapp = Edb(edbpath=file_edb, version=AEDT_VERSION)
+edbapp = Edb(edbpath=str(file_edb), version=AEDT_VERSION)
 
 # ## Create configure file
 

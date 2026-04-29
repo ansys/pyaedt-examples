@@ -19,11 +19,12 @@ import time
 
 from ansys.aedt.core import TwinBuilder
 from ansys.aedt.core.examples import downloads
+
 # -
 
 # Define constants.
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION = "2026.1"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
@@ -58,18 +59,14 @@ downloads.download_twin_builder_data(
 )
 
 downloads.download_twin_builder_data(source_build_conf_file, True, temp_folder.name)
-downloads.download_twin_builder_data(
-    source_props_conf_file, True, temp_folder.name
-)
+downloads.download_twin_builder_data(source_props_conf_file, True, temp_folder.name)
 
 # Target folder to extract project files.
 twin_builder_data_folder = os.path.join(temp_folder.name, "twin_builder")
 data_folder = os.path.join(twin_builder_data_folder, "Ex04")
 
 # Unzip training data and config file
-downloads.unzip(
-    os.path.join(twin_builder_data_folder, source_snapshot_data_zipfilename), data_folder
-)
+downloads.unzip(os.path.join(twin_builder_data_folder, source_snapshot_data_zipfilename), data_folder)
 shutil.copyfile(
     os.path.join(twin_builder_data_folder, source_build_conf_file),
     os.path.join(data_folder, source_build_conf_file),
@@ -141,20 +138,14 @@ G = 0.00254
 rom1 = tb.modeler.schematic.create_component("ROM1", "", "staticrom", [40 * G, 25 * G])
 
 # Place two excitation sources.
-source1 = tb.modeler.schematic.create_periodic_waveform_source(
-    None, "SINE", 2.5, 0.01, 0, 7.5, 0, [20 * G, 29 * G]
-)
-source2 = tb.modeler.schematic.create_periodic_waveform_source(
-    None, "SINE", 50, 0.02, 0, 450, 0, [20 * G, 25 * G]
-)
+source1 = tb.modeler.schematic.create_periodic_waveform_source(None, "SINE", 2.5, 0.01, 0, 7.5, 0, [20 * G, 29 * G])
+source2 = tb.modeler.schematic.create_periodic_waveform_source(None, "SINE", 50, 0.02, 0, 450, 0, [20 * G, 25 * G])
 # -
 
 # Connect components with wires.
 
 tb.modeler.schematic.create_wire([[22 * G, 29 * G], [33 * G, 29 * G]])
-tb.modeler.schematic.create_wire(
-    [[22 * G, 25 * G], [30 * G, 25 * G], [30 * G, 28 * G], [33 * G, 28 * G]]
-)
+tb.modeler.schematic.create_wire([[22 * G, 25 * G], [30 * G, 25 * G], [30 * G, 28 * G], [33 * G, 28 * G]])
 
 # Enable storage of views.
 
