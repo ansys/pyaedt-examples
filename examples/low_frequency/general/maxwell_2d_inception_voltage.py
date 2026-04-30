@@ -156,6 +156,7 @@ setup.update()
 # ## Run analysis
 #
 
+m2d.save_project()
 m2d.validate_simple()
 m2d.analyze_setup(name=setup_name, use_auto_settings=False, cores=NUM_CORES)
 
@@ -180,15 +181,13 @@ plot.update()
 #
 # Four possible scenarios are showcased. Please uncomment the approach that applies.
 
-#
 # ### Example 1: dry air at 1.5 bar pressure.
-#
-# m2d.post.modify_inception_parameters(plot.name, gas_type=0, gas_pressure=1.5,use_inception=True)
 
-#
+m2d.post.modify_inception_parameters(plot.name, gas_type=0, gas_pressure=1.5, use_inception=True)
+
 # ### Example 2: SF6 gas at 1.9 bar pressure.
-#
-# m2d.post.modify_inception_parameters(plot.name, gas_type=1, gas_pressure=1.9,use_inception=True)
+
+m2d.post.modify_inception_parameters(plot.name, gas_type=1, gas_pressure=1.9, use_inception=True)
 
 #
 # ### Example 3: define a proper ionization equation
@@ -198,18 +197,12 @@ plot.update()
 my_ionization_equation = "x"
 m2d.post.modify_inception_parameters(plot.name, gas_type=2, use_inception=True, streamer_constant=6.09, ionization_check=True, ionization_equation=my_ionization_equation)
 
-#
 # ### Example 4: user define gas  with ionization equation defined via dataset
 #
-# Here fictitious dataset for demo purposes used
+# Here, a fictitious dataset for demo purposes is used
 #
-# m2d.post.modify_inception_parameters(
-#             plot.name,
-#             gas_type=2,
-#             use_inception=True,
-#             streamer_constant=6.09,
-#             ionization_check=False,
-#             ionization_dataset=[2, 0, 0.15, 0.2, 0.4])
+
+m2d.post.modify_inception_parameters(plot.name, gas_type=2, use_inception=True, streamer_constant=6.09, ionization_check=False, ionization_dataset=[2, 0, 0.15, 0.2, 0.4])
 
 #
 # ### Evaluate inception voltage for the given gas on all field line traces
