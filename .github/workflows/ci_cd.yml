@@ -35,7 +35,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: ansys/actions/check-actions-security@571fb2b8c7d6ad8c8b18e50bd20fb00f125dcfb6 # v10.2.6
+      - uses: ansys/actions/check-actions-security@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
         with:
           generate-summary: true
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -47,7 +47,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: ansys/actions/doc-style@571fb2b8c7d6ad8c8b18e50bd20fb00f125dcfb6 # v10.2.6
+      - uses: ansys/actions/doc-style@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -154,7 +154,7 @@ jobs:
       contents: write # Needed to update files on the gh-pages branch
     steps:
       - name: Deploy the documentation
-        uses: ansys/actions/doc-deploy-dev@571fb2b8c7d6ad8c8b18e50bd20fb00f125dcfb6 # v10.2.6
+        uses: ansys/actions/doc-deploy-dev@7d55ff0b9f67c77dae50a286d711ee1ae27b0a25 # v10.2.12
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
