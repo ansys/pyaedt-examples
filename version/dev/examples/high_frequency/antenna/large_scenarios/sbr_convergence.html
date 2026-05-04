@@ -1,0 +1,1721 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>SBR+ convergence analysis &#8212; PyAEDT Examples</title>
+  
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/ansys-sphinx-theme.css?v=a23b20f3" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles\ansys-sphinx-theme.css?v=a23b20f3" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css?v=9233c59b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/highlight.css?v=500661c4" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+
+  <!-- Include desired assets -->
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  
+
+  
+    <link href="../../../../_static/css/breadcrumbs.css" rel="stylesheet" />
+  
+    <script src="../../../../_static/documentation_options.js?v=e7fb764e"></script>
+    <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=49e1bf35"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/high_frequency/antenna/large_scenarios/sbr_convergence';</script>
+    <link rel="icon" href="../../../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="RF interference" href="../interferences/index.html" />
+    <link rel="prev" title="HFSS to SBR+ time animation" href="time_domain.html" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1.dev0" />
+  <link rel="canonical" href="https://examples.aedt.docs.pyansys.com/version/stable/examples/high_frequency/antenna/large_scenarios/sbr_convergence.html" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="https://www.ansys.com/">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../_static/ansys_logo_transparent_black.png" class="logo__image only-light" alt="PyAEDT Examples - Home"/>
+    <img src="../../../../_static/ansys_logo_transparent_white.png" class="logo__image only-dark pst-js-only" alt="PyAEDT Examples - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../index.html" title="PyAEDT Examples home">Home</a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Examples
+  </a>
+</li>
+
+  </ul>
+</nav>
+</div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+      
+        <div class="navbar-item">
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+  
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+  
+
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../index.html" title="PyAEDT Examples home">Home</a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Examples
+  </a>
+</li>
+
+  </ul>
+</nav>
+</div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+  
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../aedt/index.html">Examples by AEDT application</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../index.html">High frequency</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../index.html">Antenna</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../dipole.html">Dipole antenna</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../array.html">Component antenna array</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../patch.html">Probe-fed patch antenna</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../fss_unitcell.html">Frequency Selective Surface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../aedt_general/modeler/circuit_schematic.html">Circuit schematic creation and analysis</a></li>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="index.html">Large scenarios</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="city.html">Environment import from open street map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="doppler.html">Doppler setup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="reflector.html">Reflector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="time_domain.html">HFSS to SBR+ time animation</a></li>
+<li class="toctree-l4 current active"><a class="current reference internal" href="#">SBR+ convergence analysis</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../interferences/index.html">RF interference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../5G_antenna_parametrics.html">Create a 5G Antenna Layout Component</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../radiofrequency_mmwave/index.html">Radio frequency and millimeter wave</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../layout/index.html">IC-Package-PCB</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../emc/index.html">EMC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../multiphysics/index.html">Multiphysics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../aedt_general/report/index.html">Report</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../low_frequency/index.html">Low frequency</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../electrothermal/index.html">Electrothermal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../aedt_general/index.html">Pre-processing and post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../edb/index.html">EDB Examples</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+       
+    <li class="breadcrumb-item">
+      <a href="https://aedt.docs.pyansys.com/" class="nav-link">PyAEDT</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="../../../../index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../../../index.html" class="nav-link">Examples</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../../index.html" class="nav-link">High frequency</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../index.html" class="nav-link">Antenna</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="index.html" class="nav-link">Large scenarios</a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">SBR+ convergence analysis</span></li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="admonition-download-this-example admonition">
+<p class="admonition-title">Download this example</p>
+<p>Download this example as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/antenna/large_scenarios/sbr_convergence.ipynb">Jupyter Notebook</a>
+or as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/antenna/large_scenarios/sbr_convergence.py">Python script</a>.</p>
+</div>
+<hr class="docutils" />
+<section id="SBR+-convergence-analysis">
+<h1>SBR+ convergence analysis<a class="headerlink" href="#SBR+-convergence-analysis" title="Link to this heading">#</a></h1>
+<p>This example demonstrates how to perform a convergence study on SBR+ (Shooting and Bouncing Rays) setup parameters to ensure accurate and reliable radar cross-section (RCS) results.</p>
+<p>The Shooting and Bouncing Rays (SBR+) method is a high-frequency asymptotic technique used in HFSS for electrically large problems such as antenna placement and radar cross-section (RCS) analysis. Two key parameters affect solution accuracy:</p>
+<ul class="simple">
+<li><p><strong>Ray Density Per Wavelength</strong>: Controls how many rays are launched per wavelength. Higher values provide more accurate results but increase computation time.</p></li>
+<li><p><strong>Maximum Number of Bounces</strong>: Defines how many times rays can reflect off surfaces before terminating. More bounces capture multi-reflection effects but increase solve time.</p></li>
+</ul>
+<p>This example systematically varies these parameters to identify converged settings where further increases do not significantly change the RCS results. The workflow demonstrates best practices for ensuring your SBR+ analysis is properly converged.</p>
+<p>Keywords: <strong>HFSS</strong>, <strong>SBR+</strong>, <strong>Radar cross-section</strong>, <strong>Convergence study</strong>, <strong>Ray tracing</strong>.</p>
+<section id="Prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#Prerequisites" title="Link to this heading">#</a></h2>
+<section id="Perform-imports">
+<h3>Perform imports<a class="headerlink" href="#Perform-imports" title="Link to this heading">#</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ansys.aedt.core.examples.downloads</span><span class="w"> </span><span class="kn">import</span> <span class="n">download_file</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ansys.aedt.core.hfss</span><span class="w"> </span><span class="kn">import</span> <span class="n">Hfss</span>
+<br/></pre></div>
+</div>
+</div>
+</section>
+<section id="Define-constants">
+<h3>Define constants<a class="headerlink" href="#Define-constants" title="Link to this heading">#</a></h3>
+<p>Constants help ensure consistency and avoid repetition throughout the example.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">AEDT_VERSION</span> <span class="o">=</span> <span class="s2">&quot;2026.1&quot;</span>
+<span class="n">NUM_CORES</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">NG_MODE</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Open AEDT UI when it is launched.</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Create-temporary-directory">
+<h3>Create temporary directory<a class="headerlink" href="#Create-temporary-directory" title="Link to this heading">#</a></h3>
+<p>Create a temporary directory where downloaded data or dumped data can be stored. If you’d like to retrieve the project data for subsequent use, the temporary folder name is given by <code class="docutils literal notranslate"><span class="pre">temp_folder.name</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">temp_folder</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.ansys&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="Model-preparation">
+<h2>Model preparation<a class="headerlink" href="#Model-preparation" title="Link to this heading">#</a></h2>
+<section id="Download-the-model">
+<h3>Download the model<a class="headerlink" href="#Download-the-model" title="Link to this heading">#</a></h3>
+<p>The model used in this example will be downloaded from the <a class="reference external" href="https://github.com/ansys/example-data">example-data</a> GitHub repository. The model is a trihedral corner reflector, a common radar calibration target with well-known RCS characteristics.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">project_path</span> <span class="o">=</span> <span class="n">download_file</span><span class="p">(</span><span class="s2">&quot;sbr_convergence&quot;</span><span class="p">,</span> <span class="s2">&quot;trihedral_rcs.aedt&quot;</span><span class="p">,</span> <span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Launch-HFSS-and-open-project">
+<h3>Launch HFSS and open project<a class="headerlink" href="#Launch-HFSS-and-open-project" title="Link to this heading">#</a></h3>
+<p>Launch HFSS and open the project containing the trihedral reflector geometry.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">hfss</span> <span class="o">=</span> <span class="n">Hfss</span><span class="p">(</span>
+    <span class="n">project</span><span class="o">=</span><span class="n">project_path</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="n">AEDT_VERSION</span><span class="p">,</span>
+    <span class="n">non_graphical</span><span class="o">=</span><span class="n">NG_MODE</span><span class="p">,</span>
+    <span class="n">new_desktop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Parsing C:\Users\ansys\AppData\Local\Temp\tmp38d0xnm_.ansys\pyaedt\sbr_convergence\trihedral_rcs.aedt.
+PyAEDT INFO: Python version 3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)].
+PyAEDT INFO: PyAEDT version 1.0.dev0.
+PyAEDT INFO: Initializing new Desktop session.
+PyAEDT INFO: AEDT version 2026.1.
+PyAEDT INFO: File C:\Users\ansys\AppData\Local\Temp\tmp38d0xnm_.ansys\pyaedt\sbr_convergence\trihedral_rcs.aedt correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: New AEDT session is starting on gRPC port 55345.
+PyAEDT INFO: Starting new AEDT gRPC session on port 55345.
+PyAEDT INFO: Launching AEDT server with gRPC transport mode: wnua
+PyAEDT INFO: Electronics Desktop started on gRPC port 55345 after 9.7 seconds.
+PyAEDT INFO: AEDT installation Path C:\Program Files\ANSYS Inc\v261\AnsysEM
+PyAEDT INFO: Connected to AEDT gRPC session on port 55345.
+PyAEDT INFO: Non-graphical mode detected. Disabling Desktop logs.
+PyAEDT INFO: Project trihedral_rcs has been opened.
+PyAEDT INFO: Active Design set to HFSSDesign1
+PyAEDT INFO: AEDT objects correctly read
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="Convergence-study-parameters">
+<h2>Convergence study parameters<a class="headerlink" href="#Convergence-study-parameters" title="Link to this heading">#</a></h2>
+<section id="Setup-parameters">
+<h3>Setup parameters<a class="headerlink" href="#Setup-parameters" title="Link to this heading">#</a></h3>
+<p>Define the analysis frequency and convergence criteria. The convergence threshold determines when two successive results are considered “close enough” that further refinement is unnecessary.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">setup_frequency</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;10GHz&quot;</span><span class="p">]</span>  <span class="c1"># Analysis frequency</span>
+<span class="n">convergence_threshold</span> <span class="o">=</span> <span class="mf">0.5</span>  <span class="c1"># Maximum allowed change in dB (convergence criterion)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Advanced-SBR+-options">
+<h3>Advanced SBR+ options<a class="headerlink" href="#Advanced-SBR+-options" title="Link to this heading">#</a></h3>
+<p>Configure advanced ray tracing options:</p>
+<ul class="simple">
+<li><p><strong>PDF (Physical Theory of Diffraction)</strong>: Improves accuracy for diffraction effects at edges.</p></li>
+<li><p><strong>UTD (Uniform Theory of Diffraction)</strong>: Adds rays to capture diffraction phenomena.</p></li>
+</ul>
+<p>These options can improve accuracy but increase computation time.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">enable_ptd</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">enable_utd</span> <span class="o">=</span> <span class="kc">False</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Convergence-methodology">
+<h3>Convergence methodology<a class="headerlink" href="#Convergence-methodology" title="Link to this heading">#</a></h3>
+<p>Define how convergence is assessed:</p>
+<ul class="simple">
+<li><p><strong>Convergence Method</strong>:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;average&quot;</span></code>: Checks if the average RCS across all angles has converged.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;point_to_point&quot;</span></code>: Checks if the maximum change at any single angle is below threshold (more stringent).</p></li>
+</ul>
+</li>
+</ul>
+<p>The workflow follows a natural progression:</p>
+<ol class="arabic simple">
+<li><p>First, converge the bounce number (how many reflections to track)</p></li>
+<li><p>Then, converge the ray density (how many rays to launch)</p></li>
+</ol>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">convergence_method</span> <span class="o">=</span> <span class="s2">&quot;point_to_point&quot;</span>  <span class="c1"># &quot;average&quot; or &quot;point_to_point&quot;</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Starting-values">
+<h3>Starting values<a class="headerlink" href="#Starting-values" title="Link to this heading">#</a></h3>
+<p>Define initial values for the convergence sweep. The algorithm will increment these values until convergence is achieved.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">starting_ray_density</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">starting_bounce_number</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">max_ray_density</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">max_bounce_number</span> <span class="o">=</span> <span class="mi">5</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Configure-PDF/UTD-settings">
+<h3>Configure PDF/UTD settings<a class="headerlink" href="#Configure-PDF/UTD-settings" title="Link to this heading">#</a></h3>
+<p>Map the boolean flags to the appropriate HFSS setup string.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">enable_ptd</span> <span class="ow">and</span> <span class="n">enable_utd</span><span class="p">:</span>
+    <span class="n">ptd_utd_setting</span> <span class="o">=</span> <span class="s2">&quot;PDF Correction + UTD Rays&quot;</span>
+<span class="k">elif</span> <span class="n">enable_ptd</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">enable_utd</span><span class="p">:</span>
+    <span class="n">ptd_utd_setting</span> <span class="o">=</span> <span class="s2">&quot;PDF Correction&quot;</span>
+<span class="k">elif</span> <span class="ow">not</span> <span class="n">enable_ptd</span> <span class="ow">and</span> <span class="n">enable_utd</span><span class="p">:</span>
+    <span class="n">ptd_utd_setting</span> <span class="o">=</span> <span class="s2">&quot;UTD Rays&quot;</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">ptd_utd_setting</span> <span class="o">=</span> <span class="s2">&quot;None&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PDF: </span><span class="si">{</span><span class="n">enable_ptd</span><span class="si">}</span><span class="s2">, UTD: </span><span class="si">{</span><span class="n">enable_utd</span><span class="si">}</span><span class="s2"> → Setting: &#39;</span><span class="si">{</span><span class="n">ptd_utd_setting</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Convergence Method: </span><span class="si">{</span><span class="n">convergence_method</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PDF: False, UTD: False → Setting: &#39;None&#39;
+Convergence Method: point_to_point
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="The-convergence-story:-A-step-by-step-workflow">
+<h2>The convergence story: A step-by-step workflow<a class="headerlink" href="#The-convergence-story:-A-step-by-step-workflow" title="Link to this heading">#</a></h2>
+<p>In this section, we’ll perform a convergence study by following a clear, sequential workflow. The story unfolds in phases:</p>
+<ol class="arabic simple">
+<li><p><strong>Phase 1</strong>: We start by testing different bounce numbers while keeping ray density fixed</p></li>
+<li><p><strong>Phase 2</strong>: Once we find a good bounce number, we test different ray densities</p></li>
+<li><p><strong>Conclusion</strong>: We identify the optimal settings that give us reliable RCS results</p></li>
+</ol>
+<p>This approach mimics how an engineer would manually tune the parameters to achieve convergence.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">70</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;SBR+ CONVERGENCE STUDY - A Sequential Workflow Story&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">70</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Our goal: Find SBR+ settings that give us accurate RCS results&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Convergence threshold: Changes must be &lt; </span><span class="si">{</span><span class="n">convergence_threshold</span><span class="si">}</span><span class="s2"> dB&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PDF/UTD Setting: </span><span class="si">{</span><span class="n">ptd_utd_setting</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Analysis frequency: </span><span class="si">{</span><span class="n">setup_frequency</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+======================================================================
+SBR+ CONVERGENCE STUDY - A Sequential Workflow Story
+======================================================================
+
+Our goal: Find SBR+ settings that give us accurate RCS results
+Convergence threshold: Changes must be &lt; 0.5 dB
+PDF/UTD Setting: None
+Analysis frequency: 10GHz
+</pre></div></div>
+</div>
+<section id="Initialize-data-storage">
+<h3>Initialize data storage<a class="headerlink" href="#Initialize-data-storage" title="Link to this heading">#</a></h3>
+<p>We’ll store all our results as we progress through the convergence study.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Storage for bounce number convergence (Phase 1)</span>
+<span class="n">bounce_numbers</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">avg_rcs_bounce</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">all_rcs_bounce</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">all_phi_bounce</span> <span class="o">=</span> <span class="p">[]</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Storage for ray density convergence (Phase 2)</span>
+<span class="n">ray_densities</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">avg_rcs_ray</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">all_rcs_ray</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">all_phi_ray</span> <span class="o">=</span> <span class="p">[]</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="Phase-1:-Finding-the-right-number-of-bounces">
+<h2>Phase 1: Finding the right number of bounces<a class="headerlink" href="#Phase-1:-Finding-the-right-number-of-bounces" title="Link to this heading">#</a></h2>
+<p>We begin by determining how many ray bounces are needed for accurate results. We’ll keep the ray density fixed at a reasonable starting value and gradually increase the number of bounces until the RCS results stabilize.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">70</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PHASE 1: CONVERGING BOUNCE NUMBER&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;(Ray Density fixed at </span><span class="si">{</span><span class="n">starting_ray_density</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">70</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+======================================================================
+PHASE 1: CONVERGING BOUNCE NUMBER
+(Ray Density fixed at 1)
+======================================================================
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">current_bounce</span> <span class="o">=</span> <span class="n">starting_bounce_number</span>
+<span class="n">previous_rcs_bounce</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">bounce_converged</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">converged_bounce_number</span> <span class="o">=</span> <span class="n">max_bounce_number</span>  <span class="c1"># Initialize with max value</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">while</span> <span class="ow">not</span> <span class="n">bounce_converged</span> <span class="ow">and</span> <span class="n">current_bounce</span> <span class="o">&lt;=</span> <span class="n">max_bounce_number</span><span class="p">:</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">--- Testing Bounce Number: </span><span class="si">{</span><span class="n">current_bounce</span><span class="si">}</span><span class="s2"> ---&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Delete any existing SBR setup to start fresh</span>
+    <span class="k">if</span> <span class="s2">&quot;SBR&quot;</span> <span class="ow">in</span> <span class="n">hfss</span><span class="o">.</span><span class="n">setup_names</span><span class="p">:</span>
+        <span class="n">hfss</span><span class="o">.</span><span class="n">delete_setup</span><span class="p">(</span><span class="s2">&quot;SBR&quot;</span><span class="p">)</span>
+
+    <span class="n">hfss</span><span class="o">.</span><span class="n">save_project</span><span class="p">()</span>
+
+    <span class="c1"># Create a new SBR+ setup with current parameters</span>
+    <span class="n">setup1</span> <span class="o">=</span> <span class="n">hfss</span><span class="o">.</span><span class="n">create_setup</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;SBR&quot;</span><span class="p">)</span>
+    <span class="n">setup1</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;RayDensityPerWavelength&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">starting_ray_density</span>
+    <span class="n">setup1</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;MaxNumberOfBounces&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">current_bounce</span>
+    <span class="n">setup1</span><span class="p">[</span><span class="s2">&quot;RangeType&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;SinglePoints&quot;</span>
+    <span class="n">setup1</span><span class="p">[</span><span class="s2">&quot;RangeStart&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">setup_frequency</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">setup1</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;ComputeFarFields&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">setup1</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;PTDUTDSimulationSettings&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ptd_utd_setting</span>
+    <span class="n">setup1</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Setup created: Ray Density = </span><span class="si">{</span><span class="n">starting_ray_density</span><span class="si">}</span><span class="s2">, Bounces = </span><span class="si">{</span><span class="n">current_bounce</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Run the simulation</span>
+    <span class="n">hfss</span><span class="o">.</span><span class="n">analyze_setup</span><span class="p">(</span><span class="s2">&quot;SBR&quot;</span><span class="p">,</span> <span class="n">cores</span><span class="o">=</span><span class="n">NUM_CORES</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Simulation complete. Retrieving RCS data...&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Extract RCS results</span>
+    <span class="n">sweep_names</span> <span class="o">=</span> <span class="n">hfss</span><span class="o">.</span><span class="n">existing_analysis_sweeps</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">hfss</span><span class="o">.</span><span class="n">get_rcs_data</span><span class="p">(</span><span class="n">setup</span><span class="o">=</span><span class="n">sweep_names</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">expression</span><span class="o">=</span><span class="s2">&quot;MonostaticRCSTotal&quot;</span><span class="p">)</span>
+    <span class="n">solution_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get_monostatic_rcs</span><span class="p">()</span>
+    <span class="n">solution_data</span><span class="o">.</span><span class="n">primary_sweep</span> <span class="o">=</span> <span class="s2">&quot;IWavePhi&quot;</span>
+
+    <span class="n">iwavephi_values</span> <span class="o">=</span> <span class="n">solution_data</span><span class="o">.</span><span class="n">primary_sweep_values</span>
+    <span class="n">rcs_values</span> <span class="o">=</span> <span class="n">solution_data</span><span class="o">.</span><span class="n">get_expression_data</span><span class="p">(</span><span class="n">formula</span><span class="o">=</span><span class="s2">&quot;dB10&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">average_rcs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">rcs_values</span><span class="p">)</span>
+
+    <span class="c1"># Store the results</span>
+    <span class="n">bounce_numbers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_bounce</span><span class="p">)</span>
+    <span class="n">avg_rcs_bounce</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">average_rcs</span><span class="p">)</span>
+    <span class="n">all_rcs_bounce</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rcs_values</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+    <span class="n">all_phi_bounce</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">iwavephi_values</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Average RCS: </span><span class="si">{</span><span class="n">average_rcs</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> dBsm&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Check if we&#39;ve converged (compare with previous iteration)</span>
+    <span class="k">if</span> <span class="n">previous_rcs_bounce</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">convergence_method</span> <span class="o">==</span> <span class="s2">&quot;average&quot;</span><span class="p">:</span>
+            <span class="n">previous_avg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">previous_rcs_bounce</span><span class="p">)</span>
+            <span class="n">change</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">average_rcs</span> <span class="o">-</span> <span class="n">previous_avg</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Change from previous: </span><span class="si">{</span><span class="n">change</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> dB&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">change</span> <span class="o">&lt;</span> <span class="n">convergence_threshold</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">*** BOUNCE NUMBER CONVERGED at </span><span class="si">{</span><span class="n">current_bounce</span><span class="si">}</span><span class="s2"> bounces! ***&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The RCS results are now stable (change &lt; </span><span class="si">{</span><span class="n">convergence_threshold</span><span class="si">}</span><span class="s2"> dB)&quot;</span><span class="p">)</span>
+                <span class="n">bounce_converged</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">converged_bounce_number</span> <span class="o">=</span> <span class="n">current_bounce</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># point_to_point</span>
+            <span class="n">absolute_changes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">rcs_values</span> <span class="o">-</span> <span class="n">previous_rcs_bounce</span><span class="p">)</span>
+            <span class="n">max_change</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">absolute_changes</span><span class="p">)</span>
+            <span class="n">max_change_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">absolute_changes</span><span class="p">)</span>
+            <span class="n">mean_change</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">absolute_changes</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Max point change: </span><span class="si">{</span><span class="n">max_change</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> dB at IWavePhi = </span><span class="si">{</span><span class="n">iwavephi_values</span><span class="p">[</span><span class="n">max_change_index</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">°&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mean point change: </span><span class="si">{</span><span class="n">mean_change</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> dB&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">max_change</span> <span class="o">&lt;</span> <span class="n">convergence_threshold</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">*** BOUNCE NUMBER CONVERGED at </span><span class="si">{</span><span class="n">current_bounce</span><span class="si">}</span><span class="s2"> bounces! ***&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;All RCS points are stable (max change &lt; </span><span class="si">{</span><span class="n">convergence_threshold</span><span class="si">}</span><span class="s2"> dB)&quot;</span><span class="p">)</span>
+                <span class="n">bounce_converged</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">converged_bounce_number</span> <span class="o">=</span> <span class="n">current_bounce</span>
+
+    <span class="c1"># Save previous results for next comparison</span>
+    <span class="n">previous_rcs_bounce</span> <span class="o">=</span> <span class="n">rcs_values</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c1"># Move to next bounce number</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">bounce_converged</span><span class="p">:</span>
+        <span class="n">current_bounce</span> <span class="o">+=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+--- Testing Bounce Number: 2 ---
+PyAEDT INFO: Project trihedral_rcs Saved correctly
+PyAEDT WARNING: Field Observation Domain not defined
+Setup created: Ray Density = 1, Bounces = 2
+PyAEDT INFO: Key Desktop/ActiveDSOConfigurations/HFSS correctly changed.
+PyAEDT INFO: Solving design setup SBR
+PyAEDT INFO: Design setup SBR solved correctly in 0.0h 0.0m 32.0s
+PyAEDT INFO: Key Desktop/ActiveDSOConfigurations/HFSS correctly changed.
+Simulation complete. Retrieving RCS data...
+PyAEDT INFO: Parsing C:\Users\ansys\AppData\Local\Temp\tmp38d0xnm_.ansys\pyaedt\sbr_convergence\trihedral_rcs.aedt.
+PyAEDT INFO: File C:\Users\ansys\AppData\Local\Temp\tmp38d0xnm_.ansys\pyaedt\sbr_convergence\trihedral_rcs.aedt correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: aedt file load time 0.03161787986755371
+PyAEDT INFO: PostProcessor class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: PostProcessor class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Post class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Modeler class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Solution Correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: Solution Correctly parsed. Elapsed time: 0m 0sec
+PyAEDT INFO: Exporting geometry...
+PyAEDT INFO: Solution Correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: Solution Correctly parsed. Elapsed time: 0m 0sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+C:\actions-runner\_work\pyaedt-examples\pyaedt-examples\.venv\lib\site-packages\ansys\aedt\core\generic\constants.py:197: UserWarning: Unknown units: &#39;m2&#39;
+  warnings.warn(f&#34;Unknown units: &#39;{input_units}&#39;&#34;)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Solution Correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: Solution Correctly parsed. Elapsed time: 0m 0sec
+Average RCS: -8.1278 dBsm
+
+--- Testing Bounce Number: 3 ---
+PyAEDT INFO: Project trihedral_rcs Saved correctly
+PyAEDT WARNING: Field Observation Domain not defined
+Setup created: Ray Density = 1, Bounces = 3
+PyAEDT INFO: Key Desktop/ActiveDSOConfigurations/HFSS correctly changed.
+PyAEDT INFO: Solving design setup SBR
+PyAEDT INFO: Design setup SBR solved correctly in 0.0h 0.0m 25.0s
+PyAEDT INFO: Key Desktop/ActiveDSOConfigurations/HFSS correctly changed.
+Simulation complete. Retrieving RCS data...
+PyAEDT INFO: Solution Correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: Solution Correctly parsed. Elapsed time: 0m 0sec
+PyAEDT INFO: Exporting geometry...
+PyAEDT INFO: Solution Correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: Solution Correctly parsed. Elapsed time: 0m 0sec
+PyAEDT INFO: Solution Correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: Solution Correctly parsed. Elapsed time: 0m 0sec
+Average RCS: 18.6395 dBsm
+Max point change: 56.5630 dB at IWavePhi = 264.5°
+Mean point change: 26.7706 dB
+
+--- Testing Bounce Number: 4 ---
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+C:\actions-runner\_work\pyaedt-examples\pyaedt-examples\.venv\lib\site-packages\ansys\aedt\core\generic\constants.py:197: UserWarning: Unknown units: &#39;m2&#39;
+  warnings.warn(f&#34;Unknown units: &#39;{input_units}&#39;&#34;)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Project trihedral_rcs Saved correctly
+PyAEDT WARNING: Field Observation Domain not defined
+Setup created: Ray Density = 1, Bounces = 4
+PyAEDT INFO: Key Desktop/ActiveDSOConfigurations/HFSS correctly changed.
+PyAEDT INFO: Solving design setup SBR
+PyAEDT INFO: Design setup SBR solved correctly in 0.0h 0.0m 24.0s
+PyAEDT INFO: Key Desktop/ActiveDSOConfigurations/HFSS correctly changed.
+Simulation complete. Retrieving RCS data...
+PyAEDT INFO: Solution Correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: Solution Correctly parsed. Elapsed time: 0m 0sec
+PyAEDT INFO: Exporting geometry...
+PyAEDT INFO: Solution Correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: Solution Correctly parsed. Elapsed time: 0m 0sec
+PyAEDT INFO: Solution Correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: Solution Correctly parsed. Elapsed time: 0m 0sec
+Average RCS: 18.6395 dBsm
+Max point change: 0.0000 dB at IWavePhi = 225.0°
+Mean point change: 0.0000 dB
+
+*** BOUNCE NUMBER CONVERGED at 4 bounces! ***
+All RCS points are stable (max change &lt; 0.5 dB)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+C:\actions-runner\_work\pyaedt-examples\pyaedt-examples\.venv\lib\site-packages\ansys\aedt\core\generic\constants.py:197: UserWarning: Unknown units: &#39;m2&#39;
+  warnings.warn(f&#34;Unknown units: &#39;{input_units}&#39;&#34;)
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Handle case where we didn&#39;t converge</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">bounce_converged</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Reached maximum bounce limit (</span><span class="si">{</span><span class="n">max_bounce_number</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using the highest tested value as our working bounce number&quot;</span><span class="p">)</span>
+    <span class="n">converged_bounce_number</span> <span class="o">=</span> <span class="n">max_bounce_number</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Phase 1 complete! We&#39;ll use </span><span class="si">{</span><span class="n">converged_bounce_number</span><span class="si">}</span><span class="s2"> bounces for the next phase.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+Phase 1 complete! We&#39;ll use 4 bounces for the next phase.
+</pre></div></div>
+</div>
+</section>
+<section id="Phase-2:-Finding-the-right-ray-density">
+<h2>Phase 2: Finding the right ray density<a class="headerlink" href="#Phase-2:-Finding-the-right-ray-density" title="Link to this heading">#</a></h2>
+<p>Now that we know how many bounces to use, we’ll determine the optimal ray density. We keep the bounce number fixed at the converged value from Phase 1 and gradually increase the ray density until we achieve stable results.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">70</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PHASE 2: CONVERGING RAY DENSITY&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;(Bounces fixed at </span><span class="si">{</span><span class="n">converged_bounce_number</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">70</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+======================================================================
+PHASE 2: CONVERGING RAY DENSITY
+(Bounces fixed at 4)
+======================================================================
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">current_ray_density</span> <span class="o">=</span> <span class="n">starting_ray_density</span>
+<span class="n">previous_rcs_ray</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">ray_converged</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">converged_ray_density</span> <span class="o">=</span> <span class="n">max_ray_density</span>  <span class="c1"># Initialize with max value</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">while</span> <span class="ow">not</span> <span class="n">ray_converged</span> <span class="ow">and</span> <span class="n">current_ray_density</span> <span class="o">&lt;=</span> <span class="n">max_ray_density</span><span class="p">:</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">--- Testing Ray Density: </span><span class="si">{</span><span class="n">current_ray_density</span><span class="si">}</span><span class="s2"> ---&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Delete any existing SBR setup to start fresh</span>
+    <span class="k">if</span> <span class="s2">&quot;SBR&quot;</span> <span class="ow">in</span> <span class="n">hfss</span><span class="o">.</span><span class="n">setup_names</span><span class="p">:</span>
+        <span class="n">hfss</span><span class="o">.</span><span class="n">delete_setup</span><span class="p">(</span><span class="s2">&quot;SBR&quot;</span><span class="p">)</span>
+
+    <span class="n">hfss</span><span class="o">.</span><span class="n">save_project</span><span class="p">()</span>
+
+    <span class="c1"># Create a new SBR+ setup with current parameters</span>
+    <span class="n">setup1</span> <span class="o">=</span> <span class="n">hfss</span><span class="o">.</span><span class="n">create_setup</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;SBR&quot;</span><span class="p">)</span>
+    <span class="n">setup1</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;RayDensityPerWavelength&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">current_ray_density</span>
+    <span class="n">setup1</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;MaxNumberOfBounces&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">converged_bounce_number</span>
+    <span class="n">setup1</span><span class="p">[</span><span class="s2">&quot;RangeType&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;SinglePoints&quot;</span>
+    <span class="n">setup1</span><span class="p">[</span><span class="s2">&quot;RangeStart&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">setup_frequency</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">setup1</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;ComputeFarFields&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">setup1</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;PTDUTDSimulationSettings&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ptd_utd_setting</span>
+    <span class="n">setup1</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Setup created: Ray Density = </span><span class="si">{</span><span class="n">current_ray_density</span><span class="si">}</span><span class="s2">, Bounces = </span><span class="si">{</span><span class="n">converged_bounce_number</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Run the simulation</span>
+    <span class="n">hfss</span><span class="o">.</span><span class="n">analyze_setup</span><span class="p">(</span><span class="s2">&quot;SBR&quot;</span><span class="p">,</span> <span class="n">cores</span><span class="o">=</span><span class="n">NUM_CORES</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Simulation complete. Retrieving RCS data...&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Extract RCS results</span>
+    <span class="n">sweep_names</span> <span class="o">=</span> <span class="n">hfss</span><span class="o">.</span><span class="n">existing_analysis_sweeps</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">hfss</span><span class="o">.</span><span class="n">get_rcs_data</span><span class="p">(</span><span class="n">setup</span><span class="o">=</span><span class="n">sweep_names</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">expression</span><span class="o">=</span><span class="s2">&quot;MonostaticRCSTotal&quot;</span><span class="p">)</span>
+    <span class="n">solution_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get_monostatic_rcs</span><span class="p">()</span>
+    <span class="n">solution_data</span><span class="o">.</span><span class="n">primary_sweep</span> <span class="o">=</span> <span class="s2">&quot;IWavePhi&quot;</span>
+
+    <span class="n">iwavephi_values</span> <span class="o">=</span> <span class="n">solution_data</span><span class="o">.</span><span class="n">primary_sweep_values</span>
+    <span class="n">rcs_values</span> <span class="o">=</span> <span class="n">solution_data</span><span class="o">.</span><span class="n">get_expression_data</span><span class="p">(</span><span class="n">formula</span><span class="o">=</span><span class="s2">&quot;dB10&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">average_rcs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">rcs_values</span><span class="p">)</span>
+
+    <span class="c1"># Store the results</span>
+    <span class="n">ray_densities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_ray_density</span><span class="p">)</span>
+    <span class="n">avg_rcs_ray</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">average_rcs</span><span class="p">)</span>
+    <span class="n">all_rcs_ray</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rcs_values</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+    <span class="n">all_phi_ray</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">iwavephi_values</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Average RCS: </span><span class="si">{</span><span class="n">average_rcs</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> dBsm&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Check if we&#39;ve converged (compare with previous iteration)</span>
+    <span class="k">if</span> <span class="n">previous_rcs_ray</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">convergence_method</span> <span class="o">==</span> <span class="s2">&quot;average&quot;</span><span class="p">:</span>
+            <span class="n">previous_avg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">previous_rcs_ray</span><span class="p">)</span>
+            <span class="n">change</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">average_rcs</span> <span class="o">-</span> <span class="n">previous_avg</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Change from previous: </span><span class="si">{</span><span class="n">change</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> dB&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">change</span> <span class="o">&lt;</span> <span class="n">convergence_threshold</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">*** RAY DENSITY CONVERGED at </span><span class="si">{</span><span class="n">current_ray_density</span><span class="si">}</span><span class="s2">! ***&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The RCS results are now stable (change &lt; </span><span class="si">{</span><span class="n">convergence_threshold</span><span class="si">}</span><span class="s2"> dB)&quot;</span><span class="p">)</span>
+                <span class="n">ray_converged</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">converged_ray_density</span> <span class="o">=</span> <span class="n">current_ray_density</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># point_to_point</span>
+            <span class="n">absolute_changes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">rcs_values</span> <span class="o">-</span> <span class="n">previous_rcs_ray</span><span class="p">)</span>
+            <span class="n">max_change</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">absolute_changes</span><span class="p">)</span>
+            <span class="n">max_change_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">absolute_changes</span><span class="p">)</span>
+            <span class="n">mean_change</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">absolute_changes</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Max point change: </span><span class="si">{</span><span class="n">max_change</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> dB at IWavePhi = </span><span class="si">{</span><span class="n">iwavephi_values</span><span class="p">[</span><span class="n">max_change_index</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">°&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mean point change: </span><span class="si">{</span><span class="n">mean_change</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> dB&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">max_change</span> <span class="o">&lt;</span> <span class="n">convergence_threshold</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">*** RAY DENSITY CONVERGED at </span><span class="si">{</span><span class="n">current_ray_density</span><span class="si">}</span><span class="s2">! ***&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;All RCS points are stable (max change &lt; </span><span class="si">{</span><span class="n">convergence_threshold</span><span class="si">}</span><span class="s2"> dB)&quot;</span><span class="p">)</span>
+                <span class="n">ray_converged</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">converged_ray_density</span> <span class="o">=</span> <span class="n">current_ray_density</span>
+
+    <span class="c1"># Save previous results for next comparison</span>
+    <span class="n">previous_rcs_ray</span> <span class="o">=</span> <span class="n">rcs_values</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c1"># Move to next ray density</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">ray_converged</span><span class="p">:</span>
+        <span class="n">current_ray_density</span> <span class="o">+=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+--- Testing Ray Density: 1 ---
+PyAEDT INFO: Project trihedral_rcs Saved correctly
+PyAEDT WARNING: Field Observation Domain not defined
+Setup created: Ray Density = 1, Bounces = 4
+PyAEDT INFO: Key Desktop/ActiveDSOConfigurations/HFSS correctly changed.
+PyAEDT INFO: Solving design setup SBR
+PyAEDT INFO: Design setup SBR solved correctly in 0.0h 0.0m 25.0s
+PyAEDT INFO: Key Desktop/ActiveDSOConfigurations/HFSS correctly changed.
+Simulation complete. Retrieving RCS data...
+PyAEDT INFO: Solution Correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: Solution Correctly parsed. Elapsed time: 0m 0sec
+PyAEDT INFO: Exporting geometry...
+PyAEDT INFO: Solution Correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: Solution Correctly parsed. Elapsed time: 0m 0sec
+PyAEDT INFO: Solution Correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: Solution Correctly parsed. Elapsed time: 0m 0sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+C:\actions-runner\_work\pyaedt-examples\pyaedt-examples\.venv\lib\site-packages\ansys\aedt\core\generic\constants.py:197: UserWarning: Unknown units: &#39;m2&#39;
+  warnings.warn(f&#34;Unknown units: &#39;{input_units}&#39;&#34;)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Average RCS: 18.6395 dBsm
+
+--- Testing Ray Density: 2 ---
+PyAEDT INFO: Project trihedral_rcs Saved correctly
+PyAEDT WARNING: Field Observation Domain not defined
+Setup created: Ray Density = 2, Bounces = 4
+PyAEDT INFO: Key Desktop/ActiveDSOConfigurations/HFSS correctly changed.
+PyAEDT INFO: Solving design setup SBR
+PyAEDT INFO: Design setup SBR solved correctly in 0.0h 0.0m 25.0s
+PyAEDT INFO: Key Desktop/ActiveDSOConfigurations/HFSS correctly changed.
+Simulation complete. Retrieving RCS data...
+PyAEDT INFO: Solution Correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: Solution Correctly parsed. Elapsed time: 0m 0sec
+PyAEDT INFO: Exporting geometry...
+PyAEDT INFO: Solution Correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: Solution Correctly parsed. Elapsed time: 0m 0sec
+PyAEDT INFO: Solution Correctly loaded. Elapsed time: 0m 0sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+C:\actions-runner\_work\pyaedt-examples\pyaedt-examples\.venv\lib\site-packages\ansys\aedt\core\generic\constants.py:197: UserWarning: Unknown units: &#39;m2&#39;
+  warnings.warn(f&#34;Unknown units: &#39;{input_units}&#39;&#34;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Solution Correctly parsed. Elapsed time: 0m 0sec
+Average RCS: 18.6105 dBsm
+Max point change: 0.5487 dB at IWavePhi = 226.0°
+Mean point change: 0.0844 dB
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Handle case where we didn&#39;t converge</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">ray_converged</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Reached maximum ray density limit (</span><span class="si">{</span><span class="n">max_ray_density</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using the highest tested value as our final ray density&quot;</span><span class="p">)</span>
+    <span class="n">converged_ray_density</span> <span class="o">=</span> <span class="n">max_ray_density</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+Reached maximum ray density limit (2)
+Using the highest tested value as our final ray density
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Phase 2 complete! Optimal ray density is </span><span class="si">{</span><span class="n">converged_ray_density</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+Phase 2 complete! Optimal ray density is 2.
+</pre></div></div>
+</div>
+</section>
+<section id="Final-Summary">
+<h2>Final Summary<a class="headerlink" href="#Final-Summary" title="Link to this heading">#</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">70</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;CONVERGENCE STUDY COMPLETE&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">70</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Convergence Method:     </span><span class="si">{</span><span class="n">convergence_method</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Convergence Threshold:  </span><span class="si">{</span><span class="n">convergence_threshold</span><span class="si">}</span><span class="s2"> dB&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PDF/UTD Setting:        </span><span class="si">{</span><span class="n">ptd_utd_setting</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Converged Ray Density:  </span><span class="si">{</span><span class="n">converged_ray_density</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Converged Bounce Number:</span><span class="si">{</span><span class="n">converged_bounce_number</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total simulations run:  </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ray_densities</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">bounce_numbers</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - Bounce number sweep:</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">bounce_numbers</span><span class="p">)</span><span class="si">}</span><span class="s2"> simulations&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - Ray density sweep:  </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ray_densities</span><span class="p">)</span><span class="si">}</span><span class="s2"> simulations&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">70</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+======================================================================
+CONVERGENCE STUDY COMPLETE
+======================================================================
+Convergence Method:     point_to_point
+Convergence Threshold:  0.5 dB
+PDF/UTD Setting:        None
+Converged Ray Density:  2
+Converged Bounce Number:4
+Total simulations run:  5
+  - Bounce number sweep:3 simulations
+  - Ray density sweep:  2 simulations
+======================================================================
+</pre></div></div>
+</div>
+</section>
+<section id="Plotting">
+<h2>Plotting<a class="headerlink" href="#Plotting" title="Link to this heading">#</a></h2>
+<p>Plotting the results outside of AEDT.</p>
+<section id="Plot-1:-Ray-Density---RCS-Curves">
+<h3>Plot 1: Ray Density - RCS Curves<a class="headerlink" href="#Plot-1:-Ray-Density---RCS-Curves" title="Link to this heading">#</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">rd</span><span class="p">,</span> <span class="n">rcs_curve</span><span class="p">,</span> <span class="n">iwavephi</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">ray_densities</span><span class="p">,</span> <span class="n">all_rcs_ray</span><span class="p">,</span> <span class="n">all_phi_ray</span><span class="p">)):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">iwavephi</span><span class="p">,</span> <span class="n">rcs_curve</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Ray Density = </span><span class="si">{</span><span class="n">rd</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;IWavePhi Angle (degrees)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;RCS (dBsm)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Ray Density Convergence - RCS Curves&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;best&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../../_images/examples_high_frequency_antenna_large_scenarios_sbr_convergence_43_0.png" src="../../../../_images/examples_high_frequency_antenna_large_scenarios_sbr_convergence_43_0.png" />
+</div>
+</div>
+</section>
+<section id="Plot-2:-Ray-Density---Average-RCS">
+<h3>Plot 2: Ray Density - Average RCS<a class="headerlink" href="#Plot-2:-Ray-Density---Average-RCS" title="Link to this heading">#</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ray_densities</span><span class="p">,</span> <span class="n">avg_rcs_ray</span><span class="p">,</span> <span class="s2">&quot;bo-&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Ray Density Per Wavelength&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Average RCS (dBsm)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Ray Density - Average RCS Convergence&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../../_images/examples_high_frequency_antenna_large_scenarios_sbr_convergence_45_0.png" src="../../../../_images/examples_high_frequency_antenna_large_scenarios_sbr_convergence_45_0.png" />
+</div>
+</div>
+</section>
+<section id="Plot-3:-Bounce-Number---RCS-Curves">
+<h3>Plot 3: Bounce Number - RCS Curves<a class="headerlink" href="#Plot-3:-Bounce-Number---RCS-Curves" title="Link to this heading">#</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">colors2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">plasma</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">bounce_numbers</span><span class="p">)))</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">bn</span><span class="p">,</span> <span class="n">rcs_curve</span><span class="p">,</span> <span class="n">iwavephi</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">bounce_numbers</span><span class="p">,</span> <span class="n">all_rcs_bounce</span><span class="p">,</span> <span class="n">all_phi_bounce</span><span class="p">)):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">iwavephi</span><span class="p">,</span> <span class="n">rcs_curve</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors2</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Bounces = </span><span class="si">{</span><span class="n">bn</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;IWavePhi Angle (degrees)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;RCS (dBsm)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bounce Number Convergence - RCS Curves&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;best&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../../_images/examples_high_frequency_antenna_large_scenarios_sbr_convergence_47_0.png" src="../../../../_images/examples_high_frequency_antenna_large_scenarios_sbr_convergence_47_0.png" />
+</div>
+</div>
+</section>
+<section id="Plot-4:-Bounce-Number---Average-RCS">
+<h3>Plot 4: Bounce Number - Average RCS<a class="headerlink" href="#Plot-4:-Bounce-Number---Average-RCS" title="Link to this heading">#</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">bounce_numbers</span><span class="p">,</span> <span class="n">avg_rcs_bounce</span><span class="p">,</span> <span class="s2">&quot;ro-&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Number of Bounces&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Average RCS (dBsm)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Bounce Number - Average RCS Convergence&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../../_images/examples_high_frequency_antenna_large_scenarios_sbr_convergence_49_0.png" src="../../../../_images/examples_high_frequency_antenna_large_scenarios_sbr_convergence_49_0.png" />
+</div>
+</div>
+</section>
+</section>
+<section id="Advanced-post-processing">
+<h2>Advanced post-processing<a class="headerlink" href="#Advanced-post-processing" title="Link to this heading">#</a></h2>
+<p>For more advanced RCS analysis and visualization, you can use PyAEDT’s <code class="docutils literal notranslate"><span class="pre">get_rcs_data()</span></code> method. This method exports RCS simulation data into a standardized metadata format and returns a <code class="docutils literal notranslate"><span class="pre">MonostaticRCSExporter</span></code> object for further processing.</p>
+<section id="Using-the-radar-explorer-toolkit">
+<h3>Using the radar explorer toolkit<a class="headerlink" href="#Using-the-radar-explorer-toolkit" title="Link to this heading">#</a></h3>
+<p>For advanced RCS analysis and visualization capabilities, install the radar explorer toolkit:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>ansys-aedt-toolkits-radar-explorer
+</pre></div>
+</div>
+<p>The radar explorer toolkit provides powerful features for RCS data analysis:</p>
+<ul class="simple">
+<li><p><strong>Interactive 3D RCS pattern visualization</strong> with customizable viewing angles</p></li>
+<li><p><strong>Polar and Cartesian plot formats</strong> for different analysis perspectives</p></li>
+<li><p><strong>Multi-frequency RCS comparison</strong> to analyze frequency-dependent behavior</p></li>
+<li><p><strong>Export capabilities</strong> for various formats (CSV, JSON, images)</p></li>
+<li><p><strong>Advanced filtering and data manipulation</strong> tools</p></li>
+<li><p><strong>Statistical analysis</strong> of RCS patterns</p></li>
+</ul>
+</section>
+<section id="Example:-Visualizing-RCS-data-with-the-toolkit">
+<h3>Example: Visualizing RCS data with the toolkit<a class="headerlink" href="#Example:-Visualizing-RCS-data-with-the-toolkit" title="Link to this heading">#</a></h3>
+<p>Here’s a complete example showing how to export RCS data from HFSS and visualize it using the radar explorer toolkit. For more examples, visit the <a class="reference external" href="https://aedt.radar.explorer.toolkit.docs.pyansys.com/version/stable/examples/index.html">radar explorer toolkit documentation</a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Export RCS data using PyAEDT&#39;s get_rcs_data method</span>
+<span class="n">rcs_exporter</span> <span class="o">=</span> <span class="n">hfss</span><span class="o">.</span><span class="n">get_rcs_data</span><span class="p">()</span>
+
+<span class="c1"># Import the radar explorer toolkit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ansys.aedt.toolkits.radar_explorer.rcs_visualization</span><span class="w"> </span><span class="kn">import</span> <span class="n">MonostaticRCSData</span><span class="p">,</span> <span class="n">MonostaticRCSPlotter</span>
+
+<span class="c1"># Load the RCS data</span>
+<span class="n">rcs_data</span> <span class="o">=</span> <span class="n">MonostaticRCSData</span><span class="p">(</span><span class="n">rcs_exporter</span><span class="o">.</span><span class="n">metadata_file</span><span class="p">)</span>
+
+<span class="c1"># Create a plotter instance</span>
+<span class="n">plotter</span> <span class="o">=</span> <span class="n">MonostaticRCSPlotter</span><span class="p">(</span><span class="n">rcs_data</span><span class="p">)</span>
+
+<span class="n">plotter</span><span class="o">.</span><span class="n">plot_rcs</span><span class="p">()</span>
+<span class="n">plotter</span> <span class="o">=</span> <span class="n">plot_rcs_3d</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>For more examples and detailed documentation, visit: <a class="reference external" href="https://aedt.radar.explorer.toolkit.docs.pyansys.com/version/stable/examples/index.html">https://aedt.radar.explorer.toolkit.docs.pyansys.com/version/stable/examples/index.html</a></p>
+</section>
+</section>
+<section id="Finish">
+<h2>Finish<a class="headerlink" href="#Finish" title="Link to this heading">#</a></h2>
+<section id="Save-the-project">
+<h3>Save the project<a class="headerlink" href="#Save-the-project" title="Link to this heading">#</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">hfss</span><span class="o">.</span><span class="n">save_project</span><span class="p">()</span>
+<span class="n">hfss</span><span class="o">.</span><span class="n">release_desktop</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Project trihedral_rcs Saved correctly
+PyAEDT INFO: Desktop has been released and closed.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.</span>
+<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="Clean-up">
+<h2>Clean up<a class="headerlink" href="#Clean-up" title="Link to this heading">#</a></h2>
+<p>All project files are saved in the folder <code class="docutils literal notranslate"><span class="pre">temp_folder.name</span></code>. If you’ve run this example as a Jupyter notebook, you can retrieve those project files. The following cell removes all temporary files, including the project folder.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">temp_folder</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<div class="admonition-download-this-example admonition">
+<p class="admonition-title">Download this example</p>
+<p>Download this example as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/antenna/large_scenarios/sbr_convergence.ipynb">Jupyter Notebook</a>
+or as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/antenna/large_scenarios/sbr_convergence.py">Python script</a>.</p>
+</div>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Prerequisites">Prerequisites</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Perform-imports">Perform imports</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Define-constants">Define constants</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-temporary-directory">Create temporary directory</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Model-preparation">Model preparation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Download-the-model">Download the model</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Launch-HFSS-and-open-project">Launch HFSS and open project</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Convergence-study-parameters">Convergence study parameters</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Setup-parameters">Setup parameters</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Advanced-SBR+-options">Advanced SBR+ options</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Convergence-methodology">Convergence methodology</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Starting-values">Starting values</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Configure-PDF/UTD-settings">Configure PDF/UTD settings</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#The-convergence-story:-A-step-by-step-workflow">The convergence story: A step-by-step workflow</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Initialize-data-storage">Initialize data storage</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Phase-1:-Finding-the-right-number-of-bounces">Phase 1: Finding the right number of bounces</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Phase-2:-Finding-the-right-ray-density">Phase 2: Finding the right ray density</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Final-Summary">Final Summary</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Plotting">Plotting</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Plot-1:-Ray-Density---RCS-Curves">Plot 1: Ray Density - RCS Curves</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Plot-2:-Ray-Density---Average-RCS">Plot 2: Ray Density - Average RCS</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Plot-3:-Bounce-Number---RCS-Curves">Plot 3: Bounce Number - RCS Curves</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Plot-4:-Bounce-Number---Average-RCS">Plot 4: Bounce Number - Average RCS</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Advanced-post-processing">Advanced post-processing</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Using-the-radar-explorer-toolkit">Using the radar explorer toolkit</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Example:-Visualizing-RCS-data-with-the-toolkit">Example: Visualizing RCS data with the toolkit</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Finish">Finish</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Save-the-project">Save the project</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Clean-up">Clean up</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+
+  
+  <nav class="tocsection editthispage" aria-label="Edit this page">
+    <a href="https://github.com/ansys/pyaedt-examples/edit/main/doc/source/examples/high_frequency/antenna/large_scenarios/sbr_convergence.ipynb" rel="noopener noreferrer">
+      <i class="fa-solid fa-pencil" aria-hidden="true"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </nav>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <ul class="this-page-menu">
+      <li><a href="../../../../_sources/examples/high_frequency/antenna/large_scenarios/sbr_convergence.ipynb.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+
+  <!-- Include desired assets -->
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.7/require.min.js"></script>
+
+<script>
+// Passing the search options to the search.js file
+const SEARCH_OPTIONS = JSON.parse('{"keys": ["title", "text", "objectID"], "limit": 10, "threshold": 0.2}');
+const SEARCH_FILE = "../../../../_static/search.json";
+const ADVANCE_SEARCH_PATH = "../../../../search.html";
+const EXTRA_SOURCES = JSON.parse('""');
+</script>
+
+
+<script src="../../../../_static/js/search.js"></script>
+
+  
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright (c) 2021 - 2026 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<!--
+  Theme Version Footer
+  Displays the Sphinx theme version and the last updated date.
+  Accessibility and semantic improvements included.
+-->
+<footer class="theme-version" aria-label="Theme version and last update">
+  <span>
+    
+      Built with the
+      <a href="https://sphinxdocs.ansys.com/version/stable/index.html" target="_blank" rel="noopener noreferrer">
+        Ansys Sphinx Theme
+      </a>
+      1.7.2.
+    
+  </span>
+  <br />
+  <span>Last updated on <time id="ast_build_date"></time></span>
+</footer>
+<script>
+  // Set the last updated date in a readable format
+  (function() {
+    var options = { day: "numeric", month: "long", year: "numeric" };
+    var ast_lastModifiedDate = new Date(document.lastModified);
+    var ast_build_date = ast_lastModifiedDate.toLocaleDateString("en-US", options);
+    var dateElem = document.getElementById("ast_build_date");
+    if (dateElem) {
+      dateElem.textContent = ast_build_date;
+    }
+  })();
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

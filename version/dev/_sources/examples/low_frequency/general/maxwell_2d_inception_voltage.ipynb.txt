@@ -1,0 +1,784 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "bb920327",
+   "metadata": {},
+   "source": [
+    "# Automated workflow for Inception Voltage Evaluation\n",
+    "\n",
+    "\n",
+    "The workflow is performed following the steps\n",
+    "1. Import packages and start a Maxwell Electrostatic Simulation.\n",
+    "2. Create the simulation model.\n",
+    "3. Update Inception Voltage Parameters and perform Evaluation\n",
+    "4. Export the Results To File\n",
+    "5. Set a parametric sweep with proper Inception Voltage parameters.\n",
+    "4. Perform the evaluation on the Optimetrics sweep points and export the results.\n",
+    "\n",
+    "Keywords: **Electric Motor Windings**, **Electrostatic 2D**, **Inception Voltage Evaluation**"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f58f3eda",
+   "metadata": {},
+   "source": [
+    "### Perform imports"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "91c8a13b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "from pathlib import Path\n",
+    "\n",
+    "import ansys.aedt.core  # Interface to Ansys Electronics Desktop\n",
+    "from ansys.aedt.core.examples.downloads import download_file\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "961fee19",
+   "metadata": {},
+   "source": [
+    "### Define constants"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2b71cdee",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2026.1\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0e89edee",
+   "metadata": {},
+   "source": [
+    "### Define dictionaries"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "082b12ce",
+   "metadata": {},
+   "source": [
+    "Dictionaries contain the parameter definitions, enabling a parametric design"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "65f151b2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mat_params_dielectrics = {\n",
+    "    \"ins_epsilon_r\": \"3.77\",\n",
+    "    \"dielectric_base_epsilon_r\": \"2.5\",\n",
+    "}\n",
+    "design_params_geom = {\n",
+    "    \"dia_wire\": \"1.8mm\",\n",
+    "    \"ins_thickness\": \"43um\",\n",
+    "    \"V_input\": \"904V\",\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "62c9bea2",
+   "metadata": {},
+   "source": [
+    "### Create temporary directory\n",
+    "\n",
+    "Create a temporary working directory.\n",
+    "The name of the working folder is stored in ``temp_folder.name``.\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "581069b7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")\n",
+    "results_script_folder = Path(temp_folder.name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a5024eae",
+   "metadata": {},
+   "source": [
+    "Launch an AEDT instance and insert a Maxwell 2D project."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f36428b9",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "project_name = os.path.join(temp_folder.name, \"TP_Webinar_automated.aedt\")\n",
+    "m2d = ansys.aedt.core.Maxwell2d(\n",
+    "    project=project_name,\n",
+    "    design=\"TwistedPair_2D\",\n",
+    "    solution_type=\"Electrostatic\",\n",
+    "    version=AEDT_VERSION,\n",
+    "    non_graphical=NG_MODE,\n",
+    "    new_desktop=True,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b22e204c",
+   "metadata": {},
+   "source": [
+    "## Model Preparation\n",
+    "\n",
+    "Description of steps used to create and prepare the model for simulation.\n",
+    "Define Project Parameters"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "75b24fc1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "for k, v in mat_params_dielectrics.items():\n",
+    "    m2d[\"$\" + k] = v"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "446b4b3f",
+   "metadata": {},
+   "source": [
+    "Define Design Parameters"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "103e49be",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "for k, v in design_params_geom.items():\n",
+    "    m2d[k] = v"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "859bdf28",
+   "metadata": {},
+   "source": [
+    "Define wire insulation material"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0639518c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mat_wire_insulation = m2d.materials.add_material(\"wire_ins\")\n",
+    "mat_wire_insulation.update()\n",
+    "mat_wire_insulation.conductivity = \"0\"\n",
+    "mat_wire_insulation.permittivity = \"$\" + \"ins_epsilon_r\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ffb2cce8",
+   "metadata": {},
+   "source": [
+    "Define dielectric base insulation material"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "315aae1e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mat_dielectric_base = m2d.materials.add_material(\"dielectric_base\")\n",
+    "mat_dielectric_base.update()\n",
+    "mat_dielectric_base.conductivity = \"0\"\n",
+    "mat_dielectric_base.permittivity = \"$\" + \"dielectric_base_epsilon_r\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "46fca4b3",
+   "metadata": {},
+   "source": [
+    "### Create 2D model\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "42f2fff6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "dielectric_base_rect = m2d.modeler.create_rectangle(\n",
+    "    origin=[\"-20mm\", \"-(ins_thickness +dia_wire/2)\", \"0mm\"], orientation=\"XY\", sizes=[\"40mm\", \"-5mm\"], name=\"dielectric_base\", material=\"dielectric_base\"\n",
+    ")\n",
+    "dielectric_base_rect.color = (255, 255, 0)\n",
+    "air_mesh_rect = m2d.modeler.create_rectangle(\n",
+    "    origin=[\"-1.25*abs(-(ins_thickness +dia_wire))\", \"-(ins_thickness +dia_wire/2)\", \"0\"],\n",
+    "    orientation=\"XY\",\n",
+    "    sizes=[\"2.5*abs(-(ins_thickness +dia_wire))\", \"1.25*abs(-(ins_thickness +dia_wire))\"],\n",
+    "    name=\"air_mesh\",\n",
+    "    material=\"vacuum\",\n",
+    ")\n",
+    "air_mesh_rect.color = (128, 255, 255)\n",
+    "air_mesh_rect_2 = m2d.modeler.create_rectangle(\n",
+    "    origin=[\"-1.25*abs(-(ins_thickness +dia_wire/6))\", \"-dia_wire/3\", \"0\"], orientation=\"XY\", sizes=[\"2.5*abs(-(ins_thickness +dia_wire/6))\", \"2*dia_wire/3\"], name=\"air_mesh_2\", material=\"vacuum\"\n",
+    ")\n",
+    "air_mesh_rect.color = (128, 255, 255)\n",
+    "tp_wire_1 = m2d.modeler.create_circle(origin=[\"-ins_thickness-dia_wire/2\", 0, 0], orientation=\"XY\", radius=\"dia_wire/2\", num_sides=\"0\", is_covered=True, name=\"tp_wire_1\", material=\"copper\")\n",
+    "tp_wire_1.color = (255, 128, 64)\n",
+    "ins_tp_wire_1 = m2d.modeler.create_circle(\n",
+    "    origin=[\"-ins_thickness-dia_wire/2\", 0, 0], orientation=\"XY\", radius=\"ins_thickness+dia_wire/2\", num_sides=\"0\", is_covered=True, name=\"ins_tp_wire_1\", material=\"wire_ins\"\n",
+    ")\n",
+    "ins_tp_wire_1.color = (0, 255, 0)\n",
+    "m2d.modeler.subtract(ins_tp_wire_1, tp_wire_1, keep_originals=True)\n",
+    "mirrored = m2d.modeler.duplicate_and_mirror(assignment=[tp_wire_1, ins_tp_wire_1], origin=[0, 0, 0], vector=[1, 0, 0])\n",
+    "tp_wire_1_mirr = m2d.modeler.get_object_from_name(mirrored[0])\n",
+    "ins_tp_wire_1_mirr = m2d.modeler.get_object_from_name(mirrored[1])\n",
+    "m2d.modeler.subtract(ins_tp_wire_1, tp_wire_1, keep_originals=True)\n",
+    "m2d.modeler.subtract(air_mesh_rect, [tp_wire_1, ins_tp_wire_1, tp_wire_1_mirr, ins_tp_wire_1_mirr, air_mesh_rect_2], keep_originals=True)\n",
+    "m2d.modeler.subtract(air_mesh_rect_2, [tp_wire_1, ins_tp_wire_1, tp_wire_1_mirr, ins_tp_wire_1_mirr], keep_originals=True)\n",
+    "region = m2d.modeler.create_region([\"5\", \"100\", \"5\", \"0\"])\n",
+    "region.material_name = \"vacuum\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b173ee54",
+   "metadata": {},
+   "source": [
+    "\n",
+    "### Assign Voltage Excitations\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "66e2b9b3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.assign_voltage(assignment=tp_wire_1.id, amplitude=\"V_input\", name=\"Vinput\")\n",
+    "m2d.assign_voltage(assignment=tp_wire_1_mirr.id, amplitude=0, name=\"GND\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a6631ed4",
+   "metadata": {},
+   "source": [
+    "\n",
+    "### Assign mesh operations\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9396730e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.mesh.assign_initial_mesh(surface_deviation=0.0001, normal_deviation=0.5)\n",
+    "m2d.mesh.assign_length_mesh(air_mesh_rect_2, inside_selection=True, maximum_length=0.005, name=\"mesh_air_mesh\")\n",
+    "m2d.mesh.assign_length_mesh([ins_tp_wire_1, ins_tp_wire_1.name + \"_2\"], inside_selection=True, maximum_length=0.01, name=\"mesh_wire_ins\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "42345fcd",
+   "metadata": {},
+   "source": [
+    "\n",
+    "### Define solution setup\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d5b2d551",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup_name = \"MySetupAuto\"\n",
+    "setup = m2d.create_setup(name=setup_name)\n",
+    "setup.props[\"PercentError\"] = 0.1\n",
+    "setup.update()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8c280cba",
+   "metadata": {},
+   "source": [
+    "\n",
+    "## Run analysis\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "46df684d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.save_project()\n",
+    "m2d.validate_simple()\n",
+    "m2d.analyze_setup(name=setup_name, use_auto_settings=False, cores=NUM_CORES)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "85fee77a",
+   "metadata": {},
+   "source": [
+    "\n",
+    "## Postprocess\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1ca14f64",
+   "metadata": {},
+   "source": [
+    "Generate field line traces"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "aa6b546d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "selected_object = m2d.modeler.get_object_from_name(ins_tp_wire_1.name)\n",
+    "plot = m2d.post.create_fieldplot_line_traces(\n",
+    "    seeding_faces=[ins_tp_wire_1.name], surface_tracing_objs=[dielectric_base_rect.name], in_volume_tracing_objs=[air_mesh_rect_2.name], plot_name=\"LineTracesTest\"\n",
+    ")\n",
+    "plot.SeedingPointsNumber = 99\n",
+    "plot.LineStyle = \"Solid\"\n",
+    "plot.LineWidth = 1\n",
+    "plot.FractionOfMaximum = 0.01\n",
+    "plot.update()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "af882bf8",
+   "metadata": {},
+   "source": [
+    "\n",
+    "## Perform inception voltage evaluation for a predefined or user defined gas\n",
+    "\n",
+    "Four possible scenarios are showcased. Please uncomment the approach that applies."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "688612e1",
+   "metadata": {},
+   "source": [
+    "### Example 1: dry air at 1.5 bar pressure."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6104ec69",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.post.modify_inception_parameters(plot.name, gas_type=0, gas_pressure=1.5, use_inception=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "cae259cc",
+   "metadata": {},
+   "source": [
+    "### Example 2: SF6 gas at 1.9 bar pressure."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d5188281",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.post.modify_inception_parameters(plot.name, gas_type=1, gas_pressure=1.9, use_inception=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c00491b8",
+   "metadata": {},
+   "source": [
+    "\n",
+    "### Example 3: define a proper ionization equation\n",
+    "\n",
+    "Here f(x) = x for demo purposes used."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b1b8d12f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "my_ionization_equation = \"x\"\n",
+    "m2d.post.modify_inception_parameters(plot.name, gas_type=2, use_inception=True, streamer_constant=6.09, ionization_check=True, ionization_equation=my_ionization_equation)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4cf8d1ea",
+   "metadata": {},
+   "source": [
+    "### Example 4: user define gas  with ionization equation defined via dataset\n",
+    "\n",
+    "Here, a fictitious dataset for demo purposes is used\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "89fed720",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.post.modify_inception_parameters(plot.name, gas_type=2, use_inception=True, streamer_constant=6.09, ionization_check=False, ionization_dataset=[2, 0, 0.15, 0.2, 0.4])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b67afc6a",
+   "metadata": {},
+   "source": [
+    "\n",
+    "### Evaluate inception voltage for the given gas on all field line traces\n",
+    "\n",
+    "For the remainder of the analysis results as per Example 3 are used.\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e1cae727",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.post.evaluate_inception_voltage(plot.name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a5e5b4e9",
+   "metadata": {},
+   "source": [
+    "Export inception voltage evaluation results to a TXT file"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "25bed8e0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "IV_FILENAME = \"IV_\" + \"nominal\" + \".txt\"\n",
+    "file_inc_voltage_path = results_script_folder / IV_FILENAME\n",
+    "m2d.post.export_inception_voltage(plot.name, str(file_inc_voltage_path))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "cd8e268e",
+   "metadata": {},
+   "source": [
+    "\n",
+    "## Define Optimetrics setups from files\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8b2aeb9b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "sweep_name_wire = \"ParametricSweep_wire\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "58b32630",
+   "metadata": {},
+   "source": [
+    "Download the csv file containing the variable names and values from the [example-data]\n",
+    "(https://github.com/ansys/example-data/tree/main/pyaedt) repository."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0fb1f146",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "data_folder = Path(download_file(r\"pyaedt/maxwell_2d_twisted_pair\", local_path=temp_folder.name))\n",
+    "OPT_FILENAME = \"ParametricSweep_wire_table_3par.csv\"\n",
+    "param_path = data_folder / OPT_FILENAME\n",
+    "param_sweep = m2d.parametrics.add_from_file(str(param_path), name=sweep_name_wire)\n",
+    "param_sweep[\"SaveFields\"] = True\n",
+    "param_sweep[\"CopyMesh\"] = False"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d8fb89e9",
+   "metadata": {},
+   "source": [
+    "Define Streamer constant corresponding to each Optimetrics sweep point (cannot be defined parametrically)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2875c22c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "param_streamer_constant = [5.50, 5.03, 4.97, 5.74]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7f2b0006",
+   "metadata": {},
+   "source": [
+    "Solve parametric sweep"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e30be36d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "param_sweep.analyze(cores=NUM_CORES)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "41657928",
+   "metadata": {},
+   "source": [
+    "## Optimetrics Postprocess\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8259b8bf",
+   "metadata": {},
+   "source": [
+    "Retrieve names and values of project and design variables"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "63bdf7c8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mxwl_variables = m2d.available_variations.nominal_values"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "caaa531e",
+   "metadata": {},
+   "source": [
+    "Retrieve the list of all the optimetrics variations from the setup"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "438100a6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "swept_variables = param_sweep.props[\"Sweeps\"][\"SweepDefinition\"]\n",
+    "swept_table_var_names = []\n",
+    "swept_table_var_values = []\n",
+    "for i in range(len(swept_variables)):\n",
+    "    swept_table_var_names.append(swept_variables[i][\"Variable\"])\n",
+    "    swept_table_var_values.append(swept_variables[i][\"Data\"])\n",
+    "opt_variations = [swept_table_var_values] + param_sweep.props[\"Sweep Operations\"][\"add\"]\n",
+    "opt_variations_transposed = list(map(list, zip(*opt_variations)))\n",
+    "opt_variations_dict = dict(zip(swept_table_var_names, opt_variations_transposed))\n",
+    "keys_to_update = opt_variations_dict.keys()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "862bc813",
+   "metadata": {},
+   "source": [
+    "Update Inception Voltage Parameters and perform the evaluation for all Optimetrics sweep points"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "053490ba",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "for index_opt in range(len(opt_variations)):\n",
+    "    # Generate field line traces\n",
+    "    selected_object = m2d.modeler.get_object_from_name(ins_tp_wire_1.name)\n",
+    "    plot_opt = m2d.post.create_fieldplot_line_traces(\n",
+    "        seeding_faces=[ins_tp_wire_1.name], surface_tracing_objs=[dielectric_base_rect.name], in_volume_tracing_objs=[air_mesh_rect_2.name], plot_name=\"LineTracesTest_\" + str(index_opt + 1)\n",
+    "    )\n",
+    "    plot_opt.SeedingPointsNumber = 99\n",
+    "    plot_opt.LineStyle = \"Solid\"\n",
+    "    plot_opt.LineWidth = 1\n",
+    "    plot_opt.FractionOfMaximum = 0.01\n",
+    "    plot_opt.update()\n",
+    "\n",
+    "    # Apply solved variation\n",
+    "    mxwl_variables.update({k: opt_variations_dict[k][index_opt] for k in keys_to_update})\n",
+    "    m2d.apply_solved_variation(mxwl_variables)\n",
+    "\n",
+    "    # Modify the inception voltage parameters - update the streamer constant\n",
+    "    m2d.post.modify_inception_parameters(\n",
+    "        plot_opt.name, gas_type=2, use_inception=True, streamer_constant=param_streamer_constant[index_opt], ionization_check=True, ionization_equation=my_ionization_equation\n",
+    "    )\n",
+    "    # Evaluate Inception Voltage and Export the results to File\n",
+    "    m2d.post.evaluate_inception_voltage(plot_opt.name)\n",
+    "    IV_FILENAME_OPT = \"IV_optimetrics_\" + str(index_opt + 1) + \".txt\"\n",
+    "    file_inc_voltage_path_opt = results_script_folder / IV_FILENAME_OPT\n",
+    "    m2d.post.export_inception_voltage(plot_opt.name, str(file_inc_voltage_path_opt))\n",
+    "    index_opt = index_opt + 1"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c0c9298b",
+   "metadata": {},
+   "source": [
+    "\n",
+    "## Finish\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0ea364bc",
+   "metadata": {},
+   "source": [
+    "### Save the project and release AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b3cfe14a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m2d.save_project()\n",
+    "m2d.release_desktop()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a20462e5",
+   "metadata": {},
+   "source": [
+    "Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7c8561ee",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f42e0c68",
+   "metadata": {},
+   "source": [
+    "### Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3941ba23",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

@@ -1,0 +1,256 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "d7c14d0d",
+   "metadata": {},
+   "source": [
+    "# Import Materials\n",
+    "This example shows how to import materials."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "bf764dc6",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "00c2878b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import json\n",
+    "import tempfile\n",
+    "import time\n",
+    "from pathlib import Path\n",
+    "\n",
+    "import toml\n",
+    "from pyedb import Edb\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e30d0eec",
+   "metadata": {},
+   "source": [
+    "Define constants"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "486b9e3c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2026.1\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "03d3dcf9",
+   "metadata": {},
+   "source": [
+    "## Preparation"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "085f98a0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")\n",
+    "file_edb = Path(temp_folder.name) / \"test.aedb\"\n",
+    "edbapp = Edb(edbpath=str(file_edb), version=AEDT_VERSION)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4c6947c0",
+   "metadata": {},
+   "source": [
+    "## Create configure file"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "18f4bd70",
+   "metadata": {},
+   "source": [
+    "## Add distributed ports"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2670f2db",
+   "metadata": {},
+   "source": [
+    "Keywords\n",
+    "\n",
+    "- **name**. Name of the material.\n",
+    "- **permittivity**.\n",
+    "- **conductivity**.\n",
+    "- **dielectric_loss_tangent**.\n",
+    "- **magnetic_loss_tangent**.\n",
+    "- **mass_density**.\n",
+    "- **permeability**.\n",
+    "- **poisson_ratio**.\n",
+    "- **specific_heat**.\n",
+    "- **thermal_conductivity**.\n",
+    "- **thermal_modifier**.\n",
+    "  - **property_name**.\n",
+    "  - **basic_quadratic_c1**. The C1 value in the quadratic model.\n",
+    "  - **basic_quadratic_c2**. The C2 value in the quadratic model.\n",
+    "  - **basic_quadratic_temperature_reference**. The TempRef value in the quadratic model.\n",
+    "  - **advanced_quadratic_lower_limit**. The lower temperature limit where the quadratic model is valid.\n",
+    "  - **advanced_quadratic_upper_limit**. The upper temperature limit where the quadratic model is valid.\n",
+    "  - **advanced_quadratic_auto_calculate**. The flag indicating whether or not the LowerConstantThermalModifierVal and UpperConstantThermalModifierVal values should be auto calculated.\n",
+    "  - **advanced_quadratic_lower_constant**. The constant thermal modifier value for temperatures lower than LowerConstantThermalModifierVal\n",
+    "  - **advanced_quadratic_upper_constant**. The constant thermal modifier value for temperatures greater than UpperConstantThermalModifierVal."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0ed15559",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "materials = [\n",
+    "    {\n",
+    "        \"name\": \"copper\",\n",
+    "        \"conductivity\": 570000000,\n",
+    "        \"thermal_modifier\": [\n",
+    "            {\n",
+    "                \"property_name\": \"conductivity\",\n",
+    "                \"basic_quadratic_c1\": 0,\n",
+    "                \"basic_quadratic_c2\": 0,\n",
+    "                \"basic_quadratic_temperature_reference\": 22,\n",
+    "                \"advanced_quadratic_lower_limit\": -273.15,\n",
+    "                \"advanced_quadratic_upper_limit\": 1000,\n",
+    "                \"advanced_quadratic_auto_calculate\": True,\n",
+    "                \"advanced_quadratic_lower_constant\": 1,\n",
+    "                \"advanced_quadratic_upper_constant\": 1,\n",
+    "            },\n",
+    "        ],\n",
+    "    },\n",
+    "]\n",
+    "cfg = {\"stackup\": {\"materials\": materials}}\n",
+    "file_json = Path(temp_folder.name) / \"edb_configuration.json\"\n",
+    "with open(file_json, \"w\") as f:\n",
+    "    json.dump(cfg, f, indent=4, ensure_ascii=False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "898698ad",
+   "metadata": {},
+   "source": [
+    "Equivalent toml file looks like below"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "30f050c8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "toml_string = toml.dumps(cfg)\n",
+    "print(toml_string)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5cd12b10",
+   "metadata": {},
+   "source": [
+    "## Import configuration into example layout"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "10fc4371",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.configuration.load(config_file=file_json)\n",
+    "edbapp.configuration.run()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a21d8292",
+   "metadata": {},
+   "source": [
+    "## Save and close Edb\n",
+    "The temporary folder will be deleted once the execution of this script is finished. Replace **edbapp.save()** with\n",
+    "**edbapp.save_as(\"C:/example.aedb\")** to keep the example project."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "dff82ddd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.save()\n",
+    "edbapp.close()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "899a0e85",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Wait 3 seconds before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5a908426",
+   "metadata": {},
+   "source": [
+    "### Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ca5e4a70",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

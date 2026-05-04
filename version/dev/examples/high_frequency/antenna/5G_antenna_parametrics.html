@@ -1,0 +1,1474 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Create a 5G Antenna Layout Component &#8212; PyAEDT Examples</title>
+  
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/ansys-sphinx-theme.css?v=a23b20f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles\ansys-sphinx-theme.css?v=a23b20f3" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=9233c59b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/highlight.css?v=500661c4" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+
+  <!-- Include desired assets -->
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  
+
+  
+    <link href="../../../_static/css/breadcrumbs.css" rel="stylesheet" />
+  
+    <script src="../../../_static/documentation_options.js?v=e7fb764e"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=49e1bf35"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/high_frequency/antenna/5G_antenna_parametrics';</script>
+    <link rel="icon" href="../../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Radio frequency and millimeter wave" href="../radiofrequency_mmwave/index.html" />
+    <link rel="prev" title="Compute receiver protection levels" href="interferences/protection.html" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1.dev0" />
+  <link rel="canonical" href="https://examples.aedt.docs.pyansys.com/version/stable/examples/high_frequency/antenna/5G_antenna_parametrics.html" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="https://www.ansys.com/">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/ansys_logo_transparent_black.png" class="logo__image only-light" alt="PyAEDT Examples - Home"/>
+    <img src="../../../_static/ansys_logo_transparent_white.png" class="logo__image only-dark pst-js-only" alt="PyAEDT Examples - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html" title="PyAEDT Examples home">Home</a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Examples
+  </a>
+</li>
+
+  </ul>
+</nav>
+</div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+      
+        <div class="navbar-item">
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+  
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+  
+
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html" title="PyAEDT Examples home">Home</a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Examples
+  </a>
+</li>
+
+  </ul>
+</nav>
+</div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+  
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../aedt/index.html">Examples by AEDT application</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">High frequency</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Antenna</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="dipole.html">Dipole antenna</a></li>
+<li class="toctree-l3"><a class="reference internal" href="array.html">Component antenna array</a></li>
+<li class="toctree-l3"><a class="reference internal" href="patch.html">Probe-fed patch antenna</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fss_unitcell.html">Frequency Selective Surface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../aedt_general/modeler/circuit_schematic.html">Circuit schematic creation and analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="large_scenarios/index.html">Large scenarios</a></li>
+<li class="toctree-l3"><a class="reference internal" href="interferences/index.html">RF interference</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">Create a 5G Antenna Layout Component</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../radiofrequency_mmwave/index.html">Radio frequency and millimeter wave</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../layout/index.html">IC-Package-PCB</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../emc/index.html">EMC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../multiphysics/index.html">Multiphysics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../aedt_general/report/index.html">Report</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../low_frequency/index.html">Low frequency</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../electrothermal/index.html">Electrothermal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aedt_general/index.html">Pre-processing and post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../edb/index.html">EDB Examples</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+       
+    <li class="breadcrumb-item">
+      <a href="https://aedt.docs.pyansys.com/" class="nav-link">PyAEDT</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="../../../index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../../index.html" class="nav-link">Examples</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../index.html" class="nav-link">High frequency</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="index.html" class="nav-link">Antenna</a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Create a 5G Antenna Layout Component</span></li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="admonition-download-this-example admonition">
+<p class="admonition-title">Download this example</p>
+<p>Download this example as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/antenna/5G_antenna_parametrics.ipynb">Jupyter Notebook</a>
+or as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/antenna/5G_antenna_parametrics.py">Python script</a>.</p>
+</div>
+<hr class="docutils" />
+<section id="Create-a-5G-Antenna-Layout-Component">
+<h1>Create a 5G Antenna Layout Component<a class="headerlink" href="#Create-a-5G-Antenna-Layout-Component" title="Link to this heading">#</a></h1>
+<p>This example uses PyEDB to create a microstrip antenna array in EDB and then imports it into HFSS as a 3D layout component.</p>
+<section id="Prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#Prerequisites" title="Link to this heading">#</a></h2>
+<section id="Perform-imports">
+<h3>Perform imports<a class="headerlink" href="#Perform-imports" title="Link to this heading">#</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">ansys.aedt.core</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyedb</span>
+<br/></pre></div>
+</div>
+</div>
+</section>
+<section id="Define-constants">
+<h3>Define constants<a class="headerlink" href="#Define-constants" title="Link to this heading">#</a></h3>
+<p>These constants keep the example configuration in one place.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">AEDT_VERSION</span> <span class="o">=</span> <span class="s2">&quot;2026.1&quot;</span>
+<span class="n">NG_MODE</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Set to ``True`` to run AEDT without the user interface.</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Create-a-temporary-directory">
+<h3>Create a temporary directory<a class="headerlink" href="#Create-a-temporary-directory" title="Link to this heading">#</a></h3>
+<p>Create a temporary working directory. The generated project files are stored in <code class="docutils literal notranslate"><span class="pre">temp_folder.name</span></code>.</p>
+<blockquote>
+<div><p><strong>Note:</strong> The final section removes the temporary folder. If you want to keep the AEDT project or intermediate data, copy them before running the cleanup step.</p>
+</div></blockquote>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">temp_folder</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.ansys&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="Build-the-EDB-model">
+<h2>Build the EDB model<a class="headerlink" href="#Build-the-EDB-model" title="Link to this heading">#</a></h2>
+<section id="Create-helper-classes-for-the-geometry">
+<h3>Create helper classes for the geometry<a class="headerlink" href="#Create-helper-classes-for-the-geometry" title="Link to this heading">#</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">Patch</span></code>, <code class="docutils literal notranslate"><span class="pre">Line</span></code>, and <code class="docutils literal notranslate"><span class="pre">LinearArray</span></code> classes make it easier to define the array geometry before passing the polygon points to <code class="docutils literal notranslate"><span class="pre">pyedb.Edb</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Patch</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">width</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">position</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="n">width</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="n">height</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">position</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">points</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">/</span> <span class="mi">2</span><span class="p">],</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">/</span> <span class="mi">2</span><span class="p">],</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">/</span> <span class="mi">2</span><span class="p">],</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">/</span> <span class="mi">2</span><span class="p">],</span>
+        <span class="p">]</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Line</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="n">length</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="n">width</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">position</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">points</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">],</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">],</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">],</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">],</span>
+        <span class="p">]</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">LinearArray</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_patch</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">array_length</span><span class="o">=</span><span class="mf">10e-3</span><span class="p">,</span> <span class="n">array_width</span><span class="o">=</span><span class="mf">5e-3</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nbpatch</span> <span class="o">=</span> <span class="n">nb_patch</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="n">array_length</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="n">array_width</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">points</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="p">[</span><span class="o">-</span><span class="mf">1e-3</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="mf">1e-3</span><span class="p">],</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">+</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="mf">1e-3</span><span class="p">],</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">+</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="mf">1e-3</span><span class="p">],</span>
+            <span class="p">[</span><span class="o">-</span><span class="mf">1e-3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="mf">1e-3</span><span class="p">],</span>
+        <span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Launch-EDB">
+<h3>Launch EDB<a class="headerlink" href="#Launch-EDB" title="Link to this heading">#</a></h3>
+<p>Use <code class="docutils literal notranslate"><span class="pre">pyedb.Edb</span></code> to create a new EDB project.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">aedb_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;linear_array.aedb&quot;</span><span class="p">)</span>
+
+<span class="c1"># Create the EDB database.</span>
+<span class="n">edb</span> <span class="o">=</span> <span class="n">pyedb</span><span class="o">.</span><span class="n">Edb</span><span class="p">(</span><span class="n">edbpath</span><span class="o">=</span><span class="n">aedb_path</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">AEDT_VERSION</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+C:\actions-runner\_work\pyaedt-examples\pyaedt-examples\.venv\lib\site-packages\pyedb\generic\design_types.py:374: UserWarning: You are using PyEDB with grpc, which is currently in beta. Some feature might be missing or not working as expected. Please report any issue you find to the PyEDB team.
+  warnings.warn(GRPC_BETA_WARNING, UserWarning)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyEDB INFO: Logger is initialized in EDB.
+PyEDB INFO: legacy v0.74.0
+PyEDB INFO: Python version 3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)]
+PyEDB INFO: Using PyEDB with gRPC as Beta until ANSYS 2027R1 official release.
+PyEDB INFO: Logger is initialized in EDB.
+PyEDB INFO: legacy v0.74.0
+PyEDB INFO: Python version 3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)]
+PyAEDT INFO: Grpc session started
+PyEDB INFO: Grpc session started: pid=3956
+PyEDB INFO: RPC session acquired (open databases: 1)
+PyEDB INFO: Refreshing the Components dictionary.
+PyEDB INFO: EDB C:\Users\ansys\AppData\Local\Temp\tmpgpgu664y.ansys\linear_array.aedb created correctly.
+PyEDB INFO: EDB initialized.
+</pre></div></div>
+</div>
+</section>
+<section id="Define-the-stackup">
+<h3>Define the stackup<a class="headerlink" href="#Define-the-stackup" title="Link to this heading">#</a></h3>
+<p>Add a custom high-conductivity copper material and then build the layer stack from top to bottom using the <code class="docutils literal notranslate"><span class="pre">pyedb.Edb.stackup</span></code> API.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">edb</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">add_conductor_material</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;copper_high_cond&quot;</span><span class="p">,</span> <span class="n">conductivity</span><span class="o">=</span><span class="mi">60000000</span><span class="p">)</span>
+<span class="n">edb</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">add_dielectric_material</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;Duroid (tm)&quot;</span><span class="p">,</span> <span class="n">permittivity</span><span class="o">=</span><span class="mf">2.2</span><span class="p">,</span> <span class="n">dielectric_loss_tangent</span><span class="o">=</span><span class="mf">0.0009</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;pyedb.grpc.database.definition.materials.Material at 0x134077d8d00&gt;
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">edb</span><span class="o">.</span><span class="n">stackup</span><span class="o">.</span><span class="n">add_layer_top</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;TOP&quot;</span><span class="p">,</span>
+                          <span class="n">layer_type</span><span class="o">=</span><span class="s2">&quot;signal&quot;</span><span class="p">,</span>
+                          <span class="n">thickness</span><span class="o">=</span><span class="s2">&quot;35um&quot;</span><span class="p">,</span>
+                          <span class="n">material</span><span class="o">=</span><span class="s2">&quot;copper_high_cond&quot;</span><span class="p">)</span>
+<span class="n">edb</span><span class="o">.</span><span class="n">stackup</span><span class="o">.</span><span class="n">add_layer_below</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;Substrat&quot;</span><span class="p">,</span>
+                            <span class="n">base_layer_name</span><span class="o">=</span><span class="s2">&quot;TOP&quot;</span><span class="p">,</span>
+                            <span class="n">layer_type</span><span class="o">=</span><span class="s2">&quot;dielectric&quot;</span><span class="p">,</span>
+                            <span class="n">thickness</span><span class="o">=</span><span class="s2">&quot;0.5mm&quot;</span><span class="p">,</span>
+                            <span class="n">material</span><span class="o">=</span><span class="s2">&quot;Duroid (tm)&quot;</span><span class="p">)</span>
+<span class="n">edb</span><span class="o">.</span><span class="n">stackup</span><span class="o">.</span><span class="n">add_layer_below</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;GND&quot;</span><span class="p">,</span>
+                            <span class="n">base_layer_name</span><span class="o">=</span><span class="s2">&quot;Substrat&quot;</span><span class="p">,</span>
+                            <span class="n">layer_type</span><span class="o">=</span><span class="s2">&quot;signal&quot;</span><span class="p">,</span>
+                            <span class="n">thickness</span><span class="o">=</span><span class="s2">&quot;35um&quot;</span><span class="p">,</span>
+                            <span class="n">material</span><span class="o">=</span><span class="s2">&quot;copper&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;ansys.edb.core.layer.stackup_layer.StackupLayer at 0x134077d8b20&gt;
+</pre></div></div>
+</div>
+</section>
+<section id="Create-the-first-patch-and-feed-line">
+<h3>Create the first patch and feed line<a class="headerlink" href="#Create-the-first-patch-and-feed-line" title="Link to this heading">#</a></h3>
+<p>Use the <code class="docutils literal notranslate"><span class="pre">Patch</span></code> and <code class="docutils literal notranslate"><span class="pre">Line</span></code> helpers to define the first radiating element and its feed line.</p>
+<p><img alt="8ec9570eb40845afa5a8d5d5328b4a3d" class="no-scaled-link" src="../../../_images/array_params.svg" style="width: 600px;" /></p>
+<p>Define the geometry dimensions:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">w1</span> <span class="o">=</span> <span class="mf">1.4e-3</span>
+<span class="n">h1</span> <span class="o">=</span> <span class="mf">1.2e-3</span>
+<span class="n">initial_position</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="n">l1</span> <span class="o">=</span> <span class="mf">2.4e-3</span>
+<span class="n">trace_w</span> <span class="o">=</span> <span class="mf">0.3e-3</span>
+
+<span class="n">first_patch</span> <span class="o">=</span> <span class="n">Patch</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="n">w1</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">h1</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="n">initial_position</span><span class="p">)</span>
+<span class="n">edb</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_polygon</span><span class="p">(</span><span class="n">first_patch</span><span class="o">.</span><span class="n">points</span><span class="p">,</span> <span class="n">layer_name</span><span class="o">=</span><span class="s2">&quot;TOP&quot;</span><span class="p">,</span> <span class="n">net_name</span><span class="o">=</span><span class="s2">&quot;Array_antenna&quot;</span><span class="p">)</span>
+<span class="n">first_line</span> <span class="o">=</span> <span class="n">Line</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="n">l1</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">trace_w</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="n">first_patch</span><span class="o">.</span><span class="n">width</span><span class="p">)</span>
+<span class="n">edb</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_polygon</span><span class="p">(</span><span class="n">first_line</span><span class="o">.</span><span class="n">points</span><span class="p">,</span> <span class="n">layer_name</span><span class="o">=</span><span class="s2">&quot;TOP&quot;</span><span class="p">,</span> <span class="n">net_name</span><span class="o">=</span><span class="s2">&quot;Array_antenna&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;pyedb.grpc.database.primitive.polygon.Polygon at 0x134077d99c0&gt;
+</pre></div></div>
+</div>
+<p>Use the <code class="docutils literal notranslate"><span class="pre">LinearArray</span></code> helper to generate the remaining antenna elements.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">w2</span> <span class="o">=</span> <span class="mf">2.29e-3</span>
+<span class="n">h2</span> <span class="o">=</span> <span class="mf">3.3e-3</span>
+<span class="n">l2</span> <span class="o">=</span> <span class="mf">1.9e-3</span>
+<span class="n">trace_w2</span> <span class="o">=</span> <span class="mf">0.2e-3</span>
+<span class="n">rf_pin_location</span> <span class="o">=</span> <span class="p">[</span><span class="n">first_patch</span><span class="o">.</span><span class="n">width</span> <span class="o">/</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+
+<span class="n">patch</span> <span class="o">=</span> <span class="n">Patch</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="n">w2</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">h2</span><span class="p">)</span>
+<span class="n">line</span> <span class="o">=</span> <span class="n">Line</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="n">l2</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">trace_w2</span><span class="p">)</span>
+<span class="n">linear_array</span> <span class="o">=</span> <span class="n">LinearArray</span><span class="p">(</span><span class="n">nb_patch</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">array_width</span><span class="o">=</span><span class="n">patch</span><span class="o">.</span><span class="n">height</span><span class="p">)</span>
+
+<span class="n">current_patch</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">current_position</span> <span class="o">=</span> <span class="n">first_line</span><span class="o">.</span><span class="n">position</span> <span class="o">+</span> <span class="n">first_line</span><span class="o">.</span><span class="n">length</span>
+
+<span class="k">while</span> <span class="n">current_patch</span> <span class="o">&lt;=</span> <span class="n">linear_array</span><span class="o">.</span><span class="n">nbpatch</span><span class="p">:</span>
+    <span class="n">patch</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">current_position</span>
+    <span class="n">edb</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_polygon</span><span class="p">(</span><span class="n">patch</span><span class="o">.</span><span class="n">points</span><span class="p">,</span> <span class="n">layer_name</span><span class="o">=</span><span class="s2">&quot;TOP&quot;</span><span class="p">,</span> <span class="n">net_name</span><span class="o">=</span><span class="s2">&quot;Array_antenna&quot;</span><span class="p">)</span>
+    <span class="n">current_position</span> <span class="o">=</span> <span class="n">current_position</span> <span class="o">+</span> <span class="n">patch</span><span class="o">.</span><span class="n">width</span>
+    <span class="k">if</span> <span class="n">current_patch</span> <span class="o">&lt;</span> <span class="n">linear_array</span><span class="o">.</span><span class="n">nbpatch</span><span class="p">:</span>
+        <span class="n">line</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">current_position</span>
+        <span class="n">edb</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_polygon</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">points</span><span class="p">,</span> <span class="n">layer_name</span><span class="o">=</span><span class="s2">&quot;TOP&quot;</span><span class="p">,</span> <span class="n">net_name</span><span class="o">=</span><span class="s2">&quot;Array_antenna&quot;</span><span class="p">)</span>
+        <span class="n">current_position</span> <span class="o">=</span> <span class="n">current_position</span> <span class="o">+</span> <span class="n">line</span><span class="o">.</span><span class="n">length</span>
+    <span class="n">current_patch</span> <span class="o">+=</span> <span class="mi">1</span>
+
+<span class="n">linear_array</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="n">current_position</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add the ground reference conductor.</span>
+<span class="n">edb</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_polygon</span><span class="p">(</span><span class="n">linear_array</span><span class="o">.</span><span class="n">points</span><span class="p">,</span> <span class="n">layer_name</span><span class="o">=</span><span class="s2">&quot;GND&quot;</span><span class="p">,</span> <span class="n">net_name</span><span class="o">=</span><span class="s2">&quot;GND&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;pyedb.grpc.database.primitive.polygon.Polygon at 0x134077d9ea0&gt;
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add point terminals that define the feed and its reference.</span>
+<span class="n">pos_term</span> <span class="o">=</span> <span class="n">edb</span><span class="o">.</span><span class="n">excitation_manager</span><span class="o">.</span><span class="n">create_point_terminal</span><span class="p">(</span>
+    <span class="n">x</span><span class="o">=</span><span class="n">rf_pin_location</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+    <span class="n">y</span><span class="o">=</span><span class="n">rf_pin_location</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+    <span class="n">layer</span><span class="o">=</span><span class="s2">&quot;TOP&quot;</span><span class="p">,</span>
+    <span class="n">net</span><span class="o">=</span><span class="s2">&quot;Array_antenna&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ref_term</span> <span class="o">=</span> <span class="n">edb</span><span class="o">.</span><span class="n">excitation_manager</span><span class="o">.</span><span class="n">create_point_terminal</span><span class="p">(</span>
+    <span class="n">x</span><span class="o">=</span><span class="n">rf_pin_location</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+    <span class="n">y</span><span class="o">=</span><span class="n">rf_pin_location</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+    <span class="n">layer</span><span class="o">=</span><span class="s2">&quot;GND&quot;</span><span class="p">,</span>
+    <span class="n">net</span><span class="o">=</span><span class="s2">&quot;GND&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">pos_term</span><span class="o">.</span><span class="n">reference_terminal</span> <span class="o">=</span> <span class="n">ref_term</span>
+</pre></div>
+</div>
+</div>
+<p>Display the layout.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">edb</span><span class="o">.</span><span class="n">nets</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+C:\actions-runner\_work\pyaedt-examples\pyaedt-examples\.venv\lib\site-packages\pyedb\common\nets.py:343: FutureWarning: Accessing deprecated property primitives_by_layer. use layout.primitives_by_layer property instead.
+  prims_by_layers_dict = {i: j for i, j in self._pedb.modeler.primitives_by_layer.items()}
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/examples_high_frequency_antenna_5G_antenna_parametrics_21_1.png" src="../../../_images/examples_high_frequency_antenna_5G_antenna_parametrics_21_1.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyEDB INFO: Plot Generation time 0.523
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(&lt;Figure size 6000x3000 with 1 Axes&gt;,
+ &lt;Axes: title={&#39;center&#39;: &#39;Edb Top View Cell_KTU6C0&#39;}&gt;)
+</pre></div></div>
+</div>
+<p>Save and close the EDB project before importing it into HFSS as a layout component.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">edb</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+<span class="n">edb</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;EDB saved to </span><span class="si">{</span><span class="n">aedb_path</span><span class="si">}</span><span class="s2">. It is ready to be imported into AEDT.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyEDB INFO: RPC session released (open databases: 0)
+EDB saved to C:\Users\ansys\AppData\Local\Temp\tmpgpgu664y.ansys\linear_array.aedb. It is ready to be imported into AEDT.
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="Open-the-layout-component-in-HFSS">
+<h2>Open the layout component in HFSS<a class="headerlink" href="#Open-the-layout-component-in-HFSS" title="Link to this heading">#</a></h2>
+<p>Create an <code class="docutils literal notranslate"><span class="pre">ansys.aedt.core.Hfss</span></code> instance. When <code class="docutils literal notranslate"><span class="pre">non_graphical=False</span></code>, the AEDT user interface opens so you can monitor each step interactively.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">h3d</span> <span class="o">=</span> <span class="n">ansys</span><span class="o">.</span><span class="n">aedt</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Hfss</span><span class="p">(</span>
+    <span class="n">project</span><span class="o">=</span><span class="s2">&quot;Demo_3DComp&quot;</span><span class="p">,</span>
+    <span class="n">design</span><span class="o">=</span><span class="s2">&quot;Linear_Array&quot;</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="n">AEDT_VERSION</span><span class="p">,</span>
+    <span class="n">new_desktop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">non_graphical</span><span class="o">=</span><span class="n">NG_MODE</span><span class="p">,</span>
+    <span class="n">close_on_exit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">solution_type</span><span class="o">=</span><span class="s2">&quot;Terminal&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Python version 3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)].
+PyAEDT INFO: PyAEDT version 1.0.dev0.
+PyAEDT INFO: Initializing new Desktop session.
+PyAEDT INFO: AEDT version 2026.1.
+PyAEDT INFO: New AEDT session is starting on gRPC port 52374.
+PyAEDT INFO: Starting new AEDT gRPC session on port 52374.
+PyAEDT INFO: Launching AEDT server with gRPC transport mode: wnua
+PyAEDT INFO: Electronics Desktop started on gRPC port 52374 after 19.6 seconds.
+PyAEDT INFO: AEDT installation Path C:\Program Files\ANSYS Inc\v261\AnsysEM
+PyAEDT INFO: Connected to AEDT gRPC session on port 52374.
+PyAEDT INFO: Non-graphical mode detected. Disabling Desktop logs.
+PyAEDT INFO: Project Demo_3DComp has been created.
+PyAEDT INFO: Added design &#39;Linear_Array&#39; of type HFSS.
+PyAEDT INFO: AEDT objects correctly read
+</pre></div></div>
+</div>
+<p>Set the model units to <code class="docutils literal notranslate"><span class="pre">mm</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">h3d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">model_units</span> <span class="o">=</span> <span class="s2">&quot;mm&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Modeler class has been initialized! Elapsed time: 0m 0sec
+</pre></div></div>
+</div>
+</section>
+<section id="Import-the-EDB-as-a-3D-layout-component">
+<h2>Import the EDB as a 3D layout component<a class="headerlink" href="#Import-the-EDB-as-a-3D-layout-component" title="Link to this heading">#</a></h2>
+<p>The linear array can be inserted into the HFSS 3D Modeler. Combining layout components with 3D geometry is useful for mesh fusion and for simulating larger assemblies.</p>
+<p>The following image shows the imported layout component in the HFSS 3D user interface.</p>
+<p><img alt="c752212985df4ce992adcfad99131e4e" class="no-scaled-link" src="../../../_images/layout_component_in_3d.svg" style="width: 800px;" /></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">component</span> <span class="o">=</span> <span class="n">h3d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">insert_layout_component</span><span class="p">(</span><span class="n">aedb_path</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: No EDB gRPC setting provided. Enabling gRPC for EDB.
+PyAEDT INFO: Loading EDB with Grpc enabled.
+PyEDB INFO: Logger is initialized in EDB.
+PyEDB INFO: legacy v0.74.0
+PyEDB INFO: Python version 3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)]
+PyEDB INFO: Using PyEDB with gRPC as Beta until ANSYS 2027R1 official release.
+PyEDB INFO: Logger is initialized in EDB.
+PyEDB INFO: legacy v0.74.0
+PyEDB INFO: Python version 3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+C:\actions-runner\_work\pyaedt-examples\pyaedt-examples\.venv\lib\site-packages\pyedb\generic\design_types.py:374: UserWarning: You are using PyEDB with grpc, which is currently in beta. Some feature might be missing or not working as expected. Please report any issue you find to the PyEDB team.
+  warnings.warn(GRPC_BETA_WARNING, UserWarning)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Grpc session started
+PyEDB INFO: Grpc session started: pid=4992
+PyEDB INFO: RPC session acquired (open databases: 1)
+PyEDB INFO: Database linear_array.aedb Opened in 2026.1
+PyEDB INFO: Cell Cell_KTU6C0 Opened
+PyEDB INFO: Refreshing the Components dictionary.
+PyEDB INFO: Builder was initialized.
+PyEDB INFO: EDB initialized.
+PyEDB INFO: RPC session released (open databases: 0)
+PyAEDT INFO: Parsing C:\Users\ansys\AppData\Local\Temp\pytest-of-ansys\pytest-2486\Demo_3DComp.aedt.
+PyAEDT INFO: File C:\Users\ansys\AppData\Local\Temp\pytest-of-ansys\pytest-2486\Demo_3DComp.aedt correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: aedt file load time 0.025973796844482422
+PyAEDT INFO: Loading EDB with Grpc enabled.
+PyEDB INFO: Logger is initialized in EDB.
+PyEDB INFO: legacy v0.74.0
+PyEDB INFO: Python version 3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)]
+PyEDB INFO: Using PyEDB with gRPC as Beta until ANSYS 2027R1 official release.
+PyEDB INFO: Logger is initialized in EDB.
+PyEDB INFO: legacy v0.74.0
+PyEDB INFO: Python version 3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)]
+PyAEDT INFO: Grpc session started
+PyEDB INFO: Grpc session started: pid=7904
+PyEDB INFO: RPC session acquired (open databases: 1)
+PyEDB INFO: Database linear_array0.aedb Opened in 2026.1
+PyEDB INFO: Cell Cell_KTU6C0 Opened
+PyEDB INFO: Refreshing the Components dictionary.
+PyEDB INFO: Builder was initialized.
+PyEDB INFO: EDB initialized.
+</pre></div></div>
+</div>
+<section id="Assign-a-radiation-boundary">
+<h3>Assign a radiation boundary<a class="headerlink" href="#Assign-a-radiation-boundary" title="Link to this heading">#</a></h3>
+<p>The 3D domain includes the air volume surrounding the antenna. This antenna is simulated from 20 GHz to 50 GHz.</p>
+<p>Assign a radiation boundary to the outer faces of the air region. A common rule of thumb is to place this boundary about one quarter wavelength from the radiator:</p>
+<div class="math notranslate nohighlight">
+\[\lambda / 4 = \frac{c_0}{4f} \approx 2.8\,\text{mm}\]</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">h3d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">fit_all</span><span class="p">()</span>
+
+<span class="n">h3d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_air_region</span><span class="p">(</span><span class="mf">2.8</span><span class="p">,</span> <span class="mf">2.8</span><span class="p">,</span> <span class="mf">2.8</span><span class="p">,</span> <span class="mf">2.8</span><span class="p">,</span> <span class="mf">2.8</span><span class="p">,</span> <span class="mf">2.8</span><span class="p">,</span> <span class="n">is_percentage</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">h3d</span><span class="o">.</span><span class="n">assign_radiation_boundary_to_objects</span><span class="p">(</span><span class="s2">&quot;Region&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Boundary Radiation Rad__9KJMJ3 has been created.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Rad__9KJMJ3
+</pre></div></div>
+</div>
+</section>
+<section id="Set-up-the-analysis">
+<h3>Set up the analysis<a class="headerlink" href="#Set-up-the-analysis" title="Link to this heading">#</a></h3>
+<p>HFSS adapts the finite element mesh iteratively. Use <code class="docutils literal notranslate"><span class="pre">MaximumPasses</span></code> to limit the number of adaptive refinements. The default convergence target is:</p>
+<div class="math notranslate nohighlight">
+\[\max(|\Delta S|) &lt; 0.02\]</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">setup</span> <span class="o">=</span> <span class="n">h3d</span><span class="o">.</span><span class="n">create_setup</span><span class="p">()</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Frequency&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;20GHz&quot;</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;MaximumPasses&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span>
+</pre></div>
+</div>
+</div>
+<p>Define the frequency sweep.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sweep1</span> <span class="o">=</span> <span class="n">setup</span><span class="o">.</span><span class="n">add_sweep</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;20GHz_to_50GHz&quot;</span><span class="p">)</span>
+<span class="n">sweep1</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;RangeStart&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;20GHz&quot;</span>
+<span class="n">sweep1</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;RangeEnd&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;50GHz&quot;</span>
+<span class="n">sweep1</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+<p>Solve the project.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">h3d</span><span class="o">.</span><span class="n">analyze</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Project Demo_3DComp Saved correctly
+PyAEDT INFO: Solving all design setups. Analysis started...
+PyAEDT INFO: Design setup None solved correctly in 0.0h 3.0m 59.0s
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="Plot-S-parameter-results-outside-AEDT">
+<h2>Plot S-parameter results outside AEDT<a class="headerlink" href="#Plot-S-parameter-results-outside-AEDT" title="Link to this heading">#</a></h2>
+<p>Plot the first available trace with Matplotlib.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">trace</span> <span class="o">=</span> <span class="n">h3d</span><span class="o">.</span><span class="n">get_traces_for_plot</span><span class="p">()</span>
+<span class="n">solution</span> <span class="o">=</span> <span class="n">h3d</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">get_solution_data</span><span class="p">(</span><span class="n">trace</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">solution</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Parsing C:\Users\ansys\AppData\Local\Temp\pytest-of-ansys\pytest-2486\Demo_3DComp.aedt.
+PyAEDT INFO: File C:\Users\ansys\AppData\Local\Temp\pytest-of-ansys\pytest-2486\Demo_3DComp.aedt correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: aedt file load time 0.04791879653930664
+PyAEDT INFO: PostProcessor class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: PostProcessor class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Post class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Solution Correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: Solution Correctly parsed. Elapsed time: 0m 0sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/examples_high_frequency_antenna_5G_antenna_parametrics_39_1.png" src="../../../_images/examples_high_frequency_antenna_5G_antenna_parametrics_39_1.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/examples_high_frequency_antenna_5G_antenna_parametrics_39_2.png" src="../../../_images/examples_high_frequency_antenna_5G_antenna_parametrics_39_2.png" />
+</div>
+</div>
+</section>
+<section id="Create-a-2D-far-field-report-in-AEDT">
+<h2>Create a 2D far-field report in AEDT<a class="headerlink" href="#Create-a-2D-far-field-report-in-AEDT" title="Link to this heading">#</a></h2>
+<p>Create a far-field report for the realized gain.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">variations</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">variations</span><span class="p">[</span><span class="s2">&quot;Freq&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;20GHz&quot;</span><span class="p">]</span>
+<span class="n">variations</span><span class="p">[</span><span class="s2">&quot;Theta&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;All&quot;</span><span class="p">]</span>
+<span class="n">variations</span><span class="p">[</span><span class="s2">&quot;Phi&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;All&quot;</span><span class="p">]</span>
+<span class="n">h3d</span><span class="o">.</span><span class="n">insert_infinite_sphere</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;3D&quot;</span><span class="p">)</span>
+
+<span class="n">new_report</span> <span class="o">=</span> <span class="n">h3d</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">reports_by_category</span><span class="o">.</span><span class="n">far_field</span><span class="p">(</span><span class="s2">&quot;db(RealizedGainTotal)&quot;</span><span class="p">,</span> <span class="n">h3d</span><span class="o">.</span><span class="n">nominal_adaptive</span><span class="p">,</span> <span class="s2">&quot;3D&quot;</span><span class="p">)</span>
+<span class="n">new_report</span><span class="o">.</span><span class="n">variations</span> <span class="o">=</span> <span class="n">variations</span>
+<span class="n">new_report</span><span class="o">.</span><span class="n">primary_sweep</span> <span class="o">=</span> <span class="s2">&quot;Theta&quot;</span>
+<span class="n">new_report</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;Realized2D&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+</section>
+<section id="Create-a-3D-far-field-report-in-AEDT">
+<h2>Create a 3D far-field report in AEDT<a class="headerlink" href="#Create-a-3D-far-field-report-in-AEDT" title="Link to this heading">#</a></h2>
+<p>Reuse the same report object and switch it to a 3D polar plot.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">new_report</span><span class="o">.</span><span class="n">report_type</span> <span class="o">=</span> <span class="s2">&quot;3D Polar Plot&quot;</span>
+<span class="n">new_report</span><span class="o">.</span><span class="n">secondary_sweep</span> <span class="o">=</span> <span class="s2">&quot;Phi&quot;</span>
+<span class="n">new_report</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;Realized3D&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+</section>
+<section id="Plot-far-field-data-outside-AEDT">
+<h2>Plot far-field data outside AEDT<a class="headerlink" href="#Plot-far-field-data-outside-AEDT" title="Link to this heading">#</a></h2>
+<p>Retrieve the far-field data and plot it outside AEDT.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">solutions_custom</span> <span class="o">=</span> <span class="n">new_report</span><span class="o">.</span><span class="n">get_solution_data</span><span class="p">()</span>
+<span class="n">solutions_custom</span><span class="o">.</span><span class="n">plot_3d</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Solution Correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: Solution Correctly parsed. Elapsed time: 0m 0sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Class: ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/examples_high_frequency_antenna_5G_antenna_parametrics_45_2.png" src="../../../_images/examples_high_frequency_antenna_5G_antenna_parametrics_45_2.png" />
+</div>
+</div>
+</section>
+<section id="Plot-the-electric-field-on-selected-nets-and-layers">
+<h2>Plot the electric field on selected nets and layers<a class="headerlink" href="#Plot-the-electric-field-on-selected-nets-and-layers" title="Link to this heading">#</a></h2>
+<p>Create a field plot for the electric-field magnitude in AEDT.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">h3d</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">create_fieldplot_layers_nets</span><span class="p">(</span>
+    <span class="p">[[</span><span class="s2">&quot;TOP&quot;</span><span class="p">,</span> <span class="s2">&quot;Array_antenna&quot;</span><span class="p">]],</span>
+    <span class="s2">&quot;Mag_E&quot;</span><span class="p">,</span>
+    <span class="n">intrinsics</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Freq&quot;</span><span class="p">:</span> <span class="s2">&quot;20GHz&quot;</span><span class="p">,</span> <span class="s2">&quot;Phase&quot;</span><span class="p">:</span> <span class="s2">&quot;0deg&quot;</span><span class="p">},</span>
+    <span class="n">plot_name</span><span class="o">=</span><span class="s2">&quot;E_Layers&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Active Design set to Linear_Array
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Class: ansys.aedt.core.visualization.post.field_data.FieldPlot
+</pre></div></div>
+</div>
+</section>
+<section id="Save-and-clean-up">
+<h2>Save and clean up<a class="headerlink" href="#Save-and-clean-up" title="Link to this heading">#</a></h2>
+<section id="Save-the-project">
+<h3>Save the project<a class="headerlink" href="#Save-the-project" title="Link to this heading">#</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">h3d</span><span class="o">.</span><span class="n">save_project</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;test_layout.aedt&quot;</span><span class="p">))</span>
+<span class="n">h3d</span><span class="o">.</span><span class="n">release_desktop</span><span class="p">()</span>
+<span class="c1"># Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.</span>
+<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Project test_layout Saved correctly
+PyEDB INFO: RPC session released (open databases: 0)
+PyAEDT INFO: Desktop has been released and closed.
+</pre></div></div>
+</div>
+</section>
+<section id="Clean-up">
+<h3>Clean up<a class="headerlink" href="#Clean-up" title="Link to this heading">#</a></h3>
+<p>All generated project files are stored in <code class="docutils literal notranslate"><span class="pre">temp_folder.name</span></code>. If you are running this example as a notebook and want to keep those files, copy them before executing the cleanup step below.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">temp_folder</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+</section>
+<hr class="docutils" />
+<div class="admonition-download-this-example admonition">
+<p class="admonition-title">Download this example</p>
+<p>Download this example as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/antenna/5G_antenna_parametrics.ipynb">Jupyter Notebook</a>
+or as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/antenna/5G_antenna_parametrics.py">Python script</a>.</p>
+</div>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Prerequisites">Prerequisites</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Perform-imports">Perform imports</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Define-constants">Define constants</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-a-temporary-directory">Create a temporary directory</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Build-the-EDB-model">Build the EDB model</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-helper-classes-for-the-geometry">Create helper classes for the geometry</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Launch-EDB">Launch EDB</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Define-the-stackup">Define the stackup</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-the-first-patch-and-feed-line">Create the first patch and feed line</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Open-the-layout-component-in-HFSS">Open the layout component in HFSS</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Import-the-EDB-as-a-3D-layout-component">Import the EDB as a 3D layout component</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Assign-a-radiation-boundary">Assign a radiation boundary</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Set-up-the-analysis">Set up the analysis</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Plot-S-parameter-results-outside-AEDT">Plot S-parameter results outside AEDT</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-a-2D-far-field-report-in-AEDT">Create a 2D far-field report in AEDT</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-a-3D-far-field-report-in-AEDT">Create a 3D far-field report in AEDT</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Plot-far-field-data-outside-AEDT">Plot far-field data outside AEDT</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Plot-the-electric-field-on-selected-nets-and-layers">Plot the electric field on selected nets and layers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Save-and-clean-up">Save and clean up</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Save-the-project">Save the project</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Clean-up">Clean up</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+
+  
+  <nav class="tocsection editthispage" aria-label="Edit this page">
+    <a href="https://github.com/ansys/pyaedt-examples/edit/main/doc/source/examples/high_frequency/antenna/5G_antenna_parametrics.ipynb" rel="noopener noreferrer">
+      <i class="fa-solid fa-pencil" aria-hidden="true"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </nav>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/examples/high_frequency/antenna/5G_antenna_parametrics.ipynb.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+
+  <!-- Include desired assets -->
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.7/require.min.js"></script>
+
+<script>
+// Passing the search options to the search.js file
+const SEARCH_OPTIONS = JSON.parse('{"keys": ["title", "text", "objectID"], "limit": 10, "threshold": 0.2}');
+const SEARCH_FILE = "../../../_static/search.json";
+const ADVANCE_SEARCH_PATH = "../../../search.html";
+const EXTRA_SOURCES = JSON.parse('""');
+</script>
+
+
+<script src="../../../_static/js/search.js"></script>
+
+  
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright (c) 2021 - 2026 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<!--
+  Theme Version Footer
+  Displays the Sphinx theme version and the last updated date.
+  Accessibility and semantic improvements included.
+-->
+<footer class="theme-version" aria-label="Theme version and last update">
+  <span>
+    
+      Built with the
+      <a href="https://sphinxdocs.ansys.com/version/stable/index.html" target="_blank" rel="noopener noreferrer">
+        Ansys Sphinx Theme
+      </a>
+      1.7.2.
+    
+  </span>
+  <br />
+  <span>Last updated on <time id="ast_build_date"></time></span>
+</footer>
+<script>
+  // Set the last updated date in a readable format
+  (function() {
+    var options = { day: "numeric", month: "long", year: "numeric" };
+    var ast_lastModifiedDate = new Date(document.lastModified);
+    var ast_build_date = ast_lastModifiedDate.toLocaleDateString("en-US", options);
+    var dateElem = document.getElementById("ast_build_date");
+    if (dateElem) {
+      dateElem.textContent = ast_build_date;
+    }
+  })();
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

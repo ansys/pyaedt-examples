@@ -1,0 +1,254 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "7ec6919e",
+   "metadata": {},
+   "source": [
+    "# Transformer"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ee2f4259",
+   "metadata": {},
+   "source": [
+    "This example shows how to use PyAEDT to set core loss given a set\n",
+    "of power-volume [kw/m^3] curves at different frequencies.\n",
+    "\n",
+    "Keywords: **Maxwell 3D**, **Transformer**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d6a12099",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a94b9ae4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "from ansys.aedt.core import Maxwell3d\n",
+    "from ansys.aedt.core.examples import downloads\n",
+    "from ansys.aedt.core.generic.constants import unit_converter\n",
+    "from ansys.aedt.core.generic.file_utils import read_csv_pandas\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3c3ac847",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a056a0cf",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2026.1\"\n",
+    "NG_MODE = False"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "dfb1985d",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fae2eb34",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "296f6589",
+   "metadata": {},
+   "source": [
+    "## Download AEDT file example\n",
+    "\n",
+    "Download the files required to run this example to the temporary working folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "83beb745",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "aedt_file = downloads.download_file(\n",
+    "    source=\"core_loss_transformer\",\n",
+    "    name=\"Ex2-PlanarTransformer_2023R2.aedtz\",\n",
+    "    local_path=temp_folder.name,\n",
+    ")\n",
+    "freq_curve_csv_25kHz = downloads.download_file(source=\"core_loss_transformer\", name=\"mf3_25kHz.csv\", local_path=temp_folder.name)\n",
+    "freq_curve_csv_100kHz = downloads.download_file(source=\"core_loss_transformer\", name=\"mf3_100kHz.csv\", local_path=temp_folder.name)\n",
+    "freq_curve_csv_200kHz = downloads.download_file(source=\"core_loss_transformer\", name=\"mf3_200kHz.csv\", local_path=temp_folder.name)\n",
+    "freq_curve_csv_400kHz = downloads.download_file(source=\"core_loss_transformer\", name=\"mf3_400kHz.csv\", local_path=temp_folder.name)\n",
+    "freq_curve_csv_700kHz = downloads.download_file(source=\"core_loss_transformer\", name=\"mf3_700kHz.csv\", local_path=temp_folder.name)\n",
+    "freq_curve_csv_1MHz = downloads.download_file(source=\"core_loss_transformer\", name=\"mf3_1MHz.csv\", local_path=temp_folder.name)\n",
+    "\n",
+    "data = read_csv_pandas(input_file=freq_curve_csv_25kHz)\n",
+    "curves_csv_25kHz = list(zip(data[data.columns[0]], data[data.columns[1]]))\n",
+    "data = read_csv_pandas(input_file=freq_curve_csv_100kHz)\n",
+    "curves_csv_100kHz = list(zip(data[data.columns[0]], data[data.columns[1]]))\n",
+    "data = read_csv_pandas(input_file=freq_curve_csv_200kHz)\n",
+    "curves_csv_200kHz = list(zip(data[data.columns[0]], data[data.columns[1]]))\n",
+    "data = read_csv_pandas(input_file=freq_curve_csv_400kHz)\n",
+    "curves_csv_400kHz = list(zip(data[data.columns[0]], data[data.columns[1]]))\n",
+    "data = read_csv_pandas(input_file=freq_curve_csv_700kHz)\n",
+    "curves_csv_700kHz = list(zip(data[data.columns[0]], data[data.columns[1]]))\n",
+    "data = read_csv_pandas(input_file=freq_curve_csv_1MHz)\n",
+    "curves_csv_1MHz = list(zip(data[data.columns[0]], data[data.columns[1]]))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "aee5f66a",
+   "metadata": {},
+   "source": [
+    "## Launch AEDT and Maxwell 3D\n",
+    "\n",
+    "Create an instance of the ``Maxwell3d`` class named ``m3d`` by providing\n",
+    "the project and design names, the version, and the graphical mode."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e9a2648a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m3d = Maxwell3d(\n",
+    "    project=aedt_file,\n",
+    "    design=\"02_3D eddycurrent_CmXY_for_thermal\",\n",
+    "    version=AEDT_VERSION,\n",
+    "    new_desktop=True,\n",
+    "    non_graphical=False,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "cc19ba40",
+   "metadata": {},
+   "source": [
+    "## Set core loss at frequencies\n",
+    "\n",
+    "Create a new material, create a dictionary of power-volume [kw/m^3] points\n",
+    "for a set of frequencies retrieved from datasheet provided by a supplier,\n",
+    "and finally set the Power-Ferrite core loss model."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f1f5d1a3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mat = m3d.materials.add_material(\"newmat\")\n",
+    "freq_25kHz = unit_converter(values=25, unit_system=\"Freq\", input_units=\"kHz\", output_units=\"Hz\")\n",
+    "freq_100kHz = unit_converter(values=100, unit_system=\"Freq\", input_units=\"kHz\", output_units=\"Hz\")\n",
+    "freq_200kHz = unit_converter(values=200, unit_system=\"Freq\", input_units=\"kHz\", output_units=\"Hz\")\n",
+    "freq_400kHz = unit_converter(values=400, unit_system=\"Freq\", input_units=\"kHz\", output_units=\"Hz\")\n",
+    "freq_700kHz = unit_converter(values=700, unit_system=\"Freq\", input_units=\"kHz\", output_units=\"Hz\")\n",
+    "pv = {\n",
+    "    freq_25kHz: curves_csv_25kHz,\n",
+    "    freq_100kHz: curves_csv_100kHz,\n",
+    "    freq_200kHz: curves_csv_200kHz,\n",
+    "    freq_400kHz: curves_csv_400kHz,\n",
+    "    freq_700kHz: curves_csv_700kHz,\n",
+    "}\n",
+    "m3d.materials[mat.name].set_coreloss_at_frequency(\n",
+    "    points_at_frequency=pv,\n",
+    "    coefficient_setup=\"kw_per_cubic_meter\",\n",
+    "    core_loss_model_type=\"Power Ferrite\",\n",
+    ")\n",
+    "coefficients = m3d.materials[mat.name].get_core_loss_coefficients(points_at_frequency=pv, coefficient_setup=\"kw_per_cubic_meter\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0b8f3efc",
+   "metadata": {},
+   "source": [
+    "## Release AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b183dcea",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "m3d.save_project()\n",
+    "m3d.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c40863f5",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8b7804cd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

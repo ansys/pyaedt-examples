@@ -1,0 +1,504 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "8af26e4b",
+   "metadata": {},
+   "source": [
+    "# Import Sources\n",
+    "This example shows how to import voltage and current sources. In this example, we are going to\n",
+    "\n",
+    "- Download an example board\n",
+    "- Create a configuration file\n",
+    "  - Add a voltage source between two nets\n",
+    "  - Add a current source between two pins\n",
+    "  - Add a current source between two pin groups\n",
+    "  - Add a current source between two coordinates\n",
+    "  - Add a current source to the nearest pin\n",
+    "  - Add distributed sources\n",
+    "- Import the configuration file"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2dc60e01",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3c732e32",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import json\n",
+    "import tempfile\n",
+    "import time\n",
+    "from pathlib import Path\n",
+    "\n",
+    "import toml\n",
+    "from ansys.aedt.core.examples.downloads import download_file\n",
+    "from pyedb import Edb\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d70b0971",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4858da0f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2026.1\"\n",
+    "NG_MODE = False"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a9c3cbcf",
+   "metadata": {},
+   "source": [
+    "Download the example PCB data."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "152e49a8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")\n",
+    "file_edb = download_file(source=\"pyaedt/edb/ANSYS-HSD_V1.aedb\", local_path=temp_folder.name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1a49d815",
+   "metadata": {},
+   "source": [
+    "## Load example layout"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0e85012b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp = Edb(edbpath=file_edb, version=AEDT_VERSION)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a20616b0",
+   "metadata": {},
+   "source": [
+    "## Create an empty dictionary to host all configurations"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b02696b9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg = dict()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "882d26ec",
+   "metadata": {},
+   "source": [
+    "## Add a voltage source between two nets"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fbd30846",
+   "metadata": {},
+   "source": [
+    "Keywords\n",
+    "\n",
+    "- **name**. Name of the voltage source.\n",
+    "- **Reference_designator**. Reference designator of the component.\n",
+    "- **type**. Type of the source. Supported types are 'voltage', 'current'\n",
+    "- **impedance**. Impedance of the port. Default is 5e7 Ohm for current sources, 1e-6 Ohm for voltage sources.\n",
+    "- **positive_terminal**. Supported types are 'net', 'pin', 'pin_group', 'coordinates'\n",
+    "  - **contact_radius**. Optional. Set circular equipotential region.\n",
+    "  - **inline**. Optional. When True, contact points are placed in a row.\n",
+    "  - **num_of_contact**. Optional. Number of contact points. Default is 1. Applicable only when inline is True.\n",
+    "- **negative_terminal**. Supported types are 'net', 'pin', 'pin_group', 'coordinates'\n",
+    "- **equipotential**. Set equipotential region on pins when True."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "153de779",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "voltage_source = {\n",
+    "    \"name\": \"V_SOURCE_5V\",\n",
+    "    \"reference_designator\": \"U4\",\n",
+    "    \"type\": \"voltage\",\n",
+    "    \"magnitude\": 1,\n",
+    "    \"positive_terminal\": {\"net\": \"5V\", \"contact_radius\": \"1mm\"},\n",
+    "    \"negative_terminal\": {\"net\": \"GND\", \"contact_radius\": \"1mm\"},\n",
+    "    \"equipotential\": True,\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4b0268c2",
+   "metadata": {},
+   "source": [
+    "## Add a current source between two pins"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "749a3e77",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "current_source_1 = {\n",
+    "    \"name\": \"I_CURRENT_1A\",\n",
+    "    \"reference_designator\": \"J5\",\n",
+    "    \"type\": \"current\",\n",
+    "    \"magnitude\": 10,\n",
+    "    \"positive_terminal\": {\"pin\": \"15\"},\n",
+    "    \"negative_terminal\": {\"pin\": \"14\"},\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9bb0c0f0",
+   "metadata": {},
+   "source": [
+    "## Add a current source between two pin groups"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "30712214",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pin_groups = [\n",
+    "    {\"name\": \"IC2_5V\", \"reference_designator\": \"IC2\", \"pins\": [\"8\"]},\n",
+    "    {\"name\": \"IC2_GND\", \"reference_designator\": \"IC2\", \"net\": \"GND\"},\n",
+    "]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1d8b03b1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "current_source_2 = {\n",
+    "    \"name\": \"CURRENT_SOURCE_2\",\n",
+    "    \"type\": \"current\",\n",
+    "    \"positive_terminal\": {\"pin_group\": \"IC2_5V\"},\n",
+    "    \"negative_terminal\": {\"pin_group\": \"IC2_GND\"},\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "479a7b30",
+   "metadata": {},
+   "source": [
+    "## Add a current source between two coordinates"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9e6f0242",
+   "metadata": {},
+   "source": [
+    "Keywords\n",
+    "\n",
+    "- **layer**. Layer on which the terminal is placed\n",
+    "- **point**. XY coordinate the terminal is placed\n",
+    "- **net**. Name of the net the terminal is placed on"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ca242f53",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "current_source_3 = {\n",
+    "    \"name\": \"CURRENT_SOURCE_3\",\n",
+    "    \"type\": \"current\",\n",
+    "    \"equipotential\": True,\n",
+    "    \"positive_terminal\": {\"coordinates\": {\"layer\": \"1_Top\", \"point\": [\"116mm\", \"41mm\"], \"net\": \"5V\"}},\n",
+    "    \"negative_terminal\": {\"coordinates\": {\"layer\": \"Inner1(GND1)\", \"point\": [\"116mm\", \"41mm\"], \"net\": \"GND\"}},\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3d0ae73b",
+   "metadata": {},
+   "source": [
+    "## Add a current source reference to the nearest pin"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "84d4493d",
+   "metadata": {},
+   "source": [
+    "Keywords\n",
+    "\n",
+    "- **reference_net**. Name of the reference net\n",
+    "- **search_radius**. Reference pin search radius in meter"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "45b9f8b2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "current_source_4 = {\n",
+    "    \"name\": \"CURRENT_SOURCE_4\",\n",
+    "    \"reference_designator\": \"J5\",\n",
+    "    \"type\": \"current\",\n",
+    "    \"positive_terminal\": {\"pin\": \"16\"},\n",
+    "    \"negative_terminal\": {\"nearest_pin\": {\"reference_net\": \"GND\", \"search_radius\": 5e-3}},\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ca1eb1d9",
+   "metadata": {},
+   "source": [
+    "## Add distributed current sources"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "698094e1",
+   "metadata": {},
+   "source": [
+    "Keywords\n",
+    "\n",
+    "- **distributed**. Whether to create distributed sources. When set to True, ports are created per pin"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2ddd39ac",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "sources_distributed = {\n",
+    "    \"name\": \"DISTRIBUTED\",\n",
+    "    \"reference_designator\": \"U2\",\n",
+    "    \"type\": \"current\",\n",
+    "    \"distributed\": True,\n",
+    "    \"positive_terminal\": {\"net\": \"5V\"},\n",
+    "    \"negative_terminal\": {\"net\": \"GND\"},\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7d0f8dde",
+   "metadata": {},
+   "source": [
+    "## Add setups in configuration"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1be02dd4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg[\"pin_groups\"] = pin_groups\n",
+    "cfg[\"sources\"] = [\n",
+    "    voltage_source,\n",
+    "    current_source_1,\n",
+    "    current_source_2,\n",
+    "    current_source_3,\n",
+    "    current_source_4,\n",
+    "    sources_distributed,\n",
+    "]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e03622e7",
+   "metadata": {},
+   "source": [
+    "## Write configuration into as JSON file"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3b6bebc6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "file_json = Path(temp_folder.name) / \"edb_configuration.json\"\n",
+    "with open(file_json, \"w\") as f:\n",
+    "    json.dump(cfg, f, indent=4, ensure_ascii=False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "81a9c1f2",
+   "metadata": {},
+   "source": [
+    "Equivalent toml file looks like below"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ab57df01",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "toml_string = toml.dumps(cfg)\n",
+    "print(toml_string)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1cb57664",
+   "metadata": {},
+   "source": [
+    "## Import configuration into example layout"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f462a498",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.configuration.load(config_file=file_json)\n",
+    "edbapp.configuration.run()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "be48cbb4",
+   "metadata": {},
+   "source": [
+    "## Review"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d6c7ca14",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print(edbapp.siwave.sources)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d670a49f",
+   "metadata": {},
+   "source": [
+    "## Save and close Edb\n",
+    "The temporary folder will be deleted once the execution of this script is finished. Replace **edbapp.save()** with\n",
+    "**edbapp.save_as(\"C:/example.aedb\")** to keep the example project."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "123a65f2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.save()\n",
+    "edbapp.close()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ec14a3db",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Wait 3 seconds before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4906dbe4",
+   "metadata": {},
+   "source": [
+    "### Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "62b1dff7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

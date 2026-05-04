@@ -1,0 +1,706 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "91c92d9d",
+   "metadata": {},
+   "source": [
+    "# Create a 5G Antenna Layout Component\n",
+    "\n",
+    "This example uses PyEDB to create a microstrip antenna array in EDB and then\n",
+    "imports it into HFSS as a 3D layout component."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2dcd807b",
+   "metadata": {},
+   "source": [
+    "## Prerequisites\n",
+    "\n",
+    "### Perform imports"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f752e37b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core\n",
+    "import pyedb\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "74d2f6ba",
+   "metadata": {},
+   "source": [
+    "### Define constants\n",
+    "These constants keep the example configuration in one place."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "12dbbad7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2026.1\"\n",
+    "NG_MODE = False  # Set to ``True`` to run AEDT without the user interface."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "55ec3144",
+   "metadata": {},
+   "source": [
+    "### Create a temporary directory\n",
+    "\n",
+    "Create a temporary working directory. The generated project files are stored in\n",
+    "``temp_folder.name``.\n",
+    "\n",
+    "> **Note:** The final section removes the temporary folder. If you want to keep\n",
+    "> the AEDT project or intermediate data, copy them before running the cleanup step."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "cf6d5c57",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f532bb40",
+   "metadata": {},
+   "source": [
+    "## Build the EDB model\n",
+    "\n",
+    "### Create helper classes for the geometry\n",
+    "\n",
+    "The ``Patch``, ``Line``, and ``LinearArray`` classes make it easier to define\n",
+    "the array geometry before passing the polygon points to ``pyedb.Edb``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "bca89ac6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "class Patch:\n",
+    "    def __init__(self, width: float = 0.0, height: float = 0.0, position: float = 0.0):\n",
+    "        self.width = width\n",
+    "        self.height = height\n",
+    "        self.position = position\n",
+    "\n",
+    "    @property\n",
+    "    def points(self):\n",
+    "        return [\n",
+    "            [self.position, -self.height / 2],\n",
+    "            [self.position + self.width, -self.height / 2],\n",
+    "            [self.position + self.width, self.height / 2],\n",
+    "            [self.position, self.height / 2],\n",
+    "        ]\n",
+    "\n",
+    "\n",
+    "class Line:\n",
+    "    def __init__(self, length=0.0, width=0.0, position=0.0):\n",
+    "        self.length = length\n",
+    "        self.width = width\n",
+    "        self.position = position\n",
+    "\n",
+    "    @property\n",
+    "    def points(self):\n",
+    "        return [\n",
+    "            [self.position, -self.width / 2],\n",
+    "            [self.position + self.length, -self.width / 2],\n",
+    "            [self.position + self.length, self.width / 2],\n",
+    "            [self.position, self.width / 2],\n",
+    "        ]\n",
+    "\n",
+    "\n",
+    "class LinearArray:\n",
+    "    def __init__(self, nb_patch=1, array_length=10e-3, array_width=5e-3):\n",
+    "        self.nbpatch = nb_patch\n",
+    "        self.length = array_length\n",
+    "        self.width = array_width\n",
+    "\n",
+    "    @property\n",
+    "    def points(self):\n",
+    "        return [\n",
+    "            [-1e-3, -self.width / 2 - 1e-3],\n",
+    "            [self.length + 1e-3, -self.width / 2 - 1e-3],\n",
+    "            [self.length + 1e-3, self.width / 2 + 1e-3],\n",
+    "            [-1e-3, self.width / 2 + 1e-3],\n",
+    "        ]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b6e6796c",
+   "metadata": {},
+   "source": [
+    "### Launch EDB\n",
+    "\n",
+    "Use ``pyedb.Edb`` to create a new EDB project."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f567b8d6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "aedb_path = os.path.join(temp_folder.name, \"linear_array.aedb\")\n",
+    "\n",
+    "# Create the EDB database.\n",
+    "edb = pyedb.Edb(edbpath=aedb_path, version=AEDT_VERSION)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "68a7670c",
+   "metadata": {},
+   "source": [
+    "### Define the stackup\n",
+    "\n",
+    "Add a custom high-conductivity copper material and then build the layer stack\n",
+    "from top to bottom using the ``pyedb.Edb.stackup`` API."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "532f56b4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.materials.add_conductor_material(name=\"copper_high_cond\", conductivity=60000000)\n",
+    "edb.materials.add_dielectric_material(name=\"Duroid (tm)\", permittivity=2.2, dielectric_loss_tangent=0.0009)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f10283df",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.stackup.add_layer_top(name=\"TOP\",\n",
+    "                          layer_type=\"signal\",\n",
+    "                          thickness=\"35um\",\n",
+    "                          material=\"copper_high_cond\")\n",
+    "edb.stackup.add_layer_below(name=\"Substrat\",\n",
+    "                            base_layer_name=\"TOP\",\n",
+    "                            layer_type=\"dielectric\",\n",
+    "                            thickness=\"0.5mm\",\n",
+    "                            material=\"Duroid (tm)\")\n",
+    "edb.stackup.add_layer_below(name=\"GND\",\n",
+    "                            base_layer_name=\"Substrat\",\n",
+    "                            layer_type=\"signal\",\n",
+    "                            thickness=\"35um\",\n",
+    "                            material=\"copper\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "388e55e4",
+   "metadata": {},
+   "source": [
+    "### Create the first patch and feed line\n",
+    "\n",
+    "Use the ``Patch`` and ``Line`` helpers to define the first radiating element and\n",
+    "its feed line.\n",
+    "\n",
+    "<img src=\"_static/5G_antenna_parametrics/array_params.svg\" width=\"600\">\n",
+    "\n",
+    "Define the geometry dimensions:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "359e0b69",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "w1 = 1.4e-3\n",
+    "h1 = 1.2e-3\n",
+    "initial_position = 0.0\n",
+    "l1 = 2.4e-3\n",
+    "trace_w = 0.3e-3\n",
+    "\n",
+    "first_patch = Patch(width=w1, height=h1, position=initial_position)\n",
+    "edb.modeler.create_polygon(first_patch.points, layer_name=\"TOP\", net_name=\"Array_antenna\")\n",
+    "first_line = Line(length=l1, width=trace_w, position=first_patch.width)\n",
+    "edb.modeler.create_polygon(first_line.points, layer_name=\"TOP\", net_name=\"Array_antenna\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "60e8f9b2",
+   "metadata": {},
+   "source": [
+    "Use the ``LinearArray`` helper to generate the remaining antenna elements."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1bf4378c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "w2 = 2.29e-3\n",
+    "h2 = 3.3e-3\n",
+    "l2 = 1.9e-3\n",
+    "trace_w2 = 0.2e-3\n",
+    "rf_pin_location = [first_patch.width / 4.0, 0]\n",
+    "\n",
+    "patch = Patch(width=w2, height=h2)\n",
+    "line = Line(length=l2, width=trace_w2)\n",
+    "linear_array = LinearArray(nb_patch=8, array_width=patch.height)\n",
+    "\n",
+    "current_patch = 1\n",
+    "current_position = first_line.position + first_line.length\n",
+    "\n",
+    "while current_patch <= linear_array.nbpatch:\n",
+    "    patch.position = current_position\n",
+    "    edb.modeler.create_polygon(patch.points, layer_name=\"TOP\", net_name=\"Array_antenna\")\n",
+    "    current_position = current_position + patch.width\n",
+    "    if current_patch < linear_array.nbpatch:\n",
+    "        line.position = current_position\n",
+    "        edb.modeler.create_polygon(line.points, layer_name=\"TOP\", net_name=\"Array_antenna\")\n",
+    "        current_position = current_position + line.length\n",
+    "    current_patch += 1\n",
+    "\n",
+    "linear_array.length = current_position"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ea66a4a5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Add the ground reference conductor.\n",
+    "edb.modeler.create_polygon(linear_array.points, layer_name=\"GND\", net_name=\"GND\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ea8d1553",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Add point terminals that define the feed and its reference.\n",
+    "pos_term = edb.excitation_manager.create_point_terminal(\n",
+    "    x=rf_pin_location[0],\n",
+    "    y=rf_pin_location[1],\n",
+    "    layer=\"TOP\",\n",
+    "    net=\"Array_antenna\",\n",
+    ")\n",
+    "ref_term = edb.excitation_manager.create_point_terminal(\n",
+    "    x=rf_pin_location[0],\n",
+    "    y=rf_pin_location[1],\n",
+    "    layer=\"GND\",\n",
+    "    net=\"GND\",\n",
+    ")\n",
+    "pos_term.reference_terminal = ref_term"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1f562eb8",
+   "metadata": {},
+   "source": [
+    "Display the layout."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f16768ec",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.nets.plot()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b93e3870",
+   "metadata": {},
+   "source": [
+    "Save and close the EDB project before importing it into HFSS as a layout component."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "49dc9c28",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edb.save()\n",
+    "edb.close()\n",
+    "print(f\"EDB saved to {aedb_path}. It is ready to be imported into AEDT.\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9e973d4a",
+   "metadata": {},
+   "source": [
+    "## Open the layout component in HFSS\n",
+    "\n",
+    "Create an ``ansys.aedt.core.Hfss`` instance. When ``non_graphical=False``, the\n",
+    "AEDT user interface opens so you can monitor each step interactively."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0a362d75",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d = ansys.aedt.core.Hfss(\n",
+    "    project=\"Demo_3DComp\",\n",
+    "    design=\"Linear_Array\",\n",
+    "    version=AEDT_VERSION,\n",
+    "    new_desktop=True,\n",
+    "    non_graphical=NG_MODE,\n",
+    "    close_on_exit=True,\n",
+    "    solution_type=\"Terminal\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "955bdcbe",
+   "metadata": {},
+   "source": [
+    "Set the model units to ``mm``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "73304a82",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d.modeler.model_units = \"mm\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "81245169",
+   "metadata": {},
+   "source": [
+    "## Import the EDB as a 3D layout component\n",
+    "\n",
+    "The linear array can be inserted into the HFSS 3D Modeler. Combining layout\n",
+    "components with 3D geometry is useful for mesh fusion and for simulating larger\n",
+    "assemblies.\n",
+    "\n",
+    "The following image shows the imported layout component in the HFSS 3D user interface.\n",
+    "\n",
+    "<img src=\"_static/5G_antenna_parametrics/layout_component_in_3d.svg\" width=\"800\">"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "bd4c9cdf",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "component = h3d.modeler.insert_layout_component(aedb_path)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8ea5bb45",
+   "metadata": {},
+   "source": [
+    "### Assign a radiation boundary\n",
+    "\n",
+    "The 3D domain includes the air volume surrounding the antenna. This antenna is\n",
+    "simulated from 20 GHz to 50 GHz.\n",
+    "\n",
+    "Assign a radiation boundary to the outer faces of the air region. A common rule\n",
+    "of thumb is to place this boundary about one quarter wavelength from the radiator:\n",
+    "\n",
+    "$$ \\lambda / 4 = \\frac{c_0}{4f} \\approx 2.8\\,\\text{mm} $$"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "23214c34",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d.modeler.fit_all()\n",
+    "\n",
+    "h3d.modeler.create_air_region(2.8, 2.8, 2.8, 2.8, 2.8, 2.8, is_percentage=False)\n",
+    "h3d.assign_radiation_boundary_to_objects(\"Region\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e5a1cf3d",
+   "metadata": {},
+   "source": [
+    "### Set up the analysis\n",
+    "\n",
+    "HFSS adapts the finite element mesh iteratively. Use ``MaximumPasses`` to limit\n",
+    "the number of adaptive refinements. The default convergence target is:\n",
+    "\n",
+    "$$ \\max(|\\Delta S|) < 0.02 $$"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "252735f8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup = h3d.create_setup()\n",
+    "setup.props[\"Frequency\"] = \"20GHz\"\n",
+    "setup.props[\"MaximumPasses\"] = 10"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "40aabfec",
+   "metadata": {},
+   "source": [
+    "Define the frequency sweep."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "bf5764e6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "sweep1 = setup.add_sweep(name=\"20GHz_to_50GHz\")\n",
+    "sweep1.props[\"RangeStart\"] = \"20GHz\"\n",
+    "sweep1.props[\"RangeEnd\"] = \"50GHz\"\n",
+    "sweep1.update()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ba792a66",
+   "metadata": {},
+   "source": [
+    "Solve the project."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "83c39544",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d.analyze()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9044b608",
+   "metadata": {},
+   "source": [
+    "## Plot S-parameter results outside AEDT\n",
+    "\n",
+    "Plot the first available trace with Matplotlib."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4f4c0794",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "trace = h3d.get_traces_for_plot()\n",
+    "solution = h3d.post.get_solution_data(trace[0])\n",
+    "solution.plot()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6a4d5a2c",
+   "metadata": {},
+   "source": [
+    "## Create a 2D far-field report in AEDT\n",
+    "\n",
+    "Create a far-field report for the realized gain."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8ff4ba6e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "variations = {}\n",
+    "variations[\"Freq\"] = [\"20GHz\"]\n",
+    "variations[\"Theta\"] = [\"All\"]\n",
+    "variations[\"Phi\"] = [\"All\"]\n",
+    "h3d.insert_infinite_sphere(name=\"3D\")\n",
+    "\n",
+    "new_report = h3d.post.reports_by_category.far_field(\"db(RealizedGainTotal)\", h3d.nominal_adaptive, \"3D\")\n",
+    "new_report.variations = variations\n",
+    "new_report.primary_sweep = \"Theta\"\n",
+    "new_report.create(\"Realized2D\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "20d80311",
+   "metadata": {},
+   "source": [
+    "## Create a 3D far-field report in AEDT\n",
+    "\n",
+    "Reuse the same report object and switch it to a 3D polar plot."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6b1fcf00",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "new_report.report_type = \"3D Polar Plot\"\n",
+    "new_report.secondary_sweep = \"Phi\"\n",
+    "new_report.create(\"Realized3D\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4218a5dc",
+   "metadata": {},
+   "source": [
+    "## Plot far-field data outside AEDT\n",
+    "\n",
+    "Retrieve the far-field data and plot it outside AEDT."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "648985b5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "solutions_custom = new_report.get_solution_data()\n",
+    "solutions_custom.plot_3d()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "43d54d32",
+   "metadata": {},
+   "source": [
+    "## Plot the electric field on selected nets and layers\n",
+    "\n",
+    "Create a field plot for the electric-field magnitude in AEDT."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9ca14a3a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d.post.create_fieldplot_layers_nets(\n",
+    "    [[\"TOP\", \"Array_antenna\"]],\n",
+    "    \"Mag_E\",\n",
+    "    intrinsics={\"Freq\": \"20GHz\", \"Phase\": \"0deg\"},\n",
+    "    plot_name=\"E_Layers\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5c49ca66",
+   "metadata": {},
+   "source": [
+    "## Save and clean up\n",
+    "\n",
+    "### Save the project"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fbc2bfc9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d.save_project(os.path.join(temp_folder.name, \"test_layout.aedt\"))\n",
+    "h3d.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0d261298",
+   "metadata": {},
+   "source": [
+    "### Clean up\n",
+    "\n",
+    "All generated project files are stored in ``temp_folder.name``. If you are\n",
+    "running this example as a notebook and want to keep those files, copy them\n",
+    "before executing the cleanup step below."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "168e9a9d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
