@@ -131,7 +131,7 @@ These examples use PyAEDT to show some general applications.
       This example uses PyAEDT to create a 3-phase cable with neutral
       and solve it using Maxwell 2D AC Magnetic (Eddy Current) solver.
 
-  .. grid-item-card:: Inception Voltage Evaluation for a 2D Twisted Conductor Pair
+   .. grid-item-card:: Inception Voltage Evaluation for a 2D Twisted Conductor Pair
       :padding: 2 2 2 2
       :link: maxwell_2d_inception_voltage
       :link-type: doc
