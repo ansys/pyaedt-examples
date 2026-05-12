@@ -46,7 +46,7 @@ These examples use PyAEDT to show EMIT capabilities.
 
    .. grid-item-card:: Compute receiver protection levels
       :padding: 2 2 2 2
-      :link: ../../high_frequency/antenna/interferences/interference_type
+      :link: ../../high_frequency/antenna/interferences/protection
       :link-type: doc
 
       .. image:: ../../high_frequency/antenna/interferences/_static/protection.png

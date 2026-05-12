@@ -45,7 +45,7 @@ These examples use PyAEDT to show some general capabilities of EMIT for RF inter
 
    .. grid-item-card:: Compute receiver protection levels
       :padding: 2 2 2 2
-      :link: interference_type
+      :link: protection
       :link-type: doc
 
       .. image:: _static/protection.png
