@@ -19,7 +19,7 @@ import time
 from ansys.aedt.core import Hfss
 
 # -
-
+# this is a bug fix
 # ### Define constants
 # Constants help ensure consistency and avoid repetition throughout the example.
 
