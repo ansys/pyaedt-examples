@@ -291,10 +291,6 @@ def convert_examples_into_notebooks(app):
         "distributed_filter.py",
         # GitHub CI/CD Pipeline randomly fails to run field_export.py but it runs locally.
         "field_export.py",
-        # TODO: Remove once EMIT examples are moved into extensions.
-        "interference.py",
-        "hfss_emit.py",
-        "protection.py",
         "component_conversion.py",
     )
 
