@@ -21,7 +21,7 @@ from ansys.aedt.core.examples.downloads import download_via_wizard
 
 # Define constants.
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION = "2026.1"
 NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
@@ -92,10 +92,12 @@ circuit.modeler.schematic.create_interface_port(
     location=[hfss_comp.pins[3].location[0], hfss_comp.pins[3].location[1]],
 )
 
-ports_list = ["Excitation_1", "Excitation_2"]
-source = circuit.assign_voltage_sinusoidal_excitation_to_ports(ports_list)
-source.ac_magnitude = 1
-source.phase = 0
+# Source assignment is not working in 2026R1 due to a known bug in AEDT.
+if AEDT_VERSION != "2026.1":
+    ports_list = ["Excitation_1", "Excitation_2"]
+    source = circuit.assign_voltage_sinusoidal_excitation_to_ports(ports_list)
+    source.ac_magnitude = 1
+    source.phase = 0
 # -
 
 # ## Create setup
@@ -111,7 +113,10 @@ LNA_setup.props["SweepDefinition"]["Data"] = " ".join(sweep_list)
 # correct value of losses.
 
 circuit.analyze(cores=NUM_CORES)
-circuit.push_excitations(instance="S1", setup=setup_name)
+
+# If source is not assigned to port, the push excitation fails
+if AEDT_VERSION != "2026.1":
+    circuit.push_excitations(instance="S1", setup=setup_name)
 
 # ## Start Mechanical
 #
