@@ -19,6 +19,7 @@ import time
 
 from ansys.aedt.core import Hfss
 from ansys.aedt.core.examples.downloads import download_3dcomponent
+from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic import file_utils
 from ansys.aedt.core.visualization.advanced.farfield_visualization import (
     FfdSolutionData,
@@ -140,13 +141,20 @@ hfss.analyze(cores=NUM_CORES)
 # Get far-field data. After the simulation completes, the far
 # field data is generated port by port and stored in a data class.
 
-ffdata = hfss.get_antenna_data(setup=hfss.nominal_adaptive, sphere="Infinite Sphere1")
+ffdata = hfss.get_antenna_data(
+    setup=hfss.nominal_adaptive,
+    sphere="Infinite Sphere1",
+)
 
 # ### Generate contour plot
 #
 # Generate a contour plot. You can define the Theta scan and Phi scan.
 
-ffdata.farfield_data.plot_contour(quantity="RealizedGain", title=f"Contour at {ffdata.farfield_data.frequency * 1E-9:0.1f} GHz")
+ffdata.farfield_data.plot_contour(
+    quantity="RealizedGain",
+    title=f"Contour at {ffdata.farfield_data.frequency * 1E-9:0.1f} GHz",
+    output_file=os.path.join(temp_folder.name, "Contour.jpg"),
+)
 
 # ### Save the project and data
 #
@@ -156,6 +164,17 @@ ffdata.farfield_data.plot_contour(quantity="RealizedGain", title=f"Contour at {f
 # +
 metadata_file = ffdata.metadata_file
 working_directory = hfss.working_directory
+
+# ### Define far field origin
+#
+# The far field origin is defined as the center of the model bounding box at z=0. The coordinates are converted from the model units to meters.
+bounding_box = hfss.modeler.get_model_bounding_box()
+model_to_meter = AEDT_UNITS["Length"][hfss.modeler.model_units]
+farfield_origin = [
+    0.5 * (bounding_box[0] + bounding_box[3]) * model_to_meter,
+    0.5 * (bounding_box[1] + bounding_box[4]) * model_to_meter,
+    0.0,
+]
 
 hfss.save_project()
 hfss.release_desktop()
@@ -170,13 +189,18 @@ time.sleep(3)
 # patterns are linked through the metadata file.
 
 ffdata = FfdSolutionData(input_file=metadata_file)
+ffdata.origin = farfield_origin
 
 # ## Generate contour plot
 #
 # Generate a contour plot. You can define the Theta scan
 # and Phi scan.
 
-ffdata.plot_contour(quantity="RealizedGain", title=f"Contour at {ffdata.frequency * 1e-9:.1f} GHz")
+ffdata.plot_contour(
+    quantity="RealizedGain",
+    title=f"Contour at {ffdata.frequency * 1e-9:.1f} GHz",
+    output_file=os.path.join(working_directory, "Contour.jpg"),
+)
 
 # ### Generate 2D cutout plots
 #
@@ -190,6 +214,7 @@ ffdata.plot_cut(
     secondary_sweep_value=[-180, -75, 75],
     title=f"Azimuth at {ffdata.frequency * 1E-9:.1f} GHz",
     quantity_format="dB10",
+    output_file=os.path.join(working_directory, "Azimuth.jpg"),
 )
 
 ffdata.plot_cut(
@@ -198,6 +223,7 @@ ffdata.plot_cut(
     secondary_sweep_value=30,
     title="Elevation",
     quantity_format="dB10",
+    output_file=os.path.join(working_directory, "Elevation.jpg"),
 )
 # -
 
