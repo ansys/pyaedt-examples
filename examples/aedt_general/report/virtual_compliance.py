@@ -75,9 +75,11 @@ status, diff_pairs, comm_pairs = circuit.create_lna_schematic_from_snp(
     stop_frequency=70,
     auto_assign_diff_pairs=True,
     separation=".",
-    pattern=["component", "pin", "net"],
-    analyze=True,
+    pattern=["component", "pin", "net"]
 )
+circuit.design_name = "LNA"
+circuit.analyze(cores=NUM_CORES)
+
 insertion = circuit.get_all_insertion_loss_list(
     drivers=diff_pairs,
     receivers=diff_pairs,
@@ -106,16 +108,18 @@ return_comm = circuit.get_all_return_loss_list(
 # The original circuit schematic is duplicated and modified to achieve this target.
 
 result, tdr_probe_name = circuit.create_tdr_schematic_from_snp(
-    input_file=touchstone_path,
+    input_file=str(touchstone_path),
     tx_schematic_pins=["X1.A2.PCIe_Gen4_RX0_P"],
     tx_schematic_differential_pins=["X1.A3.PCIe_Gen4_RX0_N"],
     termination_pins=["U1.AP26.PCIe_Gen4_RX0_P", "U1.AN26.PCIe_Gen4_RX0_N"],
     differential=True,
     rise_time=35,
     use_convolution=True,
-    analyze=True,
     design_name="TDR",
 )
+
+circuit.design_name = "TDR"
+circuit.analyze(cores=NUM_CORES)
 
 # ## Create AMI project
 #
@@ -123,7 +127,7 @@ result, tdr_probe_name = circuit.create_tdr_schematic_from_snp(
 # eye mask violations.
 
 _, eye_curve_tx, eye_curve_rx = circuit.create_ami_schematic_from_snp(
-    input_file=touchstone_path,
+    input_file=str(touchstone_path),
     ibis_tx_file=os.path.join(project_folder, "models", "pcieg5_32gt.ibs"),
     tx_buffer_name="1p",
     rx_buffer_name="2p",
@@ -137,9 +141,11 @@ _, eye_curve_tx, eye_curve_rx = circuit.create_ami_schematic_from_snp(
     bit_pattern="random_bit_count=2.5e3 random_seed=1",
     unit_interval="31.25ps",
     use_convolution=True,
-    analyze=True,
     design_name="AMI",
 )
+
+circuit.design_name = "AMI"
+circuit.analyze(cores=NUM_CORES)
 
 circuit.save_project()
 

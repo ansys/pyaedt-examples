@@ -288,7 +288,7 @@ ipk.copy_solid_bodies_from(q3d, assignment=copy_bodies_from_q3d, include_sheets=
 ipk.modeler.change_region_padding(
     padding_data=[100, 100, 50, 50, "200mm", "200mm"], padding_type=["Percentage Offset", "Percentage Offset", "Percentage Offset", "Percentage Offset", "Absolute Offset", "Absolute Offset"]
 )
-ipk.modeler.get_objects_by_material("air")[0].model = False
+ipk.modeler.get_objects_by_material("air")[0].is_model = False
 subregion = ipk.modeler.create_subregion(padding_values=[10, 10, 10, 10, 50, 50], padding_types="Percentage Offset", assignment=["dc_terminal", "dc_terminal_1_2"], name="Subregion")
 
 # ## Assign EM losses
