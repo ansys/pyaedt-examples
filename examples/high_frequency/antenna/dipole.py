@@ -202,15 +202,20 @@ report_3d.report_type = "3D Polar Plot"
 report_3d.create(name="Realized Gain (dB)")
 # -
 
-# ### Retrieve solution data for post-processing in Python
+# ### Retrieve far-field data for post-processing in Python
 #
-# An instance of the ``SolutionData`` class can be created from the report by calling ``get_solution_data()``.
-# This class provides access to data for further post-processing using
-# [Matplotlib](https://matplotlib.org/).
+# Use the far-field visualizer to plot the realized gain and show the geometry. The far-field data is retrieved from HFSS and stored in a data class. The data class has a built-in method to generate the plot shown below.
 
-report_3d_data = report_3d.get_solution_data()
-new_plot = report_3d_data.plot_3d()
-
+antenna_data = hfss.get_antenna_data(
+    frequencies=[center_freq],
+    setup=disc_sweep.name,
+    sphere="3D",
+)
+new_plot = antenna_data.farfield_data.plot_3d(
+    quantity="RealizedGain_Theta",
+    quantity_format="dB10",
+    show_geometry=True,
+)
 # ### View cross-polarization
 #
 # The dipole is linearly polarized as can be seen from the comparison of $\theta$-polarized
