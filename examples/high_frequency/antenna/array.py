@@ -140,6 +140,15 @@ hfss.analyze(cores=NUM_CORES)
 # Get far-field data. After the simulation completes, the far
 # field data is generated port by port and stored in a data class.
 
+hfss.insert_infinite_sphere(
+    phi_start=-180,
+    phi_stop=180,
+    phi_step=5,
+    theta_start=-180,
+    theta_stop=180,
+    theta_step=5,
+    name="Infinite Sphere1"
+)
 antenna_data = hfss.get_antenna_data(
     setup=hfss.nominal_adaptive,
     sphere="Infinite Sphere1",
