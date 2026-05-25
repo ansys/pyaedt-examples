@@ -107,7 +107,7 @@ return_comm = circuit.get_all_return_loss_list(
 # the TDR measurement on a differential pair.
 # The original circuit schematic is duplicated and modified to achieve this target.
 
-result, tdr_probe_name = circuit.create_tdr_schematic_from_snp(
+tdr_probe_name = circuit.create_tdr_schematic_from_snp(
     input_file=touchstone_path,
     tx_schematic_pins=["X1.A2.PCIe_Gen4_RX0_P"],
     tx_schematic_differential_pins=["X1.A3.PCIe_Gen4_RX0_N"],
