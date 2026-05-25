@@ -116,7 +116,7 @@ for pin in comp.pins:
         location=[pin.location[0] + ammeter_x_factor, pin.location[1] - ammeter_y_factor],
         angle=angle_ammeter,
     )
-    comp_page_port = tb.modeler.components.create_page_port(name=terminal, location=ammeter.pins[0].location, label_position=label_position, angle=angle_page_port)
+    comp_page_port = tb.modeler.schematic.create_page_port(name=terminal, location=ammeter.pins[0].location, label_position=label_position, angle=angle_page_port)
     tb.modeler.schematic.create_wire([ammeter.pins[1].location, pin.location])
 
 # ## Solve transient setup
