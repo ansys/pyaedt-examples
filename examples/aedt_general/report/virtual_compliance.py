@@ -61,7 +61,7 @@ h3d.setups[0].sweeps[0].props["EnforceCausality"] = True
 h3d.setups[0].sweeps[0].update()
 h3d.analyze(cores=NUM_CORES)
 h3d = ansys.aedt.core.Hfss3dLayout()
-touchstone_path = h3d.export_touchstone()  # Returns false.
+touchstone_path = h3d.export_touchstone()
 
 # ## Create LNA project
 #
@@ -108,7 +108,7 @@ return_comm = circuit.get_all_return_loss_list(
 # The original circuit schematic is duplicated and modified to achieve this target.
 
 result, tdr_probe_name = circuit.create_tdr_schematic_from_snp(
-    input_file=str(touchstone_path),
+    input_file=touchstone_path,
     tx_schematic_pins=["X1.A2.PCIe_Gen4_RX0_P"],
     tx_schematic_differential_pins=["X1.A3.PCIe_Gen4_RX0_N"],
     termination_pins=["U1.AP26.PCIe_Gen4_RX0_P", "U1.AN26.PCIe_Gen4_RX0_N"],
@@ -127,7 +127,7 @@ circuit.analyze(cores=NUM_CORES)
 # eye mask violations.
 
 _, eye_curve_tx, eye_curve_rx = circuit.create_ami_schematic_from_snp(
-    input_file=str(touchstone_path),
+    input_file=touchstone_path,
     ibis_tx_file=os.path.join(project_folder, "models", "pcieg5_32gt.ibs"),
     tx_buffer_name="1p",
     rx_buffer_name="2p",
@@ -161,7 +161,7 @@ circuit.save_project()
 
 template = os.path.join(download_folder, "pcie_gen5_templates", "main.json")
 
-v = VirtualCompliance(circuit.desktop_class, str(template))
+v = VirtualCompliance(circuit.desktop_class, template)
 
 # ## Customize project and design
 #
