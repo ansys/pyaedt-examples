@@ -319,7 +319,7 @@ mesh_box = ipk.modeler.create_box(
     origin=bound[:3],
     sizes=[bound[3] - bound[0], bound[4] - bound[1], bound[5] - bound[2]],
 )
-mesh_box.model = False
+mesh_box.is_model = False
 mesh_region = ipk.mesh.assign_mesh_region([mesh_box.name])
 mesh_region.UserSpecifiedSettings = False
 mesh_region.update()

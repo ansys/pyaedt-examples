@@ -90,7 +90,7 @@ target.analyze(cores=NUM_CORES)
 #
 # Plot results in AEDT.
 
-variations = target.available_variations.get_independent_nominal_values()
+variations = target.available_variations.nominal_variation(dependent_params=False)
 variations["Freq"] = ["10GHz"]
 variations["Theta"] = ["All"]
 variations["Phi"] = ["All"]
