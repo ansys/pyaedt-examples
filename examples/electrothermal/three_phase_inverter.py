@@ -116,7 +116,7 @@ for pin in comp.pins:
         location=[pin.location[0] + ammeter_x_factor, pin.location[1] - ammeter_y_factor],
         angle=angle_ammeter,
     )
-    comp_page_port = tb.modeler.components.create_page_port(name=terminal, location=ammeter.pins[0].location, label_position=label_position, angle=angle_page_port)
+    comp_page_port = tb.modeler.schematic.create_page_port(name=terminal, location=ammeter.pins[0].location, label_position=label_position, angle=angle_page_port)
     tb.modeler.schematic.create_wire([ammeter.pins[1].location, pin.location])
 
 # ## Solve transient setup
@@ -288,7 +288,7 @@ ipk.copy_solid_bodies_from(q3d, assignment=copy_bodies_from_q3d, include_sheets=
 ipk.modeler.change_region_padding(
     padding_data=[100, 100, 50, 50, "200mm", "200mm"], padding_type=["Percentage Offset", "Percentage Offset", "Percentage Offset", "Percentage Offset", "Absolute Offset", "Absolute Offset"]
 )
-ipk.modeler.get_objects_by_material("air")[0].model = False
+ipk.modeler.get_objects_by_material("air")[0].is_model = False
 subregion = ipk.modeler.create_subregion(padding_values=[10, 10, 10, 10, 50, 50], padding_types="Percentage Offset", assignment=["dc_terminal", "dc_terminal_1_2"], name="Subregion")
 
 # ## Assign EM losses
