@@ -137,7 +137,7 @@ interp_sweep = setup.add_sweep(name="InterpolatingSweep", sweep_type="Interpolat
 # The following cell runs the analysis in HFSS including adaptive mesh refinement and
 # solution of both frequency sweeps.
 
-setup.analyze()
+setup.analyze(cores=NUM_CORES)
 
 # ### Postprocess
 #
@@ -214,7 +214,8 @@ antenna_data = hfss.get_antenna_data(
 new_plot = antenna_data.farfield_data.plot_3d(
     quantity="RealizedGain_Theta",
     quantity_format="dB10",
-    show_geometry=False,
+    output_file=os.path.join(hfss.working_directory, "Image.jpg"),
+    show=False,
 )
 # ### View cross-polarization
 #
