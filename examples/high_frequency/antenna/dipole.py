@@ -25,7 +25,7 @@ from ansys.aedt.core import Hfss
 
 AEDT_VERSION = "2026.1"
 NUM_CORES = 4
-NG_MODE = False  # Open AEDT UI when it is launched.
+NG_MODE = True  # Open AEDT UI when it is launched.
 
 # ### Create temporary directory
 #
@@ -214,7 +214,7 @@ antenna_data = hfss.get_antenna_data(
 new_plot = antenna_data.farfield_data.plot_3d(
     quantity="RealizedGain_Theta",
     quantity_format="dB10",
-    show_geometry=True,
+    show_geometry=False,
 )
 # ### View cross-polarization
 #
