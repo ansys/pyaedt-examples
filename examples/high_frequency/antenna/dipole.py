@@ -214,7 +214,6 @@ antenna_data = hfss.get_antenna_data(
 new_plot = antenna_data.farfield_data.plot_3d(
     quantity="RealizedGain_Theta",
     quantity_format="dB10",
-    output_file=os.path.join(hfss.working_directory, "Image.jpg"),
     show=False,
 )
 # ### View cross-polarization

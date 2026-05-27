@@ -231,7 +231,6 @@ ffdata.plot_cut(
 
 array_farfield_data.plot_3d(
     quantity="RealizedGain",
-    output_file=os.path.join(working_directory, "Image.jpg"),
     show=False,
 )
 
