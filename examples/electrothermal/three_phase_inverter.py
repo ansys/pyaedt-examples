@@ -52,7 +52,7 @@ project_path = download_file(
     local_path=temp_folder.name,
 )
 
-# ## Launch Maxwell AEDT
+# ## Launch Twinbuilder AEDT
 #
 # Create an instance of the ``Twinbuilder`` class.
 # The Ansys Electronics Desktop will be launched with the active Twinbuilder design.
