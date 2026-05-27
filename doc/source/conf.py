@@ -352,73 +352,6 @@ def convert_examples_into_notebooks(app):
             logger.info(f"Converted {count} python examples to scripts")
 
 
-def patch_notebook_parser_with_timer():
-    """Monkey-patch nbsphinx.NotebookParser.parse to log execution time per notebook.
-
-    Each notebook parse (which includes execution) is timed and the duration is
-    printed to stdout immediately so it is visible in the CI/CD streaming logs.
-    The format ``::notice file=<path>::`` makes the line appear as an annotation
-    in the GitHub Actions UI.
-    At the end of the build the ``build-finished`` hook writes a full Markdown
-    table to ``$GITHUB_STEP_SUMMARY`` (the GitHub Actions Job Summary page).
-    """
-    import time
-    import nbsphinx as _nbsphinx
-
-    _original_parse = _nbsphinx.NotebookParser.parse
-
-    # Shared registry: docname -> elapsed seconds
-    _timings: dict[str, float] = {}
-
-    def _timed_parse(self, inputstring, document):
-        env = document.settings.env
-        docname = env.docname
-        t0 = time.monotonic()
-        _original_parse(self, inputstring, document)
-        elapsed = time.monotonic() - t0
-        _timings[docname] = elapsed
-
-        duration_str = _format_duration(elapsed)
-        # Print immediately so the time is visible in streaming CI logs
-        # ::notice:: renders as an annotation in GitHub Actions
-        on_ci = os.environ.get("ON_CI", "")
-        prefix = f"::notice file={docname}.ipynb::" if on_ci else ""
-        print(f"{prefix}[timing] {docname} — {duration_str}", flush=True)
-
-    _nbsphinx.NotebookParser.parse = _timed_parse
-
-    def _write_timing_summary(app, exception):
-        """Write the full timing table to $GITHUB_STEP_SUMMARY."""
-        if not _timings:
-            return
-        sorted_timings = sorted(_timings.items(), key=lambda x: x[1], reverse=True)
-        total = sum(t for _, t in sorted_timings)
-
-        lines = [
-            "## Notebook execution times",
-            "",
-            f"**Total:** {_format_duration(total)} across {len(sorted_timings)} notebook(s)",
-            "",
-            "| # | Notebook | Duration |",
-            "|---|----------|----------|",
-        ]
-        for rank, (doc, secs) in enumerate(sorted_timings, start=1):
-            marker = " SLOW" if secs > 300 else ""
-            lines.append(f"| {rank} | `{doc}` | **{_format_duration(secs)}**{marker} |")
-        lines.append("")
-        report = "\n".join(lines)
-
-        summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
-        if summary_path:
-            with open(summary_path, "a", encoding="utf-8") as fh:
-                fh.write(report + "\n")
-            logger.info(f"[timing] Notebook timing summary written to GITHUB_STEP_SUMMARY.")
-        else:
-            logger.info(report)
-
-    return _write_timing_summary
-
-
 def _format_duration(seconds: float) -> str:
     """Format seconds as a human-readable string."""
     if seconds < 60:
@@ -428,6 +361,108 @@ def _format_duration(seconds: float) -> str:
         return f"{int(minutes)}m {secs:.0f}s"
     hours, minutes = divmod(minutes, 60)
     return f"{int(hours)}h {int(minutes)}m {secs:.0f}s"
+
+
+def _notebook_execution_seconds(nb_path: Path) -> float | None:
+    """Return the total kernel execution time (seconds) for an executed notebook.
+
+    Reads the ``metadata.execution`` timestamps that nbconvert's
+    ExecutePreprocessor writes into every code cell after running it.
+    Returns ``None`` if no timing information is found (e.g. the notebook
+    was not executed).
+    """
+    import json
+    try:
+        with open(nb_path, encoding="utf-8") as fh:
+            nb = json.load(fh)
+    except Exception:
+        return None
+
+    total = 0.0
+    found = False
+    for cell in nb.get("cells", []):
+        exec_meta = cell.get("metadata", {}).get("execution", {})
+        start = exec_meta.get("iopub.execute_input")
+        end = exec_meta.get("iopub.status.idle")
+        if start and end:
+            from datetime import datetime
+            try:
+                t_start = datetime.fromisoformat(start)
+                t_end = datetime.fromisoformat(end)
+                total += (t_end - t_start).total_seconds()
+                found = True
+            except ValueError:
+                pass
+    return total if found else None
+
+
+def report_notebook_execution_times(app: Sphinx, exception: None | Exception):
+    """Read executed notebooks from the nbsphinx aux dir and report timings.
+
+    nbsphinx saves the executed notebook (with cell timing metadata written by
+    nbconvert's ExecutePreprocessor) to ``doctreedir/nbsphinx/<docname>.ipynb``
+    right after execution.  This hook reads those files, extracts the real
+    kernel execution time per notebook, prints each one immediately to stdout
+    (visible in streaming CI logs) and writes a Markdown summary table to
+    ``$GITHUB_STEP_SUMMARY`` (the GitHub Actions Job Summary tab).
+    """
+    auxdir = Path(app.doctreedir) / "nbsphinx"
+    if not auxdir.exists():
+        logger.warning("[timing] nbsphinx aux dir not found, skipping timing report.")
+        return
+
+    on_ci = bool(os.environ.get("ON_CI", ""))
+    timings: list[tuple[float, str]] = []  # (seconds, docname)
+
+    for nb_path in sorted(auxdir.rglob("*.ipynb")):
+        secs = _notebook_execution_seconds(nb_path)
+        if secs is None:
+            continue
+        # Derive a clean docname relative to the auxdir
+        try:
+            docname = nb_path.relative_to(auxdir).with_suffix("").as_posix()
+        except ValueError:
+            docname = nb_path.stem
+
+        timings.append((secs, docname))
+        duration_str = _format_duration(secs)
+        # Emit immediately so the line appears in streaming CI logs.
+        # On GitHub Actions use ::notice:: so it shows as an annotation.
+        if on_ci:
+            print(f"::notice::[timing] {docname} : {duration_str}", flush=True)
+        else:
+            print(f"[timing] {docname} : {duration_str}", flush=True)
+
+    if not timings:
+        logger.warning("[timing] No executed notebooks found, nothing to report.")
+        return
+
+    # Sort slowest first
+    timings.sort(key=lambda x: x[0], reverse=True)
+    total = sum(s for s, _ in timings)
+
+    lines = [
+        "## Notebook execution times",
+        "",
+        f"**Total execution time:** {_format_duration(total)} across {len(timings)} notebook(s)",
+        "",
+        "| Rank | Notebook | Duration |",
+        "|------|----------|----------|",
+    ]
+    for rank, (secs, doc) in enumerate(timings, start=1):
+        slow = " (SLOW)" if secs > 300 else ""
+        lines.append(f"| {rank} | `{doc}` | **{_format_duration(secs)}**{slow} |")
+    lines.append("")
+    report = "\n".join(lines)
+
+    summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+    if summary_path:
+        with open(summary_path, "a", encoding="utf-8") as fh:
+            fh.write(report + "\n")
+        logger.info("[timing] Notebook timing summary written to GITHUB_STEP_SUMMARY.")
+    else:
+        logger.info(report)
+
 
 
 def setup(app):
@@ -442,12 +477,12 @@ def setup(app):
     # Source read hook
     app.connect("source-read", adjust_image_path)
     # Build finished hooks
+    # NOTE: report_notebook_execution_times must run BEFORE remove_doctree
+    # because the executed notebooks are stored inside doctreedir/nbsphinx/
+    app.connect("build-finished", report_notebook_execution_times)
     app.connect("build-finished", remove_examples)
     app.connect("build-finished", remove_doctree)
     app.connect("build-finished", copy_script_examples)
-    # Timing: patch nbsphinx parser and register the summary hook
-    write_timing_summary = patch_notebook_parser_with_timer()
-    app.connect("build-finished", write_timing_summary)
 
 
 # -- General configuration ---------------------------------------------------
