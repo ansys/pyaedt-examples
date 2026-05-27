@@ -352,6 +352,84 @@ def convert_examples_into_notebooks(app):
             logger.info(f"Converted {count} python examples to scripts")
 
 
+def patch_notebook_parser_with_timer():
+    """Monkey-patch nbsphinx.NotebookParser.parse to log execution time per notebook.
+
+    Each notebook parse (which includes execution) is timed and the duration is
+    printed to stdout immediately so it is visible in the CI/CD streaming logs.
+    The format ``::notice file=<path>::`` makes the line appear as an annotation
+    in the GitHub Actions UI.
+    At the end of the build the ``build-finished`` hook writes a full Markdown
+    table to ``$GITHUB_STEP_SUMMARY`` (the GitHub Actions Job Summary page).
+    """
+    import time
+    import nbsphinx as _nbsphinx
+
+    _original_parse = _nbsphinx.NotebookParser.parse
+
+    # Shared registry: docname -> elapsed seconds
+    _timings: dict[str, float] = {}
+
+    def _timed_parse(self, inputstring, document):
+        env = document.settings.env
+        docname = env.docname
+        t0 = time.monotonic()
+        _original_parse(self, inputstring, document)
+        elapsed = time.monotonic() - t0
+        _timings[docname] = elapsed
+
+        duration_str = _format_duration(elapsed)
+        # Print immediately so the time is visible in streaming CI logs
+        # ::notice:: renders as an annotation in GitHub Actions
+        on_ci = os.environ.get("ON_CI", "")
+        prefix = f"::notice file={docname}.ipynb::" if on_ci else ""
+        print(f"{prefix}[timing] {docname} — {duration_str}", flush=True)
+
+    _nbsphinx.NotebookParser.parse = _timed_parse
+
+    def _write_timing_summary(app, exception):
+        """Write the full timing table to $GITHUB_STEP_SUMMARY."""
+        if not _timings:
+            return
+        sorted_timings = sorted(_timings.items(), key=lambda x: x[1], reverse=True)
+        total = sum(t for _, t in sorted_timings)
+
+        lines = [
+            "## Notebook execution times",
+            "",
+            f"**Total:** {_format_duration(total)} across {len(sorted_timings)} notebook(s)",
+            "",
+            "| # | Notebook | Duration |",
+            "|---|----------|----------|",
+        ]
+        for rank, (doc, secs) in enumerate(sorted_timings, start=1):
+            marker = " SLOW" if secs > 300 else ""
+            lines.append(f"| {rank} | `{doc}` | **{_format_duration(secs)}**{marker} |")
+        lines.append("")
+        report = "\n".join(lines)
+
+        summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+        if summary_path:
+            with open(summary_path, "a", encoding="utf-8") as fh:
+                fh.write(report + "\n")
+            logger.info(f"[timing] Notebook timing summary written to GITHUB_STEP_SUMMARY.")
+        else:
+            logger.info(report)
+
+    return _write_timing_summary
+
+
+def _format_duration(seconds: float) -> str:
+    """Format seconds as a human-readable string."""
+    if seconds < 60:
+        return f"{seconds:.1f}s"
+    minutes, secs = divmod(seconds, 60)
+    if minutes < 60:
+        return f"{int(minutes)}m {secs:.0f}s"
+    hours, minutes = divmod(minutes, 60)
+    return f"{int(hours)}h {int(minutes)}m {secs:.0f}s"
+
+
 def setup(app):
     """Run different hook functions during the documentation build."""
     app.add_directive("pprint", PrettyPrintDirective)
@@ -367,6 +445,9 @@ def setup(app):
     app.connect("build-finished", remove_examples)
     app.connect("build-finished", remove_doctree)
     app.connect("build-finished", copy_script_examples)
+    # Timing: patch nbsphinx parser and register the summary hook
+    write_timing_summary = patch_notebook_parser_with_timer()
+    app.connect("build-finished", write_timing_summary)
 
 
 # -- General configuration ---------------------------------------------------
