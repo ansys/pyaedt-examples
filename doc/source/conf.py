@@ -409,17 +409,17 @@ def patch_notebook_parser_with_timer():
         sorted_timings = sorted(_timings.items(), key=lambda x: x[1], reverse=True)
         total = sum(t for _, t in sorted_timings)
 
-        top_n = [item for item in sorted_timings[:10] if item[1] >= 60]
+        top_n = [item for item in sorted_timings if item[1] >= 60][:10]
 
         lines = [
-            "## Notebook execution times",
+            "## Top 10 slowest notebooks (>= 1 min)",
             "",
             f"**Total:** {_format_duration(total)} across {len(sorted_timings)} notebook(s)",
             "",
             "| Rank | Notebook | Duration |",
             "|------|----------|----------|",
         ]
-        for rank, (doc, secs) in enumerate(sorted_timings, start=1):
+        for rank, (doc, secs) in enumerate(top_n, start=1):
             slow = " SLOW" if secs > 300 else ""
             lines.append(f"| {rank} | `{doc}` | **{_format_duration(secs)}**{slow} |")
         lines.append("")
