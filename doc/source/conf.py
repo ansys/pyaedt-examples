@@ -613,3 +613,66 @@ pyvista.FIGURE_PATH = os.path.join(os.path.abspath("./images/"), "auto-generated
 if not os.path.exists(pyvista.FIGURE_PATH):
     os.makedirs(pyvista.FIGURE_PATH)
 
+# -- Options for HTML output -------------------------------------------------
+html_short_title = html_title = "PyAEDT Examples"
+html_theme = "ansys_sphinx_theme"
+html_favicon = ansys_favicon
+
+html_context = {
+    "display_github": True,  # Integrate GitHub
+    "github_user": USERNAME,
+    "github_repo": REPOSITORY_NAME,
+    "github_version": BRANCH,
+    "doc_path": DOC_PATH,
+}
+
+# specify the location of your github repo
+html_theme_options = {
+    "logo": "ansys",
+    "github_url": f"https://github.com/{USERNAME}/{REPOSITORY_NAME}",
+    "show_prev_next": False,
+    "collapse_navigation": True,
+    "use_edit_page_button": True,
+    "show_breadcrumbs": True,
+    "additional_breadcrumbs": [
+        ("PyAnsys", "https://docs.pyansys.com/"),
+        ("PyAEDT", "https://aedt.docs.pyansys.com/"),
+    ],
+    "icon_links": [
+        {
+            "name": "Support",
+            "url": f"https://github.com/{USERNAME}/{REPOSITORY_NAME}/discussions",
+            "icon": "fa fa-comment fa-fw",
+        },
+    ],
+}
+
+html_static_path = ["_static"]
+
+# These paths are either relative to html_static_path
+# or fully qualified paths (eg. https://...)
+html_css_files = [
+    "css/custom.css",
+    "css/highlight.css",
+]
+
+# -- Options for LaTeX output ------------------------------------------------
+# additional logos for the latex coverpage
+latex_additional_files = [watermark, ansys_logo_white, ansys_logo_white_cropped]
+
+# change the preamble of latex with customized title page
+# variables are the title of pdf, watermark
+latex_elements = {"preamble": latex.generate_preamble(html_title)}
+
+# Grouping the document tree into LaTeX files. List of tuples
+# (source start file, target name, title,
+#  author, documentclass [howto, manual, or own class]).
+latex_documents = [
+    (
+        master_doc,
+        f"{project}.tex",
+        f"{project} documentation",
+        author,
+        "manual",
+    ),
+]
