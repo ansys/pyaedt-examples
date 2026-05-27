@@ -231,7 +231,6 @@ ffdata.plot_cut(
 
 array_farfield_data.plot_3d(
     quantity="RealizedGain",
-    show=False,
 )
 
 # ### Clean up
