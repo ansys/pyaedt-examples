@@ -409,7 +409,7 @@ def patch_notebook_parser_with_timer():
         sorted_timings = sorted(_timings.items(), key=lambda x: x[1], reverse=True)
         total = sum(t for _, t in sorted_timings)
 
-        top10 = sorted_timings[:10]
+        top_n = [item for item in sorted_timings[:10] if item[1] >= 60]
 
         lines = [
             "## Notebook execution times",
@@ -425,14 +425,14 @@ def patch_notebook_parser_with_timer():
         lines.append("")
         report = "\n".join(lines)
 
-        # Top-10 slowest summary printed to CI log
+        # Top-N slowest summary printed to CI log
         summary_lines = [
             "",
             "=" * 60,
-            "TOP 10 SLOWEST NOTEBOOKS",
+            f"TOP {len(top_n)} SLOWEST NOTEBOOKS",
             "=" * 60,
         ]
-        for rank, (doc, secs) in enumerate(top10, start=1):
+        for rank, (doc, secs) in enumerate(top_n, start=1):
             slow = "  <-- SLOW" if secs > 300 else ""
             summary_lines.append(f"  {rank:>2}. {_format_duration(secs):>10}  {doc}{slow}")
         summary_lines.append("=" * 60)
