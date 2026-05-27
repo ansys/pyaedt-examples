@@ -405,13 +405,18 @@ def report_notebook_execution_times(app: Sphinx, exception: None | Exception):
     kernel execution time per notebook, prints each one immediately to stdout
     (visible in streaming CI logs) and writes a Markdown summary table to
     ``$GITHUB_STEP_SUMMARY`` (the GitHub Actions Job Summary tab).
+
+    This function is a no-op when not running on CI (i.e. when the ``ON_CI``
+    environment variable is not set) to avoid verbose output during local builds.
     """
+    if not bool(os.environ.get("ON_CI", "")):
+        return
+
     auxdir = Path(app.doctreedir) / "nbsphinx"
     if not auxdir.exists():
         logger.warning("[timing] nbsphinx aux dir not found, skipping timing report.")
         return
 
-    on_ci = bool(os.environ.get("ON_CI", ""))
     timings: list[tuple[float, str]] = []  # (seconds, docname)
 
     for nb_path in sorted(auxdir.rglob("*.ipynb")):
@@ -426,12 +431,8 @@ def report_notebook_execution_times(app: Sphinx, exception: None | Exception):
 
         timings.append((secs, docname))
         duration_str = _format_duration(secs)
-        # Emit immediately so the line appears in streaming CI logs.
-        # On GitHub Actions use ::notice:: so it shows as an annotation.
-        if on_ci:
-            print(f"::notice::[timing] {docname} : {duration_str}", flush=True)
-        else:
-            print(f"[timing] {docname} : {duration_str}", flush=True)
+        # ::notice:: renders as an annotation in the GitHub Actions UI
+        print(f"::notice::[timing] {docname} -> {duration_str}", flush=True)
 
     if not timings:
         logger.warning("[timing] No executed notebooks found, nothing to report.")
