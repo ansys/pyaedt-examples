@@ -28,6 +28,8 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 TB_DESIGN_NAME = "3ph_circuit"
 Q3D_DESIGN_NAME = "q3d_3ph"
 ICEPAK_DESIGN_NAME = "Icepak_1"
+# Set to True to run Icepak solve and post-processing.
+# If left as False, analyze_setup() and post-processing calls are skipped.
 SOLVE_ICEPAK = False
 
 # ## Create temporary directory
