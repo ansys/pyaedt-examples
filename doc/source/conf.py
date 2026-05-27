@@ -462,10 +462,11 @@ def setup(app):
     # Source read hook
     app.connect("source-read", adjust_image_path)
     # Build finished hooks
-    # patch_notebook_parser_with_timer returns a build-finished hook that writes
-    # the timing summary table; the monkey-patch is applied immediately (at
-    # conf.py import time) so timings are collected during "reading sources".
-    app.connect("build-finished", patch_notebook_parser_with_timer())
+    # patch_notebook_parser_with_timer applies the monkey-patch immediately and
+    # returns a build-finished hook that writes the timing summary.  Call it once
+    # and register the returned hook to avoid duplicating the summary output.
+    timing_summary_hook = patch_notebook_parser_with_timer()
+    app.connect("build-finished", timing_summary_hook)
     app.connect("build-finished", remove_examples)
     app.connect("build-finished", remove_doctree)
     app.connect("build-finished", copy_script_examples)
