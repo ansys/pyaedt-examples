@@ -363,107 +363,75 @@ def _format_duration(seconds: float) -> str:
     return f"{int(hours)}h {int(minutes)}m {secs:.0f}s"
 
 
-def _notebook_execution_seconds(nb_path: Path) -> float | None:
-    """Return the total kernel execution time (seconds) for an executed notebook.
+def patch_notebook_parser_with_timer():
+    """Monkey-patch nbsphinx.NotebookParser.parse to log wall-clock time per notebook.
 
-    Reads the ``metadata.execution`` timestamps that nbconvert's
-    ExecutePreprocessor writes into every code cell after running it.
-    Returns ``None`` if no timing information is found (e.g. the notebook
-    was not executed).
-    """
-    import json
-    try:
-        with open(nb_path, encoding="utf-8") as fh:
-            nb = json.load(fh)
-    except Exception:
-        return None
+    Each notebook parse (which includes kernel execution) is timed and the
+    duration is printed immediately to stdout so it is visible in CI streaming
+    logs.  At the end of the build the ``build-finished`` hook writes a
+    Markdown table to ``$GITHUB_STEP_SUMMARY``.
 
-    total = 0.0
-    found = False
-    for cell in nb.get("cells", []):
-        exec_meta = cell.get("metadata", {}).get("execution", {})
-        start = exec_meta.get("iopub.execute_input")
-        end = exec_meta.get("iopub.status.idle")
-        if start and end:
-            from datetime import datetime
-            try:
-                t_start = datetime.fromisoformat(start)
-                t_end = datetime.fromisoformat(end)
-                total += (t_end - t_start).total_seconds()
-                found = True
-            except ValueError:
-                pass
-    return total if found else None
-
-
-def report_notebook_execution_times(app: Sphinx, exception: None | Exception):
-    """Read executed notebooks from the nbsphinx aux dir and report timings.
-
-    nbsphinx saves the executed notebook (with cell timing metadata written by
-    nbconvert's ExecutePreprocessor) to ``doctreedir/nbsphinx/<docname>.ipynb``
-    right after execution.  This hook reads those files, extracts the real
-    kernel execution time per notebook, prints each one immediately to stdout
-    (visible in streaming CI logs) and writes a Markdown summary table to
-    ``$GITHUB_STEP_SUMMARY`` (the GitHub Actions Job Summary tab).
-
-    This function is a no-op when not running on CI (i.e. when the ``ON_CI``
-    environment variable is not set) to avoid verbose output during local builds.
+    This function is a no-op when not running on CI (``ON_CI`` env var unset).
+    It returns the ``build-finished`` hook to register with Sphinx.
     """
     if not bool(os.environ.get("ON_CI", "")):
-        return
+        # Not on CI — return a no-op hook so the caller can still connect it.
+        def _noop(app, exception):
+            pass
+        return _noop
 
-    auxdir = Path(app.doctreedir) / "nbsphinx"
-    if not auxdir.exists():
-        logger.warning("[timing] nbsphinx aux dir not found, skipping timing report.")
-        return
+    import time
+    import nbsphinx as _nbsphinx
 
-    timings: list[tuple[float, str]] = []  # (seconds, docname)
+    # Shared registry: docname -> elapsed seconds
+    _timings: dict[str, float] = {}
 
-    for nb_path in sorted(auxdir.rglob("*.ipynb")):
-        secs = _notebook_execution_seconds(nb_path)
-        if secs is None:
-            continue
-        # Derive a clean docname relative to the auxdir
-        try:
-            docname = nb_path.relative_to(auxdir).with_suffix("").as_posix()
-        except ValueError:
-            docname = nb_path.stem
+    _original_parse = _nbsphinx.NotebookParser.parse
 
-        timings.append((secs, docname))
-        duration_str = _format_duration(secs)
+    def _timed_parse(self, inputstring, document):
+        env = document.settings.env
+        docname = env.docname
+        t0 = time.monotonic()
+        _original_parse(self, inputstring, document)
+        elapsed = time.monotonic() - t0
+        _timings[docname] = elapsed
+        duration_str = _format_duration(elapsed)
         # ::notice:: renders as an annotation in the GitHub Actions UI
-        print(f"::notice::[timing] {docname} -> {duration_str}", flush=True)
+        print(f"::notice file={docname}.ipynb::[timing] {docname} -> {duration_str}", flush=True)
 
-    if not timings:
-        logger.warning("[timing] No executed notebooks found, nothing to report.")
-        return
+    _nbsphinx.NotebookParser.parse = _timed_parse
 
-    # Sort slowest first
-    timings.sort(key=lambda x: x[0], reverse=True)
-    total = sum(s for s, _ in timings)
+    def _write_timing_summary(app, exception):
+        """Write the full timing table to $GITHUB_STEP_SUMMARY."""
+        if not _timings:
+            logger.warning("[timing] No notebooks were timed.")
+            return
+        sorted_timings = sorted(_timings.items(), key=lambda x: x[1], reverse=True)
+        total = sum(t for _, t in sorted_timings)
 
-    lines = [
-        "## Notebook execution times",
-        "",
-        f"**Total execution time:** {_format_duration(total)} across {len(timings)} notebook(s)",
-        "",
-        "| Rank | Notebook | Duration |",
-        "|------|----------|----------|",
-    ]
-    for rank, (secs, doc) in enumerate(timings, start=1):
-        slow = " (SLOW)" if secs > 300 else ""
-        lines.append(f"| {rank} | `{doc}` | **{_format_duration(secs)}**{slow} |")
-    lines.append("")
-    report = "\n".join(lines)
+        lines = [
+            "## Notebook execution times",
+            "",
+            f"**Total:** {_format_duration(total)} across {len(sorted_timings)} notebook(s)",
+            "",
+            "| Rank | Notebook | Duration |",
+            "|------|----------|----------|",
+        ]
+        for rank, (doc, secs) in enumerate(sorted_timings, start=1):
+            slow = " :turtle: SLOW" if secs > 300 else ""
+            lines.append(f"| {rank} | `{doc}` | **{_format_duration(secs)}**{slow} |")
+        lines.append("")
+        report = "\n".join(lines)
 
-    summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
-    if summary_path:
-        with open(summary_path, "a", encoding="utf-8") as fh:
-            fh.write(report + "\n")
-        logger.info("[timing] Notebook timing summary written to GITHUB_STEP_SUMMARY.")
-    else:
-        logger.info(report)
+        summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+        if summary_path:
+            with open(summary_path, "a", encoding="utf-8") as fh:
+                fh.write(report + "\n")
+            logger.info("[timing] Notebook timing summary written to GITHUB_STEP_SUMMARY.")
+        else:
+            logger.info(report)
 
+    return _write_timing_summary
 
 
 def setup(app):
@@ -478,9 +446,10 @@ def setup(app):
     # Source read hook
     app.connect("source-read", adjust_image_path)
     # Build finished hooks
-    # NOTE: report_notebook_execution_times must run BEFORE remove_doctree
-    # because the executed notebooks are stored inside doctreedir/nbsphinx/
-    app.connect("build-finished", report_notebook_execution_times)
+    # patch_notebook_parser_with_timer returns a build-finished hook that writes
+    # the timing summary table; the monkey-patch is applied immediately (at
+    # conf.py import time) so timings are collected during "reading sources".
+    app.connect("build-finished", patch_notebook_parser_with_timer())
     app.connect("build-finished", remove_examples)
     app.connect("build-finished", remove_doctree)
     app.connect("build-finished", copy_script_examples)
@@ -628,66 +597,3 @@ pyvista.FIGURE_PATH = os.path.join(os.path.abspath("./images/"), "auto-generated
 if not os.path.exists(pyvista.FIGURE_PATH):
     os.makedirs(pyvista.FIGURE_PATH)
 
-# -- Options for HTML output -------------------------------------------------
-html_short_title = html_title = "PyAEDT Examples"
-html_theme = "ansys_sphinx_theme"
-html_favicon = ansys_favicon
-
-html_context = {
-    "display_github": True,  # Integrate GitHub
-    "github_user": USERNAME,
-    "github_repo": REPOSITORY_NAME,
-    "github_version": BRANCH,
-    "doc_path": DOC_PATH,
-}
-
-# specify the location of your github repo
-html_theme_options = {
-    "logo": "ansys",
-    "github_url": f"https://github.com/{USERNAME}/{REPOSITORY_NAME}",
-    "show_prev_next": False,
-    "collapse_navigation": True,
-    "use_edit_page_button": True,
-    "show_breadcrumbs": True,
-    "additional_breadcrumbs": [
-        ("PyAnsys", "https://docs.pyansys.com/"),
-        ("PyAEDT", "https://aedt.docs.pyansys.com/"),
-    ],
-    "icon_links": [
-        {
-            "name": "Support",
-            "url": f"https://github.com/{USERNAME}/{REPOSITORY_NAME}/discussions",
-            "icon": "fa fa-comment fa-fw",
-        },
-    ],
-}
-
-html_static_path = ["_static"]
-
-# These paths are either relative to html_static_path
-# or fully qualified paths (eg. https://...)
-html_css_files = [
-    "css/custom.css",
-    "css/highlight.css",
-]
-
-# -- Options for LaTeX output ------------------------------------------------
-# additional logos for the latex coverpage
-latex_additional_files = [watermark, ansys_logo_white, ansys_logo_white_cropped]
-
-# change the preamble of latex with customized title page
-# variables are the title of pdf, watermark
-latex_elements = {"preamble": latex.generate_preamble(html_title)}
-
-# Grouping the document tree into LaTeX files. List of tuples
-# (source start file, target name, title,
-#  author, documentclass [howto, manual, or own class]).
-latex_documents = [
-    (
-        master_doc,
-        f"{project}.tex",
-        f"{project} documentation",
-        author,
-        "manual",
-    ),
-]
