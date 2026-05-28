@@ -403,6 +403,12 @@ def patch_notebook_parser_with_timer():
 
     def _write_timing_summary(app, exception):
         """Write the full timing table to $GITHUB_STEP_SUMMARY."""
+        # Guard: only run once per CI process (HTML + PDF builds share the same process).
+        if os.environ.get("_TIMING_SUMMARY_WRITTEN"):
+            logger.info("[timing] Notebook timing summary already written, skipping.")
+            return
+        os.environ["_TIMING_SUMMARY_WRITTEN"] = "1"
+
         if not _timings:
             logger.warning("[timing] No notebooks were timed.")
             return
@@ -425,29 +431,22 @@ def patch_notebook_parser_with_timer():
         lines.append("")
         report = "\n".join(lines)
 
-        # Top-N slowest summary printed to CI log (once per process)
-        if not os.environ.get("_TIMING_SUMMARY_WRITTEN"):
-            summary_lines = [
-                "",
-                "=" * 60,
-                f"TOP {len(top_n)} SLOWEST NOTEBOOKS",
-                "=" * 60,
-            ]
-            for rank, (doc, secs) in enumerate(top_n, start=1):
-                slow = " SLOW (more than 5 minutes)" if secs > 300 else ""
-                summary_lines.append(f"  {rank:>2}. {_format_duration(secs):>10}  {doc}{slow}")
-            summary_lines.append("=" * 60)
-            summary_lines.append("")
-            print("\n".join(summary_lines), flush=True)
+        # Top-N slowest summary printed to CI log
+        summary_lines = [
+            "",
+            "=" * 60,
+            f"TOP {len(top_n)} SLOWEST NOTEBOOKS",
+            "=" * 60,
+        ]
+        for rank, (doc, secs) in enumerate(top_n, start=1):
+            slow = " SLOW (more than 5 minutes)" if secs > 300 else ""
+            summary_lines.append(f"  {rank:>2}. {_format_duration(secs):>10}  {doc}{slow}")
+        summary_lines.append("=" * 60)
+        summary_lines.append("")
+        print("\n".join(summary_lines), flush=True)
 
         summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
         if summary_path:
-            # Use a sentinel env var to avoid writing the summary twice if
-            # Sphinx is invoked more than once in the same process (e.g. HTML + PDF).
-            if os.environ.get("_TIMING_SUMMARY_WRITTEN"):
-                logger.info("[timing] Notebook timing summary already written, skipping.")
-                return
-            os.environ["_TIMING_SUMMARY_WRITTEN"] = "1"
             with open(summary_path, "a", encoding="utf-8") as fh:
                 fh.write(report + "\n")
             logger.info("[timing] Notebook timing summary written to GITHUB_STEP_SUMMARY.")
