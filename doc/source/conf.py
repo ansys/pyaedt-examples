@@ -403,11 +403,14 @@ def patch_notebook_parser_with_timer():
 
     def _write_timing_summary(app, exception):
         """Write the full timing table to $GITHUB_STEP_SUMMARY."""
-        # Guard: only run once per CI process (HTML + PDF builds share the same process).
-        if os.environ.get("_TIMING_SUMMARY_WRITTEN"):
-            logger.info("[timing] Notebook timing summary already written, skipping.")
+        # In the HTML+PDF workflow on CI, skip the summary for the PDF (latex) build
+        # to avoid printing the Top 10 table twice (once per sphinx-build invocation).
+        if (
+            bool(int(os.getenv("SPHINXBUILD_HTML_AND_PDF_WORKFLOW", "0")))
+            and app.builder.name == "latex"
+        ):
+            logger.info("[timing] Skipping timing summary for PDF build in HTML+PDF workflow.")
             return
-        os.environ["_TIMING_SUMMARY_WRITTEN"] = "1"
 
         if not _timings:
             logger.warning("[timing] No notebooks were timed.")
