@@ -371,22 +371,15 @@ def patch_notebook_parser_with_timer():
     logs.  At the end of the build the ``build-finished`` hook writes a
     Markdown table to ``$GITHUB_STEP_SUMMARY``.
 
-    This function is a no-op when not running on CI (``ON_CI`` env var unset).
-    It returns the ``build-finished`` hook to register with Sphinx.
+    It returns the ``build-finished`` hook that writes the timing summary.
     """
-    if not bool(os.environ.get("ON_CI", "")):
-        # Not on CI — return a no-op hook so the caller can still connect it.
-        def _noop(app, exception):
-            pass
-        return _noop
-
     import time
-    import nbsphinx as _nbsphinx
+    import nbsphinx
 
     # Shared registry: docname -> elapsed seconds
     _timings: dict[str, float] = {}
 
-    _original_parse = _nbsphinx.NotebookParser.parse
+    _original_parse = nbsphinx.NotebookParser.parse
 
     def _timed_parse(self, inputstring, document):
         env = document.settings.env
@@ -395,11 +388,8 @@ def patch_notebook_parser_with_timer():
         _original_parse(self, inputstring, document)
         elapsed = time.monotonic() - t0
         _timings[docname] = elapsed
-        duration_str = _format_duration(elapsed)
-        # ::notice:: renders as an annotation in the GitHub Actions UI
-        print(f"::notice file={docname}.ipynb::[timing] {docname}: {duration_str}", flush=True)
 
-    _nbsphinx.NotebookParser.parse = _timed_parse
+    nbsphinx.NotebookParser.parse = _timed_parse
 
     def _write_timing_summary(app, exception):
         """Write the full timing table to $GITHUB_STEP_SUMMARY."""
@@ -471,11 +461,8 @@ def setup(app):
     # Source read hook
     app.connect("source-read", adjust_image_path)
     # Build finished hooks
-    # patch_notebook_parser_with_timer applies the monkey-patch immediately and
-    # returns a build-finished hook that writes the timing summary.  Call it once
-    # and register the returned hook to avoid duplicating the summary output.
-    timing_summary_hook = patch_notebook_parser_with_timer()
-    app.connect("build-finished", timing_summary_hook)
+    if bool(os.environ.get("ON_CI", "")):
+        app.connect("build-finished", patch_notebook_parser_with_timer())
     app.connect("build-finished", remove_examples)
     app.connect("build-finished", remove_doctree)
     app.connect("build-finished", copy_script_examples)
