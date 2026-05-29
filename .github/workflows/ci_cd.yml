@@ -85,12 +85,16 @@ jobs:
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
+      - name: Set up uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
       - name: Create virtual environment
         run: |
           python -m venv .venv
           .venv\Scripts\Activate.ps1
-          python -m pip install pip -U
-          python -m pip install wheel setuptools -U
           python -c "import sys; print(sys.executable)"
 
       - name: Enable long paths in Windows
@@ -101,7 +105,7 @@ jobs:
       - name: Install project and documentation dependencies
         run: |
           .venv\Scripts\Activate.ps1
-          pip install --no-cache-dir -r requirements/requirements_doc.txt
+          uv pip install --no-cache -r requirements/requirements_doc.txt
 
       # Use environment variable speed up build for PDF pages
       - name: Create HTML documentation
