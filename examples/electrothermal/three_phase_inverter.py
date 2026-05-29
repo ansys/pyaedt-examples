@@ -28,6 +28,9 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 TB_DESIGN_NAME = "3ph_circuit"
 Q3D_DESIGN_NAME = "q3d_3ph"
 ICEPAK_DESIGN_NAME = "Icepak_1"
+# Set to True to run Icepak solve and post-processing.
+# If left as False, analyze_setup() and post-processing calls are skipped.
+SOLVE_ICEPAK = False
 
 # ## Create temporary directory
 #
@@ -49,7 +52,7 @@ project_path = download_file(
     local_path=temp_folder.name,
 )
 
-# ## Launch Maxwell AEDT
+# ## Launch Twinbuilder AEDT
 #
 # Create an instance of the ``Twinbuilder`` class.
 # The Ansys Electronics Desktop will be launched with the active Twinbuilder design.
@@ -70,7 +73,12 @@ tb = ansys.aedt.core.TwinBuilder(
 # The component uses RLGC model extracted from the Q3D design to create a frequency sweep.
 
 comp = tb.add_q3d_dynamic_component(
-    source_project=tb.project_name, source_design_name=Q3D_DESIGN_NAME, setup="Setup1", sweep="Sweep1", coupling_matrix_name="Original", state_space_dynamic_link_type="RLGC"
+    source_project=tb.project_name,
+    source_design_name=Q3D_DESIGN_NAME,
+    setup="Setup1",
+    sweep="Sweep1",
+    coupling_matrix_name="Original",
+    state_space_dynamic_link_type="RLGC"
 )
 
 tb.set_active_design(TB_DESIGN_NAME)
@@ -116,7 +124,10 @@ for pin in comp.pins:
         location=[pin.location[0] + ammeter_x_factor, pin.location[1] - ammeter_y_factor],
         angle=angle_ammeter,
     )
-    comp_page_port = tb.modeler.schematic.create_page_port(name=terminal, location=ammeter.pins[0].location, label_position=label_position, angle=angle_page_port)
+    comp_page_port = tb.modeler.schematic.create_page_port(name=terminal,
+                                                           location=ammeter.pins[0].location,
+                                                           label_position=label_position,
+                                                           angle=angle_page_port)
     tb.modeler.schematic.create_wire([ammeter.pins[1].location, pin.location])
 
 # ## Solve transient setup
@@ -257,7 +268,9 @@ q3d.edit_sources(harmonic_loss=harmonic_loss)
 #
 # Plot the harmonic loss density on the surface of the objects
 
-plot = q3d.post.create_fieldplot_surface(["dc_terminal", "dc_terminal_1_2"], "Harmonic_Loss_Density", intrinsics={"Freq": "0.5GHz", "Phase": "0deg"})
+plot = q3d.post.create_fieldplot_surface(["dc_terminal", "dc_terminal_1_2"],
+                                         "Harmonic_Loss_Density",
+                                         intrinsics={"Freq": "0.5GHz", "Phase": "0deg"})
 q3d.save_project()
 
 fs = plot.folder_settings
@@ -285,11 +298,17 @@ ipk.copy_solid_bodies_from(q3d, assignment=copy_bodies_from_q3d, include_sheets=
 #
 # Change region padding and create subregion to enclose the objects imported from Q3D
 
+padding = ["Percentage Offset", "Percentage Offset", "Percentage Offset", "Percentage Offset",
+           "Absolute Offset", "Absolute Offset"]
 ipk.modeler.change_region_padding(
-    padding_data=[100, 100, 50, 50, "200mm", "200mm"], padding_type=["Percentage Offset", "Percentage Offset", "Percentage Offset", "Percentage Offset", "Absolute Offset", "Absolute Offset"]
+    padding_data=[100, 100, 50, 50, "200mm", "200mm"],
+    padding_type=padding
 )
 ipk.modeler.get_objects_by_material("air")[0].is_model = False
-subregion = ipk.modeler.create_subregion(padding_values=[10, 10, 10, 10, 50, 50], padding_types="Percentage Offset", assignment=["dc_terminal", "dc_terminal_1_2"], name="Subregion")
+subregion = ipk.modeler.create_subregion(padding_values=[10, 10, 10, 10, 50, 50],
+                                         padding_types="Percentage Offset",
+                                         assignment=["dc_terminal", "dc_terminal_1_2"],
+                                         name="Subregion")
 
 # ## Assign EM losses
 #
@@ -342,25 +361,27 @@ ipk.assign_stationary_wall_with_temperature(
 
 setup = ipk.create_setup()
 setup.props["Include Flow"] = False
-ipk.analyze_setup(ipk.setups[0].name)
 
 # ## Analysis
 #
 # Analyze the Icepak design
 
-ipk.analyze_setup(ipk.setups[0].name)
+if SOLVE_ICEPAK:
+    ipk.analyze_setup(ipk.setups[0].name, cores=None)
 
 # ## Icepak Post-processing
 #
 # Post-processing: plot temperature distribution and volumetric heat loss on the surface of the objects
 
-temp = ipk.post.create_fieldplot_surface(assignment=["dc_terminal", "dc_terminal_1_2"], quantity="Temperature", plot_name="Temperature")
-vol_heat_loss = ipk.post.create_fieldplot_volume(assignment=["dc_terminal", "dc_terminal_1_2"], quantity="VolumeHeatLoss", plot_name="VolumeHeatLoss")
+if SOLVE_ICEPAK:
+    temp = ipk.post.create_fieldplot_surface(assignment=["dc_terminal", "dc_terminal_1_2"], quantity="Temperature", plot_name="Temperature")
+    vol_heat_loss = ipk.post.create_fieldplot_volume(assignment=["dc_terminal", "dc_terminal_1_2"], quantity="VolumeHeatLoss", plot_name="VolumeHeatLoss")
 
 # ## Release AEDT
 
-tb.save_project()
-tb.release_desktop()
+ipk.save_project()
+ipk.release_desktop()
+
 # Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
