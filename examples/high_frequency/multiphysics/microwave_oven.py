@@ -258,7 +258,7 @@ def generate_streamline(stop):
     ux_block.point_data["Velocity"] = velocity
     ux_block.point_data["Temperature"] = temperature
     seed = pyvista.Box(bounds=(50, 260, 0, 500, -1, 150), level=10)
-    streamlines = ux_block.streamlines_from_source(seed, max_time=200.0, integration_direction="both")
+    streamlines = ux_block.streamlines_from_source(seed, max_length=200.0, integration_direction="both")
 
     pl = pyvista.Plotter(off_screen=True, window_size=(3840, 2160))
     for filename, color, opacity in microwave_objects:
