@@ -60,7 +60,7 @@ capacitor = tb.modeler.schematic.create_capacitor("C1", 1e-6, [2000, 0])
 #
 # Create a ground, which is needed for an analog analysis.
 
-gnd = tb.modeler.components.create_gnd([0, -1000])
+gnd = tb.modeler.schematic.create_gnd([0, -1000])
 
 # ## Connect components
 #
