@@ -17,12 +17,12 @@ help:
 .PHONY: help Makefile
 
 .install-deps:
-	@pip freeze | grep -q "pypandoc_binary" && is_pypandoc_binary_installed="yes" || is_pypandoc_binary_installed="no"
+	@uv pip freeze | grep -q "pypandoc_binary" && is_pypandoc_binary_installed="yes" || is_pypandoc_binary_installed="no"
 	@if [ "${ON_CI}" = "True" ] && [ "$$is_pypandoc_binary_installed" != "yes" ]; then \
 		@echo "Removing pypandoc to avoid conflicts with pypandoc-binary needed for CI/CD"; \
-		pip uninstall --yes pypandoc; \
+		uv pip uninstall --yes pypandoc; \
 		@echo "Installing pypandoc-binary"; \
-		pip install pypandoc-binary==1.13; \
+		uv pip install pypandoc-binary==1.13; \
 	fi
 
 # Catch-all target: route all unknown targets to Sphinx using the new

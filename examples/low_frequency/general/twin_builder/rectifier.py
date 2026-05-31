@@ -81,7 +81,7 @@ resistor = tb.modeler.schematic.create_resistor(name="RL", value=100000, locatio
 
 # Place the ground component.
 
-gnd = tb.modeler.components.create_gnd(location=[5 * G, -16 * G])
+gnd = tb.modeler.schematic.create_gnd(location=[5 * G, -16 * G])
 
 # ## Connect components
 #

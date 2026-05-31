@@ -135,7 +135,7 @@ amm_bot.parameters["Name"] = "Ibottom"
 #
 # Please check that chosen component can access the method place()
 # If you need to insert a component from a spice model,
-# please use the method: circuit.modeler.components.create_component_from_spicemodel
+# please use the method: circuit.modeler.schematic.create_component_from_spicemodel
 
 nmos_h = circuit.modeler.schematic.components_catalog["Power Electronics Tools\\Power Semiconductors\\MOSFET\\STMicroelectronics:SCT040H65G3AG_V2"].place(
     assignment="NMOS_HS", location=[1500, 4700], angle=0
