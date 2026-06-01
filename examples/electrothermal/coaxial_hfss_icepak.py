@@ -365,7 +365,7 @@ my_data.plot(
     y_label="SParameters(dB)",
     title="Scattering Chart",
     snapshot_path=os.path.join(temp_folder.name, "Touchstone_from_matplotlib.jpg"),
-)
+);
 
 # Create a PDF report summarizig results.
 

@@ -227,7 +227,7 @@ plot_sources = matrix.get_sources_for_plot(category="Z0")
 # Get simulation results as a ``SolutionData`` object and plot to a JPG file.
 
 data = q2d.post.get_solution_data(expressions=plot_sources, context=matrix.name)
-data.plot(snapshot_path=os.path.join(temp_folder.name, "plot.jpg"))
+data.plot(snapshot_path=os.path.join(temp_folder.name, "plot.jpg"));
 
 # -
 

@@ -216,7 +216,7 @@ reduced_matrix_2_self_report.edit_x_axis_scaling(linear_scaling=False)
 # Retrieve solution data for processing in Python.
 
 data = q3d.post.get_solution_data(expressions=original_matrix_self, context="Original")
-data.plot()
+data.plot();
 
 # ## Release AEDT
 
