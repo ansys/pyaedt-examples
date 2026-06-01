@@ -6,3 +6,5 @@ are thoroughly familiar with this guide before attempting to contribute to
 PyAEDT Examples.
 
 [Contributing]: https://dev.docs.pyansys.com/how-to/contributing.html
+
+<!-- Begin content specific to your library here. -->
