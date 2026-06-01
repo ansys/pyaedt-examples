@@ -1,17 +1,18 @@
-# # Antenna
+# # Antenna Cosite Interference
 #
 # This example shows how to create a project in EMIT for
-# the simulation of an antenna using HFSS.
+# the simulation of an antenna cosite interference scenario.
 #
 # <img src="_static/emit_simple_cosite.png" width="400">
 #
 # Keywords: **EMIT**, **Antenna**.
 
-# ## Perform imports and define constants
+# ## Prerequisites
 #
-# Perform required imports.
+# ### Perform imports
 
 # +
+import os
 import tempfile
 import time
 
@@ -21,68 +22,78 @@ from ansys.aedt.core.emit_core.nodes.generated import AntennaNode, RadioNode
 
 # -
 
-# Define constants.
+# ### Define constants
+# Constants help ensure consistency and avoid repetition throughout the example.
 
 AEDT_VERSION = "2026.1"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
-# ## Create temporary directory
+# ### Create temporary directory
 #
-# Create a temporary directory where downloaded data or
-# dumped data can be stored.
-# If you'd like to retrieve the project data for subsequent use,
-# the temporary folder name is given by ``temp_folder.name``.
+# Create a temporary working directory.
+# The name of the working folder is stored in ``temp_folder.name``.
+#
+# > **Note:** The final cell in the notebook cleans up the temporary folder. If you want to
+# > retrieve the AEDT project and data, do so before executing the final cell in the notebook.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
-# ## Launch AEDT with EMIT
+# ### Launch application
 #
-# Launch AEDT with EMIT. The ``launch_desktop()`` method initializes AEDT
-# using the specified version. The second argument can be set to ``True`` to
-# run AEDT in non-graphical mode.
+# Launch AEDT with EMIT. The ``Emit`` class initializes AEDT
+# and creates an EMIT design in the project.
 
-project_name = ansys.aedt.core.generate_unique_project_name(root_name=temp_folder.name, project_name="antenna_cosite")
-d = ansys.aedt.core.launch_desktop(AEDT_VERSION, NG_MODE, new_desktop=True)
-aedtapp = ansys.aedt.core.Emit(project_name, version=AEDT_VERSION)
+project_name = os.path.join(temp_folder.name, "antenna_cosite.aedt")
+aedtapp = ansys.aedt.core.Emit(
+    project=project_name,
+    version=AEDT_VERSION,
+    non_graphical=NG_MODE,
+    new_desktop=True,
+)
 
-# ## Create and connect EMIT components
+# ## Model Preparation
 #
-# Create three radios and connect an antenna to each one.
+# Create radios and antennas and connect them in the EMIT schematic.
+#
+# ### Create and connect EMIT components
+#
+# Create a radio and connect an antenna to it.
 
 rad1: RadioNode = aedtapp.schematic.create_component("New Radio")
 ant1: AntennaNode = aedtapp.schematic.create_component("Antenna")
 if rad1 and ant1:
     aedtapp.schematic.connect_components(rad1.name, ant1.name)
 
-# ## Place radio/antenna pair
+# ### Place radio/antenna pairs
 #
-# Use the ``create_radio_antenna()`` method to place the radio/antenna pair. The first
-# argument is the type of radio. The second argument is the name to
+# Use the ``create_radio_antenna()`` method to place additional radio/antenna pairs.
+# The first argument is the type of radio. The second argument is the name to
 # assign to the radio.
 
 rad2, ant2 = aedtapp.schematic.create_radio_antenna("GPS Receiver")
 rad3, ant3 = aedtapp.schematic.create_radio_antenna("Bluetooth Low Energy (LE)", "Bluetooth")
 
-# ## Define the RF environment
+# ### Define the RF environment
 #
 # Specify the RF coupling among antennas.
 # This functionality is not yet implemented in the API, but it can be entered from the UI.
 #
 # <img src="_static/coupling.png" width="250">
 
-
-# ## Run EMIT simulation
+# ### Run analysis
 #
 # Run the EMIT simulation.
-#
-# This part of the example requires Ansys AEDT 2023 R2.
 
-# > **Note:** You can uncomment the following code.
-#
 if AEDT_VERSION > "2023.1":
     rev = aedtapp.results.analyze()
-    rx_bands = rev.get_band_names(radio_name=rad2.name, tx_rx_mode=TxRxMode.RX)
-    tx_bands = rev.get_band_names(radio_name=rad3.name, tx_rx_mode=TxRxMode.TX)
+
+# ## Postprocess
+#
+# Evaluate the worst-case EMI between the GPS receiver and Bluetooth radio.
+
+if AEDT_VERSION > "2023.1":
+    rx_bands = rev.get_band_names(radio_node=rad2, tx_rx_mode=TxRxMode.RX)
+    tx_bands = rev.get_band_names(radio_node=rad3, tx_rx_mode=TxRxMode.TX)
     domain = aedtapp.results.interaction_domain()
     domain.set_receiver(rad2.name, rx_bands[0], -1)
     domain.set_interferer(rad3.name, tx_bands[0])
@@ -92,18 +103,20 @@ if AEDT_VERSION > "2023.1":
         emi = worst.get_value(ResultType.EMI)
         print("Worst case interference is: {} dB".format(emi))
 
-# ## Release AEDT
+# ## Finish
 #
-# Release AEDT and close the example.
+# ### Save the project
 
 aedtapp.save_project()
 aedtapp.release_desktop()
 # Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
 time.sleep(3)
 
-# ## Clean up
+# ### Clean up
 #
-# All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook, you
-# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+# All project files are saved in the folder ``temp_folder.name``.
+# If you've run this example as a Jupyter notebook, you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
 
 temp_folder.cleanup()

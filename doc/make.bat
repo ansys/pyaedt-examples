@@ -16,16 +16,16 @@ set LINKCHECKDIR=\%BUILDDIR%\linkcheck
 set LINKCHECKOPTS=-d %BUILDDIR%\.doctrees -W --keep-going --color
 
 REM This LOCs are used to uninstall and install specific package(s) during CI/CD
-for /f %%i in ('pip freeze ^| findstr /c:"pypandoc_binary"') do set is_pypandoc_binary_installed=%%i
-if NOT "%is_pypandoc_binary_installed%" == "pypandoc_binary" if "%ON_CI%" == "true" (
+for /f %%i in ('uv pip freeze ^| findstr /c:"pypandoc_binary"') do set is_pypandoc_binary_installed=%%i
+if NOT "%is_pypandoc_binary_installed%" == "pypandoc_binary" if /I "%ON_CI%" == "true" (
 	@ECHO ON
 	echo "Removing pypandoc to avoid conflicts with pypandoc-binary"
 	@ECHO OFF
-	pip uninstall --yes pypandoc
+	uv pip uninstall --yes pypandoc
 	@ECHO ON
 	echo "Installing pypandoc-binary"
 	@ECHO OFF
-	pip install pypandoc-binary==1.13)
+	uv pip install pypandoc-binary==1.13)
 REM End of CICD dedicated setup
 
 if "%1" == "" goto help
