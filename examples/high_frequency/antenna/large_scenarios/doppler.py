@@ -202,7 +202,7 @@ frame_number = frtm_plotter.frames[0]
 frtm_plotter.plot_range_doppler(
     frame=frame_number,
     output_file=os.path.join(temp_folder.name, "range_doppler.png"),
-    show=True,
+    show=False,
 )
 frtm_plotter.plot_range_angle_map(
     frame=frame_number,
