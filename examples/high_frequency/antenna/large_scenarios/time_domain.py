@@ -10,9 +10,13 @@
 # Perform required imports.
 
 # +
+import base64
 import os
 import tempfile
 import time
+
+from IPython.display import HTML, display
+from IPython.utils import io as ipio
 
 from ansys.aedt.core import Hfss
 from ansys.aedt.core.examples.downloads import download_sbr_time
@@ -81,17 +85,31 @@ frames_list_file = solution_data.ifft_to_file(
 
 # ## Plot scene
 #
-# Plot the scene to create the time plot animation
+# Plot the scene to create the time plot animation and save it to a GIF file.
 
-hfss.post.plot_scene(
-    frames=frames_list_file,
-    gif_path=os.path.join(hfss.working_directory, "animation.gif"),
-    norm_index=15,
-    dy_rng=35,
-    show=False,
-    view="xy",
-    zoom=1,
-)
+gif_file = os.path.join(hfss.working_directory, "animation.gif")
+
+
+with ipio.capture_output():
+    hfss.post.plot_scene(
+        frames=frames_list_file,
+        gif_path=gif_file,
+        norm_index=15,
+        dy_rng=35,
+        show=False,
+        view="xy",
+        zoom=1,
+    )
+
+# ## Display animation
+#
+# nbsphinx does not render ``image/gif`` cell outputs natively.
+# The GIF is embedded as a base64 data URI inside an HTML ``<img>`` tag,
+# which nbsphinx renders correctly in the static HTML documentation.
+
+with open(gif_file, "rb") as f:
+    gif_b64 = base64.b64encode(f.read()).decode()
+display(HTML(f'<img src="data:image/gif;base64,{gif_b64}" width="600"/>'))
 
 # ## Release AEDT
 #
