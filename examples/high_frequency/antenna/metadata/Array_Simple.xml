@@ -1,0 +1,103 @@
+<Metadata>
+  <ElementPatterns>
+    <Source name='circ_patch_array[1,1]Circ_Patch_5GHz1_1:1'>
+      <Filename>exportfield_0.ffd      </Filename>
+      <PortLocation>0.037880,0.032700,-0.003772      </PortLocation>
+      <ReferenceLocation>0.037880,0.032700,-0.003772      </ReferenceLocation>
+        <PowerInfo>
+            <Power Freq='5GHz'>
+              <IncidentPower>1.000000              </IncidentPower>
+              <AcceptedPower>0.893085              </AcceptedPower>
+              <RadiatedPower>0.873296              </RadiatedPower>
+            </Power>
+        </PowerInfo>
+    </Source>
+    <Source name='circ_patch_array[1,2]Circ_Patch_5GHz1_1:1'>
+      <Filename>exportfield_1.ffd      </Filename>
+      <PortLocation>-0.002590,0.032700,-0.003772      </PortLocation>
+      <ReferenceLocation>-0.002590,0.032700,-0.003772      </ReferenceLocation>
+        <PowerInfo>
+            <Power Freq='5GHz'>
+              <IncidentPower>1.000000              </IncidentPower>
+              <AcceptedPower>0.862938              </AcceptedPower>
+              <RadiatedPower>0.838528              </RadiatedPower>
+            </Power>
+        </PowerInfo>
+    </Source>
+    <Source name='circ_patch_array[1,3]Circ_Patch_5GHz1_1:1'>
+      <Filename>exportfield_2.ffd      </Filename>
+      <PortLocation>-0.032700,0.032700,-0.003772      </PortLocation>
+      <ReferenceLocation>-0.032700,0.032700,-0.003772      </ReferenceLocation>
+        <PowerInfo>
+            <Power Freq='5GHz'>
+              <IncidentPower>1.000000              </IncidentPower>
+              <AcceptedPower>0.884988              </AcceptedPower>
+              <RadiatedPower>0.862573              </RadiatedPower>
+            </Power>
+        </PowerInfo>
+    </Source>
+    <Source name='circ_patch_array[2,1]Circ_Patch_5GHz1_1:1'>
+      <Filename>exportfield_3.ffd      </Filename>
+      <PortLocation>0.032700,-0.002590,-0.003772      </PortLocation>
+      <ReferenceLocation>0.032700,-0.002590,-0.003772      </ReferenceLocation>
+        <PowerInfo>
+            <Power Freq='5GHz'>
+              <IncidentPower>1.000000              </IncidentPower>
+              <AcceptedPower>0.874270              </AcceptedPower>
+              <RadiatedPower>0.856900              </RadiatedPower>
+            </Power>
+        </PowerInfo>
+    </Source>
+    <Source name='circ_patch_array[2,2]Circ_Patch_5GHz1_1:1'>
+      <Filename>exportfield_4.ffd      </Filename>
+      <PortLocation>-0.002590,-0.002590,-0.003772      </PortLocation>
+      <ReferenceLocation>-0.002590,-0.002590,-0.003772      </ReferenceLocation>
+        <PowerInfo>
+            <Power Freq='5GHz'>
+              <IncidentPower>0.000000              </IncidentPower>
+              <AcceptedPower>0.000000              </AcceptedPower>
+              <RadiatedPower>0.203167              </RadiatedPower>
+            </Power>
+        </PowerInfo>
+    </Source>
+    <Source name='circ_patch_array[2,3]Circ_Patch_5GHz1_1:1'>
+      <Filename>exportfield_5.ffd      </Filename>
+      <PortLocation>-0.037880,-0.002590,-0.003772      </PortLocation>
+      <ReferenceLocation>-0.037880,-0.002590,-0.003772      </ReferenceLocation>
+        <PowerInfo>
+            <Power Freq='5GHz'>
+              <IncidentPower>1.000000              </IncidentPower>
+              <AcceptedPower>0.873605              </AcceptedPower>
+              <RadiatedPower>0.855972              </RadiatedPower>
+            </Power>
+        </PowerInfo>
+    </Source>
+    <Source name='circ_patch_array[3,1]Circ_Patch_5GHz1_1:1'>
+      <Filename>exportfield_6.ffd      </Filename>
+      <PortLocation>0.037880,-0.037880,-0.003772      </PortLocation>
+      <ReferenceLocation>0.037880,-0.037880,-0.003772      </ReferenceLocation>
+        <PowerInfo>
+            <Power Freq='5GHz'>
+              <IncidentPower>1.000000              </IncidentPower>
+              <AcceptedPower>0.889946              </AcceptedPower>
+              <RadiatedPower>0.872956              </RadiatedPower>
+            </Power>
+        </PowerInfo>
+    </Source>
+    <Source name='circ_patch_array[3,2]Circ_Patch_5GHz1_1:1'>
+      <Filename>exportfield_7.ffd      </Filename>
+      <PortLocation>-0.002590,-0.037880,-0.003772      </PortLocation>
+      <ReferenceLocation>-0.002590,-0.037880,-0.003772      </ReferenceLocation>
+        <PowerInfo>
+            <Power Freq='5GHz'>
+              <IncidentPower>1.000000              </IncidentPower>
+              <AcceptedPower>0.864870              </AcceptedPower>
+              <RadiatedPower>0.841812              </RadiatedPower>
+            </Power>
+        </PowerInfo>
+    </Source>
+  </ElementPatterns>
+  <TouchstoneInfo>
+    <Filename>LastAdaptive_DV30.s8p    </Filename>
+  </TouchstoneInfo>
+</Metadata>

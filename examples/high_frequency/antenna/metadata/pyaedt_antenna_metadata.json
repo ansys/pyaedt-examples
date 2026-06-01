@@ -1,0 +1,372 @@
+{
+  "variation": "Nominal",
+  "element_pattern": {
+    "circ_patch_array[1,1]Circ_Patch_5GHz1_1:1": {
+      "file_name": "exportfield_0.ffd",
+      "location": [
+        "0.037880",
+        "0.032700",
+        "-0.003772"
+      ],
+      "incident_power": {
+        "5000000000.0": 1.0
+      },
+      "radiated_power": {
+        "5000000000.0": 0.873296
+      },
+      "accepted_power": {
+        "5000000000.0": 0.893085
+      }
+    },
+    "circ_patch_array[1,2]Circ_Patch_5GHz1_1:1": {
+      "file_name": "exportfield_1.ffd",
+      "location": [
+        "-0.002590",
+        "0.032700",
+        "-0.003772"
+      ],
+      "incident_power": {
+        "5000000000.0": 1.0
+      },
+      "radiated_power": {
+        "5000000000.0": 0.838528
+      },
+      "accepted_power": {
+        "5000000000.0": 0.862938
+      }
+    },
+    "circ_patch_array[1,3]Circ_Patch_5GHz1_1:1": {
+      "file_name": "exportfield_2.ffd",
+      "location": [
+        "-0.032700",
+        "0.032700",
+        "-0.003772"
+      ],
+      "incident_power": {
+        "5000000000.0": 1.0
+      },
+      "radiated_power": {
+        "5000000000.0": 0.862573
+      },
+      "accepted_power": {
+        "5000000000.0": 0.884988
+      }
+    },
+    "circ_patch_array[2,1]Circ_Patch_5GHz1_1:1": {
+      "file_name": "exportfield_3.ffd",
+      "location": [
+        "0.032700",
+        "-0.002590",
+        "-0.003772"
+      ],
+      "incident_power": {
+        "5000000000.0": 1.0
+      },
+      "radiated_power": {
+        "5000000000.0": 0.8569
+      },
+      "accepted_power": {
+        "5000000000.0": 0.87427
+      }
+    },
+    "circ_patch_array[2,2]Circ_Patch_5GHz1_1:1": {
+      "file_name": "exportfield_4.ffd",
+      "location": [
+        "-0.002590",
+        "-0.002590",
+        "-0.003772"
+      ],
+      "incident_power": {
+        "5000000000.0": 0.0
+      },
+      "radiated_power": {
+        "5000000000.0": 0.203167
+      },
+      "accepted_power": {
+        "5000000000.0": 0.0
+      }
+    },
+    "circ_patch_array[2,3]Circ_Patch_5GHz1_1:1": {
+      "file_name": "exportfield_5.ffd",
+      "location": [
+        "-0.037880",
+        "-0.002590",
+        "-0.003772"
+      ],
+      "incident_power": {
+        "5000000000.0": 1.0
+      },
+      "radiated_power": {
+        "5000000000.0": 0.855972
+      },
+      "accepted_power": {
+        "5000000000.0": 0.873605
+      }
+    },
+    "circ_patch_array[3,1]Circ_Patch_5GHz1_1:1": {
+      "file_name": "exportfield_6.ffd",
+      "location": [
+        "0.037880",
+        "-0.037880",
+        "-0.003772"
+      ],
+      "incident_power": {
+        "5000000000.0": 1.0
+      },
+      "radiated_power": {
+        "5000000000.0": 0.872956
+      },
+      "accepted_power": {
+        "5000000000.0": 0.889946
+      }
+    },
+    "circ_patch_array[3,2]Circ_Patch_5GHz1_1:1": {
+      "file_name": "exportfield_7.ffd",
+      "location": [
+        "-0.002590",
+        "-0.037880",
+        "-0.003772"
+      ],
+      "incident_power": {
+        "5000000000.0": 1.0
+      },
+      "radiated_power": {
+        "5000000000.0": 0.841812
+      },
+      "accepted_power": {
+        "5000000000.0": 0.86487
+      }
+    }
+  },
+  "touchstone_file": "LastAdaptive_DV30.s8p",
+  "model_info": {
+    "Soil": [
+      "geometry\\Soil.obj",
+      [
+        0,
+        128,
+        0
+      ],
+      0.7,
+      "mm"
+    ],
+    "FeedPin_2": [
+      "geometry\\FeedPin_2.obj",
+      [
+        255,
+        128,
+        65
+      ],
+      0.7,
+      "mm"
+    ],
+    "coax_pin_2": [
+      "geometry\\coax_pin_2.obj",
+      [
+        255,
+        128,
+        65
+      ],
+      0.7,
+      "mm"
+    ],
+    "coax_2": [
+      "geometry\\coax_2.obj",
+      [
+        128,
+        255,
+        255
+      ],
+      0.7,
+      "mm"
+    ],
+    "seed_edge_bottom": [
+      "geometry\\seed_edge_bottom.obj",
+      [
+        255,
+        128,
+        65
+      ],
+      0.05,
+      "mm"
+    ],
+    "Ground": [
+      "geometry\\Ground.obj",
+      [
+        255,
+        128,
+        65
+      ],
+      0.7,
+      "mm"
+    ],
+    "Circle_2": [
+      "geometry\\Circle_2.obj",
+      [
+        255,
+        128,
+        65
+      ],
+      0.7,
+      "mm"
+    ]
+  },
+  "component_objects": {
+    "Circ_Patch_5GHz1": [
+      [
+        0.0,
+        0.03529,
+        0.013114
+      ],
+      "seed_edge_bottom",
+      "Circle_2",
+      "seed_edge_top",
+      "top_seeding",
+      "FeedPin_2",
+      "coax_pin_2",
+      "coax_2",
+      "Ground",
+      "Soil",
+      "Box1"
+    ]
+  },
+  "cell_position": [
+    [
+      [
+        "Circ_Patch_5GHz1",
+        [
+          -0.0,
+          -0.0,
+          0.0
+        ],
+        90,
+        [
+          1,
+          1
+        ]
+      ],
+      [
+        "Circ_Patch_5GHz1",
+        [
+          -0.03529,
+          -0.0,
+          0.0
+        ],
+        0,
+        [
+          1,
+          2
+        ]
+      ],
+      [
+        "Circ_Patch_5GHz1",
+        [
+          -0.07058,
+          -0.0,
+          0.0
+        ],
+        90,
+        [
+          1,
+          3
+        ]
+      ]
+    ],
+    [
+      [
+        "Circ_Patch_5GHz1",
+        [
+          -0.0,
+          -0.03529,
+          0.0
+        ],
+        0,
+        [
+          2,
+          1
+        ]
+      ],
+      [
+        "Circ_Patch_5GHz1",
+        [
+          -0.03529,
+          -0.03529,
+          0.0
+        ],
+        0,
+        [
+          2,
+          2
+        ]
+      ],
+      [
+        "Circ_Patch_5GHz1",
+        [
+          -0.07058,
+          -0.03529,
+          0.0
+        ],
+        0,
+        [
+          2,
+          3
+        ]
+      ]
+    ],
+    [
+      [
+        "Circ_Patch_5GHz1",
+        [
+          -0.0,
+          -0.07058,
+          0.0
+        ],
+        90,
+        [
+          3,
+          1
+        ]
+      ],
+      [
+        "Circ_Patch_5GHz1",
+        [
+          -0.03529,
+          -0.07058,
+          0.0
+        ],
+        0,
+        [
+          3,
+          2
+        ]
+      ],
+      [
+        "Circ_Patch_5GHz1",
+        [
+          -0.07058,
+          -0.07058,
+          0.0
+        ],
+        90,
+        [
+          3,
+          3
+        ]
+      ]
+    ]
+  ],
+  "array_dimension": [
+    -0.10587,
+    -0.10587,
+    -0.03529,
+    -0.03529
+  ],
+  "lattice_vector": [
+    0.0,
+    -0.03529,
+    0.0,
+    -0.03529,
+    0.0,
+    0.0
+  ]
+}
