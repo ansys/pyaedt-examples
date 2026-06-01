@@ -231,6 +231,9 @@ def skip_gif_examples_to_build_pdf(app: Sphinx):
             [
                 r".*resistance\.py",
                 r".*time_domain\.py",
+                r".*transient_winding\.py",
+                r".*coaxial_hfss_icepak\.py",
+                r".*mri\.py",
             ]
         )
 

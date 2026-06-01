@@ -22,9 +22,13 @@
 # Perform required imports.
 
 # +
+import base64
 import os.path
 import tempfile
 import time
+
+from IPython.display import HTML, display
+from IPython.utils import io as ipio
 
 from ansys.aedt.core import Hfss, Icepak, Mechanical
 from ansys.aedt.core.examples import downloads
@@ -254,16 +258,27 @@ data = mech.post.get_solution_data(
 )
 data.plot()
 
-mech.post.plot_animated_field(
-    quantity="Temperature",
-    assignment="implant:YZ",
-    plot_type="CutPlane",
-    intrinsics={"Time": "15s"},
-    variation_variable="Time",
-    variations=["15s", "30s"],
-    filter_objects=["implant_box"],
-    show=False,
-)
+gif_file = os.path.join(tempfile.gettempdir(), "mri_animated.gif")
+
+with ipio.capture_output():
+    anim = mech.post.plot_animated_field(
+        quantity="Temperature",
+        assignment="implant:YZ",
+        plot_type="CutPlane",
+        intrinsics={"Time": "15s"},
+        variation_variable="Time",
+        variations=["15s", "30s"],
+        filter_objects=["implant_box"],
+        show=False,
+    )
+    anim.is_notebook = False
+    anim.off_screen = True
+    anim.gif_file = gif_file
+    anim.animate(show=False)
+
+with open(gif_file, "rb") as f:
+    gif_b64 = base64.b64encode(f.read()).decode()
+display(HTML(f'<img src="data:image/gif;base64,{gif_b64}" width="600"/>'))
 # -
 
 # ## Run a new thermal simulation
