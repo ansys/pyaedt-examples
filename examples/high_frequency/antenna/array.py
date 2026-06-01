@@ -17,6 +17,7 @@ import os
 import tempfile
 import time
 
+import pyvista as pv
 from ansys.aedt.core import Hfss
 from ansys.aedt.core.examples.downloads import download_3dcomponent
 from ansys.aedt.core.generic import file_utils
@@ -229,11 +230,14 @@ ffdata.plot_cut(
 # Use the array-aware far-field data returned by ``get_antenna_data()`` for the
 # 3D visualization so that all array elements are rendered with the pattern.
 
-array_farfield_data.plot_3d(
+is_doc_build = os.environ.get("PYAEDT_DOC_GENERATION", "0") == "1"
+p = pv.Plotter(notebook=True, off_screen=is_doc_build)
+ffdata.plot_3d(
     quantity="RealizedGain",
-    output_file=os.path.join(working_directory, "Image.jpg"),
     show=False,
+    pyvista_object=p,
 )
+p.show(jupyter_backend="html")
 
 # ### Clean up
 #
