@@ -44,5 +44,5 @@ ffdata = FfdSolutionData(input_file=str(metadata_file))
 
 ffdata.plot_3d(
     quantity="RealizedGain",
-    show=False,
+    show=True,
 )
