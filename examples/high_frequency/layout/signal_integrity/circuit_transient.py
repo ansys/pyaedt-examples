@@ -106,7 +106,7 @@ report = circuit.post.create_report("V(Vout)", domain="Time")
 if not NG_MODE:
     report.add_cartesian_y_marker(0)
 solutions = circuit.post.get_solution_data(domain="Time")
-solutions.plot("V(Vout)")
+_ = solutions.plot("V(Vout)")
 
 # ## Visualize results
 #
@@ -140,7 +140,7 @@ new_report.time_start = "20ns"
 new_report.time_stop = "100ns"
 new_report.create()
 sol = new_report.get_solution_data()
-sol.plot()
+_ = sol.plot()
 
 # ## Create eye diagram in AEDT
 #

@@ -237,7 +237,7 @@ q2d.analyze(cores=NUM_CORES)
 # View the impedance over frequency.
 
 data = q2d.post.get_solution_data(expressions="Z0(signal,signal)", context="Original")
-data.plot()
+_ = data.plot()
 
 # ## Finish
 #

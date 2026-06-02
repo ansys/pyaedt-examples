@@ -229,9 +229,11 @@ def skip_gif_examples_to_build_pdf(app: Sphinx):
         logger.info("Examples with animations are skipped when building with latex.")
         app.config.exclude_patterns.extend(
             [
-                r".*Maxwell2D_Transient\.py",
-                r".*Maxwell2D_DCConduction\.py",
-                r".*Hfss_Icepak_Coupling\.py",
+                r".*resistance\.py",
+                r".*time_domain\.py",
+                r".*transient_winding\.py",
+                r".*coaxial_hfss_icepak\.py",
+                r".*mri\.py",
             ]
         )
 

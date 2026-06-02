@@ -10,9 +10,13 @@
 # Perform required imports.
 
 # +
+import base64
 import os.path
 import tempfile
 import time
+
+from IPython.display import HTML, display
+from IPython.utils import io as ipio
 
 import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_file
@@ -187,7 +191,7 @@ data = report.get_solution_data()
 resistance = data.get_expression_data(formula="magnitude")[1]
 material_index = data.primary_sweep_values
 data.primary_sweep = "MaterialIndex"
-data.plot(snapshot_path=os.path.join(temp_folder.name, "M2D_DCConduction.jpg"))
+_ = data.plot(snapshot_path=os.path.join(temp_folder.name, "M2D_DCConduction.jpg"))
 
 # ## Create material index versus resistance table
 #
@@ -224,25 +228,37 @@ py_vista_plot.plot(os.path.join(temp_folder.name, "mag_E.jpg"))
 
 # ## Plot field animation
 #
-# Plot current density verus the material index.
+# Plot current density versus the material index and save it to a GIF file.
 
-animated_plot = m2d.post.plot_animated_field(
-    quantity="Mag_J",
-    assignment=conductor_surface,
-    export_path=temp_folder.name,
-    variation_variable="MaterialIndex",
-    variations=[0, 1, 2, 3],
-    show=False,
-    export_gif=False,
-    log_scale=True,
-)
-animated_plot.isometric_view = False
-animated_plot.camera_position = [0, 0, 7]
-animated_plot.focal_point = [0, 0, 0]
-animated_plot.roll_angle = 0
-animated_plot.elevation_angle = 0
-animated_plot.azimuth_angle = 0
-animated_plot.animate(show=False)
+# +
+gif_file = os.path.join(temp_folder.name, "animated_field.gif")
+
+with ipio.capture_output():
+    animated_plot = m2d.post.plot_animated_field(
+        quantity="Mag_J",
+        assignment=conductor_surface,
+        export_path=temp_folder.name,
+        variation_variable="MaterialIndex",
+        variations=[0, 1, 2, 3],
+        show=False,
+        export_gif=False,
+        log_scale=True,
+    )
+    animated_plot.isometric_view = False
+    animated_plot.camera_position = [0, 0, 7]
+    animated_plot.focal_point = [0, 0, 0]
+    animated_plot.roll_angle = 0
+    animated_plot.elevation_angle = 0
+    animated_plot.azimuth_angle = 0
+    animated_plot.is_notebook = False
+    animated_plot.off_screen = True
+    animated_plot.gif_file = gif_file
+    animated_plot.animate(show=False)
+
+with open(gif_file, "rb") as f:
+    gif_b64 = base64.b64encode(f.read()).decode()
+display(HTML(f'<img src="data:image/gif;base64,{gif_b64}" width="600"/>'))
+# -
 
 # ## Export model picture
 
