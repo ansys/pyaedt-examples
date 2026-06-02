@@ -358,7 +358,7 @@ trace_names = hfss.get_traces_for_plot(category="S")
 context = ["Domain:=", "Sweep"]
 families = ["Freq:=", ["All"]]
 my_data = hfss.post.get_solution_data(expressions=trace_names)
-my_data.plot(
+_ = my_data.plot(
     trace_names,
     formula="db20",
     x_label="Frequency (Ghz)",
