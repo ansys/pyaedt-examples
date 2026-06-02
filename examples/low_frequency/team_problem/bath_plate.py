@@ -262,7 +262,7 @@ solutions = m3d.post.get_solution_data(
 # ### Set up sweep value and plot solution
 
 solutions.active_variation["Coil_Position"] = solutions.variations[0]["Coil_Position"]
-solutions.plot();
+_ = solutions.plot()
 
 # ### Change sweep value and plot solution
 #
@@ -270,7 +270,7 @@ solutions.plot();
 # Uncomment to show plots.
 
 solutions.active_variation["Coil_Position"] = solutions.variations[1]["Coil_Position"]
-solutions.plot();
+_ = solutions.plot()
 
 # ### Plot induced current density on surface of ladder plate
 #

@@ -113,7 +113,7 @@ solution = target.post.get_solution_data(
     context="ATK_3D",
     report_category="Far Fields",
 )
-solution.plot()
+_ = solution.plot()
 
 # ## Release AEDT
 #

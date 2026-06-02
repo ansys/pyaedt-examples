@@ -147,7 +147,7 @@ display(HTML(f'<img src="data:image/gif;base64,{gif_b64}" width="600"/>'))
 # Generate the same plot outside AEDT.
 
 solutions = m2d.post.get_solution_data(expressions="InputCurrent(PHA)", primary_sweep_variable="Time", domain="Sweep")
-solutions.plot();
+_ = solutions.plot()
 
 # ## Release AEDT
 

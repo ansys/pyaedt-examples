@@ -153,10 +153,10 @@ solution = q3d.post.get_solution_data(traces_acl)
 #
 # Plot AC inductance and resistance.
 
-solution.plot()
+_ = solution.plot()
 traces_acr = q3d.post.available_report_quantities(quantities_category="ACR Matrix")
 solution2 = q3d.post.get_solution_data(traces_acr)
-solution2.plot()
+_ = solution2.plot()
 
 # ## Release AEDT
 

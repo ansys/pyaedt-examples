@@ -191,7 +191,7 @@ data = report.get_solution_data()
 resistance = data.get_expression_data(formula="magnitude")[1]
 material_index = data.primary_sweep_values
 data.primary_sweep = "MaterialIndex"
-data.plot(snapshot_path=os.path.join(temp_folder.name, "M2D_DCConduction.jpg"))
+_ = data.plot(snapshot_path=os.path.join(temp_folder.name, "M2D_DCConduction.jpg"))
 
 # ## Create material index versus resistance table
 #

@@ -256,7 +256,7 @@ data = mech.post.get_solution_data(
     context="Point1",
     report_category="Fields",
 )
-data.plot()
+_ = data.plot()
 
 gif_file = os.path.join(tempfile.gettempdir(), "mri_animated.gif")
 
