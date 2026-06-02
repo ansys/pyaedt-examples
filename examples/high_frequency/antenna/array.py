@@ -230,7 +230,7 @@ ffdata.plot_cut(
 # Use the array-aware far-field data returned by ``get_antenna_data()`` for the
 # 3D visualization so that all array elements are rendered with the pattern.
 
-is_doc_build = os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t"):
+is_doc_build = os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t")
 p = pv.Plotter(notebook=True, off_screen=is_doc_build)
 ffdata.plot_3d(
     quantity="RealizedGain",
