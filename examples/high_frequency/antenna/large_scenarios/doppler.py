@@ -16,6 +16,7 @@ import time
 
 import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_file, download_multiparts, unzip
+import matplotlib.pyplot as plt
 
 # -
 
@@ -199,8 +200,19 @@ for frame, data_frame in frames_dict.items():
 
 frtm_plotter = FRTMPlotter(doppler_data_frames)
 frame_number = frtm_plotter.frames[0]
-frtm_plotter.plot_range_doppler(frame=frame_number)
-frtm_plotter.plot_range_angle_map(frame=frame_number, polar=True)
+plotter_rd = frtm_plotter.plot_range_doppler(frame=frame_number, show=False)
+if plotter_rd.fig:
+    plotter_rd.fig.set_constrained_layout(False)
+    plt.figure(plotter_rd.fig.number)
+    plt.show()
+    plt.close(plotter_rd.fig)
+
+plotter_ra = frtm_plotter.plot_range_angle_map(frame=frame_number, polar=True, show=False)
+if plotter_ra.fig:
+    plotter_ra.fig.set_constrained_layout(False)
+    plt.figure(plotter_ra.fig.number)
+    plt.show()
+    plt.close(plotter_ra.fig)
 
 # ## Release AEDT
 #
