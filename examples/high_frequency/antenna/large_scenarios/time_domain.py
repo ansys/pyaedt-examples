@@ -88,8 +88,6 @@ frames_list_file = solution_data.ifft_to_file(
 # Plot the scene to create the time plot animation and save it to a GIF file.
 
 gif_file = os.path.join(hfss.working_directory, "animation.gif")
-
-
 with ipio.capture_output():
     hfss.post.plot_scene(
         frames=frames_list_file,

@@ -230,6 +230,7 @@ py_vista_plot.plot(os.path.join(temp_folder.name, "mag_E.jpg"))
 #
 # Plot current density versus the material index and save it to a GIF file.
 
+# +
 gif_file = os.path.join(temp_folder.name, "animated_field.gif")
 
 with ipio.capture_output():
@@ -257,6 +258,7 @@ with ipio.capture_output():
 with open(gif_file, "rb") as f:
     gif_b64 = base64.b64encode(f.read()).decode()
 display(HTML(f'<img src="data:image/gif;base64,{gif_b64}" width="600"/>'))
+# -
 
 # ## Export model picture
 
