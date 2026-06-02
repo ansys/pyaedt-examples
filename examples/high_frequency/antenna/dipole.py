@@ -243,7 +243,7 @@ xpol.children["Legend"].properties["Show Variation Key"] = False
 # the report in HFSS.
 
 ff_el_data = elevation_ffd_plot.get_solution_data()
-ff_el_data.plot(x_label="Theta", y_label="Gain", is_polar=True);
+ff_el_data.plot(x_label="Theta", y_label="Gain", is_polar=True)
 
 
 # ## Release AEDT
