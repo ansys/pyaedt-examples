@@ -229,9 +229,11 @@ def skip_gif_examples_to_build_pdf(app: Sphinx):
         logger.info("Examples with animations are skipped when building with latex.")
         app.config.exclude_patterns.extend(
             [
-                r".*Maxwell2D_Transient\.py",
-                r".*Maxwell2D_DCConduction\.py",
-                r".*Hfss_Icepak_Coupling\.py",
+                r".*resistance\.py",
+                r".*time_domain\.py",
+                r".*transient_winding\.py",
+                r".*coaxial_hfss_icepak\.py",
+                r".*mri\.py",
             ]
         )
 
@@ -352,6 +354,103 @@ def convert_examples_into_notebooks(app):
             logger.info(f"Converted {count} python examples to scripts")
 
 
+def _format_duration(seconds: float) -> str:
+    """Format seconds as a human-readable string."""
+    if seconds < 60:
+        return f"{seconds:.1f}s"
+    minutes, secs = divmod(seconds, 60)
+    if minutes < 60:
+        return f"{int(minutes)}m {secs:.0f}s"
+    hours, minutes = divmod(minutes, 60)
+    return f"{int(hours)}h {int(minutes)}m {secs:.0f}s"
+
+
+def patch_notebook_parser_with_timer():
+    """Monkey-patch nbsphinx.NotebookParser.parse to log wall-clock time per notebook.
+
+    Each notebook parse (which includes kernel execution) is timed and the
+    duration is printed immediately to stdout so it is visible in CI streaming
+    logs.  At the end of the build the ``build-finished`` hook writes a
+    Markdown table to ``$GITHUB_STEP_SUMMARY``.
+
+    It returns the ``build-finished`` hook that writes the timing summary.
+    """
+    import time
+    import nbsphinx
+
+    # Shared registry: docname -> elapsed seconds
+    _timings: dict[str, float] = {}
+
+    _original_parse = nbsphinx.NotebookParser.parse
+
+    def _timed_parse(self, inputstring, document):
+        env = document.settings.env
+        docname = env.docname
+        t0 = time.monotonic()
+        _original_parse(self, inputstring, document)
+        elapsed = time.monotonic() - t0
+        _timings[docname] = elapsed
+
+    nbsphinx.NotebookParser.parse = _timed_parse
+
+    def _write_timing_summary(app, exception):
+        """Write the full timing table to $GITHUB_STEP_SUMMARY."""
+        # In the HTML+PDF workflow on CI, skip the summary for the PDF (latex) build
+        # to avoid printing the Top 10 table twice (once per sphinx-build invocation).
+        if (
+            bool(int(os.getenv("SPHINXBUILD_HTML_AND_PDF_WORKFLOW", "0")))
+            and app.builder.name == "latex"
+        ):
+            logger.info("[timing] Skipping timing summary for PDF build in HTML+PDF workflow.")
+            return
+
+        if not _timings:
+            logger.warning("[timing] No notebooks were timed.")
+            return
+        sorted_timings = sorted(_timings.items(), key=lambda x: x[1], reverse=True)
+        total = sum(t for _, t in sorted_timings)
+
+        top_n = [item for item in sorted_timings if item[1] >= 60][:10]
+
+        lines = [
+            "## Top 10 slowest notebooks (>= 1 min)",
+            "",
+            f"**Total:** {_format_duration(total)} across {len(sorted_timings)} notebook(s)",
+            "",
+            "| Rank | Notebook | Duration |",
+            "|------|----------|----------|",
+        ]
+        for rank, (doc, secs) in enumerate(top_n, start=1):
+            slow = " SLOW" if secs > 300 else ""
+            lines.append(f"| {rank} | `{doc}` | **{_format_duration(secs)}**{slow} |")
+        lines.append("")
+        report = "\n".join(lines)
+
+        # Top-N slowest summary printed to CI log
+        summary_lines = [
+            "",
+            "=" * 60,
+            f"TOP {len(top_n)} SLOWEST NOTEBOOKS",
+            "=" * 60,
+        ]
+        for rank, (doc, secs) in enumerate(top_n, start=1):
+            slow = " SLOW (more than 5 minutes)" if secs > 300 else ""
+            summary_lines.append(f"  {rank:>2}. {_format_duration(secs):>10}  {doc}{slow}")
+        summary_lines.append("=" * 60)
+        summary_lines.append("")
+        print("\n".join(summary_lines), flush=True)
+
+        summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+        if summary_path:
+            with open(summary_path, "a", encoding="utf-8") as fh:
+                fh.write(report + "\n")
+            logger.info("[timing] Notebook timing summary written to GITHUB_STEP_SUMMARY.")
+        else:
+            logger.info(report)
+
+    return _write_timing_summary
+
+
 def setup(app):
     """Run different hook functions during the documentation build."""
     app.add_directive("pprint", PrettyPrintDirective)
@@ -364,6 +463,8 @@ def setup(app):
     # Source read hook
     app.connect("source-read", adjust_image_path)
     # Build finished hooks
+    if bool(os.environ.get("ON_CI", "")):
+        app.connect("build-finished", patch_notebook_parser_with_timer())
     app.connect("build-finished", remove_examples)
     app.connect("build-finished", remove_doctree)
     app.connect("build-finished", copy_script_examples)

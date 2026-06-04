@@ -281,7 +281,7 @@ h3d.analyze()
 
 trace = h3d.get_traces_for_plot()
 solution = h3d.post.get_solution_data(trace[0])
-solution.plot()
+_ = solution.plot()
 
 # ## Create a 2D far-field report in AEDT
 #

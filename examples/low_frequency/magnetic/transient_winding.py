@@ -23,9 +23,13 @@
 # Perform required imports.
 
 # +
+import base64
 import os
 import tempfile
 import time
+
+from IPython.display import HTML, display
+from IPython.utils import io as ipio
 
 import ansys.aedt.core
 
@@ -109,26 +113,33 @@ face_lists += rect2.faces
 timesteps = [str(i * 2e-4) + "s" for i in range(11)]
 id_list = [f.id for f in face_lists]
 
-gif = m2d.post.plot_animated_field(
-    quantity="Mag_B",
-    assignment=id_list,
-    plot_type="Surface",
-    intrinsics={"Time": "0s"},
-    variation_variable="Time",
-    variations=timesteps,
-    show=False,
-    export_gif=False,
-)
-gif.isometric_view = False
-gif.camera_position = [15, 15, 80]
-gif.focal_point = [15, 15, 0]
-gif.roll_angle = 0
-gif.elevation_angle = 0
-gif.azimuth_angle = 0
+gif_file = os.path.join(temp_folder.name, "animated_field.gif")
 
-# Set off_screen to False to visualize the animation.
-# gif.off_screen = False
-gif.animate(show=False)
+with ipio.capture_output():
+    gif = m2d.post.plot_animated_field(
+        quantity="Mag_B",
+        assignment=id_list,
+        plot_type="Surface",
+        intrinsics={"Time": "0s"},
+        variation_variable="Time",
+        variations=timesteps,
+        show=False,
+        export_gif=False,
+    )
+    gif.isometric_view = False
+    gif.camera_position = [15, 15, 80]
+    gif.focal_point = [15, 15, 0]
+    gif.roll_angle = 0
+    gif.elevation_angle = 0
+    gif.azimuth_angle = 0
+    gif.is_notebook = False
+    gif.off_screen = True
+    gif.gif_file = gif_file
+    gif.animate(show=False)
+
+with open(gif_file, "rb") as f:
+    gif_b64 = base64.b64encode(f.read()).decode()
+display(HTML(f'<img src="data:image/gif;base64,{gif_b64}" width="600"/>'))
 # -
 
 # ## Generate plot outside of AEDT
@@ -136,7 +147,7 @@ gif.animate(show=False)
 # Generate the same plot outside AEDT.
 
 solutions = m2d.post.get_solution_data(expressions="InputCurrent(PHA)", primary_sweep_variable="Time", domain="Sweep")
-solutions.plot()
+_ = solutions.plot()
 
 # ## Release AEDT
 

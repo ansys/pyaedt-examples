@@ -10,9 +10,13 @@
 # Perform required imports.
 
 # +
+import base64
 import os
 import tempfile
 import time
+
+from IPython.display import HTML, display
+from IPython.utils import io as ipio
 
 import ansys.aedt.core
 from ansys.aedt.core.generic.constants import Gravity, Plane, SolutionsIcepak
@@ -305,28 +309,33 @@ start = time.time()
 cutlist = ["Global:XY"]
 phase_values = [str(i * 5) + "deg" for i in range(18)]
 
-animated = hfss.post.plot_animated_field(
-    quantity="Mag_E",
-    assignment=cutlist,
-    plot_type="CutPlane",
-    setup=hfss.nominal_adaptive,
-    intrinsics=intrinsic,
-    export_path=temp_folder.name,
-    variation_variable="Phase",
-    variations=phase_values,
-    show=False,
-    export_gif=False,
-    log_scale=True,
-)
-animated.gif_file = os.path.join(temp_folder.name, "animate.gif")
+gif_file = os.path.join(temp_folder.name, "animate.gif")
 
-# Set off_screen to False to visualize the animation.
-# animated.off_screen = False
-
-animated.animate()
+with ipio.capture_output():
+    animated = hfss.post.plot_animated_field(
+        quantity="Mag_E",
+        assignment=cutlist,
+        plot_type="CutPlane",
+        setup=hfss.nominal_adaptive,
+        intrinsics=intrinsic,
+        export_path=temp_folder.name,
+        variation_variable="Phase",
+        variations=phase_values,
+        show=False,
+        export_gif=False,
+        log_scale=True,
+    )
+    animated.is_notebook = False
+    animated.off_screen = True
+    animated.gif_file = gif_file
+    animated.animate(show=False)
 
 end_time = time.time() - start
 print("Total Time", end_time)
+
+with open(gif_file, "rb") as f:
+    gif_b64 = base64.b64encode(f.read()).decode()
+display(HTML(f'<img src="data:image/gif;base64,{gif_b64}" width="600"/>'))
 # -
 
 # ## Postprocess
@@ -349,7 +358,7 @@ trace_names = hfss.get_traces_for_plot(category="S")
 context = ["Domain:=", "Sweep"]
 families = ["Freq:=", ["All"]]
 my_data = hfss.post.get_solution_data(expressions=trace_names)
-my_data.plot(
+_ = my_data.plot(
     trace_names,
     formula="db20",
     x_label="Frequency (Ghz)",

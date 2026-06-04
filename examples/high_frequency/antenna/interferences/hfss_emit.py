@@ -112,8 +112,8 @@ if AEDT_VERSION > "2023.1":
 # Evaluate the worst-case EMI between the two Bluetooth radios.
 
 if AEDT_VERSION > "2023.1":
-    rx_bands = rev.get_band_names(radio_name=rad1.name, tx_rx_mode=TxRxMode.RX)
-    tx_bands = rev.get_band_names(radio_name=rad2.name, tx_rx_mode=TxRxMode.TX)
+    rx_bands = rev.get_band_names(radio_node=rad1, tx_rx_mode=TxRxMode.RX)
+    tx_bands = rev.get_band_names(radio_node=rad2, tx_rx_mode=TxRxMode.TX)
     domain = aedtapp.results.interaction_domain()
     domain.set_receiver(rad1.name, rx_bands[0], -1)
     domain.set_interferer(rad2.name, tx_bands[0])

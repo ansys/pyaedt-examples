@@ -69,7 +69,7 @@ app.modeler.import_from_openstreet_map(
     ansys_home,
     terrain_radius=250,
     road_step=3,
-    plot_before_importing=True,
+    plot_before_importing=False,
     import_in_aedt=True,
 )
 # Reverting back to release on exception.
