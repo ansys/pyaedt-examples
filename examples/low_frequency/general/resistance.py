@@ -135,11 +135,30 @@ setup.enable_expression_cache(
     use_cache_for_freq=False,
 )
 
+# ## Export your project configuration
+#
+# Export the project configuration to a JSON file.
+
+config_file = m2d.configurations.export_config(config_file=temp_folder.name + r"\config.json")
+
+# ## Validate the configuration file
+#
+# Validate the configuration file against a JSON schema.
+# The schema can be found in ``ansys/aedt/core/misc/config.schema.json``:
+# https://github.com/ansys/pyaedt/blob/main/src/ansys/aedt/core/misc/config.schema.json
+
+# m2d.configurations.validate(config_file)
+
+# ## Import configuration settings
+#
+# If needed import configuration settings from a JSON or TOML file and apply it to the current design.
+
+# out = m2d.configurations.import_config(config_file)
+
 # ## Analyze setup
 #
 # Run the analysis.
 
-m2d.save_project()
 m2d.analyze(setup=setup.name, cores=NUM_CORES, use_auto_settings=False)
 
 # ## Create parametric sweep
