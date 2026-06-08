@@ -28,7 +28,51 @@ concurrency:
 permissions: {} # Disable default permissions
 
 jobs:
-  
+
+  lock-file:
+    name: "Update requirements lock file"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Needed to push the updated lock file
+      pull-requests: write  # Needed to push the updated lock file in a PR context
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Check if requirements files changed
+        id: changes
+        run: |
+          if git diff --name-only origin/${{ github.base_ref }}...HEAD -- requirements/ | grep -q .; then
+            echo "dependency_changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "dependency_changes=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install uv
+        if: steps.changes.outputs.dependency_changes == 'true'
+        uses: astral-sh/setup-uv@v6
+
+      - name: Compile lock file
+        if: steps.changes.outputs.dependency_changes == 'true'
+        run: uv pip compile requirements/requirements_doc.txt -o requirements/requirements_doc_uv.lock
+
+      - name: Commit updated lock file
+        if: steps.changes.outputs.dependency_changes == 'true'
+        env:
+          PYANSYS_CI_BOT_USERNAME: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
+          PYANSYS_CI_BOT_EMAIL: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
+        run: |
+          git config --global user.name "${PYANSYS_CI_BOT_USERNAME}"
+          git config --global user.email "${PYANSYS_CI_BOT_EMAIL}"
+
+          git add requirements/requirements_doc_uv.lock
+          git diff --cached --quiet || git commit -m "CHORE: Update requirements lock file"
+          git push
+
   actions-security:
     name: "Check actions security"
     runs-on: ubuntu-latest
@@ -50,6 +94,8 @@ jobs:
       - uses: ansys/actions/doc-style@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+
+
 
 # =================================================================================================
 # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
@@ -91,12 +137,6 @@ jobs:
           enable-cache: false
           prune-cache: true
 
-      - name: Create virtual environment
-        run: |
-          python -m venv .venv
-          .venv\Scripts\Activate.ps1
-          python -c "import sys; print(sys.executable)"
-
       - name: Enable long paths in Windows
         shell: powershell
         run: |
@@ -104,8 +144,7 @@ jobs:
 
       - name: Install project and documentation dependencies
         run: |
-          .venv\Scripts\Activate.ps1
-          uv pip install --no-cache -r requirements/requirements_doc.txt
+          uv pip install -r requirements/requirements_doc_uv.lock
 
       # Use environment variable speed up build for PDF pages
       - name: Create HTML documentation
