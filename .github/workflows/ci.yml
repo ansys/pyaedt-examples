@@ -31,13 +31,15 @@ jobs:
 
   lock-file:
     name: "Update requirements lock file"
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       contents: write  # Needed to push the updated lock file
       pull-requests: write  # Needed to push the updated lock file in a PR context
-    if: github.event_name == 'pull_request'
+    env:
+      BASE_REF: ${{ github.event.pull_request.base.ref }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ github.head_ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -46,7 +48,7 @@ jobs:
       - name: Check if requirements files changed
         id: changes
         run: |
-          if git diff --name-only origin/${{ github.base_ref }}...HEAD -- requirements/ | grep -q .; then
+          if git diff --name-only origin/${{ env.BASE_REF }}...HEAD -- requirements/ | grep -q .; then
             echo "dependency_changes=true" >> $GITHUB_OUTPUT
           else
             echo "dependency_changes=false" >> $GITHUB_OUTPUT
@@ -54,7 +56,10 @@ jobs:
 
       - name: Install uv
         if: steps.changes.outputs.dependency_changes == 'true'
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          enable-cache: false
+          prune-cache: true
 
       - name: Compile lock file
         if: steps.changes.outputs.dependency_changes == 'true'
