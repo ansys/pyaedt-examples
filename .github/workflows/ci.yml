@@ -14,7 +14,7 @@ on:
 env:
   ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
   DOCUMENTATION_CNAME: 'examples.aedt.docs.pyansys.com'
-  MAIN_PYTHON_VERSION: '3.10'
+  MAIN_PYTHON_VERSION: '3.14'
   ON_CI: True
   PYAEDT_NON_GRAPHICAL: '1'
   # To keep as it impacts pyaedt behavior
