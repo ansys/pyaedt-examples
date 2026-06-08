@@ -150,6 +150,7 @@ jobs:
 
       - name: Install project and documentation dependencies
         run: |
+          uv venv
           uv pip install -r requirements/requirements_doc_uv.lock
 
       # Use environment variable speed up build for PDF pages
