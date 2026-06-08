@@ -29,8 +29,11 @@ jobs:
     name: Set labels
     needs: [label-syncer]
     permissions:
-      contents: read
-      pull-requests: write # Needed to add existing labels to PRs
+      contents: read        # Required to read repository files and .github/labeler.yml configuration
+      pull-requests: write  # Required to add/modify labels on pull requests
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
     runs-on: ubuntu-latest
     steps:
 
