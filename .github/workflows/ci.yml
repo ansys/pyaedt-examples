@@ -64,7 +64,7 @@ jobs:
 
       - name: Compile lock file
         if: steps.changes.outputs.dependency_changes == 'true'
-        run: uv pip compile requirements/requirements_doc.txt -o requirements/requirements_doc_uv.lock
+        run: uv pip compile requirements/requirements_doc.txt -o requirements/requirements_doc.lock --python-version 3.14
 
       - name: Commit updated lock file
         if: steps.changes.outputs.dependency_changes == 'true'
