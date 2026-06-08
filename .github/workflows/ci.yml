@@ -34,21 +34,22 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # Needed to push the updated lock file
+      contents: write  # Needed to push the branch with the updated lock file
       pull-requests: write  # Needed to push the updated lock file in a PR context
     env:
       BASE_REF: ${{ github.event.pull_request.base.ref }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
+          fetch-depth: 0
+          persist-credentials: true # Needed to push the updated lock file
           ref: ${{ github.head_ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
 
       - name: Check if requirements files changed
         id: changes
         run: |
-          if git diff --name-only origin/${{ env.BASE_REF }}...HEAD -- requirements/ | grep -q .; then
+          if git diff --name-only "origin/${BASE_REF}...HEAD" -- requirements/ | grep -q .; then
             echo "dependency_changes=true" >> $GITHUB_OUTPUT
           else
             echo "dependency_changes=false" >> $GITHUB_OUTPUT
