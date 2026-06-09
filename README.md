@@ -39,10 +39,12 @@ The following guidelines help ensure that the examples are consistent, easy to r
   ```
 - The examples should be formatted, so they are compatible with 
   [jupytext](https://jupytext.readthedocs.io/en/latest/) using the [light format](https://jupytext.readthedocs.io/en/latest/formats-scripts.html#the-light-format) and can
-  be rendered and run in [Jupyter Lab](https://docs.jupyter.org/en/latest/) as Notebook files. Jupyter can be used to ensure correct
-  rendering of markdown, images, and equations.
+  be rendered and run in [Jupyter Lab](https://docs.jupyter.org/en/latest/) as Notebook files. Jupyter can be used to ensure correct rendering of markdown, images, and equations.
   ```
+     # Install with pip
      pip install -r requirements/requirements_doc.txt
+     # Or install using uv lock file
+     uv pip install -r requirements/requirements_doc_uv.lock
      jupyter lab
   ```
 - You can use this [template](./examples/template.py) to help you start creating a new example 
