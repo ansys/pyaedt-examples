@@ -66,7 +66,7 @@ jobs:
         if: steps.changes.outputs.dependency_changes == 'true'
         env:
           PYTHON_VERSION: ${{ env.MAIN_PYTHON_VERSION }}
-        run: uv pip compile requirements/requirements_doc.txt -o requirements/requirements_doc.lock --python-version "$PYTHON_VERSION"
+        run: uv pip compile requirements/requirements_doc.txt -o requirements/requirements_doc_uv.lock --python-version "$PYTHON_VERSION"
 
       - name: Commit updated lock file
         if: steps.changes.outputs.dependency_changes == 'true'
