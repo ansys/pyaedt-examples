@@ -648,11 +648,16 @@ html_theme_options = {
 
 html_static_path = ["_static"]
 
-# These paths are either relative to html_static_path
-# or fully qualified paths (eg. https://...)
+# These paths are either relative to html_static_path or fully qualified paths (eg. https://...)
 html_css_files = [
     "css/custom.css",
     "css/highlight.css",
+]
+
+# Extra JavaScript files to include in the HTML output. They are included to ensure that
+# the download button in the admonition is working correctly.
+html_js_files = [
+    "js/download_notebooks.js",
 ]
 
 # -- Options for LaTeX output ------------------------------------------------
