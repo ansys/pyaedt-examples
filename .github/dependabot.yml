@@ -10,14 +10,18 @@ updates:
         - "*"  # Include all dependencies in cooldown
       exclude:
         - "ansys-sphinx-theme"
+    assignees:
+      - "Samuelopez-ansys"
+      - "SMoraisAnsys"
     labels:
       - "maintenance"
       - "dependencies"
+    commit-message:
+      prefix: "BUILD(pip)"
     groups:
       # Actions related to this repo's CI/CD
       documentation:
         patterns:
-          - "actions/*"
           - "ansys-sphinx-theme"
           - "ipython"
           - "jupyterlab"
@@ -44,8 +48,45 @@ updates:
           - "scikit-rf"
 
   - package-ecosystem: "github-actions"
-    cooldown:
-      default-days: 10 # Fallback cooldown if no specific rule applies
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "saturday"
+      time: "06:00"
+      timezone: "Europe/Paris"
+    cooldown:
+      default-days: 7
+      include:
+        - "*"  # Include all dependencies in cooldown
+      exclude:
+        - "ansys/actions"
+    assignees:
+      - "Samuelopez-ansys"
+      - "SMoraisAnsys"
+    labels:
+      - "maintenance"
+      - "dependencies"
+    commit-message:
+      prefix: "BUILD(actions)"
+
+  - package-ecosystem: "pre-commit"
+    cooldown:
+      default-days: 7 # Fallback cooldown if no specific rule applies
+      include:
+        - "*"  # Include all dependencies in cooldown
+      exclude:
+        - "ansys/pre-commit-hooks"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "saturday"
+      time: "06:00"
+      timezone: "Europe/Paris"
+    assignees:
+      - "Samuelopez-ansys"
+      - "SMoraisAnsys"
+    labels:
+      - "maintenance"
+      - "dependencies"
+    commit-message:
+      prefix: "BUILD(pre-commit)"
