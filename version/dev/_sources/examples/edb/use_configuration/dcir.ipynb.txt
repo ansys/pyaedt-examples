@@ -1,0 +1,460 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "5ee93b2a",
+   "metadata": {},
+   "source": [
+    "# DCIR Setup Leveraging EDB Configuration Format"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c7fb3d37",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e48b27cb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import json\n",
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "from ansys.aedt.core import Hfss3dLayout\n",
+    "from ansys.aedt.core.examples.downloads import download_file\n",
+    "from pyedb import Edb\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f0f3cf70",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c556b941",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2026.1\"\n",
+    "NG_MODE = False"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "407feed7",
+   "metadata": {},
+   "source": [
+    "Download the example BGA Package design."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ffc7a63f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")\n",
+    "file_edb = download_file(source=r\"pyaedt/edb/BGA_Package.aedb\", local_path=temp_folder.name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4ad487a6",
+   "metadata": {},
+   "source": [
+    "## Load example layout"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "bcfbabc4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp = Edb(edbpath=file_edb, version=AEDT_VERSION)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "15c3d194",
+   "metadata": {},
+   "source": [
+    "## Create config file"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d2fcbade",
+   "metadata": {},
+   "source": [
+    "Define Component with solder balls."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "459f4a23",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg_components = [\n",
+    "    {\n",
+    "        \"reference_designator\": \"FCHIP\",\n",
+    "        \"part_type\": \"other\",\n",
+    "        \"solder_ball_properties\": {\n",
+    "            \"shape\": \"cylinder\",\n",
+    "            \"diameter\": \"0.1mm\",\n",
+    "            \"height\": \"0.085mm\",\n",
+    "            \"chip_orientation\": \"chip_up\",\n",
+    "        },\n",
+    "        \"port_properties\": {\n",
+    "            \"reference_offset\": 0,\n",
+    "            \"reference_size_auto\": False,\n",
+    "            \"reference_size_x\": 0,\n",
+    "            \"reference_size_y\": 0,\n",
+    "        },\n",
+    "    },\n",
+    "    {\n",
+    "        \"reference_designator\": \"BGA\",\n",
+    "        \"part_type\": \"io\",\n",
+    "        \"solder_ball_properties\": {\n",
+    "            \"shape\": \"cylinder\",\n",
+    "            \"diameter\": \"0.45mm\",\n",
+    "            \"height\": \"0.45mm\",\n",
+    "            \"chip_orientation\": \"chip_down\",\n",
+    "        },\n",
+    "        \"port_properties\": {\n",
+    "            \"reference_offset\": 0,\n",
+    "            \"reference_size_auto\": False,\n",
+    "            \"reference_size_x\": 0,\n",
+    "            \"reference_size_y\": 0,\n",
+    "        },\n",
+    "    },\n",
+    "]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d18e4bc6",
+   "metadata": {},
+   "source": [
+    "Define Pin Groups on Components."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d4c83926",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg_pin_groups = [\n",
+    "    {\"name\": \"BGA_VSS\", \"reference_designator\": \"BGA\", \"net\": \"VSS\"},\n",
+    "    {\"name\": \"BGA_VDD\", \"reference_designator\": \"BGA\", \"net\": \"VDD\"},\n",
+    "]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5acb212e",
+   "metadata": {},
+   "source": [
+    "Define sources."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7e7b2d88",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg_sources = [\n",
+    "    {\n",
+    "        \"name\": \"FCHIP_Current\",\n",
+    "        \"reference_designator\": \"FCHIP\",\n",
+    "        \"type\": \"current\",\n",
+    "        \"magnitude\": 2,\n",
+    "        \"distributed\": True,\n",
+    "        \"positive_terminal\": {\"net\": \"VDD\"},\n",
+    "        \"negative_terminal\": {\"nearest_pin\": {\"reference_net\": \"VSS\", \"search_radius\": 5e-3}},\n",
+    "    },\n",
+    "    {\n",
+    "        \"name\": \"BGA_Voltage\",\n",
+    "        \"reference_designator\": \"BGA\",\n",
+    "        \"type\": \"voltage\",\n",
+    "        \"magnitude\": 1,\n",
+    "        \"positive_terminal\": {\"pin_group\": \"BGA_VDD\"},\n",
+    "        \"negative_terminal\": {\"pin_group\": \"BGA_VSS\"},\n",
+    "    },\n",
+    "]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f93a2223",
+   "metadata": {},
+   "source": [
+    "Define DCIR setup."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f8a4dbde",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg_setups = [\n",
+    "    {\n",
+    "        \"name\": \"siwave_dc\",\n",
+    "        \"type\": \"siwave_dc\",\n",
+    "        \"dc_slider_position\": 1,\n",
+    "        \"dc_ir_settings\": {\"export_dc_thermal_data\": True},\n",
+    "    }\n",
+    "]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7a1fcc93",
+   "metadata": {},
+   "source": [
+    "Create final configuration."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "0c05b253",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg = {\n",
+    "    \"components\": cfg_components,\n",
+    "    \"sources\": cfg_sources,\n",
+    "    \"pin_groups\": cfg_pin_groups,\n",
+    "    \"setups\": cfg_setups,\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "89095ea9",
+   "metadata": {},
+   "source": [
+    "Create the config file."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3e5dd4fa",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "file_json = os.path.join(temp_folder.name, \"edb_configuration.json\")\n",
+    "with open(file_json, \"w\") as f:\n",
+    "    json.dump(cfg, f, indent=4, ensure_ascii=False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7dbe474d",
+   "metadata": {},
+   "source": [
+    "## Apply Config file"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2947e9c1",
+   "metadata": {},
+   "source": [
+    "Apply configuration to the example layout"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b690e44c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.configuration.load(config_file=file_json)\n",
+    "edbapp.configuration.run()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2122ab5c",
+   "metadata": {},
+   "source": [
+    "Save and close EDB."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7fe9fee1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.save()\n",
+    "edbapp.close()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5383bd98",
+   "metadata": {},
+   "source": [
+    "The configured EDB file is saved in a temp folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "017abc02",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print(temp_folder.name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9de13e8f",
+   "metadata": {},
+   "source": [
+    "## Load edb into HFSS 3D Layout."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "75cff415",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d = Hfss3dLayout(edbapp.edbpath, version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "360706b3",
+   "metadata": {},
+   "source": [
+    "Solve."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fe3b85e0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d.analyze(setup=\"siwave_dc\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fee4bc1c",
+   "metadata": {},
+   "source": [
+    "Plot insertion loss."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "05d2edf5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d.post.create_fieldplot_layers_nets(layers_nets=[[\"VDD_C1\", \"VDD\"]], quantity=\"Voltage\", setup=\"siwave_dc\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "46c81df0",
+   "metadata": {},
+   "source": [
+    "## Release AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "a953ae2e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "h3d.close_desktop()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e31efc85",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "60df9538",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b12cb876",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

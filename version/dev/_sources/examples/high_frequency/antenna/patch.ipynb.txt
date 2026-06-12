@@ -1,0 +1,350 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "d8965d3d",
+   "metadata": {},
+   "source": [
+    "# Probe-fed patch antenna\n",
+    "\n",
+    "This example demonstrates how the ``Stackup3D`` class\n",
+    "can be used\n",
+    "to create and analyze a patch antenna in HFSS.\n",
+    "\n",
+    "Note that the HFSS 3D Layout interface may offer advantages for\n",
+    "laminate structures such as the patch antenna.\n",
+    "\n",
+    "Keywords: **HFSS**, **terminal**, **antenna**., **patch**.\n",
+    "\n",
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0cba5446",
+   "metadata": {},
+   "source": [
+    "## Prerequisites\n",
+    "\n",
+    "### Perform imports"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d0a188df",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core\n",
+    "from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "796874f1",
+   "metadata": {},
+   "source": [
+    "### Define constants\n",
+    "Constants help ensure consistency and avoid repetition throughout the example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5619263e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2026.1\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "accd3e7b",
+   "metadata": {},
+   "source": [
+    "### Create temporary directory\n",
+    "\n",
+    "Create a temporary working directory.\n",
+    "The name of the working folder is stored in ``temp_folder.name``.\n",
+    "\n",
+    "> **Note:** The final cell in the notebook cleans up the temporary folder. If you want to\n",
+    "> retrieve the AEDT project and data, do so before executing the final cell in the notebook."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4e2796b8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "206dc7d2",
+   "metadata": {},
+   "source": [
+    "### Launch HFSS\n",
+    "\n",
+    "Create an instance of the ``Hfss`` class. The HFSS application will be launched."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fecdbce4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_name = os.path.join(temp_folder.name, \"patch.aedt\")\n",
+    "hfss = ansys.aedt.core.Hfss(\n",
+    "    project=project_name,\n",
+    "    solution_type=\"Terminal\",\n",
+    "    design=\"patch\",\n",
+    "    non_graphical=NG_MODE,\n",
+    "    new_desktop=True,\n",
+    "    version=AEDT_VERSION,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0f6e631b",
+   "metadata": {},
+   "source": [
+    "### Specify units\n",
+    "Length units can be applied to the modeler in HFSS. The default frequency units, however, cannot be modified through the Python interface.\n",
+    "\n",
+    "The variable ``freq_units`` can be used throughout this example to ensure that frequency assignments are consistent with the specified units."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "592b294b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "length_units = \"mm\"\n",
+    "freq_units = \"GHz\"\n",
+    "hfss.modeler.model_units = length_units"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d9d51b7b",
+   "metadata": {},
+   "source": [
+    "### Create patch antenna\n",
+    "\n",
+    "The patch antenna is comprised of a ground layer, the dielectric\n",
+    "substrate and a top signal layer where the patch antenna resides."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3a5606d6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "stackup = Stackup3D(hfss)\n",
+    "ground = stackup.add_ground_layer(\"ground\", material=\"copper\", thickness=0.035, fill_material=\"air\")\n",
+    "dielectric = stackup.add_dielectric_layer(\"dielectric\", thickness=\"0.5\" + length_units, material=\"Duroid (tm)\")\n",
+    "signal = stackup.add_signal_layer(\"signal\", material=\"copper\", thickness=0.035, fill_material=\"air\")\n",
+    "patch = signal.add_patch(patch_length=9.57, patch_width=9.25, patch_name=\"Patch\", frequency=1e10)\n",
+    "\n",
+    "stackup.resize_around_element(patch)\n",
+    "pad_length = [3, 3, 3, 3, 3, 3]  # Air bounding box buffer in mm.\n",
+    "region = hfss.modeler.create_region(pad_length, is_percentage=False)\n",
+    "hfss.assign_radiation_boundary_to_objects(region)\n",
+    "\n",
+    "patch.create_probe_port(ground, rel_x_offset=0.485)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "bd4c2382",
+   "metadata": {},
+   "source": [
+    "### Patch antenna model\n",
+    "<img src=\"_static/patch.svg\" width=\"500\">\n",
+    "The patch antenna model should look similar to this image. The length, width\n",
+    "and probe x-offset are shown in the image.\n",
+    "\n",
+    "### Define solution setup\n",
+    "The solution setup specifies details used to run\n",
+    "the finite element analysis in HFSS. The following specifies that adaptive refinement occur at 10 GHz while all other settings are set to\n",
+    "default values.\n",
+    "\n",
+    "The frequency sweep is used to specify the range over which scattering\n",
+    "parameters will be calculated."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "450d69bb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup = hfss.create_setup(name=\"Setup1\", setup_type=\"HFSSDriven\", Frequency=\"10GHz\")\n",
+    "\n",
+    "setup.create_frequency_sweep(\n",
+    "    unit=\"GHz\",\n",
+    "    name=\"Sweep1\",\n",
+    "    start_frequency=8,\n",
+    "    stop_frequency=12,\n",
+    "    sweep_type=\"Interpolating\",\n",
+    ")\n",
+    "\n",
+    "hfss.save_project()  # Save the project."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c7d523df",
+   "metadata": {},
+   "source": [
+    "The `hfss` instance allows you to query or modify nearly all\n",
+    "properties of the HFSS design. Here is a simple example demonstrating how to query\n",
+    "information from the ``hfss`` instance."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e058d6bd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "message = \"We have created a patch antenna\"\n",
+    "message += \"using PyAEDT.\\n\\nThe project file is \"\n",
+    "message += f\"located at \\n'{hfss.project_file}'.\\n\"\n",
+    "message += f\"\\nThe HFSS design is named '{hfss.design_name}'\\n\"\n",
+    "message += f\"and is comprised of \"\n",
+    "message += f\"{len(hfss.modeler.objects)} objects whose names are:\\n\\n\"\n",
+    "message += \"\".join([f\"- '{o.name}'\\n\" for _, o in hfss.modeler.objects.items()])\n",
+    "print(message)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f69d4654",
+   "metadata": {},
+   "source": [
+    "Try using the Python ``dir()`` and ``help()`` methods to learn more about PyAEDT."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "847fbdae",
+   "metadata": {},
+   "source": [
+    "### Run analysis\n",
+    "\n",
+    "The following command runs the EM analysis in HFSS."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "35f08a86",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss.analyze(cores=NUM_CORES)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3d7466fc",
+   "metadata": {},
+   "source": [
+    "## Postprocessing\n",
+    "\n",
+    "### Plot the return loss"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e7ab39d7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plot_data = hfss.get_traces_for_plot()\n",
+    "report = hfss.post.create_report(plot_data)\n",
+    "solution = report.get_solution_data()\n",
+    "plt = solution.plot(solution.expressions)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "37b64add",
+   "metadata": {},
+   "source": [
+    "## Finish\n",
+    "\n",
+    "### Save the project"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1ac120cb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss.save_project()\n",
+    "hfss.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "31763957",
+   "metadata": {},
+   "source": [
+    "### Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell removes\n",
+    "all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6a508070",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

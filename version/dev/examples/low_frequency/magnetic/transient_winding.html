@@ -1,0 +1,1051 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Transient winding analysis &#8212; PyAEDT Examples</title>
+  
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/ansys-sphinx-theme.css?v=5ffe81b6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles\ansys-sphinx-theme.css?v=5ffe81b6" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=9233c59b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/highlight.css?v=500661c4" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+
+
+  <!-- Include desired assets -->
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  
+
+  
+    <link href="../../../_static/css/breadcrumbs.css" rel="stylesheet" />
+  
+    <script src="../../../_static/documentation_options.js?v=e7fb764e"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=49e1bf35"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/low_frequency/magnetic/transient_winding';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <script src="../../../_static/js/download_notebooks.js?v=b947e8ca"></script>
+    <link rel="icon" href="../../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Choke setup" href="choke.html" />
+    <link rel="prev" title="Magnetics" href="index.html" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1.dev0" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  <link rel="canonical" href="https://examples.aedt.docs.pyansys.com/version/stable/examples/low_frequency/magnetic/transient_winding.html" />
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="https://www.ansys.com/">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/ansys_logo_transparent_black.png" class="logo__image only-light" alt="PyAEDT Examples - Home"/>
+    <img src="../../../_static/ansys_logo_transparent_white.png" class="logo__image only-dark pst-js-only" alt="PyAEDT Examples - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html" title="PyAEDT Examples home">Home</a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Examples
+  </a>
+</li>
+
+  </ul>
+</nav>
+</div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+      
+        <div class="navbar-item">
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+  
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+  
+
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html" title="PyAEDT Examples home">Home</a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Examples
+  </a>
+</li>
+
+  </ul>
+</nav>
+</div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+  
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar"><svg class="pst-icon svg-inline--fa" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../aedt/index.html">Examples by AEDT application</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../high_frequency/index.html">High frequency</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">Low frequency</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../general/index.html">General</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../motor/index.html">Motor</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Magnetics</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">Transient winding analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="choke.html">Choke setup</a></li>
+
+
+<li class="toctree-l3"><a class="reference internal" href="magneto_motive_line.html">Magnetomotive force along a line</a></li>
+
+
+<li class="toctree-l3"><a class="reference internal" href="lorentz_actuator.html">Lorentz actuator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="2d_axi_magnetostatic_actuator.html">2D Axi-symmetric Actuator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="3d_magsta_rotational_actuator.html">3D Rotational Actuator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="magnet_collector.html">Magnetic behavior of a magnet-collector system</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../team_problem/index.html">T.E.A.M.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../multiphysics/index.html">Multiphysics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../aedt_general/report/index.html">Report</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../electrothermal/index.html">Electrothermal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aedt_general/index.html">Pre-processing and post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../edb/index.html">EDB Examples</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+       
+    <li class="breadcrumb-item">
+      <a href="https://aedt.docs.pyansys.com/" class="nav-link">PyAEDT</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="../../../index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../../index.html" class="nav-link">Examples</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../index.html" class="nav-link">Low frequency</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="index.html" class="nav-link">Magnetics</a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Transient winding analysis</span></li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="admonition-download-this-example admonition">
+<p class="admonition-title">Download this example</p>
+<p>Download this example as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/low_frequency/magnetic/transient_winding.ipynb">Jupyter Notebook</a>
+or as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/low_frequency/magnetic/transient_winding.py">Python script</a>.</p>
+</div>
+<hr class="docutils" />
+<section id="Transient-winding-analysis">
+<h1>Transient winding analysis<a class="headerlink" href="#Transient-winding-analysis" title="Link to this heading">#</a></h1>
+<p>This example shows how to use PyAEDT to create a project in Maxwell 2D and run a transient simulation. It runs only on Windows using CPython.</p>
+<p>The following libraries are required for the advanced postprocessing features used in this example:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://pypi.org/project/matplotlib/">Matplotlib</a></p></li>
+<li><p><a class="reference external" href="https://pypi.org/project/numpy/">Numpy</a></p></li>
+<li><p><a class="reference external" href="https://pypi.org/project/pyvista/">PyVista</a></p></li>
+</ul>
+<p>Install these libraries with this command:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pip install numpy pyvista matplotlib</span>
+</pre></div>
+</div>
+<p>Keywords: <strong>Maxwell 2D</strong>, <strong>transient</strong>, <strong>winding</strong>.</p>
+<section id="Perform-imports-and-define-constants">
+<h2>Perform imports and define constants<a class="headerlink" href="#Perform-imports-and-define-constants" title="Link to this heading">#</a></h2>
+<p>Perform required imports.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">base64</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTML</span><span class="p">,</span> <span class="n">display</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">IPython.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">io</span> <span class="k">as</span> <span class="n">ipio</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">ansys.aedt.core</span>
+<br/></pre></div>
+</div>
+</div>
+<p>Define constants.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">AEDT_VERSION</span> <span class="o">=</span> <span class="s2">&quot;2026.1&quot;</span>
+<span class="n">NUM_CORES</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">NG_MODE</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Open AEDT UI when it is launched.</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Create-temporary-directory">
+<h2>Create temporary directory<a class="headerlink" href="#Create-temporary-directory" title="Link to this heading">#</a></h2>
+<p>Create a temporary directory where downloaded data or dumped data can be stored. If you’d like to retrieve the project data for subsequent use, the temporary folder name is given by <code class="docutils literal notranslate"><span class="pre">temp_folder.name</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">temp_folder</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.ansys&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Insert-Maxwell-2D-design">
+<h2>Insert Maxwell 2D design<a class="headerlink" href="#Insert-Maxwell-2D-design" title="Link to this heading">#</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">project_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;Transient.aedt&quot;</span><span class="p">)</span>
+<span class="n">m2d</span> <span class="o">=</span> <span class="n">ansys</span><span class="o">.</span><span class="n">aedt</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Maxwell2d</span><span class="p">(</span>
+    <span class="n">solution_type</span><span class="o">=</span><span class="s2">&quot;TransientXY&quot;</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="n">AEDT_VERSION</span><span class="p">,</span>
+    <span class="n">non_graphical</span><span class="o">=</span><span class="n">NG_MODE</span><span class="p">,</span>
+    <span class="n">new_desktop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">project</span><span class="o">=</span><span class="n">project_name</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Python version 3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)].
+PyAEDT INFO: PyAEDT version 1.1.dev0.
+PyAEDT INFO: Initializing new Desktop session.
+PyAEDT INFO: AEDT version 2026.1.
+PyAEDT INFO: New AEDT session is starting on gRPC port 54547.
+PyAEDT INFO: Starting new AEDT gRPC session on port 54547.
+PyAEDT INFO: Launching AEDT server with gRPC transport mode: wnua
+PyAEDT INFO: Electronics Desktop started on gRPC port 54547 after 10.1 seconds.
+PyAEDT INFO: AEDT installation Path C:\Program Files\ANSYS Inc\v261\AnsysEM
+PyAEDT INFO: Connected to AEDT gRPC session on port 54547.
+PyAEDT INFO: Non-graphical mode detected. Disabling Desktop logs.
+PyAEDT INFO: Project Transient has been created.
+PyAEDT INFO: No design is present. Inserting a new design.
+PyAEDT INFO: Added design &#39;Maxwell 2D_K62&#39; of type Maxwell 2D.
+PyAEDT INFO: AEDT objects correctly read
+</pre></div></div>
+</div>
+</section>
+<section id="Create-rectangle-and-duplicate-it">
+<h2>Create rectangle and duplicate it<a class="headerlink" href="#Create-rectangle-and-duplicate-it" title="Link to this heading">#</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rect1</span> <span class="o">=</span> <span class="n">m2d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_rectangle</span><span class="p">(</span><span class="n">origin</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">sizes</span><span class="o">=</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;winding&quot;</span><span class="p">,</span> <span class="n">material</span><span class="o">=</span><span class="s2">&quot;copper&quot;</span><span class="p">)</span>
+<span class="n">duplicate</span> <span class="o">=</span> <span class="n">rect1</span><span class="o">.</span><span class="n">duplicate_along_line</span><span class="p">(</span><span class="n">vector</span><span class="o">=</span><span class="p">[</span><span class="mi">14</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">rect2</span> <span class="o">=</span> <span class="n">m2d</span><span class="o">.</span><span class="n">modeler</span><span class="p">[</span><span class="n">duplicate</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Modeler2D class has been initialized!
+PyAEDT INFO: Modeler class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Materials class has been initialized! Elapsed time: 0m 0sec
+</pre></div></div>
+</div>
+</section>
+<section id="Create-air-region">
+<h2>Create air region<a class="headerlink" href="#Create-air-region" title="Link to this heading">#</a></h2>
+<p>Create an air region.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">region</span> <span class="o">=</span> <span class="n">m2d</span><span class="o">.</span><span class="n">modeler</span><span class="o">.</span><span class="n">create_region</span><span class="p">([</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Assign-windings-and-balloon">
+<h2>Assign windings and balloon<a class="headerlink" href="#Assign-windings-and-balloon" title="Link to this heading">#</a></h2>
+<p>Assigns windings to the sheets and a balloon to the air region.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m2d</span><span class="o">.</span><span class="n">assign_winding</span><span class="p">(</span><span class="n">assignment</span><span class="o">=</span><span class="p">[</span><span class="n">rect1</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">rect2</span><span class="o">.</span><span class="n">name</span><span class="p">],</span> <span class="n">current</span><span class="o">=</span><span class="s2">&quot;1*sin(2*pi*50*Time)&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;PHA&quot;</span><span class="p">)</span>
+<span class="n">m2d</span><span class="o">.</span><span class="n">assign_balloon</span><span class="p">(</span><span class="n">assignment</span><span class="o">=</span><span class="n">region</span><span class="o">.</span><span class="n">edges</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Boundary Winding PHA has been created.
+PyAEDT INFO: Boundary Coil Coil_9WICJZ has been created.
+PyAEDT INFO: Boundary Coil Coil_HFPM3D has been created.
+PyAEDT WARNING: Balloon boundary with type voltage is only valid for Electrostatic solvers.
+PyAEDT INFO: Boundary Balloon Balloon_IMJKAB has been created.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Balloon_IMJKAB
+</pre></div></div>
+</div>
+</section>
+<section id="Create-transient-setup">
+<h2>Create transient setup<a class="headerlink" href="#Create-transient-setup" title="Link to this heading">#</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">setup</span> <span class="o">=</span> <span class="n">m2d</span><span class="o">.</span><span class="n">create_setup</span><span class="p">()</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;StopTime&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;0.02s&quot;</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;TimeStep&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;0.0002s&quot;</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;SaveFieldsType&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Every N Steps&quot;</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;N Steps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Steps From&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;0s&quot;</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">props</span><span class="p">[</span><span class="s2">&quot;Steps To&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;0.002s&quot;</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Create-rectangular-plot">
+<h2>Create rectangular plot<a class="headerlink" href="#Create-rectangular-plot" title="Link to this heading">#</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m2d</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">create_report</span><span class="p">(</span>
+    <span class="n">expressions</span><span class="o">=</span><span class="s2">&quot;InputCurrent(PHA)&quot;</span><span class="p">,</span>
+    <span class="n">domain</span><span class="o">=</span><span class="s2">&quot;Sweep&quot;</span><span class="p">,</span>
+    <span class="n">primary_sweep_variable</span><span class="o">=</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span>
+    <span class="n">plot_name</span><span class="o">=</span><span class="s2">&quot;Winding Plot 1&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Parsing C:\Users\ansys\AppData\Local\Temp\tmp9jww1810.ansys\Transient.aedt.
+PyAEDT INFO: File C:\Users\ansys\AppData\Local\Temp\tmp9jww1810.ansys\Transient.aedt correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: aedt file load time 0.015863418579101562
+PyAEDT INFO: PostProcessor class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: PostProcessor class has been initialized! Elapsed time: 0m 0sec
+PyAEDT INFO: Post class has been initialized! Elapsed time: 0m 0sec
+PyAEDT WARNING: No report category provided. Automatically identified Transient
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Winding Plot 1
+</pre></div></div>
+</div>
+</section>
+<section id="Solve-model">
+<h2>Solve model<a class="headerlink" href="#Solve-model" title="Link to this heading">#</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m2d</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span><span class="n">cores</span><span class="o">=</span><span class="n">NUM_CORES</span><span class="p">,</span> <span class="n">use_auto_settings</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Project Transient Saved correctly
+PyAEDT INFO: Key Desktop/ActiveDSOConfigurations/Maxwell 2D correctly changed.
+PyAEDT INFO: Solving all design setups. Analysis started...
+PyAEDT INFO: Design setup None solved correctly in 0.0h 0.0m 22.0s
+PyAEDT INFO: Key Desktop/ActiveDSOConfigurations/Maxwell 2D correctly changed.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+True
+</pre></div></div>
+</div>
+</section>
+<section id="Create-output-and-plot-using-PyVista">
+<h2>Create output and plot using PyVista<a class="headerlink" href="#Create-output-and-plot-using-PyVista" title="Link to this heading">#</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cutlist</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Global:XY&quot;</span><span class="p">]</span>
+<span class="n">face_lists</span> <span class="o">=</span> <span class="n">rect1</span><span class="o">.</span><span class="n">faces</span>
+<span class="n">face_lists</span> <span class="o">+=</span> <span class="n">rect2</span><span class="o">.</span><span class="n">faces</span>
+<span class="n">timesteps</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span> <span class="o">*</span> <span class="mf">2e-4</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;s&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">11</span><span class="p">)]</span>
+<span class="n">id_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">face_lists</span><span class="p">]</span>
+
+<span class="n">gif_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_folder</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;animated_field.gif&quot;</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="n">ipio</span><span class="o">.</span><span class="n">capture_output</span><span class="p">():</span>
+    <span class="n">gif</span> <span class="o">=</span> <span class="n">m2d</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">plot_animated_field</span><span class="p">(</span>
+        <span class="n">quantity</span><span class="o">=</span><span class="s2">&quot;Mag_B&quot;</span><span class="p">,</span>
+        <span class="n">assignment</span><span class="o">=</span><span class="n">id_list</span><span class="p">,</span>
+        <span class="n">plot_type</span><span class="o">=</span><span class="s2">&quot;Surface&quot;</span><span class="p">,</span>
+        <span class="n">intrinsics</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Time&quot;</span><span class="p">:</span> <span class="s2">&quot;0s&quot;</span><span class="p">},</span>
+        <span class="n">variation_variable</span><span class="o">=</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span>
+        <span class="n">variations</span><span class="o">=</span><span class="n">timesteps</span><span class="p">,</span>
+        <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">export_gif</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">gif</span><span class="o">.</span><span class="n">isometric_view</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">gif</span><span class="o">.</span><span class="n">camera_position</span> <span class="o">=</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">80</span><span class="p">]</span>
+    <span class="n">gif</span><span class="o">.</span><span class="n">focal_point</span> <span class="o">=</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">gif</span><span class="o">.</span><span class="n">roll_angle</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">gif</span><span class="o">.</span><span class="n">elevation_angle</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">gif</span><span class="o">.</span><span class="n">azimuth_angle</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">gif</span><span class="o">.</span><span class="n">is_notebook</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">gif</span><span class="o">.</span><span class="n">off_screen</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">gif</span><span class="o">.</span><span class="n">gif_file</span> <span class="o">=</span> <span class="n">gif_file</span>
+    <span class="n">gif</span><span class="o">.</span><span class="n">animate</span><span class="p">(</span><span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">gif_file</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">gif_b64</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+<span class="n">display</span><span class="p">(</span><span class="n">HTML</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;&lt;img src=&quot;data:image/gif;base64,</span><span class="si">{</span><span class="n">gif_b64</span><span class="si">}</span><span class="s1">&quot; width=&quot;600&quot;/&gt;&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Active Design set to Maxwell 2D_K62
+PyAEDT INFO: Active Design set to Maxwell 2D_K62
+PyAEDT INFO: Active Design set to Maxwell 2D_K62
+PyAEDT INFO: Active Design set to Maxwell 2D_K62
+PyAEDT INFO: Active Design set to Maxwell 2D_K62
+PyAEDT INFO: Active Design set to Maxwell 2D_K62
+PyAEDT INFO: Active Design set to Maxwell 2D_K62
+PyAEDT INFO: Active Design set to Maxwell 2D_K62
+PyAEDT INFO: Active Design set to Maxwell 2D_K62
+PyAEDT INFO: Active Design set to Maxwell 2D_K62
+PyAEDT INFO: Active Design set to Maxwell 2D_K62
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<img src="data:image/gif;base64,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6rOo0aNIkypdapMo06dQo0qdShWn06pYs2rdyjXr1a5gw4odS7as2bNo06pdy7at27dwE36NS7eu3bt48+rdy7ev37+AAwseTLiw4cOIEytezLix48eQI0ueTLmy5cuYM2vezLmz58+gQ4seTbq06dOoU6tezbq169ewY8ueTbt25bm2c+vezbu379+XcXsUDry4YuIfRRpfnhn5QKLOmUsPHX26dc7Vr2sPvr279+/gw4v/H88zO/nz6NOrX8++vfv38OPLn0+/vv37+PPr38+/v///AAYo4IAEFmjggQgmqOCCDDbo4IMQRijhhBRWaOGFGGao4YYcdujhhyCGKOKIJJZo4okopqjiiiy26OKLMMYo44w01mjjjTjmqOOOPPbo449ABinkkEQWaeSRSCap5JJMNunkk1BGKeWUVFZp5ZVYZqnlllx26eWXYIYp5phklmnmmWimqeaabLbp5ptwxinnnHTWaeedeOap55589unnn4AGKuighBZq6KGIJqrooow26uijkEYq6aSUVmrppZhmqummnHbq6aeghirqqKSWauqpqKaq6qqsturqq7DG/yrrrLTWauutuOaq66689urrr8AGK+ywxBZr7LHIJqvsssw26+yz0EYr7bTUVmvttdhmq+223Hbr7bfghivuuOSWa+656Kar7rrstuvuu/DGK++89NZrb3HT5KvvNPeGtO+/AP/bb0QBF2ywvgMndPDCDCcsEMMQR5xpvnFFbPHFjS7s1sUcd8zvnx5TnFbIJHPcZskWn4XyyiZzyTLLZL0sc8pYzgwzWDbn3LCVOq/MVc9AF1xl0D5XRfTRAEuJdNFRLe20yE8+jTJUUkvtZNVMJ4X1001uffNRXnOdZNhfF0W200ienbVPai9tZNtTgw030UXOXTJSdtMtZN4k4//Nd897/+2x34LnDKTNDB1NeOEz/zh4RkAvzvjLPnZMEuJyT974jpabJLPkmq9t4+Mnlc126J/nSDpKovOE+uY3rs763Zm/3nqMsqdEu1G2p05j7ir1Xbvh//xdY8g3IT887ANJM/fvwLfUOe86O0S2jMrr1DL1zE8k9ovC74Tx8nF3FDn42bsuMfnpz256irv3tD738dsUvor1n34w6NPndP+J+TPb/tg3P/G1r0Tl05rB+FdA9fXPRAEkIAM1NkEKQvB/SxEaATWolOh9KIFP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AAD/AAD7AADzAADrAADjAADeAADWAADNAADFAAC9AACzAACsAACnAACfAACZAACSAACIAACCAAA8CP8A/wkcSLCgwYMIEypcyHChs4YQI0qcSLGixYsYM2rcyLGjx48gQ4ocufESyZMoU5I0qbKly5cwY8qcmRATwWYPT15qdtDmxJ0egVrEedGnQKIUhTZUmhCpQKM0o0qdSrWq1aspc2Ld2lAr169gw4odO9IrSp5kYZpNy7at27cxncnVivYoXJF1Bc5dS3HvwLx5T/q9S7iw4cOI7RYMnLix48eQI9csm5KxS6gZMTuUyFchVJaSQ4seTTohaI6nSzPsrLq169eoLVdkerP2Utn/cFelrZA3w9SwgwsfTry48ePIkytfzry58+fQo0ufTr269evYs2vfzr279+/gw4v/H0++vPnz6NOrX8++vfv38OPLn0+/vv37+PPr38+/v///AAYo4IAEFmjggQgmqOCCDDbo4IMQRijhhBRWaOGFGGao4YYcdujhhyCGKOKIJJZo4okopqjiiiy26OKLMMYo44w01mjjjTjmqOOOPPbo449ABinkkEQWaeSRSCap5JJMNunkk1BGKeWUVFZp5ZVYZqnlllx26eWXYIYp5phklmnmmWimqeaabLbp5ptwxinnnHTWaeedeOap55589unnn4AGKuighBZq6KGIJqrooow26uijkEYq6aSUVmrppZhmqummnHbq6aeghirqqKSWauqpqKaq6qqsturqq7DG/yrrrLTWauutuOaq66689urrr8AGK+ywxBZr7LHIJqvsssw26+yz0EYr7bTUVmvttdhmq+223Hbr7bfghivuuOSWa+656Kar7rrstuvuu/DGK++89NZr77345qvvvvz26++/AAcs8MAEF2zwwQgnrPDCDDfs8MMQRyzxxBRXbPHFGGes8cYcd+zxxyCHLPLIJJds8skop6zyyiy37PLLMMcs88w012zzzTjnrPPOPPfs889ABy300EQXbfTRSCet9NJMN+3001BHLfXUVFdt9dVYZ6311lx37fXXYIct9thkl2322WinrfbabLft9ttwxy333HTXbffdeOet99589//t99+ABy744IQXbvjhiCeu+OKMN+7445BHLvnklFdu+eWYZ6755px37vnnoIcu+uikl2766ainrvrqrLfu+uuwxy777LTXbvvtuOeu++689+7778AHL/zwxBdv/PHIJ6/88sw37/zz0EcvfeTTQD7N9dU7jv32jG/vveLeh494+OQbTr74hZ+PvuDql89++9+/Dz/36c+f/eHwd+8++Psn3j//9NNfABe3PgFe73EDNKD1sEe9Ay7wftqDYAQnJ0HtUfCC08ugBjfIwQ568IMgDKEIR0jCEprwhChMoQpXyMIWuvCFMIyhDGdIwxra8IY4zKEOd8jDHvrwh0AMohD0h0jEIhrxiEhMohKXyMQmOvGJUIyiFKdIxSpa8YpYzKIWt8jFLnrxi2AMoxjHSMYymvGMaEyjGtfIxja68Y1wjKMc50jHOtrxjnjMox7dpRvFsWaPgAxkWIAjyEIa8pCITKQiF8nIRjrykZCMpMH6iLg/ts2SkszkhyjZFU2aB5Ny04wnn0VI0/zFIKWMmygbl0qErPJvjKkLJ+tWF8y8ElulbKVGcqkThOgyI7yMyi+T4suVFNOYBxnmRYIpolXeUiPOPEk0RzJNasakmiHBZjZdSRJtjvKb4fKmR8Q5Tm5asyfSNKdIyMkRdrZTndtE50ACAgA7" width="600"/></div>
+</div>
+</section>
+<section id="Generate-plot-outside-of-AEDT">
+<h2>Generate plot outside of AEDT<a class="headerlink" href="#Generate-plot-outside-of-AEDT" title="Link to this heading">#</a></h2>
+<p>Generate the same plot outside AEDT.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">solutions</span> <span class="o">=</span> <span class="n">m2d</span><span class="o">.</span><span class="n">post</span><span class="o">.</span><span class="n">get_solution_data</span><span class="p">(</span><span class="n">expressions</span><span class="o">=</span><span class="s2">&quot;InputCurrent(PHA)&quot;</span><span class="p">,</span> <span class="n">primary_sweep_variable</span><span class="o">=</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="s2">&quot;Sweep&quot;</span><span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">solutions</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT WARNING: No report category provided. Automatically identified Transient
+PyAEDT INFO: Solution Correctly loaded. Elapsed time: 0m 0sec
+PyAEDT INFO: Solution Correctly parsed. Elapsed time: 0m 0sec
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/examples_low_frequency_magnetic_transient_winding_24_1.png" src="../../../_images/examples_low_frequency_magnetic_transient_winding_24_1.png" />
+</div>
+</div>
+</section>
+<section id="Release-AEDT">
+<h2>Release AEDT<a class="headerlink" href="#Release-AEDT" title="Link to this heading">#</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m2d</span><span class="o">.</span><span class="n">save_project</span><span class="p">()</span>
+<span class="n">m2d</span><span class="o">.</span><span class="n">release_desktop</span><span class="p">()</span>
+<span class="c1"># Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.</span>
+<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+PyAEDT INFO: Project Transient Saved correctly
+PyAEDT INFO: Desktop has been released and closed.
+</pre></div></div>
+</div>
+</section>
+<section id="Clean-up">
+<h2>Clean up<a class="headerlink" href="#Clean-up" title="Link to this heading">#</a></h2>
+<p>All project files are saved in the folder <code class="docutils literal notranslate"><span class="pre">temp_folder.name</span></code>. If you’ve run this example as a Jupyter notebook, you can retrieve those project files. The following cell removes all temporary files, including the project folder.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">temp_folder</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<div class="admonition-download-this-example admonition">
+<p class="admonition-title">Download this example</p>
+<p>Download this example as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/low_frequency/magnetic/transient_winding.ipynb">Jupyter Notebook</a>
+or as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/low_frequency/magnetic/transient_winding.py">Python script</a>.</p>
+</div>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Perform-imports-and-define-constants">Perform imports and define constants</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-temporary-directory">Create temporary directory</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Insert-Maxwell-2D-design">Insert Maxwell 2D design</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-rectangle-and-duplicate-it">Create rectangle and duplicate it</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-air-region">Create air region</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Assign-windings-and-balloon">Assign windings and balloon</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-transient-setup">Create transient setup</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-rectangular-plot">Create rectangular plot</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Solve-model">Solve model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-output-and-plot-using-PyVista">Create output and plot using PyVista</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Generate-plot-outside-of-AEDT">Generate plot outside of AEDT</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Release-AEDT">Release AEDT</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Clean-up">Clean up</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+
+  
+  <nav class="tocsection editthispage" aria-label="Edit this page">
+    <a href="https://github.com/ansys/pyaedt-examples/edit/main/doc/source/examples/low_frequency/magnetic/transient_winding.ipynb" rel="noopener noreferrer">
+      <i class="fa-solid fa-pencil" aria-hidden="true"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </nav>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/examples/low_frequency/magnetic/transient_winding.ipynb.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+
+
+  <!-- Include desired assets -->
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.7/require.min.js"></script>
+
+<script>
+// Passing the search options to the search.js file
+const SEARCH_OPTIONS = JSON.parse('{"keys": ["title", "text", "objectID"], "limit": 10, "threshold": 0.2}');
+const SEARCH_FILE = "../../../_static/search.json";
+const ADVANCE_SEARCH_PATH = "../../../search.html";
+const EXTRA_SOURCES = JSON.parse('""');
+</script>
+
+
+<script src="../../../_static/js/search.js"></script>
+
+  
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright (c) 2021 - 2026 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<!--
+  Theme Version Footer
+  Displays the Sphinx theme version and the last updated date.
+  Accessibility and semantic improvements included.
+-->
+<footer class="theme-version" aria-label="Theme version and last update">
+  <span>
+    
+      Built with the
+      <a href="https://sphinxdocs.ansys.com/version/stable/index.html" target="_blank" rel="noopener noreferrer">
+        Ansys Sphinx Theme
+      </a>
+      1.8.2.
+    
+  </span>
+  <br />
+  <span>Last updated on <time id="ast_build_date"></time></span>
+</footer>
+<script>
+  // Set the last updated date in a readable format
+  (function() {
+    var options = { day: "numeric", month: "long", year: "numeric" };
+    var ast_lastModifiedDate = new Date(document.lastModified);
+    var ast_build_date = ast_lastModifiedDate.toLocaleDateString("en-US", options);
+    var dateElem = document.getElementById("ast_build_date");
+    if (dateElem) {
+      dateElem.textContent = ast_build_date;
+    }
+  })();
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
