@@ -146,6 +146,20 @@ These examples use PyAEDT to show some general applications.
       for stator windings and showcases how to perform an automated inception voltage evaluation
       for the the nominal setup and a parametric analysis.
 
+   .. grid-item-card:: Subsea Power Cable Construction for Floating Offshore Application
+      :padding: 2 2 2 2
+      :link: cable_float
+      :link-type: doc
+
+      .. image:: _static/subsea_power_cable.png
+         :alt: Maxwell 2D Subsea Cable
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      This example uses PyAEDT to create a 2D model of subsea power cable construction for floating
+      offshore applications.Design variables and material properties are imported from a json configuration file.
+
    .. toctree::
       :hidden:
 
@@ -159,3 +173,4 @@ These examples use PyAEDT to show some general applications.
       twin_builder/index
       maxwell_3_phase_cable
       maxwell_2d_inception_voltage
+      cable_float
