@@ -1,4 +1,6 @@
-# # Resistance calculation
+# +
+# Resistance calculation
+# -
 
 # This example uses PyAEDT to set up a resistance calculation
 # and solve it using the Maxwell 2D DCConduction solver.
@@ -147,13 +149,17 @@ config_file = m2d.configurations.export_config(config_file=temp_folder.name + r"
 # The schema can be found in ``ansys/aedt/core/misc/config.schema.json``:
 # https://github.com/ansys/pyaedt/blob/main/src/ansys/aedt/core/misc/config.schema.json
 
+# +
 # m2d.configurations.validate(config_file)
+# -
 
 # ## Import configuration settings
 #
-# If needed import configuration settings from a JSON or TOML file and apply it to the current design.
+# If needed, import configuration settings from a JSON or TOML file and apply it to the current design.
 
+# +
 # out = m2d.configurations.import_config(config_file)
+# -
 
 # ## Analyze setup
 #
