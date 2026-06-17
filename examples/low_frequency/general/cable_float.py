@@ -32,6 +32,9 @@ from ansys.aedt.core.examples.downloads import download_file
 
 AEDT_VERSION = "2026.1"
 NG_MODE = False  # Open AEDT UI when it is launched.
+data_folder = Path(download_file(r"pyaedt/maxwell_power_cable", local_path=temp_folder.name))
+JSON_FILENAME = "config_power_cable.json"
+json_path = data_folder / JSON_FILENAME
 
 # ## Create temporary directory
 #
@@ -61,9 +64,7 @@ m2d = ansys.aedt.core.Maxwell2d(
 m2d.modeler.model_units = "mm"
 
 # Download and import json configuration file for design variables and material definition
-data_folder = Path(download_file(r"pyaedt/maxwell_power_cable", local_path=temp_folder.name))
-JSON_FILENAME = "config_power_cable.json"
-json_path = data_folder / JSON_FILENAME
+
 conf_settings = m2d.configurations.import_config(json_path)
 mat_from_json_keys_list = list(m2d.materials.material_keys.keys())
 [m2d.materials.add_material(name=mat_name) for mat_name in mat_from_json_keys_list]
@@ -89,7 +90,6 @@ obj_cond_screen_1 = Cable_Layer("dia_conductor_screen/2","cond_screen_1","copper
 obj_cond_ins_1 = Cable_Layer("dia_conductor_insulation/2","cond_insulation_1","XLPE",(255,255,0))
 obj_cond_ins_screen_1 = Cable_Layer("dia_conductor_insulation_screen/2","cond_insulation_screen_1","copper",(0, 128, 128))
 obj_cond_sheat_1 = Cable_Layer("dia_conductor_sheat/2","cond_dia_conductor_sheat_1","MDPE",(143,159,165))
-
 cond_layers = [obj_cond_1,
                obj_cond_screen_1,
                obj_cond_ins_1,
@@ -104,7 +104,8 @@ cond_ids = [m2d.modeler.create_circle(
     name = layer.name,
     material = layer.material,
     color = layer.color)
-    for layer in cond_layers]
+    for layer in cond_layers
+]
 
 # Duplicate around axis to generate the further 2 inner cables
 m2d.modeler.set_working_coordinate_system("Global")
@@ -121,7 +122,6 @@ obj_inner_armor = Cable_Layer("dia_armor_inner/2","inner_armor","stainless_steel
 obj_armor_bedding = Cable_Layer("dia_bedding_armor/2","bedding_armor","PPY",(128,0,255))
 obj_outer_armor = Cable_Layer("dia_armor_outer/2","outer_armour","stainless_steel",(128,0,255))
 obj_outer_sheat = Cable_Layer("dia_outer_sheat/2","outer_sheat","HDPE",(128,0,255))
-
 outer_layers = [obj_filler,
                 obj_bedding,
                 obj_inner_sheat,
@@ -139,7 +139,8 @@ outer_ids = [m2d.modeler.create_circle(
     name = layer.name,
     material = layer.material,
     color = layer.color)
-    for layer in outer_layers]
+    for layer in outer_layers
+]
 
 
 # Finalize the filler modeling

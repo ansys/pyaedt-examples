@@ -158,7 +158,7 @@ These examples use PyAEDT to show some general applications.
          :align: center
 
       This example uses PyAEDT to create a 2D model of subsea power cable construction for floating
-      offshore applications.Design variables and material properties are imported from a json configuration file.
+      offshore applications. Design variables and material properties are imported from a json configuration file.
 
    .. toctree::
       :hidden:
