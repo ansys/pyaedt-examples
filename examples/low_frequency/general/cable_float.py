@@ -32,11 +32,9 @@ from ansys.aedt.core.examples.downloads import download_file
 
 AEDT_VERSION = "2026.1"
 NG_MODE = False  # Open AEDT UI when it is launched.
-data_folder = Path(download_file(r"pyaedt/maxwell_power_cable", local_path=temp_folder.name))
 JSON_FILENAME = "config_power_cable.json"
-json_path = data_folder / JSON_FILENAME
 
-# ## Create temporary directory
+# ## Create temporary directory and paths
 #
 # Create a temporary directory where downloaded data or
 # dumped data can be stored.
@@ -44,6 +42,8 @@ json_path = data_folder / JSON_FILENAME
 # the temporary folder name is given by ``temp_folder.name``.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
+data_folder = Path(download_file(r"pyaedt/maxwell_power_cable", local_path=temp_folder.name))
+json_path = data_folder / JSON_FILENAME
 
 # ## Set up for model creation
 
