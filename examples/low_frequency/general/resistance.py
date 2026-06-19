@@ -1,15 +1,3 @@
-# +
-# Resistance calculation
-# -
-
-# This example uses PyAEDT to set up a resistance calculation
-# and solve it using the Maxwell 2D DCConduction solver.
-#
-# Resistance calculation
-#
-# This example uses PyAEDT to set up a resistance calculation
-# and solve it using the Maxwell 2D DCConduction solver.
-#
 # # Resistance calculation
 #
 # This example uses PyAEDT to set up a resistance calculation
