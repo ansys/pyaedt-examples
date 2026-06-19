@@ -10,6 +10,11 @@
 # This example uses PyAEDT to set up a resistance calculation
 # and solve it using the Maxwell 2D DCConduction solver.
 #
+# # Resistance calculation
+#
+# This example uses PyAEDT to set up a resistance calculation
+# and solve it using the Maxwell 2D DCConduction solver.
+#
 # Keywords: **Maxwell 2D**, **DXF import**, **material sweep**, **expression cache**.
 
 # ## Perform imports and define constants
