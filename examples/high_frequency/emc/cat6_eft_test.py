@@ -49,7 +49,6 @@ import time
 
 import ansys.aedt.core
 from ansys.aedt.core.modules.cable_modeling import Cable
-
 # -
 
 # Define constants.
@@ -94,13 +93,11 @@ for material_name in ("copper", "PVC plastic"):
 # The bundle inner diameter is sized so the four insulated twisted pairs fit
 # comfortably; the overall jacket is the outer braided shield.
 
-# +
 HARNESS_LENGTH_MM = 50.0  # 5 cm cable run.
 CONDUCTOR_DIAMETER = "0.455mm"  # AWG25 nominal solid-equivalent OD.
 INSULATION_THICKNESS = "0.20mm"  # PVC primary insulation per conductor.
 BUNDLE_INNER_DIAMETER = "5.5mm"  # Inner ID of the overall braided shield.
 HARNESS_TWIST = "720deg"  # Two full helical turns over the 5 cm run.
-# -
 
 # A small helper builds the JSON dictionaries consumed by :class:`Cable`.
 # The full schema is documented in the ``CableModeling`` API reference; only
@@ -408,10 +405,69 @@ payload["CableHarness_prop"] = {
 Cable(hfss, payload).create_cable_harness()
 # -
 
+# ## Add a Driven Terminal solution setup
+#
+# The design solution type is **HFSS Terminal**, with the cable harness
+# connected to the solver via an automatically-created **Cable Network**
+# boundary. A standard frequency-domain Driven Terminal setup with an
+# interpolating sweep is therefore an appropriate analysis: AEDT solves the
+# cable harness as a multi-conductor network and post-processes the time-
+# domain response from the PWL EFT source defined above.
+#
+# A 100 MHz solution frequency sits well above the dominant content of the
+# 5/50 ns EFT pulse (first spectral null near 70 MHz) while keeping the
+# 5 cm cable electrically short. A discrete sweep covering 1 MHz to
+# 500 MHz with 51 points captures the dominant EFT spectrum with margin
+# (HFSS Interpolating sweeps require wave-port excitations and are not
+# supported when the only excitation is a Cable Network boundary).
+
+# +
+setup = hfss.create_setup(
+    name="EFT_Coupling",
+    Frequency="100MHz",
+    MaximumPasses=6,
+    MinimumConvergedPasses=1,
+    DeltaS=0.02,
+)
+setup.create_frequency_sweep(
+    unit="MHz",
+    name="EFT_Sweep",
+    start_frequency=1,
+    stop_frequency=500,
+    num_of_freq_points=51,
+    sweep_type="Discrete",
+)
+# -
+
+# ## Visualizing the cable bundle
+#
+# The cable harness is inserted into the modeller as a 3D component
+# (native component named ``cat6a_harness``). The top-level 3D Modeller
+# only shows its outer placeholder shell (``harness``); the per-conductor
+# geometry lives inside the sub-model. Two GUI paths reveal the bundle
+# detail:
+#
+# 1. **Cable bundle cross-section viewer** (recommended for visualising
+#    the conductor layout): in the Project Manager tree expand
+#    ``CAT6A_EFT -> CableManager -> Definitions -> CableBundle``, then
+#    right-click ``cat6a_bundle`` and choose ``View Cross Section``. A
+#    2D window opens showing the eight AWG25 conductors arranged inside
+#    the PVC jacket.
+# 2. **Enter the harness sub-model**: in the Modeler tree, expand
+#    ``Models -> 3D Components`` and double-click ``cat6a_harness`` (or
+#    right-click it and choose ``Edit Definition``). The cylindrical
+#    AWG25 conductors are then visible along the 5 cm route. Use the
+#    breadcrumb back-arrow to return to the parent design.
+#
+# Selecting the ``cat6a_harness1_cablenetwork1`` boundary in the project
+# tree opens the cable network schematic, which is useful for verifying
+# that the EFT PWL source is wired onto conductor 1 and that conductor 8
+# is the local reference.
+
 # ## Save the project and release AEDT
 #
 # The example does not run the HFSS solve - meshing a multi-conductor
-# braided cable can take a long time on modest hardware. Uncomment the
+# cable can take a long time on modest hardware. Uncomment the
 # ``hfss.analyze()`` line below to solve.
 
 # +
