@@ -67,7 +67,8 @@ m2d.modeler.model_units = "mm"
 
 conf_settings = m2d.configurations.import_config(json_path)
 mat_from_json_keys_list = list(m2d.materials.material_keys.keys())
-[m2d.materials.add_material(name=mat_name) for mat_name in mat_from_json_keys_list]
+for mat_name in mat_from_json_keys_list:
+    m2d.materials.add_material(name=mat_name)
 
 # ## Create model
 #
