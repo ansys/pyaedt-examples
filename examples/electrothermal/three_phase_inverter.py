@@ -91,7 +91,6 @@ tb.set_active_design(TB_DESIGN_NAME)
 x_position = 0.05
 y_position = 0.05
 comp.location = [x_position, y_position]
-
 ammeter_x_factor = 0
 previous_value = 0
 reset = False
