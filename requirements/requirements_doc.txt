@@ -2,7 +2,7 @@
 pyaedt[graphics, examples] @ git+https://github.com/ansys/pyaedt@main
 
 # Documentation dependencies
-ansys-sphinx-theme==1.8.2
+ansys-sphinx-theme==1.9.0
 ipython==8.39.0
 jupyterlab==4.5.8
 nbsphinx==0.9.8
