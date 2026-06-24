@@ -18,7 +18,7 @@ ansys-api-edb==0.3.0
     # via ansys-edb-core
 ansys-edb-core==0.3.1
     # via pyedb
-ansys-sphinx-theme==1.8.2
+ansys-sphinx-theme==1.9.0
     # via -r requirements/requirements_doc.txt
 ansys-tools-common==0.5.0
     # via
@@ -419,7 +419,7 @@ pure-eval==0.2.3
     # via stack-data
 py-cpuinfo==9.0.0
     # via tables
-pyaedt @ git+https://github.com/ansys/pyaedt@474f16aa06a8849b0b1de21e72db7767f7b02ba6
+pyaedt @ git+https://github.com/ansys/pyaedt@05265e2b0c968e22fe37462e297f37ac5f3f84a5
     # via -r requirements/requirements_doc.txt
 pycparser==3.0
     # via cffi
