@@ -28,7 +28,59 @@ concurrency:
 permissions: {} # Disable default permissions
 
 jobs:
-  
+
+  lock-file:
+    name: "Update requirements lock file"
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Needed to push the branch with the updated lock file
+      pull-requests: write  # Needed to push the updated lock file in a PR context
+    env:
+      BASE_REF: ${{ github.event.pull_request.base.ref }}
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          fetch-depth: 0
+          persist-credentials: true # Needed to push the updated lock file
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check if requirements files changed
+        id: changes
+        run: |
+          if git diff --name-only "origin/${BASE_REF}...HEAD" -- requirements/ | grep -q .; then
+            echo "dependency_changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "dependency_changes=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install uv
+        if: steps.changes.outputs.dependency_changes == 'true'
+        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        with:
+          enable-cache: false
+          prune-cache: true
+
+      - name: Compile lock file
+        if: steps.changes.outputs.dependency_changes == 'true'
+        env:
+          PYTHON_VERSION: ${{ env.MAIN_PYTHON_VERSION }}
+        run: uv pip compile requirements/requirements_doc.txt -o requirements/requirements_doc_uv.lock --python-version "$PYTHON_VERSION"
+
+      - name: Commit updated lock file
+        if: steps.changes.outputs.dependency_changes == 'true'
+        env:
+          PYANSYS_CI_BOT_USERNAME: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
+          PYANSYS_CI_BOT_EMAIL: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
+        run: |
+          git config --global user.name "${PYANSYS_CI_BOT_USERNAME}"
+          git config --global user.email "${PYANSYS_CI_BOT_EMAIL}"
+
+          git add requirements/requirements_doc_uv.lock
+          git diff --cached --quiet || git commit -m "CHORE: Update requirements lock file"
+          git push
+
   actions-security:
     name: "Check actions security"
     runs-on: ubuntu-latest
@@ -51,6 +103,8 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
+
+
 # =================================================================================================
 # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # =================================================================================================
@@ -59,7 +113,7 @@ jobs:
     name: Build documentation
     runs-on: [self-hosted, Windows, pyaedt-examples]
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -86,16 +140,10 @@ jobs:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
           enable-cache: false
           prune-cache: true
-
-      - name: Create virtual environment
-        run: |
-          python -m venv .venv
-          .venv\Scripts\Activate.ps1
-          python -c "import sys; print(sys.executable)"
 
       - name: Enable long paths in Windows
         shell: powershell
@@ -104,8 +152,8 @@ jobs:
 
       - name: Install project and documentation dependencies
         run: |
-          .venv\Scripts\Activate.ps1
-          uv pip install --no-cache -r requirements/requirements_doc.txt
+          uv venv
+          uv pip install -r requirements/requirements_doc_uv.lock
 
       # Use environment variable speed up build for PDF pages
       - name: Create HTML documentation
@@ -148,6 +196,23 @@ jobs:
           name: documentation-pdf
           path: doc/_build/latex
           retention-days: 7
+
+  doc-deploy-pr:
+    name: Deploy PR documentation
+    if: contains(github.event.pull_request.labels.*.name, 'deploy-pr-doc')
+    needs: [doc-build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Needed to update files on the gh-pages branch
+      pull-requests: write # Needed to create deployment comments on PRs
+    steps:
+      - uses: ansys/actions/doc-deploy-pr@d946b24b9a765f4169bcc94afdb27bd1a0533741 # v10.3.2
+        with:
+          bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
+          bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
+          cname: ${{ env.DOCUMENTATION_CNAME }}
+          maximum-pr-doc-deployments: 5
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   deploy-doc:
     name: Upload documentation
