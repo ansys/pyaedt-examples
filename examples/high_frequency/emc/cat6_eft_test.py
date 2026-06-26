@@ -33,7 +33,7 @@ import ansys.aedt.core
 from ansys.aedt.core import Circuit, Hfss
 # -
 
-AEDT_VERSION = "2025.2"
+AEDT_VERSION = "2026.1"
 NG_MODE = False
 YAML_FILE = Path(__file__).parent / "_static" / "cat6a_sstp_awg25.yaml"
 
@@ -664,6 +664,13 @@ nport = circuit.modeler.schematic.add_subcircuit_dynamic_link(
     solution_name="Sparam : Broadband",
     name="CAT6A_3D_link",
 )
+# Those commands are needed to enable dynamic link and select correct setup.
+
+circuit.modeler.schematic.refresh_dynamic_link(name=nport.composed_name)
+circuit.modeler.schematic.set_sim_option_on_hfss_subcircuit(component=nport)
+hfss_setup_name = hfss.setups[0].name + " : " + hfss.setups[0].sweeps[0].name
+circuit.modeler.schematic.set_sim_solution_on_hfss_subcircuit(component=nport.composed_name, solution_name=hfss_setup_name)
+
 nport.location = [4000.0, 2500.0]
 
 print("Dynamic-link pins:")
@@ -712,17 +719,19 @@ for side in (-1.0, 1.0):
     for rank, cname in enumerate(_out_sorted):
         out_stagger[cname] = rank * STAGGER_DX
 
-driven_in_xy = _pin_xy(driven_in_pin)
+driven_in_xy = _pin_xy(driven_in_pin)-200
 r_src = circuit.modeler.schematic.create_resistor(
     name="R_src",
     value=f"{src_imp}ohm",
     location=[driven_in_xy[0] + in_side_sign[driven] * (PIN_BRANCH_DX + in_stagger[driven]), driven_in_xy[1]],
+    angle=90,
 )
 eft_src = circuit.modeler.schematic.create_voltage_pwl(
     name="V_EFT",
     time_list=[t for t, _ in pwl_pairs],
     voltage_list=[v for _, v in pwl_pairs],
-    location=[driven_in_xy[0] + in_side_sign[driven] * (SOURCE_BRANCH_DX + in_stagger[driven]), driven_in_xy[1]],
+    location=[driven_in_xy[0] + in_side_sign[driven] * (SOURCE_BRANCH_DX + in_stagger[driven]), driven_in_xy[1]-100],
+    angle=90,
 )
 
 r_to_nport = _nearest_component_pin(r_src, driven_in_xy)
@@ -744,7 +753,7 @@ for cname in port_pairs:
         continue
 
     pin = find_pin(nport, f"P_{cname}_in")     # substring match → tolerates "_T1"
-    pin_xy = _pin_xy(pin)
+    pin_xy = _pin_xy(pin)-100
     r = circuit.modeler.schematic.create_resistor(
         name=f"R_in_{cname}", value=f"{default_z}ohm",
         location=[pin_xy[0] + in_side_sign[cname] * (PIN_BRANCH_DX + in_stagger[cname]), pin_xy[1]],
