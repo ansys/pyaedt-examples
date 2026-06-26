@@ -1,0 +1,237 @@
+units: mm
+
+materials:
+  copper:
+    conductivity: 5.8e7
+  tinned_copper:
+    conductivity: 5.5e7
+  aluminum_foil:
+    conductivity: 3.5e7
+
+  pe_foam:
+    relative_permittivity: 1.6
+    loss_tangent: 0.0005
+
+  aluminum_polyester:
+    conductivity: 3.5e7
+
+  pvc:
+    relative_permittivity: 3.2
+    loss_tangent: 0.02
+
+conductors:
+
+  pair1_a:
+    awg: 25
+    strand_count: 7
+    conductor_equivalent_radius: 0.227
+
+  pair1_b:
+    awg: 25
+    strand_count: 7
+    conductor_equivalent_radius: 0.227
+
+  pair2_a:
+    awg: 25
+    strand_count: 7
+    conductor_equivalent_radius: 0.227
+
+  pair2_b:
+    awg: 25
+    strand_count: 7
+    conductor_equivalent_radius: 0.227
+
+  pair3_a:
+    awg: 25
+    strand_count: 7
+    conductor_equivalent_radius: 0.227
+
+  pair3_b:
+    awg: 25
+    strand_count: 7
+    conductor_equivalent_radius: 0.227
+
+  pair4_a:
+    awg: 25
+    strand_count: 7
+    conductor_equivalent_radius: 0.227
+
+  pair4_b:
+    awg: 25
+    strand_count: 7
+    conductor_equivalent_radius: 0.227
+
+insulation:
+  wire_insulation:
+    material: pe_foam
+    outer_radius: 0.55
+
+pairs:
+  pair1:
+    members: [pair1_a, pair1_b]
+    twist_pitch: 12.0
+    shield:
+      type: foil
+      material: aluminum_foil
+      thickness: 0.025
+      construction:
+        seam: longitudinal_overlap  # 'longitudinal_overlap' or 'spiral_wrap' or 'seamless'
+        overlap_width: 1.0   # mm (Under construction)
+        drain_wire:          # Under construction
+          present: true
+          awg: 30
+
+  pair2:
+    members: [pair2_a, pair2_b]
+    twist_pitch: 10.5
+    shield:
+      type: foil
+      material: aluminum_foil
+      thickness: 0.025
+      construction:
+        seam: longitudinal_overlap  # 'longitudinal_overlap' or 'spiral_wrap' or 'seamless'
+      overlap_width: 1.0   # mm
+      drain_wire:
+        present: true
+        awg: 30
+
+  pair3:
+    members: [pair3_a, pair3_b]
+    twist_pitch: 9.5
+    shield:
+      type: foil
+      material: aluminum_foil
+      thickness: 0.025
+      construction:
+        seam: longitudinal_overlap  # 'longitudinal_overlap' or 'spiral_wrap' or 'seamless'
+      overlap_width: 1.0   # mm
+      drain_wire:
+        present: true
+        awg: 30
+
+  pair4:
+    members: [pair4_a, pair4_b]
+    twist_pitch: 8.5
+    shield:
+      type: foil
+      material: aluminum_foil
+      thickness: 0.025
+      construction:
+        seam: longitudinal_overlap  # 'longitudinal_overlap' or 'spiral_wrap' or 'seamless'
+      overlap_width: 1.0   # mm
+      drain_wire:
+        present: true
+        awg: 30
+
+bundle:
+  ethernet_cat6a_sstp:
+    overall_shield:
+      type: braid
+      material: tinned_copper
+      construction:
+        wire_diameter:  0.16          # mm - single strand diameter
+        carriers:       16            # number of carrier groups around the braid
+        wires_per_carrier: 5
+        weave_angle:    30            # deg from cable axis (or specify pitch)
+        # optical_coverage: 0.85      # Optical coverage is computed.
+    members:
+      - pair1
+      - pair2
+      - pair3
+      - pair4
+
+    separator:
+      type: none
+
+    jacket:
+      material: pvc
+      outer_radius: 4.0
+
+cross_section:
+
+  layout: quad
+
+  pair_locations: # Units are mm
+
+    pair1:
+      center: [-1.2,  1.2]
+
+    pair2:
+      center: [ 1.2,  1.2]
+
+    pair3:
+      center: [-1.2, -1.2]
+
+    pair4:
+      center: [ 1.2, -1.2]
+
+routes:
+
+  cable_route_1:
+    points:
+      - [0,    0,   0]
+      - [50,  0,   0]
+      - [75, 0,   -25]
+      - [75, 0, -50]
+
+harnesses:
+
+  harness1:
+    bundle: ethernet_cat6a_sstp
+    route: cable_route_1
+
+simulation:
+
+  differential_pairs:
+    - [pair1_a, pair1_b]
+    - [pair2_a, pair2_b]
+    - [pair3_a, pair3_b]
+    - [pair4_a, pair4_b]
+
+  characteristic_impedance:
+    differential: 100
+
+  frequency_range:
+    start: 1e6
+    stop: 10e9
+
+  shield_grounding:
+    source_end: true
+    load_end: true
+
+  geometry:
+    facets: 8                       # polygon facets for circular cross-sections
+    samples_per_pitch: 6
+    pair_wire_center_offset: 0.58    # mm, half-distance between the two wires of a pair
+    pair_shield_radius:     1.15     # mm, foil shield outer radius around a pair
+    overall_shield_radius:  3.60     # mm, braid shield radius (inside the jacket)
+    tube_end_extension: 4.0          # mm; extension past the wire ends at both extremities
+    ground_plane:
+      enabled: true
+      distance_below_route: 10.0     # mm, reference plane for lumped ports
+      size_margin:          20.0     # mm, plane extends past route bbox by this margin
+
+  ports:
+    type: lumped                     # 'lumped' or 'wave'
+    reference: overall_shield        # 'overall_shield' or 'ground_plane'
+    impedance: 50                    # renormalization impedance for S-parameters
+
+  terminations:
+    driven_conductor: pair1_a              # which wire the EFT pulse drives
+    load_end:
+      pair1_a: 100                         # ohms across pair1_a at far end
+    other_conductors_default: 50           # ohms at both ends for non-driven wires
+    shield_grounding:
+      source_end: true
+      load_end:   true
+
+  transient:
+    stop_time: 500e-9
+    time_step: 50e-12
+    initial_step: 10e-12
+    source:
+    # IEC 61000-4-4 single-pulse approximation
+      type: pwl
+      time: [ 0,    5e-9, 55e-9, 150e-9 ]
+      amplitude: [ 0,    1000, 500,   0 ]      # volts
+      source_impedance: 50                   # ohms (generator)

@@ -1,489 +1,815 @@
-# # CAT6A cable harness for EFT testing
+# # CAT6A S/STP cable: HFSS S-parameter extraction and Nexxim EFT transient
 #
-# This example shows how to use PyAEDT to build a 5 cm long
-# **PVC CAT6A 4x2 AWG25/7 GY** cable model in HFSS using the
-# :class:`ansys.aedt.core.modules.cable_modeling.Cable` class and its
-# :func:`~ansys.aedt.core.modules.cable_modeling.Cable.create_cable_harness`
-# method, then attach a piecewise-linear (PWL) source that approximates an
-# IEC 61000-4-4 Electrical Fast Transient (EFT) pulse.
+# This example replaces the original Cable-Harness-Modeling workflow with a
+# fully explicit faceted 3D HFSS model of a CAT6A S/STP 4x2 AWG25/7 cable,
+# extracts an N-port S-parameter model, and then drives it from a Circuit
+# (Nexxim) transient schematic with an IEC 61000-4-4 EFT pulse and
+# user-defined terminations.
 #
-# A full physical description of the reference cable (CAT6A, dual-layer
-# shielding, AWG25/7 stranded conductors, PVC jacket, etc.) is provided in
-# ``.github/CAT6-Cable.md``. Three simplifications are applied here, following
-# the modelling guidance in that document and a few practical limitations of
-# the PyAEDT ``Cable`` wrapper:
+# The geometry, materials, route, ports, EFT source and terminations are
+# all read from a single YAML file (``cat6a_sstp_awg25.yaml``) so that the
+# same script can model variants of the cable without code changes.
 #
-# * **Stranded conductors -> solid-equivalent**. Each AWG25/7 conductor is
-#   modelled as a solid conductor with the AWG25 nominal outer diameter
-#   (about 0.455 mm).
-# * **S/STP -> UTP for the bundle**. The PyAEDT ``Cable`` wrapper can only
-#   nominate one of the bundle's internal conductors as the harness ground
-#   reference; the braided overall shield cannot be selected as ground via
-#   the wrapper. The dual-layer S/STP shielding is therefore omitted and the
-#   outer PVC jacket is modelled as a homogeneous insulation jacket. For an
-#   EFT-focused study where common-mode current is excited through one of
-#   the internal conductors this approximation captures the dominant
-#   coupling behaviour while remaining inside what the wrapper supports.
-# * **Twisting is applied at the harness level**. The AEDT cable manager
-#   supports explicit twisted-pair definitions, but the PyAEDT ``Cable``
-#   harness accessors enumerate bundle children as straight-wire instances
-#   only, so this example places eight individual AWG25 conductors in the
-#   bundle and uses ``TwistAngleAlongRoute`` on the harness to add an
-#   overall helical twist.
-#
-# The PWL source is a single 5 ns rise / 50 ns half-width / ~1 kV peak
-# pulse - a single-pulse approximation of the 5/50 ns EFT waveform from
-# IEC 61000-4-4.
-#
-# Keywords: **HFSS**, **EMC**, **cable**, **CAT6A**, **EFT**, **cable harness**.
+# Keywords: **HFSS**, **Circuit**, **Nexxim**, **EMC**, **cable**, **CAT6A**,
+# **EFT**, **transient**, **S-parameters**.
 
 # ## Perform imports and define constants
-#
-# Perform required imports.
 
 # +
+from __future__ import annotations
+
 import math
 import os
 import tempfile
 import time
+from pathlib import Path
+from typing import Any
+import transfer_impedance as ti
+
+import numpy as np
+import yaml
 
 import ansys.aedt.core
-from ansys.aedt.core.modules.cable_modeling import Cable
+from ansys.aedt.core import Circuit, Hfss
 # -
 
-# Define constants.
+AEDT_VERSION = "2025.2"
+NG_MODE = False
+YAML_FILE = Path(__file__).parent / "_static" / "cat6a_sstp_awg25.yaml"
 
-AEDT_VERSION = "2026.1"
-NG_MODE = False  # Open AEDT UI when it is launched.
-
-# ## Create temporary directory
-#
-# Create a temporary directory where the project data is stored.
-# If you would like to retrieve the project data for subsequent use,
-# the temporary folder name is given by ``temp_folder.name``.
+# ## Create a temporary working directory
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
+project_path = Path(temp_folder.name) / "cat6a_eft_transient.aedt"
 
-# ## Launch AEDT and create an HFSS design
-#
-# The cable manager native API used by :class:`Cable` is available in
-# HFSS designs.
+# ## Load the YAML cable definition
 
-project_path = os.path.join(temp_folder.name, "cat6_eft_test.aedt")
-hfss = ansys.aedt.core.Hfss(
+cfg = yaml.safe_load(YAML_FILE.read_text())
+
+UNITS         = cfg.get("units", "mm")
+SIM = cfg["simulation"]
+GEOM = SIM["geometry"]
+PORT_CFG  = SIM["ports"]
+TERM_CFG = SIM.get("terminations", {}) or {}
+TRAN_CFG = SIM["transient"]
+TRANSIENT_SOURCE_CFG = TRAN_CFG["source"]
+FACETS = int(GEOM.get("facets", 8))
+SAMPLES_PER_PITCH = int(GEOM.get("samples_per_pitch", 8))
+LIGHT_GREY = (200, 200, 200)   # RGB tuple for rendering outer braid shield.
+
+# ## Launch AEDT and create the HFSS design
+
+hfss = Hfss(
     project=project_path,
-    design="CAT6A_EFT",
+    design="CAT6A_3D",
+    solution_type="DrivenTerminal",
     version=AEDT_VERSION,
     non_graphical=NG_MODE,
-    new_desktop=True,
 )
-hfss.modeler.model_units = "mm"
+hfss.modeler.model_units = UNITS
+hfss.change_material_override(material_override=True)
+hfss.change_automatically_use_causal_materials(lossy_dielectric=True)
 
-# The :class:`Cable` wrapper validates each material name against
-# ``hfss.materials.material_keys`` (the project-level material list), so
-# system-library materials are preloaded into the project here. Calling
-# ``exists_material`` registers them if found in the AEDT library.
-
-for material_name in ("copper", "PVC plastic"):
-    hfss.materials.exists_material(material_name)
-
-# ## CAT6A geometry parameters
+# ## Helper functions
 #
-# Nominal CAT6A S/STP 4x2 AWG25/7 dimensions used by the cable definitions.
-# The bundle inner diameter is sized so the four insulated twisted pairs fit
-# comfortably; the overall jacket is the outer braided shield.
-
-HARNESS_LENGTH_MM = 50.0  # 5 cm cable run.
-CONDUCTOR_DIAMETER = "0.455mm"  # AWG25 nominal solid-equivalent OD.
-INSULATION_THICKNESS = "0.20mm"  # PVC primary insulation per conductor.
-BUNDLE_INNER_DIAMETER = "5.5mm"  # Inner ID of the overall braided shield.
-HARNESS_TWIST = "720deg"  # Two full helical turns over the 5 cm run.
-
-# A small helper builds the JSON dictionaries consumed by :class:`Cable`.
-# The full schema is documented in the ``CableModeling`` API reference; only
-# the fields exercised by the workflow below are populated.
-
-
-def _empty_cable_payload():
-    """Return a Cable JSON payload with every action disabled."""
-    return {
-        "Add_Cable": "False",
-        "Update_Cable": "False",
-        "Remove_Cable": "False",
-        "Add_CablesToBundle": "False",
-        "Add_Source": "False",
-        "Update_Source": "False",
-        "Remove_Source": "False",
-        "Add_CableHarness": "False",
-        "Cable_prop": {
-            "CableType": "",
-            "IsJacketTypeInsulation": "False",
-            "IsJacketTypeBraidShield": "False",
-            "IsJacketTypeNoJacket": "False",
-            "UpdatedName": "",
-            "CablesToRemove": "",
-        },
-        "CablesToBundle_prop": {
-            "CablesToAdd": "",
-            "BundleCable": "",
-            "NumberOfCableToAdd": 1,
-        },
-        "Source_prop": {
-            "AddClockSource": "False",
-            "UpdateClockSource": "False",
-            "AddPwlSource": "False",
-            "AddPwlSourceFromFile": "",
-            "UpdatePwlSource": "False",
-            "UpdatedSourceName": "",
-            "SourcesToRemove": "",
-        },
-        "CableHarness_prop": {
-            "Name": "",
-            "Bundle": "",
-            "TwistAngleAlongRoute": "0deg",
-            "Polyline": "",
-            "AutoOrient": "True",
-            "XAxis": "Undefined",
-            "XAxisOrigin": ["0mm", "0mm", "0mm"],
-            "XAxisEnd": ["0mm", "0mm", "0mm"],
-            "ReverseYAxisDirection": "False",
-            "CableTerminationsToInclude": [],
-        },
-        "CableManager": {
-            "TDSources": {
-                "ClockSourceDef": {
-                    "ClockSignalParams": {},
-                    "TDSourceAttribs": {"Name": ""},
-                },
-                "PWLSourceDef": {
-                    "PWLSignalParams": {"SignalValues": [], "TimeValues": []},
-                    "TDSourceAttribs": {"Name": ""},
-                },
-            },
-            "Definitions": {
-                "CableBundle": {
-                    "BundleParams": {
-                        "AutoPack": "True",
-                        "InsulationJacketParams": {
-                            "InsThickness": "",
-                            "JacketMaterial": "",
-                            "InnerDiameter": "",
-                        },
-                        "BraidShieldJacketParams": {
-                            "JacketMaterial": "",
-                            "InnerDiameter": "",
-                            "NumCarriers": "",
-                            "NumWiresInCarrier": "",
-                            "WireDiameter": "",
-                            "WeaveAngle": "",
-                        },
-                        "VirtualJacketParams": {
-                            "JacketMaterial": "",
-                            "InnerDiameter": "",
-                        },
-                    },
-                    "BundleAttribs": {"Name": ""},
-                },
-                "StWireCable": {
-                    "StWireParams": {
-                        "WireStandard": "",
-                        "WireGauge": "",
-                        "CondDiameter": "",
-                        "CondMaterial": "",
-                        "InsThickness": "",
-                        "InsMaterial": "",
-                        "InsType": "",
-                    },
-                    "StWireAttribs": {"Name": ""},
-                },
-                "TwistedPairCable": {
-                    "TwistedPairParams": {
-                        "StraightWireCableID": 0,
-                        "IsLayLengthSpecified": "False",
-                        "LayLength": "",
-                        "TurnsPerMeter": "",
-                    },
-                    "TwistedPairAttribs": {"Name": ""},
-                },
-            },
-        },
-    }
-
-
-# ## Create AWG25 straight-wire conductor definitions
-#
-# Eight AWG25 conductors (one per CAT6A wire) are defined.
-# Support for ``WireStandard = "AWG"`` was added to the PyAEDT ``Cable``
-# wrapper specifically for use cases such as this CAT6A cable; previously
-# only ``ISO`` mm^2 cross-sections were accepted.
+# Small, self-contained helpers for vector math, faceted sweeps and twisted
+# centerlines. They are kept inside the example rather than imported so the
+# notebook stays self-documenting.
 
 # +
-CONDUCTOR_NAMES = [f"cat6a_awg25_{i + 1}" for i in range(8)]
+def _unit(v: np.ndarray) -> np.ndarray:
+    n = np.linalg.norm(v)
+    if n == 0:
+        raise ValueError("Zero-length vector.")
+    return v / n
 
-for conductor_name in CONDUCTOR_NAMES:
-    payload = _empty_cable_payload()
-    payload["Add_Cable"] = "True"
-    payload["Cable_prop"]["CableType"] = "straight wire"
-    payload["CableManager"]["Definitions"]["StWireCable"] = {
-        "StWireParams": {
-            "WireStandard": "AWG",
-            "WireGauge": "25",
-            "CondDiameter": CONDUCTOR_DIAMETER,
-            "CondMaterial": "copper",
-            "InsThickness": INSULATION_THICKNESS,
-            "InsMaterial": "PVC plastic",
-            "InsType": "Thin Wall",
-        },
-        "StWireAttribs": {"Name": conductor_name},
-    }
-    Cable(hfss, payload).create_cable()
-# -
 
-# ## Create the cable bundle with a PVC insulation jacket
-#
-# A single :class:`Cable` bundle models the outer PVC jacket of the cable.
-# The metallic outer braid is omitted (see note in the header) and the
-# ``InsulationJacketParams`` block is used to represent the dielectric
-# outer jacket of the cable.
+def _normal_basis(tangent: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    t = _unit(tangent)
+    ref = np.array([0.0, 0.0, 1.0])
+    if abs(np.dot(t, ref)) > 0.90:
+        ref = np.array([0.0, 1.0, 0.0])
+    n1 = _unit(np.cross(t, ref))
+    n2 = _unit(np.cross(t, n1))
+    return n1, n2
 
-# +
-BUNDLE_NAME = "cat6a_bundle"
 
-payload = _empty_cable_payload()
-payload["Add_Cable"] = "True"
-payload["Cable_prop"]["CableType"] = "bundle"
-payload["Cable_prop"]["IsJacketTypeInsulation"] = "True"
-payload["CableManager"]["Definitions"]["CableBundle"] = {
-    "BundleParams": {
-        "AutoPack": "True",
-        "InsulationJacketParams": {
-            "InsThickness": "0.5mm",
-            "JacketMaterial": "PVC plastic",
-            "InnerDiameter": BUNDLE_INNER_DIAMETER,
-        },
-        "BraidShieldJacketParams": {
-            "JacketMaterial": "",
-            "InnerDiameter": "",
-            "NumCarriers": "",
-            "NumWiresInCarrier": "",
-            "WireDiameter": "",
-            "WeaveAngle": "",
-        },
-        "VirtualJacketParams": {
-            "JacketMaterial": "",
-            "InnerDiameter": "",
-        },
-    },
-    "BundleAttribs": {"Name": BUNDLE_NAME},
-}
-Cable(hfss, payload).create_cable()
-# -
+def _rotate_about_axis(v: np.ndarray, axis: np.ndarray, angle: float) -> np.ndarray:
+    """Rotate vector ``v`` around unit ``axis`` by ``angle`` (rad)."""
+    c, s = math.cos(angle), math.sin(angle)
+    return v * c + np.cross(axis, v) * s + axis * np.dot(axis, v) * (1.0 - c)
 
-# ## Add the eight conductors to the bundle
-#
-# Each AWG25 straight-wire definition is added to the bundle via the
-# underlying ``CableSetup`` module. ``Cable.add_cable_to_bundle()``
-# (1) only acts on the first cable in its input list and (2) always
-# emits ``XPos=0mm, YPos=0mm``, which would place every conductor on top
-# of every other one. The eight conductors are therefore positioned by
-# hand on a small circle inside the jacket - four "pairs" of adjacent
-# conductors arranged at 90 deg around the bundle centre.
 
-# +
-cable_setup_module = hfss.odesign.GetModule("CableSetup")
-PLACEMENT_RADIUS_MM = 1.4  # Conductor centres on this circle.
-PAIR_PITCH_DEG = 22.0  # Angular separation between the two wires of a pair.
+def _transport_normal_basis(
+    t_prev: np.ndarray,
+    t_next: np.ndarray,
+    n1_prev: np.ndarray,
+    n2_prev: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Parallel-transport local normals from ``t_prev`` to ``t_next``."""
+    a = _unit(t_prev)
+    b = _unit(t_next)
+    cross = np.cross(a, b)
+    s = float(np.linalg.norm(cross))
+    c = float(np.dot(a, b))
 
-for index, conductor_name in enumerate(CONDUCTOR_NAMES):
-    pair_center_deg = 90.0 * (index // 2)
-    sign = -1 if index % 2 == 0 else 1
-    theta_rad = math.radians(pair_center_deg + sign * PAIR_PITCH_DEG / 2.0)
-    xpos_mm = PLACEMENT_RADIUS_MM * math.cos(theta_rad)
-    ypos_mm = PLACEMENT_RADIUS_MM * math.sin(theta_rad)
-    cable_setup_module.AddCableToBundle(
-        BUNDLE_NAME,
-        conductor_name,
-        1,
-        ["NAME:CableInstParams", "XPos:=", f"{xpos_mm:.4f}mm", "YPos:=", f"{ypos_mm:.4f}mm", "RotX:=", "0deg"],
-        ["NAME:CableInstAttribs", "Name:=", conductor_name],
+    if s < 1e-12:
+        if c > 0.0:
+            n1, n2 = n1_prev, n2_prev
+        else:
+            # 180-degree turn: rebuild and align with previous orientation.
+            n1, n2 = _normal_basis(b)
+            if float(np.dot(n1, n1_prev)) < 0.0:
+                n1, n2 = -n1, -n2
+    else:
+        axis = cross / s
+        angle = math.atan2(s, c)
+        n1 = _rotate_about_axis(n1_prev, axis, angle)
+        n2 = _rotate_about_axis(n2_prev, axis, angle)
+
+    n1 = n1 - float(np.dot(n1, b)) * b
+    n1 = _unit(n1)
+    n2 = _unit(np.cross(b, n1))
+    return n1, n2
+
+
+def _route_point_frames(
+    route_points: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Per-route-point tangent and transported local basis."""
+    pts = np.asarray(route_points, dtype=float)
+    if len(pts) < 2:
+        raise ValueError("Route must contain at least two points.")
+
+    seg_tangents = np.array([_unit(pts[i + 1] - pts[i]) for i in range(len(pts) - 1)])
+    point_tangents = np.zeros_like(pts)
+    point_tangents[0] = seg_tangents[0]
+    point_tangents[-1] = seg_tangents[-1]
+    for i in range(1, len(pts) - 1):
+        t_sum = seg_tangents[i - 1] + seg_tangents[i]
+        point_tangents[i] = _unit(t_sum) if np.linalg.norm(t_sum) > 1e-12 else seg_tangents[i]
+
+    n1_pts = np.zeros_like(pts)
+    n2_pts = np.zeros_like(pts)
+    n1, n2 = _normal_basis(point_tangents[0])
+    n1_pts[0], n2_pts[0] = n1, n2
+    for i in range(1, len(pts)):
+        n1, n2 = _transport_normal_basis(point_tangents[i - 1], point_tangents[i], n1, n2)
+        n1_pts[i], n2_pts[i] = n1, n2
+    return point_tangents, n1_pts, n2_pts
+
+
+def _segment_basis_at_u(
+    seg_tangent: np.ndarray,
+    n1_start: np.ndarray,
+    n1_end: np.ndarray,
+    u: float,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Interpolate local basis along one segment at normalized position ``u``."""
+    n1 = (1.0 - u) * n1_start + u * n1_end
+    n1 = n1 - float(np.dot(n1, seg_tangent)) * seg_tangent
+    if np.linalg.norm(n1) < 1e-12:
+        n1, _ = _normal_basis(seg_tangent)
+    else:
+        n1 = _unit(n1)
+    n2 = _unit(np.cross(seg_tangent, n1))
+    return n1, n2
+
+
+def _offset_route_points(
+    route_points: np.ndarray,
+    offset_xy: np.ndarray,
+    n1_pts: np.ndarray,
+    n2_pts: np.ndarray,
+) -> np.ndarray:
+    """Apply a cross-section offset [x_local, y_local] along the full route."""
+    ox, oy = float(offset_xy[0]), float(offset_xy[1])
+    pts = np.asarray(route_points, dtype=float)
+    return np.array(
+        [p + ox * n1 + oy * n2 for p, n1, n2 in zip(pts, n1_pts, n2_pts)]
+    )
+
+
+def _ensure_materials(hfss: Hfss, materials: dict[str, Any]) -> None:
+    for name, props in materials.items():
+        mat = (
+            hfss.materials[name]
+            if name in hfss.materials.material_keys
+            else hfss.materials.add_material(name)
+        )
+        if "conductivity" in props:
+            mat.conductivity = props["conductivity"]
+        if "relative_permittivity" in props:
+            mat.permittivity = props["relative_permittivity"]
+        if "loss_tangent" in props:
+            mat.dielectric_loss_tangent = props["loss_tangent"]
+
+
+def _twisted_centerline(
+    route_points: np.ndarray,
+    pair_center_xy: np.ndarray,
+    n1_pts: np.ndarray,
+    n2_pts: np.ndarray,
+    radius: float,
+    pitch: float,
+    phase: float,
+    samples_per_pitch: int = 12,
+) -> np.ndarray:
+    """Helical centerline along a piecewise-linear route with transported frame."""
+    cx, cy = float(pair_center_xy[0]), float(pair_center_xy[1])
+    out, s_acc = [], 0.0
+    for i in range(len(route_points) - 1):
+        p0, p1 = route_points[i], route_points[i + 1]
+        seg = p1 - p0
+        L = float(np.linalg.norm(seg))
+        seg_tangent = _unit(seg)
+        n = max(2, int(samples_per_pitch * L / pitch))
+        for j in range(n):
+            if i > 0 and j == 0:
+                continue
+            u = j / (n - 1)
+            s = s_acc + u * L
+            th = 2.0 * math.pi * s / pitch + phase
+            base = p0 + u * seg
+            n1, n2 = _segment_basis_at_u(seg_tangent, n1_pts[i], n1_pts[i + 1], u)
+            pair_offset = cx * n1 + cy * n2
+            twist_offset = radius * math.cos(th) * n1 + radius * math.sin(th) * n2
+            out.append(base + pair_offset + twist_offset)
+        s_acc += L
+    return np.array(out)
+
+
+def _create_faceted_sweep(
+    hfss: Hfss,
+    path_points: np.ndarray,
+    radius: float,
+    facets: int,
+    name: str,
+    material: str | None,
+    *,
+    closed_solid: bool,
+):
+    """Sweep a regular polygon along a 3D polyline. Solid if ``closed_solid``."""
+    start = path_points[0]
+    tangent = _unit(path_points[1] - path_points[0])
+    n1, n2 = _normal_basis(tangent)
+
+    profile_pts = [
+        (start
+         + radius * math.cos(2 * math.pi * i / facets) * n1
+         + radius * math.sin(2 * math.pi * i / facets) * n2).tolist()
+        for i in range(facets)
+    ]
+
+    profile = hfss.modeler.create_polyline(
+        points=profile_pts + [profile_pts[0]],
+        name=f"{name}_profile",
+        close_surface=closed_solid,
+        cover_surface=closed_solid,
+        material=material if closed_solid else None,
+    )
+    path = hfss.modeler.create_polyline(
+        points=path_points.tolist(), name=f"{name}_path"
+    )
+    hfss.modeler.sweep_along_path(profile, path)
+    profile.name = name
+    if material and closed_solid:
+        profile.material_name = material
+    return profile
+
+def _end_face_of(obj, target_point: np.ndarray):
+    """Return the face of `obj` whose centroid is closest to `target_point`."""
+    target = np.asarray(target_point, dtype=float)
+    return min(
+        obj.faces,
+        key=lambda f: float(np.linalg.norm(np.array(f.center) - target)),
+    )
+
+def _nearest_edge(edges, target_point: np.ndarray):
+    """Return the edge whose midpoint is closest to `target_point`."""
+    target = np.asarray(target_point, dtype=float)
+    return min(
+        edges,
+        key=lambda e: float(np.linalg.norm(np.array(e.midpoint) - target)),
+    )
+
+def find_pin(component, *needles: str):
+    """
+    Return the first pin whose name contains every substring in `needles`.
+    Raises a clear LookupError listing all available pins if nothing matches.
+    """
+    for p in component.pins:
+        if all(n in p.name for n in needles):
+            return p
+    available = ", ".join(repr(p.name) for p in component.pins)
+    raise LookupError(
+        f"No pin on {component.name!r} matches all of {needles!r}.\n"
+        f"Available pins: {available}"
+    )
+
+
+def _pin_xy(pin) -> np.ndarray:
+    return np.asarray(pin.location, dtype=float)
+
+
+def _nearest_component_pin(component, target_point: np.ndarray):
+    target = np.asarray(target_point, dtype=float)
+    return min(
+        component.pins,
+        key=lambda p: float(np.linalg.norm(_pin_xy(p) - target)),
+    )
+
+
+def _other_two_pin(component, pin):
+    pins = list(component.pins)
+    if len(pins) == 2:
+        pin_name = getattr(pin, "name", None)
+        if pin_name == pins[0].name:
+            return pins[1]
+        if pin_name == pins[1].name:
+            return pins[0]
+        target = _pin_xy(pin)
+        d0 = float(np.linalg.norm(_pin_xy(pins[0]) - target))
+        d1 = float(np.linalg.norm(_pin_xy(pins[1]) - target))
+        return pins[1] if d0 <= d1 else pins[0]
+    raise ValueError(f"{component.name!r} does not appear to be a two-pin component.")
+
+
+def _extend_route_ends(route_pts: np.ndarray, extension: float) -> np.ndarray:
+    """Extend the polyline by `extension` (model units) at both ends along the
+    tangent of the first and last segments."""
+    pts = np.asarray(route_pts, dtype=float).copy()
+    head_tan = _unit(pts[1]  - pts[0])
+    tail_tan = _unit(pts[-1] - pts[-2])
+    pts[0]  = pts[0]  - extension * head_tan
+    pts[-1] = pts[-1] + extension * tail_tan
+    return pts
+
+def _check_pair_shield_interference(xsec, pair_shield_r, tol=1e-6):
+    """Raise if any two pair-shield tubes overlap."""
+    locs = {name: np.array(d["center"], dtype=float)
+            for name, d in xsec["pair_locations"].items()}
+    names = list(locs)
+    issues = []
+    for i, a in enumerate(names):
+        for b in names[i + 1:]:
+            d = float(np.linalg.norm(locs[a] - locs[b]))
+            min_d = 2.0 * pair_shield_r
+            if d + tol < min_d:
+                issues.append(
+                    f"  {a} <-> {b}: distance={d:.3f} mm, "
+                    f"required >= {min_d:.3f} mm  (overlap {min_d - d:.3f} mm)"
+                )
+    if issues:
+        raise ValueError(
+            "Pair-shield interference detected:\n" + "\n".join(issues) +
+            "\nReduce 'geometry.pair_shield_radius' or spread "
+            "'cross_section.pair_locations'."
+        )
+def _create_zt_dataset(hfss, name: str, freqs_hz: list[float],
+                      r_ohm_sq: list[float]) -> str:
+    hfss.create_dataset(
+        name, freqs_hz, r_ohm_sq,
+        is_project_dataset=False, x_unit="Hz", y_unit="ohm",
+    )
+    return name
+
+
+def _assign_transfer_impedance(hfss, sheet_name, ds_name, name):
+    """Frequency-dependent impedance boundary on a sheet."""
+    return hfss.assign_impedance_to_sheet(
+        sheet_name,
+        name=name,
+        resistance=f"pwl({ds_name}, Freq)",
+        reactance=0,
     )
 # -
 
-# ## Create a PWL source that approximates an EFT pulse
+# ## Register materials and resolve the active route
+
+_ensure_materials(hfss, cfg.get("materials", {}))
+
+route_name = next(iter(cfg["routes"]))
+route_pts = np.array(cfg["routes"][route_name]["points"], dtype=float)
+_, route_n1_pts, route_n2_pts = _route_point_frames(route_pts)
+
+# ## Build the conductors, insulation and pair shields
 #
-# Single-pulse approximation of the IEC 61000-4-4 5/50 ns waveform:
-# 5 ns rise to 1 kV peak, 50 ns to half-amplitude, returning to 0 V.
+# Each twisted pair is built as two helical solid conductors (copper) wrapped
+# in a faceted insulation tube (PE foam). A faceted **sheet** tube around the
+# pair represents the foil shield and later receives a Perfect-E boundary.
 
 # +
-EFT_SOURCE_NAME = "eft_pulse"
+conductors  = cfg["conductors"]
+ins_def     = cfg["insulation"]["wire_insulation"]
+pairs       = cfg["pairs"]
+xsec        = cfg["cross_section"]
+bundle_def  = cfg["bundle"]["ethernet_cat6a_sstp"]
 
-payload = _empty_cable_payload()
-payload["Add_Source"] = "True"
-payload["Source_prop"]["AddPwlSource"] = "True"
-payload["CableManager"]["TDSources"]["PWLSourceDef"] = {
-    "PWLSignalParams": {
-        "SignalValues": ["0V", "1000V", "500V", "0V"],
-        "TimeValues": ["0ns", "5ns", "55ns", "150ns"],
-    },
-    "TDSourceAttribs": {"Name": EFT_SOURCE_NAME},
+wire_ins_r       = float(ins_def["outer_radius"])
+pair_wire_r      = float(GEOM["pair_wire_center_offset"])
+pair_shield_r    = float(GEOM["pair_shield_radius"])
+overall_shield_r = float(GEOM["overall_shield_radius"])
+jacket_r         = float(bundle_def["jacket"]["outer_radius"])
+
+_check_pair_shield_interference(xsec, pair_shield_r)  # Make sure there are no collisions.
+
+created: dict[str, list[str]] = {
+    "conductors": [], "insulation": [], "pair_shields": [],
+    "overall_shield": [], "jacket": [], "boundaries": [], "ports": [],
 }
-Cable(hfss, payload).create_pwl_source()
-# -
 
-# ## Draw the 5 cm cable route
-#
-# The cable harness needs a polyline that defines the centreline of the
-# cable in the 3D modeller. A straight 5 cm segment along the X axis is
-# sufficient for an EFT-style coupling study.
-
-# +
-ROUTE_NAME = "cat6a_route"
-
-hfss.modeler.create_polyline(
-    points=[["0mm", "0mm", "0mm"], [f"{HARNESS_LENGTH_MM}mm", "0mm", "0mm"]],
-    name=ROUTE_NAME,
+# --- YAML-driven end extension and PMC assignment -----------------------------
+# Recommended margin: a few × the radial gap between the wires and the tube ID.
+END_EXTENSION = float(
+    GEOM.get("tube_end_extension",
+             5.0 * max(overall_shield_r - wire_ins_r, 1.0))
 )
+
+extended_route = _extend_route_ends(route_pts, END_EXTENSION)  # Clearance to avoid short-circuiting wires.
+
+# Map "conductor name" -> stored centerline (used later to position ports).
+conductor_paths: dict[str, np.ndarray] = {}
+freqs_hz = np.logspace(3, 10, 71)
+
+for pair_name, pair_def in pairs.items():
+    cx, cy = xsec["pair_locations"][pair_name]["center"]
+    pair_center_xy = np.array([cx, cy], dtype=float)
+    twist_pitch = float(pair_def["twist_pitch"])
+    for idx, cname in enumerate(pair_def["members"]):
+        phase = 0.0 if idx == 0 else math.pi
+        centerline = _twisted_centerline(
+            route_pts, pair_center_xy, route_n1_pts, route_n2_pts,
+            radius=pair_wire_r, pitch=twist_pitch, phase=phase,
+            samples_per_pitch=SAMPLES_PER_PITCH,
+        )
+        conductor_paths[cname] = centerline
+
+        cond_r = float(conductors[cname].get("conductor_equivalent_radius") or
+                        conductors[cname].get("conductor_radius", 0.227)
+                    )
+
+        cu = _create_faceted_sweep(
+            hfss, centerline, cond_r, FACETS,
+            name=f"cat6a_{cname}_cu", material="copper",
+            closed_solid=True,
+        )
+        created["conductors"].append(cu.name)
+
+        ins = _create_faceted_sweep(
+            hfss, centerline, wire_ins_r, FACETS,
+            name=f"cat6a_{cname}_ins",
+            material=ins_def.get("material", "pe_foam"),
+            closed_solid=True,
+        )
+        created["insulation"].append(ins.name)
+
+    # Foil shield around the pair (sheet, not solid).
+    shield_path = _offset_route_points(
+        route_pts,
+        pair_center_xy,
+        route_n1_pts,
+        route_n2_pts,
+    )
+    sh = _create_faceted_sweep(
+        hfss, shield_path, pair_shield_r, FACETS,
+        name=f"cat6a_{pair_name}_foil_shield",
+        material=None, closed_solid=False,
+    )
+    created["pair_shields"].append(sh.name)
+
+
+# --- Per-pair foil shields ---
+for pair_name, pair_def in pairs.items():
+    sh = pair_def["shield"]
+    sigma = float(cfg["materials"][sh["material"]]["conductivity"])
+
+    foil = ti.FoilShield(
+        sigma=sigma,
+        thickness_m=float(sh["thickness"]) * 1e-3,            # mm -> m
+        cable_radius_m=pair_shield_r * 1e-3,
+        seam_inductance_h_per_m=float(
+            sh.get("construction", {}).get("seam_inductance", 1.0e-9)
+        ),
+    )
+    zt = foil.transfer_impedance(freqs_hz)
+    ti.report_zt(f"foil ({pair_name})", zt, freqs_hz)
+
+    ds = _create_zt_dataset(
+        hfss, f"ZT_{pair_name}", freqs_hz.tolist(), np.abs(zt).tolist()
+    )
+    created["boundaries"].append(
+        _assign_transfer_impedance(
+            hfss, f"cat6a_{pair_name}_foil_shield", ds, name=f"Zt_{pair_name}"
+        ).name
+    )
+
+# --- Overall braid ---
+ob = bundle_def["overall_shield"]
+sigma_braid = float(cfg["materials"][ob["material"]]["conductivity"])
+braid_mdl = ti.BraidShield(
+    sigma=sigma_braid,
+    wire_diameter_m=float(ob["construction"]["wire_diameter"]) * 1e-3,
+    carriers=int(ob["construction"]["carriers"]),
+    wires_per_carrier=int(ob["construction"]["wires_per_carrier"]),
+    weave_angle_deg=float(ob["construction"]["weave_angle"]),
+    cable_radius_m=overall_shield_r * 1e-3,
+)
+
 # -
 
-# ## Create the cable harness with terminations
-#
-# The harness designates one of the eight conductors as the local reference
-# conductor (its return path), drives the EFT PWL source onto conductor 1
-# at the input end, and loads conductor 1 with 100 ohm at the output end.
-# The remaining conductors keep the default 50 ohm input and output
-# terminations emitted by the wrapper. ``TwistAngleAlongRoute`` gives the
-# bundle a helical twist over the 5 cm run as a coarse model of the pair
-# twisting.
+# ## Overall braid shield and PVC jacket
 
 # +
-HARNESS_NAME = "cat6a_harness"
 
-payload = _empty_cable_payload()
-payload["Add_CableHarness"] = "True"
-payload["CableHarness_prop"] = {
-    "Name": HARNESS_NAME,
-    "Bundle": BUNDLE_NAME,
-    "TwistAngleAlongRoute": HARNESS_TWIST,
-    "Polyline": ROUTE_NAME,
-    "AutoOrient": "True",
-    "XAxis": "Undefined",
-    "XAxisOrigin": ["0mm", "0mm", "0mm"],
-    "XAxisEnd": ["0mm", "0mm", "0mm"],
-    "ReverseYAxisDirection": "False",
-    "CableTerminationsToInclude": [
-        {
-            "CableName": CONDUCTOR_NAMES[-1],
-            "Assignment": "Reference Conductor",
-            "AssignmentType": "Impedance",
-            "Impedance": "0ohm",
-            "Source": {"Type": "Single Value", "Signal": "0V", "ImpedanceValue": "0ohm"},
-        },
-        {
-            "CableName": CONDUCTOR_NAMES[0],
-            "Assignment": "Input Terminations",
-            "AssignmentType": "Source",
-            "Impedance": "100ohm",
-            "Source": {
-                "Type": "Transient",
-                "Signal": EFT_SOURCE_NAME,
-                "ImpedanceValue": "100ohm",
-            },
-        },
-        {
-            "CableName": CONDUCTOR_NAMES[0],
-            "Assignment": "Output Terminations",
-            "AssignmentType": "Impedance",
-            "Impedance": "100ohm",
-            "Source": {
-                "Type": "Single Value",
-                "Signal": "0V",
-                "ImpedanceValue": "100ohm",
-            },
-        },
-    ],
-}
-Cable(hfss, payload).create_cable_harness()
+braid = _create_faceted_sweep(
+    hfss, extended_route, overall_shield_r, FACETS,
+    name="cat6a_overall_braid", material=None, closed_solid=False,
+)
+created["overall_shield"].append(braid.name)
+
+zt_braid = braid_mdl.transfer_impedance(freqs_hz)
+
+print(f"  Computed optical coverage:  {braid_mdl.optical_coverage:.3f}")
+print(f"  Computed DC resistance:     {braid_mdl.dc_resistance_per_m*1e3:.3f} mOhm/m")
+ti.report_zt("overall braid", zt_braid, freqs_hz)
+
+ds = _create_zt_dataset(
+    hfss, "ZT_overall_braid", freqs_hz.tolist(), np.abs(zt_braid).tolist()
+)
+created["boundaries"].append(
+    _assign_transfer_impedance(hfss, braid.name, ds, name="Zt_overall_braid").name
+)
+jacket = _create_faceted_sweep(
+    hfss, extended_route, jacket_r, FACETS,
+    name="cat6a_pvc_jacket",
+    material=bundle_def["jacket"].get("material", "pvc"),
+    closed_solid=True,
+)
+created["jacket"].append(jacket.name)
+
+for obj in (braid, jacket):
+    obj.transparency = 0.8
+    obj.color = LIGHT_GREY
+
 # -
 
-# ## Add a Driven Terminal solution setup
+# ## Create lumped ports at both ends of every conductor
 #
-# The design solution type is **HFSS Terminal**, with the cable harness
-# connected to the solver via an automatically-created **Cable Network**
-# boundary. A standard frequency-domain Driven Terminal setup with an
-# interpolating sweep is therefore an appropriate analysis: AEDT solves the
-# cable harness as a multi-conductor network and post-processes the time-
-# domain response from the PWL EFT source defined above.
-#
-# A 100 MHz solution frequency sits well above the dominant content of the
-# 5/50 ns EFT pulse (first spectral null near 70 MHz) while keeping the
-# 5 cm cable electrically short. A discrete sweep covering 1 MHz to
-# 500 MHz with 51 points captures the dominant EFT spectrum with margin
-# (HFSS Interpolating sweeps require wave-port excitations and are not
-# supported when the only excitation is a Cable Network boundary).
+# Each conductor receives a lumped port between its end face and the chosen
+# reference (the overall braid shield by default). The reference object is
+# resolved once and re-used for every port.
 
 # +
+
+
+PORT_Z0 = float(PORT_CFG.get("impedance", 50))
+ref_name = (
+    braid.name
+    if PORT_CFG.get("reference", "overall_shield") == "overall_shield"
+    else "ground_plane"
+)
+ref_obj = hfss.modeler[ref_name]
+
+port_pairs: dict[str, tuple[str, str]] = {}
+
+for cname, centerline in conductor_paths.items():
+    cond_obj = hfss.modeler[f"cat6a_{cname}_cu"]
+
+    for end_idx, label in ((0, "in"), (-1, "out")):
+        target = np.asarray(centerline[end_idx], dtype=float)
+
+        # Signal edge: pick the conductor's end face, then any edge of it.
+        cond_face = _end_face_of(cond_obj, target)
+        cond_edge = cond_face.edges[0]
+
+        # Reference edge: braid is a sheet tube, its "end" is an edge loop —
+        # search edges directly rather than faces.
+        ref_edge = _nearest_edge(ref_obj.edges, target)
+
+        port_name = f"P_{cname}_{label}"
+        hfss.circuit_port(
+            assignment=cond_edge,        # positive terminal
+            reference=ref_edge,          # negative terminal
+            impedance=PORT_Z0,
+            name=port_name,
+            renormalize=True,
+            renorm_impedance=str(PORT_Z0),
+        )
+        created["ports"].append(port_name)
+
+    port_pairs[cname] = (f"P_{cname}_in", f"P_{cname}_out")
+
+# -
+
+# > **Note on ports.** Lumped ports on faceted 3D conductors typically need
+# > a small rectangular cap sheet between the conductor end and the reference.
+# > The call above asks PyAEDT to auto-build that sheet; on some geometries
+# > you may have to create the cap explicitly with ``modeler.create_rectangle``
+# > and pass it to ``hfss.lumped_port(assignment=cap, ...)``. The rest of the
+# > workflow is unchanged.
+
+# ## HFSS solution setup (frequency-domain S-parameter extraction)
+#
+# The transient analysis happens in Circuit, so HFSS only needs a broadband
+# S-parameter sweep. The bandwidth comes from the YAML ``simulation.frequency_range``.
+
+# +
+
+fmin = float(SIM["frequency_range"]["start"])
+fmax = float(SIM["frequency_range"]["stop"])
+
 setup = hfss.create_setup(
-    name="EFT_Coupling",
-    Frequency="100MHz",
-    MaximumPasses=6,
+    name="Sparam",
+    Frequency=f"{fmax/2:.3e}Hz",
+    MaximumPasses=8,
     MinimumConvergedPasses=1,
     DeltaS=0.02,
 )
 setup.create_frequency_sweep(
-    unit="MHz",
-    name="EFT_Sweep",
-    start_frequency=1,
-    stop_frequency=500,
-    num_of_freq_points=51,
-    sweep_type="Discrete",
+    unit="Hz",
+    name="Broadband",
+    start_frequency=fmin,
+    stop_frequency=fmax,
+    num_of_freq_points=401,
+    sweep_type="Interpolating",
 )
-# -
-
-# ## Visualizing the cable bundle
-#
-# The cable harness is inserted into the modeller as a 3D component
-# (native component named ``cat6a_harness``). The top-level 3D Modeller
-# only shows its outer placeholder shell (``harness``); the per-conductor
-# geometry lives inside the sub-model. Two GUI paths reveal the bundle
-# detail:
-#
-# 1. **Cable bundle cross-section viewer** (recommended for visualising
-#    the conductor layout): in the Project Manager tree expand
-#    ``CAT6A_EFT -> CableManager -> Definitions -> CableBundle``, then
-#    right-click ``cat6a_bundle`` and choose ``View Cross Section``. A
-#    2D window opens showing the eight AWG25 conductors arranged inside
-#    the PVC jacket.
-# 2. **Enter the harness sub-model**: in the Modeler tree, expand
-#    ``Models -> 3D Components`` and double-click ``cat6a_harness`` (or
-#    right-click it and choose ``Edit Definition``). The cylindrical
-#    AWG25 conductors are then visible along the 5 cm route. Use the
-#    breadcrumb back-arrow to return to the parent design.
-#
-# Selecting the ``cat6a_harness1_cablenetwork1`` boundary in the project
-# tree opens the cable network schematic, which is useful for verifying
-# that the EFT PWL source is wired onto conductor 1 and that conductor 8
-# is the local reference.
-
-# ## Save the project and release AEDT
-#
-# The example does not run the HFSS solve - meshing a multi-conductor
-# cable can take a long time on modest hardware. Uncomment the
-# ``hfss.analyze()`` line below to solve.
-
-# +
-# hfss.analyze()
 
 hfss.save_project()
-hfss.release_desktop()
-# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
+
+# Uncomment to solve. Meshing a multi-conductor cable can take a long time.
+# hfss.analyze()
+# -
+
+# ## Build the Circuit (Nexxim) schematic for the EFT transient run
+#
+# A Circuit design is added to the same project, the HFSS design is dropped
+# in as a dynamic-link N-port, then a PWL voltage source and resistive
+# terminations are wired up exactly as the YAML describes.
+
+# +
+circuit = Circuit(
+    project=hfss.project_name,
+    design="CAT6A_EFT_TRAN",
+    version=AEDT_VERSION,
+    non_graphical=NG_MODE,
+    new_desktop=False,
+)
+circuit.modeler.schematic_units = "mil"
+
+# Drop the HFSS design in as a dynamic link sub-circuit.
+
+nport = circuit.modeler.schematic.add_subcircuit_dynamic_link(
+    pyaedt_app=hfss,
+    solution_name="Sparam : Broadband",
+    name="CAT6A_3D_link",
+)
+nport.location = [4000.0, 2500.0]
+
+print("Dynamic-link pins:")
+for p in nport.pins:
+    print(f"  {p.name!r}")
+
+# -
+
+# ### Source end - EFT PWL on the driven conductor, matched loads on the rest
+
+# +
+driven = TERM_CFG["driven_conductor"]
+src_imp = float(TRANSIENT_SOURCE_CFG["source_impedance"])
+default_z = float(TERM_CFG.get("other_conductors_default", 50.0))
+PIN_BRANCH_DX = 700.0
+SOURCE_BRANCH_DX = 1300.0
+GND_DY = -250.0
+
+# PWL voltage source: zip the time/amplitude lists from YAML.
+pwl_t = TRANSIENT_SOURCE_CFG["time"]
+pwl_v = TRANSIENT_SOURCE_CFG["amplitude"]
+pwl_pairs = list(zip(pwl_t, pwl_v))
+
+driven_in_pin  = find_pin(nport, driven, "in")
+in_pins = [find_pin(nport, cname, "in") for cname in port_pairs]
+out_pins = [find_pin(nport, cname, "out") for cname in port_pairs]
+_in_pin_x = {cname: _pin_xy(in_pins[i])[0] for i, cname in enumerate(port_pairs)}
+_out_pin_x = {cname: _pin_xy(out_pins[i])[0] for i, cname in enumerate(port_pairs)}
+pin_split_x = float(np.mean(list(_in_pin_x.values()) + list(_out_pin_x.values())))
+in_side_sign = {cname: (-1.0 if _in_pin_x[cname] <= pin_split_x else 1.0) for cname in port_pairs}
+out_side_sign = {cname: (-1.0 if _out_pin_x[cname] <= pin_split_x else 1.0) for cname in port_pairs}
+
+# Stagger components away from the dynamic link so rows at different y-positions
+# don't land on the same x-column. Lower rows (smaller y) get a larger offset.
+# Ranking is performed independently on each side (left/right).
+STAGGER_DX = 300.0  # mil per rank step
+_in_pin_y  = {cname: _pin_xy(in_pins[i])[1]  for i, cname in enumerate(port_pairs)}
+_out_pin_y = {cname: _pin_xy(out_pins[i])[1]  for i, cname in enumerate(port_pairs)}
+in_stagger = {}
+out_stagger = {}
+for side in (-1.0, 1.0):
+    _in_sorted = sorted((c for c in port_pairs if in_side_sign[c] == side), key=lambda c: _in_pin_y[c], reverse=True)
+    _out_sorted = sorted((c for c in port_pairs if out_side_sign[c] == side), key=lambda c: _out_pin_y[c], reverse=True)
+    for rank, cname in enumerate(_in_sorted):
+        in_stagger[cname] = rank * STAGGER_DX
+    for rank, cname in enumerate(_out_sorted):
+        out_stagger[cname] = rank * STAGGER_DX
+
+driven_in_xy = _pin_xy(driven_in_pin)
+r_src = circuit.modeler.schematic.create_resistor(
+    name="R_src",
+    value=f"{src_imp}ohm",
+    location=[driven_in_xy[0] + in_side_sign[driven] * (PIN_BRANCH_DX + in_stagger[driven]), driven_in_xy[1]],
+)
+eft_src = circuit.modeler.schematic.create_voltage_pwl(
+    name="V_EFT",
+    time_list=[t for t, _ in pwl_pairs],
+    voltage_list=[v for _, v in pwl_pairs],
+    location=[driven_in_xy[0] + in_side_sign[driven] * (SOURCE_BRANCH_DX + in_stagger[driven]), driven_in_xy[1]],
+)
+
+r_to_nport = _nearest_component_pin(r_src, driven_in_xy)
+r_to_source = _other_two_pin(r_src, r_to_nport)
+src_to_res = _nearest_component_pin(eft_src, _pin_xy(r_to_source))
+src_return = _other_two_pin(eft_src, src_to_res)
+
+# Wire dynamic-link driven input -> R_src -> EFT source; ground source return.
+driven_in_pin.connect_to_component(assignment=r_to_nport, use_wire=True)
+r_to_source.connect_to_component(assignment=src_to_res, use_wire=True)
+gnd_src = circuit.modeler.schematic.create_gnd(
+    location=[src_return.location[0], src_return.location[1] + GND_DY]
+)
+src_return.connect_to_component(assignment=gnd_src.pins[0], use_wire=True)
+
+# Matched terminations on every other input pin.
+for cname in port_pairs:
+    if cname == driven:
+        continue
+
+    pin = find_pin(nport, f"P_{cname}_in")     # substring match → tolerates "_T1"
+    pin_xy = _pin_xy(pin)
+    r = circuit.modeler.schematic.create_resistor(
+        name=f"R_in_{cname}", value=f"{default_z}ohm",
+        location=[pin_xy[0] + in_side_sign[cname] * (PIN_BRANCH_DX + in_stagger[cname]), pin_xy[1]],
+        angle=90,
+    )
+    r_to_pin = _nearest_component_pin(r, pin_xy)
+    r_to_gnd = _other_two_pin(r, r_to_pin)
+    pin.connect_to_component(assignment=r_to_pin, use_wire=True)
+    gnd = circuit.modeler.schematic.create_gnd(
+        location=[r_to_gnd.location[0], r_to_gnd.location[1] + GND_DY]
+    )
+    r_to_gnd.connect_to_component(assignment=gnd.pins[0], use_wire=True)
+
+# -
+
+# ### Load end - user-specified loads, defaults for the rest
+
+# +
+load_map = TERM_CFG.get("load_end", {}) or {}
+
+for cname in port_pairs:
+    z = float(load_map.get(cname, default_z))
+    pin = find_pin(nport, f"P_{cname}_out")
+    pin_xy = _pin_xy(pin)
+    r = circuit.modeler.schematic.create_resistor(
+        name=f"R_out_{cname}", value=f"{z}ohm",
+        location=[pin_xy[0] + out_side_sign[cname] * (PIN_BRANCH_DX + out_stagger[cname]), pin_xy[1]],
+        angle=90,
+    )
+    r_to_pin = _nearest_component_pin(r, pin_xy)
+    r_to_gnd = _other_two_pin(r, r_to_pin)
+    pin.connect_to_component(assignment=r_to_pin, use_wire=True)
+    gnd = circuit.modeler.schematic.create_gnd(
+        location=[r_to_gnd.location[0], r_to_gnd.location[1] + GND_DY]
+    )
+    r_to_gnd.connect_to_component(assignment=gnd.pins[0], use_wire=True)
+
+# -
+
+# ### Transient analysis setup
+
+# +
+tran_setup = circuit.create_setup(
+    name="EFT_Transient",
+    setup_type="NexximTransient",
+)
+tran_setup.props["TransientData"] = (
+    f"{TRAN_CFG['time_step']}s",
+    f"{TRAN_CFG['stop_time']}s",
+)
+tran_setup.props["MinStepSize"] = f"{TRAN_CFG['initial_step']}s"
+tran_setup.update()
+
+# Uncomment to run once the HFSS solve has produced the S-parameter file.
+# circuit.analyze()
+# -
+
+# ## Save and release
+
+# +
+circuit.save_project()
+circuit.release_desktop(close_projects=False, close_desktop=True)
 time.sleep(3)
 # -
 
-# ## Clean up
-#
-# All project files are saved in the folder ``temp_folder.name``.
-# If you have run this example as a Jupyter notebook, you can retrieve
-# those project files. The following cell removes all temporary files,
-# including the project folder.
+# ## Clean up the temporary directory
 
 temp_folder.cleanup()
