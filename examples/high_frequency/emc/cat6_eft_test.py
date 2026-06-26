@@ -715,22 +715,22 @@ for side in (-1.0, 1.0):
     _in_sorted = sorted((c for c in port_pairs if in_side_sign[c] == side), key=lambda c: _in_pin_y[c], reverse=True)
     _out_sorted = sorted((c for c in port_pairs if out_side_sign[c] == side), key=lambda c: _out_pin_y[c], reverse=True)
     for rank, cname in enumerate(_in_sorted):
-        in_stagger[cname] = rank * STAGGER_DX
+        in_stagger[cname] = (len(_in_sorted)-rank) * STAGGER_DX
     for rank, cname in enumerate(_out_sorted):
-        out_stagger[cname] = rank * STAGGER_DX
+        out_stagger[cname] = (len(_in_sorted)-rank) * STAGGER_DX
 
-driven_in_xy = _pin_xy(driven_in_pin)-200
+driven_in_xy = _pin_xy(driven_in_pin)
 r_src = circuit.modeler.schematic.create_resistor(
     name="R_src",
     value=f"{src_imp}ohm",
     location=[driven_in_xy[0] + in_side_sign[driven] * (PIN_BRANCH_DX + in_stagger[driven]), driven_in_xy[1]],
-    angle=90,
+    angle=0,
 )
 eft_src = circuit.modeler.schematic.create_voltage_pwl(
     name="V_EFT",
     time_list=[t for t, _ in pwl_pairs],
     voltage_list=[v for _, v in pwl_pairs],
-    location=[driven_in_xy[0] + in_side_sign[driven] * (SOURCE_BRANCH_DX + in_stagger[driven]), driven_in_xy[1]-100],
+    location=[driven_in_xy[0] + in_side_sign[driven] * (SOURCE_BRANCH_DX + in_stagger[driven]), driven_in_xy[1]],
     angle=90,
 )
 
@@ -753,7 +753,7 @@ for cname in port_pairs:
         continue
 
     pin = find_pin(nport, f"P_{cname}_in")     # substring match → tolerates "_T1"
-    pin_xy = _pin_xy(pin)-100
+    pin_xy = _pin_xy(pin)-200
     r = circuit.modeler.schematic.create_resistor(
         name=f"R_in_{cname}", value=f"{default_z}ohm",
         location=[pin_xy[0] + in_side_sign[cname] * (PIN_BRANCH_DX + in_stagger[cname]), pin_xy[1]],
@@ -777,7 +777,7 @@ load_map = TERM_CFG.get("load_end", {}) or {}
 for cname in port_pairs:
     z = float(load_map.get(cname, default_z))
     pin = find_pin(nport, f"P_{cname}_out")
-    pin_xy = _pin_xy(pin)
+    pin_xy = _pin_xy(pin)-200
     r = circuit.modeler.schematic.create_resistor(
         name=f"R_out_{cname}", value=f"{z}ohm",
         location=[pin_xy[0] + out_side_sign[cname] * (PIN_BRANCH_DX + out_stagger[cname]), pin_xy[1]],
