@@ -422,7 +422,7 @@ pure-eval==0.2.3
     # via stack-data
 py-cpuinfo==9.0.0
     # via tables
-pyaedt @ git+https://github.com/ansys/pyaedt@3db51380e9e35557e98715c354dd3bbba26865ee
+pyaedt @ git+https://github.com/ansys/pyaedt@4c300bf9fdc4f20a62b0974e03c1fb82ea398a57
     # via -r requirements/requirements_doc.txt
 pycparser==3.0
     # via cffi
