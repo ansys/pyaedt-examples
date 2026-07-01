@@ -18,7 +18,7 @@ ansys-api-edb==0.3.0
     # via ansys-edb-core
 ansys-edb-core==0.3.1
     # via pyedb
-ansys-sphinx-theme==1.8.2
+ansys-sphinx-theme==1.9.0
     # via -r requirements/requirements_doc.txt
 ansys-tools-common==0.5.0
     # via
@@ -205,6 +205,8 @@ jsonschema==4.26.0
     #   pyaedt
 jsonschema-specifications==2025.9.1
     # via jsonschema
+jupyter-builder==1.0.2
+    # via jupyterlab
 jupyter-client==8.9.0
     # via
     #   ipykernel
@@ -213,6 +215,7 @@ jupyter-client==8.9.0
 jupyter-core==5.9.1
     # via
     #   ipykernel
+    #   jupyter-builder
     #   jupyter-client
     #   jupyter-server
     #   jupyterlab
@@ -234,7 +237,7 @@ jupyter-server-proxy==4.5.0
     # via pyvista
 jupyter-server-terminals==0.5.4
     # via jupyter-server
-jupyterlab==4.5.8
+jupyterlab==4.6.0
     # via -r requirements/requirements_doc.txt
 jupyterlab-pygments==0.3.0
     # via nbconvert
@@ -242,7 +245,7 @@ jupyterlab-server==2.28.0
     # via jupyterlab
 jupyterlab-widgets==3.0.16
     # via ipywidgets
-jupytext==1.19.3
+jupytext==1.19.4
     # via -r requirements/requirements_doc.txt
 kiwisolver==1.5.0
     # via matplotlib
@@ -419,7 +422,7 @@ pure-eval==0.2.3
     # via stack-data
 py-cpuinfo==9.0.0
     # via tables
-pyaedt @ git+https://github.com/ansys/pyaedt@474f16aa06a8849b0b1de21e72db7767f7b02ba6
+pyaedt @ git+https://github.com/ansys/pyaedt@3db51380e9e35557e98715c354dd3bbba26865ee
     # via -r requirements/requirements_doc.txt
 pycparser==3.0
     # via cffi
@@ -528,8 +531,6 @@ scooby==0.11.2
     #   pyvista
 send2trash==2.1.0
     # via jupyter-server
-setuptools==82.0.1
-    # via jupyterlab
 shapely==2.1.2
     # via
     #   geopandas
@@ -606,6 +607,7 @@ toml==0.10.2
 tomli==2.4.1
     # via
     #   cyclopts
+    #   jupyter-builder
     #   jupyterlab
     #   jupytext
     #   numpydoc
@@ -628,6 +630,7 @@ traitlets==5.15.1
     #   ipykernel
     #   ipython
     #   ipywidgets
+    #   jupyter-builder
     #   jupyter-client
     #   jupyter-core
     #   jupyter-events
