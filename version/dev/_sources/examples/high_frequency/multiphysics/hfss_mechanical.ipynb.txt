@@ -1,0 +1,402 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "34d3c758",
+   "metadata": {},
+   "source": [
+    "# HFSS-Mechanical multiphysics analysis\n",
+    "\n",
+    "This example shows how to use PyAEDT to create a multiphysics workflow that\n",
+    "includes Circuit, HFSS, and Mechanical.\n",
+    "This example does not work in AEDT 2026R1.\n",
+    "\n",
+    "Keywords: **Multiphysics**, **HFSS**, **Mechanical AEDT**, **Circuit**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e3d75897",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ce5cbb61",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import tempfile\n",
+    "import time\n",
+    "\n",
+    "import ansys.aedt.core\n",
+    "from ansys.aedt.core.examples.downloads import download_via_wizard\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2da55554",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "99e0547a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2026.1\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "38e80f2b",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e86b5652",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6185711e",
+   "metadata": {},
+   "source": [
+    "## Download and open project\n",
+    "\n",
+    "Download and open the project. Save it to the temporary folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "35d001f2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_name = download_via_wizard(local_path=temp_folder.name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "74f83671",
+   "metadata": {},
+   "source": [
+    "## Start HFSS\n",
+    "\n",
+    "Initialize HFSS."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3553d391",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hfss = ansys.aedt.core.Hfss(\n",
+    "    project=project_name,\n",
+    "    version=AEDT_VERSION,\n",
+    "    non_graphical=NG_MODE,\n",
+    "    new_desktop=True,\n",
+    ")\n",
+    "hfss.change_material_override(True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6d92c1d2",
+   "metadata": {},
+   "source": [
+    "## Initialize Circuit\n",
+    "\n",
+    "Initialize Circuit and add the HFSS dynamic link component."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ce92565a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "circuit = ansys.aedt.core.Circuit(version=AEDT_VERSION)\n",
+    "hfss_comp = circuit.modeler.schematic.add_subcircuit_dynamic_link(pyaedt_app=hfss)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4c1f0461",
+   "metadata": {},
+   "source": [
+    "## Set up dynamic link options\n",
+    "\n",
+    "Set up dynamic link options. The argument for the ``set_sim_option_on_hfss_subcircuit()``\n",
+    "method can be the component name, component ID, or component object."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1ccb5fdf",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "circuit.modeler.schematic.refresh_dynamic_link(name=hfss_comp.composed_name)\n",
+    "circuit.modeler.schematic.set_sim_option_on_hfss_subcircuit(component=hfss_comp)\n",
+    "hfss_setup_name = hfss.setups[0].name + \" : \" + hfss.setups[0].sweeps[0].name\n",
+    "circuit.modeler.schematic.set_sim_solution_on_hfss_subcircuit(component=hfss_comp.composed_name, solution_name=hfss_setup_name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ba3ea877",
+   "metadata": {},
+   "source": [
+    "## Create ports and excitations\n",
+    "\n",
+    "Create ports and excitations. Find component pin locations and create interface\n",
+    "ports on them. Define the voltage source on the input port."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8dac978b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "circuit.modeler.schematic.create_interface_port(\n",
+    "    name=\"Excitation_1\",\n",
+    "    location=[hfss_comp.pins[0].location[0], hfss_comp.pins[0].location[1]],\n",
+    ")\n",
+    "circuit.modeler.schematic.create_interface_port(\n",
+    "    name=\"Excitation_2\",\n",
+    "    location=[hfss_comp.pins[1].location[0], hfss_comp.pins[1].location[1]],\n",
+    ")\n",
+    "circuit.modeler.schematic.create_interface_port(\n",
+    "    name=\"Port_1\",\n",
+    "    location=[hfss_comp.pins[2].location[0], hfss_comp.pins[2].location[1]],\n",
+    ")\n",
+    "circuit.modeler.schematic.create_interface_port(\n",
+    "    name=\"Port_2\",\n",
+    "    location=[hfss_comp.pins[3].location[0], hfss_comp.pins[3].location[1]],\n",
+    ")\n",
+    "\n",
+    "# Source assignment is not working in 2026R1 due to a known bug in AEDT.\n",
+    "if AEDT_VERSION != \"2026.1\":\n",
+    "    ports_list = [\"Excitation_1\", \"Excitation_2\"]\n",
+    "    source = circuit.assign_voltage_sinusoidal_excitation_to_ports(ports_list)\n",
+    "    source.ac_magnitude = 1\n",
+    "    source.phase = 0"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2cfb3e62",
+   "metadata": {},
+   "source": [
+    "## Create setup"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4619d519",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup_name = \"MySetup\"\n",
+    "LNA_setup = circuit.create_setup(name=setup_name)\n",
+    "sweep_list = [\"LINC\", str(4.3) + \"GHz\", str(4.4) + \"GHz\", str(1001)]\n",
+    "LNA_setup.props[\"SweepDefinition\"][\"Data\"] = \" \".join(sweep_list)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "97968b55",
+   "metadata": {},
+   "source": [
+    "## Solve and push excitations\n",
+    "\n",
+    "Solve the circuit and push excitations to the HFSS model to calculate the\n",
+    "correct value of losses."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "964845a7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "circuit.analyze(cores=NUM_CORES)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "02fcc37c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# If source is not assigned to port, the push excitation fails\n",
+    "if AEDT_VERSION != \"2026.1\":\n",
+    "    circuit.push_excitations(instance=\"S1\", setup=setup_name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5d5adb65",
+   "metadata": {},
+   "source": [
+    "## Start Mechanical\n",
+    "\n",
+    "Start Mechanical and copy bodies from the HFSS project."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "cdae8b1b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mech = ansys.aedt.core.Mechanical(version=AEDT_VERSION)\n",
+    "mech.copy_solid_bodies_from(design=hfss)\n",
+    "mech.change_material_override(True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5c66c8eb",
+   "metadata": {},
+   "source": [
+    "## Get losses from HFSS and assign convection to Mechanical"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c9cd6ba9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mech.assign_em_losses(\n",
+    "    design=hfss.design_name,\n",
+    "    setup=hfss.setups[0].name,\n",
+    "    sweep=\"LastAdaptive\",\n",
+    "    map_frequency=hfss.setups[0].props[\"Frequency\"],\n",
+    "    surface_objects=hfss.get_all_conductors_names(),\n",
+    ")\n",
+    "diels = [\"1_pd\", \"2_pd\", \"3_pd\", \"4_pd\", \"5_pd\"]\n",
+    "for el in diels:\n",
+    "    mech.assign_uniform_convection(\n",
+    "        assignment=[mech.modeler[el].top_face_y, mech.modeler[el].bottom_face_y],\n",
+    "        convection_value=3,\n",
+    "    )"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8bfd43e4",
+   "metadata": {},
+   "source": [
+    "## Solve and plot thermal results"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "aaa198bd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mech.create_setup()\n",
+    "mech.save_project()\n",
+    "mech.analyze(cores=NUM_CORES)\n",
+    "surfaces = []\n",
+    "for name in mech.get_all_conductors_names():\n",
+    "    surfaces.extend(mech.modeler.get_object_faces(name))\n",
+    "mech.post.create_fieldplot_surface(assignment=surfaces, quantity=\"Temperature\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "07fe5f7c",
+   "metadata": {},
+   "source": [
+    "## Release AEDT\n",
+    "\n",
+    "Release AEDT and close the example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3c1548a7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mech.save_project()\n",
+    "mech.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d8f1abe2",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``. If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9a9306b0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
