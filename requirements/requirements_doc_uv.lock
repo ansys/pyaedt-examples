@@ -237,7 +237,7 @@ jupyter-server-proxy==4.5.0
     # via pyvista
 jupyter-server-terminals==0.5.4
     # via jupyter-server
-jupyterlab==4.6.0
+jupyterlab==4.6.1
     # via -r requirements/requirements_doc.txt
 jupyterlab-pygments==0.3.0
     # via nbconvert
@@ -422,7 +422,7 @@ pure-eval==0.2.3
     # via stack-data
 py-cpuinfo==9.0.0
     # via tables
-pyaedt @ git+https://github.com/ansys/pyaedt@4c300bf9fdc4f20a62b0974e03c1fb82ea398a57
+pyaedt @ git+https://github.com/ansys/pyaedt@9f1d4ee41e9a7c7b40a2be3a0b279cccac656bfa
     # via -r requirements/requirements_doc.txt
 pycparser==3.0
     # via cffi
