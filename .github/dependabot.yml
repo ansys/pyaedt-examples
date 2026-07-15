@@ -4,6 +4,10 @@ updates:
     directory: "/requirements" # Location of package manifests
     schedule:
       interval: "weekly"
+    # Skip patch version bumps
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-patch']
     cooldown:
       default-days: 7
       include:
@@ -54,6 +58,14 @@ updates:
       day: "saturday"
       time: "06:00"
       timezone: "Europe/Paris"
+    # Skip patch version bumps
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-patch']
+    groups:
+      ansys-actions:
+        patterns:
+          - "ansys/actions/*"
     cooldown:
       default-days: 7
       include:
@@ -70,18 +82,22 @@ updates:
       prefix: "BUILD(actions)"
 
   - package-ecosystem: "pre-commit"
-    cooldown:
-      default-days: 7 # Fallback cooldown if no specific rule applies
-      include:
-        - "*"  # Include all dependencies in cooldown
-      exclude:
-        - "ansys/pre-commit-hooks"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "saturday"
       time: "06:00"
       timezone: "Europe/Paris"
+    # Skip patch version bumps
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-patch']
+    cooldown:
+      default-days: 7 # Fallback cooldown if no specific rule applies
+      include:
+        - "*"  # Include all dependencies in cooldown
+      exclude:
+        - "ansys/pre-commit-hooks"
     assignees:
       - "Samuelopez-ansys"
       - "SMoraisAnsys"
