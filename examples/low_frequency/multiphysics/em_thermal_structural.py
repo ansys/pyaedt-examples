@@ -121,7 +121,7 @@ ipk.design_name = icepak_design_name
 # ### Thermal transient inputs for time stepping and sub cycling
 
 end_time = 12      #s, thermal transient end time
-n_steps = 6        #n. of substeps
+n_steps = 2        #n. of substeps
 th_time_step = 0.5 #s thermal transient time step
 
 # ### Setup of the current value for the coupling step physical time using linear interpolation
