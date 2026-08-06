@@ -24,14 +24,13 @@ These examples use PyAEDT to show some multiphysics applications.
       :link: em_thermal_structural
       :link-type: doc
 
-      .. image:: _static/displacement.jpeg
+      .. image:: _static/displacement.png
          :alt: Charging
          :width: 250px
          :height: 200px
          :align: center
 
-      This example uses PyAEDT to set up a 3-physics workflow, where the electrothermal analysis implements a 2-way
-      coupling approach with restarting at each time substep.
+      This example uses PyAEDT to build a three-physics electrothermal workflow with two-way coupling and restart at each time substep.
 
 .. toctree::
       :hidden:
