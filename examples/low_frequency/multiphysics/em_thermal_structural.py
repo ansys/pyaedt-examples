@@ -288,22 +288,37 @@ for obj, temp in temperature_by_object.items():
 
 # ## Retrieve from Q3D the Named selections face IDs
 #
-# Retrieve Named Selections
+# Retrieve Q3D named selection face IDs.
+# IcepakFEA EM target designs do not automatically inherit Q3D named selections.
+# The IDs are remapped in IcepakFEA before applying structural constraints.
 
-named_selections = q3d.modeler.user_lists
-my_faces = [named_selections[f]['List'] for f in range(len(named_selections))]
-# Generate a nested list of face centers
-face_centers = [[q3d.modeler.get_face_center(assignment=fid) for fid in sublist] for sublist in my_faces]
-# Generate a nested list of face IDs in mechanical where fixed support need to be applied
-my_mech_faces = [[mech.modeler.get_faceid_from_position(position=fpos) for fpos in sublist] for sublist in face_centers]
-my_fixed = list(chain.from_iterable(my_mech_faces))
-# Generate a fixed support boundary conditions
-mech.assign_fixed_support(assignment=my_fixed, name='Fixed')
+q3d_face_ids = [face_id for ns in q3d.modeler.user_lists for face_id in ns.props["List"]]
 
-# Create the solution setup
+object_to_Save = {}
+mech_face_ids = []
+
+for obj in q3d.modeler.object_list:
+    matching_faces = [face.id for face in obj.faces if face.id in q3d_face_ids]
+    if matching_faces:
+        for face_id in matching_faces:
+            fpos = q3d.modeler.get_face_center(assignment=face_id)
+            mech_face_ids.append(mech.modeler.get_faceid_from_position(position=fpos, assignment=obj.name))
+
+# Assign ``Fixed support`` boundary condition
+
+mech.assign_fixed_support(assignment=mech_face_ids, name='Fixed')
+
+# ## Create the solution setup
+#
+# Create a new setup, validate and analyze
+
 mech_setup = mech.create_setup()
 mech.validate_simple()
 mech.analyze()
+
+# ## Post-processing
+#
+# Create postprocessing surface plots of equivalent stress and displacement magnitude for all model objects.
 
 plot_stress = mech.post.create_fieldplot_surface(
     assignment=mech.modeler.object_list, quantity="Equivalent Stress", plot_name="Equivalent Stress")
@@ -311,20 +326,15 @@ plot_stress = mech.post.create_fieldplot_surface(
 plot_displ = mech.post.create_fieldplot_surface(
     assignment=mech.modeler.object_list, quantity="Mag_Displacement", plot_name="Mag_Displacement")
 
-#
-# ## Finish
-#
+# ## Release AEDT
 
-# ### Save the project and release AEDT
-
-mech.save_project()
-mech.release_desktop()
+ipk.save_project()
+ipk.release_desktop()
 
 # Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
-
 time.sleep(3)
 
-# ### Clean up
+# ## Clean up
 #
 # All project files are saved in the folder ``temp_folder.name``.
 # If you've run this example as a Jupyter notebook, you
