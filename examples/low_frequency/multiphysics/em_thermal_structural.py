@@ -24,7 +24,6 @@
 import tempfile
 import time
 import numpy as np
-from itertools import chain
 
 import ansys.aedt.core  # Interface to Ansys Electronics Desktop
 from ansys.aedt.core.generic.aedt_constants import IcepakFeaConstants
@@ -240,7 +239,6 @@ for obj in objs:
         quantity="Temperature",
         time=t) for t in time_substeps_str]
 
-# GET SETUP TRANSIENT
 temperature_data = field_sum.get_field_summary_data(
     pandas_output=True,
     intrinsics="All times",
@@ -275,14 +273,8 @@ mech = ansys.aedt.core.Mechanical(version=AEDT_VERSION)
 
 mech.solution_type="Structural"
 
-# reorder values according to new_order
-
-# QUESTION
-# reordered_avg_temp = [temperature_by_object[name] for name in mech.modeler.object_list if name in  temperature_by_object.keys()]
-
 # assign uniform temperature excitations
 
-# QUESTION
 for obj, temp in temperature_by_object.items():
     mech.assign_thermal_condition_uniform(assignment=[obj], temperature =str(temp)+"cel", name=f"ThermalCond_{obj}")
 
