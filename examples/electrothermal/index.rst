@@ -109,7 +109,7 @@ These examples use PyAEDT to show electrothermal capabilities of AEDT
       :link: electrothermal
       :link-type: doc
 
-      .. image:: _static/3_phase_inverter/3_phase_inverter.png
+      .. image:: _static/electrothermal.png
          :alt: Electrothermal
          :width: 250px
          :height: 200px
@@ -152,7 +152,7 @@ These examples use PyAEDT to show electrothermal capabilities of AEDT
       :link: three_phase_inverter
       :link-type: doc
 
-      .. image:: _static/3_phase_inverter.png
+      .. image:: _static/3_phase_inverter/3_phase_inverter.png
          :alt: Electrothermal / Q3D-Twinbuilder-Icepak
          :width: 250px
          :height: 200px
