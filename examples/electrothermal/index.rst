@@ -109,7 +109,7 @@ These examples use PyAEDT to show electrothermal capabilities of AEDT
       :link: electrothermal
       :link-type: doc
 
-      .. image:: _static/electrothermal.png
+      .. image:: _static/3_phase_inverter/3_phase_inverter.png
          :alt: Electrothermal
          :width: 250px
          :height: 200px
