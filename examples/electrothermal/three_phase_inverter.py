@@ -3,6 +3,29 @@
 # The example based in the DC-Link bus bars of a three-phase inverter covers the electro-thermal workflow
 # with the Harmonic loss calculation in Q3D Extractor and temperature and thermal anlaysis in Icepak.
 #
+# ## Why power-loss estimation is challenging?
+#
+# Accurate estimation of power-loss density in passive interconnects such as DC-link bus bars
+# is challenging because multiple terminals can share the same conduction path, PWM currents
+# introduce rich harmonic content, and terminal currents can be phase-shifted.
+#
+# Under these conditions, it is difficult to define equivalent DC currents that both reproduce
+# the actual losses and satisfy current balance according to Kirchhoff's current law.
+#
+# Two common solutions are:
+#
+# - **Time-domain workflow** using the Maxwell A-Phi solver.
+# - **Frequency-domain workflow** using Q3D Extractor (or SIwave for PCBs) for harmonic-loss calculation.
+#
+# This example follows the frequency-domain approach and demonstrates how to use
+# Q3D Extractor to compute harmonic losses in the DC-link bus bars of a three-phase inverter.
+# It covers the electro-thermal workflow with the Harmonic loss calculation in Q3D Extractor
+# and temperature and thermal anlaysis in Icepak.
+#
+# ## Harmonic loss calculation workflow
+#
+# <img src="_static/3_phase_inverter/workflow.png" alt="" width="800">
+#
 # Keywords: **Twinbuilder**, **Q3D**, **Icepak**, **Electrothermal**.
 
 # ## Perform imports and define constants
@@ -66,6 +89,20 @@ tb = ansys.aedt.core.TwinBuilder(
     new_desktop=True,
 )
 
+# ## Model representation
+#
+# ### DC Link Busbars of a Three-phase PWM Inverter
+#
+# - Two busbars for DC link: DC plus and DC minus
+# - 7 terminals per busbar: DC input, 3 terminals for capacitor banks,
+# 3 terminals for the connection to 3 half-bridge power modules
+#
+# <img src="_static/3_phase_inverter/3_ph_pwm_inverter.png" alt="" width="500">
+#
+# ### PWM currents with rich harmonic content:
+#
+# <img src="_static/3_phase_inverter/harmonic_loss_content.png" alt="" width="600">
+#
 # ## Add Q3D component to Twinbuilder schematic
 #
 # Add a Q3D dynamic link to the Twinbuilder schematic.
@@ -80,7 +117,6 @@ comp = tb.add_q3d_dynamic_component(
     coupling_matrix_name="Original",
     state_space_dynamic_link_type="RLGC"
 )
-
 tb.set_active_design(TB_DESIGN_NAME)
 
 # ## Place component on schematic
@@ -286,6 +322,17 @@ fs.update()
 
 ipk = ansys.aedt.core.Icepak(version=AEDT_VERSION, design=ICEPAK_DESIGN_NAME)
 
+# ## Busbar model in Icepak
+#
+# - In the thermal simulation, the busbars are usually integrated in a larger CAD assembly
+# - In this example, the focus is on the electrothermal workflow, and a simplified thermal model is used
+#
+# <img src="_static/3_phase_inverter/busbar_thermal.png" alt="" width="500">
+#
+# EM loss setup with Harmonic Loss option enabled:
+#
+# <img src="_static/3_phase_inverter/em_loss_setup.png" alt="" width="400">
+#
 # ## Copy bodies from Q3D to Icepak
 #
 # Copy solid bodies from Q3D design to Icepak design
@@ -376,6 +423,10 @@ if SOLVE_ICEPAK:
     temp = ipk.post.create_fieldplot_surface(assignment=["dc_terminal", "dc_terminal_1_2"], quantity="Temperature", plot_name="Temperature")
     vol_heat_loss = ipk.post.create_fieldplot_volume(assignment=["dc_terminal", "dc_terminal_1_2"], quantity="VolumeHeatLoss", plot_name="VolumeHeatLoss")
 
+# ## Loss and temperature maps
+#
+# <img src="_static/3_phase_inverter/loss_temp_map.png" alt="" width="700">
+#
 # ## Release AEDT
 
 ipk.save_project()
