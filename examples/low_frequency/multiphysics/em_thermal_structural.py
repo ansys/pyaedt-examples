@@ -245,17 +245,22 @@ temperature_data = field_sum.get_field_summary_data(
     variation=ipk.available_variations.variations(ipk.nominal_adaptive, True)[0]
 )
 
-# Extract the average temperatures of the reference object at each time step
+# Extract the average temperatures of the object for which the worst case is considered at each time step
+# the dataframe temperature data records STEPS + 1 temperatures for each object
+# extract the sub-array where object_position is the position of the selected object as listed temperature_data,
+# where temperature_data reflect the content of Fields Summary in the GUI
+# In this case, the last block of temperature corresponding to Fuse_METAL2_1 is selected
+object_pos = len(q3d.modeler.model_objects)
 
-reference_temperatures = temperature_data["Mean"].iloc[1:].to_numpy()[-(STEPS + 1):]
+reference_temperatures = temperature_data["Mean"].iloc[0:].to_numpy()[(object_pos-1)*(STEPS + 1):object_pos*(STEPS + 1)]
 
-# Find the time step with the maximum reference temperature
+# Find the time step with the maximum of the average temperatures for the chosen object
 
 worst_step_index = np.argmax(reference_temperatures)
 
-# Extract object temperatures at the worst-case time step
+# Extract object temperatures at the selected worst-case time step
 
-worst_case_data = temperature_data.iloc[worst_step_index : worst_step_index + 1]
+worst_case_data = temperature_data.iloc[worst_step_index::(STEPS+1)]
 temperature_by_object = dict(zip(worst_case_data["Entity"], worst_case_data["Mean"]))
 
 # ## Create EM Target design
