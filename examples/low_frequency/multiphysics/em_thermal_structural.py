@@ -245,14 +245,12 @@ temperature_data = field_sum.get_field_summary_data(
     variation=ipk.available_variations.variations(ipk.nominal_adaptive, True)[0]
 )
 
-# Extract the average temperatures of the object for which the worst case is considered at each time step
-# the dataframe temperature data records STEPS + 1 temperatures for each object
-# extract the sub-array where object_position is the position of the selected object as listed temperature_data,
-# where temperature_data reflect the content of Fields Summary in the GUI
-# In this case, the last block of temperature corresponding to Fuse_METAL2_1 is selected
-object_pos = len(q3d.modeler.model_objects)
+# The temperature results are grouped by object, with STEPS + 1 values per object.
+# Select the temperatures of the object chosen as most critical, for which the time step corresponding to the maximum temperature will be selected.
+# Averaged temperatures of all objects at this time step will be used as boundary conditions for the subsequent structural analysis.
 
-reference_temperatures = temperature_data["Mean"].iloc[0:].to_numpy()[(object_pos-1)*(STEPS + 1):object_pos*(STEPS + 1)]
+object_pos = len(q3d.modeler.model_objects)
+reference_temperatures = temperature_data["Mean"].to_numpy()[(object_pos-1)*(STEPS + 1):object_pos*(STEPS + 1)]
 
 # Find the time step with the maximum of the average temperatures for the chosen object
 
