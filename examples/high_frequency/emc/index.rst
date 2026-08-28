@@ -57,6 +57,13 @@ These examples use PyAEDT to show some EMC applications.
 
       This example shows how to use PyAEDT to create see a 4 Core Armoured Power Cable.
 
+   .. grid-item-card:: Explicit cable harness modeling
+      :padding: 2 2 2 2
+      :link: explicit_cable_harness
+      :link-type: doc
+
+      This example shows how to use PyAEDT to build an explicit CAT6A S/STP HFSS cable harness.
+
    .. grid-item-card:: Busbar analysis
       :padding: 2 2 2 2
       :link: busbar
@@ -131,6 +138,7 @@ These examples use PyAEDT to show some EMC applications.
       eigenmode
       flex_cable
       armoured_cable
+      explicit_cable_harness
       busbar
       subcircuit
       double_pulse_test
