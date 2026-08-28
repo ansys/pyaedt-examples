@@ -82,6 +82,8 @@ Slurm
 Spyder
 Stackup 3D
 stackups
+Synopsys
+synopsys
 stripline
 subcircuit
 [Tt]oolkits
