@@ -19,4 +19,21 @@ These examples use PyAEDT to show some multiphysics applications.
 .. toctree::
       :hidden:
 
+.. grid-item-card:: Q3D-Icepak-IcepakFEA electrothermal-structural analysis
+      :padding: 2 2 2 2
+      :link: em_thermal_structural
+      :link-type: doc
+
+      .. image:: _static/displacement.png
+         :alt: Charging
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      This example uses PyAEDT to build a three-physics electrothermal workflow with two-way coupling and restart at each time substep.
+
+.. toctree::
+      :hidden:
+
       maxwell_icepak
+      em_thermal_structural
