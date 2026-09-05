@@ -1,0 +1,965 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "6693f8a2",
+   "metadata": {},
+   "source": [
+    "# Q3D Dynamic link to Twin Builder for the DC-Link bus bars of a drive inverter\n",
+    "\n",
+    "The example based in the DC-Link bus bars of a three-phase inverter covers the electro-thermal workflow\n",
+    "with the Harmonic loss calculation in Q3D Extractor and temperature and thermal anlaysis in Icepak.\n",
+    "\n",
+    "## Why power-loss estimation is challenging?\n",
+    "\n",
+    "Accurate estimation of power-loss density in passive interconnects such as DC-link bus bars\n",
+    "is challenging because multiple terminals can share the same conduction path, PWM currents\n",
+    "introduce rich harmonic content, and terminal currents can be phase-shifted.\n",
+    "\n",
+    "Under these conditions, it is difficult to define equivalent DC currents that both reproduce\n",
+    "the actual losses and satisfy current balance according to Kirchhoff's current law.\n",
+    "\n",
+    "Two common solutions are:\n",
+    "\n",
+    "- **Time-domain workflow** using the Maxwell A-Phi solver.\n",
+    "- **Frequency-domain workflow** using Q3D Extractor (or SIwave for PCBs) for harmonic-loss calculation.\n",
+    "\n",
+    "This example follows the frequency-domain approach and demonstrates how to use\n",
+    "Q3D Extractor to compute harmonic losses in the DC-link bus bars of a three-phase inverter.\n",
+    "It covers the electro-thermal workflow with the Harmonic loss calculation in Q3D Extractor\n",
+    "and temperature and thermal anlaysis in Icepak.\n",
+    "\n",
+    "## Harmonic loss calculation workflow\n",
+    "\n",
+    "<img src=\"_static/3_phase_inverter/workflow.png\" alt=\"\" width=\"800\">\n",
+    "\n",
+    "Keywords: **Twinbuilder**, **Q3D**, **Icepak**, **Electrothermal**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "12d1fd0c",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "de855fea",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import tempfile\n",
+    "import time\n",
+    "from pathlib import Path"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e8c67056",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import ansys.aedt.core\n",
+    "import pandas as pd\n",
+    "from ansys.aedt.core import get_pyaedt_app\n",
+    "from ansys.aedt.core.examples.downloads import download_file"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "85d64d43",
+   "metadata": {},
+   "source": [
+    "## Define constants\n",
+    "\n",
+    "Constants help ensure consistency and avoid repetition throughout the example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "83e41344",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2026.1\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched.\n",
+    "TB_DESIGN_NAME = \"3ph_circuit\"\n",
+    "Q3D_DESIGN_NAME = \"q3d_3ph\"\n",
+    "ICEPAK_DESIGN_NAME = \"Icepak_1\"\n",
+    "# Set to True to run Icepak solve and post-processing.\n",
+    "# If left as False, analyze_setup() and post-processing calls are skipped.\n",
+    "SOLVE_ICEPAK = False"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1c4d7035",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary working directory.\n",
+    "The name of the working folder is stored in ``temp_folder.name``.\n",
+    "\n",
+    "> **Note:** The final cell in the notebook cleans up the temporary folder. If you want to\n",
+    "> retrieve the AEDT project and data, do so before executing the final cell in the notebook."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ae7bb4c2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "bd28f21d",
+   "metadata": {},
+   "source": [
+    "## Download AEDT file\n",
+    "\n",
+    "Set the local temporary folder to export the AEDT file to."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1300c549",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_path = download_file(\n",
+    "    source=\"q3d_dynamic_link\",\n",
+    "    name=\"busbar_q3d_tb.aedt\",\n",
+    "    local_path=temp_folder.name,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fb531b56",
+   "metadata": {},
+   "source": [
+    "## Launch Twinbuilder AEDT\n",
+    "\n",
+    "Create an instance of the ``Twinbuilder`` class.\n",
+    "The Ansys Electronics Desktop will be launched with the active Twinbuilder design.\n",
+    "The ``tb`` object is subsequently used to create and simulate the model."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2f386c40",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tb = ansys.aedt.core.TwinBuilder(\n",
+    "    project=project_path,\n",
+    "    design=TB_DESIGN_NAME,\n",
+    "    version=AEDT_VERSION,\n",
+    "    non_graphical=NG_MODE,\n",
+    "    new_desktop=True,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "403ef6b3",
+   "metadata": {},
+   "source": [
+    "## Model representation\n",
+    "\n",
+    "### DC Link Busbars of a Three-phase PWM Inverter\n",
+    "\n",
+    "- Two busbars for DC link: DC plus and DC minus\n",
+    "- 7 terminals per busbar: DC input, 3 terminals for capacitor banks,\n",
+    "3 terminals for the connection to 3 half-bridge power modules\n",
+    "\n",
+    "<img src=\"_static/3_phase_inverter/3_ph_pwm_inverter.png\" alt=\"\" width=\"500\">\n",
+    "\n",
+    "### PWM currents with rich harmonic content:\n",
+    "\n",
+    "<img src=\"_static/3_phase_inverter/harmonic_loss_content.png\" alt=\"\" width=\"600\">\n",
+    "\n",
+    "## Add Q3D component to Twinbuilder schematic\n",
+    "\n",
+    "Add a Q3D dynamic link to the Twinbuilder schematic.\n",
+    "The Q3D State Space component creates a state-space model that is valid over a range of frequencies.\n",
+    "The component uses RLGC model extracted from the Q3D design to create a frequency sweep."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3bdc9d81",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "comp = tb.add_q3d_dynamic_component(\n",
+    "    source_project=tb.project_name,\n",
+    "    source_design_name=Q3D_DESIGN_NAME,\n",
+    "    setup=\"Setup1\",\n",
+    "    sweep=\"Sweep1\",\n",
+    "    coupling_matrix_name=\"Original\",\n",
+    "    state_space_dynamic_link_type=\"RLGC\"\n",
+    ")\n",
+    "tb.set_active_design(TB_DESIGN_NAME)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "32ea10e7",
+   "metadata": {},
+   "source": [
+    "## Place component on schematic\n",
+    "\n",
+    "Place the dynamic component on the schematic at the desired location (expressed in mm).\n",
+    "Add page ports and ammeters to each terminal of the component."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8b9b0bec",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "x_position = 0.05\n",
+    "y_position = 0.05\n",
+    "comp.location = [x_position, y_position]\n",
+    "ammeter_x_factor = 0\n",
+    "previous_value = 0\n",
+    "reset = False\n",
+    "for pin in comp.pins:\n",
+    "    current_value = pin.angle\n",
+    "    if current_value != previous_value:\n",
+    "        if not reset:\n",
+    "            ammeter_x_factor = 0\n",
+    "            reset = True\n",
+    "        angle_page_port = 180\n",
+    "        angle_ammeter = 270\n",
+    "        ammeter_x_factor += 0.015\n",
+    "        label_position = \"Right\"\n",
+    "        ammeter_y_factor = -0.002\n",
+    "    else:\n",
+    "        angle_page_port = 0\n",
+    "        angle_ammeter = 90\n",
+    "        ammeter_x_factor -= 0.015\n",
+    "        label_position = \"Left\"\n",
+    "        ammeter_y_factor = 0.002\n",
+    "\n",
+    "    prefix_1 = \"dc_plus\"\n",
+    "    prefix_2 = \"dc_minus\"\n",
+    "    prefix = prefix_1 if pin.name.startswith(prefix_1) else prefix_2\n",
+    "    terminal = pin.name.split(prefix, 1)[1].lstrip(\"_\")\n",
+    "    ammeter = tb.modeler.schematic.create_component(\n",
+    "        name=terminal,\n",
+    "        component_library=\"Basic Elements\\\\Measurement\\\\Electrical\",\n",
+    "        component_name=\"AM\",\n",
+    "        location=[pin.location[0] + ammeter_x_factor, pin.location[1] - ammeter_y_factor],\n",
+    "        angle=angle_ammeter,\n",
+    "    )\n",
+    "    comp_page_port = tb.modeler.schematic.create_page_port(name=terminal,\n",
+    "                                                           location=ammeter.pins[0].location,\n",
+    "                                                           label_position=label_position,\n",
+    "                                                           angle=angle_page_port)\n",
+    "    tb.modeler.schematic.create_wire([ammeter.pins[1].location, pin.location])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ae919960",
+   "metadata": {},
+   "source": [
+    "## Solve transient setup\n",
+    "\n",
+    "Solve the transient setup."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "19493616",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tb.analyze_setup(\"TR\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fefa5f23",
+   "metadata": {},
+   "source": [
+    "## Twinbuilder Post-processing : Time domain\n",
+    "\n",
+    "Create reports for capacitor currents, load currents, DC current and voltage."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8aed6364",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cap_currents = tb.post.create_report(\n",
+    "    expressions=[\"Ca.I\", \"Cb.I\", \"Cc.I\"],\n",
+    "    primary_sweep_variable=\"Time\",\n",
+    "    plot_name=\"Capacitor Currents\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "dd829fcd",
+   "metadata": {},
+   "source": [
+    "add markers at 10ms and 20ms"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "198994f4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cap_currents.add_cartesian_x_marker(\"10ms\")\n",
+    "cap_currents.add_cartesian_x_marker(\"20ms\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6e29eaab",
+   "metadata": {},
+   "source": [
+    "Plot only between 10ms and 20ms"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "31d5f592",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cap_currents_range = tb.post.create_report(\n",
+    "    expressions=[\"Ca.I\", \"Cb.I\", \"Cc.I\"],\n",
+    "    primary_sweep_variable=\"Time\",\n",
+    "    plot_name=\"Capacitor Currents - [10ms-20ms]\",\n",
+    ")\n",
+    "cap_currents_range.edit_x_axis_scaling(min_scale=\"10ms\", max_scale=\"20ms\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "82675bde",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "i_load = tb.post.create_report(\n",
+    "    expressions=[\"L4.I\", \"L5.I\", \"L6.I\"],\n",
+    "    primary_sweep_variable=\"Time\",\n",
+    "    plot_name=\"Load Currents\",\n",
+    ")\n",
+    "i_dc = tb.post.create_report(\n",
+    "    expressions=[\"dc_ground.I\"],\n",
+    "    primary_sweep_variable=\"Time\",\n",
+    "    plot_name=\"Idc\",\n",
+    ")\n",
+    "v_dc = tb.post.create_report(\n",
+    "    expressions=[\"Vdc_minus.V\", \"Vdc_plus.V\"],\n",
+    "    primary_sweep_variable=\"Time\",\n",
+    "    plot_name=\"Vdc\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5468b724",
+   "metadata": {},
+   "source": [
+    "## Twinbuilder Post-processing : Frequency domain\n",
+    "\n",
+    "Create spectral reports for all sources in the whole spectral domain.\n",
+    "Get the list of sources from the Q3D design.\n",
+    "Then, create a spectral report in Twinbuilder for the real and imaginary parts of the source currents."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1f3cb90b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "q3d = get_pyaedt_app(tb.project_name, Q3D_DESIGN_NAME)\n",
+    "sources = [source.name for source in q3d.boundaries_by_type[\"Source\"]]\n",
+    "tb = get_pyaedt_app(tb.project_name, TB_DESIGN_NAME)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "71c6b9ec",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "expressions = []\n",
+    "for source in sources:\n",
+    "    expressions.append(f\"re({source}.I)\")\n",
+    "    expressions.append(f\"im({source}.I)\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "db61a7db",
+   "metadata": {},
+   "source": [
+    "Create the spectral report for real and imaginary parts of source currents"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ae86280d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "new_report = tb.post.reports_by_category.spectral(expressions, \"TR\")\n",
+    "new_report.algorithm = \"FFT\"\n",
+    "new_report.window = \"Rectangular\"\n",
+    "new_report.max_frequency = \"100kHz\"\n",
+    "new_report.time_start = \"20ms\"\n",
+    "new_report.time_stop = \"30ms\"\n",
+    "new_report.variations = {\"Spectrum\": \"All\"}\n",
+    "new_report.create(\"Q3D_sources\")\n",
+    "new_report.edit_x_axis_scaling(units=\"Hz\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ed6680e3",
+   "metadata": {},
+   "source": [
+    "Export report in a CSV file"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "81c33a61",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "report_path = tb.post.export_report_to_csv(temp_folder.name, \"Q3D_sources\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4ffd9f09",
+   "metadata": {},
+   "source": [
+    "## Filter data\n",
+    "\n",
+    "Filter out rows where at least one between real and imaginary part of any source current is below a defined threshold."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "bdda4f91",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "q3d_sources_unfiltered = pd.read_csv(report_path, sep=\",\")\n",
+    "threshold = 0.01"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "71962a93",
+   "metadata": {},
+   "source": [
+    "Delete a row if and only if both re and im are below the threshold value for all sources at that frequency.\n",
+    "Build per-source masks where True indicates that both parts of the source are below the threshold for that row."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9b9340d0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df = q3d_sources_unfiltered.copy()\n",
+    "src_masks = []\n",
+    "for source in sources:\n",
+    "    col_re = f\"re({source}.I) [A]\"\n",
+    "    col_im = f\"im({source}.I) [A]\"\n",
+    "    re_vals = pd.to_numeric(df[col_re], errors=\"coerce\").abs()\n",
+    "    im_vals = pd.to_numeric(df[col_im], errors=\"coerce\").abs()\n",
+    "    src_masks.append((re_vals < threshold) & (im_vals < threshold))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1bfb430d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# A row is removed only if every source mask is True for that row\n",
+    "rows_all_small = pd.concat(src_masks, axis=1).all(axis=1) if src_masks else pd.Series(False, index=df.index)\n",
+    "q3d_sources_filtered = df[~rows_all_small]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ab3e7327",
+   "metadata": {},
+   "source": [
+    "Save filtered data back to a new CSV file"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4c7b45fd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "q3d_sources_filtered_path = Path(tb.working_directory) / \"Q3D_sources_filtered.csv\"\n",
+    "q3d_sources_filtered.to_csv(q3d_sources_filtered_path, sep=\",\", index=False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "136186b7",
+   "metadata": {},
+   "source": [
+    "Save real and imaginary part in separate tab-separated files\n",
+    "Each .tab file will contain two columns: frequency and the corresponding part (real or imaginary)\n",
+    "After exporting, import each .tab file as a dataset 1D in Q3D"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "44aefd1c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "freq_column = q3d_sources_filtered.columns[0]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "10b040ac",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "for col in q3d_sources_filtered.columns[1:]:\n",
+    "    # Save the DataFrame as a tab-separated file\n",
+    "    new_file_name = Path(tb.working_directory) / f\"{col}.tab\"\n",
+    "    q3d_sources_filtered[[freq_column, col]].to_csv(new_file_name, sep=\"\\t\", index=False)\n",
+    "\n",
+    "    # Determine dataset name and import it\n",
+    "    if col.split(\"(\")[0] == \"re\":\n",
+    "        dataset_name = f\"re_{col.split('(')[1].split('.')[0]}\"\n",
+    "    elif col.split(\"(\")[0] == \"im\":\n",
+    "        dataset_name = f\"im_{col.split('(')[1].split('.')[0]}\"\n",
+    "    q3d.import_dataset1d(str(new_file_name), name=dataset_name, is_project_dataset=False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c4db04d8",
+   "metadata": {},
+   "source": [
+    "## Q3D: Harmonic loss setup\n",
+    "\n",
+    "Specify real and imaginary currents for each source to compute harmonic loss."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "11122c71",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "harmonic_loss = {}\n",
+    "for source in sources:\n",
+    "    re_dataset_name = next(d for d in list(q3d.design_datasets.keys()) if source in d and \"re\" in d.lower())\n",
+    "    im_dataset_name = next(d for d in list(q3d.design_datasets.keys()) if source in d and \"im\" in d.lower())\n",
+    "    harmonic_loss[source] = (re_dataset_name, im_dataset_name)\n",
+    "q3d.edit_sources(harmonic_loss=harmonic_loss)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "780a7fa2",
+   "metadata": {},
+   "source": [
+    "## Q3D Post-processing\n",
+    "\n",
+    "Plot the harmonic loss density on the surface of the objects"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "56c13e2e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plot = q3d.post.create_fieldplot_surface([\"dc_terminal\", \"dc_terminal_1_2\"],\n",
+    "                                         \"Harmonic_Loss_Density\",\n",
+    "                                         intrinsics={\"Freq\": \"0.5GHz\", \"Phase\": \"0deg\"})\n",
+    "q3d.save_project()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4437bb84",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fs = plot.folder_settings\n",
+    "fs.scale_settings.scale_type = \"MinMax\"\n",
+    "fs.update()\n",
+    "fs.scale_settings.scale_settings.max_value = 1040000\n",
+    "fs.scale_settings.scale_settings.min_value = 0.1\n",
+    "fs.scale_settings.log = True\n",
+    "fs.update()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3d571f10",
+   "metadata": {},
+   "source": [
+    "## Create Icepak Design\n",
+    "\n",
+    "Create an Icepak to run a thermal simulation"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1657ee6f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk = ansys.aedt.core.Icepak(version=AEDT_VERSION, design=ICEPAK_DESIGN_NAME)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e9fb61e1",
+   "metadata": {},
+   "source": [
+    "## Busbar model in Icepak\n",
+    "\n",
+    "- In the thermal simulation, the busbars are usually integrated in a larger CAD assembly\n",
+    "- In this example, the focus is on the electrothermal workflow, and a simplified thermal model is used\n",
+    "\n",
+    "<img src=\"_static/3_phase_inverter/busbar_thermal.png\" alt=\"\" width=\"500\">\n",
+    "\n",
+    "EM loss setup with Harmonic Loss option enabled:\n",
+    "\n",
+    "<img src=\"_static/3_phase_inverter/em_loss_setup.png\" alt=\"\" width=\"400\">\n",
+    "\n",
+    "## Copy bodies from Q3D to Icepak\n",
+    "\n",
+    "Copy solid bodies from Q3D design to Icepak design"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c68f3768",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "copy_bodies_from_q3d = q3d.modeler.get_objects_by_material(\"copper\") + q3d.modeler.sheet_objects\n",
+    "ipk.copy_solid_bodies_from(q3d, assignment=copy_bodies_from_q3d, include_sheets=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "cdc97bf8",
+   "metadata": {},
+   "source": [
+    "## Change region padding and create subregion\n",
+    "\n",
+    "Change region padding and create subregion to enclose the objects imported from Q3D"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b4d10a6a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "padding = [\"Percentage Offset\", \"Percentage Offset\", \"Percentage Offset\", \"Percentage Offset\",\n",
+    "           \"Absolute Offset\", \"Absolute Offset\"]\n",
+    "ipk.modeler.change_region_padding(\n",
+    "    padding_data=[100, 100, 50, 50, \"200mm\", \"200mm\"],\n",
+    "    padding_type=padding\n",
+    ")\n",
+    "ipk.modeler.get_objects_by_material(\"air\")[0].is_model = False\n",
+    "subregion = ipk.modeler.create_subregion(padding_values=[10, 10, 10, 10, 50, 50],\n",
+    "                                         padding_types=\"Percentage Offset\",\n",
+    "                                         assignment=[\"dc_terminal\", \"dc_terminal_1_2\"],\n",
+    "                                         name=\"Subregion\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ded377fb",
+   "metadata": {},
+   "source": [
+    "## Assign EM losses\n",
+    "\n",
+    "Assign EM losses from Q3D to the objects imported in Icepak.\n",
+    "Set the harmonic loss values computed in Q3D as intrinsic values for the EM loss boundary condition."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "96060d6d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "variables_mapping = {}\n",
+    "for key, value in q3d.variable_manager.design_variables.items():\n",
+    "    variables_mapping[key] = value.expression"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c80685b2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.assign_em_losses(\n",
+    "    design=Q3D_DESIGN_NAME,\n",
+    "    setup=\"Setup1\",\n",
+    "    sweep=\"LastAdaptive\",\n",
+    "    parameters=variables_mapping,\n",
+    "    assignment=[\"dc_terminal\", \"dc_terminal_1_2\"],\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "48d5973d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "k = list(q3d.design_datasets.keys())[0]\n",
+    "result = [f\"{v / 1000}{q3d.design_datasets[k].xunit}\" for v in q3d.design_datasets[k].x]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4bcc055d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "EM_loss = ipk.boundaries_by_type[\"EMLoss\"][0]\n",
+    "EM_loss.auto_update = False\n",
+    "EM_loss.props[\"ForceSourceToSolve\"] = False\n",
+    "EM_loss.props[\"PreservePartnerSoln\"] = False\n",
+    "EM_loss.props[\"Intrinsics\"] = [\"500MHz\"]\n",
+    "EM_loss.props[\"Q3DEMLossType\"] = \"HarmonicLoss\"\n",
+    "EM_loss.props[\"IntrinsicsHarmonicLoss\"] = result\n",
+    "EM_loss.props[\"HarmonicLossSweepCoupling\"] = False\n",
+    "EM_loss.update()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ad3c9eef",
+   "metadata": {},
+   "source": [
+    "## Assign stationary wall boundary condition\n",
+    "\n",
+    "Assign stationary wall boundary condition with temperature to the sources"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9251a855",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.assign_stationary_wall_with_temperature(\n",
+    "    geometry=[\"module_a_minus\", \"module_a_plus\", \"module_b_minus\", \"module_b_plus\", \"module_c_minus\", \"module_c_plus\"],\n",
+    "    name=\"stationary_wall\",\n",
+    "    temperature=80,\n",
+    "    thickness=\"10mm\",\n",
+    "    material=\"Al-Extruded\",\n",
+    "    radiate=False,\n",
+    "    radiate_surf_mat=\"Steel-oxidised-surface\",\n",
+    "    shell_conduction=True,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d2843c22",
+   "metadata": {},
+   "source": [
+    "## Icepak setup\n",
+    "\n",
+    "Set \"Temperature\" as the only problem type in the Icepak setup"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4b8a999a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup = ipk.create_setup()\n",
+    "setup.props[\"Include Flow\"] = False"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "64c25704",
+   "metadata": {},
+   "source": [
+    "## Analysis\n",
+    "\n",
+    "Analyze the Icepak design"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f067f1be",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "if SOLVE_ICEPAK:\n",
+    "    ipk.analyze_setup(ipk.setups[0].name, cores=None)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "444ee880",
+   "metadata": {},
+   "source": [
+    "## Icepak Post-processing\n",
+    "\n",
+    "Post-processing: plot temperature distribution and volumetric heat loss on the surface of the objects"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7d4f97c4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "if SOLVE_ICEPAK:\n",
+    "    temp = ipk.post.create_fieldplot_surface(assignment=[\"dc_terminal\", \"dc_terminal_1_2\"], quantity=\"Temperature\", plot_name=\"Temperature\")\n",
+    "    vol_heat_loss = ipk.post.create_fieldplot_volume(assignment=[\"dc_terminal\", \"dc_terminal_1_2\"], quantity=\"VolumeHeatLoss\", plot_name=\"VolumeHeatLoss\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0292e4ce",
+   "metadata": {},
+   "source": [
+    "## Loss and temperature maps\n",
+    "\n",
+    "<img src=\"_static/3_phase_inverter/loss_temp_map.png\" alt=\"\" width=\"700\">\n",
+    "\n",
+    "## Release AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9398bcb7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ipk.save_project()\n",
+    "ipk.release_desktop()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e29cfcd7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fde9767f",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "98d614f5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
