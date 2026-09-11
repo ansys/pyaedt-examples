@@ -20,5 +20,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Test
+from ansys.aedt.core import Maxwell3d
 
+m3d = Maxwell3d()
