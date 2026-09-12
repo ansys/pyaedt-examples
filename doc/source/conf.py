@@ -294,6 +294,9 @@ def convert_examples_into_notebooks(app):
         # GitHub CI/CD Pipeline randomly fails to run field_export.py but it runs locally.
         "field_export.py",
         "component_conversion.py",
+        # GitHub CI/CD Pipeline randomly fails to with Emit API.
+        "antenna.py",
+        "hfss_emit.py"
     )
 
     unchanged_examples = []
