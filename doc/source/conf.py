@@ -2,17 +2,16 @@
 
 # -- Project information -----------------------------------------------------
 import datetime
-from importlib import import_module
 import os
-from pathlib import Path
-from pprint import pformat
 import re
 import shutil
 import traceback
-from typing import Any
-from sphinx.application import Sphinx
-from sphinx.config import Config
+from importlib import import_module
+from pathlib import Path
+from pprint import pformat
 
+import numpy as np
+import pyvista
 from ansys_sphinx_theme import (
     ansys_favicon,
     ansys_logo_white,
@@ -22,10 +21,10 @@ from ansys_sphinx_theme import (
 )
 from docutils import nodes
 from docutils.parsers.rst import Directive
-import numpy as np
-import pyvista
 from sphinx import addnodes
+from sphinx.application import Sphinx
 from sphinx.builders.latex import LaTeXBuilder
+from sphinx.config import Config
 from sphinx.util import logging
 
 os.environ["PYAEDT_NON_GRAPHICAL"] = "1"
@@ -39,6 +38,7 @@ logger = logging.getLogger(__name__)
 # logger.setLevel(logging.LEVEL_NAMES["DEBUG"])
 path = Path(__file__).parent.parent.parent / "examples"
 EXAMPLES_DIRECTORY = path.resolve()
+ORIGINAL_EXAMPLES: dict[Path, list[str]] = {}
 REPOSITORY_NAME = "pyaedt-examples"
 USERNAME = "ansys"
 BRANCH = "main"
@@ -114,11 +114,11 @@ def copy_examples_structure(app: Sphinx, config: Config):
             size = directory_size(destination_dir)
             logger.info(f"Directory {destination_dir} ({size} MB) already exist, removing it.")
             shutil.rmtree(destination_dir, ignore_errors=True)
-            logger.info(f"Directory removed.")
+            logger.info("Directory removed.")
 
     ignore_python_files = lambda _, files: [file for file in files if file.endswith(".py")]
     shutil.copytree(EXAMPLES_DIRECTORY, destination_dir, ignore=ignore_python_files, dirs_exist_ok=True)
-    logger.info(f"Copy performed.")
+    logger.info("Copy performed.")
 
 
 def copy_script_examples(app: Sphinx, exception: None | Exception):
@@ -161,7 +161,7 @@ def copy_script_examples(app: Sphinx, exception: None | Exception):
 
         shutil.copyfile(example, out_example_path)
 
-    logger.info(f"Copy performed.")
+    logger.info("Copy performed.")
 
 
 def adjust_image_path(app: Sphinx, docname, source):
@@ -252,7 +252,7 @@ def remove_examples(app: Sphinx, exception: None | Exception):
         size = directory_size(destination_dir)
         logger.info(f"Removing directory {destination_dir} ({size} MB).")
         shutil.rmtree(destination_dir, ignore_errors=True)
-        logger.info(f"Directory removed.")
+        logger.info("Directory removed.")
 
 
 def remove_doctree(app: Sphinx, exception: None | Exception):
@@ -270,12 +270,102 @@ def remove_doctree(app: Sphinx, exception: None | Exception):
         size = directory_size(app.doctreedir)
         logger.info(f"Removing doctree {app.doctreedir} ({size} MB).")
         shutil.rmtree(app.doctreedir, ignore_errors=True)
-        logger.info(f"Doctree removed.")
+        logger.info("Doctree removed.")
+
+
+def restore_license_headers(app: Sphinx, exception: None | Exception):
+    """Restore original example scripts modified by remove_license_headers.
+
+    This hook is intentionally not gated on the SPHINXBUILD_HTML_AND_PDF_WORKFLOW env var:
+    Both the HTML and the PDF sphinx-build invocations must operate on the original files,
+    so restore runs unconditionally after each.
+
+    Parameters
+    ----------
+    app : sphinx.application.Sphinx
+        Sphinx instance containing all the configuration for the documentation build.
+    exception : None or Exception
+        Exception raised during the build process.
+    """
+    logger.info("Restoring license headers in example scripts")
+    for path, original in ORIGINAL_EXAMPLES.items():
+        try:
+            with open(path, "w", encoding="utf-8") as file:
+                file.writelines(original)
+        except OSError as error:
+            logger.error(f"Failed to restore {path}: {error}")
+
+    ORIGINAL_EXAMPLES.clear()
+    logger.info("License headers restored.")
+
+
+def remove_license_headers(app: Sphinx, config: Config):
+    """Remove the license headers from the example scripts.
+    
+    Parameters
+    ----------
+    app : sphinx.application.Sphinx
+        Sphinx instance containing all the configuration for the documentation build.
+    config : sphinx.config.Config
+        Configuration file abstraction.
+    """
+
+    logger.info("Removing license headers from the example scripts...")
+
+    # Read the license file of the project
+    path_license_file = Path(__file__).parent.parent.parent / "LICENSE"
+    license_content = " ".join(path_license_file.read_text().split())
+
+    example_scripts = list(EXAMPLES_DIRECTORY.glob("**/*.py"))
+    count_removed_headers = 0
+
+    for example in example_scripts:
+        license_header = False
+        example_no_license = []
+
+        # Read the content of the example script
+        with open(example, "r", encoding="utf-8") as file:
+            example_content = file.readlines()
+
+        # Then clear lines corresponding to the license header
+        for line_id, line in enumerate(example_content):
+            if line.startswith("#"):
+                line = line.lstrip("#").strip()
+                if line != "":
+                    if line in license_content or line.startswith(("Copyright", "SPDX")):
+                        license_header = True
+                        continue
+                    else:
+                        example_no_license = example_content[line_id:]
+                        break
+                else: 
+                    continue
+            elif line.strip() == "":
+                if license_header:
+                    continue
+                else:
+                    example_no_license = example_content[line_id:]
+                    break
+            else:
+                example_no_license = example_content[line_id:]
+                break
+
+        # If the license header was detected, rewrite the example script without the corresponding lines.
+        # Also store the original script to restore it in the restore_license_headers hook.
+        if license_header:
+            with open(example, "w", encoding="utf-8") as file:
+                file.writelines(example_no_license)
+            count_removed_headers += 1
+            ORIGINAL_EXAMPLES[example] = example_content
+            logger.debug(f"Removed license header in file {example}")
+
+    logger.info(f"Removed license header in {count_removed_headers} example scripts.")
 
 
 def convert_examples_into_notebooks(app):
     """Convert light style script into notebooks and disable execution if needed."""
     import subprocess
+
     import nbformat
 
     logger.info("Converting examples into notebooks and disabling execution if needed...")
@@ -373,12 +463,13 @@ def patch_notebook_parser_with_timer():
 
     Each notebook parse (which includes kernel execution) is timed and the
     duration is printed immediately to stdout so it is visible in CI streaming
-    logs.  At the end of the build the ``build-finished`` hook writes a
+    logs. At the end of the build the ``build-finished`` hook writes a
     Markdown table to ``$GITHUB_STEP_SUMMARY``.
 
     It returns the ``build-finished`` hook that writes the timing summary.
     """
     import time
+
     import nbsphinx
 
     # Shared registry: docname -> elapsed seconds
@@ -460,6 +551,7 @@ def setup(app):
     # Configuration inited hooks
     app.connect("config-inited", check_pandoc_installed)
     app.connect("config-inited", copy_examples_structure)
+    app.connect("config-inited", remove_license_headers)
     # Builder inited hooks
     app.connect("builder-inited", convert_examples_into_notebooks)
     app.connect("builder-inited", skip_gif_examples_to_build_pdf)
@@ -468,6 +560,7 @@ def setup(app):
     # Build finished hooks
     if bool(os.environ.get("ON_CI", "")):
         app.connect("build-finished", patch_notebook_parser_with_timer())
+    app.connect("build-finished", restore_license_headers)
     app.connect("build-finished", remove_examples)
     app.connect("build-finished", remove_doctree)
     app.connect("build-finished", copy_script_examples)
