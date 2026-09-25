@@ -386,9 +386,9 @@ def convert_examples_into_notebooks(app):
         "component_conversion.py",
         # GitHub CI/CD Pipeline randomly fails to with Emit API.
         "antenna.py",
-        "hfss_emit.py"
+        "hfss_emit.py",
         # OSMX is currently failing in the CICD
-        "city.py"
+        "city.py",
     )
 
     unchanged_examples = []
