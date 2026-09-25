@@ -339,7 +339,7 @@ numpy==2.2.6
     #   scipy
     #   shapely
     #   tables
-numpydoc==1.10.0
+numpydoc==1.11.0
     # via -r requirements/requirements_doc.txt
 openpyxl==3.1.5
     # via pyaedt
@@ -422,7 +422,7 @@ pure-eval==0.2.3
     # via stack-data
 py-cpuinfo==9.0.0
     # via tables
-pyaedt @ git+https://github.com/ansys/pyaedt@9f1d4ee41e9a7c7b40a2be3a0b279cccac656bfa
+pyaedt @ git+https://github.com/ansys/pyaedt@8e40daadfa46ce992a44e9554401171944780686
     # via -r requirements/requirements_doc.txt
 pycparser==3.0
     # via cffi
@@ -688,6 +688,7 @@ typing-extensions==4.15.0
     #   mistune
     #   multidict
     #   plumbum
+    #   pyaedt
     #   pydantic
     #   pydantic-core
     #   pydata-sphinx-theme

@@ -6,7 +6,7 @@ ansys-sphinx-theme==1.9.0
 ipython==8.39.0
 jupyterlab==4.6.1
 nbsphinx==0.9.8
-numpydoc==1.10.0
+numpydoc==1.11.0
 pypandoc==1.17
 recommonmark
 Sphinx==8.1.3
