@@ -80,7 +80,7 @@ rmxprt.stator.properties.properties["Steel Type"] = [
     "steel_1008",
 ]
 rmxprt.stator["Number of Slots"] = 24
-rmxprt.stator["Slot Type"] = 2
+rmxprt.stator["Slot Type/SlotType"] = 2
 
 rmxprt.stator.properties.children["Slot"].properties["Auto Design"] = False
 rmxprt.stator.properties.children["Slot"].properties["Hs0"] = "0.5mm"
@@ -146,7 +146,7 @@ m2d.plot(
 # ## Export RMxprt settings
 #
 # Export all RMxprt settings to a JSON file to reuse it for another
-# project with the the import function.
+# project with the import function.
 
 config = rmxprt.export_configuration(os.path.join(temp_folder.name, "assm.json"))
 rmxprt2 = ansys.aedt.core.Rmxprt(
