@@ -422,7 +422,7 @@ pure-eval==0.2.3
     # via stack-data
 py-cpuinfo==9.0.0
     # via tables
-pyaedt @ git+https://github.com/ansys/pyaedt@0f55fcf2ef5bf964fe023f925e736a147eb373fe
+pyaedt @ git+https://github.com/ansys/pyaedt@79d69d26e1088bd6349e9de248c8bf9187e86c58
     # via -r requirements/requirements_doc.txt
 pycparser==3.0
     # via cffi
@@ -568,7 +568,7 @@ sphinx-copybutton==0.5.2
     # via -r requirements/requirements_doc.txt
 sphinx-design==0.6.1
     # via -r requirements/requirements_doc.txt
-sphinx-gallery==0.21.0
+sphinx-gallery==0.22.1
     # via -r requirements/requirements_doc.txt
 sphinx-notfound-page==1.1.0
     # via -r requirements/requirements_doc.txt
