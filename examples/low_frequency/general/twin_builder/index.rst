@@ -63,8 +63,6 @@ These examples use PyAEDT to show some Twin Builder applications.
    .. toctree::
       :hidden:
 
-      rc_circuit
-      rectifier
       static_rom
       dynamic_rom
       lti_rom_sml
