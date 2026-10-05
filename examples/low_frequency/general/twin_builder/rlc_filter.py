@@ -141,7 +141,7 @@ vars["$Vdrive"] = "10V"
 report_voltages = tb.post.create_report(
     plot_name="RLC 10V 10mH 50ohm Input Output",
     domain="Time",
-    expressions=["C_SHUNT.V"],
+    expressions=["C_SHUNT.V", "V_IN.V"],
     primary_sweep_variable="Time",
     variations=vars,
     context={"optimetrics_setup": sweep.name}
@@ -185,6 +185,19 @@ report_resonance = tb.post.create_report(
     context={"optimetrics_setup": sweep.name}
 )
 
+# Find max values of ``C_SHUNT.V`` for all combinations and export legend in a csv file.
+
+report_resonance.add_trace_characteristics(name="max")
+output_file = f"{temp_folder.name}\\{report_resonance.plot_name}_legend.csv"
+
+report_resonance.export_table_to_file(
+    plot_name="RLC Output Voltage vs Inductance at 10V 50ohm",
+    output_file=f"{temp_folder.name}\\{report_resonance.plot_name}_legend.csv",
+    table_type="Legend"
+)
+
+# <img src="_static/rlc.png" alt="RLC plot" width="700">
+
 # Export ``C_SHUNT.V`` for all different values of series inductance.
 
 export_path_resonance = tb.post.export_report_to_file(
@@ -194,18 +207,24 @@ export_path_resonance = tb.post.export_report_to_file(
 )
 
 # Export report data to CSV for a specific value of series inductance.
-# Supposedly, the data are exported for the series inductance of 10 mH.
+# Supposedly, the data are exported for the series inductance of 10 mH where resonance peaking occurs.
+# Add a Y cartesian marker at maximum point.
 
 vars["$Lseries"] = "10mH"
 report_resonance.update_trace_in_report(
     traces=["C_SHUNT.V"],
     variations=vars,
 )
+report_resonance.add_cartesian_y_marker(
+    value="14.1925V",
+)
 export_path_resonance_Lseries10mH = tb.post.export_report_to_file(
     output_dir=temp_folder.name,
     plot_name=report_resonance.plot_name,
     extension=".csv",
 )
+
+# <img src="_static/rlc_max_marker.png" alt="RLC plot" width="700">
 
 # ## Create a PyAEDT report object (not in AEDT GUI).
 #
@@ -230,7 +249,7 @@ report_damp_data = tb.post.get_solution_data(
 #
 # 1. Export ``C_SHUNT.V`` data for each variation in a csv file.
 
-for var in report_damp.variations:
+for var in report_damp_data.variations:
     report_damp_data.active_variation = var
     expr = report_damp_data.get_expression_data()
 
