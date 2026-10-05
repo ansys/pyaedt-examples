@@ -6,14 +6,14 @@ ansys-sphinx-theme==1.9.0
 ipython==8.39.0
 jupyterlab==4.6.1
 nbsphinx==0.9.8
-numpydoc==1.10.0
+numpydoc==1.11.0
 pypandoc==1.17
 recommonmark
 Sphinx==8.1.3
 sphinx-autobuild==2024.10.3
 sphinx-autodoc-typehints==3.0.1
 sphinx-copybutton==0.5.2
-sphinx-gallery==0.21.0
+sphinx-gallery==0.22.1
 sphinx-notfound-page==1.1.0
 sphinx_design==0.6.1
 sphinxcontrib-websupport==2.0.0
