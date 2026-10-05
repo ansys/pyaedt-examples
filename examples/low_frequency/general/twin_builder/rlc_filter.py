@@ -4,6 +4,10 @@
 # It covers setup creation, parametric sweeps of key circuit parameters, and post-processing of simulation results.
 # Generated plots illustrate how the parametric sweep affects the circuit response.
 # Key behaviors such as resonance peaking, damping, and current flow under different resistance values are examined.
+# Studying how an RLC filter behaves as resistance, inductance, and drive voltage vary is useful
+# for understanding key circuit phenomena such as resonance, damping, overshoot, and settling time.
+# Parametric analysis helps reveal how component values and input conditions influence the response,
+# making it easier to evaluate filter performance and identify meaningful operating points.
 #
 # Keywords: **Twin Builder**, **RLC**.
 
@@ -15,6 +19,7 @@ from pathlib import Path
 import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_file
 from ansys.aedt.core.generic.file_utils import write_csv
+from matplotlib import pyplot as plt
 
 # -
 
@@ -248,6 +253,7 @@ report_damp_data = tb.post.get_solution_data(
 # Two different approaches are shown:
 #
 # 1. Export ``C_SHUNT.V`` data for each variation in a csv file.
+# With this approach, a plot is generated with Matplotlib for each variation of series resistance.
 
 for var in report_damp_data.variations:
     report_damp_data.active_variation = var
@@ -260,6 +266,12 @@ for var in report_damp_data.variations:
 
     csv_path = Path(temp_folder.name) / f"RLC Output Voltage vs Resistance at 10V 10mH_{var['$Rseries']}.csv"
     write_csv(str(csv_path), rows)
+
+    plt.plot(time_values, c_shunt_values)
+    plt.grid()
+    plt.xlabel("Time")
+    plt.ylabel("C_SHUNT.V")
+    plt.show()
 
 # 2. Export ``C_SHUNT.V`` data in a csv for all combinations of ``$Rseries``.
 
