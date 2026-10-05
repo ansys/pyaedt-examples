@@ -9,9 +9,12 @@
 
 # +
 import tempfile
+import time
+from pathlib import Path
 
 import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_file
+from ansys.aedt.core.generic.file_utils import write_csv
 
 # -
 
@@ -144,6 +147,27 @@ report_voltages = tb.post.create_report(
     context={"optimetrics_setup": sweep.name}
 )
 
+# Export report data to CSV for the whole time domain.
+# The CSV file will be saved in the temporary folder created earlier.
+
+export_path = tb.post.export_report_to_file(
+    output_dir=temp_folder.name,
+    plot_name=report_voltages.plot_name,
+    extension=".csv",
+)
+
+# Export report data to CSV for a specific time range.
+# Supposedly, the data are exported for the time range from 0 to 5 ms.
+
+export_path_range = tb.post.export_report_to_file(
+    output_dir=temp_folder.name,
+    plot_name=report_voltages.plot_name,
+    extension=".csv",
+    start="0ms",
+    end="5ms",
+    step="1ms"
+)
+
 # Second report shows resonance for different values of series inductance.
 # The report shows the voltage across the shunt capacitor ``C_SHUNT.V`` for different values of series inductance.
 # Values for the series inductance are 5, 10, 15, and 20 mH while the series resistance is fixed at 50 ohms and the drive voltage is fixed at 10V.
@@ -161,15 +185,82 @@ report_resonance = tb.post.create_report(
     context={"optimetrics_setup": sweep.name}
 )
 
-# ## Export report data to CSV
+# Export ``C_SHUNT.V`` for all different values of series inductance.
+
+export_path_resonance = tb.post.export_report_to_file(
+    output_dir=temp_folder.name,
+    plot_name=report_resonance.plot_name,
+    extension=".csv",
+)
+
+# Export report data to CSV for a specific value of series inductance.
+# Supposedly, the data are exported for the series inductance of 10 mH.
+
+vars["$Lseries"] = "10mH"
+report_resonance.update_trace_in_report(
+    traces=["C_SHUNT.V"],
+    variations=vars,
+)
+export_path_resonance_Lseries10mH = tb.post.export_report_to_file(
+    output_dir=temp_folder.name,
+    plot_name=report_resonance.plot_name,
+    extension=".csv",
+)
+
+# ## Create a PyAEDT report object (not in AEDT GUI).
 #
-# Export the report data to a CSV file for further analysis or documentation.
+# The report demonstrates how resistance damps resonance for different values of series resistance.
+# The values for the series resistance are 25, 50, 75, and 100 ohms.
+# The series inductance is fixed at 10 mH and the drive voltage is fixed at 10V.
 
-#export one as csv
-tb.post.export_report_to_csv()
+report_damp = tb.post.reports_by_category.standard(
+    expressions=["C_SHUNT.V"],
+)
 
-#export one with another format
-tb.post.export_report_to_file()
+# Get the report data of ``C_SHUNT.V`` for all different values of series resistance.
 
-# Post-processing without creating a report in AEDT GUI
+report_damp_data = tb.post.get_solution_data(
+    expressions=["C_SHUNT.V"],
+    primary_sweep_variable="Time",
+    variations={"$Rseries": "All", "$Lseries": "10mH", "$Vdrive": "10V"},
+    context={"optimetrics_setup": sweep.name},
+)
 
+# Two different approaches are shown:
+#
+# 1. Export ``C_SHUNT.V`` data for each variation in a csv file.
+
+for var in report_damp.variations:
+    report_damp_data.active_variation = var
+    expr = report_damp_data.get_expression_data()
+
+    rows = [["Time", "C_SHUNT.V"]]
+    time_values = expr[0]
+    c_shunt_values = expr[1]
+    rows.extend([[t, v] for t, v in zip(time_values, c_shunt_values)])
+
+    csv_path = Path(temp_folder.name) / f"RLC Output Voltage vs Resistance at 10V 10mH_{var['$Rseries']}.csv"
+    write_csv(str(csv_path), rows)
+
+# 2. Export ``C_SHUNT.V`` data in a csv for all combinations of ``$Rseries``.
+
+report_damp_data.export_data_to_csv(
+    output=temp_folder.name + "\\RLC Output Voltage vs Resistance at 10V 10mH.csv",
+    delimiter=","
+)
+
+# ## Release AEDT
+
+tb.save_project()
+tb.release_desktop()
+# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
+time.sleep(3)
+
+# ## Clean up
+#
+# All project files are saved in the folder ``temp_folder.name``.
+# If you've run this example as a Jupyter notebook, you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
+
+temp_folder.cleanup()
