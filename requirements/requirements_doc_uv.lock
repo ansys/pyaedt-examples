@@ -14,9 +14,9 @@ alabaster==1.0.0
     # via sphinx
 annotated-types==0.7.0
     # via pydantic
-ansys-api-edb==0.3.0
+ansys-api-edb==0.3.2
     # via ansys-edb-core
-ansys-edb-core==0.3.1
+ansys-edb-core==0.3.3
     # via pyedb
 ansys-sphinx-theme==1.9.0
     # via -r requirements/requirements_doc.txt
@@ -24,6 +24,7 @@ ansys-tools-common==0.5.3
     # via
     #   ansys-edb-core
     #   pyaedt
+    #   pyedb
 ansys-tools-visualization-interface==0.13.3
     # via pyaedt
 anyio==4.13.0
@@ -79,7 +80,12 @@ click==8.4.1
     #   ansys-tools-common
     #   uvicorn
 colorama==0.4.6
-    # via sphinx-autobuild
+    # via
+    #   click
+    #   ipython
+    #   sphinx
+    #   sphinx-autobuild
+    #   tqdm
 comm==0.2.3
     # via
     #   ipykernel
@@ -375,8 +381,6 @@ parso==0.8.7
     # via jedi
 pdf2image==1.17.0
     # via ansys-sphinx-theme
-pexpect==4.9.0
-    # via ipython
 pillow==12.2.0
     # via
     #   fpdf2
@@ -414,10 +418,6 @@ psutil==7.2.2
     #   ipykernel
     #   pyaedt
     #   pyedb
-ptyprocess==0.7.0
-    # via
-    #   pexpect
-    #   terminado
 pure-eval==0.2.3
     # via stack-data
 py-cpuinfo==9.0.0
@@ -435,8 +435,10 @@ pydantic-core==2.46.4
     # via pydantic
 pydata-sphinx-theme==0.17.1
     # via ansys-sphinx-theme
-pyedb==0.77.0
-    # via pyaedt
+pyedb @ git+https://github.com/ansys/pyedb@1502a1c37d54a90ddab111023d1ed4fcbb8d86eb
+    # via
+    #   -r requirements/requirements_doc.txt
+    #   pyaedt
 pygments==2.20.0
     # via
     #   accessible-pygments
@@ -471,6 +473,11 @@ pyvista==0.48.4
     #   pyvista-zstd
 pyvista-zstd==0.2.3
     # via pyvista
+pywinpty==3.0.5
+    # via
+    #   jupyter-server
+    #   jupyter-server-terminals
+    #   terminado
 pyyaml==6.0.3
     # via
     #   ansys-sphinx-theme
@@ -737,8 +744,6 @@ wslink==2.5.7
     # via
     #   trame
     #   trame-server
-xmltodict==1.0.4
-    # via pyedb
 yarl==1.24.2
     # via aiohttp
 zipp==4.1.0
