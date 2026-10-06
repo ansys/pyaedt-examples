@@ -9,6 +9,8 @@
 # Parametric analysis helps reveal how component values and input conditions influence the response,
 # making it easier to evaluate filter performance and identify meaningful operating points.
 #
+# This example MUST be run in graphical mode.
+#
 # Keywords: **Twin Builder**, **RLC**.
 
 # +
