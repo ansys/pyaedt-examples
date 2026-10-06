@@ -1,25 +1,3 @@
-# Copyright (C) 2024 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
-# SPDX-License-Identifier: MIT
-#
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-
 # # PWM Losses Calculation in a Permanent Magnet Machine
 #
 # This example covers the workflow to compute the PWM losses in an IPM motor, using the Maxwell 2D model and the SVPWM
@@ -44,23 +22,31 @@
 # used to generate the PWM voltage. The simulations are repeated in each operating point, supplying the machine with the
 # PWM and extracting the machine losses.
 
-# ## Perform imports and define constants
+# Keywords: **Maxwell 2D**, **transient**, **motor**
+
+# ## Prerequisites
 #
-#  ### Perform required imports.
+# ### Perform imports
+
+# +
 
 import csv
 import os
+import tempfile
+import time
 
 import ansys.aedt.core
 import numpy as np
 import pandas as pd
 from ansys.aedt.core.generic.numbers_utils import Quantity
+from ansys.aedt.core.examples.downloads import download_file
+
+# -
 
 # ### Define required functions
 #
 # The following function is used to translate a python dictionary into a .csv file. It is used for the optimetrics
 # definitions
-
 
 def write_opt_csv(var_dict, filename):
     headers = list(var_dict.keys())
@@ -83,24 +69,68 @@ def write_opt_csv(var_dict, filename):
 
 
 # ### Define Constants
-#
 
-STATOR_RESISTANCE = 0.01958  # [Ohm] Stator winding total resistance
-STATOR_RESISTANCE_2D = 0.01237  # [Ohm] Stator winding 2D resistance
-END_WINDING_INDUCTANCE = 0.001868 / 1000  # [H] End-winding inductace
-POLE_PAIRS = 4  # Pole pairs
-#
+# #### AEDT constants
+
 AEDT_VERSION = "2026.1"
-NUM_CORES = 20
+NUM_CORES = 4
 NG_MODE = False  # Open AEDT UI when it is launched.
 
-WORKING_FOLDER = os.getcwd()
+# ### Create temporary directory and define filenames
+#
+# Create a temporary working directory.
+# The name of the working folder is stored in ``temp_folder.name``.
+#
+# > **Note:** The final cell in the notebook cleans up the temporary folder. If you want to
+# > retrieve the AEDT project and data, do so before executing the final cell in the notebook.
+
+temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
+
+# ## Model preparation
+#
+# ### Download the example project file
+#
+# Many PyAEDT examples use project files or data from the
+# [Ansys example data repository](https://www.github.com/ansys/example-data)
+# in GitHub.
+#
+# > *Note:* You can update ``settings`` as shown below
+# > to work with a local copy of the
+# > [example-data](https://github.com/ansys/example-data) repository.
+# > Replace ``'/home/user/repo/example-data'`` with
+# > the path to the cloned ``"example-data"`` repository.
+#
+# ``` python
+# from ansys.aedt.core import settings
+# settings.use_example_data = True
+# settings.local_example_folder = r'/home/user/repo/example-data'
+# ```
+
+# Retrieve the example model and place
+# it in the project folder.
+
+aedt_file = download_file(
+    source="maxwell_pwm_workflow",
+    name="model.aedt",
+    local_path=temp_folder.name,
+)
 
 OPERATING_POINTS_FILENAME = "OperatingPoints"
-OPERATING_POINTS_FILE = os.path.join(OPERATING_POINTS_FILENAME + ".csv")
+OPERATING_POINTS_FILE = os.path.join(temp_folder.name, OPERATING_POINTS_FILENAME + ".csv")
 
-FILENAME = "model"
-PROJECT_NAME = os.path.join(WORKING_FOLDER, FILENAME + ".aedt")
+# #### Model constants
+
+# Stator winding total resistance [Ohm]
+STATOR_RESISTANCE = 0.01958
+
+# Stator winding 2D resistance [Ohm]
+STATOR_RESISTANCE_2D = 0.01237
+
+# End-winding inductace [H]
+END_WINDING_INDUCTANCE = 0.001868 / 1000
+
+# Pole pairs
+POLE_PAIRS = 4
 
 # #### Define constants for the current driven simulation
 #
@@ -115,7 +145,7 @@ CD_PERIOD_MULTIPLIER_END = CD_PERIOD_MULTIPLIER  # end point for the average cal
 
 CD_OPTIMETRICS_CSV_FILENAME = "Optimetrics_CD"  # current driven optimetrics file name
 CD_OPTIMETRICS_CSV_FILE = os.path.join(CD_OPTIMETRICS_CSV_FILENAME + ".csv")
-CD_OPTIMETRICS_CSV_PATH = os.path.join(WORKING_FOLDER, CD_OPTIMETRICS_CSV_FILE)
+CD_OPTIMETRICS_CSV_PATH = os.path.join(temp_folder.name, CD_OPTIMETRICS_CSV_FILE)
 
 CD_DESIGN_NAME = "Sinusoidal_Current"  # current driven Maxwell model name
 
@@ -123,7 +153,13 @@ CD_DESIGN_NAME = "Sinusoidal_Current"  # current driven Maxwell model name
 #
 # The following constants determine both the PWM voltage definition and the simulation settings. The Maxwell tab to
 # define the PWM voltage for the simulation is the following:
+
 # <img src="_static/motor_pwm_workflow/PWM_UI_Maxwell.svg" alt="" width="600">
+
+# The winding definition must be done using the PWM option:
+
+# <img src="_static/motor_pwm_workflow/winding_setting.svg" alt="" width="600">
+
 # - "BusDC" = PWM_BUS_DC_VOLTAGE * PWM_BUS_DC_MULTIPLIER.
 # - "PhaseVoltagePeak" is the amplitude of the fundamental voltage to generate. Changed for each operating point as a
 # variable in the Optimetrics.
@@ -140,32 +176,44 @@ CD_DESIGN_NAME = "Sinusoidal_Current"  # current driven Maxwell model name
 # time, still applying carefully the PWM voltage. In this example, the maximum time step is 3 times the minimum time
 # step.
 
-PWM_SWITCHING_FREQUENCY = 10000  # [Hz]
-PWM_SWITCHING_PERIOD = 1 / PWM_SWITCHING_FREQUENCY  # [1/s]
-PWM_TMAX_TMIN_RATIO = 3  # ratio between maximum and minimum time step
-PWM_TMIN = PWM_SWITCHING_PERIOD / 100  # minimum time-step for PWM simulations
-PWM_TMAX = PWM_TMAX_TMIN_RATIO * PWM_TMIN  # maximum time-step for PWM simulations
+# Switching Frequency [Hz]
+PWM_SWITCHING_FREQUENCY = 10000
 
-PWM_BUS_DC_VOLTAGE = 720  # [V]
+# Switching Period [1/s]
+PWM_SWITCHING_PERIOD = 1 / PWM_SWITCHING_FREQUENCY
+
+# ratio between maximum and minimum time step
+PWM_TMAX_TMIN_RATIO = 3
+
+# minimum time-step for PWM simulations
+PWM_TMIN = PWM_SWITCHING_PERIOD / 100
+
+# maximum time-step for PWM simulations
+PWM_TMAX = PWM_TMAX_TMIN_RATIO * PWM_TMIN
+
+# Bus DC voltage and the multiplier to account the inverter voltage drop.
+PWM_BUS_DC_VOLTAGE = 720
 PWM_BUS_DC_MULTIPLIER = 0.97
 
 # The PWM voltage driven simulation is carried out over 2 electric periods to allow all the losses and induced
 # currents to converge. All the outputs (iron, copper and magnet losses) are averaged over the last period.
 
-PWM_PERIOD_MULTIPLIER = 2  # Fraction of electric period to simulate in the PWM simulation
+# Fraction of electric period to simulate in the PWM simulation
+PWM_PERIOD_MULTIPLIER = 2
 
-PWM_PERIOD_MULTIPLIER_START = 1  # starting points for the average window.
-PWM_PERIOD_MULTIPLIER_END = PWM_PERIOD_MULTIPLIER  # end points for the average window.
-PWM_TIME_FRAME_MULTIPLIER = PWM_PERIOD_MULTIPLIER_START / PWM_PERIOD_MULTIPLIER_END
+# starting points for the average window.
+PWM_PERIOD_MULTIPLIER_START = 1
+# end points for the average window.
+PWM_PERIOD_MULTIPLIER_END = PWM_PERIOD_MULTIPLIER
 
 PWM_OPTIMETRICS_CSV_FILENAME = "Optimetrics_PWM"  # PWM voltage optimetrics file name
 PWM_OPTIMETRICS_CSV_FILE = os.path.join(PWM_OPTIMETRICS_CSV_FILENAME + ".csv")
-PWM_OPTIMETRICS_CSV_PATH = os.path.join(WORKING_FOLDER, PWM_OPTIMETRICS_CSV_FILE)
+PWM_OPTIMETRICS_CSV_PATH = os.path.join(temp_folder.name, PWM_OPTIMETRICS_CSV_FILE)
 
 PWM_DESIGN_NAME = "PWM_Voltage"  # current driven Maxwell model name
 
 OUTPUT_PWM_FILENAME = "PWM_losses"
-OUTPUT_PWM_FILE = os.path.join(WORKING_FOLDER, OUTPUT_PWM_FILENAME + ".csv")
+OUTPUT_PWM_FILE = os.path.join(temp_folder.name, OUTPUT_PWM_FILENAME + ".csv")
 
 # #### Define common output variables for both current driven and PWM simulations
 #
@@ -245,7 +293,7 @@ write_opt_csv(var_dict, CD_OPTIMETRICS_CSV_FILENAME)
 # Launch AEDT and Maxwell 2D after first setting up the project, the version and the graphical mode.
 
 m2d = ansys.aedt.core.Maxwell2d(
-    project=PROJECT_NAME,
+    project=aedt_file,
     version=AEDT_VERSION,
     design=CD_DESIGN_NAME,
     solution_type="TransientXY",
@@ -253,18 +301,32 @@ m2d = ansys.aedt.core.Maxwell2d(
     non_graphical=NG_MODE,
 )
 
-# Define the variables in the model
+# ### Define the variables in the model
 
+# Define how many periods to simulate.
 m2d["PeriodMultiplier"] = CD_PERIOD_MULTIPLIER
+
+# Define the number of points per cycle.
 m2d["NumTorquePointsPerCycle"] = CD_NUM_TORQUE_POINTS_PER_CYCLE
+
+# Machine pole pairs for following calculations.
 m2d["NumPoles"] = 2 * POLE_PAIRS
+
+# Define the variable to change the machine speed.
 m2d["MachineRPM"] = "750rpm"
-#
+
+# The following variables are defined with their expression, since they will be changed at each iteration of the
+# Optimetrics analysis.
+# - The stator frequency is defined according to the machine speed, which changes at every iteration.
+# - The stop time is defined according to the stator frequency and the number of periods to simulate.
+# - The time step is here defined as an example. It will be overwritten
+
 m2d.variable_manager["StatorFrequency"].expression = "NumPoles/2*MachineRPM/1rpm/60" + "*1Hz"
 CD_StopTimeExp = "1/StatorFrequency*1Hz*1s*PeriodMultiplier"
 CD_TimeStepExp = "1/StatorFrequency*1Hz*1s/NumTorquePointsPerCycle"
 
-# Define the simulation setup
+# ### Define the simulation setup
+
 setup_name = "MySetupAuto"
 setup = m2d.create_setup(name=setup_name)
 setup.props["StopTime"] = str(CD_StopTimeExp)
@@ -274,17 +336,24 @@ setup.props["OutputPerObjectCoreLoss"] = True
 setup.props["OutputPerObjectSolidLoss"] = True
 setup.update()
 
-# Import output variables
+# ### Define output variables
+
 for k, v in output_vars.items():
     m2d.create_output_variable(k, v)
+
+# Define the transformation from ABC to dq currents. In the current driven simulation, use the command "InputCurrent".
 m2d.create_output_variable("Id_peak", "2/3*(InputCurrent(WG_Ph1_P1)*cos(ThetaED)+InputCurrent(WG_Ph2_P1)*cos(ThetaED - 120deg)+InputCurrent(WG_Ph3_P1)*cos(ThetaED - 240deg))")
 m2d.create_output_variable("Iq_peak", "2/3*(InputCurrent(WG_Ph1_P1)*-sin(ThetaED)+InputCurrent(WG_Ph2_P1)*-sin(ThetaED - 120deg)+InputCurrent(WG_Ph3_P1)*-sin(ThetaED - 240deg))")
 
-# Import and run the optimetrics analysis
+# ### Import and run the optimetrics analysis
+
+# Import teh csv file.
 param_sweep = m2d.parametrics.add_from_file(CD_OPTIMETRICS_CSV_PATH, name=CD_OPTIMETRICS_CSV_FILENAME)
+
+# Run the parametric analysis
 param_sweep.analyze(cores=NUM_CORES, tasks=NUM_CORES, use_auto_settings=False)
 
-# # ---------- CURRENT DRIVEN OPTIMETRICS POST-PROCESSING ---------- ##
+# ## Execute the current driven optimetrics
 
 variations = {"MachineRPM": "All", "PhaseAdvance": "All", "IPeak": "All"}
 
@@ -499,7 +568,7 @@ for OPidx in range(n_OPpoints):
 
     time = data_torque.get_expression_data(formula="magnitude")[0]  # get the X axis (time)
     time_last_index = len(time)  # last simulated time instant
-    time_frame = time[-1] * PWM_TIME_FRAME_MULTIPLIER
+    time_frame = time[-1] * PWM_PERIOD_MULTIPLIER_START / PWM_PERIOD_MULTIPLIER_END
     time_frame_index = np.abs(time - time_frame).argmin()  # index for the time frame
 
     torque_values = data_torque.get_expression_data(formula="magnitude")[1]  # get Y axis
@@ -568,10 +637,24 @@ for OPidx in range(n_OPpoints):
     PWM_output_vec = [Torque_mean, data_torque.active_variation["MachineRPM"], Id_mean, Iq_mean, WindingLoss_mean, ActiveLengthLosses, MagLoss_mean, StatorEddy_mean, RotorEddy_mean]
     PWM_output_final[OPidx, 0 : len(PWM_output_vec)] = PWM_output_vec
 
-## ========== CLOSE MAXWELL ========== ##
+# ## Finish
+#
+# ### Save the project
+
+m2d.save_project()
 m2d.release_desktop()
+# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
+time.sleep(3)
+
+# ## Clean up
+#
+# All project files are saved in the folder ``temp_folder.name``.
+# If you've run this example as a Jupyter notebook, you
+# can retrieve those project files. The following cell
+# removes all temporary files, including the project folder.
+
+temp_folder.cleanup()
 
 outputPWM = pd.DataFrame(data=PWM_output_final, columns=PWM_output_variables)
 outputPWM.to_csv(OUTPUT_PWM_FILE, index=False)
 
-print("ciao")
