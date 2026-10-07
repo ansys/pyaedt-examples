@@ -80,7 +80,12 @@ click==8.4.1
     #   ansys-tools-common
     #   uvicorn
 colorama==0.4.6
-    # via sphinx-autobuild
+    # via
+    #   click
+    #   ipython
+    #   sphinx
+    #   sphinx-autobuild
+    #   tqdm
 comm==0.2.3
     # via
     #   ipykernel
@@ -376,8 +381,6 @@ parso==0.8.7
     # via jedi
 pdf2image==1.17.0
     # via ansys-sphinx-theme
-pexpect==4.9.0
-    # via ipython
 pillow==12.2.0
     # via
     #   fpdf2
@@ -415,15 +418,11 @@ psutil==7.2.2
     #   ipykernel
     #   pyaedt
     #   pyedb
-ptyprocess==0.7.0
-    # via
-    #   pexpect
-    #   terminado
 pure-eval==0.2.3
     # via stack-data
 py-cpuinfo==9.0.0
     # via tables
-pyaedt @ git+https://github.com/ansys/pyaedt@2e1d3a180ec0648e21fc75b7cbc63b29f4f04480
+pyaedt @ git+https://github.com/ansys/pyaedt@a972afa4a0232dfd2316e8b1e402f42ed27dab15
     # via -r requirements/requirements_doc.txt
 pycparser==3.0
     # via cffi
@@ -474,6 +473,11 @@ pyvista==0.48.4
     #   pyvista-zstd
 pyvista-zstd==0.2.3
     # via pyvista
+pywinpty==3.0.5
+    # via
+    #   jupyter-server
+    #   jupyter-server-terminals
+    #   terminado
 pyyaml==6.0.3
     # via
     #   ansys-sphinx-theme
