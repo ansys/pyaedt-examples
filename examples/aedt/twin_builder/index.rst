@@ -5,33 +5,6 @@ These examples use PyAEDT to show Twin Builder capabilities.
 
 .. grid:: 2
 
-   .. grid-item-card:: RC circuit design analysis
-      :padding: 2 2 2 2
-      :link: ../../low_frequency/general/twin_builder/rc_circuit
-      :link-type: doc
-
-      .. image:: ../../low_frequency/general/twin_builder/_static/rc.png
-         :alt: TB RC
-         :width: 250px
-         :height: 200px
-         :align: center
-
-      This example shows how to use PyAEDT to create a Twin Builder design and run a Twin Builder time-domain simulation.
-
-   .. grid-item-card:: Wiring of a rectifier with a capacitor filter
-      :padding: 2 2 2 2
-      :link: ../../low_frequency/general/twin_builder/rectifier
-      :link-type: doc
-
-      .. image:: ../../low_frequency/general/twin_builder/_static/rectifier_response.png
-         :alt: TB Rectifier response
-         :width: 250px
-         :height: 200px
-         :align: center
-
-      This example shows how to use PyAEDT to create a Twin Builder design and run a Twin Builder time-domain simulation.
-
-
    .. grid-item-card:: Static ROM
       :padding: 2 2 2 2
       :link: ../../low_frequency/general/twin_builder/static_rom
@@ -72,11 +45,24 @@ These examples use PyAEDT to show Twin Builder capabilities.
       This example shows how you can use PyAEDT to create a Linear Time Invariant (LTI) ROM in Twin Builder
       and run a Twin Builder time-domain simulation.
 
+   .. grid-item-card:: RLC Filter
+      :padding: 2 2 2 2
+      :link: rlc_filter
+      :link-type: doc
+
+      .. image:: _static/rlc_filter.png
+         :alt: RLC Filter plot
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      This example shows how to use PyAEDT to create a Twin Builder RLC filter and run a Twin Builder time-domain simulation.
+      The example focuses on the post-processing of the simulation results to study how the parametric sweep affects the circuit response.
+
    .. toctree::
       :hidden:
 
       ../../low_frequency/general/twin_builder/dynamic_rom
-      ../../low_frequency/general/twin_builder/rc_circuit
-      ../../low_frequency/general/twin_builder/rectifier
       ../../low_frequency/general/twin_builder/static_rom
       ../../low_frequency/general/twin_builder/lti_rom_sml
+      ../../low_frequency/general/twin_builder/rlc_filter

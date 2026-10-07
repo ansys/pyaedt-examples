@@ -104,19 +104,6 @@ These examples use PyAEDT to show some general applications.
       compute the average value of the current density field over a specific coil surface and the magnitude
       of the current density field over all coil surfaces at each time step of the transient analysis.
 
-   .. grid-item-card:: Twin builder
-      :padding: 2 2 2 2
-      :link: twin_builder/index
-      :link-type: doc
-
-      .. image:: twin_builder/_static/rectifier.png
-         :alt: Rectifier
-         :width: 250px
-         :height: 200px
-         :align: center
-
-      Twin builder examples.
-
    .. grid-item-card:: 3-Phase Cable with Neutral
       :padding: 2 2 2 2
       :link: maxwell_3_phase_cable

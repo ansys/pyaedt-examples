@@ -5,33 +5,6 @@ These examples use PyAEDT to show some Twin Builder applications.
 
 .. grid:: 2
 
-   .. grid-item-card:: RC circuit design analysis
-      :padding: 2 2 2 2
-      :link: rc_circuit
-      :link-type: doc
-
-      .. image:: _static/rc.png
-         :alt: TB RC
-         :width: 250px
-         :height: 200px
-         :align: center
-
-      This example shows how to use PyAEDT to create a Twin Builder design and run a Twin Builder time-domain simulation.
-
-   .. grid-item-card:: Wiring of a rectifier with a capacitor filter
-      :padding: 2 2 2 2
-      :link: rectifier
-      :link-type: doc
-
-      .. image:: _static/rectifier_response.png
-         :alt: TB Rectifier response
-         :width: 250px
-         :height: 200px
-         :align: center
-
-      This example shows how to use PyAEDT to create a Twin Builder design and run a Twin Builder time-domain simulation.
-
-
    .. grid-item-card:: Static ROM
       :padding: 2 2 2 2
       :link: static_rom
@@ -72,12 +45,25 @@ These examples use PyAEDT to show some Twin Builder applications.
       This example shows how you can use PyAEDT to create a Linear Time Invariant (LTI) ROM in Twin Builder
       and run a Twin Builder time-domain simulation.
 
+   .. grid-item-card:: RLC Filter
+      :padding: 2 2 2 2
+      :link: rlc_filter
+      :link-type: doc
+
+      .. image:: _static/rlc_filter.png
+         :alt: RLC Filter plot
+         :width: 250px
+         :height: 200px
+         :align: center
+
+      This example shows how to use PyAEDT to create a Twin Builder RLC filter and run a Twin Builder time-domain simulation.
+      The example focuses on the post-processing of the simulation results to study how the parametric sweep affects the circuit response.
+
 
    .. toctree::
       :hidden:
 
-      rc_circuit
-      rectifier
       static_rom
       dynamic_rom
       lti_rom_sml
+      rlc_filter
