@@ -389,6 +389,8 @@ def convert_examples_into_notebooks(app):
         "hfss_emit.py",
         # OSMX is currently failing in the CICD
         "city.py",
+        # GitHub CI/CD Pipeline fails to run rlc_filter.py in non-graphical mode.
+        "rlc_filter.py",
     )
 
     unchanged_examples = []
