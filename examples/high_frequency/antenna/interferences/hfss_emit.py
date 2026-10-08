@@ -23,6 +23,7 @@ from pathlib import Path
 
 import ansys.aedt.core
 from ansys.aedt.core.emit_core.emit_constants import ResultType, TxRxMode
+from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 from ansys.aedt.core.generic.general_methods import env_path
 
 # -
@@ -107,7 +108,10 @@ if AEDT_VERSION > "2023.1":
 if AEDT_VERSION > "2023.1":
     rx_bands = rev.get_band_names(radio_node=rad1, tx_rx_mode=TxRxMode.RX)
     tx_bands = rev.get_band_names(radio_node=rad2, tx_rx_mode=TxRxMode.TX)
-    domain = aedtapp.results.interaction_domain()
+    if AEDT_VERSION == "2027.1":
+        domain = InteractionDomain(aedtapp)
+    else:
+        domain = aedtapp.results.interaction_domain()
     domain.set_receiver(rad1.name, rx_bands[0], -1)
     domain.set_interferer(rad2.name, tx_bands[0])
     interaction = rev.run(domain)
