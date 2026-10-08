@@ -52,8 +52,8 @@ project_name = shutil.copy2(example_project, temp_folder.name)
 
 # ### Launch application
 #
-# Launch AEDT with EMIT. The ``Desktop`` class initializes AEDT and starts it
-# on the specified version and in the specified graphical mode.
+# Launch AEDT with EMIT and open the project on the specified version and in
+# the specified graphical mode.
 
 aedtapp = ansys.aedt.core.Emit(
     project=project_name,
