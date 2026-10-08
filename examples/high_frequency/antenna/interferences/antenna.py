@@ -25,7 +25,7 @@ from ansys.aedt.core.emit_core.nodes.generated import AntennaNode, RadioNode
 # ### Define constants
 # Constants help ensure consistency and avoid repetition throughout the example.
 
-AEDT_VERSION = "2026.1"
+AEDT_VERSION = "2027.1"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ### Create temporary directory

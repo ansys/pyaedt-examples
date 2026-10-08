@@ -16,20 +16,21 @@
 # ### Perform imports
 
 # +
-import os
 import shutil
 import tempfile
 import time
+from pathlib import Path
 
 import ansys.aedt.core
 from ansys.aedt.core.emit_core.emit_constants import ResultType, TxRxMode
+from ansys.aedt.core.generic.general_methods import env_path
 
 # -
 
 # ### Define constants
 # Constants help ensure consistency and avoid repetition throughout the example.
 
-AEDT_VERSION = "2026.1"
+AEDT_VERSION = "2027.1"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ### Create temporary directory
@@ -41,45 +42,37 @@ NG_MODE = False  # Open AEDT UI when it is launched.
 # > retrieve the AEDT project and data, do so before executing the final cell in the notebook.
 
 temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
+example_project = (
+    Path(env_path(AEDT_VERSION))
+    / "Examples"
+    / "EMIT"
+    / "Cell Phone RFI Desense.aedtz"
+)
+project_name = shutil.copy2(example_project, temp_folder.name)
 
 # ### Launch application
 #
 # Launch AEDT with EMIT. The ``Desktop`` class initializes AEDT and starts it
 # on the specified version and in the specified graphical mode.
 
-d = ansys.aedt.core.launch_desktop(version=AEDT_VERSION, non_graphical=NG_MODE, new_desktop=True)
+aedtapp = ansys.aedt.core.Emit(
+    project=project_name,
+    version=AEDT_VERSION,
+    non_graphical=NG_MODE,
+    new_desktop=True,
+)
 
 # ## Model Preparation
 #
-# ### Copy example files
+# ### Copy the example archive
 #
-# Copy the ``Cell Phone RFI Desense`` example data from the
-# installed ``Examples`` directory to the temporary working
-# directory.
+# Copy the archived EMIT and HFSS example project from the AEDT installation
+# to the temporary working directory.
 #
 # > **Note:** The HFSS design from the installed example
 # > used to model the RF environment
-# > has been pre-solved. Hence, the results folder is copied and
-# > the RF interference between transceivers is calculated in EMIT using
-# > results from the linked HFSS design.
-
-file_name = lambda s: s + ".aedt"
-results_name = lambda s: s + ".aedtresults"
-pdf_name = lambda s: s + " Example.pdf"
-
-example = "Cell Phone RFI Desense"
-example_dir = os.path.join(d.install_path, "Examples\\EMIT")
-example_project = os.path.join(example_dir, file_name(example))
-example_results_folder = os.path.join(example_dir, results_name(example))
-example_pdf = os.path.join(example_dir, pdf_name(example))
-
-project_name = shutil.copyfile(example_project, os.path.join(temp_folder.name, file_name(example)))
-results_folder = shutil.copytree(example_results_folder, os.path.join(temp_folder.name, results_name(example)))
-project_pdf = shutil.copyfile(example_pdf, os.path.join(temp_folder.name, pdf_name(example)))
-
-# Open the project in the working directory.
-
-aedtapp = ansys.aedt.core.Emit(project_name, version=AEDT_VERSION)
+# > has been pre-solved. The archive includes the required result files, which
+# > EMIT uses to calculate RF interference between transceivers.
 
 # ### Create and connect EMIT components
 #
