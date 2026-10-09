@@ -1,0 +1,661 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "5f358cfb",
+   "metadata": {},
+   "source": [
+    "# RLC filter circuit design analysis\n",
+    "\n",
+    "This example demonstrates how to use PyAEDT to set up and analyze an RLC filter circuit in Twin Builder.\n",
+    "It covers setup creation, parametric sweeps of key circuit parameters, and post-processing of simulation results.\n",
+    "Generated plots illustrate how the parametric sweep affects the circuit response.\n",
+    "Key behaviors such as resonance peaking, damping, and current flow under different resistance values are examined.\n",
+    "Studying how an RLC filter behaves as resistance, inductance, and drive voltage vary is useful\n",
+    "for understanding key circuit phenomena such as resonance, damping, overshoot, and settling time.\n",
+    "Parametric analysis helps reveal how component values and input conditions influence the response,\n",
+    "making it easier to evaluate filter performance and identify meaningful operating points.\n",
+    "\n",
+    "This example MUST be run in graphical mode.\n",
+    "\n",
+    "Keywords: **Twin Builder**, **RLC**."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "16d455fa",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import tempfile\n",
+    "import time\n",
+    "from pathlib import Path\n",
+    "\n",
+    "import ansys.aedt.core\n",
+    "from ansys.aedt.core.examples.downloads import download_file\n",
+    "from ansys.aedt.core.generic.file_utils import write_csv\n",
+    "from matplotlib import pyplot as plt\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a852f285",
+   "metadata": {},
+   "source": [
+    "## Define constants\n",
+    "\n",
+    "Constants help ensure consistency and avoid repetition throughout the example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6aaf494f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2026.1\"\n",
+    "NUM_CORES = 4\n",
+    "NG_MODE = False  # Open AEDT UI when it is launched.\n",
+    "TB_FILE_NAME = \"RLC_Filter_pyaedt.aedt\"\n",
+    "TB_DESIGN_NAME = \"RLC_Filter_Optimetrics\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "81b6fb9a",
+   "metadata": {},
+   "source": [
+    "## Create temporary directory\n",
+    "\n",
+    "Create a temporary directory where downloaded data or\n",
+    "dumped data can be stored.\n",
+    "If you'd like to retrieve the project data for subsequent use,\n",
+    "the temporary folder name is given by ``temp_folder.name``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e06483db",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ee1cfbf6",
+   "metadata": {},
+   "source": [
+    "## Download AEDT file\n",
+    "\n",
+    "Set the local temporary folder to export the AEDT file to.\n",
+    "The ``download_file()`` method provides access to a library\n",
+    "of examples and models from the Ansys GitHub organization:\n",
+    "[example-data repository](https://github.com/ansys/example-data)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "41c6e831",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "project_path = download_file(\n",
+    "    source=\"pyaedt/twinbuilder_rlc_filter\",\n",
+    "    name=TB_FILE_NAME,\n",
+    "    local_path=temp_folder.name,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7a3ea1a2",
+   "metadata": {},
+   "source": [
+    "## Launch Twinbuilder AEDT\n",
+    "\n",
+    "Create an instance of the ``Twinbuilder`` class.\n",
+    "The Ansys Electronics Desktop will be launched with the active Twinbuilder design.\n",
+    "The ``tb`` object is subsequently used to create and simulate the model."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3bcf4655",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tb = ansys.aedt.core.TwinBuilder(\n",
+    "    project=project_path,\n",
+    "    design=TB_DESIGN_NAME,\n",
+    "    version=AEDT_VERSION,\n",
+    "    non_graphical=NG_MODE,\n",
+    "    new_desktop=True,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "58326059",
+   "metadata": {},
+   "source": [
+    "## Analysis setup\n",
+    "\n",
+    "Create a transient setup.\n",
+    "If ``setup_type`` is not specified, the default setup type is used (Transient)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "dc78d7de",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup = tb.create_setup(setup_type=\"TwinbuilderTR\", name=\"TR\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "27482be8",
+   "metadata": {},
+   "source": [
+    "Change setup properties to specify the stop time, minimum time step, and maximum time step.\n",
+    "In the order: Stop Time, Min time step, Max time step."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4c3915b5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "setup.props[\"TransientData\"][0] = \"10ms\"\n",
+    "setup.props[\"TransientData\"][1] = \"1us\"\n",
+    "setup.props[\"TransientData\"][2] = \"20us\"\n",
+    "setup.update()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "110491bc",
+   "metadata": {},
+   "source": [
+    "Save and close the project to ensure that all changes are written to disk.\n",
+    "Reopen the project to ensure that the changes are reflected in the current session."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "17f82246",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tb.close_project(save=True)\n",
+    "tb = ansys.aedt.core.TwinBuilder(\n",
+    "    project=project_path,\n",
+    "    design=TB_DESIGN_NAME,\n",
+    "    version=AEDT_VERSION,\n",
+    "    non_graphical=NG_MODE,\n",
+    "    new_desktop=True,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1cbc31ab",
+   "metadata": {},
+   "source": [
+    "## Parametric sweep\n",
+    "\n",
+    "Create a parametric sweep for the RLC filter circuit.\n",
+    "The sweep varies the series resistance, series inductance, and drive voltage."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5c17cf55",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "sweep = tb.parametrics.add(\n",
+    "    variable=\"$Rseries\",\n",
+    "    start_point=25,\n",
+    "    end_point=100,\n",
+    "    step=4,\n",
+    "    variation_type=\"LinearCount\",\n",
+    ")\n",
+    "sweep.add_variation(\n",
+    "    sweep_variable=\"$Lseries\",\n",
+    "    start_point=5,\n",
+    "    end_point=20,\n",
+    "    step=4,\n",
+    "    variation_type=\"LinearCount\",\n",
+    ")\n",
+    "sweep.add_variation(\n",
+    "    sweep_variable=\"$Vdrive\",\n",
+    "    start_point=1,\n",
+    "    end_point=10,\n",
+    "    step=4,\n",
+    "    variation_type=\"LinearCount\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8f4175d6",
+   "metadata": {},
+   "source": [
+    "Analyze parametric sweep"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "817a2117",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "sweep.analyze()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "183a40e2",
+   "metadata": {},
+   "source": [
+    "## Post-processing\n",
+    "\n",
+    "In this example two different approaches to post-processing are demonstrated.\n",
+    "The first approach uses the ``create_report`` method to creat in AEDT a report with the specified expressions and domain.\n",
+    "The second approach uses the ``get_report_data`` method to retrieve the report data in Python without creating a report in AEDT.\n",
+    "After retrieving the data, the results are exported to a CSV file."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2cc52522",
+   "metadata": {},
+   "source": [
+    "## Create reports in AEDT\n",
+    "\n",
+    "First report shows the startup response and steady-state apmlitude/phase difference between the voltage across\n",
+    "the source ``V_IN.V`` and the voltage across the shunt capacitor ``C_SHUNT.V`` assuming a 10V, 10mH, 50ohm input."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1b156cac",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "vars = tb.available_variations.all\n",
+    "vars[\"$Rseries\"] = \"50ohm\"\n",
+    "vars[\"$Lseries\"] = \"10mH\"\n",
+    "vars[\"$Vdrive\"] = \"10V\"\n",
+    "report_voltages = tb.post.create_report(\n",
+    "    plot_name=\"RLC 10V 10mH 50ohm Input Output\",\n",
+    "    domain=\"Time\",\n",
+    "    expressions=[\"C_SHUNT.V\", \"V_IN.V\"],\n",
+    "    primary_sweep_variable=\"Time\",\n",
+    "    variations=vars,\n",
+    "    context={\"optimetrics_setup\": sweep.name}\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5c7dd83e",
+   "metadata": {},
+   "source": [
+    "Export report data to CSV for the whole time domain.\n",
+    "The CSV file will be saved in the temporary folder created earlier."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6687e2d4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "export_path = tb.post.export_report_to_file(\n",
+    "    output_dir=temp_folder.name,\n",
+    "    plot_name=report_voltages.plot_name,\n",
+    "    extension=\".csv\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f5edeae8",
+   "metadata": {},
+   "source": [
+    "Export report data to CSV for a specific time range.\n",
+    "Supposedly, the data are exported for the time range from 0 to 5 ms."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b9085a89",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "export_path_range = tb.post.export_report_to_file(\n",
+    "    output_dir=temp_folder.name,\n",
+    "    plot_name=report_voltages.plot_name,\n",
+    "    extension=\".csv\",\n",
+    "    start=\"0ms\",\n",
+    "    end=\"5ms\",\n",
+    "    step=\"1ms\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "254ae9f2",
+   "metadata": {},
+   "source": [
+    "Second report shows resonance for different values of series inductance.\n",
+    "The report shows the voltage across the shunt capacitor ``C_SHUNT.V`` for different values of series inductance.\n",
+    "Values for the series inductance are 5, 10, 15, and 20 mH while the series resistance is fixed at 50 ohms and the drive voltage is fixed at 10V."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3f96dc41",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "vars = tb.available_variations.all\n",
+    "vars[\"$Rseries\"] = \"50ohm\"\n",
+    "vars[\"$Lseries\"] = \"All\"\n",
+    "vars[\"$Vdrive\"] = \"10V\"\n",
+    "report_resonance = tb.post.create_report(\n",
+    "    plot_name=\"RLC Output Voltage vs Inductance at 10V 50ohm\",\n",
+    "    domain=\"Time\",\n",
+    "    expressions=[\"C_SHUNT.V\"],\n",
+    "    primary_sweep_variable=\"Time\",\n",
+    "    variations=vars,\n",
+    "    context={\"optimetrics_setup\": sweep.name}\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0a3b52b8",
+   "metadata": {},
+   "source": [
+    "Find max values of ``C_SHUNT.V`` for all combinations and export legend in a csv file."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "322d5104",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "report_resonance.add_trace_characteristics(name=\"max\")\n",
+    "output_file = f\"{temp_folder.name}\\\\{report_resonance.plot_name}_legend.csv\""
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f8b67b3e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "report_resonance.export_table_to_file(\n",
+    "    plot_name=\"RLC Output Voltage vs Inductance at 10V 50ohm\",\n",
+    "    output_file=f\"{temp_folder.name}\\\\{report_resonance.plot_name}_legend.csv\",\n",
+    "    table_type=\"Legend\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b22c0ae3",
+   "metadata": {},
+   "source": [
+    "<img src=\"_static/rlc.png\" alt=\"RLC plot\" width=\"700\">"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6aae4595",
+   "metadata": {},
+   "source": [
+    "Export ``C_SHUNT.V`` for all different values of series inductance."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "ac6cef5a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "export_path_resonance = tb.post.export_report_to_file(\n",
+    "    output_dir=temp_folder.name,\n",
+    "    plot_name=report_resonance.plot_name,\n",
+    "    extension=\".csv\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b05b9c2e",
+   "metadata": {},
+   "source": [
+    "Export report data to CSV for a specific value of series inductance.\n",
+    "Supposedly, the data are exported for the series inductance of 10 mH where resonance peaking occurs.\n",
+    "Add a Y cartesian marker at maximum point."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "afd52b64",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "vars[\"$Lseries\"] = \"10mH\"\n",
+    "report_resonance.update_trace_in_report(\n",
+    "    traces=[\"C_SHUNT.V\"],\n",
+    "    variations=vars,\n",
+    ")\n",
+    "report_resonance.add_cartesian_y_marker(\n",
+    "    value=\"14.1925V\",\n",
+    ")\n",
+    "export_path_resonance_Lseries10mH = tb.post.export_report_to_file(\n",
+    "    output_dir=temp_folder.name,\n",
+    "    plot_name=report_resonance.plot_name,\n",
+    "    extension=\".csv\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0282a397",
+   "metadata": {},
+   "source": [
+    "<img src=\"_static/rlc_max_marker.png\" alt=\"RLC plot\" width=\"700\">"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ac2b581a",
+   "metadata": {},
+   "source": [
+    "## Create a PyAEDT report object (not in AEDT GUI).\n",
+    "\n",
+    "The report demonstrates how resistance damps resonance for different values of series resistance.\n",
+    "The values for the series resistance are 25, 50, 75, and 100 ohms.\n",
+    "The series inductance is fixed at 10 mH and the drive voltage is fixed at 10V."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1a976695",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "report_damp = tb.post.reports_by_category.standard(\n",
+    "    expressions=[\"C_SHUNT.V\"],\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7e3d8600",
+   "metadata": {},
+   "source": [
+    "Get the report data of ``C_SHUNT.V`` for all different values of series resistance."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9c4062b2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "report_damp_data = tb.post.get_solution_data(\n",
+    "    expressions=[\"C_SHUNT.V\"],\n",
+    "    primary_sweep_variable=\"Time\",\n",
+    "    variations={\"$Rseries\": \"All\", \"$Lseries\": \"10mH\", \"$Vdrive\": \"10V\"},\n",
+    "    context={\"optimetrics_setup\": sweep.name},\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7e151342",
+   "metadata": {},
+   "source": [
+    "Two different approaches are shown:\n",
+    "\n",
+    "1. Export ``C_SHUNT.V`` data for each variation in a csv file.\n",
+    "With this approach, a plot is generated with Matplotlib for each variation of series resistance."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8fae8df5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "for var in report_damp_data.variations:\n",
+    "    report_damp_data.active_variation = var\n",
+    "    expr = report_damp_data.get_expression_data()\n",
+    "\n",
+    "    rows = [[\"Time\", \"C_SHUNT.V\"]]\n",
+    "    time_values = expr[0]\n",
+    "    c_shunt_values = expr[1]\n",
+    "    rows.extend([[t, v] for t, v in zip(time_values, c_shunt_values)])\n",
+    "\n",
+    "    csv_path = Path(temp_folder.name) / f\"RLC Output Voltage vs Resistance at 10V 10mH_{var['$Rseries']}.csv\"\n",
+    "    write_csv(str(csv_path), rows)\n",
+    "\n",
+    "    plt.plot(time_values, c_shunt_values)\n",
+    "    plt.grid()\n",
+    "    plt.xlabel(\"Time\")\n",
+    "    plt.ylabel(\"C_SHUNT.V\")\n",
+    "    plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e3d6618c",
+   "metadata": {},
+   "source": [
+    "2. Export ``C_SHUNT.V`` data in a csv for all combinations of ``$Rseries``."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "448acd25",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "report_damp_data.export_data_to_csv(\n",
+    "    output=temp_folder.name + \"\\\\RLC Output Voltage vs Resistance at 10V 10mH.csv\",\n",
+    "    delimiter=\",\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f4daad73",
+   "metadata": {},
+   "source": [
+    "## Release AEDT"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "51146dc4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tb.save_project()\n",
+    "tb.release_desktop()\n",
+    "# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "938907c8",
+   "metadata": {},
+   "source": [
+    "## Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9835effe",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  },
+  "nbsphinx": {
+   "execute": "never"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

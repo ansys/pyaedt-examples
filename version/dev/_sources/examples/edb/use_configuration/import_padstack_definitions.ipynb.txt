@@ -1,0 +1,373 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "56a1ff9d",
+   "metadata": {},
+   "source": [
+    "# Import Padstack Definitions\n",
+    "This example shows how to import padstack definitions. This includes\n",
+    "\n",
+    "- Download an example board\n",
+    "- Create a config file with hole information\n",
+    "- Create a config file with pad and anti-pad information"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "47521f17",
+   "metadata": {},
+   "source": [
+    "## Perform imports and define constants\n",
+    "\n",
+    "Perform required imports."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "bca43eed",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import json\n",
+    "import tempfile\n",
+    "import time\n",
+    "from pathlib import Path\n",
+    "\n",
+    "import pandas as pd\n",
+    "import toml\n",
+    "from ansys.aedt.core.examples.downloads import download_file\n",
+    "from IPython.display import display\n",
+    "from pyedb import Edb\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ffe92d68",
+   "metadata": {},
+   "source": [
+    "Define constants."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fda3b382",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "AEDT_VERSION = \"2026.1\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9cca12db",
+   "metadata": {},
+   "source": [
+    "Download the example PCB data."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2313d725",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder = tempfile.TemporaryDirectory(suffix=\".ansys\")\n",
+    "file_edb = download_file(source=\"edb/ANSYS-HSD_V1.aedb\", local_path=temp_folder.name)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7291cdcf",
+   "metadata": {},
+   "source": [
+    "## Load example layout."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b43dc111",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp = Edb(edbpath=file_edb, version=AEDT_VERSION)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "94453c42",
+   "metadata": {},
+   "source": [
+    "## Create a config file with hole information"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "56f49a83",
+   "metadata": {},
+   "source": [
+    "Keywords\n",
+    "\n",
+    "- **name**. Name of the padstack definition.\n",
+    "- **hole_plating_thickness**. Hole plating thickness.\n",
+    "- **hole_range**. Supported types are 'through', 'begin_on_upper_pad', 'end_on_lower_pad', 'upper_pad_to_lower_pad'.\n",
+    "- **hole_parameters**.\n",
+    "  - **shape**. Supported types are 'circle', 'square', 'rectangle'.\n",
+    "  - Other parameters are shape dependent.\n",
+    "    - When shape is 'circle', supported parameter si 'diameter'.\n",
+    "    - When shape is 'square', supported parameter is 'size'.\n",
+    "    - When shape is 'rectangle', supported parameters are 'x_size', 'y_size'."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b23b53bf",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg = dict()\n",
+    "cfg[\"padstacks\"] = {}\n",
+    "cfg[\"padstacks\"][\"definitions\"] = [\n",
+    "    {\n",
+    "        \"name\": \"v35h15\",\n",
+    "        \"hole_plating_thickness\": \"25um\",\n",
+    "        \"material\": \"copper\",\n",
+    "        \"hole_range\": \"through\",\n",
+    "        \"hole_parameters\": {\n",
+    "            \"shape\": \"circle\",\n",
+    "            \"diameter\": \"0.15mm\",\n",
+    "        },\n",
+    "    }\n",
+    "]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9692b760",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df = pd.DataFrame(data=cfg[\"padstacks\"][\"definitions\"])\n",
+    "display(df)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "de0bca49",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg_file_path = Path(temp_folder.name) / \"cfg.json\"\n",
+    "with open(cfg_file_path, \"w\") as f:\n",
+    "    json.dump(cfg, f, indent=4, ensure_ascii=False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6d05139a",
+   "metadata": {},
+   "source": [
+    "Load config file"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3ce1fb7a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.configuration.load(cfg_file_path, apply_file=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f88f5783",
+   "metadata": {},
+   "source": [
+    "## Create a config file with pad information"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ce472133",
+   "metadata": {},
+   "source": [
+    "Keywords\n",
+    "\n",
+    "- **name**. Name of the padstack definition.\n",
+    "- **pad_parameters**.\n",
+    "  - **regular_pad**. List of pad definition per layer.\n",
+    "    - **layer_name**. Name of the layer.\n",
+    "    - **shape**. Supported types are 'circle', 'square', 'rectangle', 'oval', 'bullet'.\n",
+    "    - Other parameters are shape dependent.\n",
+    "      - When shape is 'circle', supported parameter si 'diameter'.\n",
+    "      - When shape is 'square', supported parameter is 'size'.\n",
+    "      - When shape is 'rectangle', supported parameters are 'x_size', 'y_size'.\n",
+    "      - When shape is 'oval', supported parameters are 'x_size', 'y_size', 'corner_radius'.\n",
+    "      - When shape is 'bullet', supported parameters are 'x_size', 'y_size', 'corner_radius'."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4b86f9fe",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cfg = dict()\n",
+    "cfg[\"padstacks\"] = {}\n",
+    "cfg[\"padstacks\"][\"definitions\"] = [\n",
+    "    {\n",
+    "        \"name\": \"v35h15\",\n",
+    "        \"pad_parameters\": {\n",
+    "            \"regular_pad\": [\n",
+    "                {\n",
+    "                    \"layer_name\": \"1_Top\",\n",
+    "                    \"shape\": \"circle\",\n",
+    "                    \"offset_x\": \"0.1mm\",\n",
+    "                    \"offset_y\": \"0.1mm\",\n",
+    "                    \"rotation\": \"0\",\n",
+    "                    \"diameter\": \"0.5mm\",\n",
+    "                },\n",
+    "                {\n",
+    "                    \"layer_name\": \"Inner1(GND1)\",\n",
+    "                    \"shape\": \"square\",\n",
+    "                    \"offset_x\": \"0.1mm\",\n",
+    "                    \"offset_y\": \"0.1mm\",\n",
+    "                    \"rotation\": \"45deg\",\n",
+    "                    \"size\": \"0.5mm\",\n",
+    "                },\n",
+    "            ],\n",
+    "            \"anti_pad\": [{\"layer_name\": \"1_Top\", \"shape\": \"circle\", \"diameter\": \"1mm\"}],\n",
+    "        },\n",
+    "    }\n",
+    "]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "51f4c4cf",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "cfg_file_path = Path(temp_folder.name) / \"cfg.json\"\n",
+    "with open(cfg_file_path, \"w\") as f:\n",
+    "    json.dump(cfg, f, indent=4, ensure_ascii=False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5e8d0f71",
+   "metadata": {},
+   "source": [
+    "Equivalent toml file looks like below"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3c3b2591",
+   "metadata": {
+    "lines_to_next_cell": 2
+   },
+   "outputs": [],
+   "source": [
+    "toml_string = toml.dumps(cfg)\n",
+    "print(toml_string)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9e5c36cd",
+   "metadata": {},
+   "source": [
+    "Load config file"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3c6c95cd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.configuration.load(cfg_file_path, apply_file=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b95d165e",
+   "metadata": {},
+   "source": [
+    "## Save and close Edb\n",
+    "The temporary folder will be deleted once the execution of this script is finished. Replace edbapp.save() with\n",
+    "edbapp.save_as(\"C:/example.aedb\") to keep the example project."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "38bba3c8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "edbapp.save()\n",
+    "edbapp.close()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6d160699",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Wait 3 seconds before cleaning the temporary directory.\n",
+    "time.sleep(3)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4a1911f4",
+   "metadata": {},
+   "source": [
+    "### Clean up\n",
+    "\n",
+    "All project files are saved in the folder ``temp_folder.name``.\n",
+    "If you've run this example as a Jupyter notebook, you\n",
+    "can retrieve those project files. The following cell\n",
+    "removes all temporary files, including the project folder."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "cc733387",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp_folder.cleanup()"
+   ]
+  }
+ ],
+ "metadata": {
+  "jupytext": {
+   "cell_metadata_filter": "-all",
+   "main_language": "python",
+   "notebook_metadata_filter": "-all"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
