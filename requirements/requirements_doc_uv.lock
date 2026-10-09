@@ -80,7 +80,12 @@ click==8.4.1
     #   ansys-tools-common
     #   uvicorn
 colorama==0.4.6
-    # via sphinx-autobuild
+    # via
+    #   click
+    #   ipython
+    #   sphinx
+    #   sphinx-autobuild
+    #   tqdm
 comm==0.2.3
     # via
     #   ipykernel
@@ -99,7 +104,6 @@ decorator==5.3.1
     # via ipython
 defusedxml==0.7.1
     # via
-    #   fpdf2
     #   nbconvert
     #   pyaedt
     #   pyedb
@@ -124,11 +128,7 @@ fast-simplification==0.1.13
 fastjsonschema==2.21.2
     # via nbformat
 fonttools==4.63.0
-    # via
-    #   fpdf2
-    #   matplotlib
-fpdf2==2.8.7
-    # via pyaedt
+    # via matplotlib
 fqdn==1.5.1
     # via jsonschema
 frozenlist==1.8.0
@@ -374,13 +374,12 @@ pandocfilters==1.5.1
     # via nbconvert
 parso==0.8.7
     # via jedi
+pdf-oxide==0.3.78
+    # via pyaedt
 pdf2image==1.17.0
     # via ansys-sphinx-theme
-pexpect==4.9.0
-    # via ipython
 pillow==12.2.0
     # via
-    #   fpdf2
     #   imageio
     #   matplotlib
     #   pdf2image
@@ -415,15 +414,11 @@ psutil==7.2.2
     #   ipykernel
     #   pyaedt
     #   pyedb
-ptyprocess==0.7.0
-    # via
-    #   pexpect
-    #   terminado
 pure-eval==0.2.3
     # via stack-data
 py-cpuinfo==9.0.0
     # via tables
-pyaedt @ git+https://github.com/ansys/pyaedt@a972afa4a0232dfd2316e8b1e402f42ed27dab15
+pyaedt @ git+https://github.com/ansys/pyaedt@d7d34506ba35024e9e9da93e58bc3a3193378be4
     # via -r requirements/requirements_doc.txt
 pycparser==3.0
     # via cffi
@@ -436,7 +431,7 @@ pydantic-core==2.46.4
     # via pydantic
 pydata-sphinx-theme==0.17.1
     # via ansys-sphinx-theme
-pyedb @ git+https://github.com/ansys/pyedb@1502a1c37d54a90ddab111023d1ed4fcbb8d86eb
+pyedb @ git+https://github.com/ansys/pyedb@ec09f98a68b131561cf6de4c068e1433c4835447
     # via
     #   -r requirements/requirements_doc.txt
     #   pyaedt
@@ -474,6 +469,11 @@ pyvista==0.48.4
     #   pyvista-zstd
 pyvista-zstd==0.2.3
     # via pyvista
+pywinpty==3.0.5
+    # via
+    #   jupyter-server
+    #   jupyter-server-terminals
+    #   terminado
 pyyaml==6.0.3
     # via
     #   ansys-sphinx-theme

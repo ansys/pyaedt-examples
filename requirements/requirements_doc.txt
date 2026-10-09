@@ -1,6 +1,6 @@
 # PyAEDT with associated graphics and examples dependencies
-pyaedt[graphics, examples] @ git+https://github.com/ansys/pyaedt@refactor/update-download-to-align-with-common-changes
-pyedb @ git+https://github.com/ansys/pyedb@fix/download-following-ansys-tools-common-update
+pyaedt[graphics, examples] @ git+https://github.com/ansys/pyaedt@main
+pyedb @ git+https://github.com/ansys/pyedb@main
 
 # Documentation dependencies
 ansys-sphinx-theme==1.9.0
