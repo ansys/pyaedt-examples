@@ -14,16 +14,17 @@ alabaster==1.0.0
     # via sphinx
 annotated-types==0.7.0
     # via pydantic
-ansys-api-edb==0.3.0
+ansys-api-edb==0.3.2
     # via ansys-edb-core
-ansys-edb-core==0.3.1
+ansys-edb-core==0.3.3
     # via pyedb
 ansys-sphinx-theme==1.9.0
     # via -r requirements/requirements_doc.txt
-ansys-tools-common==0.5.0
+ansys-tools-common==0.5.3
     # via
     #   ansys-edb-core
     #   pyaedt
+    #   pyedb
 ansys-tools-visualization-interface==0.13.3
     # via pyaedt
 anyio==4.13.0
@@ -98,7 +99,6 @@ decorator==5.3.1
     # via ipython
 defusedxml==0.7.1
     # via
-    #   fpdf2
     #   nbconvert
     #   pyaedt
     #   pyedb
@@ -123,11 +123,7 @@ fast-simplification==0.1.13
 fastjsonschema==2.21.2
     # via nbformat
 fonttools==4.63.0
-    # via
-    #   fpdf2
-    #   matplotlib
-fpdf2==2.8.7
-    # via pyaedt
+    # via matplotlib
 fqdn==1.5.1
     # via jsonschema
 frozenlist==1.8.0
@@ -373,13 +369,14 @@ pandocfilters==1.5.1
     # via nbconvert
 parso==0.8.7
     # via jedi
+pdf-oxide==0.3.78
+    # via pyaedt
 pdf2image==1.17.0
     # via ansys-sphinx-theme
 pexpect==4.9.0
     # via ipython
 pillow==12.2.0
     # via
-    #   fpdf2
     #   imageio
     #   matplotlib
     #   pdf2image
@@ -422,7 +419,7 @@ pure-eval==0.2.3
     # via stack-data
 py-cpuinfo==9.0.0
     # via tables
-pyaedt @ git+https://github.com/ansys/pyaedt@79d69d26e1088bd6349e9de248c8bf9187e86c58
+pyaedt @ git+https://github.com/ansys/pyaedt@d7d34506ba35024e9e9da93e58bc3a3193378be4
     # via -r requirements/requirements_doc.txt
 pycparser==3.0
     # via cffi
@@ -435,8 +432,10 @@ pydantic-core==2.46.4
     # via pydantic
 pydata-sphinx-theme==0.17.1
     # via ansys-sphinx-theme
-pyedb==0.77.0
-    # via pyaedt
+pyedb @ git+https://github.com/ansys/pyedb@ec09f98a68b131561cf6de4c068e1433c4835447
+    # via
+    #   -r requirements/requirements_doc.txt
+    #   pyaedt
 pygments==2.20.0
     # via
     #   accessible-pygments
@@ -737,8 +736,6 @@ wslink==2.5.7
     # via
     #   trame
     #   trame-server
-xmltodict==1.0.4
-    # via pyedb
 yarl==1.24.2
     # via aiohttp
 zipp==4.1.0
