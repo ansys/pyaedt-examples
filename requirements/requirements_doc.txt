@@ -1,6 +1,5 @@
 # PyAEDT with associated graphics and examples dependencies
-pyaedt[graphics, examples] @ git+https://github.com/ansys/pyaedt@main
-pyedb @ git+https://github.com/ansys/pyedb@main
+pyaedt[graphics, examples]==1.9.0
 
 # Documentation dependencies
 ansys-sphinx-theme==1.9.0
