@@ -177,17 +177,26 @@ jobs:
       - name: Set up headless display
         uses: pyvista/setup-headless-display-action@c103a2ff45650d38cb71684b5dc6cdfeb9442c79 # v5.1.0
 
-      - name: Get new/modified examples files (only for PRs)
+      - name: Check new/modified examples and dependency files (only for PRs)
         if: github.ref_name != 'main'
         shell: powershell
         run: |
           $changed = git diff --name-only origin/main...HEAD -- examples/
           $changed = $changed | ForEach-Object { $_.Replace('\', '/') }
+          $changed_requirements = git diff --name-only origin/main...HEAD -- requirements/ |
+            Where-Object { $_ -match '(^|/)requirements_[^/]*\.txt$' }
 
           Write-Output "New/Modified files:"
           $changed | ForEach-Object { Write-Output "- $_" }
-
-          $changed_formatted = $changed -join ","
+          # NOTE: Ugly patch to ensure that all runnable examples are checked when requirements
+          # files are modified. This should be updated later on to not have this awkward solution.
+          if ($changed_requirements) {
+            Write-Output "Dependency files changed; run all examples (except static exclusions):"
+            # An empty filter enables all examples in the Sphinx configuration.            
+            $changed_formatted = ""
+          } else {
+            $changed_formatted = $changed -join ","
+          }
           Add-Content -Path $env:GITHUB_ENV -Value "ON_CI_CHANGED_EXAMPLES=$changed_formatted"
 
       - name: Set up Python ${{ env.MAIN_PYTHON_VERSION }}
