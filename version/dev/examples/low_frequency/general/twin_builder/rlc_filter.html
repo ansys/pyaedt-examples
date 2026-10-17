@@ -1,0 +1,1067 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>RLC filter circuit design analysis &#8212; PyAEDT Examples</title>
+  
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/ansys-sphinx-theme.css?v=5ffe81b6" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles\ansys-sphinx-theme.css?v=5ffe81b6" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css?v=9233c59b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/highlight.css?v=500661c4" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+
+
+  <!-- Include desired assets -->
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  
+
+  
+    <link href="../../../../_static/css/breadcrumbs.css" rel="stylesheet" />
+  
+    <script src="../../../../_static/documentation_options.js?v=e7fb764e"></script>
+    <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=49e1bf35"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/low_frequency/general/twin_builder/rlc_filter';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <script src="../../../../_static/js/download_notebooks.js?v=b947e8ca"></script>
+    <link rel="icon" href="../../../../_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="3-Phase Cable with Neutral" href="../maxwell_3_phase_cable.html" />
+    <link rel="prev" title="LTI ROM creation and simulation" href="lti_rom_sml.html" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1.dev0" />
+  
+    
+    <script src="../../../../_static/searchtools.js"></script>
+    <script src="../../../../_static/language_data.js"></script>
+    <script src="../../../../searchindex.js"></script>
+  
+  <link rel="canonical" href="https://examples.aedt.docs.pyansys.com/version/stable/examples/low_frequency/general/twin_builder/rlc_filter.html" />
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="https://www.ansys.com/">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../_static/ansys_logo_transparent_black.png" class="logo__image only-light" alt="PyAEDT Examples - Home"/>
+    <img src="../../../../_static/ansys_logo_transparent_white.png" class="logo__image only-dark pst-js-only" alt="PyAEDT Examples - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../index.html" title="PyAEDT Examples home">Home</a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Examples
+  </a>
+</li>
+
+  </ul>
+</nav>
+</div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+      
+        <div class="navbar-item">
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+  
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+  
+
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../index.html" title="PyAEDT Examples home">Home</a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Examples
+  </a>
+</li>
+
+  </ul>
+</nav>
+</div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+  
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt-examples/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar"><svg class="pst-icon svg-inline--fa" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../aedt/index.html">Examples by AEDT application</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../high_frequency/index.html">High frequency</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../index.html">Low frequency</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../index.html">General</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../control_program.html">Control program enablement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../resistance.html">Resistance calculation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../eddy_current.html">Eddy current analysis and reduced matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../electrostatic.html">Electrostatic analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../external_circuit.html">External delta circuit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dc_analysis.html">Electro DC analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../field_export.html">Fields export in transient analysis</a></li>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="index.html">Twin Builder</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="static_rom.html">Static ROM</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dynamic_rom.html">Dynamic ROM</a></li>
+<li class="toctree-l4"><a class="reference internal" href="lti_rom_sml.html">LTI ROM creation and simulation</a></li>
+<li class="toctree-l4 current active"><a class="current reference internal" href="#">RLC filter circuit design analysis</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../maxwell_3_phase_cable.html">3-Phase Cable with Neutral</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../maxwell_2d_inception_voltage.html">Automated workflow for Inception Voltage Evaluation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cable_float.html">Example of a reference subsea power cable construction for floating offshore application</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../motor/index.html">Motor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../magnetic/index.html">Magnetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../team_problem/index.html">T.E.A.M.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../multiphysics/index.html">Multiphysics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../aedt_general/report/index.html">Report</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../electrothermal/index.html">Electrothermal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../aedt_general/index.html">Pre-processing and post-processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../edb/index.html">EDB Examples</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+       
+    <li class="breadcrumb-item">
+      <a href="https://aedt.docs.pyansys.com/" class="nav-link">PyAEDT</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="../../../../index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../../../index.html" class="nav-link">Examples</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../../index.html" class="nav-link">Low frequency</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="../index.html" class="nav-link">General</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a href="index.html" class="nav-link">Twin Builder</a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">RLC filter circuit design analysis</span></li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="admonition-download-this-example admonition">
+<p class="admonition-title">Download this example</p>
+<p>Download this example as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/low_frequency/general/twin_builder/rlc_filter.ipynb">Jupyter Notebook</a>
+or as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/low_frequency/general/twin_builder/rlc_filter.py">Python script</a>.</p>
+</div>
+<hr class="docutils" />
+<section id="RLC-filter-circuit-design-analysis">
+<h1>RLC filter circuit design analysis<a class="headerlink" href="#RLC-filter-circuit-design-analysis" title="Link to this heading">#</a></h1>
+<p>This example demonstrates how to use PyAEDT to set up and analyze an RLC filter circuit in Twin Builder. It covers setup creation, parametric sweeps of key circuit parameters, and post-processing of simulation results. Generated plots illustrate how the parametric sweep affects the circuit response. Key behaviors such as resonance peaking, damping, and current flow under different resistance values are examined. Studying how an RLC filter behaves as resistance, inductance, and drive voltage vary
+is useful for understanding key circuit phenomena such as resonance, damping, overshoot, and settling time. Parametric analysis helps reveal how component values and input conditions influence the response, making it easier to evaluate filter performance and identify meaningful operating points.</p>
+<p>This example MUST be run in graphical mode.</p>
+<p>Keywords: <strong>Twin Builder</strong>, <strong>RLC</strong>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>import tempfile
+import time
+from pathlib import Path
+
+import ansys.aedt.core
+from ansys.aedt.core.examples.downloads import download_file
+from ansys.aedt.core.generic.file_utils import write_csv
+from matplotlib import pyplot as plt
+<br/></pre></div>
+</div>
+</div>
+<section id="Define-constants">
+<h2>Define constants<a class="headerlink" href="#Define-constants" title="Link to this heading">#</a></h2>
+<p>Constants help ensure consistency and avoid repetition throughout the example.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>AEDT_VERSION = &quot;2026.1&quot;
+NUM_CORES = 4
+NG_MODE = False  # Open AEDT UI when it is launched.
+TB_FILE_NAME = &quot;RLC_Filter_pyaedt.aedt&quot;
+TB_DESIGN_NAME = &quot;RLC_Filter_Optimetrics&quot;
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Create-temporary-directory">
+<h2>Create temporary directory<a class="headerlink" href="#Create-temporary-directory" title="Link to this heading">#</a></h2>
+<p>Create a temporary directory where downloaded data or dumped data can be stored. If you’d like to retrieve the project data for subsequent use, the temporary folder name is given by <code class="docutils literal notranslate"><span class="pre">temp_folder.name</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>temp_folder = tempfile.TemporaryDirectory(suffix=&quot;.ansys&quot;)
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Download-AEDT-file">
+<h2>Download AEDT file<a class="headerlink" href="#Download-AEDT-file" title="Link to this heading">#</a></h2>
+<p>Set the local temporary folder to export the AEDT file to. The <code class="docutils literal notranslate"><span class="pre">download_file()</span></code> method provides access to a library of examples and models from the Ansys GitHub organization: <a class="reference external" href="https://github.com/ansys/example-data">example-data repository</a>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>project_path = download_file(
+    source=&quot;pyaedt/twinbuilder_rlc_filter&quot;,
+    name=TB_FILE_NAME,
+    local_path=temp_folder.name,
+)
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Launch-Twinbuilder-AEDT">
+<h2>Launch Twinbuilder AEDT<a class="headerlink" href="#Launch-Twinbuilder-AEDT" title="Link to this heading">#</a></h2>
+<p>Create an instance of the <code class="docutils literal notranslate"><span class="pre">Twinbuilder</span></code> class. The Ansys Electronics Desktop will be launched with the active Twinbuilder design. The <code class="docutils literal notranslate"><span class="pre">tb</span></code> object is subsequently used to create and simulate the model.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>tb = ansys.aedt.core.TwinBuilder(
+    project=project_path,
+    design=TB_DESIGN_NAME,
+    version=AEDT_VERSION,
+    non_graphical=NG_MODE,
+    new_desktop=True,
+)
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Analysis-setup">
+<h2>Analysis setup<a class="headerlink" href="#Analysis-setup" title="Link to this heading">#</a></h2>
+<p>Create a transient setup. If <code class="docutils literal notranslate"><span class="pre">setup_type</span></code> is not specified, the default setup type is used (Transient).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>setup = tb.create_setup(setup_type=&quot;TwinbuilderTR&quot;, name=&quot;TR&quot;)
+</pre></div>
+</div>
+</div>
+<p>Change setup properties to specify the stop time, minimum time step, and maximum time step. In the order: Stop Time, Min time step, Max time step.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>setup.props[&quot;TransientData&quot;][0] = &quot;10ms&quot;
+setup.props[&quot;TransientData&quot;][1] = &quot;1us&quot;
+setup.props[&quot;TransientData&quot;][2] = &quot;20us&quot;
+setup.update()
+</pre></div>
+</div>
+</div>
+<p>Save and close the project to ensure that all changes are written to disk. Reopen the project to ensure that the changes are reflected in the current session.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>tb.close_project(save=True)
+tb = ansys.aedt.core.TwinBuilder(
+    project=project_path,
+    design=TB_DESIGN_NAME,
+    version=AEDT_VERSION,
+    non_graphical=NG_MODE,
+    new_desktop=True,
+)
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Parametric-sweep">
+<h2>Parametric sweep<a class="headerlink" href="#Parametric-sweep" title="Link to this heading">#</a></h2>
+<p>Create a parametric sweep for the RLC filter circuit. The sweep varies the series resistance, series inductance, and drive voltage.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>sweep = tb.parametrics.add(
+    variable=&quot;$Rseries&quot;,
+    start_point=25,
+    end_point=100,
+    step=4,
+    variation_type=&quot;LinearCount&quot;,
+)
+sweep.add_variation(
+    sweep_variable=&quot;$Lseries&quot;,
+    start_point=5,
+    end_point=20,
+    step=4,
+    variation_type=&quot;LinearCount&quot;,
+)
+sweep.add_variation(
+    sweep_variable=&quot;$Vdrive&quot;,
+    start_point=1,
+    end_point=10,
+    step=4,
+    variation_type=&quot;LinearCount&quot;,
+)
+</pre></div>
+</div>
+</div>
+<p>Analyze parametric sweep</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>sweep.analyze()
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Post-processing">
+<h2>Post-processing<a class="headerlink" href="#Post-processing" title="Link to this heading">#</a></h2>
+<p>In this example two different approaches to post-processing are demonstrated. The first approach uses the <code class="docutils literal notranslate"><span class="pre">create_report</span></code> method to creat in AEDT a report with the specified expressions and domain. The second approach uses the <code class="docutils literal notranslate"><span class="pre">get_report_data</span></code> method to retrieve the report data in Python without creating a report in AEDT. After retrieving the data, the results are exported to a CSV file.</p>
+</section>
+<section id="Create-reports-in-AEDT">
+<h2>Create reports in AEDT<a class="headerlink" href="#Create-reports-in-AEDT" title="Link to this heading">#</a></h2>
+<p>First report shows the startup response and steady-state apmlitude/phase difference between the voltage across the source <code class="docutils literal notranslate"><span class="pre">V_IN.V</span></code> and the voltage across the shunt capacitor <code class="docutils literal notranslate"><span class="pre">C_SHUNT.V</span></code> assuming a 10V, 10mH, 50ohm input.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>vars = tb.available_variations.all
+vars[&quot;$Rseries&quot;] = &quot;50ohm&quot;
+vars[&quot;$Lseries&quot;] = &quot;10mH&quot;
+vars[&quot;$Vdrive&quot;] = &quot;10V&quot;
+report_voltages = tb.post.create_report(
+    plot_name=&quot;RLC 10V 10mH 50ohm Input Output&quot;,
+    domain=&quot;Time&quot;,
+    expressions=[&quot;C_SHUNT.V&quot;, &quot;V_IN.V&quot;],
+    primary_sweep_variable=&quot;Time&quot;,
+    variations=vars,
+    context={&quot;optimetrics_setup&quot;: sweep.name}
+)
+</pre></div>
+</div>
+</div>
+<p>Export report data to CSV for the whole time domain. The CSV file will be saved in the temporary folder created earlier.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>export_path = tb.post.export_report_to_file(
+    output_dir=temp_folder.name,
+    plot_name=report_voltages.plot_name,
+    extension=&quot;.csv&quot;,
+)
+</pre></div>
+</div>
+</div>
+<p>Export report data to CSV for a specific time range. Supposedly, the data are exported for the time range from 0 to 5 ms.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>export_path_range = tb.post.export_report_to_file(
+    output_dir=temp_folder.name,
+    plot_name=report_voltages.plot_name,
+    extension=&quot;.csv&quot;,
+    start=&quot;0ms&quot;,
+    end=&quot;5ms&quot;,
+    step=&quot;1ms&quot;
+)
+</pre></div>
+</div>
+</div>
+<p>Second report shows resonance for different values of series inductance. The report shows the voltage across the shunt capacitor <code class="docutils literal notranslate"><span class="pre">C_SHUNT.V</span></code> for different values of series inductance. Values for the series inductance are 5, 10, 15, and 20 mH while the series resistance is fixed at 50 ohms and the drive voltage is fixed at 10V.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>vars = tb.available_variations.all
+vars[&quot;$Rseries&quot;] = &quot;50ohm&quot;
+vars[&quot;$Lseries&quot;] = &quot;All&quot;
+vars[&quot;$Vdrive&quot;] = &quot;10V&quot;
+report_resonance = tb.post.create_report(
+    plot_name=&quot;RLC Output Voltage vs Inductance at 10V 50ohm&quot;,
+    domain=&quot;Time&quot;,
+    expressions=[&quot;C_SHUNT.V&quot;],
+    primary_sweep_variable=&quot;Time&quot;,
+    variations=vars,
+    context={&quot;optimetrics_setup&quot;: sweep.name}
+)
+</pre></div>
+</div>
+</div>
+<p>Find max values of <code class="docutils literal notranslate"><span class="pre">C_SHUNT.V</span></code> for all combinations and export legend in a csv file.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>report_resonance.add_trace_characteristics(name=&quot;max&quot;)
+output_file = f&quot;{temp_folder.name}\\{report_resonance.plot_name}_legend.csv&quot;
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>report_resonance.export_table_to_file(
+    plot_name=&quot;RLC Output Voltage vs Inductance at 10V 50ohm&quot;,
+    output_file=f&quot;{temp_folder.name}\\{report_resonance.plot_name}_legend.csv&quot;,
+    table_type=&quot;Legend&quot;
+)
+</pre></div>
+</div>
+</div>
+<p><img alt="RLC plot" class="no-scaled-link" src="../../../../_images/rlc.png" style="width: 700px;" /></p>
+<p>Export <code class="docutils literal notranslate"><span class="pre">C_SHUNT.V</span></code> for all different values of series inductance.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>export_path_resonance = tb.post.export_report_to_file(
+    output_dir=temp_folder.name,
+    plot_name=report_resonance.plot_name,
+    extension=&quot;.csv&quot;,
+)
+</pre></div>
+</div>
+</div>
+<p>Export report data to CSV for a specific value of series inductance. Supposedly, the data are exported for the series inductance of 10 mH where resonance peaking occurs. Add a Y cartesian marker at maximum point.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>vars[&quot;$Lseries&quot;] = &quot;10mH&quot;
+report_resonance.update_trace_in_report(
+    traces=[&quot;C_SHUNT.V&quot;],
+    variations=vars,
+)
+report_resonance.add_cartesian_y_marker(
+    value=&quot;14.1925V&quot;,
+)
+export_path_resonance_Lseries10mH = tb.post.export_report_to_file(
+    output_dir=temp_folder.name,
+    plot_name=report_resonance.plot_name,
+    extension=&quot;.csv&quot;,
+)
+</pre></div>
+</div>
+</div>
+<p><img alt="RLC plot" class="no-scaled-link" src="../../../../_images/rlc_max_marker.png" style="width: 700px;" /></p>
+</section>
+<section id="Create-a-PyAEDT-report-object-(not-in-AEDT-GUI).">
+<h2>Create a PyAEDT report object (not in AEDT GUI).<a class="headerlink" href="#Create-a-PyAEDT-report-object-(not-in-AEDT-GUI)." title="Link to this heading">#</a></h2>
+<p>The report demonstrates how resistance damps resonance for different values of series resistance. The values for the series resistance are 25, 50, 75, and 100 ohms. The series inductance is fixed at 10 mH and the drive voltage is fixed at 10V.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>report_damp = tb.post.reports_by_category.standard(
+    expressions=[&quot;C_SHUNT.V&quot;],
+)
+</pre></div>
+</div>
+</div>
+<p>Get the report data of <code class="docutils literal notranslate"><span class="pre">C_SHUNT.V</span></code> for all different values of series resistance.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>report_damp_data = tb.post.get_solution_data(
+    expressions=[&quot;C_SHUNT.V&quot;],
+    primary_sweep_variable=&quot;Time&quot;,
+    variations={&quot;$Rseries&quot;: &quot;All&quot;, &quot;$Lseries&quot;: &quot;10mH&quot;, &quot;$Vdrive&quot;: &quot;10V&quot;},
+    context={&quot;optimetrics_setup&quot;: sweep.name},
+)
+</pre></div>
+</div>
+</div>
+<p>Two different approaches are shown:</p>
+<ol class="arabic simple">
+<li><p>Export <code class="docutils literal notranslate"><span class="pre">C_SHUNT.V</span></code> data for each variation in a csv file. With this approach, a plot is generated with Matplotlib for each variation of series resistance.</p></li>
+</ol>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>for var in report_damp_data.variations:
+    report_damp_data.active_variation = var
+    expr = report_damp_data.get_expression_data()
+
+    rows = [[&quot;Time&quot;, &quot;C_SHUNT.V&quot;]]
+    time_values = expr[0]
+    c_shunt_values = expr[1]
+    rows.extend([[t, v] for t, v in zip(time_values, c_shunt_values)])
+
+    csv_path = Path(temp_folder.name) / f&quot;RLC Output Voltage vs Resistance at 10V 10mH_{var[&#39;$Rseries&#39;]}.csv&quot;
+    write_csv(str(csv_path), rows)
+
+    plt.plot(time_values, c_shunt_values)
+    plt.grid()
+    plt.xlabel(&quot;Time&quot;)
+    plt.ylabel(&quot;C_SHUNT.V&quot;)
+    plt.show()
+</pre></div>
+</div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Export <code class="docutils literal notranslate"><span class="pre">C_SHUNT.V</span></code> data in a csv for all combinations of <code class="docutils literal notranslate"><span class="pre">$Rseries</span></code>.</p></li>
+</ol>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>report_damp_data.export_data_to_csv(
+    output=temp_folder.name + &quot;\\RLC Output Voltage vs Resistance at 10V 10mH.csv&quot;,
+    delimiter=&quot;,&quot;
+)
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Release-AEDT">
+<h2>Release AEDT<a class="headerlink" href="#Release-AEDT" title="Link to this heading">#</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>tb.save_project()
+tb.release_desktop()
+# Wait 3 seconds to allow AEDT to shut down before cleaning the temporary directory.
+time.sleep(3)
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Clean-up">
+<h2>Clean up<a class="headerlink" href="#Clean-up" title="Link to this heading">#</a></h2>
+<p>All project files are saved in the folder <code class="docutils literal notranslate"><span class="pre">temp_folder.name</span></code>. If you’ve run this example as a Jupyter notebook, you can retrieve those project files. The following cell removes all temporary files, including the project folder.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre><span></span>temp_folder.cleanup()
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<div class="admonition-download-this-example admonition">
+<p class="admonition-title">Download this example</p>
+<p>Download this example as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/low_frequency/general/twin_builder/rlc_filter.ipynb">Jupyter Notebook</a>
+or as a <a class="reference external" href="https://examples.aedt.docs.pyansys.com/version/dev/examples/low_frequency/general/twin_builder/rlc_filter.py">Python script</a>.</p>
+</div>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Define-constants">Define constants</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-temporary-directory">Create temporary directory</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Download-AEDT-file">Download AEDT file</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Launch-Twinbuilder-AEDT">Launch Twinbuilder AEDT</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Analysis-setup">Analysis setup</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Parametric-sweep">Parametric sweep</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Post-processing">Post-processing</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-reports-in-AEDT">Create reports in AEDT</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Create-a-PyAEDT-report-object-(not-in-AEDT-GUI).">Create a PyAEDT report object (not in AEDT GUI).</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Release-AEDT">Release AEDT</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Clean-up">Clean up</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+
+  
+  <nav class="tocsection editthispage" aria-label="Edit this page">
+    <a href="https://github.com/ansys/pyaedt-examples/edit/main/doc/source/examples/low_frequency/general/twin_builder/rlc_filter.ipynb" rel="noopener noreferrer">
+      <i class="fa-solid fa-pencil" aria-hidden="true"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </nav>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <ul class="this-page-menu">
+      <li><a href="../../../../_sources/examples/low_frequency/general/twin_builder/rlc_filter.ipynb.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+
+
+  <!-- Include desired assets -->
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.7/require.min.js"></script>
+
+<script>
+// Passing the search options to the search.js file
+const SEARCH_OPTIONS = JSON.parse('{"keys": ["title", "text", "objectID"], "limit": 10, "threshold": 0.2}');
+const SEARCH_FILE = "../../../../_static/search.json";
+const ADVANCE_SEARCH_PATH = "../../../../search.html";
+const EXTRA_SOURCES = JSON.parse('""');
+</script>
+
+
+<script src="../../../../_static/js/search.js"></script>
+
+  
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<!--
+  Theme Version Footer
+  Displays the Sphinx theme version and the last updated date.
+  Accessibility and semantic improvements included.
+-->
+<footer class="theme-version" aria-label="Theme version and last update">
+  <span>
+    
+      Built with the
+      <a href="https://sphinxdocs.ansys.com/version/stable/index.html" target="_blank" rel="noopener noreferrer">
+        Ansys Sphinx Theme
+      </a>
+      1.9.0.
+    
+  </span>
+  <br />
+  <span>Last updated on <time id="ast_build_date"></time></span>
+</footer>
+<script>
+  // Set the last updated date in a readable format
+  (function() {
+    var options = { day: "numeric", month: "long", year: "numeric" };
+    var ast_lastModifiedDate = new Date(document.lastModified);
+    var ast_build_date = ast_lastModifiedDate.toLocaleDateString("en-US", options);
+    var dateElem = document.getElementById("ast_build_date");
+    if (dateElem) {
+      dateElem.textContent = ast_build_date;
+    }
+  })();
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
