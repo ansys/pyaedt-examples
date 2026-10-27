@@ -64,7 +64,7 @@ bleach==6.4.0
     # via nbconvert
 blosc2==4.3.3
     # via tables
-certifi==2026.5.20
+certifi==2026.10.23
     # via
     #   httpcore
     #   httpx
@@ -80,7 +80,12 @@ click==8.4.1
     #   ansys-tools-common
     #   uvicorn
 colorama==0.4.6
-    # via sphinx-autobuild
+    # via
+    #   click
+    #   ipython
+    #   sphinx
+    #   sphinx-autobuild
+    #   tqdm
 comm==0.2.3
     # via
     #   ipykernel
@@ -373,8 +378,6 @@ pdf-oxide==0.3.78
     # via pyaedt
 pdf2image==1.17.0
     # via ansys-sphinx-theme
-pexpect==4.9.0
-    # via ipython
 pillow==12.2.0
     # via
     #   imageio
@@ -411,15 +414,11 @@ psutil==7.2.2
     #   ipykernel
     #   pyaedt
     #   pyedb
-ptyprocess==0.7.0
-    # via
-    #   pexpect
-    #   terminado
 pure-eval==0.2.3
     # via stack-data
 py-cpuinfo==9.0.0
     # via tables
-pyaedt @ git+https://github.com/ansys/pyaedt@d7d34506ba35024e9e9da93e58bc3a3193378be4
+pyaedt @ git+https://github.com/ansys/pyaedt@a6e37f271db6f659216094719968493d9035adff
     # via -r requirements/requirements_doc.txt
 pycparser==3.0
     # via cffi
@@ -432,7 +431,7 @@ pydantic-core==2.46.4
     # via pydantic
 pydata-sphinx-theme==0.17.1
     # via ansys-sphinx-theme
-pyedb @ git+https://github.com/ansys/pyedb@ec09f98a68b131561cf6de4c068e1433c4835447
+pyedb @ git+https://github.com/ansys/pyedb@c64ff03c3b440b7dd213c34d8a649cea4ab9ee3d
     # via
     #   -r requirements/requirements_doc.txt
     #   pyaedt
@@ -470,6 +469,11 @@ pyvista==0.48.4
     #   pyvista-zstd
 pyvista-zstd==0.2.3
     # via pyvista
+pywinpty==3.1.0
+    # via
+    #   jupyter-server
+    #   jupyter-server-terminals
+    #   terminado
 pyyaml==6.0.3
     # via
     #   ansys-sphinx-theme
