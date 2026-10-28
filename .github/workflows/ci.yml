@@ -157,6 +157,7 @@ jobs:
       - uses: ansys/actions/doc-style@87ff2e65e8884121f9afc97728ca9f213228ecc2 # v11.1.4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          use-python-cache: false
 
 
 
