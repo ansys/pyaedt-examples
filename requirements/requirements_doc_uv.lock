@@ -432,7 +432,7 @@ pydantic-core==2.46.4
     # via pydantic
 pydata-sphinx-theme==0.17.1
     # via ansys-sphinx-theme
-pyedb @ git+https://github.com/ansys/pyedb@c64ff03c3b440b7dd213c34d8a649cea4ab9ee3d
+pyedb @ git+https://github.com/ansys/pyedb@3b0a108ca26df5db93068754090483da34f743b3
     # via
     #   -r requirements/requirements_doc.txt
     #   pyaedt
