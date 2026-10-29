@@ -64,7 +64,7 @@ bleach==6.4.0
     # via nbconvert
 blosc2==4.3.3
     # via tables
-certifi==2026.5.20
+certifi==2026.10.23
     # via
     #   httpcore
     #   httpx
@@ -419,7 +419,7 @@ pure-eval==0.2.3
     # via stack-data
 py-cpuinfo==9.0.0
     # via tables
-pyaedt @ git+https://github.com/ansys/pyaedt@d7d34506ba35024e9e9da93e58bc3a3193378be4
+pyaedt @ git+https://github.com/ansys/pyaedt@a6e37f271db6f659216094719968493d9035adff
     # via -r requirements/requirements_doc.txt
 pycparser==3.0
     # via cffi
@@ -432,7 +432,7 @@ pydantic-core==2.46.4
     # via pydantic
 pydata-sphinx-theme==0.17.1
     # via ansys-sphinx-theme
-pyedb @ git+https://github.com/ansys/pyedb@ec09f98a68b131561cf6de4c068e1433c4835447
+pyedb @ git+https://github.com/ansys/pyedb@5b984362fa5ad74a5fe543a40111e542c4296a59
     # via
     #   -r requirements/requirements_doc.txt
     #   pyaedt

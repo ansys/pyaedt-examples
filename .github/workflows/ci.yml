@@ -119,7 +119,7 @@ jobs:
         if: steps.changes.outputs.dependency_changes == 'true'
         env:
           PYTHON_VERSION: ${{ env.MAIN_PYTHON_VERSION }}
-        run: uv pip compile requirements/requirements_doc.txt -o requirements/requirements_doc_uv.lock --python-version "$PYTHON_VERSION"
+        run: uv pip compile requirements/requirements_doc.txt -o requirements/requirements_doc_uv.lock --python-version "$PYTHON_VERSION" --upgrade-package certifi
 
       - name: Commit updated lock file
         if: steps.changes.outputs.dependency_changes == 'true'
@@ -141,7 +141,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: ansys/actions/check-actions-security@7e89e00c5619374a1da8c2e876309d8b15ff0559 # v11.0.3
+      - uses: ansys/actions/check-actions-security@87ff2e65e8884121f9afc97728ca9f213228ecc2 # v11.1.4
         with:
           generate-summary: true
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -154,9 +154,10 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: ansys/actions/doc-style@7e89e00c5619374a1da8c2e876309d8b15ff0559 # v11.0.3
+      - uses: ansys/actions/doc-style@87ff2e65e8884121f9afc97728ca9f213228ecc2 # v11.1.4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          use-python-cache: false
 
 
 
@@ -203,6 +204,13 @@ jobs:
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+      # Bootstrap from the PSF-published wheel and hash: an index-based upgrade
+      # would still rely on the old pip's compromised CA bundle.
+      - name: "Bootstrap pip with a safe certificate bundle"
+        shell: bash
+        run: |
+          python -m pip --disable-pip-version-check install --no-cache-dir --force-reinstall "pip @ https://files.pythonhosted.org/packages/3f/06/3e4420302363fbb71be3c7f35ce042f54bfca330e3e66b3a2e3c4cca579f/pip-26.2.2-py3-none-any.whl#sha256=fd7f4dfa8190e014013b9f08f3e973f4e4c26ffd179a204895533a7254813a70"
 
       - name: Set up uv
         uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
@@ -271,7 +279,7 @@ jobs:
       contents: write # Needed to update files on the gh-pages branch
       pull-requests: write # Needed to create deployment comments on PRs
     steps:
-      - uses: ansys/actions/doc-deploy-pr@7e89e00c5619374a1da8c2e876309d8b15ff0559 # v11.0.3
+      - uses: ansys/actions/doc-deploy-pr@87ff2e65e8884121f9afc97728ca9f213228ecc2 # v11.1.4
         with:
           bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
           bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
@@ -288,7 +296,7 @@ jobs:
       contents: write # Needed to update files on the gh-pages branch
     steps:
       - name: Deploy the documentation
-        uses: ansys/actions/doc-deploy-dev@7e89e00c5619374a1da8c2e876309d8b15ff0559 # v11.0.3
+        uses: ansys/actions/doc-deploy-dev@87ff2e65e8884121f9afc97728ca9f213228ecc2 # v11.1.4
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
