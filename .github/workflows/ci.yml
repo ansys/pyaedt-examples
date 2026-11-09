@@ -8,8 +8,8 @@ on:
       - "*"
     branches:
       - "main"
-  schedule: # UTC at 0300
-    - cron: "0 3 * * *"
+  schedule:
+    - cron: "01 23 * * *" # 00:01 in Paris during standard time (01:01 during daylight saving time)
 
 env:
   ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
