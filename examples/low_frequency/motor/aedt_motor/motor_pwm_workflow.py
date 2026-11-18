@@ -37,36 +37,11 @@ import time
 
 import ansys.aedt.core
 import numpy as np
-import pandas as pd
-from ansys.aedt.core.generic.numbers_utils import Quantity
 from ansys.aedt.core.examples.downloads import download_file
+from ansys.aedt.core.generic.numbers_utils import Quantity
+from ansys.aedt.core.generic.file_utils import write_csv
 
 # -
-
-# ### Define required functions
-#
-# The following function is used to translate a python dictionary into a .csv file. It is used for the optimetrics
-# definitions
-
-def write_opt_csv(var_dict, filename):
-    headers = list(var_dict.keys())
-    headers.insert(0, "*")
-    with open(filename + ".csv", "w", newline="") as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(headers)
-        n = 0
-        for Idx in range(n_OPpoints):
-            n = n + 1
-            row = []
-            row.append(str(n))
-            for var in var_dict.items():
-                var_values = var[1]
-                var_value = str(var_values[0][Idx])
-                var_uom = var_values[1]
-                elm = str(var_value) + var_uom
-                row.append(elm)
-            writer.writerow(row)
-
 
 # ### Define Constants
 
@@ -110,7 +85,7 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 # it in the project folder.
 
 aedt_file = download_file(
-    source="maxwell_pwm_workflow",
+    source="maxwell_pwm_wf",
     name="model.aedt",
     local_path=temp_folder.name,
 )
@@ -137,17 +112,25 @@ POLE_PAIRS = 4
 # The current driven simulation is carried out over 1 full electrical cycle. The outputs (torque, flux linkage) are
 # computed over the last 1/6th of the period.
 
-CD_PERIOD_MULTIPLIER = 1  # Fraction of electric period to simulate
-CD_NUM_TORQUE_POINTS_PER_CYCLE = 30  # Points per electrical cycle
+# Fraction of electric period to simulate
+CD_PERIOD_MULTIPLIER = 1
 
-CD_PERIOD_MULTIPLIER_START = 5 / 6  # starting point for performing the average on the resulting curves.
-CD_PERIOD_MULTIPLIER_END = CD_PERIOD_MULTIPLIER  # end point for the average calculation.
+# Points per electrical cycle
+CD_NUM_TORQUE_POINTS_PER_CYCLE = 30
 
-CD_OPTIMETRICS_CSV_FILENAME = "Optimetrics_CD"  # current driven optimetrics file name
+# starting point for performing the average on the resulting curves.
+CD_PERIOD_MULTIPLIER_START = 5 / 6
+
+# end point for the average calculation.
+CD_PERIOD_MULTIPLIER_END = CD_PERIOD_MULTIPLIER
+
+# current driven optimetrics file name and path
+CD_OPTIMETRICS_CSV_FILENAME = "Optimetrics_CD"
 CD_OPTIMETRICS_CSV_FILE = os.path.join(CD_OPTIMETRICS_CSV_FILENAME + ".csv")
 CD_OPTIMETRICS_CSV_PATH = os.path.join(temp_folder.name, CD_OPTIMETRICS_CSV_FILE)
 
-CD_DESIGN_NAME = "Sinusoidal_Current"  # current driven Maxwell model name
+# current driven Maxwell model name
+CD_DESIGN_NAME = "Sinusoidal_Current"
 
 # #### Define constants for the PWM voltage simulation
 #
@@ -186,7 +169,7 @@ PWM_SWITCHING_PERIOD = 1 / PWM_SWITCHING_FREQUENCY
 PWM_TMAX_TMIN_RATIO = 3
 
 # minimum time-step for PWM simulations
-PWM_TMIN = PWM_SWITCHING_PERIOD / 100
+PWM_TMIN = PWM_SWITCHING_PERIOD / 20
 
 # maximum time-step for PWM simulations
 PWM_TMAX = PWM_TMAX_TMIN_RATIO * PWM_TMIN
@@ -203,17 +186,22 @@ PWM_PERIOD_MULTIPLIER = 2
 
 # starting points for the average window.
 PWM_PERIOD_MULTIPLIER_START = 1
+
 # end points for the average window.
 PWM_PERIOD_MULTIPLIER_END = PWM_PERIOD_MULTIPLIER
 
-PWM_OPTIMETRICS_CSV_FILENAME = "Optimetrics_PWM"  # PWM voltage optimetrics file name
+# current driven optimetrics file name and path
+PWM_OPTIMETRICS_CSV_FILENAME = "Optimetrics_PWM"
 PWM_OPTIMETRICS_CSV_FILE = os.path.join(PWM_OPTIMETRICS_CSV_FILENAME + ".csv")
 PWM_OPTIMETRICS_CSV_PATH = os.path.join(temp_folder.name, PWM_OPTIMETRICS_CSV_FILE)
 
-PWM_DESIGN_NAME = "PWM_Voltage"  # current driven Maxwell model name
+# current driven Maxwell model name
+PWM_DESIGN_NAME = "PWM_Voltage"
 
-OUTPUT_PWM_FILENAME = "PWM_losses"
-OUTPUT_PWM_FILE = os.path.join(temp_folder.name, OUTPUT_PWM_FILENAME + ".csv")
+# cPWM simulations results file name and path
+OUTPUT_PWM_CSV_FILENAME = "PWM_losses"
+OUTPUT_PWM_CSV_FILE = os.path.join(temp_folder.name, OUTPUT_PWM_CSV_FILENAME + ".csv")
+OUTPUT_PWM_CSV_PATH = os.path.join(temp_folder.name, OUTPUT_PWM_CSV_FILE)
 
 # #### Define common output variables for both current driven and PWM simulations
 #
@@ -241,53 +229,43 @@ output_vars = {
     "WindingLoss": "PerWindingSolidLoss(WG_Ph1_P1) + PerWindingSolidLoss(WG_Ph2_P1) + PerWindingSolidLoss(WG_Ph3_P1)",
 }
 
-# ## Operating Points csv File and Create the Optimetrics File
-#
-# In this example the points for setting up the Optimetrics analysis is defined within a csv file. This approach is more
-# flexible than defining the arrays directly in Python.
-# The table containing the operating points is defined using the following format:
-# | Speed | Phase Advance | Magnitude Fundamental I |
-# | :----: | :----: | :----: |
-# | 15000 | 79.41 | 231.73 |
-# | 15000 | 75.67 | 308.4 |
-# | 15000 | 75.4 | 411.8 |
-# | 15000 | 77.6 | 578.1 |
-# | 15000 | 79.41 | 645.8 |
+# ## Define The Operating Points
 
-# The necessary information regard the speed and the current phase advance and amplitude; this way the operating point
-# is fully defined.
-
-# Read the file and define the arrays of speed, phase advance and peak current for the Optimetrics analysis.
-
-dataOP = pd.read_csv(OPERATING_POINTS_FILE, header=None)
-dataOP_mat = dataOP.to_numpy()
-n_OPpoints = dataOP_mat.shape[0]
-
-speed_vec = dataOP_mat[:, 0]  # Speed array
-PA_vec = dataOP_mat[:, 1]  # Phase advance array
-IPeak_vec = dataOP_mat[:, 2]  # Peak current array
-
-# ### Write the current driven Optimetrics file
-var_dict = {
-    "MachineRPM": [speed_vec, "rpm"],
-    "PhaseAdvance": [PA_vec, "deg"],
-    "IPeak": [IPeak_vec, "A"],
-}
-write_opt_csv(var_dict, CD_OPTIMETRICS_CSV_FILENAME)
-
-# The resulting file has the following content:
-# | * | Speed | PhaseAdvance | IPeak |
-# | :----: | :----: | :----: | :----: |
-# | 1 | 15000rpm | 79.41deg | 231.73A |
-# | 2 | 15000rpm | 75.67deg | 308.4A |
-# | 3 | 15000rpm | 75.4deg | 411.8A |
-# | 4 | 15000rpm | 77.6deg | 578.1A |
-# | 5 | 15000rpm | 79.41deg | 645.8A |
-
-# The first column identifies the Simulation ID, necessary for the Optimetrics file import. All the quantities must
-# have the unit of measure specified.
+OPERATING_POINTS = [
+    ['MachineRPM', 'PhaseAdvance', 'IPeak'],
+    ['15000', '79.41244351', '231.129587'],
+    # ['15000', '75.66628551', '308.3753812'],
+    # ['15000', '75.39984866', '411.7977408'],
+    # ['15000', '77.59084809', '578.0743934'],
+    ['15000', '78.96214049', '645.8155811']
+]
 
 # ## Run the Current Driven Optimetrics
+
+# ### Write the csv file containing the operating points for the current driven optimetrics
+
+rows = OPERATING_POINTS[1:]  # skip header
+speed_str_vec, phase_advance_str_vec, peak_current_str_vec = map(list, zip(*rows))
+
+speed_str_vec_uom = [x + "rpm" for x in speed_str_vec]
+phase_advance_str_vec_uom = [x + "deg" for x in phase_advance_str_vec]
+peak_current_str_vec_uom = [x + "A" for x in peak_current_str_vec]
+
+header_current_driven = OPERATING_POINTS[0]
+operating_points_current_driven_uom = [header_current_driven] + [
+    list(row) for row in zip(speed_str_vec_uom, phase_advance_str_vec_uom, peak_current_str_vec_uom)
+]
+
+n_OPpoints = len(operating_points_current_driven_uom) - 1  # exclude header
+
+left_col = ['*'] + [str(i) for i in range(1, n_OPpoints + 1)]
+
+optimetrics_current_driven_list = [
+    [left_col[i]] + operating_points_current_driven_uom[i]
+    for i in range(len(operating_points_current_driven_uom))
+]
+
+write_csv(CD_OPTIMETRICS_CSV_PATH, optimetrics_current_driven_list)
 
 # ### Launch Maxwell 2D
 # Launch AEDT and Maxwell 2D after first setting up the project, the version and the graphical mode.
@@ -309,17 +287,11 @@ m2d["PeriodMultiplier"] = CD_PERIOD_MULTIPLIER
 # Define the number of points per cycle.
 m2d["NumTorquePointsPerCycle"] = CD_NUM_TORQUE_POINTS_PER_CYCLE
 
-# Machine pole pairs for following calculations.
-m2d["NumPoles"] = 2 * POLE_PAIRS
-
-# Define the variable to change the machine speed.
-m2d["MachineRPM"] = "750rpm"
-
 # The following variables are defined with their expression, since they will be changed at each iteration of the
 # Optimetrics analysis.
 # - The stator frequency is defined according to the machine speed, which changes at every iteration.
 # - The stop time is defined according to the stator frequency and the number of periods to simulate.
-# - The time step is here defined as an example. It will be overwritten
+# - The time step is here defined as an example. It will be overwritten by the SVPWM feature automatically.
 
 m2d.variable_manager["StatorFrequency"].expression = "NumPoles/2*MachineRPM/1rpm/60" + "*1Hz"
 CD_StopTimeExp = "1/StatorFrequency*1Hz*1s*PeriodMultiplier"
@@ -327,6 +299,7 @@ CD_TimeStepExp = "1/StatorFrequency*1Hz*1s/NumTorquePointsPerCycle"
 
 # ### Define the simulation setup
 
+# Create the new setup
 setup_name = "MySetupAuto"
 setup = m2d.create_setup(name=setup_name)
 setup.props["StopTime"] = str(CD_StopTimeExp)
@@ -347,13 +320,13 @@ m2d.create_output_variable("Iq_peak", "2/3*(InputCurrent(WG_Ph1_P1)*-sin(ThetaED
 
 # ### Import and run the optimetrics analysis
 
-# Import teh csv file.
+# Import the csv file.
 param_sweep = m2d.parametrics.add_from_file(CD_OPTIMETRICS_CSV_PATH, name=CD_OPTIMETRICS_CSV_FILENAME)
 
 # Run the parametric analysis
 param_sweep.analyze(cores=NUM_CORES, tasks=NUM_CORES, use_auto_settings=False)
 
-# ## Execute the current driven optimetrics
+# ## Execute the current driven optimetrics post-processing
 
 variations = {"MachineRPM": "All", "PhaseAdvance": "All", "IPeak": "All"}
 
@@ -389,10 +362,10 @@ data_Fq = m2d.post.get_solution_data(
     primary_sweep_variable="Time",
 )
 
-id_vec = np.zeros_like(speed_vec)
-iq_vec = np.zeros_like(speed_vec)
-fd_vec = np.zeros_like(speed_vec)
-fq_vec = np.zeros_like(speed_vec)
+id_vec = np.zeros(n_OPpoints)
+iq_vec = np.zeros(n_OPpoints)
+fd_vec = np.zeros(n_OPpoints)
+fq_vec = np.zeros(n_OPpoints)
 
 for OPidx in range(n_OPpoints):
 
@@ -432,15 +405,15 @@ for OPidx in range(n_OPpoints):
 
 # # ---------- COMPUTE VOLTAGE FIRST HARMONIC ---------- ##
 
-VPeak_vec = np.zeros_like(speed_vec)
-PhiV_vec = np.zeros_like(speed_vec)
+voltage_peak_vec = np.zeros(n_OPpoints)
+voltage_angle_vec = np.zeros(n_OPpoints)
 for Idx in range(n_OPpoints):
 
     isd = id_vec[Idx]
     isq = iq_vec[Idx]
     fd = fd_vec[Idx]
     fq = fq_vec[Idx]
-    speed = float(speed_vec[Idx])
+    speed = float(speed_str_vec[Idx])
 
     Fs = POLE_PAIRS * speed / 60
     Ws = Fs * 2 * np.pi
@@ -448,17 +421,25 @@ for Idx in range(n_OPpoints):
     vd = STATOR_RESISTANCE * isd - Ws * (fq + END_WINDING_INDUCTANCE * isq)
     vq = STATOR_RESISTANCE * isq + Ws * (fd + END_WINDING_INDUCTANCE * isd)
 
-    VPeak_vec[Idx] = np.hypot(vd, vq)
-    PhiV_vec[Idx] = np.atan2(vq, -vd) * 180 / np.pi
+    voltage_peak_vec[Idx] = np.hypot(vd, vq)
+    voltage_angle_vec[Idx] = np.atan2(vq, -vd) * 180 / np.pi
 
-var_dict = {
-    "MachineRPM": [speed_vec, "rpm"],
-    "PhaseAdvance": [PA_vec, "deg"],
-    "IPeak": [IPeak_vec, "A"],
-    "PhaseVoltagePeak": [VPeak_vec, "V"],
-    "phiV": [PhiV_vec, "deg"],
-}
-write_opt_csv(var_dict, PWM_OPTIMETRICS_CSV_FILENAME)
+voltage_peak_str_vec = [str(x) for x in voltage_peak_vec]
+voltage_angle_str_vec = [str(x) for x in voltage_angle_vec]
+
+voltage_peak_str_vec_uom = [x + "V" for x in voltage_peak_str_vec]
+voltage_angle_str_vec_uom = [x + "deg" for x in voltage_angle_str_vec]
+
+header_pwm = header_current_driven + ["PhaseVoltagePeak", "phiV"]
+operating_points_pwm_uom = [header_pwm] + [
+    list(row) for row in zip(speed_str_vec_uom, phase_advance_str_vec_uom, peak_current_str_vec_uom, voltage_peak_str_vec_uom, voltage_angle_str_vec_uom)
+]
+
+optimetrics_pwm_list = [
+    [left_col[i]] + operating_points_pwm_uom[i]
+    for i in range(len(operating_points_pwm_uom))
+]
+write_csv(PWM_OPTIMETRICS_CSV_PATH, optimetrics_pwm_list)
 
 # # ========== RUN PWM OPTIMETRICS ========== ##
 
@@ -466,8 +447,6 @@ m2d.set_active_design(PWM_DESIGN_NAME)
 
 # Define variables in the model
 m2d["PeriodMultiplier"] = PWM_PERIOD_MULTIPLIER
-m2d["NumPoles"] = 2 * POLE_PAIRS
-m2d["MachineRPM"] = "750rpm"
 m2d.variable_manager["StatorFrequency"].expression = "NumPoles/2*MachineRPM/1rpm/60" + "*1Hz"
 PWM_StopTimeExp = "1/StatorFrequency*1Hz*1s*PeriodMultiplier"
 
@@ -499,9 +478,10 @@ param_sweep.analyze(cores=NUM_CORES, tasks=NUM_CORES, use_auto_settings=False)
 
 variations = {"MachineRPM": "All", "PhaseAdvance": "All", "IPeak": "All", "PhaseVoltagePeak": "All", "phiV": "All"}
 
-PWM_output_variables = ["Torque", "Speed", "Id", "Iq", "Winding Losses 2D Tot", "Winding Losses 2D DC", "Magnet Losses", "Stator Eddy Currents Losses", "Rotor Eddy Currents Losses"]
+PWM_output_variables = ["Torque", "Speed", "Id", "Iq", "Winding Losses 2D Tot", "Winding Losses 2D DC", "Magnet Losses",
+                        "Stator Eddy Currents Losses", "Rotor Eddy Currents Losses"]
 PWM_output_vec = np.zeros(len(PWM_output_variables))
-PWM_output_final = np.zeros((n_OPpoints, len(PWM_output_variables)))
+PWM_output_mat = np.zeros((n_OPpoints, len(PWM_output_variables)))
 
 data_SolidLoss = m2d.post.get_solution_data(
     expressions=["SolidLoss"],
@@ -560,7 +540,7 @@ data_WindingLoss = m2d.post.get_solution_data(
 )
 
 for OPidx in range(n_OPpoints):
-    speed = speed_vec[OPidx]
+    speed = speed_str_vec[OPidx]
 
     ## ---------- GET TORQUE DATA ---------- ##
     torque_uom = data_torque.units_data["Moving1.Torque"]  # get the variable uom
@@ -635,7 +615,11 @@ for OPidx in range(n_OPpoints):
 
     ## ---------- STORE RESULTS ---------- ##
     PWM_output_vec = [Torque_mean, data_torque.active_variation["MachineRPM"], Id_mean, Iq_mean, WindingLoss_mean, ActiveLengthLosses, MagLoss_mean, StatorEddy_mean, RotorEddy_mean]
-    PWM_output_final[OPidx, 0 : len(PWM_output_vec)] = PWM_output_vec
+    PWM_output_mat[OPidx, 0: len(PWM_output_vec)] = PWM_output_vec
+
+
+output_pwm_list = [PWM_output_variables] + PWM_output_mat.tolist()
+write_csv(OUTPUT_PWM_CSV_PATH, output_pwm_list)
 
 # ## Finish
 #
@@ -654,7 +638,3 @@ time.sleep(3)
 # removes all temporary files, including the project folder.
 
 temp_folder.cleanup()
-
-outputPWM = pd.DataFrame(data=PWM_output_final, columns=PWM_output_variables)
-outputPWM.to_csv(OUTPUT_PWM_FILE, index=False)
-
