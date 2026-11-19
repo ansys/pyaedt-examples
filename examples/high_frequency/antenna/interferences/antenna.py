@@ -19,13 +19,14 @@ import time
 import ansys.aedt.core
 from ansys.aedt.core.emit_core.emit_constants import ResultType, TxRxMode
 from ansys.aedt.core.emit_core.nodes.generated import AntennaNode, RadioNode
+from ansys.aedt.core.emit_core.results.interaction_domain import InteractionDomain
 
 # -
 
 # ### Define constants
 # Constants help ensure consistency and avoid repetition throughout the example.
 
-AEDT_VERSION = "2026.1"
+AEDT_VERSION = "2027.1"
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ### Create temporary directory
@@ -94,7 +95,10 @@ if AEDT_VERSION > "2023.1":
 if AEDT_VERSION > "2023.1":
     rx_bands = rev.get_band_names(radio_node=rad2, tx_rx_mode=TxRxMode.RX)
     tx_bands = rev.get_band_names(radio_node=rad3, tx_rx_mode=TxRxMode.TX)
-    domain = aedtapp.results.interaction_domain()
+    if AEDT_VERSION == "2027.1":
+        domain = InteractionDomain(aedtapp)
+    else:
+        domain = aedtapp.results.interaction_domain()
     domain.set_receiver(rad2.name, rx_bands[0], -1)
     domain.set_interferer(rad3.name, tx_bands[0])
     interaction = rev.run(domain)
