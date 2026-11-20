@@ -12,28 +12,6 @@ PyAEDT offers a GUI which utilizes config file. Please refer to `Configure Layou
 
 .. grid:: 2
 
-   .. grid-item-card:: Power Integrity PDN analysis
-      :padding: 2 2 2 2
-      :link: pdn_analysis
-      :link-type: doc
-
-      .. image:: _static/pi.png
-         :alt: Configurator
-         :width: 250px
-         :height: 200px
-         :align: center
-
-   .. grid-item-card:: PCB Power Integrity DCIR analysis
-      :padding: 2 2 2 2
-      :link: pcb_dc_ir
-      :link-type: doc
-
-      .. image:: _static/dcir_pcb.png
-         :alt: Configurator
-         :width: 250px
-         :height: 200px
-         :align: center
-
    .. grid-item-card:: Package Power Integrity DCIR analysis
       :padding: 2 2 2 2
       :link: dcir
@@ -59,8 +37,6 @@ PyAEDT offers a GUI which utilizes config file. Please refer to `Configure Layou
 .. toctree::
    :hidden:
 
-   pdn_analysis
-   pcb_dc_ir
    dcir
    modeler_simple_transmission_line
 

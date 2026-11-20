@@ -8,8 +8,8 @@ on:
       - "*"
     branches:
       - "main"
-  schedule: # UTC at 0300
-    - cron: "0 3 * * *"
+  schedule:
+    - cron: "01 23 * * *" # 00:01 in Paris during standard time (01:01 during daylight saving time)
 
 env:
   ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
@@ -29,10 +29,63 @@ permissions: {} # Disable default permissions
 
 jobs:
 
+  # NOTE: We do not allow dependabot to trigger the CI/CD pipeline automatically.
+  # This is to mitigate supply chain attacks, where a malicious dependency update
+  # could execute arbitrary code in our build environment.
+  # Dependabot PRs must be reviewed carefully and approved manually before
+  # running the CI.
+  block-dependabot:
+    name: "Block dependabot (on dependabot PR)"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Exit if dependabot triggered the workflow # zizmor: ignore[bot-conditions] safe ignore because we exit if dependabot is triggering the action
+        if: github.triggering_actor == 'dependabot[bot]'
+        run: |
+          echo "::warning::Dependabot is not allowed to trigger this workflow. Please review carefully the changes before running the workflow manually."
+          exit 1
+
+
+  # NOTE: We do not allow the pre-commit-ci bot to trigger the CI/CD pipeline
+  # automatically on PR it creates.
+  # This is to mitigate supply chain attacks, where a malicious dependency update
+  # could execute arbitrary code in our build environment.
+  # PRs opened by the pre-commit-ci bot must be reviewed carefully and approved
+  # manually before running the CI.
+  block-pre-commit-ci-bot-PR:
+    name: "Block pre-commit-ci bot (on pre-commit-ci bot PR only)"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Exit if pre-commit-ci bot triggered the workflow # zizmor: ignore[bot-conditions] safe ignore because we exit if pre-commit-ci bot is triggering the action
+        if: github.triggering_actor == 'pre-commit-ci[bot]' && github.event.pull_request.head.ref == 'pre-commit-ci-update-config'
+        run: |
+          echo "::warning::pre-commit-ci bot is not allowed to trigger this workflow. Please review carefully the changes before running the workflow manually."
+          exit 1
+
+
+  # NOTE: We do not allow pyansys-ci-bot to trigger the CI/CD pipeline automatically
+  # on dependabot's and pre-commit-ci bot's PR. This is to mitigate supply chain attacks,
+  # where a malicious dependency update could execute arbitrary code in our build environment.
+  block-pyansys-ci-bot:
+    name: "Block PyAnsys-CI-bot (on dependabot and pre-commit-ci bot PR)"
+    needs: [block-dependabot, block-pre-commit-ci-bot-PR]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Exit if pyansys-ci-bot triggered the workflow on dependabot's PR
+        if: github.triggering_actor == 'pyansys-ci-bot' && startsWith(github.head_ref, 'dependabot')
+        run: |
+          echo "::warning::PyAnsys CI bot is not allowed to trigger this workflow in dependabot's PR. Please review carefully the changes before running the workflow manually."
+          exit 1
+      - name: Exit if pyansys-ci-bot triggered the workflow on pre-commit-ci bot's PR
+        if: github.triggering_actor == 'pyansys-ci-bot' && github.event.pull_request.head.ref == 'pre-commit-ci-update-config'
+        run: |
+          echo "::warning::PyAnsys CI bot is not allowed to trigger this workflow in pre-commit-ci bot's PR. Please review carefully the changes before running the workflow manually."
+          exit 1
+
   lock-file:
     name: "Update requirements lock file"
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    needs: [block-pyansys-ci-bot]
     permissions:
       contents: write  # Needed to push the branch with the updated lock file
       pull-requests: write  # Needed to push the updated lock file in a PR context
@@ -57,7 +110,7 @@ jobs:
 
       - name: Install uv
         if: steps.changes.outputs.dependency_changes == 'true'
-        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
           enable-cache: false
           prune-cache: true
@@ -66,7 +119,7 @@ jobs:
         if: steps.changes.outputs.dependency_changes == 'true'
         env:
           PYTHON_VERSION: ${{ env.MAIN_PYTHON_VERSION }}
-        run: uv pip compile requirements/requirements_doc.txt -o requirements/requirements_doc_uv.lock --python-version "$PYTHON_VERSION"
+        run: uv pip compile requirements/requirements_doc.txt -o requirements/requirements_doc_uv.lock --python-version "$PYTHON_VERSION" --upgrade-package certifi
 
       - name: Commit updated lock file
         if: steps.changes.outputs.dependency_changes == 'true'
@@ -84,24 +137,27 @@ jobs:
   actions-security:
     name: "Check actions security"
     runs-on: ubuntu-latest
+    needs: [block-pyansys-ci-bot]
     permissions:
       contents: read
     steps:
-      - uses: ansys/actions/check-actions-security@7e89e00c5619374a1da8c2e876309d8b15ff0559 # v11.0.3
+      - uses: ansys/actions/check-actions-security@87ff2e65e8884121f9afc97728ca9f213228ecc2 # v11.1.4
         with:
           generate-summary: true
           token: ${{ secrets.GITHUB_TOKEN }}
           auditing-level: 'high'
-          
+
   doc-style:
     name: Documentation style
     runs-on: ubuntu-latest
+    needs: [block-pyansys-ci-bot]
     permissions:
       contents: read
     steps:
-      - uses: ansys/actions/doc-style@7e89e00c5619374a1da8c2e876309d8b15ff0559 # v11.0.3
+      - uses: ansys/actions/doc-style@87ff2e65e8884121f9afc97728ca9f213228ecc2 # v11.1.4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          use-python-cache: false
 
 
 
@@ -112,6 +168,8 @@ jobs:
   doc-build:
     name: Build documentation
     runs-on: [self-hosted, Windows, pyaedt-examples]
+    timeout-minutes: 480
+    needs: [block-pyansys-ci-bot]
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
@@ -119,28 +177,44 @@ jobs:
           persist-credentials: false
 
       - name: Set up headless display
-        uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
+        uses: pyvista/setup-headless-display-action@c103a2ff45650d38cb71684b5dc6cdfeb9442c79 # v5.1.0
 
-      - name: Get new/modified examples files (only for PRs)
+      - name: Check new/modified examples and dependency files (only for PRs)
         if: github.ref_name != 'main'
         shell: powershell
         run: |
           $changed = git diff --name-only origin/main...HEAD -- examples/
           $changed = $changed | ForEach-Object { $_.Replace('\', '/') }
+          $changed_requirements = git diff --name-only origin/main...HEAD -- requirements/ |
+            Where-Object { $_ -match '(^|/)requirements_[^/]*\.txt$' }
 
           Write-Output "New/Modified files:"
           $changed | ForEach-Object { Write-Output "- $_" }
-
-          $changed_formatted = $changed -join ","
+          # NOTE: Ugly patch to ensure that all runnable examples are checked when requirements
+          # files are modified. This should be updated later on to not have this awkward solution.
+          if ($changed_requirements) {
+            Write-Output "Dependency files changed; run all examples (except static exclusions):"
+            # An empty filter enables all examples in the Sphinx configuration.
+            $changed_formatted = ""
+          } else {
+            $changed_formatted = $changed -join ","
+          }
           Add-Content -Path $env:GITHUB_ENV -Value "ON_CI_CHANGED_EXAMPLES=$changed_formatted"
 
       - name: Set up Python ${{ env.MAIN_PYTHON_VERSION }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
+      # Bootstrap from the PSF-published wheel and hash: an index-based upgrade
+      # would still rely on the old pip's compromised CA bundle.
+      - name: "Bootstrap pip with a safe certificate bundle"
+        shell: bash
+        run: |
+          python -m pip --disable-pip-version-check install --no-cache-dir --force-reinstall "pip @ https://files.pythonhosted.org/packages/3f/06/3e4420302363fbb71be3c7f35ce042f54bfca330e3e66b3a2e3c4cca579f/pip-26.2.2-py3-none-any.whl#sha256=fd7f4dfa8190e014013b9f08f3e973f4e4c26ffd179a204895533a7254813a70"
+
       - name: Set up uv
-        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
           enable-cache: false
           prune-cache: true
@@ -206,7 +280,7 @@ jobs:
       contents: write # Needed to update files on the gh-pages branch
       pull-requests: write # Needed to create deployment comments on PRs
     steps:
-      - uses: ansys/actions/doc-deploy-pr@7e89e00c5619374a1da8c2e876309d8b15ff0559 # v11.0.3
+      - uses: ansys/actions/doc-deploy-pr@87ff2e65e8884121f9afc97728ca9f213228ecc2 # v11.1.4
         with:
           bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
           bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
@@ -223,7 +297,7 @@ jobs:
       contents: write # Needed to update files on the gh-pages branch
     steps:
       - name: Deploy the documentation
-        uses: ansys/actions/doc-deploy-dev@7e89e00c5619374a1da8c2e876309d8b15ff0559 # v11.0.3
+        uses: ansys/actions/doc-deploy-dev@87ff2e65e8884121f9afc97728ca9f213228ecc2 # v11.1.4
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
