@@ -45,28 +45,49 @@ temp_folder = tempfile.TemporaryDirectory(suffix=".ansys")
 
 source_snapshot_data_zipfilename = "Ex1_Mechanical_DynamicRom.zip"
 source_build_conf_file = "dynarom_build.conf"
-twin_builder_data_folder = os.path.join(temp_folder.name, "twin_builder")
+
+
+def resolve_download_path(downloaded_path: str, file_name: str) -> str:
+    """Return the actual downloaded file path, accounting for nested example-data folders."""
+
+    if os.path.exists(downloaded_path):
+        return downloaded_path
+    nested_path = os.path.join(temp_folder.name, "twin_builder", "pyaedt", "twin_builder", file_name)
+    if os.path.exists(nested_path):
+        return nested_path
+    return downloaded_path
+
 
 # Download data from the ``example_data`` repository.
 
-downloads.download_twin_builder_data(
-    file_name=source_snapshot_data_zipfilename,
-    force_download=True,
-    local_path=temp_folder.name,
+source_snapshot_data_zipfile = resolve_download_path(
+    downloads.download_twin_builder_data(
+        file_name=source_snapshot_data_zipfilename,
+        force_download=True,
+        local_path=temp_folder.name,
+    ),
+    source_snapshot_data_zipfilename,
 )
-downloads.download_twin_builder_data(source_build_conf_file, True, temp_folder.name)
+source_build_conf_path = resolve_download_path(
+    downloads.download_twin_builder_data(source_build_conf_file, True, temp_folder.name),
+    source_build_conf_file,
+)
 
 # Toggle these for local testing.
 
-data_folder = os.path.join(twin_builder_data_folder, "Ex03")
+data_folder = os.path.join(temp_folder.name, "Ex03")
 
 # Unzip training data and config file
-ansys.aedt.core.examples.downloads.unzip(os.path.join(twin_builder_data_folder, source_snapshot_data_zipfilename), data_folder)
+downloads.unzip(source_snapshot_data_zipfile, data_folder)
 shutil.copyfile(
-    os.path.join(twin_builder_data_folder, source_build_conf_file),
+    source_build_conf_path,
     os.path.join(data_folder, source_build_conf_file),
 )
 
+# Identify the actual download folder location for cleanup.
+# The downloads helper may return nested paths depending on repository structure.
+nestedpath = os.path.join(temp_folder.name, "twin_builder", "pyaedt", "twin_builder")
+twin_builder_data_folder = nestedpath if os.path.exists(nestedpath) else os.path.join(temp_folder.name, "twin_builder")
 
 # ## Launch Twin Builder and build ROM component
 #
@@ -163,11 +184,9 @@ tb.analyze_setup("TR", cores=NUM_CORES)
 input_excitation = "PULSE1.VAL"
 x = tb.post.get_solution_data(input_excitation, "TR", "Time")
 plt.plot(x.intrinsics["Time"], x.get_expression_data(input_excitation)[1])
-
 output_temperature = "ROM1.Temperature_history"
 x = tb.post.get_solution_data(output_temperature, "TR", "Time")
 plt.plot(x.intrinsics["Time"], x.get_expression_data(output_temperature)[1])
-
 plt.grid()
 plt.xlabel("Time")
 plt.ylabel("Temperature History Variation with Input Temperature Pulse")
@@ -180,7 +199,8 @@ plt.show()
 # All methods provide for saving the project before closing.
 
 # Clean up the downloaded data.
-shutil.rmtree(twin_builder_data_folder)
+if os.path.isdir(twin_builder_data_folder):
+    shutil.rmtree(twin_builder_data_folder)
 
 # Restore the earlier AEDT configuration and schematic environment.
 tb._odesktop.SetDesktopConfiguration(current_desktop_config)
