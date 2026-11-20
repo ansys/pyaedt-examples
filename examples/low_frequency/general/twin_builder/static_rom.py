@@ -225,7 +225,8 @@ tb.set_hmax("1s")
 # All methods provide for saving the project before closing.
 
 # Clean up the downloaded data.
-shutil.rmtree(twin_builder_data_folder)
+if os.path.isdir(twin_builder_data_folder):
+    shutil.rmtree(twin_builder_data_folder)
 
 # Restore earlier desktop configuration and schematic environment.
 tb._odesktop.SetDesktopConfiguration(current_desktop_config)
