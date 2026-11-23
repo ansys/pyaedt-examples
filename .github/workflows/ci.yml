@@ -146,7 +146,7 @@ jobs:
           generate-summary: true
           token: ${{ secrets.GITHUB_TOKEN }}
           auditing-level: 'high'
-          
+
   doc-style:
     name: Documentation style
     runs-on: ubuntu-latest
@@ -168,6 +168,7 @@ jobs:
   doc-build:
     name: Build documentation
     runs-on: [self-hosted, Windows, pyaedt-examples]
+    timeout-minutes: 480
     needs: [block-pyansys-ci-bot]
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -193,7 +194,7 @@ jobs:
           # files are modified. This should be updated later on to not have this awkward solution.
           if ($changed_requirements) {
             Write-Output "Dependency files changed; run all examples (except static exclusions):"
-            # An empty filter enables all examples in the Sphinx configuration.            
+            # An empty filter enables all examples in the Sphinx configuration.
             $changed_formatted = ""
           } else {
             $changed_formatted = $changed -join ","
