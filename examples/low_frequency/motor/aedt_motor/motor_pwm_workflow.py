@@ -17,10 +17,10 @@
 # driven simulation. The stator current (amplitude and phase advance) and speed are imposed to derive the voltage
 # required to apply the reference current.
 #
-# - **PWM Simulations**. The voltage analysis, carried out in the previous step, derives the amplitude and phase of
-# voltage first harmonic required in each operating point to inject the reference current. The voltage definition is
-# used to generate the PWM voltage. The simulations are repeated in each operating point, supplying the machine with the
-# PWM and extracting the machine losses.
+# - **PWM Simulations**. The current driven analysis, carried out in the previous step, derives the amplitude and phase
+# of the voltage first harmonic required in each operating point. The voltage definition is used to generate the PWM
+# voltage. The simulations are repeated in each operating point, supplying the machine with the PWM and extracting
+# the machine losses.
 
 # Keywords: **Maxwell 2D**, **transient**, **motor**
 
@@ -47,8 +47,21 @@ from ansys.aedt.core.generic.file_utils import write_csv
 
 # #### AEDT constants
 
+# Specify the AEDT version to use. For the PWM feature, version 2026.1 and following are recommended:
+
 AEDT_VERSION = "2026.1"
+
+# Specify the number of cores AEDT can use:
+
 NUM_CORES = 4
+
+# Specify the number of tasks, to define how many models (operating points) are simulated in parallel during the
+# Optimetrics:
+
+NUM_TASKS = NUM_CORES - 1
+
+# Enable the non-graphic mode:
+
 NG_MODE = False  # Open AEDT UI when it is launched.
 
 # ### Create temporary directory and define filenames
@@ -95,16 +108,20 @@ OPERATING_POINTS_FILE = os.path.join(temp_folder.name, OPERATING_POINTS_FILENAME
 
 # #### Model constants
 
-# Stator winding total resistance [Ohm]
+# Stator winding total resistance [Ohm]:
+
 STATOR_RESISTANCE = 0.01958
 
-# Stator winding 2D resistance [Ohm]
+# Stator winding 2D resistance [Ohm]:
+
 STATOR_RESISTANCE_2D = 0.01237
 
-# End-winding inductace [H]
+# End-winding inductace [H]:
+
 END_WINDING_INDUCTANCE = 0.001868 / 1000
 
-# Pole pairs
+# Pole pairs:
+
 POLE_PAIRS = 4
 
 # #### Define constants for the current driven simulation
@@ -112,24 +129,30 @@ POLE_PAIRS = 4
 # The current driven simulation is carried out over 1 full electrical cycle. The outputs (torque, flux linkage) are
 # computed over the last 1/6th of the period.
 
-# Fraction of electric period to simulate
+# Fraction of electric period to simulate:
+
 CD_PERIOD_MULTIPLIER = 1
 
-# Points per electrical cycle
+# Points per electrical cycle:
+
 CD_NUM_TORQUE_POINTS_PER_CYCLE = 30
 
-# starting point for performing the average on the resulting curves.
+# Starting point for performing the average on the resulting curves (fraction of the electric period):
+
 CD_PERIOD_MULTIPLIER_START = 5 / 6
 
-# end point for the average calculation.
+# End point for the average calculation (fraction of the electric period):
+
 CD_PERIOD_MULTIPLIER_END = CD_PERIOD_MULTIPLIER
 
-# current driven optimetrics file name and path
+# Current driven optimetrics file name and path:
+
 CD_OPTIMETRICS_CSV_FILENAME = "Optimetrics_CD"
 CD_OPTIMETRICS_CSV_FILE = os.path.join(CD_OPTIMETRICS_CSV_FILENAME + ".csv")
 CD_OPTIMETRICS_CSV_PATH = os.path.join(temp_folder.name, CD_OPTIMETRICS_CSV_FILE)
 
-# current driven Maxwell model name
+# Current driven Maxwell model name:
+
 CD_DESIGN_NAME = "Sinusoidal_Current"
 
 # #### Define constants for the PWM voltage simulation
@@ -137,11 +160,11 @@ CD_DESIGN_NAME = "Sinusoidal_Current"
 # The following constants determine both the PWM voltage definition and the simulation settings. The Maxwell tab to
 # define the PWM voltage for the simulation is the following:
 
-# <img src="_static/motor_pwm_workflow/PWM_UI_Maxwell.svg" alt="" width="600">
+# <img src="_static/motor_pwm_workflow/PWM_UI_Maxwell.png" alt="" width="400">
 
 # The winding definition must be done using the PWM option:
 
-# <img src="_static/motor_pwm_workflow/winding_setting.svg" alt="" width="600">
+# <img src="_static/motor_pwm_workflow/winding_setting.png" alt="" width="500">
 
 # - "BusDC" = PWM_BUS_DC_VOLTAGE * PWM_BUS_DC_MULTIPLIER.
 # - "PhaseVoltagePeak" is the amplitude of the fundamental voltage to generate. Changed for each operating point as a
@@ -159,46 +182,58 @@ CD_DESIGN_NAME = "Sinusoidal_Current"
 # time, still applying carefully the PWM voltage. In this example, the maximum time step is 3 times the minimum time
 # step.
 
-# Switching Frequency [Hz]
+# Switching Frequency [Hz]:
+
 PWM_SWITCHING_FREQUENCY = 10000
 
-# Switching Period [1/s]
+# Switching Period [1/s]:
+
 PWM_SWITCHING_PERIOD = 1 / PWM_SWITCHING_FREQUENCY
 
-# ratio between maximum and minimum time step
+# Ratio between maximum and minimum time step:
+
 PWM_TMAX_TMIN_RATIO = 3
 
-# minimum time-step for PWM simulations
+# Minimum time-step for PWM simulations:
+
 PWM_TMIN = PWM_SWITCHING_PERIOD / 20
 
-# maximum time-step for PWM simulations
+# Maximum time-step for PWM simulations:
+
 PWM_TMAX = PWM_TMAX_TMIN_RATIO * PWM_TMIN
 
-# Bus DC voltage and the multiplier to account the inverter voltage drop.
+# Bus DC voltage and the multiplier to account the inverter voltage drop:
+
 PWM_BUS_DC_VOLTAGE = 720
 PWM_BUS_DC_MULTIPLIER = 0.97
 
 # The PWM voltage driven simulation is carried out over 2 electric periods to allow all the losses and induced
 # currents to converge. All the outputs (iron, copper and magnet losses) are averaged over the last period.
 
-# Fraction of electric period to simulate in the PWM simulation
+# Number of electric periods to simulate in the PWM simulation:
+
 PWM_PERIOD_MULTIPLIER = 2
 
-# starting points for the average window.
+# Starting point of the time window to perform the average of the output quantities (fraction of the electric period):
+
 PWM_PERIOD_MULTIPLIER_START = 1
 
-# end points for the average window.
+# End point of the time window to perform the average of the output quantities (fraction of the electric period):
+
 PWM_PERIOD_MULTIPLIER_END = PWM_PERIOD_MULTIPLIER
 
-# current driven optimetrics file name and path
+# Current driven optimetrics file name and path:
+
 PWM_OPTIMETRICS_CSV_FILENAME = "Optimetrics_PWM"
 PWM_OPTIMETRICS_CSV_FILE = os.path.join(PWM_OPTIMETRICS_CSV_FILENAME + ".csv")
 PWM_OPTIMETRICS_CSV_PATH = os.path.join(temp_folder.name, PWM_OPTIMETRICS_CSV_FILE)
 
-# current driven Maxwell model name
+# Current driven Maxwell model name:
+
 PWM_DESIGN_NAME = "PWM_Voltage"
 
-# cPWM simulations results file name and path
+# PWM simulations results file name and path (change the path to the desired location, default is the temp folder):
+
 OUTPUT_PWM_CSV_FILENAME = "PWM_losses"
 OUTPUT_PWM_CSV_FILE = os.path.join(temp_folder.name, OUTPUT_PWM_CSV_FILENAME + ".csv")
 OUTPUT_PWM_CSV_PATH = os.path.join(temp_folder.name, OUTPUT_PWM_CSV_FILE)
@@ -242,7 +277,8 @@ OPERATING_POINTS = [
 
 # ## Run the Current Driven Optimetrics
 
-# ### Write the csv file containing the operating points for the current driven optimetrics
+# ### Write the csv file containing the operating points for the current driven optimetrics, with teh correct format to
+# be imported in Maxwell:
 
 rows = OPERATING_POINTS[1:]  # skip header
 speed_str_vec, phase_advance_str_vec, peak_current_str_vec = map(list, zip(*rows))
@@ -264,11 +300,15 @@ optimetrics_current_driven_list = [
     [left_col[i]] + operating_points_current_driven_uom[i]
     for i in range(len(operating_points_current_driven_uom))
 ]
-
 write_csv(CD_OPTIMETRICS_CSV_PATH, optimetrics_current_driven_list)
 
+# The current driven optimetrics file created is the following:
+
+# <img src="_static/motor_pwm_workflow/OptimetricsCD.png" alt="" width="400">
+
 # ### Launch Maxwell 2D
-# Launch AEDT and Maxwell 2D after first setting up the project, the version and the graphical mode.
+
+# Launch AEDT and Maxwell 2D after first setting up the project, the version and the graphical mode:
 
 m2d = ansys.aedt.core.Maxwell2d(
     project=aedt_file,
@@ -279,12 +319,18 @@ m2d = ansys.aedt.core.Maxwell2d(
     non_graphical=NG_MODE,
 )
 
+# The current driven optimetrics will be carried out using the model "Sinusoidal_Current":
+
+# <img src="_static/motor_pwm_workflow/model.png" alt="" width="750">
+
 # ### Define the variables in the model
 
-# Define how many periods to simulate.
+# Set the Maxwell variable the number of periods to simulate:
+
 m2d["PeriodMultiplier"] = CD_PERIOD_MULTIPLIER
 
-# Define the number of points per cycle.
+# Set the Maxwell Variable the number of points per cycle:
+
 m2d["NumTorquePointsPerCycle"] = CD_NUM_TORQUE_POINTS_PER_CYCLE
 
 # The following variables are defined with their expression, since they will be changed at each iteration of the
@@ -299,7 +345,6 @@ CD_TimeStepExp = "1/StatorFrequency*1Hz*1s/NumTorquePointsPerCycle"
 
 # ### Define the simulation setup
 
-# Create the new setup
 setup_name = "MySetupAuto"
 setup = m2d.create_setup(name=setup_name)
 setup.props["StopTime"] = str(CD_StopTimeExp)
@@ -314,21 +359,35 @@ setup.update()
 for k, v in output_vars.items():
     m2d.create_output_variable(k, v)
 
-# Define the transformation from ABC to dq currents. In the current driven simulation, use the command "InputCurrent".
+# Define the transformation from ABC to dq currents. In the current driven simulation, use the command "InputCurrent":
+
 m2d.create_output_variable("Id_peak", "2/3*(InputCurrent(WG_Ph1_P1)*cos(ThetaED)+InputCurrent(WG_Ph2_P1)*cos(ThetaED - 120deg)+InputCurrent(WG_Ph3_P1)*cos(ThetaED - 240deg))")
 m2d.create_output_variable("Iq_peak", "2/3*(InputCurrent(WG_Ph1_P1)*-sin(ThetaED)+InputCurrent(WG_Ph2_P1)*-sin(ThetaED - 120deg)+InputCurrent(WG_Ph3_P1)*-sin(ThetaED - 240deg))")
 
-# ### Import and run the optimetrics analysis
+# ### Import the optimetrics csv setup file and run the optimetrics analysis:
 
-# Import the csv file.
+# Import the csv file:
+
 param_sweep = m2d.parametrics.add_from_file(CD_OPTIMETRICS_CSV_PATH, name=CD_OPTIMETRICS_CSV_FILENAME)
 
-# Run the parametric analysis
-param_sweep.analyze(cores=NUM_CORES, tasks=NUM_CORES, use_auto_settings=False)
+# The current driven Optimetrics is automatically setup in Maxwell:
+
+# <img src="_static/motor_pwm_workflow/OptimetricsDC_Maxwell.png" alt="" width="400">
+
+# Run the parametric analysis:
+
+# - NUM_CORES is the number of cores to specify in the HPC options.
+# - NUM_TASKS is the number of models analyzed in parallel during the Optimetrics.
+
+param_sweep.analyze(cores=NUM_CORES, tasks=NUM_TASKS, use_auto_settings=False)
 
 # ## Execute the current driven optimetrics post-processing
 
+# ### Load the simulation data and results
+
 variations = {"MachineRPM": "All", "PhaseAdvance": "All", "IPeak": "All"}
+
+# Load d-axis current data:
 
 data_Id = m2d.post.get_solution_data(
     expressions=["Id_peak"],
@@ -338,6 +397,8 @@ data_Id = m2d.post.get_solution_data(
     primary_sweep_variable="Time",
 )
 
+# Load q-axis current data:
+
 data_Iq = m2d.post.get_solution_data(
     expressions=["Iq_peak"],
     setup_sweep_name=m2d.nominal_sweep,
@@ -345,6 +406,8 @@ data_Iq = m2d.post.get_solution_data(
     variations=variations,
     primary_sweep_variable="Time",
 )
+
+# Load d-axis flux linkage data:
 
 data_Fd = m2d.post.get_solution_data(
     expressions=["PsiD"],
@@ -354,6 +417,8 @@ data_Fd = m2d.post.get_solution_data(
     primary_sweep_variable="Time",
 )
 
+# Load q-axis flux linkage data:
+
 data_Fq = m2d.post.get_solution_data(
     expressions=["PsiQ"],
     setup_sweep_name=m2d.nominal_sweep,
@@ -362,52 +427,84 @@ data_Fq = m2d.post.get_solution_data(
     primary_sweep_variable="Time",
 )
 
+# Initialize id_vec, iq_vec, fd_vec, fq_vec:
+
 id_vec = np.zeros(n_OPpoints)
 iq_vec = np.zeros(n_OPpoints)
 fd_vec = np.zeros(n_OPpoints)
 fq_vec = np.zeros(n_OPpoints)
 
+# ### For each operating point, perform the average in the selected time window and store the result
+
 for OPidx in range(n_OPpoints):
 
-    ## ---------- GET CURRENT DATA ---------- ##
+# Load the d-axis current data active variation, according to the operating point:
+
     data_Id.active_variation = data_Id.variations[OPidx]
 
+# Load the time array (x axis) from data_Id:
+
     time = data_Id.get_expression_data(formula="magnitude")[0]  # get the X axis (time)
+
+# Determine the index of the start and end point of teh time window to make the average of teh output quantities:
+
     time_last_index = len(time)  # last simulated time instant
     time_frame = time[-1] * CD_PERIOD_MULTIPLIER_START / CD_PERIOD_MULTIPLIER_END
     time_frame_index = np.abs(time - time_frame).argmin()  # index for the time frame
 
+# Retreive tha array of Id (y axis) from data_Id:
+
     Id_values = data_Id.get_expression_data(formula="real")[1]
+
+# Id_vec is the portion of Id_values belonging to the selected time window and Id_mean is the average:
+
     Id_vec = Id_values[time_frame_index:time_last_index]
     Id_mean = sum(Id_vec) / len(Id_vec)
+
+# Perform the same operations on the q-axis current:
 
     data_Iq.active_variation = data_Iq.variations[OPidx]
     Iq_values = data_Iq.get_expression_data(formula="real")[1]
     Iq_vec = Iq_values[time_frame_index:time_last_index]
     Iq_mean = sum(Iq_vec) / len(Iq_vec)
 
-    ## ---------- GET FLUX DATA ---------- ##
+# Perform the same operations on the d-axis flux linkage:
+
     data_Fd.active_variation = data_Fd.variations[OPidx]
     Fd_values = data_Fd.get_expression_data(formula="real")[1]
     Fd_vec = Fd_values[time_frame_index:time_last_index]
     Fd_mean = sum(Fd_vec) / len(Fd_vec)
+
+# Perform the same operations on the d-axis flux linkage:
 
     data_Fq.active_variation = data_Fq.variations[OPidx]
     Fq_values = data_Fq.get_expression_data(formula="real")[1]
     Fq_vec = Fq_values[time_frame_index:time_last_index]
     Fq_mean = sum(Fq_vec) / len(Fq_vec)
 
-    # ---------- STORE RESULTS ---------- #
+# Store results:
+
     id_vec[OPidx] = Id_mean
     iq_vec[OPidx] = Iq_mean
     fd_vec[OPidx] = Fd_mean
     fq_vec[OPidx] = Fq_mean
 
-# # ---------- COMPUTE VOLTAGE FIRST HARMONIC ---------- ##
+# ### Compute the voltage first harmonic amplitude and phase
+
+# The current definition used in this optimetrics, will be also used as the initialization current in the PWM voltage
+# optimetrics. For this reason, the voltage amplitude and phase is important to be correctly derived to be consistent
+# with the initialization current (and the motor alignment).
+
+# Initialize the voltage amplitude and phase arrays:
 
 voltage_peak_vec = np.zeros(n_OPpoints)
 voltage_angle_vec = np.zeros(n_OPpoints)
+
+# For each operating point, compute the voltage:
+
 for Idx in range(n_OPpoints):
+
+# Retreive the current d- and q-axis current, d- and q-axis flux linkage and speed:
 
     isd = id_vec[Idx]
     isq = iq_vec[Idx]
@@ -415,14 +512,22 @@ for Idx in range(n_OPpoints):
     fq = fq_vec[Idx]
     speed = float(speed_str_vec[Idx])
 
+# Determine the frequency and angular speed:
+
     Fs = POLE_PAIRS * speed / 60
     Ws = Fs * 2 * np.pi
+
+# Determine voltage d- and q-axis components:
 
     vd = STATOR_RESISTANCE * isd - Ws * (fq + END_WINDING_INDUCTANCE * isq)
     vq = STATOR_RESISTANCE * isq + Ws * (fd + END_WINDING_INDUCTANCE * isd)
 
+# Calculate the voltage fundamental amplitude and phase:
+
     voltage_peak_vec[Idx] = np.hypot(vd, vq)
     voltage_angle_vec[Idx] = np.atan2(vq, -vd) * 180 / np.pi
+
+# ### Write the csv file containing the points for the PWM voltage optimetrics, including the voltage amplitude and phase.
 
 voltage_peak_str_vec = [str(x) for x in voltage_peak_vec]
 voltage_angle_str_vec = [str(x) for x in voltage_angle_vec]
@@ -441,21 +546,44 @@ optimetrics_pwm_list = [
 ]
 write_csv(PWM_OPTIMETRICS_CSV_PATH, optimetrics_pwm_list)
 
-# # ========== RUN PWM OPTIMETRICS ========== ##
+# The PWM voltage Optimetrics csv is the following:
+
+# <img src="_static/motor_pwm_workflow/OptimetricsPWM.png" alt="" width="600">
+
+# The current parameters are still needed to define the initialization current at each iteration:
+
+# <img src="_static/motor_pwm_workflow/winding_init_current.png" alt="" width="600">
+
+# ## Run the PWM Optimetrics
+
+# The variables "PhaseVoltagePeak" and "PhaseVoltageAngle" related to the PWM voltage definition:
+
+# <img src="_static/motor_pwm_workflow/PWM_UI_Maxwell.png" alt="" width="400">
+
+# will be changed in every iteration of the Optimetrics, according to the operating point as well as "StatorFrequency".
+# The variables "BusDC", "SwitchingFrequency", "Tmin" and "Tmax" will be defined before the Optimetrics and they are
+# fixed.
+
+# Switch to the model used for the PWM analysis:
 
 m2d.set_active_design(PWM_DESIGN_NAME)
 
-# Define variables in the model
+# <img src="_static/motor_pwm_workflow/model_PWM.png" alt="" width="750">
+
+# The PWM winding definition in Exitation --> Setup PWM Voltage Exitation is already set up in the model.
+
+# ### Define variables in the model:
+
 m2d["PeriodMultiplier"] = PWM_PERIOD_MULTIPLIER
 m2d.variable_manager["StatorFrequency"].expression = "NumPoles/2*MachineRPM/1rpm/60" + "*1Hz"
 PWM_StopTimeExp = "1/StatorFrequency*1Hz*1s*PeriodMultiplier"
-
 m2d["SwitchingFrequency"] = PWM_SWITCHING_FREQUENCY
 m2d["BusDC"] = PWM_BUS_DC_VOLTAGE * PWM_BUS_DC_MULTIPLIER
 m2d["Tmin"] = PWM_TMIN
 m2d["Tmax"] = PWM_TMAX
 
-# Define the simulation setup
+# ### Define the simulation setup:
+
 setup_name = "MySetupAuto"
 setup = m2d.create_setup(name=setup_name)
 setup.props["StopTime"] = str(PWM_StopTimeExp)
@@ -464,15 +592,29 @@ setup.props["OutputPerObjectCoreLoss"] = True
 setup.props["OutputPerObjectSolidLoss"] = True
 setup.update()
 
-# Import output variables
+# ### Import output variables
 for k, v in output_vars.items():
     m2d.create_output_variable(k, v)
+
+# Define the transformation from ABC to dq currents. In the current driven simulation, use the command "Current":
+
 m2d.create_output_variable("Id_peak", "2/3*(Current(WG_Ph1_P1)*cos(ThetaED)+Current(WG_Ph2_P1)*cos(ThetaED - 120deg)+Current(WG_Ph3_P1)*cos(ThetaED - 240deg))")
 m2d.create_output_variable("Iq_peak", "2/3*(Current(WG_Ph1_P1)*-sin(ThetaED)+Current(WG_Ph2_P1)*-sin(ThetaED - 120deg)+Current(WG_Ph3_P1)*-sin(ThetaED - 240deg))")
 
-# Import and run the optimetrics analysis
+# ### Import and run the optimetrics analysis
+
+# The current driven Optimetrics is automatically setup in Maxwell:
+
+# <img src="_static/motor_pwm_workflow/OptimetricsPWM_Maxwell.png" alt="" width="400">
+
 param_sweep = m2d.parametrics.add_from_file(PWM_OPTIMETRICS_CSV_PATH, name=PWM_OPTIMETRICS_CSV_FILENAME)
-param_sweep.analyze(cores=NUM_CORES, tasks=NUM_CORES, use_auto_settings=False)
+
+# Run the parametric analysis:
+
+# - NUM_CORES is the number of cores to specify in the HPC options.
+# - NUM_TASKS is the number of models analyzed in parallel during the Optimetrics.
+
+param_sweep.analyze(cores=NUM_CORES, tasks=NUM_TASKS, use_auto_settings=False)
 
 # # ---------- PWM OPTIMETRICS POST-PROCESSING ---------- ##
 
